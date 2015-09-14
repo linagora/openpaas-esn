@@ -7,12 +7,12 @@
             img(ng-src='{{contact.photo || defaultAvatar}}')
       .p-t-15.p-r-10.contact-info
         div
-          strong {{::contact.displayName}}
+          strong {{contact.displayName}}
         div.p-t-5(ng-if='email')
-          a(ng-href="mailto:{{::email}}") {{::email}}
+          a(ng-href="mailto:{{email}}") {{email}}
         .p-t-5(ng-if='tel')
-          a(ng-href="tel:{{::tel}}") {{::tel}}
+          a(ng-href="tel:{{tel}}") {{tel}}
         .p-t-5
-          span {{::role}}
+          span {{role}}
           span(ng-if='role && org') &nbsp;#{__('at')}&nbsp;
-          span {{::org}}
+          span {{org}}

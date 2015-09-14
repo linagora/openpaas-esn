@@ -867,13 +867,10 @@ describe('The Contacts Angular module', function() {
         },
         AlphaCategoryService: function() {
           return {
-            addItems: function(data) {
-              expect(data).to.deep.equal([contact]);
+            replaceItem: function(item) {
+              expect(item).to.deep.equal(contact);
 
               done();
-            },
-            removeItemWithId: function(contactId) {
-              expect(contactId).to.equal(contact.id);
             },
             get: function() {},
             init: function() {}
