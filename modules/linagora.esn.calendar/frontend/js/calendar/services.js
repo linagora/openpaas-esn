@@ -267,11 +267,35 @@ angular.module('esn.calendar')
       });
     }
 
+    function createWithoutGrace(calendarPath, vcalendar) {
+      var vevent = vcalendar.getFirstSubcomponent('vevent');
+      if (!vevent) {
+        return $q.reject(new Error('Missing VEVENT in VCALENDAR'));
+      }
+
+      var uid = vevent.getFirstPropertyValue('uid');
+      if (!uid) {
+        return $q.reject(new Error('Missing UID in VEVENT'));
+      }
+
+      var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
+      var headers = { 'Content-Type': 'application/calendar+json' };
+      var body = vcalendar.toJSON();
+
+      return request('put', eventPath, headers, body).then(function(response) {
+        if (response.status !== 201) {
+          return $q.reject(response);
+        }
+        return response;
+      });
+    }
+
     function create(calendarPath, vcalendar) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       if (!vevent) {
         return $q.reject(new Error('Missing VEVENT in VCALENDAR'));
       }
+
       var uid = vevent.getFirstPropertyValue('uid');
       if (!uid) {
         return $q.reject(new Error('Missing UID in VEVENT'));
@@ -442,12 +466,10 @@ angular.module('esn.calendar')
       });
     }
 
-    function changeParticipation(eventPath, event, emails, status, etag) {
-      var emailMap = Object.create(null);
+    function _applyPartstatToSpecifiedAttendees(event, emails, status) {
+      var emailMap = {};
       var needsModify = false;
-      if (!angular.isArray(event.attendees)) {
-        return $q.when(null);
-      }
+
       emails.forEach(function(email) { emailMap[email.toLowerCase()] = true; });
       event.attendees.forEach(function(attendee) {
         if ((attendee.email.toLowerCase() in emailMap) && attendee.partstat !== status) {
@@ -455,53 +477,67 @@ angular.module('esn.calendar')
           needsModify = true;
         }
       });
-      if (!needsModify) {
+
+      return needsModify;
+    }
+
+    function _modifyPartStat(path, event, etag) {
+      var headers = {
+        'Content-Type': 'application/calendar+json',
+        'Prefer': 'return=representation'
+      };
+      var body = shellToICAL(event).toJSON();
+
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
+
+      return request('put', path, headers, body);
+    }
+
+    function changeParticipation(eventPath, event, emails, status, etag, emitEvents) {
+      emitEvents = emitEvents || true;
+      if (!angular.isArray(event.attendees)) {
         return $q.when(null);
       }
 
-      function _modifyPartStat(path, event, etag) {
-        var headers = {
-          'Content-Type': 'application/calendar+json',
-          'Prefer': 'return=representation'
-        };
-        var body = shellToICAL(event).toJSON();
+      if (!_applyPartstatToSpecifiedAttendees(event, emails, status)) {
+        return $q.when(null);
+      }
 
-        if (etag) {
-          headers['If-Match'] = etag;
-        }
-
-        return request('put', eventPath, headers, body).then(function(response) {
+      return _modifyPartStat(eventPath, event, etag)
+        .then(function(response) {
           if (response.status === 200) {
             var vcalendar = new ICAL.Component(response.data);
             return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
           } else if (response.status === 204) {
             return getEvent(eventPath).then(function(shell) {
-              $rootScope.$emit('modifiedCalendarItem', shell);
-              socket('/calendars').emit('event:updated', shell.vcalendar);
+              if (emitEvents) {
+                $rootScope.$emit('modifiedCalendarItem', shell);
+                socket('/calendars').emit('event:updated', shell.vcalendar);
+              }
               return shell;
             });
           } else {
             return $q.reject(response);
           }
+        })['catch'](function(response) {
+          if (response.status === 412) {
+            return getEvent(eventPath).then(function(shell) {
+              // A conflict occurred. We've requested the event data in the
+              // response, so we can retry the request with this data.
+              return changeParticipation(eventPath, shell, emails, status, shell.etag);
+            });
+          } else {
+            return $q.reject(response);
+          }
         });
-      }
-
-      return _modifyPartStat(eventPath, event, etag)['catch'](function(response) {
-        if (response.status === 412) {
-          return getEvent(eventPath).then(function(shell) {
-            // A conflict occurred. We've requested the event data in the
-            // response, so we can retry the request with this data.
-            return changeParticipation(eventPath, shell, emails, status, shell.etag);
-          });
-        } else {
-          return $q.reject(response);
-        }
-      });
     }
 
     return {
       list: list,
       create: create,
+      createWithoutGrace: createWithoutGrace,
       remove: remove,
       modify: modify,
       changeParticipation: changeParticipation,
