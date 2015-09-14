@@ -1,16 +1,16 @@
-.col-xs-12.col-md-10.nopadding.card.event-full-form(keep-scroll-position)
+.col-xs-12.col-md-10.nopadding.card.event-full-form(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
   .card-header
     .row
       .col-xs-8
         h1 #{__('Create a new event')}
       .col-xs-4
-          button.btn.btn-primary.pull-right(type='button')
+          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='submit()')
             | #{__('Create')}
           button.btn.btn-default.pull-right(type='button')
             | #{__('Cancel')}
 
   .card-body.card-padding
-    form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }", ng-submit='submit()')
+    form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
       .row
         .col-xs-12.col-sm-6
           .row
@@ -77,7 +77,7 @@
         .col-xs-12.col-sm-6
           .row
             attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
-            attendees-list(ng-if='hasAttendees', attendees='event.attendees', read-only='::!isOrganizer')
+            attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
           .row
             .col-xs-12

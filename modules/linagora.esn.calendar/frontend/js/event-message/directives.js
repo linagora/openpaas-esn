@@ -85,7 +85,7 @@ angular.module('esn.calendar')
     function link(scope, element, attrs, controller) {
 
       function _initFormData() {
-        scope.editedEvent = {
+        scope.event = {
           start: calendarUtils.getNewStartDate(),
           end: calendarUtils.getNewEndDate(),
           allDay: false
@@ -105,7 +105,7 @@ angular.module('esn.calendar')
 
       function _resetEvent() {
         scope.rows = 1;
-        scope.editedEvent = {
+        scope.event = {
           start: calendarUtils.getNewStartDate(),
           end: calendarUtils.getNewEndDate(),
           diff: 1,
@@ -114,8 +114,8 @@ angular.module('esn.calendar')
       }
 
       scope.submit = function() {
-        if (!scope.editedEvent.title || scope.editedEvent.title.trim().length === 0) {
-          scope.editedEvent.title = EVENT_FORM.title.default;
+        if (!scope.event.title || scope.event.title.trim().length === 0) {
+          scope.event.title = EVENT_FORM.title.default;
         }
 
         if (!scope.calendarId) {
@@ -127,7 +127,7 @@ angular.module('esn.calendar')
           return;
         }
 
-        var event = scope.editedEvent;
+        var event = scope.event;
         var path = '/calendars/' + scope.calendarId + '/events';
         var vcalendar = calendarService.shellToICAL(event);
         scope.restActive = true;

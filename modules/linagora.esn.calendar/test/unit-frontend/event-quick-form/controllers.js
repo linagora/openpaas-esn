@@ -111,8 +111,8 @@ describe('The event-quick-form module controllers', function() {
         expect(this.scope.event).to.deep.equal(expected);
       });
 
-      it('should initialize the scope with $scope.event if it exists', function() {
-        this.scope.event = {
+      it('should initialize the scope with $scope.event and $scope.editedEvent if $scope.selecteEvent exists', function() {
+        this.scope.selectedEvent = {
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
@@ -120,11 +120,12 @@ describe('The event-quick-form module controllers', function() {
           otherProperty: 'aString'
         };
         this.eventFormController.initFormData();
-        expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
+        expect(this.scope.event).to.deep.equal(this.scope.selectedEvent);
+        expect(this.scope.editedEvent).to.deep.equal(this.scope.selectedEvent);
       });
 
       it('should detect if organizer', function() {
-        this.scope.event = {
+        this.scope.selectedEvent = {
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
@@ -139,7 +140,7 @@ describe('The event-quick-form module controllers', function() {
       });
 
       it('should detect if not organizer', function() {
-        this.scope.event = {
+        this.scope.selectedEvent = {
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),

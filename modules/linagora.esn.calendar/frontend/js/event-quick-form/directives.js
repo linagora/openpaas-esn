@@ -14,7 +14,7 @@ angular.module('esn.calendar')
         user: '=',
         domain: '=',
         createModal: '=',
-        event: '='
+        selectedEvent: '='
       },
       link: link
     };
@@ -42,9 +42,8 @@ angular.module('esn.calendar')
 
       $scope.isNew = controller.isNew;
       $scope.deleteEvent = controller.deleteEvent;
-      $scope.submit = $scope.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      $scope.submit = controller.submit;
       $scope.changeParticipation = controller.changeParticipation;
-      $scope.resetEvent = controller.resetEvent;
 
       $scope.goToFullForm = function() {
         $scope.closeModal();

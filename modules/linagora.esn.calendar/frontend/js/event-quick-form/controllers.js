@@ -2,9 +2,10 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
 
-    $scope.editedEvent = {};
+    $scope.event = eventService.originalEvent;
+    $scope.editedEvent = eventService.editedEvent;
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
 
@@ -25,15 +26,18 @@ angular.module('esn.calendar')
     }
 
     this.initFormData = function() {
-      $scope.event = $scope.event || {};
-      if (this.isNew($scope.event)) {
+      if ($scope.selectedEvent) {
+        eventService.copyEventObject($scope.selectedEvent, $scope.event);
+        eventService.copyEventObject($scope.selectedEvent, $scope.editedEvent);
+      } else if (!$scope.event.start) {
         $scope.event = {
-          start: $scope.event.start || calendarUtils.getNewStartDate(),
-          end: $scope.event.end || calendarUtils.getNewEndDate(),
-          allDay: $scope.event.allDay || false
+          start: calendarUtils.getNewStartDate(),
+          end: calendarUtils.getNewEndDate(),
+          allDay: false
         };
+        eventService.copyEventObject($scope.event, $scope.editedEvent);
       }
-      eventService.copyEventObject($scope.event, $scope.editedEvent);
+
       $scope.newAttendees = [];
 
       $scope.invitedAttendee = null;
@@ -68,6 +72,7 @@ angular.module('esn.calendar')
       if (!$scope.calendarId) {
         $scope.calendarId = calendarService.calendarId;
       }
+
       if ($scope.newAttendees) {
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
@@ -168,6 +173,8 @@ angular.module('esn.calendar')
         });
     }
 
+    this.submit = this.isNew($scope.editedEvent) ? this.addNewEvent : this.modifyEvent;
+
     this.changeParticipation = function(status) {
       if ($scope.isOrganizer && !$scope.invitedAttendee) {
         var organizer = angular.copy($scope.editedEvent.organizer);
@@ -177,15 +184,5 @@ angular.module('esn.calendar')
 
       $scope.invitedAttendee.partstat = status;
       $scope.$broadcast('event:attendees:updated');
-    };
-
-    this.resetEvent = function() {
-      $scope.rows = 1;
-      $scope.editedEvent = {
-        start: calendarUtils.getNewStartDate(),
-        end: calendarUtils.getNewEndDate(),
-        diff: 1,
-        allDay: false
-      };
     };
   });

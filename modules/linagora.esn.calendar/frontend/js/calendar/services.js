@@ -535,6 +535,9 @@ angular.module('esn.calendar')
   })
 
   .service('eventService', function(session, ICAL) {
+    var originalEvent = {};
+    var editedEvent = {};
+
     function render(event, element) {
       element.find('.fc-content').addClass('ellipsis');
 
@@ -578,7 +581,6 @@ angular.module('esn.calendar')
     }
 
     function copyEventObject(src, dest) {
-
       var vcal;
       if (src.vcalendar) {
         vcal = ICAL.helpers.clone(src.vcalendar);
@@ -601,6 +603,8 @@ angular.module('esn.calendar')
     }
 
     return {
+      originalEvent: originalEvent,
+      editedEvent: editedEvent,
       render: render,
       copyEventObject: copyEventObject,
       isOrganizer: isOrganizer,
