@@ -464,7 +464,7 @@ angular.module('linagora.esn.contact')
       link: function(scope) {
         scope.resetScroll = function() {
           $rootScope.$broadcast(CONTACT_EVENTS.RESET_SCROLL);
-        }
+        };
         scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
       }
     };
