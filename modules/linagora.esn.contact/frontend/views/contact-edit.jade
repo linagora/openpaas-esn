@@ -18,15 +18,16 @@
   .contact-header.visible-xs
     .contact-controls-wrapper
       .contact-controls.row(data-offset-top="0" bs-affix)
-        a.hover-scale-animation.col-xs-3(href='', ng-click='save()')
+        a.hover-scale-animation.col-xs-5(href='', ng-click='save()')
           i.mdi.mdi-check.m-l-5
-        .col-xs-6
-        .col-xs-3.contact-dropdown.dropdown.pull-right         
+          | #{__('Modify')}
+        .col-xs-4
+        .col-xs-3.contact-dropdown.dropdown.pull-right
           a.hover-scale-animation.moreactions.dropdown-toggle(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
             i.mdi.mdi-dots-horizontal.m-r-5
           ul.dropdown-menu.dropdown-menu-right(role="menu")
             li
-              a(ng-click="deleteContact()") Delete       
+              a(ng-click="deleteContact()") #{__('Delete')}
   .form-horizontal.contact-content.visible-xs
         .row
           .col-xs-12.all-centered
@@ -66,5 +67,5 @@
                 input.form-control(type='text', placeholder='#{__("Company Website")}', ng-model='contact.orgUri')
             .form-group
                 .input-group.full-width
-                  .fg-line 
+                  .fg-line
                     textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
