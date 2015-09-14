@@ -4,13 +4,6 @@
       .p-relative
         a
           img(src="{{contact.photo || defaultAvatar}}")
-        .dropdown.pmop-message
-          button.btn.bgm-white.btn-float.z-depth-1.waves-effect(aria-expanded="false" data-toggle="dropdown")
-            i.mdi.mdi-message-text      
-          .dropdown-menu.stop-propagate
-            textarea(placeholder="Write something...")
-            button.btn.bgm-green.btn-icon.waves-effect
-              i.mdi.mdi-send
       .pmo-stat
         h2.m-0.c-white
           |{{contact.firstName}} {{contact.lastName}}
