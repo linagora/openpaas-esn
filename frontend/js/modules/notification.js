@@ -40,11 +40,16 @@ angular.module('esn.notification', ['angularMoment'])
       return strongNotification('info', title, text);
     }
 
+    function strongError(title, text) {
+      return strongNotification('danger', title, text);
+    }
+
     return {
       weakInfo: weakInfo,
       weakError: weakError,
       weakSuccess: weakSuccess,
-      strongInfo: strongInfo
+      strongInfo: strongInfo,
+      strongError: strongError
     };
 
   });

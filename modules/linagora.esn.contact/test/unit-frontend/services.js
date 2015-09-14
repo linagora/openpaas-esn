@@ -311,6 +311,7 @@ describe('The Contacts Angular module', function() {
       };
       this.notificationFactory = {};
       this.gracePeriodService = {};
+      this.gracePeriodLiveNotification = {};
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
       contactWithChangedETag = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last', etag: 'changed-etag' };
@@ -325,6 +326,7 @@ describe('The Contacts Angular module', function() {
         $provide.value('tokenAPI', self.tokenAPI);
         $provide.value('uuid4', self.uuid4);
         $provide.value('gracePeriodService', self.gracePeriodService);
+        $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
       });
     });
 
@@ -928,6 +930,7 @@ describe('The Contacts Angular module', function() {
       beforeEach(function() {
         this.notificationFactory.weakInfo = function() {};
         this.notificationFactory.weakError = function() {};
+        this.gracePeriodLiveNotification.registerListeners = function() {};
       });
 
       it('should display correct title and link during the grace period', function(done) {
@@ -979,6 +982,31 @@ describe('The Contacts Angular module', function() {
 
         this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
           expect(delay).to.not.exist;
+          done();
+        };
+
+        this.contactsService.deleteContact('1', contact);
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should register grace live notification on success', function(done) {
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
+          .respond(function(method, url, data, headers) {
+            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+          });
+
+        this.notificationFactory.strongError = sinon.spy();
+        var onCancelDeleteSpy = sinon.spy();
+        this.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, onCancelDeleteSpy);
+
+        var self = this;
+
+        this.gracePeriodLiveNotification.registerListeners = function(taskId, onError) {
+          expect(taskId).to.equal('myTaskId');
+          onError();
+          expect(self.notificationFactory.strongError.callCount).to.equal(1);
+          expect(onCancelDeleteSpy.callCount).to.equal(1);
           done();
         };
 

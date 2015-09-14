@@ -297,11 +297,21 @@ angular.module('linagora.esn.contact')
       insertPhotoUrl: insertPhotoUrl
     };
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS) {
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY)
         .then(function(taskId) {
+
+          gracePeriodLiveNotification.registerListeners(
+            taskId,
+            function() {
+              notificationFactory.strongError('', 'Failed to delete contact (' + contact.displayName + '), please try again later');
+              // add the contact to the list again
+              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+            }
+          );
+
           return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel')
             .then(function(data) {
               if (data.cancelled) {
@@ -309,7 +319,7 @@ angular.module('linagora.esn.contact')
                   data.success();
                   $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
                 }, function(err) {
-                  data.error('Cannot cancel contact delete, the contact is deleted');
+                  data.error('Cannot cancel contact deletion, the contact might be deleted permanently');
                   return $q.reject(err);
                 });
               } else {
