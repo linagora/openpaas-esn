@@ -55,6 +55,7 @@ angular.module('esnApp', [
   'esn.collaboration',
   'esn.company',
   'esn.localstorage',
+  'esn.http',
   'materialAdmin',
   'angular-nicescroll'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
