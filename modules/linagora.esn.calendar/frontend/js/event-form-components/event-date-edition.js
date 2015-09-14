@@ -29,7 +29,7 @@ angular.module('esn.calendar')
       };
 
       scope.onEndDateChange = function() {
-        if (!scope.event.end) {
+        if (!scope.event || !scope.event.end) {
           return;
         }
         if (scope.event.end.isBefore(scope.event.start)) {

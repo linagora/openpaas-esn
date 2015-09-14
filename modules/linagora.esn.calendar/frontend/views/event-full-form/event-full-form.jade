@@ -85,7 +85,7 @@ div.card.event-full-form(keep-scroll-position)
                     tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
                       auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
 
-            attendees-list(attendees='event.attendees', read-only='::!isOrganizer')
+            attendees-list(ng-if='hasAttendees', attendees='event.attendees', read-only='::!isOrganizer')
 
           .row
             .col-xs-12

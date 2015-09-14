@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, session, notificationFactory, ICAL_PROPERTIES, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
 
     $scope.editedEvent = {};
     $scope.restActive = false;
@@ -82,7 +82,7 @@ angular.module('esn.calendar')
       var vcalendar = calendarService.shellToICAL(event);
       $scope.restActive = true;
       _hideModal();
-      calendarService.create(path, vcalendar)
+      calendarService.create(path, vcalendar, { graceperiod: true })
         .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
