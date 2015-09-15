@@ -292,11 +292,6 @@ describe('The Contacts Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.tokenAPI = {
-        getNewToken: function() {
-          return $q.when({ data: { token: self._token } });
-        }
-      };
       this.defaultAvatarService = {
         getPhotoUrl: function() {
           return photoCache;
@@ -323,7 +318,6 @@ describe('The Contacts Angular module', function() {
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('defaultAvatarService', self.defaultAvatarService);
-        $provide.value('tokenAPI', self.tokenAPI);
         $provide.value('uuid4', self.uuid4);
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
@@ -643,10 +637,8 @@ describe('The Contacts Angular module', function() {
           'Content-Type': 'application/vcard+json',
           'Prefer': 'return-representation',
           'If-Match': 'etag',
-          'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
-        this._token = requestHeaders.ESNToken;
 
         this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf'), function() { return true; }, requestHeaders).respond(200, contactAsJCard);
 
@@ -880,10 +872,8 @@ describe('The Contacts Angular module', function() {
       it('should send etag as If-Match header', function(done) {
         var requestHeaders = {
           'If-Match': 'etag',
-          'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
-        this._token = requestHeaders.ESNToken;
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf'), requestHeaders).respond(204);
 

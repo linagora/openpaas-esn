@@ -297,7 +297,7 @@ angular.module('linagora.esn.contact')
       insertPhotoUrl: insertPhotoUrl
     };
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification) {
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY)
@@ -413,26 +413,22 @@ angular.module('linagora.esn.contact')
     }
 
     function configureRequest(method, path, headers, body, params) {
-      return tokenAPI.getNewToken().then(function(result) {
-        var token = result.data.token;
-        var url = DAV_PATH;
+      var url = DAV_PATH;
 
-        headers = headers || {};
-        headers.ESNToken = token;
+      headers = headers || {};
 
-        var config = {
-          url: url.replace(/\/$/, '') + path,
-          method: method,
-          headers: headers,
-          params: params
-        };
+      var config = {
+        url: url.replace(/\/$/, '') + path,
+        method: method,
+        headers: headers,
+        params: params
+      };
 
-        if (body) {
-          config.data = body;
-        }
+      if (body) {
+        config.data = body;
+      }
 
-        return config;
-      });
+      return $q.when(config);
     }
 
     function request(method, path, headers, body, params) {
