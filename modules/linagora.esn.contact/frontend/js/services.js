@@ -150,10 +150,26 @@ angular.module('linagora.esn.contact')
       }
     }
 
+    function forceReloadDefaultAvatar(contact) {
+      if (contact && contact.photo &&
+          /\/contact\/api\/contacts\/.*?\/avatar/.test(contact.photo)) {
+        var timestampParameter = 't=' + Date.now();
+        if (/t=[0-9]+/.test(contact.photo)) { // check existing timestampParameter
+          contact.photo = contact.photo.replace(/t=[0-9]+/, timestampParameter);
+        } else if (/\?(.*?=.*?)+$/.test(contact.photo)) { // check existing parameters
+          contact.photo += '&' + timestampParameter;
+        } else {
+          contact.photo += '?' + timestampParameter;
+        }
+
+      }
+    }
+
     return {
       getFormattedName: getFormattedName,
       getFormattedBirthday: getFormattedBirthday,
-      getFormattedAddress: getFormattedAddress
+      getFormattedAddress: getFormattedAddress,
+      forceReloadDefaultAvatar: forceReloadDefaultAvatar
     };
   })
   .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
@@ -207,7 +223,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('contactsCacheService', function($rootScope, $log, CONTACT_EVENTS) {
+  .factory('contactsCacheService', function($rootScope, $log, ContactsHelper, CONTACT_EVENTS) {
 
     var metadata;
     var contactsCache;
@@ -234,6 +250,7 @@ angular.module('linagora.esn.contact')
     });
 
     $rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
+      ContactsHelper.forceReloadDefaultAvatar(data);
       updateContact(data);
     });
 
@@ -321,20 +338,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('defaultAvatarService', function() {
-    var photoCache = {};
-    function getPhotoUrl(cardId) {
-      return photoCache[cardId];
-    }
-    function insertPhotoUrl(cardId, url) {
-      photoCache[cardId] = url;
-    }
-    return {
-      getPhotoUrl: getPhotoUrl,
-      insertPhotoUrl: insertPhotoUrl
-    };
-  })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification, CONTACT_LIST_DEFAULT_SORT, CONTACT_LIST_PAGE_SIZE) {
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification, CONTACT_LIST_DEFAULT_SORT, CONTACT_LIST_PAGE_SIZE) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY)
@@ -446,7 +450,7 @@ angular.module('linagora.esn.contact')
 
       this.vcard = vcard;
       this.etag = etag;
-      this.photo = defaultAvatarService.getPhotoUrl(this.id) || vcard.getFirstPropertyValue('photo');
+      this.photo = vcard.getFirstPropertyValue('photo');
     }
 
     function configureRequest(method, path, headers, body, params) {
@@ -609,7 +613,9 @@ angular.module('linagora.esn.contact')
           };
 
       return request('get', path, headers).then(function(response) {
-        return new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
+        var contact = new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
+        ContactsHelper.forceReloadDefaultAvatar(contact);
+        return contact;
       });
     }
 

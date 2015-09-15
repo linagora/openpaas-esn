@@ -350,6 +350,31 @@ describe('The Contacts Angular module', function() {
       expect(contactsCacheService.get()).to.eql([newContact]);
     });
 
+    it('should call forceReloadDefaultAvatar fn to reload default avatar on CONTACT_EVENTS.UPDATED event', function(done) {
+      module(function($provide) {
+        $provide.value('ContactsHelper', {
+          forceReloadDefaultAvatar: function(contact) {
+            expect(contact).to.eql(newContact);
+            done();
+          }
+        });
+      });
+
+      injectService();
+
+      var oldContact = {
+        id: 123,
+        name: 'old name'
+      };
+      var newContact = {
+        id: 123,
+        name: 'new name'
+      };
+
+      contactsCacheService.put([oldContact]);
+      $rootScope.$emit(CONTACT_EVENTS.UPDATED, newContact);
+    });
+
     it('should delete contact on CONTACT_EVENTS.DELETED event', function() {
       injectService();
 
@@ -389,15 +414,10 @@ describe('The Contacts Angular module', function() {
   });
 
   describe('The contactsService service', function() {
-    var ICAL, CONTACT_EVENTS, contact, contactWithChangedETag, contactAsJCard, photoCache;
+    var ICAL, CONTACT_EVENTS, contact, contactWithChangedETag, contactAsJCard;
 
     beforeEach(function() {
       var self = this;
-      this.defaultAvatarService = {
-        getPhotoUrl: function() {
-          return photoCache;
-        }
-      };
       this.uuid4 = {
         // This is a valid uuid4. Change this if you need other uuids generated.
         _uuid: '00000000-0000-4000-a000-000000000000',
@@ -418,14 +438,13 @@ describe('The Contacts Angular module', function() {
 
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
-        $provide.value('defaultAvatarService', self.defaultAvatarService);
         $provide.value('uuid4', self.uuid4);
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, defaultAvatarService, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY, _CONTACT_EVENTS_) {
+    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY, _CONTACT_EVENTS_) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
@@ -726,19 +745,20 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should return a contact with photo in photoCache if it exist', function(done) {
+      it('should have contact with default avatar forced reload', function(done) {
         this.$httpBackend.expectGET(this.getExpectedPath('/addressbooks/1/contacts/2.vcf')).respond(
           ['vcard', [
-            ['version', {}, 'text', '4.0'],
-            ['uid', {}, 'text', 'myuid']
-          ], []]
+              ['version', {}, 'text', '4.0'],
+              ['uid', {}, 'text', 'myuid'],
+              ['photo', {}, 'uri', 'http://abc.com/contact/api/contacts/123/456/avatar']
+            ]
+          ]
         );
 
-        photoCache = 'localhost/avatar?cb=123456';
-
         this.contactsService.getCard(1, 2).then(function(contact) {
-          expect(contact.photo).to.equal('localhost/avatar?cb=123456');
-        }.bind(this)).finally (done);
+          expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
+          done();
+        });
 
         this.$httpBackend.flush();
       });
@@ -1343,26 +1363,6 @@ describe('The Contacts Angular module', function() {
 
   describe('The ContactsHelper service', function() {
 
-    beforeEach(function() {
-
-      this.homeEmail = { type: 'Home', value: 'home@example.com' };
-      this.workEmail = { type: 'Work', value: 'work@example.com' };
-      this.otherEmail = { type: 'Other', value: 'other@example.com' };
-
-      this.twitter = { type: 'Twitter', value: '@AwesomePaaS' };
-      this.google = { type: 'Google', value: '+AwesomePaaS' };
-      this.linkedin = { type: 'Linkedin', value: 'AwesomePaaS.in' };
-      this.fb = { type: 'Facebook', value: 'AwesomePaaS.fb' };
-      this.skype = { type: 'Skype', value: 'AwesomePaaS.skype' };
-      this.otherSocial = { type: 'Instagram', value: 'AwesomePaaS.instagram' };
-
-      this.homeTel = { type: 'Home', value: '+11111111' };
-      this.mobileTel = { type: 'Mobile', value: '+22222222' };
-      this.workTel = { type: 'Work', value: '+33333333' };
-      this.otherTel = { type: 'Other', value: '+44444444' };
-
-    });
-
     beforeEach(angular.mock.inject(function(ContactsHelper, $rootScope) {
       this.$rootScope = $rootScope;
       this.contactHelper = ContactsHelper;
@@ -1416,6 +1416,26 @@ describe('The Contacts Angular module', function() {
     });
 
     describe('The getFormattedName function', function() {
+
+      beforeEach(function() {
+
+        this.homeEmail = { type: 'Home', value: 'home@example.com' };
+        this.workEmail = { type: 'Work', value: 'work@example.com' };
+        this.otherEmail = { type: 'Other', value: 'other@example.com' };
+
+        this.twitter = { type: 'Twitter', value: '@AwesomePaaS' };
+        this.google = { type: 'Google', value: '+AwesomePaaS' };
+        this.linkedin = { type: 'Linkedin', value: 'AwesomePaaS.in' };
+        this.fb = { type: 'Facebook', value: 'AwesomePaaS.fb' };
+        this.skype = { type: 'Skype', value: 'AwesomePaaS.skype' };
+        this.otherSocial = { type: 'Instagram', value: 'AwesomePaaS.instagram' };
+
+        this.homeTel = { type: 'Home', value: '+11111111' };
+        this.mobileTel = { type: 'Mobile', value: '+22222222' };
+        this.workTel = { type: 'Work', value: '+33333333' };
+        this.otherTel = { type: 'Other', value: '+44444444' };
+
+      });
 
       beforeEach(function() {
         this.shell = {
@@ -1583,6 +1603,38 @@ describe('The Contacts Angular module', function() {
         this.expectEqual(this.otherEmail.value);
       });
     });
+
+    describe('The forceReloadDefaultAvatar fn', function() {
+
+      it('should append timestamp to default avatar url', function() {
+        var contact = { photo: 'http://abc.com/contact/api/contacts/123/456/avatar' };
+        this.contactHelper.forceReloadDefaultAvatar(contact);
+        expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
+      });
+
+      it('should append timestamp parameter correctly', function() {
+        var contact = { photo: 'http://abc.com/contact/api/contacts/123/456/avatar?x=1&y=2' };
+        this.contactHelper.forceReloadDefaultAvatar(contact);
+        expect(contact.photo).to.match(/123\/456\/avatar\?x=1&y=2&t=[0-10]+/);
+      });
+
+      it('should update timestamp parameter if exist', function() {
+        var photoUrl = 'http://abc.com/contact/api/contacts/123/456/avatar?t=1';
+        var contact = { photo: photoUrl };
+        this.contactHelper.forceReloadDefaultAvatar(contact);
+        expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
+        expect(contact.photo).to.not.equal(photoUrl);
+      });
+
+      it('should not append timestamp to custom avatar url', function() {
+        var avatarUrl = 'http://abc.com/this/is/my/cuties/avatar';
+        var contact = { photo: avatarUrl };
+        this.contactHelper.forceReloadDefaultAvatar(contact);
+        expect(contact.photo).to.equal(avatarUrl);
+      });
+
+    });
+
   });
 
 });

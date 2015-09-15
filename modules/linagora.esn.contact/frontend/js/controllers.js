@@ -65,14 +65,13 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, defaultAvatarService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY) {
     $scope.loaded = false;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
 
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
-      $scope.oldDisplayName = $scope.contact.displayName;
       $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     }, function() {
       $scope.error = true;
@@ -89,11 +88,6 @@ angular.module('linagora.esn.contact')
       return sendContactToBackend($scope, function() {
         return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
           $scope.contact = contact;
-          if ($scope.oldDisplayName.charAt(0) !== $scope.contact.displayName.charAt(0)) {
-            if ($scope.contact.photo.indexOf('avatar') !== -1) {
-              defaultAvatarService.insertPhotoUrl($scope.contact.id, $scope.contact.photo += '?cb=' + Date.now());
-            }
-          }
           return contact;
         }, function(err) {
         });
