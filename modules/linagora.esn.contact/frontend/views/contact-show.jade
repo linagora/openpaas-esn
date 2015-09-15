@@ -20,15 +20,13 @@
   .contact-header.visible-xs(ng-swipe-right='close()')
       .contact-controls-wrapper
         .contact-controls.row(data-offset-top="0" bs-affix)
-          a.hover-scale-animation.col-xs-3(href='', ng-click='close()')
-            i.mdi.mdi-reply
-          a.hover-scale-animation.col-xs-3(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-            i.mdi.mdi-pencil
-          a.hover-scale-animation.col-xs-3(href='')
-            i.mdi.mdi-magnify
-          div.hover-scale-animation.dropdown.pull-right.col-xs-3
-            a.moreactions.dropdown-toggle(href='' data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-              i.mdi.mdi-dots-horizontal
+          a.hover-scale-animation.col-xs-6(href='', ng-click='close()')
+            i.mdi.mdi-arrow-left
+          div.hover-scale-animation.dropdown.pull-right.col-xs-6
+            a.hover-scale-animation.p-l-5.p-r-10(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+              i.mdi.mdi-pencil
+            a.moreactions.dropdown-toggle.p-l-5.p-r-10(href='' data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+              i.mdi.mdi-dots-vertical
             ul.dropdown-menu.dropdown-menu-right(role="menu")
               li
                 a(href='', ng-click="deleteContact()") Delete
