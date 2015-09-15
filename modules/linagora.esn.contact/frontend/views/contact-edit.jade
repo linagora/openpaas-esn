@@ -9,8 +9,8 @@
             button.btn.btn-default(type='button', ng-click='close()')
               | #{__('Cancel')}
             button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='save()')
-              i.mdi.mdi-content-save
-              | #{__(' Update')}
+              i.mdi.mdi-check.m-r-5
+              | #{__('Save')}
     .card-body.card-padding
       .contact-error-container
       contact-edition-form(contact='contact')
@@ -18,13 +18,12 @@
   .contact-header.visible-xs
     .contact-controls-wrapper
       .contact-controls.row(data-offset-top="0" bs-affix)
-        a.hover-scale-animation.col-xs-5(href='', ng-click='save()')
-          i.mdi.mdi-check.m-l-5
-          | #{__('Modify')}
-        .col-xs-4
-        .col-xs-3.contact-dropdown.dropdown.pull-right
+        a.hover-scale-animation.col-xs-6(href='', ng-click='save()')
+          i.mdi.mdi-check.m-l-5.m-r-5
+          | #{__('Save')}
+        .col-xs-6.contact-dropdown.dropdown.pull-right
           a.hover-scale-animation.moreactions.dropdown-toggle(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.mdi.mdi-dots-horizontal.m-r-5
+            i.mdi.mdi-dots-vertical.m-r-5
           ul.dropdown-menu.dropdown-menu-right(role="menu")
             li
               a(ng-click="deleteContact()") #{__('Delete')}
