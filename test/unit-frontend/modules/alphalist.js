@@ -34,6 +34,38 @@ describe('The Alpha List module', function() {
       });
     });
 
+    describe('The replaceItem fn', function() {
+
+      it('should replace item with the new one', function() {
+        var keys = 'ABC';
+        var others = '#';
+        var items = [
+          { id: 1, firstName: 'A', lastName: 'A' },
+          { id: 2, firstName: 'B', lastName: 'B' },
+          { id: 3, firstName: 'C', lastName: 'C' },
+          { id: 4, firstName: 'D', lastName: 'D' }
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+
+        var categories = category.get();
+        expect(categories.A).to.eql([items[0]]);
+
+        var newContact = { id: 1, firstName: 'New A', lastName: 'New A' };
+        category.replaceItem(newContact);
+        expect(categories.A).to.eql([newContact]);
+        expect(categories).to.eql({
+          '#': [items[3]],
+          'A': [newContact],
+          'B': [items[1]],
+          'C': [items[2]]
+        });
+
+      });
+
+    });
+
     describe('The removeItemWithId fn', function() {
 
       it('should remove the item with the specified ID from the list', function() {
