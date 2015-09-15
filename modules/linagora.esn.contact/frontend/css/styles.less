@@ -3,7 +3,7 @@
 @contact-header-color: @darkPrimaryColor;
 @contact-toolbar-item-height: 35px;
 @contact-toolbar-switch-width: 65px;
-@contact-card-display-image-size: 128px;
+@contact-card-display-image-size: 96px;
 
 #profile-main {
   a {
@@ -276,14 +276,21 @@ contact-edition-form {
   }
 }
 
+.contact-list-item {
+  img {
+    border-radius: 2px;
+  }
+}
+
 .contact-list-card {
-  min-width: @contact-card-display-image-size + 30;
+  min-width: @contact-card-display-image-size * 2;
 
   img {
     min-width: @contact-card-display-image-size;
     width: @contact-card-display-image-size;
     height: @contact-card-display-image-size;
-    max-width: 100%;
+    max-width: @contact-card-display-image-size;
+    border-radius: 4px;
   }
 
   .contact-info {
@@ -309,4 +316,17 @@ contact-edition-form {
   i {
     vertical-align: sub;
   }
+}
+
+.btn-contacts-cards-toggle {
+  opacity: 0.65 !important; /*Important needed to overrirde native bootstrap properties*/
+}
+.btn-contacts-cards-toggle.toggled {
+  opacity: 1 !important; /*Important needed to overrirde native bootstrap properties*/
+}
+.btn-contacts-list-toggle {
+  opacity: 0.65 !important; /*Important needed to overrirde native bootstrap properties*/
+}
+.btn-contacts-list-toggle.toggled {
+  opacity: 1 !important; /*Important needed to overrirde native bootstrap properties*/
 }

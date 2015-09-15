@@ -387,10 +387,21 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function() {
+  .directive('contactListDisplayer', function(CONTACT_LIST_DISPLAY, $cacheFactory) {
+    var CACHE_KEY = 'contact';
     return {
       restrict: 'E',
-      templateUrl: '/contact/views/partials/contact-list-displayer.html'
+      templateUrl: '/contact/views/partials/contact-list-displayer.html',
+      link: function($scope) {
+        var listDisplayCache = $cacheFactory.get(CACHE_KEY);
+        if (!listDisplayCache) {
+          listDisplayCache = $cacheFactory(CACHE_KEY);
+        }
+        $scope.$on('$locationChangeStart', function(event, next, current) {
+          listDisplayCache.put('listDisplay', $scope.displayAs);
+        });
+        $scope.displayAs = listDisplayCache.get('listDisplay') || CONTACT_LIST_DISPLAY.list;
+      }
     };
   })
 
@@ -444,11 +455,14 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, SCROLL_EVENTS, $rootScope) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
       link: function(scope) {
+        scope.resetScroll = function() {
+          $rootScope.$broadcast(SCROLL_EVENTS.RESET_SCROLL);
+        };
         scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
       }
     };
