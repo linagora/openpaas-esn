@@ -1,13 +1,22 @@
 .col-xs-12.col-md-10.nopadding.card.event-full-form(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
   .card-header
-    .row
+    .row(ng-if='isOrganizer')
       .col-xs-8
         h1 #{__('Create a new event')}
       .col-xs-4
           button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='submit()')
-            | #{__('Create')}
+            span(ng-if='isNew(editedEvent)') #{__('Create')}
+            span(ng-if='!isNew(editedEvent)') #{__('Modify')}
+          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='deleteEvent()', ng-if="!isNew(editedEvent)")
+            | #{__('Delete')}
           button.btn.btn-default.pull-right(type='button')
             | #{__('Cancel')}
+    .row(ng-if='!isOrganizer')
+      .col-xs-8
+        h1 #{__('Consult')}
+      .col-xs-4
+          button.btn.btn-default.pull-right(type='button')
+            | #{__('Back')}
 
   .card-body.card-padding
     form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
@@ -39,7 +48,7 @@
                   span.input-group-addon
                     i.mdi.mdi-map-marker
                   .fg-line
-                    input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
+                    input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
           .row
             .col-xs-12
