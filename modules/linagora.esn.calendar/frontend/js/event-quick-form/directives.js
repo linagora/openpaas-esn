@@ -32,7 +32,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('eventQuickForm', function($location, $timeout) {
+  .directive('eventQuickForm', function($location, $timeout, eventService) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -59,6 +59,13 @@ angular.module('esn.calendar')
           element.find('button[type="submit"]').focus();
         });
       };
+
+      function _resetStoredEvents() {
+        eventService.originalEvent = {};
+        eventService.editedEvent = {};
+      }
+
+      element.on('$destroy', _resetStoredEvents);
     }
 
     return {

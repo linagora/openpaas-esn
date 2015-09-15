@@ -16,14 +16,15 @@ describe('The event-quick-form Angular module directives', function() {
     });
   });
 
-  describe('The eventForm directive', function() {
-    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, moment, calendarUtils) {
+  describe('The eventQuickForm directive', function() {
+    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, moment, calendarUtils, eventService) {
       this.$timeout = $timeout;
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.moment = moment;
       this.calendarUtils = calendarUtils;
+      this.eventService = eventService;
 
       this.initDirective = function(scope) {
         var html = '<event-quick-form/>';
@@ -128,6 +129,16 @@ describe('The event-quick-form Angular module directives', function() {
       expect(this.moment(this.$scope.editedEvent.start).isSame(this.calendarUtils.getNewStartDate())).to.be.true;
       expect(this.moment(this.$scope.editedEvent.end).isSame(this.calendarUtils.getNewEndDate())).to.be.true;
       expect(this.$scope.editedEvent.allDay).to.be.false;
+    });
+
+    it('should reset eventService events on element $destroy', function() {
+      this.eventService.originalEvent = { aEvent: 'aEvent' };
+      this.eventService.editedEvent = { aEvent: 'aEvent' };
+      var element = this.initDirective(this.$scope);
+      element.remove();
+
+      expect(this.eventService.originalEvent).to.deep.equal({});
+      expect(this.eventService.editedEvent).to.deep.equal({});
     });
   });
 });
