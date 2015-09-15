@@ -8,24 +8,6 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
-
-  .directive('multiInputGroupAddress', function() {
-    return {
-      restrict: 'E',
-      scope: {
-        content: '=multiInputModel',
-        types: '=multiInputTypes',
-        inputType: '@multiInputTexttype',
-        placeholder: '@multiInputPlaceholder'
-      },
-      templateUrl: '/contact/views/partials/multi-input-group-address.html',
-      controller: 'MultiInputGroupController',
-      link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.createVerifyNewFunction('street', 'zip', 'city', 'country');
-        scope.verifyRemove = controller.createVerifyRemoveFunction('street');
-      }
-    };
-  })
   .directive('contactDisplay', function() {
     return {
       restrict: 'E',

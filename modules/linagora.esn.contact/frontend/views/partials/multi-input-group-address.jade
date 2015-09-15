@@ -42,3 +42,6 @@
         .col-xs-12
           .fg-line
             input.form-control(type='text', ng-model='newItem.country', placeholder='#{__("Country")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')
+      span.clickable(ng-show="showAddButton" ng-click="addField()") 
+        i.m-t-10.m-r-5.mdi.mdi-plus-circle.green 
+        | #{__("Add a new ")} {{placeholder.toLowerCase()}}
