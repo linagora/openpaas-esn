@@ -34,29 +34,26 @@
     font-size: 13px;
   }
 
-  .row.user-auto-complete {
-    .nopadding;
-    .row {
-      margin: 0;
+  .attendees-list {
+    .col-xs-12 {
+      margin-bottom: 20px;
     }
-    img {
-      width: 50px;
-    }
-  }
-
-  .user-auto-complete {
-    display: flex;
-    align-items: center;
-  }
-
-  tags-input .autocomplete {
-    margin-top: 0;
-    padding: 0;
   }
 }
 
 @media (min-width: @screen-sm-min) {
   .event-full-form {
+    .attendees-list {
+      .col-sm-1 {
+        .col-xs-2;
+      }
+      .attendee-avatar {
+        .checkbox {
+          bottom: -22px;
+          right: -20px;
+        }
+      }
+    }
   }
 }
 

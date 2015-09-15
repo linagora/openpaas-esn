@@ -86,6 +86,8 @@
         .col-xs-12.col-sm-6
           .row
             attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+
+          .row
             attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
           .row

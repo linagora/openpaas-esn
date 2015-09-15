@@ -1,4 +1,4 @@
-.row.attendees-list {
+.attendees-list {
   font-size: 15px;
   margin: 0;
   .col-sm-1:first-child, .col-xs-2:first-child {
@@ -17,5 +17,22 @@
     a:hover, a:focus {
       color: darken(@m-red, 10%);
     }
+  }
+
+  .accepted  {
+    color: @m-green;
+  }
+
+  .undecided {
+    color: @m-blue;
+  }
+
+  .declined {
+    color: @m-red;
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .attendees-list {
   }
 }
