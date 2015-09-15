@@ -10,11 +10,11 @@ angular.module('linagora.esn.contact')
     UPDATED: 'contact:updated',
     DELETED: 'contact:deleted',
     CANCEL_DELETE: 'contact:cancel:delete',
+
     FLAG_LAST_ITEM: 'contact:flag:last:item',
     ADD_CHECK: 'contact:add:check',
     SET_FLAG: 'contact:set:flag',
-    RESET_FLAGS: 'contact:reset:flags',
-    RESET_SCROLL: 'scroll:reset'
+    RESET_FLAGS: 'contact:reset:flags'
   })
   .constant('CONTACT_SIO_EVENTS', {
     CREATED: 'contact:created',

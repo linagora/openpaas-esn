@@ -387,8 +387,8 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function($location, CONTACT_LIST_DISPLAY, $cacheFactory) {
-    var CACHE_KEY = 'listDisplay';
+  .directive('contactListDisplayer', function(CONTACT_LIST_DISPLAY, $cacheFactory) {
+    var CACHE_KEY = 'contact';
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-displayer.html',
@@ -397,12 +397,10 @@ angular.module('linagora.esn.contact')
         if (!listDisplayCache) {
           listDisplayCache = $cacheFactory(CACHE_KEY);
         }
-        var currentPath = $location.path();
         $scope.$on('$locationChangeStart', function(event, next, current) {
-          listDisplayCache.put(currentPath, $scope.displayAs);
+          listDisplayCache.put('listDisplay', $scope.displayAs);
         });
-
-        $scope.displayAs = listDisplayCache.get(currentPath) || CONTACT_LIST_DISPLAY.list;
+        $scope.displayAs = listDisplayCache.get('listDisplay') || CONTACT_LIST_DISPLAY.list;
       }
     };
   })
@@ -457,13 +455,13 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, CONTACT_EVENTS, $rootScope) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, SCROLL_EVENTS, $rootScope) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
       link: function(scope) {
         scope.resetScroll = function() {
-          $rootScope.$broadcast(CONTACT_EVENTS.RESET_SCROLL);
+          $rootScope.$broadcast(SCROLL_EVENTS.RESET_SCROLL);
         };
         scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
       }

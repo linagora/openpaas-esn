@@ -2,7 +2,7 @@
   .card-body
     .flex-start
       .p-15.flex-noshrink
-        a(ng-href='#/contact/show/{{bookId}}/{{contact.id}}')
+        a(ng-href='#/contact/show/{{::bookId}}/{{::contact.id}}')
           .card-image
             img(ng-src='{{contact.photo || defaultAvatar}}')
       .p-t-15.p-r-10.contact-info

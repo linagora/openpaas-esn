@@ -1,8 +1,10 @@
 'use strict';
 
 angular.module('esn.scroll', [])
-
-  .directive('keepScrollPosition', function($log, $cacheFactory, $location, $document, $timeout) {
+  .constant('SCROLL_EVENTS', {
+    RESET_SCROLL: 'scroll:reset'
+  })
+  .directive('keepScrollPosition', function($log, SCROLL_EVENTS, $cacheFactory, $location, $document, $timeout) {
     var CACHE_KEY = 'scrollPosition';
 
     return {
@@ -19,7 +21,7 @@ angular.module('esn.scroll', [])
           scrollPositionCache.put(currentPath, $document.scrollTop());
         });
 
-        scope.$on('scroll:reset', function() {
+        scope.$on(SCROLL_EVENTS.RESET_SCROLL, function() {
           scrollPositionCache.put(currentPath, 0);
         });
 
