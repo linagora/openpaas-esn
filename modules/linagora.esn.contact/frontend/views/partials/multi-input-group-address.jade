@@ -4,7 +4,7 @@
       .fg-line
         .select
           select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
-    .col-xs-8.col-sm-9
+    .col-xs-8.col-sm-9.no-padding-xs
       .row
         .col-xs-12.nopadding
           .fg-line
@@ -26,7 +26,7 @@
       .fg-line
         .select
           select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
-    .col-xs-8.col-sm-9
+    .col-xs-8.col-sm-9.no-padding-xs
       .row
         .col-xs-12.nopadding
           .fg-line
@@ -45,6 +45,6 @@
 .multi-input-button.clickable(ng-show="showAddButton" ng-click="addField()") 
   .form-group
     .col-xs-4.col-sm-3
-    .col-xs-8.col-sm-9
-      i.m-t-10.m-r-5.mdi.mdi-plus-circle.green
+    .col-xs-8.col-sm-9.flex-vertical-centered.m-t-10
+      i.mdi.mdi-plus-circle.green.m-r-5
       | #{__("Add a new address")}

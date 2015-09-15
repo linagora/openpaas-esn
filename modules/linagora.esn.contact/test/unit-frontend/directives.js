@@ -149,8 +149,4 @@ describe('The contact Angular module directives', function() {
       expect(element.find('.btn-contacts-cards-toggle')).to.be.enabled;
     });
   });
-  describe('The multiInputGroup directive', function() {
-    it('should display "add a mail/phone" when there is at least one mail/phone')
-    it('should not display ')
-  });
 });

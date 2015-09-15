@@ -16,8 +16,9 @@
     .col-xs-8.col-sm-9
       .fg-line
         input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-change='verifyNew()', ng-blur='acceptNew()')
-.multi-input-button.clickable(ng-show="showAddButton" ng-click="addField()") 
-  .col-xs-4.col-sm-3
-  .col-xs-8.col-sm-9
-    i.m-t-10.m-r-5.mdi.mdi-plus-circle.green 
-    | #{__("Add a new ")} {{placeholder.toLowerCase()}}
+.multi-input-button.clickable.fadeIn200ms(ng-show="showAddButton" ng-click="addField()") 
+  .form-group
+    .col-xs-4.col-sm-3
+    .col-xs-8.col-sm-9.flex-vertical-centered.m-t-10
+      i.mdi.mdi-plus-circle.green.m-r-5
+      | #{__("Add a new ")} {{placeholder.toLowerCase()}}
