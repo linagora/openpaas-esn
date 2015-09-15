@@ -4,12 +4,12 @@
       .col-xs-8
         h1 #{__('Create a new event')}
       .col-xs-4
-          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='submit()')
+          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
             span(ng-if='isNew(editedEvent)') #{__('Create')}
             span(ng-if='!isNew(editedEvent)') #{__('Modify')}
-          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='deleteEvent()', ng-if="!isNew(editedEvent)")
+          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(deleteEvent);', ng-if="!isNew(editedEvent)")
             | #{__('Delete')}
-          button.btn.btn-default.pull-right(type='button')
+          button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
             | #{__('Cancel')}
     .row(ng-if='!isOrganizer')
       .col-xs-8

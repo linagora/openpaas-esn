@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .directive('eventFullForm', function(eventService) {
+  .directive('eventFullForm', function($timeout, $location, eventService) {
     function link(scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -10,6 +10,14 @@ angular.module('esn.calendar')
       scope.deleteEvent = controller.deleteEvent;
       scope.submit = controller.submit;
       scope.changeParticipation = controller.changeParticipation;
+      scope.goBack = function(callback) {
+        $location.path('/calendar');
+        if (callback) {
+          // Timeout the callback so that fullcalendar events are
+          // correctly handled after location has changed.
+          $timeout(callback);
+        }
+      };
 
       function _resetStoredEvents() {
         eventService.originalEvent = {};

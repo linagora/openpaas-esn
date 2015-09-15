@@ -16,9 +16,10 @@ describe('The event-full-form Angular module directives', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($compile, $rootScope, eventService) {
+  beforeEach(angular.mock.inject(function($compile, $rootScope, $timeout, eventService) {
     this.$compile = $compile;
     this.$rootScope = $rootScope;
+    this.$timeout = $timeout;
     this.$scope = this.$rootScope.$new();
     this.eventService = eventService;
 
@@ -38,5 +39,13 @@ describe('The event-full-form Angular module directives', function() {
 
     expect(this.eventService.originalEvent).to.deep.equal({});
     expect(this.eventService.editedEvent).to.deep.equal({});
+  });
+
+  describe('scope.goBack', function() {
+    it('should $timeout the callback function in argument', function(done) {
+      this.initDirective(this.$scope);
+      this.$scope.goBack(done);
+      this.$timeout.flush();
+    });
   });
 });
