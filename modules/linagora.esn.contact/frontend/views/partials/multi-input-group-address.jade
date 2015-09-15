@@ -6,21 +6,21 @@
           select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
     .col-xs-8.col-sm-9
       .row
-        .col-xs-12
+        .col-xs-12.nopadding
           .fg-line
             input.form-control(type='text', ng-model='item.street', placeholder='#{__("Street")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
-      .row
+      .row.no-padding-xs
         .col-xs-3
           .fg-line
             input.form-control(type='text', ng-model='item.zip', placeholder='#{__("Zip")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
         .col-xs-9
           .fg-line
             input.form-control(type='text', ng-model='item.city', placeholder='#{__("City")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
-      .row
+      .row.no-padding-xs
         .col-xs-12
           .fg-line
             input.form-control(type='text', ng-model='item.country', placeholder='#{__("Country")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
-.multi-input-next
+.multi-input-next(ng-show="showNextField || content.length === 0")
   .form-group
     .col-xs-4.col-sm-3
       .fg-line
@@ -28,20 +28,23 @@
           select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
     .col-xs-8.col-sm-9
       .row
-        .col-xs-12
+        .col-xs-12.nopadding
           .fg-line
-            input.form-control(type='text', ng-model='newItem.street', placeholder='#{__("Street")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')
-      .row
+            input.form-control(type='text', ng-model='newItem.street', placeholder='#{__("Street")}', ng-change='verifyNew()', ng-blur='acceptNew()')
+      .row.no-padding-xs
         .col-xs-3
           .fg-line
-            input.form-control(type='text', ng-model='newItem.zip', placeholder='#{__("Zip")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')
+            input.form-control(type='text', ng-model='newItem.zip', placeholder='#{__("Zip")}', ng-change='verifyNew()', ng-blur='acceptNew()')
         .col-xs-9
           .fg-line
-            input.form-control(type='text', ng-model='newItem.city', placeholder='#{__("City")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')
-      .row
+            input.form-control(type='text', ng-model='newItem.city', placeholder='#{__("City")}', ng-change='verifyNew()', ng-blur='acceptNew()')
+      .row.no-padding-xs
         .col-xs-12
           .fg-line
-            input.form-control(type='text', ng-model='newItem.country', placeholder='#{__("Country")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')
-      span.clickable(ng-show="showAddButton" ng-click="addField()") 
-        i.m-t-10.m-r-5.mdi.mdi-plus-circle.green 
-        | #{__("Add a new ")} {{placeholder.toLowerCase()}}
+            input.form-control(type='text', ng-model='newItem.country', placeholder='#{__("Country")}', ng-change='verifyNew()', ng-blur='acceptNew()')
+.multi-input-button.clickable(ng-show="showAddButton" ng-click="addField()") 
+  .form-group
+    .col-xs-4.col-sm-3
+    .col-xs-8.col-sm-9
+      i.m-t-10.m-r-5.mdi.mdi-plus-circle.green
+      | #{__("Add a new address")}
