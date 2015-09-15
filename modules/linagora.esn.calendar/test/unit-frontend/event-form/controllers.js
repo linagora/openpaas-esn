@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The event-quick-form module controllers', function() {
+describe('The event-form module controllers', function() {
   var event;
 
   beforeEach(function() {

@@ -57,10 +57,10 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'calendar/controllers.js',
         'calendar/directives.js',
         'calendar/services.js',
+        'event-form/controllers.js',
+        'event-form/filters.js',
         'event-message/directives.js',
-        'event-quick-form/controllers.js',
         'event-quick-form/directives.js',
-        'event-quick-form/filters.js',
         'event-full-form/directives.js'
       ];
       webserverWrapper.injectAngularModules('calendar', jsFiles, ['esn.calendar', 'esn.ical'], ['esn']);
