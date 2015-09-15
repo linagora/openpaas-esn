@@ -26,7 +26,7 @@ angular.module('linagora.esn.contact')
         sharedDataService.contact = contact;
       }
 
-      $location.path('/contact/new/' + bookId);
+      $location.url('/contact/new/' + bookId);
     };
   })
   .factory('sharedDataService', function() {
