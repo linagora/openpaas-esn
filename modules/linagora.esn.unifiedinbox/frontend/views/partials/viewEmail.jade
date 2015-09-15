@@ -1,35 +1,22 @@
-.card.email-view.col-xs-12.col-md-10
+.email-view.col-xs-12.col-md-8
+  .block-header
+    h2 {{email.subject}}
+      small
+        img.lv-img-sm(src="images/user.png")
+        | {{email.from.name}} (#[a(ng-href="mailto:{{::email.from.email}}") {{email.from.email}}])
+        | - {{email.date | date}}
+    ul.actions
+      li
+        a(ng-href="/#/unifiedinbox/{{mailbox}}" title="Go to the mailbox")
+          i.mdi.mdi-v-centered.mdi-folder
+      li
+        a(ng-click="moveToTrash()" title="Move to trash")
+          i.mdi.mdi-v-centered.mdi-delete
+      li
+        a(href="")
+          i.mdi.mdi-v-centered.mdi-check
 
-  .listview.zoomIn
-    .lv-header-alt
-      h2.lvh-label
-        span.c-black.lead {{email.subject}}
-      ul.lv-actions.actions
-        li
-          a(ng-href="/#/unifiedinbox/{{mailbox}}" title="Go to the mailbox")
-            i.mdi.mdi-v-centered.mdi-folder
-        li
-          a(ng-click="moveToTrash()" title="Move to trash")
-            i.mdi.mdi-v-centered.mdi-delete
-        li
-          a(href="")
-            i.mdi.mdi-v-centered.mdi-check
-        .lv-actions.actions.dropdown
-          a(href="" data-toggle="dropdown" aria-expanded="false")
-            i.mdi.mdi-v-centered.mdi-dots-vertical
-          ul.dropdown-menu.dropdown-menu-right
-            li
-              a(href="") Delete
-              
-    .lv-header-alt.bgm-white
-      .lv-item
-        .lv-avatar.pull-left
-          img.lv-img-sm(src="images/user.png")
-          span {{email.from.name}}
-          a.small(ng-href="mailto:{{::email.from.email}}") {{email.from.email}}
-        .pull-right
-          span {{email.date | date}}
-
+  .card.listview.zoomIn
     .lv-body
       .lv-item(ng-if="email.htmlBody" ng-bind-html="email.htmlBody")
       .lv-item.multilines(ng-if="!email.htmlBody") {{email.textBody}}

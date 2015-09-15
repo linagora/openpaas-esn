@@ -1,8 +1,8 @@
-.card.col-xs-12.col-md-10
+.col-xs-12.col-md-8
 
-  .listview.lv-bordered.lv-lg(ng-repeat="group in groupedEmails" ng-if="group.emails.length > 0")
-    .lv-header-alt
-      h2.lvh-label {{::group.name}}
+  .groupedEmails(ng-repeat="group in groupedEmails" ng-if="group.emails.length > 0")
+    .block-header
+      h2 {{::group.name}}
       ul.lv-actions.actions
         li
           a(href="")
@@ -16,34 +16,35 @@
         li
           a(href="")
             i.mdi.mdi-v-centered.mdi-dots-vertical
-      
-    .lv-body
-      .lv-item.media(ng-repeat="email in group.emails")
-        .checkbox.pull-left
-          label
-            input(value="" type="checkbox")
-            i.input-helper
-        .pull-left
-          img.lv-img-sm(src="images/user.png")
-        a(ng-href="{{::email.href}}")
-          .media-body(ng-class="::{bold: email.isUnread}")
-            .pull-left
-              .lv-title {{::email.subject}}
-            .pull-right
-              .lv-title {{::email.date | date: group.dateFormat}}
-            .clearfix
-            small.lv-small {{::email.preview}}
-            ul.lv-attrs
-              li(ng-if="email.hasAttachment") 
-                a(href="")
-                  i.mdi.mdi-v-centered.mdi-attachment
-              li {{::email.from.name}}
-                small  ({{::email.from.email}})
-            .lv-actions.actions.dropdown
-              a(href="" data-toggle="dropdown" aria-expanded="false")
-                i.mdi.mdi-v-centered.mdi-dots-vertical
-              ul.dropdown-menu.dropdown-menu-right
-                li
-                  a(href="") Edit
-                li
-                  a(href="") Delete
+
+    .card.listview.lv-bordered.lv-lg
+      .lv-body
+        .lv-item.media(ng-repeat="email in group.emails")
+          .checkbox.pull-left
+            label
+              input(value="" type="checkbox")
+              i.input-helper
+          .pull-left
+            img.lv-img-sm(src="images/user.png")
+          a(ng-href="{{::email.href}}")
+            .media-body(ng-class="::{bold: email.isUnread}")
+              .pull-left
+                .lv-title {{::email.subject}}
+              .pull-right
+                .lv-title {{::email.date | date: group.dateFormat}}
+              .clearfix
+              small.lv-small {{::email.preview}}
+              ul.lv-attrs
+                li(ng-if="email.hasAttachment")
+                  a(href="")
+                    i.mdi.mdi-v-centered.mdi-attachment
+                li {{::email.from.name}}
+                  small  ({{::email.from.email}})
+              .lv-actions.actions.dropdown
+                a(href="" data-toggle="dropdown" aria-expanded="false")
+                  i.mdi.mdi-v-centered.mdi-dots-vertical
+                ul.dropdown-menu.dropdown-menu-right
+                  li
+                    a(href="") Edit
+                  li
+                    a(href="") Delete
