@@ -54,10 +54,10 @@ describe('The Alpha List module', function() {
 
         var newContact = { id: 1, firstName: 'New A', lastName: 'New A' };
         category.replaceItem(newContact);
-        expect(categories.A).to.eql([newContact]);
+
         expect(categories).to.eql({
-          '#': [items[3]],
-          'A': [newContact],
+          '#': [items[3], newContact],
+          'A': [],
           'B': [items[1]],
           'C': [items[2]]
         });

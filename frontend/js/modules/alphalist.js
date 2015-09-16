@@ -72,18 +72,6 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
       }
     };
 
-    Categorize.prototype._replaceItem = function _replaceItem(item) {
-      var self = this;
-
-      Object.keys(this.categories).forEach(function(name) {
-        self.categories[name].forEach(function(ele, index) {
-          if (ele.id === item.id) {
-            self.categories[name][index] = item;
-          }
-        });
-      });
-    };
-
     Categorize.prototype._sort = function _sort() {
       var self = this;
       Object.keys(this.categories).forEach(function(name) {
@@ -97,7 +85,9 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
     };
 
     Categorize.prototype.replaceItem = function replaceItem(item) {
-      this._replaceItem(item);
+      this._removeItemWithId(item.id);
+      this._addItemsToCategories([item]);
+      this._sort();
     };
 
     Categorize.prototype.get = function get() {
