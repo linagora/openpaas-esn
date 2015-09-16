@@ -100,24 +100,6 @@ angular.module('linagora.esn.contact')
       }, 200);
     };
 
-    function _modify() {
-      return sendContactToBackend($scope, function() {
-        return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
-          $rootScope.$broadcast(CONTACT_EVENTS.UPDATED);
-          $scope.contact = contact;
-          return contact;
-        }, function(err) {
-        });
-      }).then(null, function(err) {
-        displayError(err);
-        return $q.reject(err);
-      });
-    }
-
-    $scope.modify = function() {
-      $timeout(_modify, 0);
-    };
-
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
