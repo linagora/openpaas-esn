@@ -470,7 +470,7 @@ describe('The calendar core module', function() {
             encoding: 'base64',
             alternatives: [{
               content: ics,
-              contentType: 'text/calendar; charset=UTF-8; method=' + method,
+              contentType: 'text/calendar; charset=UTF-8; method=' + method
             }],
             attachments: [{
               filename: 'meeting.ics',
