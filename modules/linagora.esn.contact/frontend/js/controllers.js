@@ -235,10 +235,12 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
+      if ($scope.searchInput) { return; }
       $scope.categories.replaceItem(fillRequiredContactInformation(data));
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {
+      if ($scope.searchInput) { return; }
       $scope.categories.removeItemWithId(contact.id);
     });
 
