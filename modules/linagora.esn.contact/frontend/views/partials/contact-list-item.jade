@@ -1,40 +1,39 @@
-.contact-list-item.media.hidden-xs
-  div(ng-click='displayContact()')
-    .pull-left
-      contact-photo.media-object(contact='contact')
-    .media-body.p-l-15
-      .lv-title
-        | {{contact.displayName}}
-      ul.lv-attrs
-        li.hidden-xs(ng-if='email')
-          span
-            i.mdi.mdi-email-outline
-            a(ng-href="mailto:{{email}}") {{email}}
-        li.hidden-xs(ng-if='tel')
-          span
-            i.mdi.mdi-phone
-            | {{tel}}
+.contact-list-item.media.p10.hidden-xs(ng-click='displayContact()')
+  .pull-left
+    contact-photo.media-object(contact='contact')
+  .media-body.p-l-15
+    .lv-title
+      | {{contact.displayName}}
+    ul.lv-attrs
+      li.hidden-xs(ng-if='email')
+        span
+          i.mdi.mdi-email-outline
+          a(ng-href="mailto:{{email}}") {{email}}
+      li.hidden-xs(ng-if='tel')
+        span
+          i.mdi.mdi-phone
+          | {{tel}}
 
-  .lv-actions.actions
-    li
-      a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-        i.mdi.mdi-pencil
-    li.dropdown
-      a(href='', data-toggle='dropdown', aria-expanded='true')
-        i.mdi.mdi-dots-vertical
-      ul.dropdown-menu.dropdown-menu-right
-        li.visible-xs
-          a(ng-href="") Send Message
-        li.visible-xs
-          a(ng-href="") Call
-        li.visible-xs
-          a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
-        li
-          a(ng-click="deleteContact()") Delete
+.lv-actions.actions
+  li
+    a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+      i.mdi.mdi-pencil
+  li.dropdown
+    a(href='', data-toggle='dropdown', aria-expanded='true')
+      i.mdi.mdi-dots-vertical
+    ul.dropdown-menu.dropdown-menu-right
+      li.visible-xs
+        a(ng-href="") Send Message
+      li.visible-xs
+        a(ng-href="") Call
+      li.visible-xs
+        a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
+      li
+        a(ng-click="deleteContact()") Delete
 
-.contact-list-item.media.visible-xs
-  .pull-left.nopadding.touch-zone(ng-click='displayContact()')
+.contact-list-item.p-10.visible-xs(ng-click='displayContact()')
+  .pull-left.touch-zone
       contact-photo.media-object(contact='contact')
   .media-body.row
-    .lv-title.col-xs-11.touch-zone(ng-click='displayContact()')
+    .lv-title.col-xs-11.touch-zone
           h4.media-heading {{contact.displayName}}
