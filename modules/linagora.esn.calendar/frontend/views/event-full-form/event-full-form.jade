@@ -1,0 +1,100 @@
+.col-xs-12.col-md-10.nopadding.card.event-full-form(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
+  .card-header
+    .row(ng-if='isOrganizer')
+      .col-xs-8
+        h1 #{__('Create a new event')}
+      .col-xs-4
+          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
+            span(ng-if='isNew(editedEvent)') #{__('Create')}
+            span(ng-if='!isNew(editedEvent)') #{__('Modify')}
+          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(deleteEvent);', ng-if="!isNew(editedEvent)")
+            | #{__('Delete')}
+          button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
+            | #{__('Cancel')}
+    .row(ng-if='!isOrganizer')
+      .col-xs-8
+        h1 #{__('Consult')}
+      .col-xs-4
+          button.btn.btn-default.pull-right(type='button')
+            | #{__('Back')}
+
+  .card-body.card-padding
+    form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
+      .row
+        .col-xs-12.col-sm-6
+          .row
+            .col-xs-12
+              .form-group
+                .fg-line
+                  input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-calendar-multiple
+                  .fg-line.select
+                    select.form-control
+                      option(value="calendarA") calendarA
+                      option(value="calendarB") calendarB
+
+          event-date-edition(event="editedEvent", disabled="!isOrganizer")
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-map-marker
+                  .fg-line
+                    input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-repeat
+                  .fg-line.select
+                    select.form-control
+                      option(value="recurrenceA") recurrenceA
+                      option(value="recurrenceB") recurrenceB
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-alarm
+                  .fg-line.select
+                    select.form-control
+                      option(value="alarmA") alarmA
+                      option(value="alarmB") alarmB
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-lock
+                  .fg-line.select
+                    select.form-control
+                      option(value="privacyA") privacyA
+                      option(value="privacyB") privacyB
+
+        .col-xs-12.col-sm-6
+          .row
+            attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+
+          .row
+            attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-format-align-justify
+                  .fg-line
+                    textarea.form-control(placeholder="#{__('Notes...')}")

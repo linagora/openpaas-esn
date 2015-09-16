@@ -15,6 +15,7 @@ angular.module('esn.calendar', [
   'ui.calendar'
 ])
   .config(function($routeProvider, routeResolver) {
+
     $routeProvider.when('/calendar/communities/:community_id', {
       templateUrl: '/calendar/views/calendar/community-calendar',
       controller: 'communityCalendarController',
@@ -22,6 +23,11 @@ angular.module('esn.calendar', [
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
       }
     });
+
+    $routeProvider.when('/calendar/event-full-form', {
+      templateUrl: '/calendar/views/event-full-form/event-full-form-view'
+    });
+
     $routeProvider.when('/calendar', {
       templateUrl: '/calendar/views/calendar/user-calendar',
       controller: 'userCalendarController',
@@ -29,4 +35,5 @@ angular.module('esn.calendar', [
         user: routeResolver.session('user')
       }
     });
+
   });

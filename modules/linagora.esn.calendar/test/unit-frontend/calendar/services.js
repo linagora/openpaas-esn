@@ -647,7 +647,7 @@ describe('The calendar module services', function() {
 
       it('should fail on missing vevent', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
-        this.calendarService.create('/path/to/uid.ics', vcalendar).then(
+        this.calendarService.create('/path/to/uid.ics', vcalendar, { graceperiod: true }).then(
           unexpected.bind(null, done), function(e) {
             expect(e.message).to.equal('Missing VEVENT in VCALENDAR');
             done();
@@ -661,7 +661,7 @@ describe('The calendar module services', function() {
         var vevent = new ICAL.Component('vevent');
         vcalendar.addSubcomponent(vevent);
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('/path/to/calendar', vcalendar, { graceperiod: true }).then(
           unexpected.bind(null, done), function(e) {
             expect(e.message).to.equal('Missing UID in VEVENT');
             done();
@@ -684,7 +684,7 @@ describe('The calendar module services', function() {
           });
         };
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('/path/to/calendar', vcalendar, { graceperiod: true }).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(500);
             done();
@@ -709,7 +709,7 @@ describe('The calendar module services', function() {
 
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(200, '');
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('/path/to/calendar', vcalendar, { graceperiod: true }).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(200);
             done();
@@ -745,7 +745,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(404);
         emitMessage = null;
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('/path/to/calendar', vcalendar, { graceperiod: true }).then(
           function(response) {
             expect(socketEmitSpy).to.not.have.been.called;
             expect(response).to.not.exist;
@@ -786,7 +786,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('/path/to/calendar', vcalendar, { graceperiod: true }).then(
           function(shell) {
             expect(emitMessage).to.equal('modifiedCalendarItem');
             expect(shell.title).to.equal('test event');
@@ -834,7 +834,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('/path/to/calendar', vcalendar, { graceperiod: true }).then(
           function(response) {
             expect(emitMessage).to.equal('removedCalendarItem');
             expect(socketEmitSpy).to.have.not.been.called;

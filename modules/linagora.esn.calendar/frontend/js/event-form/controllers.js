@@ -2,9 +2,10 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, moment, session, notificationFactory, ICAL_PROPERTIES, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
 
-    $scope.editedEvent = {};
+    $scope.event = eventService.originalEvent;
+    $scope.editedEvent = eventService.editedEvent;
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
 
@@ -24,48 +25,32 @@ angular.module('esn.calendar')
       });
     }
 
-    function updateAttendeeStats() {
-      var partstatMap = $scope.attendeesPerPartstat = {
-        'NEEDS-ACTION': 0,
-        'ACCEPTED': 0,
-        'TENTATIVE': 0,
-        'DECLINED': 0,
-        'OTHER': 0
-      };
+    this.initFormData = function() {
+      if ($scope.selectedEvent) {
+        eventService.copyEventObject($scope.selectedEvent, $scope.event);
+        eventService.copyEventObject($scope.selectedEvent, $scope.editedEvent);
+      } else if (!$scope.event.start) {
+        $scope.event = {
+          start: calendarUtils.getNewStartDate(),
+          end: calendarUtils.getNewEndDate(),
+          allDay: false
+        };
+        eventService.copyEventObject($scope.event, $scope.editedEvent);
+      }
+
+      $scope.newAttendees = [];
 
       $scope.invitedAttendee = null;
       $scope.hasAttendees = !!$scope.editedEvent.attendees;
 
       if ($scope.hasAttendees) {
-        $scope.editedEvent.attendees.forEach(function(att) {
-          partstatMap[att.partstat in partstatMap ? att.partstat : 'OTHER']++;
-
-          if (att.email in session.user.emailMap) {
-            $scope.invitedAttendee = att;
+        $scope.editedEvent.attendees.forEach(function(attendee) {
+          if (attendee.email in session.user.emailMap) {
+            $scope.invitedAttendee = attendee;
           }
         });
       }
-    }
-
-    this.initFormData = function() {
-      $scope.event = $scope.event || {};
-      if (this.isNew($scope.event)) {
-        $scope.event = {
-          start: $scope.event.start || calendarUtils.getNewStartDate(),
-          end: $scope.event.end || calendarUtils.getNewEndDate(),
-          allDay: $scope.event.allDay || false
-        };
-      }
-      eventService.copyEventObject($scope.event, $scope.editedEvent);
-      $scope.newAttendees = [];
-
-
-      updateAttendeeStats();
-
-      $scope.attendeeClickedCount = 0;
       $scope.isOrganizer = eventService.isOrganizer($scope.event);
-      // on load, ensure that duration between start and end is stored inside editedEvent
-      this.onEndDateChange();
     };
 
     function _hideModal() {
@@ -79,15 +64,6 @@ angular.module('esn.calendar')
       _hideModal();
     }
 
-    this.selectAttendee = function(attendee) {
-      attendee.clicked = !attendee.clicked;
-      $scope.attendeeClickedCount += attendee.clicked ? 1 : -1;
-    };
-
-    this.deleteSelectedAttendees = function() {
-      $scope.editedEvent.attendees = $scope.editedEvent.attendees.filter(function(attendee) { return !attendee.clicked;});
-    };
-
     this.addNewEvent = function() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
         $scope.editedEvent.title = EVENT_FORM.title.default;
@@ -96,6 +72,7 @@ angular.module('esn.calendar')
       if (!$scope.calendarId) {
         $scope.calendarId = calendarService.calendarId;
       }
+
       if ($scope.newAttendees) {
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
@@ -110,7 +87,7 @@ angular.module('esn.calendar')
       var vcalendar = calendarService.shellToICAL(event);
       $scope.restActive = true;
       _hideModal();
-      calendarService.create(path, vcalendar)
+      calendarService.create(path, vcalendar, { graceperiod: true })
         .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
@@ -196,6 +173,8 @@ angular.module('esn.calendar')
         });
     }
 
+    this.submit = this.isNew($scope.editedEvent) ? this.addNewEvent : this.modifyEvent;
+
     this.changeParticipation = function(status) {
       if ($scope.isOrganizer && !$scope.invitedAttendee) {
         var organizer = angular.copy($scope.editedEvent.organizer);
@@ -204,41 +183,6 @@ angular.module('esn.calendar')
       }
 
       $scope.invitedAttendee.partstat = status;
-      updateAttendeeStats();
-    };
-
-    this.resetEvent = function() {
-      $scope.rows = 1;
-      $scope.editedEvent = {
-        start: calendarUtils.getNewStartDate(),
-        end: calendarUtils.getNewEndDate(),
-        diff: 1,
-        allDay: false
-      };
-    };
-
-    this.getMinDate = function() {
-      if ($scope.editedEvent.start) {
-        return moment($scope.editedEvent.start).subtract(1, 'days');
-      }
-      return null;
-    };
-
-    this.getMinTime = function() {
-      if ($scope.editedEvent.start && $scope.editedEvent.start.isSame($scope.editedEvent.end, 'day')) {
-        return $scope.editedEvent.start;
-      }
-      return null;
-    };
-
-    this.onStartDateChange = function() {
-      $scope.editedEvent.end = moment($scope.editedEvent.start).add($scope.editedEvent.diff / 1000 || 3600, 'seconds');
-    };
-
-    this.onEndDateChange = function() {
-      if ($scope.editedEvent.end.isBefore($scope.editedEvent.start)) {
-        $scope.editedEvent.end = moment($scope.editedEvent.start).add(1, 'hours');
-      }
-      $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
+      $scope.$broadcast('event:attendees:updated');
     };
   });

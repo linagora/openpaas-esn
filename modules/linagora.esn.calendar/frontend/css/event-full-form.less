@@ -1,0 +1,82 @@
+.event-full-form {
+
+  .mdi {
+    font-size: 3em;
+  }
+
+  .card-body {
+    .row {
+      margin: 0;
+    }
+    .input-group-addon {
+      vertical-align: middle;
+    }
+  }
+
+  .card-header {
+    background-color: @contact-header-color;
+    h1 {
+      font-size: 22px;
+      color: @m-white;
+    }
+
+    .col-xs-4 {
+      padding: 18px;
+
+      button {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+
+  .attendees-list {
+    .col-xs-12 {
+      margin-bottom: 20px;
+    }
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .event-full-form {
+    .attendees-list {
+      .col-sm-1 {
+        .col-xs-2;
+      }
+      .attendee-avatar {
+        .checkbox {
+          bottom: -22px;
+          right: -20px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  .event-full-form {
+    .btn-default {
+      .PrimaryColor();
+    }
+
+    .card-body {
+      padding-top: 10px;
+    }
+
+    &.readonly {
+      .form-control, .form-control:focus {
+        cursor: text;
+        background-image: none;
+      }
+
+      .checkbox label {
+        cursor: default;
+        background-image: none;
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 button.btn.btn-default.save(type='submit', ng-disabled="restActive")
                   i.mdi.mdi-check
               .options-button
-                button.btn.btn-default(type='button', ng-disabled="true")
+                button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
@@ -25,33 +25,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
           .form-group
             .fg-line
               input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
-        .col-xs-3.col-sm-2
-          .form-group
-            .fg-line
-              i.mdi.mdi-calendar
-        .col-xs-9.col-sm-3
-          .form-group
-            .fg-line
-              input.input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-datepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
-            .fg-line(ng-if='!editedEvent.allDay')
-              input.input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="0", placeholder="#{__('Time')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-timepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
-        .col-xs-3.col-sm-2
-          .form-group
-            .fg-line
-              i.mdi.mdi-arrow-right
-        .col-xs-9.col-sm-3
-          .form-group
-            .fg-line
-              input.input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-datepicker, date-to-moment, friendlify-end-date)
-            .fg-line(ng-if='!editedEvent.allDay')
-              input.input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="0", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-timepicker, date-to-moment)
-        .col-xs-12.col-sm-2
-          .form-group
-            .fg-line
-              .checkbox
-                label
-                  input(type="checkbox", ng-model='editedEvent.allDay', ng-disabled="!isOrganizer", ng-change="focusSubmitButton()")
-                  i.input-helper #{__('All day')}
+        event-date-edition(event="editedEvent", disabled="!isOrganizer", date-on-blur="focusSubmitButton", all-day-on-change="focusSubmitButton")
         .col-xs-12
           .form-group(ng-show="isOrganizer || editedEvent.location")
             .input-group
@@ -67,37 +41,10 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
             button.btn.btn-default.col-xs-4.col-sm-2.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}
         .col-xs-12
           hr
-        .col-xs-12
-          .form-group(ng-show='isOrganizer || isNew(editedEvent)')
-            .input-group
-              span.input-group-addon
-                i.mdi.mdi-account-multiple-plus
-              .fg-line
-                tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
-                  auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
-        .attendees-list.picture-list
-          .col-xs-12
-            div(ng-if='attendeesPerPartstat.ACCEPTED > 0')
-              .fg-line.accepted #{__('Accepted')}
-              .fg-line.pl-body(ng-if='attendeesPerPartstat.ACCEPTED > 0')
-                .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.email")
-                  attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-            div(ng-if='attendeesPerPartstat.DECLINED > 0')
-              .fg-line.declined #{__('Declined')}
-              .fg-line.pl-body(ng-if='attendeesPerPartstat.DECLINED > 0')
-                .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.email")
-                  attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-            div(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
-              .fg-line.undecided #{__('Undecided')}
-              .fg-line.pl-body(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
-                .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
-                  attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-                .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'TENTATIVE' track by attendee.email")
-                  attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-            .trash
-              a(href="")
-                i.mdi.mdi-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
-            hr.hidden-xs
+        attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+        attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer')
+        .col-xs-12.hidden-xs
+          hr
       .modal-footer
         .col-xs-12.hidden-xs
           .form-group
@@ -106,7 +53,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 button.btn.btn-default.save(type='submit', ng-disabled="restActive")
                   i.mdi.mdi-check
               .options-button
-                button.btn.btn-default(type='button', ng-disabled="true")
+                button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")

@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The event-quick-form module controllers', function() {
+describe('The event-form module controllers', function() {
   var event;
 
   beforeEach(function() {
@@ -99,55 +99,20 @@ describe('The event-quick-form module controllers', function() {
       });
     });
 
-    describe('getMinTime function', function() {
-      it('should return null if start is undefined', function() {
-        expect(this.eventFormController.getMinTime()).to.be.null;
-      });
-
-      it('should return null if start is not same day than end', function() {
-        this.scope.editedEvent = {
-          start: this.moment('2013-02-08 12:30'),
-          end: this.moment('2013-02-09 12:30')
-        };
-        expect(this.eventFormController.getMinTime()).to.be.null;
-      });
-
-      it('should return start if end is same', function() {
-        this.scope.editedEvent = {
-          start: this.moment('2013-02-08 12:30'),
-          end: this.moment('2013-02-08 13:30')
-        };
-        expect(this.eventFormController.getMinTime()).to.deep.equal(this.scope.editedEvent.start);
-      });
-    });
-
-    describe('onEndDateChange function', function() {
-      it('should change end if it is before start', function() {
-        this.scope.editedEvent = {
-          start: this.moment('2013-02-08 12:30'),
-          end: this.moment('2013-02-08 10:30')
-        };
-        this.eventFormController.onEndDateChange();
-        expect(this.scope.editedEvent.end.isSame('2013-02-08 13:30')).to.be.true;
-      });
-    });
-
     describe('initFormData function', function() {
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.eventFormController.initFormData();
         var expected = {
           start: this.moment('2013-02-08 09:30'),
           end: this.moment('2013-02-08 10:30'),
-          allDay: false,
-          diff: 3600000
+          allDay: false
         };
         expect(this.scope.editedEvent).to.deep.equal(expected);
-        delete expected.diff;
         expect(this.scope.event).to.deep.equal(expected);
       });
 
-      it('should initialize the scope with $scope.event if it exists', function() {
-        this.scope.event = {
+      it('should initialize the scope with $scope.event and $scope.editedEvent if $scope.selecteEvent exists', function() {
+        this.scope.selectedEvent = {
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
@@ -155,12 +120,12 @@ describe('The event-quick-form module controllers', function() {
           otherProperty: 'aString'
         };
         this.eventFormController.initFormData();
-        this.scope.event.diff = 3600000;
-        expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
+        expect(this.scope.event).to.deep.equal(this.scope.selectedEvent);
+        expect(this.scope.editedEvent).to.deep.equal(this.scope.selectedEvent);
       });
 
       it('should detect if organizer', function() {
-        this.scope.event = {
+        this.scope.selectedEvent = {
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
@@ -175,7 +140,7 @@ describe('The event-quick-form module controllers', function() {
       });
 
       it('should detect if not organizer', function() {
-        this.scope.event = {
+        this.scope.selectedEvent = {
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
@@ -186,33 +151,6 @@ describe('The event-quick-form module controllers', function() {
         };
         this.eventFormController.initFormData();
         expect(this.scope.isOrganizer).to.equal(false);
-      });
-
-      it('should set up attendee stats correctly', function() {
-        this.scope.event = {
-          _id: '123456',
-          start: this.moment('2013-02-08 12:30'),
-          end: this.moment('2013-02-08 13:30'),
-          organizer: {
-            email: 'other@test.com'
-          },
-          attendees: [
-            { email: 'other1@example.com', partstat: 'NEEDS-ACTION' },
-            { email: 'other2@example.com', partstat: 'ACCEPTED' },
-            { email: 'other3@example.com', partstat: 'DECLINED' },
-            { email: 'other4@example.com', partstat: 'TENTATIVE' },
-            { email: 'other5@example.com', partstat: 'YOLO' }
-          ]
-        };
-
-        this.eventFormController.initFormData();
-        expect(this.scope.attendeesPerPartstat).to.deep.equal({
-          'NEEDS-ACTION': 1,
-          'ACCEPTED': 1,
-          'TENTATIVE': 1,
-          'DECLINED': 1,
-          'OTHER': 1
-        });
       });
     });
 

@@ -1,0 +1,38 @@
+.attendees-list {
+  font-size: 15px;
+  margin: 0;
+  .col-sm-1:first-child, .col-xs-2:first-child {
+    margin-left: 25px;
+  }
+
+  .trash {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    height: 50%;
+    transform: translate(0%,-50%);
+    a {
+      color: @m-red;
+    }
+    a:hover, a:focus {
+      color: darken(@m-red, 10%);
+    }
+  }
+
+  .accepted  {
+    color: @m-green;
+  }
+
+  .undecided {
+    color: @m-blue;
+  }
+
+  .declined {
+    color: @m-red;
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .attendees-list {
+  }
+}
