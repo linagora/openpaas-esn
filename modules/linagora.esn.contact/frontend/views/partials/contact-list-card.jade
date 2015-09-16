@@ -1,11 +1,11 @@
 .card.contact-list-card
   .card-body
     .flex-start
-      .p-15.flex-noshrink
+      .p-10.flex-noshrink
         a(ng-href='#/contact/show/{{::bookId}}/{{::contact.id}}')
           .card-image
             img(ng-src='{{contact.photo || defaultAvatar}}')
-      .p-t-15.p-r-10.contact-info
+      .p-t-10.p-r-10.contact-info
         div
           strong {{contact.displayName}}
         div.p-t-5(ng-if='email')
