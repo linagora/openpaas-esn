@@ -16,89 +16,16 @@ describe('The contact Angular module directives', function() {
     module('jadeTemplates');
   });
 
-  describe('inlineEditableInput', function() {
-
-    beforeEach(inject(['$compile', '$rootScope', '$timeout', 'DEFAULT_AVATAR', function($c, $r, $t, DEFAULT_AVATAR) {
-      this.$compile = $c;
-      this.$rootScope = $r;
-      this.$scope = this.$rootScope.$new();
-      this.$timeout = $t;
-      this.DEFAULT_AVATAR = DEFAULT_AVATAR;
-
-      this.initDirective = function(scope) {
-        var html = '<inline-editable-input input-class="aClass" type="aType" placeholder="aPlaceholder" ng-model="aModel" on-blur="aBlurFunction" on-save ="aSaveFunction"/>';
-        var element = this.$compile(html)(scope);
-        scope.$digest();
-        return element;
-      };
-    }]));
-
-    it('should bind on focus that toggle the group buttons', function() {
-      var element = this.initDirective(this.$scope);
-      var input = element.find('input');
-      input.appendTo(document.body);
-      input.focus();
-      var scope = element.isolateScope();
-      this.$timeout.flush();
-      expect(scope.showGroupButtons).to.be.true;
-    });
-
-    it('should bind on blur and call saveInput if old value !== new value of ng-model controller', function(done) {
-      this.$scope.aModel = 'value';
-      this.$scope.aSaveFunction = done;
-      var element = this.initDirective(this.$scope);
-      var input = element.find('input');
-      input.appendTo(document.body);
-      input.blur();
-      this.$timeout.flush();
-    });
-
-    it('should bind on blur and do not call saveInput if old value === new value', function(done) {
-      this.$scope.aModel = undefined;
-      this.$scope.aSaveFunction = function() {
-        done(new Error('should not be called'));
-      };
-      this.$scope.aBlurFunction = done;
-      var element = this.initDirective(this.$scope);
-      var input = element.find('input');
-      input.appendTo(document.body);
-      input.blur();
-      this.$timeout.flush();
-    });
-
-    it('should bind on blur, toggle the group buttons and call onBlur after 200 ms', function(done) {
-      var scope;
-      this.$scope.aModel = 'value';
-      this.$scope.aSaveFunction = function() {};
-      this.$scope.aBlurFunction = function() {
-        expect(scope.showGroupButtons).to.be.true;
-        done();
-      };
-      var element = this.initDirective(this.$scope);
-      var input = element.find('input');
-      input.appendTo(document.body);
-      input.blur();
-      scope = element.isolateScope();
-      this.$timeout.flush();
-    });
-
-    it('should bind on keydown and call resetInput if escape is the event', function(done) {
-      var element = this.initDirective(this.$scope);
-      var input = element.find('input');
-      input.appendTo(document.body);
-      var scope = element.isolateScope();
-      scope.resetInput = done;
-      var escape = $.Event('keydown');
-      escape.which = 27;
-      input.trigger(escape);
-      this.$timeout.flush();
-    });
-
-  });
-
   describe('The contactPhoto directive', function() {
 
     var element;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      this.$rootScope = _$rootScope_;
+      this.$scope = this.$rootScope.$new();
+      this.$compile = _$compile_;
+      this.DEFAULT_AVATAR = '/images/user.png';
+    }));
 
     beforeEach(function() {
       element = this.$compile('<contact-photo contact="contact"></contact-photo>')(this.$scope);

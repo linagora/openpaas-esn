@@ -9,7 +9,7 @@ angular.module('linagora.esn.contact')
     CREATED: 'contact:created',
     UPDATED: 'contact:updated',
     DELETED: 'contact:deleted',
-    CANCEL_DELETE: 'contact:cancel:delete',
+    CANCEL_DELETE: 'contact:cancel:delete'
   })
   .constant('CONTACT_SIO_EVENTS', {
     CREATED: 'contact:created',
