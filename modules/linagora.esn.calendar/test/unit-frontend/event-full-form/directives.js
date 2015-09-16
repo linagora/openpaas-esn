@@ -14,6 +14,7 @@ describe('The event-full-form Angular module directives', function() {
     var self = this;
     angular.mock.module(function($provide) {
       $provide.value('gracePeriodService', self.gracePeriodService);
+      $provide.value('attendeeService', {});
     });
   });
 

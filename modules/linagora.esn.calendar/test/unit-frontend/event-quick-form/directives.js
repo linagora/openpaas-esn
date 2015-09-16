@@ -14,6 +14,7 @@ describe('The event-quick-form Angular module directives', function() {
     var self = this;
     angular.mock.module(function($provide, $controllerProvider) {
       $provide.value('gracePeriodService', self.gracePeriodService);
+      $provide.value('attendeeService', {});
     });
   });
 
