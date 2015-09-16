@@ -41,6 +41,7 @@ describe('The Contacts Angular module', function() {
     };
     $location = {
       path: function() {},
+      url: function() {},
       search: function() {
         return {
           q: {
@@ -379,7 +380,7 @@ describe('The Contacts Angular module', function() {
           return $q.when();
         };
         contactsService.remove = function(id, contact) {
-          $location.path = function(path) {
+          $location.url = function(path) {
             expect(path).to.equal('/contact/new/' + bookId);
             expect(sharedDataService.contact).to.deep.equal(scope.contact);
 
@@ -1180,7 +1181,7 @@ describe('The Contacts Angular module', function() {
           _id: 123
         };
 
-        $location.path = function(url) {
+        $location.url = function(url) {
           expect(url).to.equal('/contact/new/' + user._id);
           done();
         };
