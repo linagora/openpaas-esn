@@ -173,8 +173,6 @@ angular.module('esn.calendar')
         });
     }
 
-    this.submit = this.isNew($scope.editedEvent) ? this.addNewEvent : this.modifyEvent;
-
     this.changeParticipation = function(status) {
       if ($scope.isOrganizer && !$scope.invitedAttendee) {
         var organizer = angular.copy($scope.editedEvent.organizer);

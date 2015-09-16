@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -11,8 +12,66 @@ describe('The event-quick-form Angular module directives', function() {
     this.gracePeriodService = {};
 
     var self = this;
-    angular.mock.module(function($provide) {
+    angular.mock.module(function($provide, $controllerProvider) {
       $provide.value('gracePeriodService', self.gracePeriodService);
+    });
+  });
+
+  describe('submit fn', function() {
+    var spyNewEvent = sinon.spy();
+    var spyModifyEvent = sinon.spy();
+    beforeEach(function() {
+      angular.mock.module(function($provide, $controllerProvider) {
+        $controllerProvider.register('eventFormController', function($scope) {
+          $scope.event = {};
+          $scope.editedEvent = {};
+          this.initFormData = function() {};
+          this.isNew = function() {
+            return !$scope.selectedEvent._id;
+          };
+          this.addNewEvent = spyNewEvent;
+          this.modifyEvent = spyModifyEvent;
+        });
+      });
+    });
+
+    beforeEach(angular.mock.inject(function($compile, $rootScope, moment) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+      this.$scope = this.$rootScope.$new();
+      this.moment = moment;
+
+      this.initDirective = function(scope) {
+        var html = '<event-quick-form/>';
+        var element = this.$compile(html)(scope);
+        scope.$digest();
+        return element;
+      };
+    }));
+
+    it('should have a submit function that is addNewEvent', function() {
+      this.$scope.selectedEvent = {
+        allDay: true,
+        start: this.moment('2013-02-08 12:30'),
+        end: this.moment('2013-02-08 13:30'),
+        location: 'aLocation'
+      };
+      this.initDirective(this.$scope);
+      this.$scope.submit();
+      expect(spyNewEvent).to.have.been.called;
+    });
+
+    it('should have a submit function that is modifyEvent', function() {
+      this.$scope.selectedEvent = {
+        _id: '12345',
+        allDay: true,
+        start: this.moment('2013-02-08 12:30'),
+        end: this.moment('2013-02-08 13:30'),
+        location: 'aLocation'
+      };
+      this.initDirective(this.$scope);
+      this.$scope.submit();
+      expect(spyModifyEvent).to.have.been.called;
     });
   });
 
