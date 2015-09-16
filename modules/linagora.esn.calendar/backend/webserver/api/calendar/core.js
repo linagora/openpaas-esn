@@ -234,10 +234,10 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
 
       var message = {
         subject: subject,
+        encoding: 'base64',
         alternatives: [{
           content: ics,
-          contentType: 'text/calendar; charset=UTF-8; method=' + method,
-          encoding: 'base64'
+          contentType: 'text/calendar; charset=UTF-8; method=' + method
         }],
         attachments: [{
           filename: 'meeting.ics',

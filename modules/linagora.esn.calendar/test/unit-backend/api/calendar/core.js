@@ -467,10 +467,10 @@ describe('The calendar core module', function() {
           template: 'event.invitation',
           message: {
             subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname + ': description',
+            encoding: 'base64',
             alternatives: [{
               content: ics,
               contentType: 'text/calendar; charset=UTF-8; method=' + method,
-              encoding: 'base64'
             }],
             attachments: [{
               filename: 'meeting.ics',
