@@ -24,5 +24,5 @@
       .fg-line
         .checkbox
           label
-            input(type="checkbox", ng-model='event.allDay', ng-disabled="disabled", ng-change="allDayOnChange()")
+            input(type="checkbox", ng-model='event.allDay', ng-disabled="disabled", ng-change="allDayOnChange(); resetToDefaultDate();")
             i.input-helper #{__('All day')}

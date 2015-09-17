@@ -1,11 +1,24 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventDateEdition', function(moment) {
+  .directive('eventDateEdition', function(moment, calendarUtils) {
     function link(scope) {
       scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
       scope.dateOnBlur = scope.dateOnBlur || function() {};
       scope.allDayOnChange = scope.allDayOnChange || function() {};
+
+      // The first time the directive is loaded, we need to know if we will have to reset date
+      // to default value. This reset should also be done only the first time we are clicking the allday checkbox.
+      // After that start and end will be computed depending on scope.event.diff.
+      var resetDate = scope.event.allDay;
+
+      scope.resetToDefaultDate = function() {
+        if (resetDate) {
+          scope.event.start = calendarUtils.getNewStartDate();
+          scope.event.end = calendarUtils.getNewEndDate();
+          resetDate = false;
+        }
+      };
 
       scope.getMinDate = function() {
         if (scope.event.start) {
