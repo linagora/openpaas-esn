@@ -28,8 +28,8 @@ describe('The welcome app', function() {
       expect(route.current.pathParams).to.deep.equal({id: anId});
     });
 
-    it('should load the login page when routing to /login', function() {
-      httpBackend.expectGET('/views/modules/login/home').respond(200);
+    it('should load the home page when routing to /login', function() {
+      httpBackend.expectGET('/views/welcome/partials/home').respond(200);
       location.path('/login');
       rootScope.$digest();
       expect(route.current.originalPath).to.equal('/login');
