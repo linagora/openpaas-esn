@@ -140,5 +140,17 @@ describe('The event-quick-form Angular module directives', function() {
       expect(this.eventService.originalEvent).to.deep.equal({});
       expect(this.eventService.editedEvent).to.deep.equal({});
     });
+
+    it('should prevent default back behavior', function(done) {
+      this.initDirective(this.$scope);
+      this.$scope.createModal = {
+        hide: function() {
+          done();
+        }
+      };
+      var event = this.$scope.$broadcast('$locationChangeStart');
+      expect(event.defaultPrevented).to.be.true;
+      expect(this.$scope.closeModal).toHaveBeenCalled();
+    });
   });
 });
