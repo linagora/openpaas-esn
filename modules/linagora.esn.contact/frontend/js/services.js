@@ -1,21 +1,6 @@
 'use strict';
 
-/* global ICAL */
-
 angular.module('linagora.esn.contact')
-  .constant('ICAL', ICAL)
-  .constant('DAV_PATH', '/dav/api')
-  .constant('CONTACT_EVENTS', {
-    CREATED: 'contact:created',
-    UPDATED: 'contact:updated',
-    DELETED: 'contact:deleted',
-    CANCEL_DELETE: 'contact:cancel:delete'
-  })
-  .constant('CONTACT_SIO_EVENTS', {
-    CREATED: 'contact:created',
-    DELETED: 'contact:deleted',
-    UPDATED: 'contact:updated'
-  })
   .run(function($rootScope, liveRefreshContactService) {
     $rootScope.$on('$routeChangeSuccess', function(evt, current, previous) {
       if (current && current.originalPath &&
@@ -27,7 +12,7 @@ angular.module('linagora.esn.contact')
       }
     });
   })
-  .factory('ContactsHelper', function(DATE_FORMAT, $dateFormatter) {
+  .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, $dateFormatter) {
 
     function getFormattedBirthday(birthday) {
       if (birthday instanceof Date) {
@@ -134,7 +119,7 @@ angular.module('linagora.esn.contact')
       }
 
       if (contact.birthday) {
-        return $dateFormatter.formatDate(contact.birthday, DATE_FORMAT);
+        return $dateFormatter.formatDate(contact.birthday, CONTACT_DATE_FORMAT);
       }
     }
 
@@ -681,5 +666,55 @@ angular.module('linagora.esn.contact')
       deleteContact: deleteContact,
       shellToVCARD: shellToVCARD,
       ContactsShell: ContactsShell
+    };
+  })
+  .factory('displayContactError', function($alert) {
+    return function(err) {
+      $alert({
+        content: err,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '.contact-error-container',
+        duration: '3',
+        animation: 'am-flip-x'
+      });
+    };
+  })
+  .factory('closeContactForm', function($location) {
+    return function() {
+      $location.path('/contact');
+    };
+  })
+  .factory('openContactForm', function($location, sharedContactDataService) {
+    return function(bookId, contact) {
+      if (contact) {
+        sharedContactDataService.contact = contact;
+      }
+
+      $location.url('/contact/new/' + bookId);
+    };
+  })
+  .factory('sharedContactDataService', function() {
+    return {
+      contact: {}
+    };
+  })
+  .factory('sendContactToBackend', function($location, ContactsHelper, $q) {
+    return function($scope, sendRequest) {
+      if ($scope.calling) {
+        return $q.reject('The form is already being submitted');
+      }
+
+      $scope.contact.displayName = ContactsHelper.getFormattedName($scope.contact);
+      if (!$scope.contact.displayName) {
+        return $q.reject('Please fill at least a field');
+      }
+
+      $scope.calling = true;
+
+      return sendRequest().finally (function() {
+        $scope.calling = false;
+      });
     };
   });

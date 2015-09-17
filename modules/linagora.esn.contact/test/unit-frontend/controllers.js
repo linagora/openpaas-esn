@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
-      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService, sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {}, CONTACT_EVENTS;
+      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {}, CONTACT_EVENTS;
 
   beforeEach(function() {
     usSpinnerService = {
@@ -94,11 +94,11 @@ describe('The Contacts Angular module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _sharedDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _sharedContactDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $timeout = _$timeout_;
-    sharedDataService = _sharedDataService_;
+    sharedContactDataService = _sharedContactDataService_;
     sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {
       a[b] = [];
 
@@ -124,7 +124,7 @@ describe('The Contacts Angular module', function() {
 
       $controller('newContactController', {
         $scope: scope,
-        sharedDataService: {
+        sharedContactDataService: {
           contact: contact
         }
       });
@@ -132,19 +132,19 @@ describe('The Contacts Angular module', function() {
       expect(scope.contact).to.deep.equal(contact);
     });
 
-    it('should clear sharedDataService.contact after initialization', function() {
+    it('should clear sharedContactDataService.contact after initialization', function() {
       var scope = {},
           contact = {lastName: 'Last'},
-          sharedDataService = {
+          sharedContactDataService = {
             contact: contact
           };
 
       $controller('newContactController', {
         $scope: scope,
-        sharedDataService: sharedDataService
+        sharedContactDataService: sharedContactDataService
       });
 
-      expect(sharedDataService.contact).to.deep.equal({});
+      expect(sharedContactDataService.contact).to.deep.equal({});
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
@@ -382,7 +382,7 @@ describe('The Contacts Angular module', function() {
         contactsService.remove = function(id, contact) {
           $location.url = function(path) {
             expect(path).to.equal('/contact/new/' + bookId);
-            expect(sharedDataService.contact).to.deep.equal(scope.contact);
+            expect(sharedContactDataService.contact).to.deep.equal(scope.contact);
 
             done();
           };
@@ -1262,12 +1262,12 @@ describe('The Contacts Angular module', function() {
         });
       });
 
-      it('should displayError on search failure', function(done) {
+      it('should displayContactError on search failure', function(done) {
         var search = 'Bruce Willis';
 
         $controller('contactsListController', {
           $scope: scope,
-          displayError: function(error) {
+          displayContactError: function(error) {
             expect(error).to.match(/Can not search contacts/);
             done();
           },

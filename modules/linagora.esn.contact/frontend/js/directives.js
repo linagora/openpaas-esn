@@ -1,8 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .constant('ENTER_KEY', 13)
-  .constant('ESCAPE_KEY', 27)
   .directive('contactNavbarLink', function() {
     return {
       restrict: 'E',
@@ -10,83 +8,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
-  .controller('MultiInputGroupController', function($scope, $timeout) {
-    function _updateTypes() {
-      $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
-    }
 
-    function _acceptNew() {
-      $scope.content.push($scope.newItem);
-      $scope.newItem = {};
-      _updateTypes();
-    }
-
-    function _acceptRemove($index) {
-      $scope.content.splice($index, 1);
-      _updateTypes();
-    }
-
-    this.createVerifyNewFunction = function(/* valuesToCheck... */) {
-      var args = arguments;
-      return function() {
-        if (Array.prototype.every.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          _acceptNew();
-        }
-      };
-    };
-
-    this.createVerifyRemoveFunction = function(valueToCheck) {
-      return function($index) {
-        var item = $scope.content[$index];
-        if (!item[valueToCheck]) {
-          _acceptRemove($index);
-        }
-      };
-    };
-
-    this.createVerifyNewAddressFunction = function() {
-      var args = arguments;
-
-      return function() {
-        if (Array.prototype.some.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          _acceptNew();
-        }
-      };
-    };
-
-    this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
-      var args = arguments;
-      return function($index) {
-       $scope.content.forEach(function(item) {
-          if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
-            _acceptRemove($index);
-          }
-        });
-      };
-    };
-
-    $scope.$watch('content', _updateTypes);
-
-    $scope.content = [];
-    $scope.newItem = {};
-  })
-  .directive('multiInputGroup', function() {
-    return {
-      restrict: 'E',
-      scope: {
-        content: '=multiInputModel',
-        types: '=multiInputTypes',
-        inputType: '@multiInputTexttype',
-        placeholder: '@multiInputPlaceholder'
-      },
-      templateUrl: '/contact/views/partials/multi-input-group.html',
-      controller: 'MultiInputGroupController',
-      link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.createVerifyNewFunction('value');
-        scope.verifyRemove = controller.createVerifyRemoveFunction('value');
-      }
-    };
-  })
   .directive('multiInputGroupAddress', function() {
     return {
       restrict: 'E',
@@ -136,7 +58,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListCard', function(DEFAULT_AVATAR) {
+  .directive('contactListCard', function(CONTACT_DEFAULT_AVATAR) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-card.html',
@@ -146,7 +68,7 @@ angular.module('linagora.esn.contact')
       },
       controller: 'contactItemController',
       link: function($scope) {
-        $scope.defaultAvatar = DEFAULT_AVATAR;
+        $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
       }
     };
   })
@@ -183,7 +105,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactPhoto', function(DEFAULT_AVATAR) {
+  .directive('contactPhoto', function(CONTACT_DEFAULT_AVATAR) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-photo.html',
@@ -192,7 +114,7 @@ angular.module('linagora.esn.contact')
         editable: '@'
       },
       link: function($scope) {
-        $scope.defaultAvatar = DEFAULT_AVATAR;
+        $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
       }
     };
   })
@@ -202,18 +124,18 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-search-form.html'
     };
   })
-  .directive('relaxedDate', function(DATE_FORMAT, $dateParser, $dateFormatter) {
+  .directive('relaxedDate', function(CONTACT_DATE_FORMAT, $dateParser, $dateFormatter) {
     return {
       restrict: 'A',
       require: 'ngModel',
       link: function(scope, element, attrs, controller) {
-        element.attr('placeholder', DATE_FORMAT);
+        element.attr('placeholder', CONTACT_DATE_FORMAT);
 
         controller.$parsers.push(function(text) {
-          return $dateParser({ format: DATE_FORMAT }).parse(text) || text;
+          return $dateParser({ format: CONTACT_DATE_FORMAT }).parse(text) || text;
         });
         controller.$formatters.push(function(dateOrText) {
-          return $dateFormatter.formatDate(dateOrText, DATE_FORMAT);
+          return $dateFormatter.formatDate(dateOrText, CONTACT_DATE_FORMAT);
         });
       }
     };
