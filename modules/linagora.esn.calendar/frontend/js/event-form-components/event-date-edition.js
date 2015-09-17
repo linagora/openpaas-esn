@@ -72,8 +72,9 @@ angular.module('esn.calendar')
   .directive('friendlifyEndDate', function(moment) {
     function link(scope, element, attrs, ngModel) {
       function _ToView(value) {
-        if (scope.event.allDay) {
-          var valueToDisplay = moment(new Date(value)).subtract(1, 'days').format('YYYY/MM/DD');
+        var valueToMoment = moment(new Date(value));
+        if (scope.event.allDay && !valueToMoment.isSame(scope.event.start, 'day')) {
+          var valueToDisplay = valueToMoment.subtract(1, 'days').format('YYYY/MM/DD');
           ngModel.$setViewValue(valueToDisplay);
           ngModel.$render();
           return valueToDisplay;
@@ -90,7 +91,8 @@ angular.module('esn.calendar')
 
       /**
        * Ensure that the view has a userfriendly end date output by removing 1 day to the event.end
-       * if it is an allDay. We must does it because fullCalendar uses exclusive date/time end date.
+       * if it is an allDay. We must do it because fullCalendar uses exclusive date/time end date.
+       * Also it is not necessary to do it if the end date is same day than the start date.
        */
       ngModel.$formatters.unshift(_ToView);
 

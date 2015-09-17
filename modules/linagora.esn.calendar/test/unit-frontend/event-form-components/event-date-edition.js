@@ -206,6 +206,17 @@ describe('The event-date-edition component', function() {
       expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
     });
 
+    it('should have a first formatters that do nothing if event is allday and event.start is same day than event.end', function() {
+      this.$scope.event = {
+        allDay: true,
+        start: this.moment('2015-07-03'),
+        end: this.moment('2015-07-03')
+      };
+      var element = this.initDirective(this.$scope);
+      var formatter = element.controller('ngModel').$formatters[0];
+      expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
+    });
+
     it('should have a last parsers that add 1 day if event is allday', function() {
       this.$scope.event = {
         allDay: true
