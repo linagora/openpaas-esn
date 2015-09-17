@@ -729,7 +729,7 @@ describe('The Contacts Angular module', function() {
       $rootScope.$digest();
     });
 
-    it('should not add the contact to the search result list on CONTACT_EVENTS.CREATED event', function(done) {
+    it('should not live refresh the search result list', function(done) {
       var contact = {
         lastName: 'Last'
       };
@@ -749,9 +749,17 @@ describe('The Contacts Angular module', function() {
         AlphaCategoryService: function() {
           return {
             init: function() {},
-            addItems: function(data) {
-                mySpy();
-                return done(new Error('This test should not call addItems'));
+            addItems: function() {
+              mySpy();
+              return done(new Error('This test should not call addItems'));
+            },
+            removeItemWithId: function() {
+              mySpy();
+              return done(new Error('This test should not call removeItem'));
+            },
+            replaceItem: function() {
+              mySpy();
+              return done(new Error('This test should not call replaceItem'));
             },
             get: function() {}
           };
@@ -760,6 +768,8 @@ describe('The Contacts Angular module', function() {
 
       scope.searchInput = 'someQuery';
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+      $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
       $rootScope.$digest();
       expect(mySpy).to.have.been.callCount(0);
       done();
