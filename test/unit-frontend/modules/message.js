@@ -351,7 +351,7 @@ describe('The esn.message Angular module', function() {
       this.$rootScope = $r;
     }]));
 
-    it('should display error with duplicated choices', function() {
+    it('should display error with duplicated choices insensitively ', function() {
       var html = '<poll-edition poll="newpoll"></poll-edition>';
       this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
@@ -359,7 +359,7 @@ describe('The esn.message Angular module', function() {
       this.$rootScope.additionalData = {
         pollChoices: [
           {label: 'yes'},
-          {label: 'yes'}
+          {label: 'Yes'}
         ]
       };
       this.$rootScope.validators[0]();

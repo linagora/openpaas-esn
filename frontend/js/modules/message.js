@@ -512,10 +512,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         var choicesMap = {};
         var hasDuplicates = false;
         choices.forEach(function(element) {
-          if (element.label in choicesMap) {
+          if (element.label.toLowerCase() in choicesMap) {
             hasDuplicates = true;
           }
-          choicesMap[element.label] = true;
+          choicesMap[element.label.toLowerCase()] = true;
         });
         if (!choices || choices.length < 2) {
           scope.validationError.title = 'Your poll should contain at least two choices.';
