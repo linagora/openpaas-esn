@@ -1,0 +1,21 @@
+.row.event-recurrence-edition
+  .col-xs-12
+    .form-group
+      .input-group
+        span.input-group-addon
+          i.mdi.mdi-repeat
+        .fg-line.select
+          select.form-control(
+            ng-model="event.rrule.freq",
+            ng-options="item.value as item.label for item in rruleFreq",
+            ng-change="updateSwitchClass()")
+
+        .fg-line
+          div(ng-class="{'animate-switch-container': animateSwitchContainer}", ng-switch="event.rrule.freq")
+            .animate-switch(ng-switch-default)
+            .animate-switch(ng-switch-when="Daily")
+              p Daily
+            .animate-switch(ng-switch-when="Monthly")
+              p Monthly
+            .animate-switch(ng-switch-when="Yearly")
+              p Yearly
