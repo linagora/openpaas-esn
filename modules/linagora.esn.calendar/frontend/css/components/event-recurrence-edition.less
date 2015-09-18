@@ -1,9 +1,59 @@
 .event-recurrence-edition {
+
+  .recurrence-interval-input {
+    width: 50px;
+  }
+
+  .event-recurrence-flex-container {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    .interval, .on-days, .end, {
+      display: flex;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .interval {
+      .col-xs-10 {
+        display: flex;
+        justify-content: space-start;
+        span {
+          margin-left: 10px;
+        }
+      }
+    }
+
+    .on-days {
+      .labels {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+      }
+    }
+
+    .end {
+      .checkboxes {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        .checkbox-inline {
+          margin-left: 0;
+        }
+
+        .checkbox input[type="text"] {
+          opacity: 1;
+        }
+
+        label {
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+
   .animate-switch-container {
     position:relative;
-    background:white;
-    border:1px solid black;
-    height:40px;
     overflow:hidden;
   }
 

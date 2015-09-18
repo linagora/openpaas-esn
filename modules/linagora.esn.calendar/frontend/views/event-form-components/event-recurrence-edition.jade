@@ -9,13 +9,39 @@
             ng-model="event.rrule.freq",
             ng-options="item.value as item.label for item in rruleFreq",
             ng-change="updateSwitchClass()")
-
-        .fg-line
-          div(ng-class="{'animate-switch-container': animateSwitchContainer}", ng-switch="event.rrule.freq")
-            .animate-switch(ng-switch-default)
-            .animate-switch(ng-switch-when="Daily")
-              p Daily
-            .animate-switch(ng-switch-when="Monthly")
-              p Monthly
-            .animate-switch(ng-switch-when="Yearly")
-              p Yearly
+    .form-group.event-recurrence-flex-container
+      .interval
+        span.col-xs-2 Interval:
+        .col-xs-10
+          .fg-line.recurrence-interval-input
+            input.input-sm.form-control(type="text")
+          span days
+      .on-days
+        span.col-xs-2 On days:
+        div.col-xs-10.labels
+          label.checkbox.checkbox-inline(ng-repeat="day in ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']")
+            input.form-control(type="checkbox")
+            i.input-helper
+            {{day}}
+      .end
+        span.col-xs-2 End:
+        div.checkboxes.col-xs-10
+            label.checkbox.checkbox-inline
+              input.form-control(type="checkbox")
+              i.input-helper
+              | Never
+            label.checkbox.checkbox-inline
+              input.form-control(type="checkbox")
+              i.input-helper
+              .input-group
+                span.input-group-addon After
+                .fg-line
+                  input.input-sm.form-control(type="text")
+                span.input-group-addon.last Occurrences
+            label.checkbox.checkbox-inline
+              input.form-control(type="checkbox")
+              i.input-helper
+              .input-group
+                span.input-group-addon At
+                .fg-line
+                  input.input-sm.form-control(type="text", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker)
