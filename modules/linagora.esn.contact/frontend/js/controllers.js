@@ -1,62 +1,12 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .constant('DEFAULT_AVATAR', '/images/user.png')
-  .factory('displayError', function($alert) {
-    return function(err) {
-      $alert({
-        content: err,
-        type: 'danger',
-        show: true,
-        position: 'bottom',
-        container: '.contact-error-container',
-        duration: '3',
-        animation: 'am-flip-x'
-      });
-    };
-  })
-  .factory('closeForm', function($location) {
-    return function() {
-      $location.path('/contact');
-    };
-  })
-  .factory('openContactForm', function($location, sharedDataService) {
-    return function(bookId, contact) {
-      if (contact) {
-        sharedDataService.contact = contact;
-      }
 
-      $location.url('/contact/new/' + bookId);
-    };
-  })
-  .factory('sharedDataService', function() {
-    return {
-      contact: {}
-    };
-  })
-  .factory('sendContactToBackend', function($location, ContactsHelper, $q) {
-    return function($scope, sendRequest) {
-      if ($scope.calling) {
-        return $q.reject('The form is already being submitted');
-      }
-
-      $scope.contact.displayName = ContactsHelper.getFormattedName($scope.contact);
-      if (!$scope.contact.displayName) {
-        return $q.reject('Please fill at least a field');
-      }
-
-      $scope.calling = true;
-
-      return sendRequest().finally (function() {
-        $scope.calling = false;
-      });
-    };
-  })
-  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, gracePeriodService, openContactForm, sharedDataService, $q) {
+  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q) {
     $scope.bookId = $route.current.params.bookId;
-    $scope.contact = sharedDataService.contact;
+    $scope.contact = sharedContactDataService.contact;
 
-    $scope.close = closeForm;
+    $scope.close = closeContactForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
         return contactsService.create($scope.bookId, $scope.contact).then(null, function(err) {
@@ -64,8 +14,8 @@ angular.module('linagora.esn.contact')
 
           return $q.reject(err);
         });
-      }).then(closeForm, function(err) {
-        displayError(err);
+      }).then(closeContactForm, function(err) {
+        displayContactError(err);
 
         return $q.reject(err);
       }).then(function() {
@@ -84,17 +34,17 @@ angular.module('linagora.esn.contact')
       });
     };
 
-    sharedDataService.contact = {};
+    sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($scope, sharedDataService, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q, CONTACT_EVENTS) {
+  .controller('showContactController', function($scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
 
-    $scope.close = closeForm;
+    $scope.close = closeContactForm;
 
     $scope.deleteContact = function() {
-      closeForm();
+      closeContactForm();
       $timeout(function() {
         contactsService.deleteContact($scope.bookId, $scope.contact);
       }, 200);
@@ -103,25 +53,25 @@ angular.module('linagora.esn.contact')
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
-      $scope.defaultAvatar = DEFAULT_AVATAR;
+      $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     }, function() {
-      displayError('Cannot get contact details');
+      displayContactError('Cannot get contact details');
     });
 
-    sharedDataService.contact = {};
+    sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, defaultAvatarService, DEFAULT_AVATAR, GRACE_DELAY) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, defaultAvatarService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
       $scope.oldDisplayName = $scope.contact.displayName;
-      $scope.defaultAvatar = DEFAULT_AVATAR;
+      $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     }, function() {
-      displayError('Cannot get contact details');
+      displayContactError('Cannot get contact details');
     });
 
-    $scope.close = closeForm;
+    $scope.close = closeContactForm;
 
     $scope.save = function() {
       return sendContactToBackend($scope, function() {
@@ -138,20 +88,20 @@ angular.module('linagora.esn.contact')
       }).then(function() {
         $location.path('/contact/show/' + $scope.bookId + '/' + $scope.cardId);
       }, function(err) {
-        displayError(err);
+        displayContactError(err);
         return $q.reject(err);
       });
     };
 
     $scope.deleteContact = function() {
-      closeForm();
+      closeContactForm();
       $timeout(function() {
         contactsService.deleteContact($scope.bookId, $scope.contact);
       }, 200);
     };
 
   })
-  .controller('contactsListController', function($log, $scope, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY, $timeout) {
+  .controller('contactsListController', function($log, $scope, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY, $timeout) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -203,7 +153,7 @@ angular.module('linagora.esn.contact')
     $scope.loadContacts = function() {
       return contactsService.list($scope.bookId).then(addItemsToCategories, function(err) {
         $log.error('Can not get contacts', err);
-        displayError('Can not get contacts');
+        displayContactError('Can not get contacts');
       });
     };
 
@@ -282,7 +232,7 @@ angular.module('linagora.esn.contact')
         }
       }, function(err) {
         $log.error('Can not search contacts', err);
-        displayError('Can not search contacts');
+        displayContactError('Can not search contacts');
         $scope.searchFailure = true;
       }).finally (function() {
         $scope.loadingNextSearchResults = false;
@@ -302,7 +252,7 @@ angular.module('linagora.esn.contact')
         }
       }, function(err) {
         $log.error('Can not search contacts', err);
-        displayError('Can not search contacts');
+        displayContactError('Can not search contacts');
         $scope.searchFailure = true;
       }).finally (function() {
         $scope.loadingNextSearchResults = false;

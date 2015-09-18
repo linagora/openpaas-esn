@@ -67,12 +67,12 @@ describe('The contact Angular module directives', function() {
 
   describe('The relaxedDate directive', function() {
 
-    var $compile, $rootScope, element, $scope, DATE_FORMAT;
+    var $compile, $rootScope, element, $scope, CONTACT_DATE_FORMAT;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _DATE_FORMAT_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_DATE_FORMAT_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
-      DATE_FORMAT = _DATE_FORMAT_;
+      CONTACT_DATE_FORMAT = _CONTACT_DATE_FORMAT_;
 
       $scope = $rootScope.$new();
     }));
@@ -82,7 +82,7 @@ describe('The contact Angular module directives', function() {
     });
 
     it('should define the placeholder on the element', function() {
-      expect(element.find('input').attr('placeholder')).to.equal(DATE_FORMAT);
+      expect(element.find('input').attr('placeholder')).to.equal(CONTACT_DATE_FORMAT);
     });
 
     it('should parse the value as a Date object', function() {
