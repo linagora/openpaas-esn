@@ -75,4 +75,18 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/event-quick-form/event-quick-form.html',
       link: link
     };
+  })
+
+  .directive('backCloseModal', function() {
+    return {
+      restrict: 'A',
+      link: function(scope) {
+        scope.$on('$locationChangeStart', function(event) {
+          event.preventDefault();
+          if (scope.createModal) {
+            scope.closeModal();
+          }
+        });
+      }
+    };
   });
