@@ -33,7 +33,7 @@ angular.module('welcomeApp', [
     });
 
     $routeProvider.when('/login', {
-      templateUrl: '/views/modules/login/home'
+      templateUrl: '/views/welcome/partials/home'
     });
 
     $routeProvider.when('/', {
