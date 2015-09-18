@@ -39,7 +39,7 @@
                 i.mdi.mdi-web.m-r-5 
                 | #{__('Company Website')}
               dd 
-                a(ng-href="contact.orgUri") {{contact.orgUri}}
+                a(ng-href="{{contact.orgUri}}" target='_blank') {{contact.orgUri}}
       .pmb-block(ng-if='contact.emails.length!==0 || contact.tel.length!==0 || contact.addresses.length!==0 || contact.social.length!==0')
         .pmbb-header
           h2 
