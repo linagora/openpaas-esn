@@ -331,9 +331,27 @@
   height: 128px;
 }
 
+.button-add {
+  color: @m-green;
+  font-size: 1.5em;
+}
+
+.button-remove {
+  color: @m-red;
+  font-size: 1.5em;
+  position: absolute;
+  right: 0;
+  bottom: 7px;
+  z-index: 9;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
 @media (max-width: @screen-xs-max) {
   .no-padding-xs {
-    padding:0;
+    padding:0 !important; /* Needed to override bootsrap */
   }
   .main-content:before, .main-content:after {
     content: "";
