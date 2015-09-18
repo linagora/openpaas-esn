@@ -508,7 +508,7 @@ describe('The calendar module services', function() {
 
     describe('The list fn', function() {
 
-      it('should list events', function(done) {
+      it('should list non-recurring events', function(done) {
         var data = {
           match: { start: '20140101T000000', end: '20140102T000000' }
         };
@@ -544,13 +544,84 @@ describe('The calendar module services', function() {
             expect(events).to.be.an.array;
             expect(events.length).to.equal(1);
             expect(events[0].id).to.equal('myuid');
+            expect(events[0].uid).to.equal('myuid');
             expect(events[0].title).to.equal('title');
             expect(events[0].location).to.equal('location');
             expect(events[0].start.toDate()).to.equalDate(moment('2014-01-01 02:03:04').toDate());
             expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
             expect(events[0].vcalendar).to.be.an('object');
+            expect(events[0].vevent).to.be.an('object');
             expect(events[0].etag).to.equal('"123123"');
             expect(events[0].path).to.equal('/prepath/path/to/calendar/myuid.ics');
+        }.bind(this)).finally (done);
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should list recurring events', function(done) {
+        var data = {
+          match: { start: '20140101T000000', end: '20140103T000000' }
+        };
+        this.$httpBackend.expectPOST('/dav/api/path/to/calendar.json', data).respond({
+          '_links': {
+            'self': { 'href': '/prepath/path/to/calendar.json' }
+          },
+          '_embedded': {
+            'dav:item': [{
+              '_links': {
+                'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
+              },
+              'etag': '"123123"',
+              'data': [
+                'vcalendar', [], [
+                  ['vevent', [
+                    ['uid', {}, 'text', 'myuid'],
+                    ['summary', {}, 'text', 'title'],
+                    ['location', {}, 'text', 'location'],
+                    ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+                    ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
+                    ['recurrence-id', {}, 'date-time', '2014-01-01T02:03:04']
+                  ], []],
+                  ['vevent', [
+                    ['uid', {}, 'text', 'myuid'],
+                    ['summary', {}, 'text', 'title'],
+                    ['location', {}, 'text', 'location'],
+                    ['dtstart', {}, 'date-time', '2014-01-02T02:03:04'],
+                    ['dtend', {}, 'date-time', '2014-01-02T03:03:04'],
+                    ['recurrence-id', {}, 'date-time', '2014-01-02T02:03:04']
+                  ], []]
+                ]
+              ]
+            }]
+          }
+        });
+
+        var start = new Date(2014, 0, 1);
+        var end = new Date(2014, 0, 3);
+
+        this.calendarService.list('/path/to/calendar', start, end, false).then(function(events) {
+            expect(events).to.be.an.array;
+            expect(events.length).to.equal(2);
+            expect(events[0].uid).to.equal('myuid');
+            expect(events[0].isInstance).to.be.true;
+            expect(events[0].id).to.equal('myuid_2014-01-01T02:03:04Z');
+            expect(events[0].start.toDate()).to.equalDate(moment('2014-01-01 02:03:04').toDate());
+            expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
+            expect(events[0].vcalendar).to.be.an('object');
+            expect(events[0].vevent).to.be.an('object');
+            expect(events[0].etag).to.equal('"123123"');
+            expect(events[0].path).to.equal('/prepath/path/to/calendar/myuid.ics');
+
+            expect(events[1].uid).to.equal('myuid');
+            expect(events[1].isInstance).to.be.true;
+            expect(events[1].id).to.equal('myuid_2014-01-02T02:03:04Z');
+            expect(events[1].start.toDate()).to.equalDate(moment('2014-01-02 02:03:04').toDate());
+            expect(events[1].end.toDate()).to.equalDate(moment('2014-01-02 03:03:04').toDate());
+            expect(events[1].vcalendar).to.be.an('object');
+            expect(events[1].vevent).to.be.an('object');
+            expect(events[1].etag).to.equal('"123123"');
+            expect(events[1].path).to.equal('/prepath/path/to/calendar/myuid.ics');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();

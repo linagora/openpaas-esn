@@ -102,9 +102,17 @@ angular.module('esn.calendar')
      * @param {String} etag                  The ETag of the event.
      * @param {String} gracePeriodTaskId     The gracePeriodTaskId of the event.
      */
-    function CalendarShell(vcalendar, path, etag, gracePeriodTaskId) {
-      var vevent = vcalendar.getFirstSubcomponent('vevent');
-      this.id = vevent.getFirstPropertyValue('uid');
+    function CalendarShell(vcomponent, path, etag, gracePeriodTaskId) {
+      var vcalendar, vevent;
+      if (vcomponent.name === 'vcalendar') {
+        vevent = vcomponent.getFirstSubcomponent('vevent');
+        vcalendar = vcomponent;
+      } else if (vcomponent.name === 'vevent') {
+        vevent = vcomponent;
+        vcalendar = vevent.parent;
+      }
+
+      this.uid = vevent.getFirstPropertyValue('uid');
       this.title = vevent.getFirstPropertyValue('summary');
       this.location = vevent.getFirstPropertyValue('location');
       this.description = vevent.getFirstPropertyValue('description');
@@ -116,10 +124,15 @@ angular.module('esn.calendar')
       this.formattedStartA = this.start.format('a');
       this.formattedEndTime = this.end.format('h');
       this.formattedEndA = this.end.format('a');
+
       var status = vevent.getFirstPropertyValue('status');
       if (status) {
         this.status = status;
       }
+
+      var recId = vevent.getFirstPropertyValue('recurrence-id');
+      this.isInstance = !!recId;
+      this.id = recId ? this.uid + '_' + recId.convertToZone(ICAL.Timezone.utcTimezone) : this.uid;
 
       var attendees = this.attendees = [];
 
@@ -155,6 +168,7 @@ angular.module('esn.calendar')
       // NOTE: changing any of the above properties won't update the vevent, or
       // vice versa.
       this.vcalendar = vcalendar;
+      this.vevent = vevent;
       this.path = path;
       this.etag = etag;
       this.gracePeriodTaskId = gracePeriodTaskId;
@@ -163,7 +177,7 @@ angular.module('esn.calendar')
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
 
     function shellToICAL(shell) {
-      var uid = shell.id || uuid4.generate();
+      var uid = shell.uid || uuid4.generate();
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', uid);
@@ -260,10 +274,16 @@ angular.module('esn.calendar')
         if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
           return [];
         }
-        return response.data._embedded['dav:item'].map(function(icaldata) {
+        return response.data._embedded['dav:item'].reduce(function(shells, icaldata) {
           var vcalendar = new ICAL.Component(icaldata.data);
-          return new CalendarShell(vcalendar, icaldata._links.self.href, icaldata.etag);
-        });
+          var vevents = vcalendar.getAllSubcomponents('vevent');
+          vevents.forEach(function(vevent) {
+            var shell = new CalendarShell(vevent, icaldata._links.self.href, icaldata.etag);
+            shells.push(shell);
+          });
+
+          return shells;
+        }, []);
       });
     }
 
@@ -398,7 +418,7 @@ angular.module('esn.calendar')
       } else {
         // This is a create event because the event is not created yet in sabre/dav,
         // we then should only cancel the first creation task.
-        path = path.replace(/\/$/, '') + '/' + event.id + '.ics';
+        path = path.replace(/\/$/, '') + '/' + event.uid + '.ics';
         gracePeriodService.cancel(event.gracePeriodTaskId);
       }
 
