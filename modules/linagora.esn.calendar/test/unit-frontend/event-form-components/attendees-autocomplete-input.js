@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The attendees-autocomplete-input component', function() {
 
-  var contactServiceMock, asSession, autoCompleteMax;
+  var attendeeServiceMock, asSession, autoCompleteMax;
 
   beforeEach(function() {
     asSession = {
@@ -21,30 +21,24 @@ describe('The attendees-autocomplete-input component', function() {
       }
     };
 
-    var asDomainAPI = {
-      getMembers: function(domainId, query) {
-        return $q.when({
-          data: [
-            { _id: '111111', firstname: 'first', lastname: 'last', emails: ['user1@test.com'], preferredEmail: 'user1@test.com' },
-            { _id: '222222', emails: ['fist@last'], preferredEmail: 'fist@last' },
-            { _id: '333333', firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'], preferredEmail: 'johndoe@test.com' }
-          ],
-          domainId: domainId,
-          query: query
-        });
+    attendeeServiceMock = {
+      getAttendeeCandidates: function() {
+        return $q.when([
+          { id: '111111', firstname: 'first', lastname: 'last', email: 'user1@test.com', preferredEmail: 'user1@test.com', partstat: 'NEEDS-ACTION'},
+          { id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
+          { id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
+        ]);
       }
     };
 
-    contactServiceMock = {};
     autoCompleteMax = 6;
 
     module('jadeTemplates');
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
-      $provide.value('domainAPI', asDomainAPI);
+      $provide.value('calendarAttendeeService', attendeeServiceMock);
       $provide.value('session', asSession);
       $provide.value('gracePeriodService', {});
-      $provide.value('contactsService', contactServiceMock);
       $provide.constant('AUTOCOMPLETE_MAX_RESULTS', autoCompleteMax);
     });
   });
@@ -67,59 +61,40 @@ describe('The attendees-autocomplete-input component', function() {
   describe('getInvitableAttendees', function() {
     var query = 'aQuery';
 
-    beforeEach(function() {
-      contactServiceMock.searchAllAddressBooks = function(userId, q) {
-        expect(userId).to.equal(asSession.user._id);
-        expect(q).to.equal(query);
-        return $q.when({
-          hits_list: [
-            { _id: 'contact1', firstname: 'first', lastname: 'last', emails: [{type: 'Work', value: 'user1@test.com'}] },
-            { _id: 'contact2', emails: [{type: 'Home', value: 'fist@last'}] }
-          ]
-        });
-      };
-    });
-
-    it('should call domainApi and contactService to return displayName and remove session.user', function(done) {
+    it('should call calendarAttendeeService and remove session.user', function(done) {
       this.initDirective(this.$scope);
       this.eleScope.getInvitableAttendees(query).then(function(response) {
         expect(response).to.deep.equal([
-          { id: '222222', _id: '222222', emails: ['fist@last'], preferredEmail: 'fist@last', displayName: 'fist@last', email: 'fist@last', partstat: 'NEEDS-ACTION', attendeeType: 'user' },
-          { id: '333333', _id: '333333', firstname: 'john', lastname: 'doe', 'emails': ['johndoe@test.com'], preferredEmail: 'johndoe@test.com',
-            displayName: 'john doe', email: 'johndoe@test.com', partstat: 'NEEDS-ACTION', attendeeType: 'user' },
-          { _id: 'contact2', emails: [{type: 'Home', value: 'fist@last'}], email: 'fist@last', attendeeType: 'contact', partstat: 'NEEDS-ACTION' }
+          { id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
+          { id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
         ]);
         done();
       });
       this.$scope.$digest();
     });
 
-    it('should call domainApi and contactService to return displayName and remove added attendees', function(done) {
+    it('should call calendarAttendeeService remove added attendees', function(done) {
       this.initDirective(this.$scope);
       this.eleScope.originalAttendees = [{
         email: 'fist@last'
       }];
       this.eleScope.getInvitableAttendees(query).then(function(response) {
         expect(response).to.deep.equal([
-          { id: '333333', _id: '333333', firstname: 'john', lastname: 'doe', 'emails': ['johndoe@test.com'], preferredEmail: 'johndoe@test.com',
-            displayName: 'john doe', email: 'johndoe@test.com', partstat: 'NEEDS-ACTION', attendeeType: 'user'}
+          { id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
         ]);
         done();
       });
       this.$scope.$digest();
     });
 
-    it('should call domainApi and contactService and return a maximum of AUTOCOMPLETE_MAX_RESULTS results', function(done) {
-      contactServiceMock.searchAllAddressBooks = function(userId, q) {
-        expect(userId).to.equal(asSession.user._id);
+    it('should call calendarAttendeeService and return a maximum of AUTOCOMPLETE_MAX_RESULTS results', function(done) {
+      attendeeServiceMock.getAttendeeCandidates = function(q) {
         expect(q).to.equal(query);
         var response = [];
         for (var i = 0; i < 20; i++) {
-          response.push({ _id: 'contact' + i, emails: [{type: 'Home', value: i + 'mail@domain.com'}] });
+          response.push({id: 'contact' + i, email: i + 'mail@domain.com', partstat: 'NEEDS-ACTION'});
         }
-        return $q.when({
-          hits_list: response
-        });
+        return $q.when(response);
       };
 
       this.initDirective(this.$scope);

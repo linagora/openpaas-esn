@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('attendeesAutocompleteInput', function($q, session, attendeeService, AUTOCOMPLETE_MAX_RESULTS, ATTENDEE_TYPES) {
+  .directive('attendeesAutocompleteInput', function($q, session, calendarAttendeeService, AUTOCOMPLETE_MAX_RESULTS) {
     function link(scope) {
       scope.onAddingAttendee = function(att) {
         // Attendees are added via tags-input, which uses displayName as the
@@ -10,7 +10,6 @@ angular.module('esn.calendar')
         var email = att.email || (att.emails && att.emails[0]);
         if (att.displayName && !email && !att.vcard) {
           att.email = email = att.displayName;
-          att.attendeeType = ATTENDEE_TYPES.EMAIL;
         }
 
         if (email) {
@@ -44,10 +43,7 @@ angular.module('esn.calendar')
           }
         });
 
-        return attendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(arrays) {
-          var attendeeCandidates = arrays.reduce(function(resultArray, currentArray) {
-            return resultArray.concat(currentArray);
-          }, []);
+        return calendarAttendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
           attendeeCandidates = attendeeCandidates.filter(function(attendeeCandidate) {
             return !(attendeeCandidate.email in addedAttendees) && !(attendeeCandidate.email in session.user.emailMap);
           });

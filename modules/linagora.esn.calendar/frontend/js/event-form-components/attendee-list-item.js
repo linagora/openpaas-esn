@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .directive('attendeeListItem', function(ATTENDEE_TYPES) {
+  .directive('attendeeListItem', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -12,12 +12,7 @@ angular.module('esn.calendar')
         readOnly: '='
       },
       link: function(scope) {
-        if (scope.attendee.attendeeType === ATTENDEE_TYPES.USER) {
-          scope.attendeeType = 'user';
-        }
-        else {
-          scope.attendeeType = 'email';
-        }
+        scope.attendeeType = scope.attendee.name === scope.attendee.email ? 'email' : 'user';
       }
     };
   });
