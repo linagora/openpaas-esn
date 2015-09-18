@@ -74,7 +74,7 @@ angular.module('esn.multi-input', [])
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder'
       },
-      templateUrl: '/contact/views/partials/multi-input-group.html',
+      templateUrl: '/views/modules/multi-input/multi-input-group.html',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
         scope.verifyNew = function() {
@@ -125,7 +125,7 @@ angular.module('esn.multi-input', [])
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder'
       },
-      templateUrl: '/contact/views/partials/multi-input-group-address.html',
+      templateUrl: '/views/modules/multi-input/multi-input-group-address.html',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
         function isAddressFilled() {
