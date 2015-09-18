@@ -188,10 +188,10 @@ angular.module('linagora.esn.contact')
     }
 
     $rootScope.$on('$routeChangeStart', function(evt, next, current) {
-      // clear cache to avoid memory leak when user swith to outside
+      // clear cache to avoid memory leak when user switch to outside
       // contact module
-      if (next && next.originalPath && next.originalPath !== '/contact' &&
-          next.originalPath.substring(0, 9) !== '/contact/') {
+      if (current && current.originalPath && current.originalPath.substring(0, 8) === '/contact' &&
+        next && next.originalPath && next.originalPath.substring(0, 8) !== '/contact') {
         clear();
       }
     });
