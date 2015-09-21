@@ -14,7 +14,6 @@ angular.module('esn.attendee', [])
       return $q.all(providers.map(function(provider) {
         return provider.searchAttendee(query, limit);
       })).then(function(arrays) {
-        console.log('pipo');
         return arrays.reduce(function(resultArray, currentArray) {
           return resultArray.concat(currentArray);
         }, []);

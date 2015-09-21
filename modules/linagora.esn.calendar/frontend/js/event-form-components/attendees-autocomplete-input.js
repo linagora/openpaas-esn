@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('attendeesAutocompleteInput', function($q, session, calendarAttendeeService, AUTOCOMPLETE_MAX_RESULTS) {
+  .directive('attendeesAutocompleteInput', function($q, session, calendarAttendeeService, emailService, AUTOCOMPLETE_MAX_RESULTS) {
     function link(scope) {
       scope.onAddingAttendee = function(att) {
         // Attendees are added via tags-input, which uses displayName as the
@@ -21,8 +21,7 @@ angular.module('esn.calendar')
             return existingAtt.email !== email;
           });
           // As a nice side-effect, allows us to check for a valid email
-          var emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$/;
-          return noduplicate && !!emailRegex.exec(email);
+          return noduplicate && emailService.isValidEmail(email);
         }
         return true;
       };
