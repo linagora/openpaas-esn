@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -9,6 +10,17 @@ describe('The event-date-edition component', function() {
   beforeEach(function() {
     module('jadeTemplates');
     angular.mock.module('esn.calendar');
+
+    this.getNewStartDate = sinon.spy();
+    this.getNewEndDate = sinon.spy();
+
+    var self = this;
+    angular.mock.module(function($provide) {
+      $provide.value('calendarUtils', {
+        getNewStartDate: self.getNewStartDate,
+        getNewEndDate: self.getNewEndDate
+      });
+    });
   });
 
   describe('eventDateEdition directive', function() {
@@ -34,6 +46,45 @@ describe('The event-date-edition component', function() {
       };
       this.initDirective(this.$scope);
       expect(this.$scope.event.diff).to.deep.equal(3600000);
+    });
+
+    describe('scope.resetToDefaultDate', function() {
+      it('should reset date if scope.event.allDay is true on load', function() {
+        this.$scope.event = {
+          start: this.moment('2013-02-08 09:30'),
+          end: this.moment('2013-02-08 10:30'),
+          allDay: true
+        };
+        this.initDirective(this.$scope);
+        this.eleScope.resetToDefaultDate();
+        expect(this.getNewStartDate).to.have.been.called;
+        expect(this.getNewEndDate).to.have.been.called;
+      });
+
+      it('should not reset date if scope.event.allDay is false on load', function() {
+        this.$scope.event = {
+          start: this.moment('2013-02-08 09:30'),
+          end: this.moment('2013-02-08 10:30'),
+          allDay: false
+        };
+        this.initDirective(this.$scope);
+        this.eleScope.resetToDefaultDate();
+        expect(this.getNewStartDate).to.have.not.been.called;
+        expect(this.getNewEndDate).to.have.not.been.called;
+      });
+
+      it('should reset date only once', function() {
+        this.$scope.event = {
+          start: this.moment('2013-02-08 09:30'),
+          end: this.moment('2013-02-08 10:30'),
+          allDay: true
+        };
+        this.initDirective(this.$scope);
+        this.eleScope.resetToDefaultDate();
+        this.eleScope.resetToDefaultDate();
+        expect(this.getNewStartDate).to.have.been.calledOnce;
+        expect(this.getNewEndDate).to.have.been.calledOnce;
+      });
     });
 
     describe('scope.getMinDate', function() {
@@ -149,6 +200,17 @@ describe('The event-date-edition component', function() {
     it('should have a first formatters that do nothing if event is not allday', function() {
       this.$scope.event = {
         allDay: false
+      };
+      var element = this.initDirective(this.$scope);
+      var formatter = element.controller('ngModel').$formatters[0];
+      expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
+    });
+
+    it('should have a first formatters that do nothing if event is allday and event.start is same day than event.end', function() {
+      this.$scope.event = {
+        allDay: true,
+        start: this.moment('2015-07-03'),
+        end: this.moment('2015-07-03')
       };
       var element = this.initDirective(this.$scope);
       var formatter = element.controller('ngModel').$formatters[0];
