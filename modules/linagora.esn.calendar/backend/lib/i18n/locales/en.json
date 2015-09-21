@@ -42,5 +42,16 @@
   "Cancel": "Cancel",
   "Back": "Back",
   "Consult": "Consult",
-  "Enter the title of your event": "Enter the title of your event"
+  "Enter the title of your event": "Enter the title of your event",
+  "Interval": "Interval",
+  "days": "days",
+  "weeks": "weeks",
+  "months": "months",
+  "years": "years",
+  "On days": "On days",
+  "End": "End",
+  "Never": "Never",
+  "After": "After",
+  "occurrences": "occurrences",
+  "At": "At"
 }
