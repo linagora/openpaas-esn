@@ -9,8 +9,9 @@ describe('The event-quick-form Angular module directives', function() {
   beforeEach(function() {
     module('jadeTemplates');
     angular.mock.module('esn.calendar');
-    this.gracePeriodService = {};
-
+    this.gracePeriodService = {
+      hasTaskFor: function() {}
+    };
     var self = this;
     angular.mock.module(function($provide, $controllerProvider) {
       $provide.value('gracePeriodService', self.gracePeriodService);

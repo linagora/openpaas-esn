@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
 
     $scope.event = eventService.originalEvent;
     $scope.editedEvent = eventService.editedEvent;
@@ -63,6 +63,10 @@ angular.module('esn.calendar')
       notificationFactoryFunction(title, content);
       _hideModal();
     }
+
+    this.canPerformCall = function() {
+      return !$scope.restActive && !gracePeriodService.hasTaskFor({id: $scope.editedEvent.id});
+    };
 
     this.addNewEvent = function() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {

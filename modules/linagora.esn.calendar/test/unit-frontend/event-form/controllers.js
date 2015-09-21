@@ -352,5 +352,38 @@ describe('The event-form module controllers', function() {
         });
       });
     });
+
+    describe('canPerformCall function', function() {
+
+      beforeEach(function() {
+        this.scope.editedEvent = {
+          id: 'eventId',
+          start: new Date()
+        };
+      });
+
+      it('should return false if scope.restActive is true', function() {
+        this.scope.restActive = true;
+        expect(this.eventFormController.canPerformCall()).to.be.false;
+      });
+
+      it('should return false if the gracePeriodService has a task for this event', function() {
+        this.gracePeriodService.hasTaskFor = function(context) {
+          expect(context).to.deep.equal({id: 'eventId'});
+          return true;
+        };
+        this.scope.restActive = false;
+        expect(this.eventFormController.canPerformCall()).to.be.false;
+      });
+
+      it('should return true if the gracePeriodService has no task for this event and restActive is false', function() {
+        this.gracePeriodService.hasTaskFor = function(id) {
+          expect(id).to.deep.equal({id: 'eventId'});
+          return false;
+        };
+        this.scope.restActive = false;
+        expect(this.eventFormController.canPerformCall()).to.be.true;
+      });
+    });
   });
 });
