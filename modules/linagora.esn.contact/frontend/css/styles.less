@@ -4,6 +4,7 @@
 @contact-toolbar-item-height: 35px;
 @contact-toolbar-switch-width: 65px;
 @contact-card-display-image-size: 96px;
+@full-size-avatar-max-resolution: 450px;
 
 #profile-main {
   a {
@@ -87,9 +88,25 @@ ul.dropdown {
       background-color: @primaryColor;
     }
   }
-  & > img {
+  img {
     width: 100%;
     border-bottom: 1px solid @gray;
+  }
+}
+
+@media(min-width: @full-size-avatar-max-resolution) {
+  .contact-header.visible-xs {
+    .contact-avatar {
+      text-align: center;
+      & > img {
+        display: inline;
+        width: @full-size-avatar-max-resolution;
+        margin-top: 30px;
+        margin-bottom: 20px;
+        border-radius: 3px;
+        border: 0;
+      }
+    }
   }
 }
 
