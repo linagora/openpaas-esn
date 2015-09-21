@@ -44,10 +44,6 @@ angular.module('esn.calendar')
           return WEEK_DAYS[key];
       });
 
-      scope.updateFlexClass = function() {
-        scope.animateFlexContainer = scope.event.recur.freq !== RECUR_FREQ[0].value;
-      };
-
       scope.toggleWeekdays = function(weekday) {
         var index = scope.event.recur.weekday.indexOf(WEEK_DAYS[weekday]);
         if (index > -1) {
