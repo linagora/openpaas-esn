@@ -630,12 +630,15 @@ describe('The Contacts Angular module', function() {
       gracePeriodService.flushAllTasks = 'aHandler';
       var event = null;
       var handler = null;
-      this.$window.addEventListener = function(evt, hdlr) {
-        event = evt;
-        handler = hdlr;
+      var window = {
+        addEventListener: function(evt, hdlr) {
+          event = evt;
+          handler = hdlr;
+        }
       };
       $controller('contactsListController', {
         $scope: scope,
+        $window: window,
         contactsService: {
           list: function() {
             return $q.reject('WTF');
@@ -830,6 +833,34 @@ describe('The Contacts Angular module', function() {
           _id: '123'
         }
       });
+      $rootScope.$digest();
+    });
+
+    it('should not load contact list when no query is specified in the URL and a request is ongoing', function(done) {
+      var query = null;
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      scope.loadingNextContacts = true;
+      contactsService.search = function() {
+        return done(new Error('This test should not call contactsService.search'));
+      };
+      contactsService.list = function() {
+        return done(new Error('This test should not call contactsService.list'));
+      };
+      $controller('contactsListController', {
+        $location: locationMock,
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+      $rootScope.$digest();
+      done();
     });
 
     it('should load search result list when a query is specified in the URL' , function(done) {
@@ -1070,6 +1101,7 @@ describe('The Contacts Angular module', function() {
           user: user
         });
         scope.loadContacts();
+        $rootScope.$digest();
       });
 
       it('should display error when contactsService.list fails', function(done) {
@@ -1143,8 +1175,9 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
         expect(scope.searchResult).to.deep.equal({});
-        expect(scope.currentPage).to.equal(1);
+        expect(scope.currentPage).to.equal(0);
       });
+
       it('should clean sorted_contacts', function() {
         $controller('contactsListController', {
           $scope: scope,
@@ -1187,6 +1220,29 @@ describe('The Contacts Angular module', function() {
         scope.loadContacts = done;
         scope.search();
         scope.$digest();
+      });
+
+      it('should clean pagination data', function() {
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            }
+          },
+          user: {
+            _id: '123'
+          }
+        });
+        scope.loadContacts = function() {};
+        scope.$digest();
+        scope.currentPage = 10;
+        scope.nextPage = 11;
+
+        scope.search();
+        scope.$digest();
+        expect(scope.currentPage).to.equal(0);
+        expect(scope.nextPage).to.equal(0);
       });
 
       it('should call contactsService.search with right values', function(done) {
@@ -1289,6 +1345,7 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
       });
+
       it('should prevent fetching next results page while loading current result page', function() {
         var search = 'Bruce Willis';
 
@@ -1321,12 +1378,13 @@ describe('The Contacts Angular module', function() {
 
         scope.searchInput = search;
         scope.search();
-        expect(scope.loadingNextSearchResults).to.be.true;
+        expect(scope.loadingNextContacts).to.be.true;
         scope.$digest();
         expect(scope.searchFailure).to.be.false;
-        expect(scope.loadingNextSearchResults).to.be.false;
+        expect(scope.loadingNextContacts).to.be.false;
       });
-      it('should allow fetching next result page when there is undisplayed results', function() {
+
+      it('should allow fetching next result page when there are undisplayed results', function() {
         var search = 'Bruce Willis';
 
         var contactWithA = { displayName: 'A B'};
@@ -1355,6 +1413,7 @@ describe('The Contacts Angular module', function() {
           },
           bookId: '456'
         });
+        scope.$digest();
 
         scope.searchInput = search;
         scope.totalHits = 0;
@@ -1363,7 +1422,8 @@ describe('The Contacts Angular module', function() {
         expect(scope.searchFailure).to.be.false;
         expect(scope.lastPage).to.be.false;
       });
-      it('should prevent fetching next result page when there is no more results', function() {
+
+      it('should prevent fetching next result page when there are no more results', function() {
         var search = 'Bruce Willis';
 
         var contactWithA = { displayName: 'A B'};
@@ -1392,6 +1452,7 @@ describe('The Contacts Angular module', function() {
           },
           bookId: '456'
         });
+        scope.$digest();
 
         scope.searchInput = search;
         scope.totalHits = 0;
@@ -1399,6 +1460,7 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
         expect(scope.lastPage).to.be.true;
       });
+
       it('should prevent fetching next result page when the previous search fails', function() {
         var search = 'Bruce Willis';
 
