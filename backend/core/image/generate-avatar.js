@@ -1,20 +1,8 @@
 'use strict';
 
 var Canvas = require('canvas');
-var Font = Canvas.Font;
-var path = require('path');
 
 var DEFAULT_AVATAR_SIZE = 128;
-
-var FONTS = {
-  Ubuntu: {
-    name: 'Ubuntu',
-    filename: 'Ubuntu-Regular.ttf',
-    // to improve perfomance, we precalculate ratio of font
-    ratioWithOneChar: 100 / 88 // (avatarSize/fontSize)
-  }
-};
-var DEFAULT_FONT = FONTS.Ubuntu;
 
 // color spec from:
 // https://www.google.com/design/spec/style/color.html#color-color-palette
@@ -42,16 +30,8 @@ var COLORS = [
 var COLORS_SIZE = COLORS.length;
 var DEFAULT_COLOR = COLORS[0];
 
-if (!Font) {
-  throw new Error('Need to compile node-canvas with font support');
-}
-
-function fontFile(name) {
-  return path.join(__dirname, 'fonts', name);
-}
-
-function fontName(size, name) {
-  return size + 'px ' + name;
+function fontName(size) {
+  return size + 'px Arial';
 }
 
 /**
@@ -67,16 +47,15 @@ function fontName(size, name) {
  * @param  {Context} canvasContext Context instance return by getContext('2d')
  *                                 method of Canvas
  * @param  {Number} canvasSize    size of Canvas
- * @param  {String} canvasFont    font to use in Canvas
  * @param  {String} text          text to be drawn
  * @return {Number}               calculated font size
  */
-var calculateFitFontSize = function(canvasContext, canvasSize, canvasFont, text) {
+var calculateFitFontSize = function(canvasContext, canvasSize, text) {
   var fontSize = 0;
   var textMetric, textWidth, textHeight;
   do {
     fontSize++;
-    canvasContext.font = fontName(fontSize, canvasFont);
+    canvasContext.font = fontName(fontSize);
     textMetric = canvasContext.measureText(text);
     textWidth = textMetric.width;
     textHeight = textMetric.emHeightAscent + textMetric.emHeightDescent;

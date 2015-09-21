@@ -12,12 +12,10 @@ describe('The image avatar module', function() {
 
   describe('The _calculateFitFontSize private fn', function() {
 
-    var canvasContext, canvasSize, canvasFont;
+    var canvasContext, canvasSize;
 
     beforeEach(function() {
       canvasSize = 100;
-      canvasFont = 'serif'; // or an arbitrary font, canvas will fallback to
-                            // system default font autimatically
 
       var canvas = new avatarModule.Canvas(canvasSize, canvasSize);
       canvasContext = canvas.getContext('2d');
@@ -25,7 +23,7 @@ describe('The image avatar module', function() {
 
     it('should return an approximate font size for canvas', function() {
       var fontSize = avatarModule
-        ._calculateFitFontSize(canvasContext, canvasSize, canvasFont, 'A');
+        ._calculateFitFontSize(canvasContext, canvasSize, 'A');
       expect(fontSize).to.be.a('number');
       expect(fontSize).to.least(1); // >= 1 because there's at least one do-while loop run
     });
@@ -34,10 +32,10 @@ describe('The image avatar module', function() {
       var text = 'A';
 
       var smallerSize = avatarModule
-        ._calculateFitFontSize(canvasContext, 100, canvasFont, text);
+        ._calculateFitFontSize(canvasContext, 100, text);
 
       var largerSize = avatarModule
-        ._calculateFitFontSize(canvasContext, 200, canvasFont, text);
+        ._calculateFitFontSize(canvasContext, 200, text);
 
       expect(smallerSize).to.most(largerSize);
 
@@ -45,13 +43,13 @@ describe('The image avatar module', function() {
 
     it('should return smaller font size when more letters added', function() {
       var largerSize = avatarModule
-        ._calculateFitFontSize(canvasContext, canvasSize, canvasFont, 'A');
+        ._calculateFitFontSize(canvasContext, canvasSize, 'A');
 
       var smallerSize = avatarModule
-        ._calculateFitFontSize(canvasContext, canvasSize, canvasFont, 'AA');
+        ._calculateFitFontSize(canvasContext, canvasSize, 'AA');
 
       var smallestSize = avatarModule
-        ._calculateFitFontSize(canvasContext, canvasSize, canvasFont, 'AAA');
+        ._calculateFitFontSize(canvasContext, canvasSize, 'AAA');
 
       expect(smallerSize).to.most(largerSize);
       expect(smallestSize).to.most(smallerSize);
@@ -60,14 +58,14 @@ describe('The image avatar module', function() {
 
     it('should still return font size when canvasSize is equal 0', function() {
       var fontSize = avatarModule
-        ._calculateFitFontSize(canvasContext, 0, canvasFont, 'A');
+        ._calculateFitFontSize(canvasContext, 0, 'A');
       expect(fontSize).is.an.instanceof.Number;
       expect(fontSize).to.least(1);
     });
 
     it('should still return font size when canvasSize is less than 0', function() {
       var fontSize = avatarModule
-        ._calculateFitFontSize(canvasContext, -5, canvasFont, 'A');
+        ._calculateFitFontSize(canvasContext, -5, 'A');
       expect(fontSize).is.an.instanceof.Number;
       expect(fontSize).to.least(1);
     });
