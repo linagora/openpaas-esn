@@ -89,42 +89,31 @@ var generateFromText = function(options) {
   var avatarSize = parseInt(options.size, 10) || DEFAULT_AVATAR_SIZE;
   var bgColor = options.bgColor || DEFAULT_COLOR.bgColor;
   var fgColor = options.fgColor || DEFAULT_COLOR.fgColor;
-  var avatarFont = FONTS[options.font] || DEFAULT_FONT;
 
   var canvas = new Canvas(avatarSize, avatarSize);
   var ctx = canvas.getContext('2d');
-
-  // Tell the ctx to use the font.
-  ctx.addFont(new Font('avatarFont', fontFile(avatarFont.filename)));
 
   // draw background
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, avatarSize, avatarSize);
 
   var fontSize = 1;
-  var textMetric, textWidth, textHeight;
 
   if (text.length === 1) {
     // use precalculated font ratio to improve perfomance
-    fontSize = avatarSize / avatarFont.ratioWithOneChar;
-
+    fontSize = avatarSize * 88 / 100;
   } else if (text.length > 1) {
-    fontSize = calculateFitFontSize(ctx, avatarSize, avatarFont.name, text);
+    fontSize = calculateFitFontSize(ctx, avatarSize, text);
   }
 
-  ctx.font = fontName(fontSize, avatarFont.name);
+  ctx.font = fontName(fontSize);
 
   // draw text in the center
   ctx.fillStyle = fgColor;
-  ctx.textBaseline = 'top';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
 
-  textMetric = ctx.measureText(text);
-  textWidth = textMetric.width;
-  textHeight = textMetric.emHeightAscent + textMetric.emHeightDescent;
-
-  var x = (avatarSize - textWidth) / 2;
-  var y = (avatarSize - textHeight) / 2;
-  ctx.fillText(text, x, y);
+  ctx.fillText(text, avatarSize / 2, avatarSize / 2);
 
   if (options.toBase64 === true) {
     return canvas.toDataURL();
