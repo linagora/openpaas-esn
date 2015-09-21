@@ -93,7 +93,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-photo.html',
       scope: {
         contact: '=',
-        editable: '@'
+        editable: '@',
+        listView: '@'
       },
       link: function($scope) {
         $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
