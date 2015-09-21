@@ -1,30 +1,90 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .constant('RRUL_FREQ', [{
+  .constant('RECUR_FREQ', [{
     // TODO i18n
-    value: 'None',
+    value: undefined,
     label: 'No repetition'
   }, {
-    value: 'Daily',
+    value: 'DAILY',
     label: 'Repeat daily'
   }, {
-    value: 'Monthly',
+    value: 'WEEKLY',
+    label: 'Repeat weekly'
+  }, {
+    value: 'MONTHLY',
     label: 'Repeat monthly'
   }, {
-    value: 'Yearly',
+    value: 'YEARLY',
     label: 'Repeat yearly'
   }])
-  .directive('eventRecurrenceEdition', function(moment, calendarUtils, RRUL_FREQ) {
-    function link(scope) {
+  .constant('WEEK_DAYS', {
+    'M': 'MO',
+    'T': 'TU',
+    'W': 'WE',
+    'Th': 'TH',
+    'F': 'FR',
+    'S': 'SA',
+    'Su': 'SU'
+  })
+  .directive('eventRecurrenceEdition', function(moment, calendarUtils, RECUR_FREQ, WEEK_DAYS) {
+    function link(scope, element) {
       scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
-      scope.event.rrule = {
-        freq: RRUL_FREQ[0].value
+      scope.event.recur = {
+        freq: RECUR_FREQ[0].value,
+        until: undefined,
+        weekday: [],
+        interval: 1,
+        count: undefined
       };
-      scope.rruleFreq = RRUL_FREQ;
-      scope.animateSwitchContainer = false;
-      scope.updateSwitchClass = function() {
-        scope.animateSwitchContainer = scope.event.rrule.freq !== RRUL_FREQ[0].value;
+      scope.RECUR_FREQ = RECUR_FREQ;
+      scope.WEEK_DAYS = Object.keys(WEEK_DAYS);
+      scope.animateFlexContainer = false;
+      var weekDaysValues = Object.keys(WEEK_DAYS).map(function(key) {
+          return WEEK_DAYS[key];
+      });
+
+      scope.updateFlexClass = function() {
+        scope.animateFlexContainer = scope.event.recur.freq !== RECUR_FREQ[0].value;
+      };
+
+      scope.toggleWeekdays = function(weekday) {
+        var index = scope.event.recur.weekday.indexOf(WEEK_DAYS[weekday]);
+        if (index > -1) {
+          scope.event.recur.weekday.splice(index, 1);
+        } else {
+          scope.event.recur.weekday.push(WEEK_DAYS[weekday]);
+        }
+        scope.event.recur.weekday.sort(function(weekdayA, weekdayB) {
+          if (weekDaysValues.indexOf(weekdayA) > weekDaysValues.indexOf(weekdayB)) {
+            return 1;
+          } else if (weekDaysValues.indexOf(weekdayA) < weekDaysValues.indexOf(weekdayB)) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+      };
+
+      scope.selectEndRadioButton = function(index) {
+        var radioButtons = element.find('input[name="inlineRadioEndOptions"]');
+        radioButtons[index].checked = true;
+        // reset event.recur.until if we are clicking on After ... occurrences input.
+        if (index === 1) {
+          scope.resetUntil();
+        }
+        // reset event.recur.until if we are clicking on At ... input.
+        if (index === 2) {
+          scope.resetCount();
+        }
+      };
+
+      scope.resetUntil = function() {
+        scope.event.recur.until = undefined;
+      };
+
+      scope.resetCount = function() {
+        scope.event.recur.count = undefined;
       };
     }
 
@@ -32,7 +92,7 @@ angular.module('esn.calendar')
       restrict: 'E',
       scope: {
         event: '=',
-        disabled: '=?'
+        readOnly: '=?'
       },
       replace: true,
       templateUrl: '/calendar/views/event-form-components/event-recurrence-edition.html',

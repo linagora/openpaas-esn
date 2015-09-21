@@ -50,7 +50,7 @@
                   .fg-line
                     input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
-          event-recurrence-edition(event="editedEvent", disabled="!isOrganizer")
+          event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 
           .row
             .col-xs-12

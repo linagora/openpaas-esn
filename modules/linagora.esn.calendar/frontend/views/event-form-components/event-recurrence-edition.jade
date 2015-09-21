@@ -6,42 +6,47 @@
           i.mdi.mdi-repeat
         .fg-line.select
           select.form-control(
-            ng-model="event.rrule.freq",
-            ng-options="item.value as item.label for item in rruleFreq",
-            ng-change="updateSwitchClass()")
-    .form-group.event-recurrence-flex-container
+            ng-model="event.recur.freq",
+            ng-options="item.value as item.label for item in RECUR_FREQ",
+            ng-change="updateFlexClass()",
+            ng-disabled="readOnly")
+    .form-group.event-recurrence-flex-container(ng-show="event.recur.freq !== undefined")
       .interval
         span.col-xs-2 Interval:
         .col-xs-10
           .fg-line.recurrence-interval-input
-            input.input-sm.form-control(type="text")
-          span days
-      .on-days
+            input.input-sm.form-control(type="number", ng-model="event.recur.interval")
+          div(ng-switch="event.recur.freq")
+            span(ng-switch-default) days
+            span(ng-switch-when="WEEKLY") weeks
+            span(ng-switch-when="MONTHLY") months
+            span(ng-switch-when="YEARLY") years
+      .on-days(ng-if="event.recur.freq === 'WEEKLY'")
         span.col-xs-2 On days:
         div.col-xs-10.labels
-          label.checkbox.checkbox-inline(ng-repeat="day in ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']")
-            input.form-control(type="checkbox")
+          label.checkbox.checkbox-inline(ng-repeat="day in WEEK_DAYS")
+            input.form-control(ng-click="toggleWeekdays(day)", type="checkbox")
             i.input-helper
             {{day}}
       .end
         span.col-xs-2 End:
-        div.checkboxes.col-xs-10
-            label.checkbox.checkbox-inline
-              input.form-control(type="checkbox")
+        div.radios.col-xs-10
+            label.radio.radio-inline
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil(); resetCount();", checked)
               i.input-helper
               | Never
-            label.checkbox.checkbox-inline
-              input.form-control(type="checkbox")
+            label.radio.radio-inline
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil();")
               i.input-helper
               .input-group
                 span.input-group-addon After
                 .fg-line
-                  input.input-sm.form-control(type="text")
-                span.input-group-addon.last Occurrences
-            label.checkbox.checkbox-inline
-              input.form-control(type="checkbox")
+                  input.input-sm.form-control(type="number", ng-model="event.recur.count", ng-focus="selectEndRadioButton(1)")
+                span.input-group-addon.last occurrences
+            label.radio.radio-inline
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetCount();")
               i.input-helper
               .input-group
                 span.input-group-addon At
                 .fg-line
-                  input.input-sm.form-control(type="text", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker)
+                  input.input-sm.form-control(type="text", ng-model="event.recur.until", ng-focus="selectEndRadioButton(2)", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker)
