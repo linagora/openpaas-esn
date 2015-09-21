@@ -20,7 +20,6 @@ var COLORS = [
   { bgColor: '#8BC34A', fgColor: 'black' }, // Light Green
   { bgColor: '#CDDC39', fgColor: 'black' }, // Lime
   { bgColor: '#FFEB3B', fgColor: 'black' }, // Yellow
-  { bgColor: '#FFC107', fgColor: 'black' }, // Amber
   { bgColor: '#FF9800', fgColor: 'black' }, // Orange
   { bgColor: '#FF5722', fgColor: 'white' }, // Deep Orange
   { bgColor: '#795548', fgColor: 'white' }, // Brown
