@@ -348,6 +348,11 @@ describe('The calendar module services', function() {
         expect(element.class).to.deep.equal(['event-common']);
       });
 
+      it('should add the event-is-instance class for instances', function() {
+        event.isInstance = true;
+        this.eventService.render(event, element);
+        expect(element.class).to.include('event-is-instance');
+      });
     });
 
     describe('copyEventObject function', function() {

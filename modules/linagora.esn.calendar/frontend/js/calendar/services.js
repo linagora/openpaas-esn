@@ -109,6 +109,7 @@ angular.module('esn.calendar')
       this.location = vevent.getFirstPropertyValue('location');
       this.description = vevent.getFirstPropertyValue('description');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
+      this.isInstance = !!vevent.getFirstProperty('recurrence-id');
       this.start = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
       this.end = moment(vevent.getFirstPropertyValue('dtend').toJSDate());
       this.formattedDate = this.start.format('MMMM D, YYYY');
@@ -539,6 +540,8 @@ angular.module('esn.calendar')
     var editedEvent = {};
 
     function render(event, element) {
+      var timeSpan = element.find('.fc-time span');
+
       element.find('.fc-content').addClass('ellipsis');
 
       if (event.location) {
@@ -561,22 +564,24 @@ angular.module('esn.calendar')
         });
       }
 
-      element.addClass('event-common');
-
-      if (!invitedAttendee) {
-        return;
+      if (event.isInstance) {
+        element.addClass('event-is-instance');
+        angular.element('<i class="mdi mdi-sync"/>').insertBefore(timeSpan);
       }
 
-      if (invitedAttendee.partstat === 'NEEDS-ACTION') {
-        element.addClass('event-needs-action');
-      } else if (invitedAttendee.partstat === 'TENTATIVE') {
-        element.addClass('event-tentative');
-        var content = element.find('.fc-time span');
-        $('<i class="mdi mdi-help-circle"/>').insertBefore(content);
-      } else if (invitedAttendee.partstat === 'ACCEPTED') {
-        element.addClass('event-accepted');
-      } else if (invitedAttendee.partstat === 'DECLINED') {
-        element.addClass('event-declined');
+      element.addClass('event-common');
+
+      if (invitedAttendee) {
+        if (invitedAttendee.partstat === 'NEEDS-ACTION') {
+          element.addClass('event-needs-action');
+        } else if (invitedAttendee.partstat === 'TENTATIVE') {
+          element.addClass('event-tentative');
+          angular.element('<i class="mdi mdi-help-circle"/>').insertBefore(timeSpan);
+        } else if (invitedAttendee.partstat === 'ACCEPTED') {
+          element.addClass('event-accepted');
+        } else if (invitedAttendee.partstat === 'DECLINED') {
+          element.addClass('event-declined');
+        }
       }
     }
 
