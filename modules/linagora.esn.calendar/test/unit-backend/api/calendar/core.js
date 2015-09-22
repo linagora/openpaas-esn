@@ -463,6 +463,7 @@ describe('The calendar core module', function() {
         } else {
           expect(to).to.deep.equal({objectType: 'email', id: attendee2.emails[0]});
         }
+
         var expectedOptions = {
           template: 'event.invitation',
           message: {
@@ -477,9 +478,22 @@ describe('The calendar core module', function() {
               content: ics,
               contentType: 'application/ics'
             }]
+          },
+          filter: function(filename) {
+            switch (filename) {
+              case 'map-marker.png':
+                return !!event.location;
+              case 'format-align-justify.png':
+                return !!event.description;
+              case 'folder-download.png':
+                return !!event.files;
+              default:
+                return true;
+            }
           }
         };
-        expect(options).to.deep.equal(expectedOptions);
+        expect(options).to.shallowDeepEqual(expectedOptions);
+        expect(options.filter).is.a.function;
         expect(content.baseUrl).to.deep.equal('http://localhost:8888');
         return q();
       };
