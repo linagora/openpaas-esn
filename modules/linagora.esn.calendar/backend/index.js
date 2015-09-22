@@ -55,6 +55,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-form-components/attendees-list.js',
         'event-form-components/attendees-autocomplete-input.js',
         'event-form-components/event-recurrence-edition.js',
+        'event-form-components/calendars-list.js',
         'calendar/controllers.js',
         'calendar/directives.js',
         'calendar/services.js',
