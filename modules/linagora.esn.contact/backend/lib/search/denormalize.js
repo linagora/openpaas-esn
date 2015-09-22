@@ -57,13 +57,29 @@ module.exports = function(contact) {
     mail.value = mail.value.replace(/^mailto:/i, '');
     return mail;
   });
+  result.tel = getMultiValue('tel');
+  result.job = vcard.getFirstPropertyValue('role');
 
   result.org = vcard.getFirstPropertyValue('org');
   result.urls = getMultiValue('url');
 
+  var catprop = vcard.getFirstProperty('categories');
+  var cats = catprop && catprop.getValues().concat([]);
+  result.tags = cats ? cats.map(function(cat) { return { text: cat }; }) : [];
+
+  var bday = vcard.getFirstProperty('bday');
+
+  if (bday) {
+    var type = bday.type,
+        value = bday.getFirstValue();
+
+    result.birthday = type !== 'text' ? value.toJSDate() : value;
+  }
+
   result.socialprofiles = getMultiValue('socialprofile');
   result.nickname = vcard.getFirstPropertyValue('nickname');
   result.addresses = getMultiAddress('adr');
+  result.comments = vcard.getFirstPropertyValue('note');
 
   return result;
 };
