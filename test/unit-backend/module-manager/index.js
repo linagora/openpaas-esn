@@ -55,6 +55,7 @@ describe('The module manager', function() {
         'linagora.esn.core.activitystreams',
         'linagora.esn.core.addressbook',
         'linagora.esn.core.auth',
+        'linagora.esn.core.avatar',
         'linagora.esn.core.collaboration',
         'linagora.esn.core.community',
         'linagora.esn.core.config',

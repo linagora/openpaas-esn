@@ -5,6 +5,7 @@ var userController = require('./users');
 var imageModule = require('../../core/image');
 var collaborationController = require('./collaborations');
 var collaborationMiddleware = require('../middleware/collaboration');
+var avatarModule = require('../../core/avatar');
 
 function getUserAvatarFromEmail(req, res) {
   userModule.findByEmail(req.query.email, function(err, user) {
@@ -65,6 +66,14 @@ function getGeneratedAvatar(req, res) {
   };
   return res.send(imageModule.avatarGenerationModule.generateFromText(options));
 }
+
+avatarModule.registerProvider('user', {
+  findByEmail: userModule.findByEmail,
+  getAvatar: function(user, req, res) {
+    req.user = user;
+    return userController.getProfileAvatar(req, res);
+  }
+});
 
 module.exports.get = function(req, res) {
   if (!req.query.objectType) {
