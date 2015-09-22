@@ -21,6 +21,29 @@ angular.module('linagora.esn.contact')
         return birthday;
     }
 
+    function getFormattedAddress(address) {
+      var result = '';
+      if (!address) {
+        return result;
+      }
+      if (address.street) {
+        result += address.street;
+        result += ' ';
+      }
+      if (address.city) {
+        result += address.city;
+        result += ' ';
+      }
+      if (address.zip) {
+        result += address.zip;
+        result += ' ';
+      }
+      if (address.country) {
+        result += address.country;
+      }
+      return result.trim();
+    }
+
     function getFormattedName(contact) {
 
       function notNullNorEmpty(value) {
@@ -114,6 +137,10 @@ angular.module('linagora.esn.contact')
         return contact.notes;
       }
 
+      if (notNullNorEmpty(contact.addresses)) {
+        return getFormattedAddress(contact.addresses[0]);
+      }
+
       if (notNullNorEmpty(contact.tags) && contact.tags[0] && contact.tags[0].text) {
         return contact.tags[0].text;
       }
@@ -125,7 +152,8 @@ angular.module('linagora.esn.contact')
 
     return {
       getFormattedName: getFormattedName,
-      getFormattedBirthday: getFormattedBirthday
+      getFormattedBirthday: getFormattedBirthday,
+      getFormattedAddress: getFormattedAddress
     };
   })
   .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {

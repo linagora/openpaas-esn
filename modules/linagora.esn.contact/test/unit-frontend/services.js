@@ -1136,6 +1136,53 @@ describe('The Contacts Angular module', function() {
       this.contactHelper = ContactsHelper;
     }));
 
+    describe('The getFormattedAddress function', function() {
+
+      beforeEach(function() {
+        this.expectEqual = function(value) {
+          expect(this.contactHelper.getFormattedAddress(this.address)).to.equal(value);
+        };
+      });
+
+      it('should return empty string when address is undefined', function() {
+        expect(this.contactHelper.getFormattedAddress(this.address)).to.equal('');
+      });
+
+      it('should return street when address.street is only defined', function() {
+        var street = 'My street';
+        this.address = {street: street};
+        this.expectEqual(street);
+      });
+
+      it('should return city when address.city is only defined', function() {
+        var city = 'My city';
+        this.address = {city: city};
+        this.expectEqual(city);
+      });
+
+      it('should return zip when address.zip is only defined', function() {
+        var zip = 'My zip';
+        this.address = {zip: zip};
+        this.expectEqual(zip);
+      });
+
+      it('should return country when address.country is only defined', function() {
+        var country = 'My country';
+        this.address = {country: country};
+        this.expectEqual(country);
+      });
+
+      it('should return full string address when address is defined', function() {
+        var street = 'My street';
+        var city = 'My city';
+        var zip = 'My zip';
+        var country = 'My country';
+        this.address = {street: street, city: city, zip: zip, country: country};
+        this.expectEqual(street + ' ' + city + ' ' + zip + ' ' + country);
+      });
+
+    });
+
     describe('The getFormattedName function', function() {
 
       beforeEach(function() {
@@ -1144,7 +1191,7 @@ describe('The Contacts Angular module', function() {
           tags: [],
           emails: [],
           tel: [],
-          addresses: [{ type: 'Home', street: 's', city: 'c', zip: 'z', country: 'co' }],
+          addresses: [],
           social: [],
           org: '',
           orgRole: 'role',
@@ -1282,6 +1329,15 @@ describe('The Contacts Angular module', function() {
       it('should return birthday as-is if defined but not a Date', function() {
         this.shell.birthday = 'I am not a date';
         this.expectEqual('I am not a date');
+      });
+
+      it('should return formatted address when address is defined', function() {
+        this.shell.addresses = [{street: 'My street', zip: 'My zip', city: 'My city', country: 'My country'}];
+        var result = this.contactHelper.getFormattedName(this.shell);
+        expect(result).to.match(/My street/);
+        expect(result).to.match(/My zip/);
+        expect(result).to.match(/My city/);
+        expect(result).to.match(/My country/);
       });
 
       it('should return undefined when no values', function() {
