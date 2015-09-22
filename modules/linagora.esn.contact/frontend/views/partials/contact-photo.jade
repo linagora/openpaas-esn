@@ -1,6 +1,6 @@
 a
   img(ng-class="{'lv-img-sm': listView, 'clickable': editable}" ng-src='{{contact.photo || defaultAvatar}}')
-a.edit-hint(ng-show='editable')
+a.edit-hint(ng-if='editable')
   i.mdi.mdi-camera
   span
     | #{__('Update Profile Picture')}
