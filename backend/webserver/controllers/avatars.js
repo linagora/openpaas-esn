@@ -77,7 +77,19 @@ avatarModule.registerProvider('user', {
 
 module.exports.get = function(req, res) {
   if (!req.query.objectType) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'objectType parameter is mandatory'}});
+    if (!req.query.email || typeof req.query.email !== 'string' || req.query.email.length === 0) {
+      return res.json(400, { error: { code: 400, message: 'Bad request', details: 'When no objectType is provided, email is mandatory and must be a non-empty string'}});
+    }
+
+    return avatarModule.getAvatarFromEmail(req.query.email, function(error, object, controller) {
+      if (error) {
+        return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Error while getting avatar'}});
+      }
+      if (!object) {
+        return getGeneratedAvatar(req, res);
+      }
+      return controller(object, req, res);
+    });
   }
 
   if (req.query.objectType === 'user') {

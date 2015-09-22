@@ -11,7 +11,7 @@ describe('The avatar routes', function() {
 
   describe('GET /api/avatars', function() {
 
-    it('should return 400 if there is no objectType parameter', function(done) {
+    it('should return 400 if there is no objectType and no email parameter', function(done) {
       request(this.app).get('/api/avatars').expect(400).end(done);
     });
 
