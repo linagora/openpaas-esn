@@ -1,6 +1,6 @@
 .contact-list-item.media.p-10.hidden-xs(ng-click='displayContact()')
   .pull-left
-    contact-photo.media-object(contact='contact')
+    contact-photo.media-object(contact='contact', list-view='true')
   .media-body.p-l-15
     .lv-title
       | {{contact.displayName}}
@@ -33,7 +33,7 @@
 
 .contact-list-item.p-10.visible-xs(ng-click='displayContact()')
   .pull-left.touch-zone
-      contact-photo.media-object(contact='contact')
+      contact-photo.media-object(contact='contact', list-view='true')
   .media-body.row
     .lv-title.col-xs-11.touch-zone
           h4.media-heading {{contact.displayName}}

@@ -247,22 +247,81 @@ contact-edition-form {
   .form-control {
     margin-top: 10px;
   }
+}
 
-  contact-photo {
-    img.lv-img-sm {
-      width: 100%;
-      height: 100%;
+contact-photo {
+  position: relative;
+  display: inline-block;
+  &:hover > .edit-hint{
+      background: rgba(0, 0, 0, 0.8);
+  }
+  img {
+    margin-top: 20px;
+    &.lv-img-sm {
+      margin-top: 0px;
     }
+    width: 300px;
+    height: 300px;
+    border-radius: 3px;
   }
 
-  tags-input{
-    height: inherit !important; /* needed to overwrite styles automatically set using the style attribute */
-    .tags {
-    border: none !important; /* needed to overwrite styles automatically set using the style attribute */
-    box-shadow: none !important; /* needed to overwrite styles automatically set using the style attribute */
+  .edit-hint {
+    position: absolute;
+    cursor: pointer;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.38);
+    text-align: center;
+    border-radius: 0 0 3px 3px;
+    padding: 10px 10px 11px;
+    .transition(opacity);
+    .transition-duration(250ms);
+    margin-top: 20px;
+    &.lv-img-sm {
+      margin-top: 0px;
+    }
+    &:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    i {
+        font-size: 18px;
+        vertical-align: middle;
+        margin-top: -3px;
     }
   }
 }
+
+@media(min-width: @screen-sm-min) {
+  contact-photo {
+    width: 100%;
+    &[list-view=true] {
+      padding: 0;
+    }
+    padding: 0px 20px 20px 0;
+    max-height: 512px;
+    max-width: 512px;
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 3px;
+    }
+    .edit-hint {
+      margin: 0px 20px 20px 0;
+    }
+  }
+}
+
+tags-input{
+  height: inherit !important; /* needed to overwrite styles automatically set using the style attribute */
+  .tags {
+  border: none !important; /* needed to overwrite styles automatically set using the style attribute */
+  box-shadow: none !important; /* needed to overwrite styles automatically set using the style attribute */
+  }
+}
+
 
 .fadeIn200ms {
   animation: fadeIn 0.2s;
