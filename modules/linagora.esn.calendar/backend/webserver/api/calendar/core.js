@@ -247,7 +247,20 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
       };
       var options = {
         template: template,
-        message: message
+        message: message,
+        // this filter is to be used in om-mailers
+        filter: function(filename) {
+          switch (filename) {
+            case 'map-marker.png':
+              return !!event.location;
+            case 'format-align-justify.png':
+              return !!event.description;
+            case 'folder-download.png':
+              return !!event.files;
+            default:
+              return true;
+          }
+        }
       };
 
       var content = {
