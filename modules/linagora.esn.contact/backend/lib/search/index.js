@@ -66,9 +66,6 @@ module.exports = function(dependencies) {
       ],
       query: {
         filtered: {
-          filter: {
-            and: filters
-          },
           query: {
             multi_match: {
               query: terms,
@@ -80,6 +77,11 @@ module.exports = function(dependencies) {
         }
       }
     };
+    if (filters.length) {
+      elasticsearchQuery.query.filtered.filter = {
+        and: filters
+      };
+    }
     if (!offset) {
       offset = (page - 1) * limit;
     }
