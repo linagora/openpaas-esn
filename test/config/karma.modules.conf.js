@@ -26,6 +26,7 @@ module.exports = function(config) {
       'frontend/components/ngInfiniteScroll/build/ng-infinite-scroll.js',
       'frontend/components/ng-tags-input/ng-tags-input.js',
       'frontend/components/angular-xeditable/dist/js/xeditable.js',
+      'frontend/components/jquery.nicescroll/jquery.nicescroll.js',
       'frontend/components/angular-nicescroll/angular-nicescroll.js',
       'frontend/components/moment/moment.js',
       'frontend/components/angular-moment/angular-moment.js',

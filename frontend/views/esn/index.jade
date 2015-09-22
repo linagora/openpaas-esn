@@ -143,7 +143,7 @@ html
     script(src='js/material.js')
     script(src='/components/material-admin/js/modules/form.js')
 
-  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController" ng-nicescroll nice-option="{cursorcolor: 'rgba(0,0,0,0.4)', cursorborder: 'none', cursorwidth:'6px', autohidemode: false}")
+  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController" ng-nicescroll nice-option="{cursorcolor: 'rgba(0,0,0,0.4)', cursorborder: 'none', cursorwidth:'6px', autohidemode: false, zindex: 12}")
     #wrap(ng-include='session.template')
     //- Overture is looking for the body tag when it loads, 
     //- so putting it in the head trigger an error when the page is loading.

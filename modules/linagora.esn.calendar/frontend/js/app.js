@@ -12,7 +12,8 @@ angular.module('esn.calendar', [
   'esn.notification',
   'esn.widget.helper',
   'uuid4',
-  'ui.calendar'
+  'ui.calendar',
+  'ng.deviceDetector'
 ])
   .config(function($routeProvider, routeResolver) {
 
