@@ -13,7 +13,7 @@ describe('The event-quick-form Angular module directives', function() {
       hasTaskFor: function() {}
     };
     var self = this;
-    angular.mock.module(function($provide, $controllerProvider) {
+    angular.mock.module(function($provide) {
       $provide.value('gracePeriodService', self.gracePeriodService);
     });
   });

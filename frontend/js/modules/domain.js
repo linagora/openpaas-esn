@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['restangular', 'ngTagsInput'])
+angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.attendee', 'esn.session', 'esn.user'])
   .factory('domainAPI', function(Restangular) {
 
     /**
@@ -112,4 +112,23 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
   })
   .controller('inviteMembers', function($scope, domain) {
     $scope.domain = domain;
+  })
+  .run(function($q, $log, attendeeService, domainAPI, session, userUtils) {
+    var attendeeProvider = {
+      searchAttendee: function(query, limit) {
+        var memberQuery = {search: query, limit: limit};
+        return domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
+          response.data.forEach(function(user) {
+            user.id = user._id;
+            user.email = user.preferredEmail;
+            user.displayName = userUtils.displayNameOf(user);
+          });
+          return response.data;
+        }, function(error) {
+          $log('Error while searching users: ' + error);
+          return $q.when([]);
+        });
+      }
+    };
+    attendeeService.addProvider(attendeeProvider);
   });

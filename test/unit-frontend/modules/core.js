@@ -162,4 +162,29 @@ describe('The Angular core module', function() {
       expect(urlencode('#$%@&ing tests!')).to.equal('%23%24%25%40%26ing%20tests!');
     });
   });
+
+  describe('The emailService service', function() {
+    beforeEach(inject(function(emailService) {
+      this.emailService = emailService;
+    }));
+
+    describe('the isValidEmail function', function() {
+      it('should return false for undefined', function() {
+        expect(this.emailService.isValidEmail()).to.be.false;
+      });
+
+      it('should return false for empty string', function() {
+        expect(this.emailService.isValidEmail('')).to.be.false;
+      });
+
+      it('should return false for an invalid email', function() {
+        expect(this.emailService.isValidEmail('notanEmail')).to.be.false;
+        expect(this.emailService.isValidEmail('notOnlyEmail test@yolo.com')).to.be.false;
+      });
+
+      it('should return true for a valid email', function() {
+        expect(this.emailService.isValidEmail('test@yolo.com')).to.be.true;
+      });
+    });
+  });
 });

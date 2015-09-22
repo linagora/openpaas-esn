@@ -44,4 +44,13 @@ angular.module('esn.user', ['restangular', 'esn.object-type'])
       getCommunities: getCommunities,
       getActivityStreams: getActivityStreams
     };
+  })
+  .factory('userUtils', function() {
+    function displayNameOf(user) {
+      return (user.firstname && user.lastname) ? user.firstname + ' ' + user.lastname : user.preferredEmail;
+    }
+
+    return {
+      displayNameOf: displayNameOf
+    };
   });

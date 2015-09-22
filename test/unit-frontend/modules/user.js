@@ -68,4 +68,25 @@ describe('The User Angular module', function() {
       });
     });
   });
+
+  describe('userUtils service', function() {
+    beforeEach(angular.mock.inject(function(userUtils) {
+      this.userUtils = userUtils;
+    }));
+
+    describe('displayNameOf() method', function() {
+      it('should return firstname lastname if both exist', function() {
+        var user = {firstname: 'f' , lastname: 'l', preferredEmail: 'email' };
+        expect(this.userUtils.displayNameOf(user)).to.equal('f l');
+      });
+
+      it('should return prerferredEmail if either firstname or lastname does not exist', function() {
+        var user = {firstname: 'f', preferredEmail: 'email' };
+        expect(this.userUtils.displayNameOf(user)).to.equal(user.preferredEmail);
+
+        user = {lastname: 'l', preferredEmail: 'email' };
+        expect(this.userUtils.displayNameOf(user)).to.equal(user.preferredEmail);
+      });
+    });
+  });
 });
