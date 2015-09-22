@@ -45,6 +45,24 @@ angular.module('esn.calendar')
     }
   })
 
+  .constant('MINI_USER_UI_CONFIG', {
+    calendar: {
+      eventLimit: 1,
+      defaultView: 'month',
+      aspectRatio: 1,
+      theme: true,
+      selectable: true,
+      timezone: 'local',
+      firstDay: 1,
+      header: {
+        left: 'prev',
+        right: 'next'
+      },
+      // TODO: i18n
+      buttonText: {}
+    }
+  })
+
   .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
   .constant('EVENT_FORM', {

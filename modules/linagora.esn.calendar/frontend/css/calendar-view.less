@@ -1,0 +1,38 @@
+.calendar-view {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  margin-left: 0;
+  margin-right: 0;
+
+  .col-md-3.col-lg-2 {
+    min-width: 300px;
+  }
+
+  .calendar-left-pane {
+    .card-header {
+      padding: 0;
+      .fc {
+        margin-bottom: 0;
+      }
+      .calendar {
+          margin: 0 auto;
+          font-size: 10px;
+      }
+      .fc-toolbar {
+        padding: 0;
+      }
+      .fc-button-content {
+          padding: 0;
+      }
+    }
+  }
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: @screen-lg-min) {
+  .calendar-view {
+    margin-left: 15px !important; /* to override parent */
+  }
+}

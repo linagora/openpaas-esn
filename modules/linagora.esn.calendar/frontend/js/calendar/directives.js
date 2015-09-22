@@ -38,6 +38,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/calendar/user-calendar-navbar-link.html'
     };
   })
+
   .directive('toggleNicescroll', function(deviceDetector) {
     return {
       restrict: 'A',
@@ -62,4 +63,20 @@ angular.module('esn.calendar')
         }
       }
     };
+  })
+
+  .directive('calendarLeftPane', function(MINI_USER_UI_CONFIG) {
+    function link(scope, element) {
+      scope.uiConfig = MINI_USER_UI_CONFIG;
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
+      scope: {
+        eventSources: '='
+      },
+      link: link
+    }
   });
