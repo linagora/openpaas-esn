@@ -192,12 +192,16 @@ describe('The Contacts Angular module', function() {
       var nextRoute = {
         originalPath: '/some/other/path'
       };
-      $rootScope.$emit('$routeChangeStart', nextRoute);
+      var currentRoute = {
+        originalPath: '/contact'
+      };
+
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
       expect(contactsCacheService.get()).to.not.be.defined;
 
       contactsCacheService.put([123]);
       nextRoute.originalPath = '/contactAbc';
-      $rootScope.$emit('$routeChangeStart', nextRoute);
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
       expect(contactsCacheService.get()).to.not.be.defined;
     });
 
@@ -207,11 +211,29 @@ describe('The Contacts Angular module', function() {
       var nextRoute = {
         originalPath: '/contact/path'
       };
-      $rootScope.$emit('$routeChangeStart', nextRoute);
+      var currentRoute = {
+        originalPath: '/contact'
+      };
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
       expect(contactsCacheService.get()).to.eql([123]);
 
+      currentRoute.originalPath = '/contact/path';
       nextRoute.originalPath = '/contact';
-      $rootScope.$emit('$routeChangeStart', nextRoute);
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
+      expect(contactsCacheService.get()).to.eql([123]);
+    });
+
+    it('should not clear cache when user is not in contact module', function() {
+      injectService();
+      contactsCacheService.put([123]);
+      var currentRoute = {
+        originalPath: '/currentroute/path'
+      };
+      var nextRoute = {
+        originalPath: '/nextroute/path'
+      };
+
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
       expect(contactsCacheService.get()).to.eql([123]);
     });
 
