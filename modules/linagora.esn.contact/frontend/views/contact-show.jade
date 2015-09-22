@@ -21,15 +21,11 @@
       .contact-controls-wrapper
         .contact-controls.row(data-offset-top="0" bs-affix)
           a.hover-scale-animation.col-xs-6(href='', ng-click='close()')
-            i.mdi.mdi-arrow-left
+            i.mdi.mdi-arrow-left.m-l-5.m-r-5
+            | #{__('Back')}
           div.hover-scale-animation.dropdown.pull-right.col-xs-6
             a.hover-scale-animation.p-l-5.p-r-10(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
               i.mdi.mdi-pencil
-            a.moreactions.dropdown-toggle.p-l-5.p-r-10(href='' data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-              i.mdi.mdi-dots-vertical
-            ul.dropdown-menu.dropdown-menu-right(role="menu")
-              li
-                a(href='', ng-click="deleteContact()") Delete
       .contact-avatar 
         img(ng-src='{{contact.photo || defaultAvatar}}')
   .contact-content.visible-xs
