@@ -6,10 +6,25 @@ angular.module('esn.multi-input', [])
       $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
     }
 
+    function _init() {
+      if ($scope.content.length === 0) {
+        $scope.showAddButton = false;
+        $scope.showNextField = true;
+      }
+      else {
+        $scope.showAddButton = true;
+        $scope.showNextField = false;
+      }
+    }
+
     this.acceptNew = function() {
       $scope.content.push($scope.newItem);
       $scope.newItem = {};
       _updateTypes();
+    };
+
+    this.initFlags = function() {
+      _init();
     };
 
     function _acceptRemove($index) {
@@ -27,6 +42,7 @@ angular.module('esn.multi-input', [])
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
           _acceptRemove($index);
+          _init();
         }
       };
     };
@@ -37,6 +53,7 @@ angular.module('esn.multi-input', [])
        $scope.content.forEach(function(item) {
           if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
             _acceptRemove($index);
+            _init();
           }
         });
       };
@@ -55,12 +72,12 @@ angular.module('esn.multi-input', [])
         element[0].addEventListener('focusin', function(event) {
           setTimeout(function() {
             button[0].classList.remove('invisible');
-          }, 100);
+          }, 200);
         });
         element[0].addEventListener('focusout', function(event) {
           setTimeout(function() {
             button[0].classList.add('invisible');
-          }, 100);
+          }, 200);
         });
       }
     };
@@ -89,7 +106,7 @@ angular.module('esn.multi-input', [])
           if (scope.newItem.value) {
             controller.acceptNew();
           }
-          _init();
+          controller.initFlags();
         };
         scope.addField = function() {
           scope.showAddButton = false;
@@ -99,23 +116,16 @@ angular.module('esn.multi-input', [])
             newInput.focus();
           }, 0);
         };
-        function _init() {
-          if (scope.content.length === 0) {
-            scope.showAddButton = false;
-            scope.showNextField = true;
-          }
-          else {
-            scope.showAddButton = true;
-            scope.showNextField = false;
-          }
-        }
+
         scope.$watch('content', function() {
-          _init();
+          controller.initFlags();
         });
 
         scope.verifyRemove = controller.createVerifyRemoveFunction('value');
+
         scope.deleteField = function(index) {
           controller.acceptRemove(index);
+          controller.initFlags();
         };
       }
     };
@@ -149,9 +159,8 @@ angular.module('esn.multi-input', [])
         scope.acceptNew = function() {
           if (isAddressFilled()) {
             controller.acceptNew();
+            controller.initFlags();
           }
-          scope.showAddButton = true;
-          scope.showNextField = false;
         };
         scope.addField = function() {
           scope.showAddButton = false;
@@ -161,22 +170,14 @@ angular.module('esn.multi-input', [])
             newInput.focus();
           }, 0);
         };
-        function _init() {
-          if (scope.content.length === 0) {
-            scope.showAddButton = false;
-            scope.showNextField = true;
-          }
-          else {
-            scope.showAddButton = true;
-            scope.showNextField = false;
-          }
-        }
+
         scope.$watch('content', function() {
-          _init();
+          controller.initFlags();
         });
         scope.verifyRemove = controller.createVerifyRemoveAddressFunction('street', 'zip', 'country', 'city');
         scope.deleteAddress = function(index) {
           controller.acceptRemove(index);
+          controller.initFlags();
         };
       }
     };
