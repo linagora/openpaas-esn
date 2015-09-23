@@ -6,7 +6,7 @@
           img(src="{{contact.photo || defaultAvatar}}")
       .pmo-stat
         h2.m-0.c-white
-          |{{contact.firstName}} {{contact.lastName}}
+          |{{contact.displayName}}
         |{{contact.job_title}}
       .pmo-block(ng-if='contact.tags.length!==0')
         i.mdi.mdi-tag-multiple
