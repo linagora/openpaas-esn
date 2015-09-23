@@ -111,7 +111,7 @@ angular.module('esn.multi-input', [])
         scope.addField = function() {
           scope.showAddButton = false;
           scope.showNextField = true;
-          $timeout(function(){
+          $timeout(function() {
             var newInput = element[0].getElementsByClassName('input-next')[0];
             newInput.focus();
           }, 0);
@@ -156,16 +156,24 @@ angular.module('esn.multi-input', [])
             scope.showAddButton = false;
           }
         };
-        scope.acceptNew = function() {
+        scope.acceptNew = function(field) {
           if (isAddressFilled()) {
             controller.acceptNew();
             controller.initFlags();
+            if (field) {
+              var fieldToFocus = 'input-last-' + field;
+              console.log(fieldToFocus);
+              $timeout(function() {
+                var lastInput = element[0].getElementsByClassName(fieldToFocus)[0];
+                lastInput.focus();
+              }, 200);
+            }
           }
         };
         scope.addField = function() {
           scope.showAddButton = false;
           scope.showNextField = true;
-          $timeout(function(){
+          $timeout(function() {
             var newInput = element[0].getElementsByClassName('input-next')[0];
             newInput.focus();
           }, 0);
