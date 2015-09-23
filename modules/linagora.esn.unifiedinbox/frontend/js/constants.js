@@ -12,6 +12,7 @@ angular.module('linagora.esn.unifiedinbox')
     spam: 'spam',
     templates: 'templates'
   })
+
   .constant('MAILBOX_ROLE_ICONS_MAPPING', {
     default: 'mdi mdi-email',
     inbox: 'mdi mdi-email',
@@ -23,14 +24,6 @@ angular.module('linagora.esn.unifiedinbox')
     spam: 'mdi mdi-email',
     templates: 'mdi mdi-email'
   })
-  .constant('MAILBOX_ROLE_ORDERING_WEIGHT', {
-    inbox: 5,
-    outbox: 10,
-    drafts: 15,
-    templates: 20,
-    sent: 25,
-    archive: 30,
-    trash: 35,
-    spam: 40,
-    default: 45
-  });
+
+  .constant('jmapAPIUrl', 'https://proxy.jmap.io/jmap/b6ed15b6-5611-11e5-b11b-0026b9fac7aa/')
+  .constant('jmapAuthToken', 'b6ed15b6-5611-11e5-b11b-0026b9fac7aa');

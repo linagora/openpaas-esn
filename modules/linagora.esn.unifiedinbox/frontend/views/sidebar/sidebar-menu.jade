@@ -7,5 +7,5 @@ li.sub-menu
     li.text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
       
   ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
-    li(ng-repeat="mailbox in mailboxes | orderBy: ['orderingWeight', 'name']")
+    li(ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'name']")
       mailbox-display(mailbox="mailbox")

@@ -1,7 +1,10 @@
 'use strict';
 
-angular.module('linagora.esn.unifiedinbox', ['esn.jmap-js', 'angularMoment'])
-  .config(function($routeProvider, routeResolver) {
+angular.module('linagora.esn.unifiedinbox', [
+  'esn.jmap-client-wrapper',
+  'angularMoment'
+  ])
+  .config(function($routeProvider) {
     $routeProvider.when('/unifiedinbox', {
       templateUrl: '/unifiedinbox/views/partials/unifiedinbox'
     });
