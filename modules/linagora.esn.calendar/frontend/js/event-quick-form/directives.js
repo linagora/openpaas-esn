@@ -83,8 +83,8 @@ angular.module('esn.calendar')
       restrict: 'A',
       link: function(scope) {
         scope.$on('$locationChangeStart', function(event) {
-          event.preventDefault();
-          if (scope.createModal) {
+          if (!!scope.createModal && scope.createModal.$isShown) {
+            event.preventDefault();
             scope.closeModal();
           }
         });

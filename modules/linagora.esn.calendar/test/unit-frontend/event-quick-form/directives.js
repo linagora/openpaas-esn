@@ -97,7 +97,6 @@ describe('The event-quick-form Angular module directives', function() {
     it('should have a focusSubmitButton method', function() {
       var element = this.initDirective(this.$scope);
       var submitButton = element.find('button[type="submit"]')[1];
-
       element.appendTo(document.body);
       this.$scope.focusSubmitButton();
       this.$timeout.flush();
@@ -201,9 +200,10 @@ describe('The event-quick-form Angular module directives', function() {
       expect(this.eventService.editedEvent).to.deep.equal({});
     });
 
-    it('should prevent default back behavior', function(done) {
+    it('should prevent default back behavior when closeModal is shown', function(done) {
       this.initDirective(this.$scope);
       this.$scope.createModal = {
+        $isShown: true,
         hide: function() {
           done();
         }
@@ -211,6 +211,23 @@ describe('The event-quick-form Angular module directives', function() {
       var event = this.$scope.$broadcast('$locationChangeStart');
       expect(event.defaultPrevented).to.be.true;
       expect(this.$scope.closeModal).toHaveBeenCalled();
+    });
+
+    it('should not prevent default back behavior when closeModal is not shown', function() {
+      this.initDirective(this.$scope);
+      this.$scope.createModal = {
+        $isShown: false,
+        hide: function() {
+        }
+      };
+      var event = this.$scope.$broadcast('$locationChangeStart');
+      expect(event.defaultPrevented).to.be.false;
+    });
+
+    it('should not prevent default back behavior when closeModal is undefined', function() {
+      this.initDirective(this.$scope);
+      var event = this.$scope.$broadcast('$locationChangeStart');
+      expect(event.defaultPrevented).to.be.false;
     });
   });
 });
