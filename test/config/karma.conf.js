@@ -19,6 +19,7 @@ module.exports = function(config) {
       'frontend/components/openpaas-logo/openpaas-logo.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
+      'node_modules/chai-shallow-deep-equal/chai-shallow-deep-equal.js',
       'frontend/components/sinon-chai/lib/sinon-chai.js',
       'frontend/components/sinon-1.15.4/index.js',
       'frontend/components/ngInfiniteScroll/build/ng-infinite-scroll.js',
