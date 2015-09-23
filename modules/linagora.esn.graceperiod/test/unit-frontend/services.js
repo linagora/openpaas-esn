@@ -269,9 +269,9 @@ describe('The GracePeriod Angular module', function() {
 
     describe('The flush fn', function() {
 
-      it('should not call PUT when id does exists', function(done) {
+      it('should not call PUT and reject when id does exists', function(done) {
         var id = '123';
-        gracePeriodService.flush(id).then(done, done);
+        gracePeriodService.flush(id).then(null, function() { done(); });
         $rootScope.$apply();
         $httpBackend.flush();
       });
@@ -292,9 +292,9 @@ describe('The GracePeriod Angular module', function() {
 
     describe('The cancel fn', function() {
 
-      it('should not call DELETE when task does not exists', function(done) {
+      it('should not call DELETE and reject when task does not exists', function(done) {
         var id = '123';
-        gracePeriodService.cancel(id).then(done, done);
+        gracePeriodService.cancel(id).then(null, function() { done(); });
         $rootScope.$apply();
         $httpBackend.flush();
       });

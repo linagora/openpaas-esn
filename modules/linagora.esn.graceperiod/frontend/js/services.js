@@ -138,7 +138,7 @@ angular.module('linagora.esn.graceperiod')
       return remove(id).then(function() {
         return gracePeriodAPI.one('tasks').one(id).remove();
       }, function() {
-        return $q.when();
+        return $q.reject('Canceling invalid task id: ' + id);
       });
     }
 
@@ -146,7 +146,7 @@ angular.module('linagora.esn.graceperiod')
       return remove(id).then(function() {
         return gracePeriodAPI.one('tasks').one(id).put();
       }, function() {
-        return $q.when();
+        return $q.reject('Flushing invalid task id: ' + id);
       });
     }
 
