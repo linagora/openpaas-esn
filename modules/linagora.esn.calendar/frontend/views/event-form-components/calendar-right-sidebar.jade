@@ -1,2 +1,35 @@
 .calendar-right-sidebar
+  .listview.p-t-5.calendars-list
+    .lv-body
+      .p-10
+        a.lv-item(href="")
+          .media
+            .pull-left
+              i.mdi.mdi-menu
+            .media-body
+              .lv-title
+                span Planning
+        a.lv-item(href="")
+          .media
+            .pull-left
+              i.mdi.mdi-view-day
+            .media-body
+              .lv-title
+                span Day
+        a.lv-item(href="")
+          .media
+            .pull-left
+              i.mdi.mdi-view-week
+            .media-body
+              .lv-title
+                span Week
+        a.lv-item(href="")
+          .media
+            .pull-left
+              i.mdi.mdi-calendar-blank
+            .media-body
+              .lv-title
+                span Month
+    .lv-footer
+
   calendars-list(calendars="calendars")

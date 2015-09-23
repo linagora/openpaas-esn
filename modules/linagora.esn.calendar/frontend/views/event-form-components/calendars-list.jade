@@ -1,5 +1,5 @@
 .listview.p-t-5.calendars-list
-  .lv-header
+  .lv-header.hidden-xs
     a.pull-right(href="", ng-if="!formToggled", ng-click="toggleForm()")
       i.mdi.mdi-settings
     a.pull-right(href="", ng-if="formToggled", ng-click="submit()")
@@ -33,3 +33,13 @@
             .lv-title
               .fg-line
                 input.input-sm.form-control(type="text", ng-model="newCalendar.name")
+  .lv-footer.visible-xs
+    .p-10
+      a.lv-item(href="", ng-click="formToggled ? submit() : toggleForm()")
+        .media
+          .pull-left
+            i.mdi.mdi-settings(ng-if="!formToggled")
+            i.mdi.mdi-check(ng-if="formToggled")
+          .media-body.pull-left
+            .lv-title(ng-if="!formToggled") Configuration
+            .lv-title(ng-if="formToggled") Save changes
