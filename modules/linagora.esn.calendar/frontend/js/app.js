@@ -7,6 +7,7 @@ angular.module('esn.calendar', [
   'esn.community',
   'restangular',
   'mgcrea.ngStrap.datepicker',
+  'mgcrea.ngStrap.aside',
   'angularMoment',
   'AngularJstz',
   'esn.notification',

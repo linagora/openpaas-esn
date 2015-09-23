@@ -1,4 +1,6 @@
 .card.calendar-left-pane
   .card-header
-    .calendar(ui-calendar="uiConfig.calendar", ng-model="eventSources")
+    //.calendar(ui-calendar="uiConfig.calendar", ng-model="eventSources")
+    .date-picker
+      datepicker.dp-inline(show-weeks="false")
   calendars-list(calendars="calendars")

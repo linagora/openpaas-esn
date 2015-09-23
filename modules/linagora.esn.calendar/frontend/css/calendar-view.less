@@ -28,11 +28,26 @@
       }
     }
   }
+
+  // TODO remove this after the generic sidebars module
+  .aside {
+    .aside-header {
+      display:block !important; /* to override parent properties */
+      height: 66px;
+      button {
+        display: none;
+      }
+    }
+
+    .aside-footer {
+      display: none;
+    }
+  }
 }
 
 /* Large devices (large desktops, 1200px and up) */
 @media (min-width: @screen-lg-min) {
   .calendar-view {
-    margin-left: 15px !important; /* to override parent */
+    margin-left: 15px !important; /* to override parent properties */
   }
 }
