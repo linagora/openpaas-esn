@@ -400,6 +400,38 @@ tags-input{
   }
 }
 
+.contact-dropdown.lv-actions {
+  &.actions > li > a {
+    margin-top: 3px;
+  }
+  &.actions > li > a > i,
+  &.actions > a > i {
+    color: @m-white;
+  }
+  &.actions > li > a:hover > i,
+  &.actions > a:hover > i {
+    color: @m-white;
+  }
+  &.actions > li > a:before,
+  &.actions > a:before {
+    background-color: @m-white;
+    opacity: 0.2;
+  }
+  &.actions > li.open > a > i,
+  &.actions.open > a > i {
+    color: @m-white;
+  }
+  li.open + ul.dropdown-menu {
+    display: block;
+    cursor: pointer;
+  }
+  & .mdi {
+    margin-top: 2px;
+    font-size: 1.9em;
+    color: @m-white;
+  }
+}
+
 .btn-contacts-cards-toggle {
   opacity: 0.65 !important; /*Important needed to overrirde native bootstrap properties*/
 }
