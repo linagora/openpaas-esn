@@ -24,7 +24,7 @@ describe('The contact Angular module directives', function() {
       this.$rootScope = _$rootScope_;
       this.$scope = this.$rootScope.$new();
       this.$compile = _$compile_;
-      this.DEFAULT_AVATAR = '/images/user.png';
+      this.DEFAULT_AVATAR = '/contact/images/default_avatar.png';
     }));
 
     beforeEach(function() {
