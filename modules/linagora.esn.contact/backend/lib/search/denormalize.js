@@ -57,7 +57,12 @@ module.exports = function(contact) {
     mail.value = mail.value.replace(/^mailto:/i, '');
     return mail;
   });
-  result.tel = getMultiValue('tel');
+
+  result.tel = getMultiValue('tel').map(function(num) {
+    num.value = num.value.replace(/^tel:/i, '');
+    return num;
+  });
+
   result.job = vcard.getFirstPropertyValue('role');
 
   result.org = vcard.getFirstPropertyValue('org');
@@ -71,7 +76,7 @@ module.exports = function(contact) {
 
   if (bday) {
     var type = bday.type,
-        value = bday.getFirstValue();
+    var value = bday.getFirstValue();
 
     result.birthday = type !== 'text' ? value.toJSDate() : value;
   }

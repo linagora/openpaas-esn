@@ -18,9 +18,15 @@ describe('The contact denormalize module', function() {
         ['socialprofile', {type: 'Twitter'}, 'text', '@brucewillis'],
         ['socialprofile', {type: 'Facebook'}, 'text', 'http://facebook.com/brucewillis'],
         ['nickname', {}, 'text', 'Bruno'],
+        ['role', {}, 'text', 'Expert'],
+        ['categories', {}, 'Hero', 'Die Hard', 'Bald', 'Armaggedon', 'America savior'],
+        ['note', {}, 'text', 'Lorep ipsum alea jacta est erare humanum est persevere diabolicum id est fluctuact nec mergitur consegur romani rosare nec plus utlra sine qua non'],
+        ['bday', {}, 'date', '2015-09-09'],
         ['email', {type: 'Home'}, 'text', 'mailto:me@home.com'],
         ['email', {type: 'Office'}, 'text', 'mailto:me@work.com'],
-        ['adr', {type: 'Home'}, 'text', ['', '', '123 Main Street', 'Any Town', 'CA', '91921-1234', 'U.S.A.']]
+        ['adr', {type: 'Home'}, 'text', ['', '', '123 Main Street', 'Any Town', 'CA', '91921-1234', 'U.S.A.']],
+        ['tel', { type: 'Home' }, 'uri', 'tel:0567845673'],
+        ['tel', { type: 'Mobile' }, 'uri', 'tel:0675787932']
       ]
       ]
     };
@@ -75,12 +81,24 @@ describe('The contact denormalize module', function() {
     expect(denormalize().emails).to.deep.equal([{type: 'Home', value: 'me@home.com'}, {type: 'Office', value: 'me@work.com'}]);
   });
 
+  it('should set the phone', function() {
+    expect(denormalize().tel).to.deep.equal([{type: 'Home', value: '0567845673'}, {type: 'Mobile', value: '0675787932'}]);
+  });
+
   it('should set the org', function() {
     expect(denormalize().org).to.equal(contact.vcard[1][4][3]);
   });
 
+  it('should set the job', function() {
+    expect(denormalize().job).to.equal(contact.vcard[1][9][3]);
+  });
+
   it('should set the urls', function() {
     expect(denormalize().urls).to.deep.equal([{type: contact.vcard[1][5][1].type, value: contact.vcard[1][5][3]}]);
+  });
+
+  it('should set the tags', function() {
+    expect(denormalize().tags).to.deep.equal([{'text': 'Die Hard'}, {'text': 'Bald'}, {'text': 'Armaggedon'}, {'text': 'America savior'}]);
   });
 
   it('should set the socialprofiles', function() {
@@ -88,10 +106,18 @@ describe('The contact denormalize module', function() {
   });
 
   it('should set the address', function() {
-    expect(denormalize().addresses).to.deep.equal([{full: '123 Main Street Any Town CA 91921-1234 U.S.A.', type: contact.vcard[1][11][1].type, city: contact.vcard[1][11][3][3], country: contact.vcard[1][11][3][6], street: contact.vcard[1][11][3][2], zip: contact.vcard[1][11][3][5]}]);
+    expect(denormalize().addresses).to.deep.equal([{full: '123 Main Street Any Town CA 91921-1234 U.S.A.', type: contact.vcard[1][15][1].type, city: contact.vcard[1][15][3][3], country: contact.vcard[1][15][3][6], street: contact.vcard[1][15][3][2], zip: contact.vcard[1][15][3][5]}]);
+  });
+
+  it('should set the birthday', function() {
+    expect(denormalize().birthday).to.deep.equal(new Date(2015, 8, 9, 0, 0, 0));
   });
 
   it('should set the nickname', function() {
     expect(denormalize().nickname).to.equal(contact.vcard[1][8][3]);
+  });
+
+  it('should set the comments', function() {
+    expect(denormalize().comments).to.equal(contact.vcard[1][11][3]);
   });
 });
