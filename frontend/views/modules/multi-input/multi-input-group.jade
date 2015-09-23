@@ -17,7 +17,7 @@
     .col-xs-8.col-sm-9
       .fg-line
         input.form-control.multi-input-text.input-next(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-change='verifyNew()', ng-blur='acceptNew()')
-.multi-input-button.clickable.fadeIn200ms(ng-if="showAddButton" ng-click="addField()") 
+.multi-input-button.clickable(ng-if="showAddButton" ng-click="addField()")
   .form-group
     .col-xs-4.col-sm-3
     .col-xs-8.col-sm-9.flex-vertical-centered.m-t-10
