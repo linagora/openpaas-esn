@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.multi-input', [])
-.controller('MultiInputGroupController', function($scope, $timeout) {
+.controller('MultiInputGroupController', function($scope) {
     function _updateTypes() {
       $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
     }
@@ -65,7 +65,7 @@ angular.module('esn.multi-input', [])
       }
     };
   })
-  .directive('multiInputGroup', function() {
+  .directive('multiInputGroup', function($timeout) {
     return {
       restrict: 'E',
       scope: {
@@ -94,6 +94,10 @@ angular.module('esn.multi-input', [])
         scope.addField = function() {
           scope.showAddButton = false;
           scope.showNextField = true;
+          $timeout(function(){
+            var newInput = element[0].getElementsByClassName('input-next')[0];
+            newInput.focus();
+          }, 0);
         };
         function _init() {
           if (scope.content.length === 0) {
@@ -116,7 +120,7 @@ angular.module('esn.multi-input', [])
       }
     };
   })
-  .directive('multiInputGroupAddress', function() {
+  .directive('multiInputGroupAddress', function($timeout) {
     return {
       restrict: 'E',
       scope: {
@@ -152,6 +156,10 @@ angular.module('esn.multi-input', [])
         scope.addField = function() {
           scope.showAddButton = false;
           scope.showNextField = true;
+          $timeout(function(){
+            var newInput = element[0].getElementsByClassName('input-next')[0];
+            newInput.focus();
+          }, 0);
         };
         function _init() {
           if (scope.content.length === 0) {
