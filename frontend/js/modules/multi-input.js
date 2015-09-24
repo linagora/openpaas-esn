@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.multi-input', [])
-.controller('MultiInputGroupController', function($scope, $timeout) {
+.controller('MultiInputGroupController', function($scope) {
     function _updateTypes() {
       $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
     }
@@ -10,6 +10,17 @@ angular.module('esn.multi-input', [])
       $scope.content.push($scope.newItem);
       $scope.newItem = {};
       _updateTypes();
+    };
+
+    this.initFlags = function() {
+      if ($scope.content.length === 0) {
+        $scope.showAddButton = false;
+        $scope.showNextField = true;
+      }
+      else {
+        $scope.showAddButton = true;
+        $scope.showNextField = false;
+      }
     };
 
     function _acceptRemove($index) {
@@ -22,11 +33,14 @@ angular.module('esn.multi-input', [])
       _updateTypes();
     };
 
+    var self = this;
+
     this.createVerifyRemoveFunction = function(valueToCheck) {
       return function($index) {
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
           _acceptRemove($index);
+          self.initFlags();
         }
       };
     };
@@ -37,6 +51,7 @@ angular.module('esn.multi-input', [])
        $scope.content.forEach(function(item) {
           if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
             _acceptRemove($index);
+            self.initFlags();
           }
         });
       };
@@ -47,25 +62,25 @@ angular.module('esn.multi-input', [])
     $scope.content = [];
     $scope.newItem = {};
   })
-  .directive('resetableInput', function() {
+  .directive('resetableInput', function($timeout) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs, controller) {
         var button = element[0].getElementsByClassName('button-remove');
         element[0].addEventListener('focusin', function(event) {
-          setTimeout(function() {
+          $timeout(function() {
             button[0].classList.remove('invisible');
-          }, 100);
+          }, 200);
         });
         element[0].addEventListener('focusout', function(event) {
-          setTimeout(function() {
+          $timeout(function() {
             button[0].classList.add('invisible');
-          }, 100);
+          }, 200);
         });
       }
     };
   })
-  .directive('multiInputGroup', function() {
+  .directive('multiInputGroup', function($timeout) {
     return {
       restrict: 'E',
       scope: {
@@ -89,34 +104,31 @@ angular.module('esn.multi-input', [])
           if (scope.newItem.value) {
             controller.acceptNew();
           }
-          _init();
+          controller.initFlags();
         };
         scope.addField = function() {
           scope.showAddButton = false;
           scope.showNextField = true;
+          $timeout(function() {
+            var newInput = element[0].getElementsByClassName('input-next')[0];
+            newInput.focus();
+          }, 0);
         };
-        function _init() {
-          if (scope.content.length === 0) {
-            scope.showAddButton = false;
-            scope.showNextField = true;
-          }
-          else {
-            scope.showAddButton = true;
-            scope.showNextField = false;
-          }
-        }
+
         scope.$watch('content', function() {
-          _init();
+          controller.initFlags();
         });
 
         scope.verifyRemove = controller.createVerifyRemoveFunction('value');
+
         scope.deleteField = function(index) {
           controller.acceptRemove(index);
+          controller.initFlags();
         };
       }
     };
   })
-  .directive('multiInputGroupAddress', function() {
+  .directive('multiInputGroupAddress', function($timeout) {
     return {
       restrict: 'E',
       scope: {
@@ -142,33 +154,35 @@ angular.module('esn.multi-input', [])
             scope.showAddButton = false;
           }
         };
-        scope.acceptNew = function() {
+        scope.acceptNew = function(field) {
           if (isAddressFilled()) {
             controller.acceptNew();
+            controller.initFlags();
+            if (field) {
+              var fieldToFocus = 'input-last-' + field;
+              $timeout(function() {
+                var lastInput = element[0].getElementsByClassName(fieldToFocus)[0];
+                lastInput.focus();
+              }, 200);
+            }
           }
-          scope.showAddButton = true;
-          scope.showNextField = false;
         };
         scope.addField = function() {
           scope.showAddButton = false;
           scope.showNextField = true;
+          $timeout(function() {
+            var newInput = element[0].getElementsByClassName('input-next')[0];
+            newInput.focus();
+          }, 0);
         };
-        function _init() {
-          if (scope.content.length === 0) {
-            scope.showAddButton = false;
-            scope.showNextField = true;
-          }
-          else {
-            scope.showAddButton = true;
-            scope.showNextField = false;
-          }
-        }
+
         scope.$watch('content', function() {
-          _init();
+          controller.initFlags();
         });
         scope.verifyRemove = controller.createVerifyRemoveAddressFunction('street', 'zip', 'country', 'city');
         scope.deleteAddress = function(index) {
           controller.acceptRemove(index);
+          controller.initFlags();
         };
       }
     };

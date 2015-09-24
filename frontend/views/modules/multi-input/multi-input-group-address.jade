@@ -7,20 +7,20 @@
             select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
       .col-xs-8.col-sm-9
         .fg-line
-          input.form-control(type='text', ng-model='item.street', placeholder='#{__("Street")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
+          input.form-control(type='text', ng-class="{'input-last-street': $last}", ng-model='item.street', placeholder='#{__("Street")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
           i.clickable.invisible.mdi.mdi-minus-circle-outline.button-remove(ng-click="deleteAddress($index)")
     div
       div
         .col-xs-4.col-sm-3
           .fg-line
-            input.form-control(type='text', ng-model='item.zip', placeholder='#{__("Zip")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
+            input.form-control(type='text', ng-class="{'input-last-zip': $last}", ng-model='item.zip', placeholder='#{__("Zip")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
         .col-xs-8.col-sm-9
           .fg-line
-            input.form-control(type='text', ng-model='item.city', placeholder='#{__("City")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
+            input.form-control(type='text', ng-class="{'input-last-city': $last}", ng-model='item.city', placeholder='#{__("City")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
       .col-xs-12
         .fg-line
-          input.form-control(ng-focus="showDelete=true;", ng-blur="showDelete=false;", type='text', ng-model='item.country', placeholder='#{__("Country")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
-.multi-input-next(ng-show="showNextField || content.length === 0")
+          input.form-control(type='text', ng-class="{'input-last-country': $last}", ng-model='item.country', placeholder='#{__("Country")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
+.multi-input-next(ng-if="showNextField || content.length === 0")
   .form-group
     div 
       .col-xs-4.col-sm-3
@@ -29,19 +29,19 @@
             select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
       .col-xs-8.col-sm-9
         .fg-line
-          input.form-control(type='text', ng-model='newItem.street', placeholder='#{__("Street")}', ng-change='verifyNew()', ng-blur='acceptNew()')
+          input.form-control.input-next(type='text', ng-model='newItem.street', placeholder='#{__("Street")}', ng-change='verifyNew()', ng-blur='acceptNew("zip")')
     div
       div
         .col-xs-4.col-sm-3
           .fg-line
-            input.form-control(type='text', ng-model='newItem.zip', placeholder='#{__("Zip")}', ng-change='verifyNew()', ng-blur='acceptNew()')
+            input.form-control(type='text', ng-model='newItem.zip', placeholder='#{__("Zip")}', ng-change='verifyNew()', ng-blur='acceptNew("city")')
         .col-xs-8.col-sm-9
           .fg-line
-            input.form-control(type='text', ng-model='newItem.city', placeholder='#{__("City")}', ng-change='verifyNew()', ng-blur='acceptNew()')
+            input.form-control(type='text', ng-model='newItem.city', placeholder='#{__("City")}', ng-change='verifyNew()', ng-blur='acceptNew("country")')
     .col-xs-12
       .fg-line
         input.form-control(type='text', ng-model='newItem.country', placeholder='#{__("Country")}', ng-change='verifyNew()', ng-blur='acceptNew()')
-.multi-input-button.clickable(ng-show="showAddButton" ng-click="addField()") 
+.multi-input-button.clickable(ng-if="showAddButton" ng-click="addField()") 
   .form-group
     .col-xs-12.flex-vertical-centered.m-t-10.m-b-10
         i.mdi.mdi-plus-circle.button-add.m-r-5

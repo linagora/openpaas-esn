@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -16,10 +17,11 @@ describe('The multi-input Angular module', function() {
 
     var element;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
       this.$rootScope = _$rootScope_;
       this.$scope = this.$rootScope.$new();
       this.$compile = _$compile_;
+      this.$timeout = _$timeout_;
       this.initDirective = function(scope) {
         var html = '<multi-input-group-address multi-input-model="contact.addresses", multi-input-types="[]"></multi-input-group-address>';
         var element = this.$compile(html)(scope);
@@ -105,6 +107,30 @@ describe('The multi-input Angular module', function() {
       element.find('.multi-input-button').click();
       expect(this.eleScope.showAddButton).to.be.false;
       expect(this.eleScope.showNextField).to.be.true;
+    });
+    it('should set the focus on the newly created street field', function() {
+      element = this.initDirective(this.$scope);
+      this.$scope.contact = {
+        addresses: [
+          {type: 'Home',
+          street: 'Somewhere over the rainbow',
+          zip: '777',
+          city: 'Yolopolis',
+          country: 'Yololand'},
+          {type: 'Home',
+          street: 'Somewhere else',
+          zip: '666',
+          city: 'Satantown',
+          country: 'Hell'}
+        ]
+      };
+      this.$scope.$digest();
+      element.find('.multi-input-button').click();
+      expect(this.eleScope.showAddButton).to.be.false;
+      expect(this.eleScope.showNextField).to.be.true;
+      var spy = sinon.spy(element.find('.input-next')[0], 'focus');
+      this.$timeout.flush();
+      expect(spy).to.have.been.calledOnce;
     });
     it('should display an "add a field" button when the at least one of the new inputs is not empty', function() {
       element = this.initDirective(this.$scope);
@@ -209,10 +235,11 @@ describe('The multi-input Angular module', function() {
 
     var element;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
       this.$rootScope = _$rootScope_;
       this.$scope = this.$rootScope.$new();
       this.$compile = _$compile_;
+      this.$timeout = _$timeout_;
       this.initDirective = function(scope) {
         var html = '<multi-input-group multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="text", multi-input-placeholder="Email"></multi-input-group>';
         var element = this.$compile(html)(scope);
@@ -280,6 +307,24 @@ describe('The multi-input Angular module', function() {
       element.find('.multi-input-button').click();
       expect(this.eleScope.showAddButton).to.be.false;
       expect(this.eleScope.showNextField).to.be.true;
+    });
+    it('should set the focus on the newly created street field', function() {
+      element = this.initDirective(this.$scope);
+      this.$scope.contact = {
+        emails: [
+          {type: 'Home',
+          value: 'home@mail.com'},
+          {type: 'Work',
+          value: 'work@mail.com'}
+        ]
+      };
+      this.$scope.$digest();
+      element.find('.multi-input-button').click();
+      expect(this.eleScope.showAddButton).to.be.false;
+      expect(this.eleScope.showNextField).to.be.true;
+      var spy = sinon.spy(element.find('.input-next')[0], 'focus');
+      this.$timeout.flush();
+      expect(spy).to.have.been.calledOnce;
     });
     it('should display an "add a field" button when the new input is not empty', function() {
       element = this.initDirective(this.$scope);
