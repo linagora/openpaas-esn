@@ -6,7 +6,13 @@ angular.module('esn.multi-input', [])
       $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
     }
 
-    function _init() {
+    this.acceptNew = function() {
+      $scope.content.push($scope.newItem);
+      $scope.newItem = {};
+      _updateTypes();
+    };
+
+    this.initFlags = function() {
       if ($scope.content.length === 0) {
         $scope.showAddButton = false;
         $scope.showNextField = true;
@@ -15,16 +21,6 @@ angular.module('esn.multi-input', [])
         $scope.showAddButton = true;
         $scope.showNextField = false;
       }
-    }
-
-    this.acceptNew = function() {
-      $scope.content.push($scope.newItem);
-      $scope.newItem = {};
-      _updateTypes();
-    };
-
-    this.initFlags = function() {
-      _init();
     };
 
     function _acceptRemove($index) {
@@ -37,12 +33,14 @@ angular.module('esn.multi-input', [])
       _updateTypes();
     };
 
+    var self = this;
+
     this.createVerifyRemoveFunction = function(valueToCheck) {
       return function($index) {
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
           _acceptRemove($index);
-          _init();
+          self.initFlags();
         }
       };
     };
@@ -53,7 +51,7 @@ angular.module('esn.multi-input', [])
        $scope.content.forEach(function(item) {
           if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
             _acceptRemove($index);
-            _init();
+            self.initFlags();
           }
         });
       };
@@ -64,18 +62,18 @@ angular.module('esn.multi-input', [])
     $scope.content = [];
     $scope.newItem = {};
   })
-  .directive('resetableInput', function() {
+  .directive('resetableInput', function($timeout) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs, controller) {
         var button = element[0].getElementsByClassName('button-remove');
         element[0].addEventListener('focusin', function(event) {
-          setTimeout(function() {
+          $timeout(function() {
             button[0].classList.remove('invisible');
           }, 200);
         });
         element[0].addEventListener('focusout', function(event) {
-          setTimeout(function() {
+          $timeout(function() {
             button[0].classList.add('invisible');
           }, 200);
         });
@@ -162,7 +160,6 @@ angular.module('esn.multi-input', [])
             controller.initFlags();
             if (field) {
               var fieldToFocus = 'input-last-' + field;
-              console.log(fieldToFocus);
               $timeout(function() {
                 var lastInput = element[0].getElementsByClassName(fieldToFocus)[0];
                 lastInput.focus();
