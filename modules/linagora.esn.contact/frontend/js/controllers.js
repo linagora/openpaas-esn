@@ -103,8 +103,9 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY, $timeout) {
+  .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
     var requiredKey = 'displayName';
+    var SPINNER = 'contactListSpinner';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
@@ -116,6 +117,7 @@ angular.module('linagora.esn.contact')
     $scope.searchFailure = false;
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
+    $scope.currentPage = 0;
 
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {
@@ -151,13 +153,6 @@ angular.module('linagora.esn.contact')
       $scope.searchResult = {};
       $scope.totalHits = 0;
     }
-
-    $scope.loadContacts = function() {
-      return contactsService.list($scope.bookId).then(addItemsToCategories, function(err) {
-        $log.error('Can not get contacts', err);
-        displayContactError('Can not get contacts');
-      });
-    };
 
     $scope.openContactCreation = function() {
       openContactForm($scope.bookId);
@@ -212,74 +207,127 @@ angular.module('linagora.esn.contact')
       $location.search('q', null);
     };
 
+    function searchFailure(err) {
+      $log.error('Can not search contacts', err);
+      displayContactError('Can not search contacts');
+      $scope.searchFailure = true;
+    }
+
+    function loadPageComplete(spin) {
+      return function() {
+        $scope.loadingNextContacts = false;
+        if (spin) {
+          usSpinnerService.stop(SPINNER);
+        }
+      };
+    }
+
     $scope.search = function() {
       $scope.$emit(SCROLL_EVENTS.RESET_SCROLL);
       cleanSearchResults();
-      $scope.currentPage = 1;
-      $scope.searchFailure = false;
       if (!$scope.searchInput) {
         cleanCategories();
+        $scope.currentPage = 0;
+        $scope.nextPage = 0;
         return $scope.loadContacts();
       }
-      $scope.loadingNextSearchResults = true;
+      $scope.currentPage = 1;
+      $scope.searchFailure = false;
+      $scope.loadingNextContacts = true;
       $scope.lastPage = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
         cleanCategories();
         setSearchResults(data);
         addItemsToCategories(data.hits_list);
-        $scope.current_page = data.current_page;
+        $scope.currentPage = data.current_page;
         $scope.totalHits = $scope.totalHits + data.hits_list.length;
         if ($scope.totalHits === data.total_hits) {
           $scope.lastPage = true;
         }
-      }, function(err) {
-        $log.error('Can not search contacts', err);
-        displayContactError('Can not search contacts');
-        $scope.searchFailure = true;
-      }).finally (function() {
-        $scope.loadingNextSearchResults = false;
-      });
+      }, searchFailure
+      ).finally (loadPageComplete(false));
     };
 
-    function getNextResults() {
-      usSpinnerService.spin('contactSearchSpinner');
-      $scope.searchFailure = false;
-      $scope.loadingNextSearchResults = true;
+    function getNextResults(spin) {
+      if (spin) {
+        usSpinnerService.spin(SPINNER);
+      }
+
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
-        $scope.current_page = data.current_page;
+        $scope.currentPage = data.current_page;
         addItemsToCategories(data.hits_list);
         $scope.totalHits = $scope.totalHits + data.hits_list.length;
         if ($scope.totalHits === data.total_hits) {
           $scope.lastPage = true;
         }
-      }, function(err) {
-        $log.error('Can not search contacts', err);
-        displayContactError('Can not search contacts');
-        $scope.searchFailure = true;
-      }).finally (function() {
-        $scope.loadingNextSearchResults = false;
-        usSpinnerService.stop('contactSearchSpinner');
-      });
+      }, searchFailure
+      ).finally (loadPageComplete(spin));
     }
 
-    $scope.scrollHandler = function() {
-      if ($scope.loadingNextSearchResults || !$scope.searchInput) {
-        return;
+    function getNextContacts(spin) {
+      $log.debug('Load next contacts, page', $scope.currentPage);
+      if (spin) {
+        usSpinnerService.spin(SPINNER);
       }
-      $scope.loadingNextSearchResults = true;
-      $scope.current_page++;
-      getNextResults();
+
+      contactsService.list($scope.bookId, $scope.user._id, {page: $scope.nextPage || $scope.currentPage, cache: true, paginate: true}).then(function(data) {
+        addItemsToCategories(data.contacts);
+        $scope.lastPage = data.last_page;
+        $scope.nextPage = data.next_page;
+      }, function(err) {
+        $log.error('Can not get contacts', err);
+        displayContactError('Can not get contacts');
+      }).finally (loadPageComplete(spin));
+    }
+
+    function updateScrollState() {
+      if ($scope.loadingNextContacts) {
+        return $q.reject();
+      }
+      $scope.loadFailure = false;
+      $scope.loadingNextContacts = true;
+      $scope.currentPage = $scope.nextPage || $scope.currentPage + 1;
+      return $q.when();
+    }
+
+    function ongoingScroll() {
+      $log.debug('Scroll search is already ongoing');
+    }
+
+    function scrollSearchHandler() {
+      updateScrollState().then(function() {
+        getNextResults(true);
+      }, ongoingScroll);
+    }
+
+    function scrollContactsHandler() {
+      updateScrollState().then(function() {
+        getNextContacts(true);
+      }, ongoingScroll);
+    }
+
+    $scope.loadContacts = function() {
+      updateScrollState().then(function() {
+        getNextContacts(false);
+      }, ongoingScroll);
     };
 
+    $scope.scrollHandler = function() {
+      $log.debug('Infinite Scroll down handler');
+      if ($scope.searchInput) {
+        return scrollSearchHandler();
+      }
+      scrollContactsHandler();
+    };
 
     if ($location.search().q) {
       $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
       $scope.search();
-    }
-    else {
+    } else {
       $scope.searchInput = null;
       $scope.loadContacts();
     }
+
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {

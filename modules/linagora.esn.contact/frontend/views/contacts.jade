@@ -25,7 +25,7 @@
   .vertiz-space
 
   .row
-    .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || searchFailure || lastPage || !searchInput')
+    .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextContacts || searchFailure || lastPage')
       contact-list-displayer
       .text-center
-        div.throbber(openpaas-logo-spinner, spinner-key='contactSearchSpinner')
+        div.throbber(openpaas-logo-spinner, spinner-key='contactListSpinner')

@@ -119,7 +119,6 @@ describe('The Contacts Angular module', function() {
 
   });
 
-
   describe('The contactsCacheService service', function() {
     var contactsCacheService, CONTACT_EVENTS;
     var $rootScope;
@@ -132,57 +131,118 @@ describe('The Contacts Angular module', function() {
       });
     }
 
-    it('should create cache at initialization', function(done) {
-      var CACHE_KEY = 'contactsList';
-      module(function($provide) {
-        $provide.decorator('$cacheFactory', function($delegate) {
-          $delegate.get = function(key) {
-            expect(key).to.equal(CACHE_KEY);
-            done();
-          };
-          return $delegate;
-        });
-      });
+    it('should create cache at initialization', function() {
       injectService();
+      expect(contactsCacheService.get()).to.deep.equal([]);
+      expect(contactsCacheService.getMetadata()).to.deep.equal({});
     });
 
-    it('should put contacts to cache using CONTACTS_CACHE_KEY', function(done) {
-      var CONTACTS_CACHE_KEY = 'contacts';
-      module(function($provide) {
-        $provide.decorator('$cacheFactory', function($delegate) {
-          $delegate.get = function() {
-            return {
-              put: function(key, data) {
-                expect(key).to.equal(CONTACTS_CACHE_KEY);
-                expect(data).to.equal('some data');
-                done();
-              }
-            };
-          };
-          return $delegate;
-        });
+    describe('The put/get functions', function() {
+
+      it('should not save undefined contacts', function() {
+        injectService();
+        contactsCacheService.put();
+        expect(contactsCacheService.get()).to.deep.equal([]);
       });
-      injectService();
-      contactsCacheService.put('some data');
+
+      it('should cache save the contacts', function() {
+        var contacts = [{id: 1}, {id: 2}];
+        injectService();
+        contactsCacheService.put(contacts);
+        expect(contactsCacheService.get()).to.deep.equal(contacts);
+      });
+
+      it('should replace contacts when defined', function() {
+        var contacts1 = [{id: 1}, {id: 2}];
+        var contacts2 = [{id: 3}, {id: 4}];
+        injectService();
+
+        contactsCacheService.put(contacts1);
+        contactsCacheService.put(contacts2);
+        expect(contactsCacheService.get()).to.deep.equal(contacts2);
+      });
+
+      it('should not replace contacts when undefined', function() {
+        var contacts = [{id: 1}, {id: 2}];
+        injectService();
+
+        contactsCacheService.put(contacts);
+        contactsCacheService.put();
+        expect(contactsCacheService.get()).to.deep.equal(contacts);
+      });
     });
 
-    it('should get contacts from cache using CONTACTS_CACHE_KEY', function(done) {
-      var CONTACTS_CACHE_KEY = 'contacts';
-      module(function($provide) {
-        $provide.decorator('$cacheFactory', function($delegate) {
-          $delegate.get = function() {
-            return {
-              get: function(key) {
-                expect(key).to.equal(CONTACTS_CACHE_KEY);
-                done();
-              }
-            };
-          };
-          return $delegate;
-        });
+    describe('The push/get functions', function() {
+
+      it('should add contacts to the cache', function() {
+        var contacts = [{id: 1}, {id: 2}];
+        injectService();
+
+        contactsCacheService.push(contacts);
+        expect(contactsCacheService.get().length).to.equal(2);
+        expect(contactsCacheService.get()).to.shallowDeepEqual(contacts);
       });
-      injectService();
-      contactsCacheService.get();
+
+      it('should append contacts to the cache', function() {
+        var contacts = [{id: 1}, {id: 2}];
+        var contact = {id: 3};
+        injectService();
+
+        contactsCacheService.put(contacts);
+        contactsCacheService.push([contact]);
+        expect(contactsCacheService.get().length).to.equal(3);
+        contacts.concat(contact);
+        expect(contactsCacheService.get()).to.shallowDeepEqual(contacts);
+      });
+
+      it('should not add undefined', function() {
+        var contacts = [{id: 1}, {id: 2}];
+        injectService();
+
+        contactsCacheService.put(contacts);
+        contactsCacheService.push();
+        expect(contactsCacheService.get().length).to.equal(2);
+        expect(contactsCacheService.get()).to.deep.equal(contacts);
+      });
+    });
+
+    describe('The setMetadata/getMetadata functions', function() {
+      it('should not add undefined key and value', function() {
+        injectService();
+
+        contactsCacheService.setMetadata();
+        expect(contactsCacheService.getMetadata()).to.deep.equal({});
+      });
+
+      it('should not add when null key', function() {
+        injectService();
+        contactsCacheService.setMetadata(null, 'yolo');
+        expect(contactsCacheService.getMetadata()).to.deep.equal({});
+      });
+
+      it('should save input data', function() {
+        var key = 'foo';
+        var value = 'bar';
+
+        injectService();
+        contactsCacheService.setMetadata(key, value);
+        var result = {};
+        result[key] = value;
+        expect(contactsCacheService.getMetadata()).to.deep.equal(result);
+      });
+
+      it('should override input data', function() {
+        var key = 'foo';
+        var value1 = 'bar';
+        var value2 = 'baz';
+
+        injectService();
+        contactsCacheService.setMetadata(key, value1);
+        contactsCacheService.setMetadata(key, value2);
+        var result = {};
+        result[key] = value2;
+        expect(contactsCacheService.getMetadata()).to.deep.equal(result);
+      });
     });
 
     it('should clear cache when user goes to outside contact module', function() {
@@ -191,6 +251,25 @@ describe('The Contacts Angular module', function() {
       contactsCacheService.put([123]);
       var nextRoute = {
         originalPath: '/some/other/path'
+      };
+      var currentRoute = {
+        originalPath: '/contact'
+      };
+
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
+      expect(contactsCacheService.get()).to.not.be.defined;
+
+      contactsCacheService.put([123]);
+      nextRoute.originalPath = '/contactAbc';
+      $rootScope.$emit('$routeChangeStart', nextRoute, currentRoute);
+      expect(contactsCacheService.get()).to.not.be.defined;
+    });
+
+    it('should clear cache on page redirect (/ goes to /communities)', function() {
+      injectService();
+
+      contactsCacheService.put([123]);
+      var nextRoute = {
       };
       var currentRoute = {
         originalPath: '/contact'
@@ -363,13 +442,17 @@ describe('The Contacts Angular module', function() {
     }));
 
     describe('The list fn', function() {
-      it('should list cards', function(done) {
+      var bookId = '5375de4bd684db7f6fbd4f97';
+      var userId = '123456789';
+      var uid = 'myuid';
+      var contactsURL = '/addressbooks/' + bookId + '/contacts.json';
+      var result;
 
-        var contactsURL = '/addressbooks/5375de4bd684db7f6fbd4f97/contacts.json';
-        var result = {
+      beforeEach(function() {
+        result = {
           _links: {
             self: {
-              href: '/addressbooks/5375de4bd684db7f6fbd4f97/contacts.json'
+              href: contactsURL
             }
           },
           'dav:syncToken': 6,
@@ -384,7 +467,7 @@ describe('The Contacts Angular module', function() {
                   'vcard',
                   [
                     ['version', {}, 'text', '4.0'],
-                    ['uid', {}, 'text', 'myuid'],
+                    ['uid', {}, 'text', uid],
                     ['n', {}, 'text', ['Burce', 'Willis', '', '', '']]
                   ]
                 ]
@@ -392,31 +475,180 @@ describe('The Contacts Angular module', function() {
             ]
           }
         };
-
-        // The carddav server will be hit
-        this.$httpBackend.expectGET(this.getExpectedPath(contactsURL)).respond(result);
-
-        this.contactsService.list('5375de4bd684db7f6fbd4f97').then(function(cards) {
-            expect(cards).to.be.an.array;
-            expect(cards.length).to.equal(1);
-            expect(cards[0].id).to.equal('myuid');
-            expect(cards[0].vcard).to.be.an('object');
-            expect(cards[0].etag).to.be.empty;
-        }.bind(this)).finally (done);
-
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
       });
 
-      it('should return contacts from cache when possible', function(done) {
-        sinon.stub(this.contactsCacheService, 'get', function() {
-          return [123, 456];
+      function setNextPage() {
+        result._links.next = {href: '/next'};
+      }
+
+      describe('Without cache option', function() {
+        it('should list cards', function(done) {
+
+          this.$httpBackend.expectGET(this.getExpectedPath(contactsURL)).respond(result);
+
+          this.contactsService.list(bookId).then(function(data) {
+            var cards = data.contacts;
+            expect(cards).to.be.an.array;
+            expect(cards.length).to.equal(1);
+            expect(cards[0].id).to.equal(uid);
+            expect(cards[0].vcard).to.be.an('object');
+            expect(cards[0].etag).to.be.empty;
+          }.bind(this)).finally (done);
+
+          this.$rootScope.$apply();
+          this.$httpBackend.flush();
         });
-        this.contactsService.list().then(function(cards) {
-          expect(cards).to.eql([123, 456]);
-          done();
+      });
+
+      describe('With cache option', function() {
+        var options = {cache: true};
+
+        function checkResult(done) {
+          return function(data) {
+            expect(data.contacts).to.be.an.array;
+            expect(data.contacts.length).to.equal(1);
+            expect(data.contacts[0].id).to.equal(uid);
+            expect(data.cache).to.be.false;
+            expect(data.current_page).to.eql(options.page);
+            done();
+          };
+        }
+
+        beforeEach(function() {
+          this.contactsCacheService.put([]);
         });
-        this.$rootScope.$apply();
+
+        it('should return the cached contacts when getting contacts from lower page', function(done) {
+          var contacts = [123, 456];
+          var cachedPage = 2;
+          options.paginate = true;
+          options.page = 1;
+          this.contactsCacheService.setMetadata('page', cachedPage);
+          this.contactsCacheService.put(contacts);
+
+          this.contactsService.list(bookId, userId, options).then(function(data) {
+            expect(data.contacts).to.eql([123, 456]);
+            expect(data.cache).to.be.true;
+            expect(data.current_page).to.eql(options.page);
+            expect(data.next_page).to.equal(cachedPage + 1);
+            done();
+          });
+          this.$rootScope.$apply();
+        });
+
+        it('should return the cached contacts when getting contacts from same page', function(done) {
+          var contacts = [123, 456];
+          var cachedPage = 2;
+          options.paginate = true;
+          options.page = cachedPage;
+          this.contactsCacheService.setMetadata('page', cachedPage);
+          this.contactsCacheService.put(contacts);
+
+          this.contactsService.list(bookId, userId, options).then(function(data) {
+            expect(data.contacts).to.eql([123, 456]);
+            expect(data.cache).to.be.true;
+            expect(data.current_page).to.eql(options.page);
+            expect(data.next_page).to.equal(cachedPage + 1);
+            done();
+          });
+          this.$rootScope.$apply();
+        });
+
+        it('should not return next_page when cache is last_page', function(done) {
+          var contacts = [123, 456];
+          var cachedPage = 2;
+          options.paginate = true;
+          options.page = 1;
+          this.contactsCacheService.setMetadata('page', cachedPage);
+          this.contactsCacheService.setMetadata('last_page', true);
+          this.contactsCacheService.put(contacts);
+
+          this.contactsService.list(bookId, userId, options).then(function(data) {
+            expect(data.next_page).to.not.be.defined;
+            done();
+          });
+          this.$rootScope.$apply();
+        });
+
+        it('should call the backend when cache does not contains all the pages', function(done) {
+          var contacts = [123, 456];
+          options.paginate = true;
+          options.page = 3;
+          this.contactsCacheService.setMetadata('page', 2);
+          this.contactsCacheService.put(contacts);
+          var url = this.getExpectedPath(contactsURL) + '?limit=20&offset=40&sort=fn&userId=' + userId;
+          this.$httpBackend.expectGET(url).respond(result);
+          this.contactsService.list(bookId, userId, options).then(checkResult(done));
+          this.$rootScope.$apply();
+          this.$httpBackend.flush();
+        });
+
+        it('should call the backend when cache is empty', function(done) {
+          var page = 1;
+          options.paginate = true;
+          options.page = page;
+          setNextPage();
+          var url = this.getExpectedPath(contactsURL) + '?limit=20&offset=0&sort=fn&userId=' + userId;
+          this.$httpBackend.expectGET(url).respond(result);
+          this.contactsService.list(bookId, userId, options).then(function(data) {
+            checkResult(function() {
+              expect(data.next_page).to.equal(page + 1);
+              done();
+            })(data);
+          });
+          this.$rootScope.$apply();
+          this.$httpBackend.flush();
+        });
+
+        it('should call the backend when cache contacts array is empty', function(done) {
+          var page = 1;
+          this.contactsCacheService.put([]);
+          options.paginate = true;
+          options.page = page;
+          setNextPage();
+          var url = this.getExpectedPath(contactsURL) + '?limit=20&offset=0&sort=fn&userId=' + userId;
+          this.$httpBackend.expectGET(url).respond(result);
+          this.contactsService.list(bookId, userId, options).then(function(data) {
+            checkResult(function() {
+              expect(data.next_page).to.equal(page + 1);
+              done();
+            })(data);
+          });
+          this.$rootScope.$apply();
+          this.$httpBackend.flush();
+        });
+
+        it('should call the backend when cache is empty and do not set next_page if last page is reached', function(done) {
+          var page = 1;
+          options.paginate = true;
+          options.page = page;
+          var url = this.getExpectedPath(contactsURL) + '?limit=20&offset=0&sort=fn&userId=' + userId;
+          this.$httpBackend.expectGET(url).respond(result);
+          this.contactsService.list(bookId, userId, options).then(function(data) {
+            checkResult(function() {
+              expect(data.next_page).to.not.be.defined;
+              done();
+            })(data);
+          });
+          this.$rootScope.$apply();
+          this.$httpBackend.flush();
+        });
+
+        it('should call the backend with right parameters, add the result to cache and return result', function(done) {
+          var self = this;
+          options.paginate = true;
+          options.page = 1;
+          var url = this.getExpectedPath(contactsURL) + '?limit=20&offset=0&sort=fn&userId=' + userId;
+          this.$httpBackend.expectGET(url).respond(result);
+          this.contactsService.list(bookId, userId, options).then(checkResult(function() {
+            expect(self.contactsCacheService.get().length).to.equal(1);
+            expect(self.contactsCacheService.get()[0].id).to.equal(uid);
+            expect(self.contactsCacheService.getMetadata().page).to.equal(options.page);
+            done();
+          }));
+          this.$rootScope.$apply();
+          this.$httpBackend.flush();
+        });
       });
 
     });

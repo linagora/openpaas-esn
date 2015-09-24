@@ -207,19 +207,22 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('contactsCacheService', function($rootScope, $log, $cacheFactory, CONTACT_EVENTS) {
-    var CACHE_KEY = 'contactsList';
-    var CONTACTS_CACHE_KEY = 'contacts';
-    var contactsCache = $cacheFactory.get(CACHE_KEY);
-    if (!contactsCache) {
-      contactsCache = $cacheFactory(CACHE_KEY);
+  .factory('contactsCacheService', function($rootScope, $log, CONTACT_EVENTS) {
+
+    var metadata;
+    var contactsCache;
+
+    function initCache() {
+      $log.debug('Initializing contacts cache');
+      contactsCache = [];
+      metadata = {};
     }
 
     $rootScope.$on('$routeChangeStart', function(evt, next, current) {
       // clear cache to avoid memory leak when user switch to outside
       // contact module
       if (current && current.originalPath && current.originalPath.substring(0, 8) === '/contact' &&
-        next && next.originalPath && next.originalPath.substring(0, 8) !== '/contact') {
+        next && ((next.originalPath && next.originalPath.substring(0, 8) !== '/contact') || !next.originalPath)) {
         clear();
       }
     });
@@ -244,29 +247,41 @@ angular.module('linagora.esn.contact')
 
     function clear() {
       $log.debug('Clear contacts cache');
-      contactsCache.removeAll();
+      initCache();
     }
 
     function put(contacts) {
-      $log.debug('Cached', contacts.length, 'contacts');
-      contactsCache.put(CONTACTS_CACHE_KEY, contacts);
-    }
-
-    function get() {
-      return contactsCache.get(CONTACTS_CACHE_KEY);
-    }
-
-    function addContact(contact) {
-      var contacts = get();
       if (contacts) {
-        contacts.push(contact);
+        $log.debug('Cached', contacts.length, 'contacts');
+        contactsCache = contacts;
       }
     }
 
+    function get() {
+      return contactsCache;
+    }
+
+    function addContact(contact) {
+      if (!contact) {
+        return;
+      }
+      contactsCache.push(contact);
+    }
+
+    function push(contacts) {
+      if (!contacts) {
+        return;
+      }
+      angular.forEach(contacts, addContact);
+    }
+
     function updateContact(contact) {
-      var contacts = get();
-      if (contacts) {
-        angular.forEach(contacts, function(item, index, array) {
+      if (!contact) {
+        return;
+      }
+
+      if (contactsCache) {
+        angular.forEach(contactsCache, function(item, index, array) {
           if (item.id === contact.id) {
             array[index] = contact;
           }
@@ -275,19 +290,33 @@ angular.module('linagora.esn.contact')
     }
 
     function deleteContact(contact) {
-      var contacts = get();
-      if (contacts) {
+      if (contactsCache) {
         // remove all items have the same ID with contact
-        contacts = contacts.filter(function(item) {
+        contactsCache = contactsCache.filter(function(item) {
           return item.id !== contact.id;
         });
-        // put contacts to cache again because the reference has been changed
-        put(contacts);
+        put(contactsCache);
       }
     }
 
+    function setMetadata(key, value) {
+      if (!key) {
+        return;
+      }
+      metadata[key] = value;
+    }
+
+    function getMetadata() {
+      return metadata;
+    }
+
+    initCache();
+
     return {
+      setMetadata: setMetadata,
+      getMetadata: getMetadata,
       put: put,
+      push: push,
       get: get
     };
 
@@ -305,7 +334,7 @@ angular.module('linagora.esn.contact')
       insertPhotoUrl: insertPhotoUrl
     };
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification) {
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS, gracePeriodLiveNotification, CONTACT_LIST_DEFAULT_SORT, CONTACT_LIST_PAGE_SIZE) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY)
@@ -593,19 +622,75 @@ angular.module('linagora.esn.contact')
       return [];
     }
 
-    function list(bookId) {
-      var contacts = contactsCacheService.get();
-      if (contacts) {
-        $log.debug('Get contacts from cache');
-        return $q.when(contacts);
+    function _getContacts(bookId, userId, query) {
+      return request('get', bookUrl(bookId), null, null, query).then(function(response) {
+        return {
+          contacts: responseAsContactsShell(response),
+          last_page: !response.data._links.next
+        };
+      });
+    }
+
+    function _getContactsFromCache(bookId, userId, options) {
+
+      $log.debug('List contacts', bookId, options);
+      var cache = contactsCacheService.get();
+      var meta = contactsCacheService.getMetadata();
+      var currentPage = options.page || 1;
+      var limit = options.limit || CONTACT_LIST_PAGE_SIZE;
+      var offset = (currentPage - 1) * limit;
+
+      if (options.paginate && currentPage <= meta.page && cache && cache.length) {
+
+        var result = {
+          contacts: cache,
+          current_page: currentPage,
+          cache: true,
+          last_page: meta.last_page
+        };
+
+        // send back the next page which has not been cached
+        if (!meta.last_page) {
+          result.next_page = meta.page + 1;
+        }
+        $log.debug('Send back contacts from cache', result);
+        return $q.when(result);
       }
 
-      return request('get', bookUrl(bookId)).then(function(response) {
-        contacts = responseAsContactsShell(response);
-        contactsCacheService.put(contacts);
-        return contacts;
-      });
+      var query = {
+        sort: options.sort || CONTACT_LIST_DEFAULT_SORT,
+        userId: userId
+      };
 
+      if (options.paginate) {
+        query.limit = limit;
+        query.offset = offset;
+      }
+
+      return _getContacts(bookId, userId, query).then(function(response) {
+        contactsCacheService.push(response.contacts);
+        contactsCacheService.setMetadata('page', currentPage);
+        contactsCacheService.setMetadata('last_page', response.last_page);
+
+        var result = {
+          contacts: response.contacts,
+          current_page: currentPage,
+          last_page: response.last_page,
+          cache: false
+        };
+        if (!response.last_page) {
+          result.next_page = currentPage + 1;
+        }
+        $log.debug('Send back contacts from service ', result);
+        return result;
+      });
+    }
+
+    function list(bookId, userId, options) {
+      if (options && options.cache) {
+        return _getContactsFromCache(bookId, userId, options);
+      }
+      return _getContacts(bookId, userId, options);
     }
 
     function create(bookId, contact) {
