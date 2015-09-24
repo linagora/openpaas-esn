@@ -21,6 +21,7 @@ angular.module('esn.calendar')
       var height = windowJQuery.height() - calendar.offset().top - 10;
       height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
       calendar.fullCalendar('option', 'height', height);
+      $rootScope.$broadcast('calendar:height', height);
     };
 
     $scope.eventClick = function(event) {

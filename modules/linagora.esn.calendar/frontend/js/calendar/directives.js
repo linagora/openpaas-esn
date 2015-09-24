@@ -66,9 +66,16 @@ angular.module('esn.calendar')
   })
 
   .directive('calendarLeftPane', function() {
+    function link(scope, element) {
+      scope.$on('calendar:height', function(event, height) {
+        element.height(height);
+      })
+    }
+
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/calendar/calendar-left-pane.html'
+      templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
+      link: link
     }
   });
