@@ -6,7 +6,7 @@
   "dependencies": {
     "async": "~0.8.0",
     "async-eventemitter": "~0.2.2",
-    "awesome-content-sender": "git+https://ci.open-paas.org/stash/scm/om/awesome-content-sender.git",
+    "awesome-content-sender": "0.0.1",
     "awesome-module": "1.0.0",
     "awesome-module-manager": "1.1.1",
     "awesome-node-redis-pubsub": "git+https://ci.open-paas.org/stash/scm/or/awesome-node-redis-pubsub.git",
@@ -54,7 +54,7 @@
     "node-uuid": "~1.4.1",
     "nodemailer": "~1.3.4",
     "oauth2orize": "~1.0.1",
-    "om-mailer": "0.2.0",
+    "om-mailer": "0.2.2",
     "passport": "^0.2.0",
     "passport-http": "~0.2.2",
     "passport-http-bearer": "~1.0.1",
