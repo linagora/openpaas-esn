@@ -10,12 +10,9 @@
             input.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
           .fg-line
             input.form-control.floating-label(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
-          .fg-line 
+          .fg-line
             input.form-control.floating-label(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
-      div(ng-show='contact.org')
-        label.control-label.sr-only #{__("Job Title")}
-        .col-sm-12
-          .fg-line 
+          .fg-line
             input.form-control.floating-label(type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
       multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Email")}')
       multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
