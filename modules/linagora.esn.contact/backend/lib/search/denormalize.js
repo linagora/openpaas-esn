@@ -75,7 +75,7 @@ module.exports = function(contact) {
   var bday = vcard.getFirstProperty('bday');
 
   if (bday) {
-    var type = bday.type,
+    var type = bday.type;
     var value = bday.getFirstValue();
 
     result.birthday = type !== 'text' ? value.toJSDate() : value;
