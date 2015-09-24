@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q) {
+  .controller('newContactController', function($rootScope, $scope, $route, $location, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = sharedContactDataService.contact;
 
@@ -14,7 +14,9 @@ angular.module('linagora.esn.contact')
 
           return $q.reject(err);
         });
-      }).then(closeContactForm, function(err) {
+      }).then(function() {
+        $location.url('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+      }, function(err) {
         displayContactError(err);
 
         return $q.reject(err);
