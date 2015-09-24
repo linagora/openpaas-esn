@@ -116,10 +116,9 @@ header .intro-text .skills {
 }
 
 .navbar-brand .logo {
-    transition: all 0.3s linear;
-
-    width: 200px;
+    width: 150px;
     padding-left: 10px;
+    padding-top: 10px;
 }
 
 @media(min-width:768px) {
@@ -144,13 +143,12 @@ header .intro-text .skills {
     .navbar-fixed-top.navbar-shrink .navbar-brand {
         font-size: 1.5em;
     }
+}
 
+@media(min-width:992px) {
     .navbar-brand .logo {
-        width: 270px;
-    }
-
-    .navbar-fixed-top.navbar-shrink .navbar-brand .logo {
         width: 220px;
+        padding: 0;
     }
 }
 
