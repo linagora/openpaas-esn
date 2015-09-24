@@ -98,8 +98,17 @@ ul.dropdown {
   }
 }
 
+.contact-content.visible-xs {
+  .contact-avatar {
+    img {
+      width: 100%;
+      border-bottom: 1px solid @gray;
+    }
+  }
+}
+
 @media(min-width: @full-size-avatar-max-resolution) {
-  .contact-header.visible-xs {
+  .contact-content.visible-xs {
     .contact-avatar {
       text-align: center;
       & > img {

@@ -26,9 +26,9 @@
           div.hover-scale-animation.dropdown.pull-right.col-xs-6
             a.hover-scale-animation.p-l-5.p-r-10(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
               i.mdi.mdi-pencil
-      .contact-avatar 
-        img(ng-src='{{contact.photo || defaultAvatar}}')
-  .contact-content.visible-xs
+  .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
+    .contact-avatar
+      img(ng-src='{{contact.photo || defaultAvatar}}')
     .contact-error-container
       div.contact-fn
         | {{contact.displayName}}
