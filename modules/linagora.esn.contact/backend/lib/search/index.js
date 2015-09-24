@@ -70,7 +70,7 @@ module.exports = function(dependencies) {
             multi_match: {
               query: terms,
               type: 'cross_fields',
-              fields: ['fn', 'name', 'firstName', 'lastName', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
+              fields: ['fn', 'name', 'firstName', 'lastName', 'tel.value', 'job', 'tags.text', 'birthday', 'comments', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
               operator: 'and'
             }
           }

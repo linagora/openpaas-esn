@@ -58,12 +58,33 @@ module.exports = function(contact) {
     return mail;
   });
 
+  result.tel = getMultiValue('tel').map(function(num) {
+    num.value = num.value.replace(/^tel:/i, '');
+    return num;
+  });
+
+  result.job = vcard.getFirstPropertyValue('role');
+
   result.org = vcard.getFirstPropertyValue('org');
   result.urls = getMultiValue('url');
+
+  var catprop = vcard.getFirstProperty('categories');
+  var cats = catprop && catprop.getValues().concat([]);
+  result.tags = cats ? cats.map(function(cat) { return { text: cat }; }) : [];
+
+  var bday = vcard.getFirstProperty('bday');
+
+  if (bday) {
+    var type = bday.type,
+    var value = bday.getFirstValue();
+
+    result.birthday = type !== 'text' ? value.toJSDate() : value;
+  }
 
   result.socialprofiles = getMultiValue('socialprofile');
   result.nickname = vcard.getFirstPropertyValue('nickname');
   result.addresses = getMultiAddress('adr');
+  result.comments = vcard.getFirstPropertyValue('note');
 
   return result;
 };
