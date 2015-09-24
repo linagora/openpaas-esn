@@ -186,8 +186,10 @@ angular.module('linagora.esn.contact')
     }
 
     function liveNotificationHandlerOnUpdate(data) {
-      var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
-      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+      contactsService.getCard(data.bookId, data.contactId).then(function(updatedContact) {
+        $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, updatedContact);
+      });
+
     }
 
     function startListen(bookId) {
@@ -251,6 +253,10 @@ angular.module('linagora.esn.contact')
 
     $rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
       ContactsHelper.forceReloadDefaultAvatar(data);
+      updateContact(data);
+    });
+
+    $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function(e, data) {
       updateContact(data);
     });
 
@@ -733,16 +739,14 @@ angular.module('linagora.esn.contact')
         'Prefer': 'return-representation'
       };
 
-      return request('put', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, headers), shellToVCARD(contact).toJSON()).then(function(response) {
-        if (response.status === 200) {
-          var updatedContact = new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
-          $rootScope.$emit(CONTACT_EVENTS.UPDATED, updatedContact);
-          return updatedContact;
-        } else if (response.status === 204) {
-          return getCard(bookId, contact.id).then(function(updatedContact) {
-            $rootScope.$emit(CONTACT_EVENTS.UPDATED, updatedContact);
-            return updatedContact;
-          });
+      return request('put',
+        contactUrl(bookId, contact.id),
+        addIfMatchHeader(contact.etag, headers),
+        shellToVCARD(contact).toJSON(),
+        addGracePeriodParam(GRACE_DELAY, {})).then(function(response) {
+        if (response.status === 202 || response.status === 204) {
+          $rootScope.$emit(CONTACT_EVENTS.UPDATED, contact);
+          return response.headers('X-ESN-TASK-ID');
         } else {
           return $q.reject(response);
         }
@@ -754,7 +758,11 @@ angular.module('linagora.esn.contact')
         return $q.reject(new Error('Missing contact.id'));
       }
 
-      return request('delete', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, {}), null, addGracePeriodParam(gracePeriod, {})).then(function(response) {
+      return request('delete',
+        contactUrl(bookId, contact.id),
+        addIfMatchHeader(contact.etag, {}),
+        null,
+        addGracePeriodParam(gracePeriod, {})).then(function(response) {
         if (response.status !== 204 && response.status !== 202) {
           return $q.reject(response);
         }
@@ -822,6 +830,12 @@ angular.module('linagora.esn.contact')
   .factory('sharedContactDataService', function() {
     return {
       contact: {}
+    };
+  })
+  .factory('contactUpdateDataService', function() {
+    return {
+      taskId: null,
+      contact: null
     };
   })
   .factory('sendContactToBackend', function($location, ContactsHelper, $q) {
