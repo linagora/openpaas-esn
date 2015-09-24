@@ -1,9 +1,9 @@
-#profile-main.card
+#profile-main.fadeIn200ms
   .pm-overview.c-overflow
     .pmo-pic
       .p-relative
         a
-          img(src="{{contact.photo || defaultAvatar}}")
+          img(ng-src="{{contact.photo || defaultAvatar}}")
       .pmo-stat
         h2.m-0.c-white
           |{{contact.displayName}}

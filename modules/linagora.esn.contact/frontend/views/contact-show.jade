@@ -10,12 +10,12 @@
               i.mdi.mdi-reply
               | #{__(' Back')}
             a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-              button.btn.btn-primary(ng-disabled='calling', type='button')
+              button.btn.btn-primary(ng-disabled='calling || !loaded', type='button')
                 i.mdi.mdi-pencil
                 | #{__(' Edit')}
-    .card-body.card-padding
+    .card-body.contact-body
       .contact-error-container
-      contact-display(contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
+      contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
 
   .contact-header.visible-xs(ng-swipe-right='close()')
       .contact-controls-wrapper
