@@ -5,5 +5,12 @@ languages.fr = {
   MAIN_TITLE: 'Bureau virtuel OpenPaaS',
   MAIN_TAGLINE: 'La collaboration professionnelle, simple',
   VISION_TITLE: 'Vision',
-  VISION_CONTENTS: 'Yolo <strong>hey !</strong> et plus'
+  VISION_CONTENTS: 'Yolo <strong>hey !</strong> et plus',
+  COMMUNITY_TITLE: 'Communauté',
+  COMMUNITY_CONTENTS: 'Bienvenue dans la communauté OpenPaas',
+  CHALLENGES_TITLE: 'Challenges',
+  CHALLENGES_CONTENT: 'Voici quelques uns de nos challenges techniques',
+  PRESENTATIONS_TITLE: 'Vidéos',
+  PRESENTATIONS_CONTENT: 'Vous avez accès ici à du contenu sur OpenPaas',
+  BLOG_TITLE: 'Blog'
 };
