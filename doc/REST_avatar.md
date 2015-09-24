@@ -12,7 +12,7 @@ Retrieve avatar of a resource.
 **Query Parameters:**
 
 - objectType: The resource type to retrieve avatar from. Possible values are 'user', 'community', 'image' and 'email'
-- email: If objectType is 'user' or 'email', the parameter value must be an email
+- email: If objectType is 'user' or 'email' or if no objectType is given, the parameter value must be an email
 - id: If objectType is 'community', the parameter value is the id of the community. If the object type is 'image', the id is the image id.
 - format: If format is set to 'original', send back the original avatar which has been uploaded, else send back the 128px x 128px one.
 

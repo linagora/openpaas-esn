@@ -6,26 +6,96 @@ var expect = require('chai').expect;
 describe('The avatars controller', function() {
 
   describe('The get function', function() {
-    it('should send back 400 when req.query.objectType is not set', function(done) {
-      mockery.registerMock('../middleware/collaboration', {});
-      mockery.registerMock('./collaborations', {});
-      mockery.registerMock('./users', {});
-      mockery.registerMock('../../core/user', {});
-      mockery.registerMock('../../core/image', {});
 
-      var req = {
-        query: {}
-      };
+    describe('when when req.query.objectType is not set', function() {
+      beforeEach(function() {
+        mockery.registerMock('../middleware/collaboration', {});
+        mockery.registerMock('./collaborations', {});
+        mockery.registerMock('./users', {});
+        mockery.registerMock('../../core/user', {});
+        mockery.registerMock('../../core/image', {});
+      });
 
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(400);
+      it('should send back 400 when req.query.email is not set', function(done) {
+        var req = {
+          query: {}
+        };
+
+        var res = {
+          json: function(code) {
+            expect(code).to.equal(400);
+            done();
+          }
+        };
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, res);
+      });
+
+
+      it('should send back 500 when avatarModule.getAvatarFromEmail sends an error', function(done) {
+        var email = 'user@domain';
+
+        mockery.registerMock('../../core/avatar', {
+          registerProvider: function() {},
+          getAvatarFromEmail: function(mail, callback) {
+            expect(mail).to.equal(email);
+            return callback(new Error());
+          }
+        });
+
+        var req = {
+          query: {
+            email: email
+          }
+        };
+
+        var res = {
+          json: function(code) {
+            expect(code).to.equal(500);
+            done();
+          }
+        };
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, res);
+      });
+
+      it('should call the controller returned by avatarModule.getAvatarFromEmail', function(done) {
+        var email = 'user@domain';
+
+        var req = {
+          query: {
+            email: email
+          }
+        };
+
+        var res = {
+          status: 101
+        };
+
+        var object = {
+          _id: '123'
+        };
+
+        var controller = function(o, request, response) {
+          expect(o).to.deep.equal(object);
+          expect(req).to.deep.equal(request);
+          expect(res).to.deep.equal(response);
           done();
-        }
-      };
+        };
 
-      var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
-      avatars.get(req, res);
+        mockery.registerMock('../../core/avatar', {
+          registerProvider: function() {},
+          getAvatarFromEmail: function(mail, callback) {
+            expect(mail).to.equal(email);
+            return callback(null, object, controller);
+          }
+        });
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, res);
+      });
     });
 
     it('send back HTTP 400 when objectType is not recognized', function(done) {

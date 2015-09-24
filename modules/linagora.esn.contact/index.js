@@ -14,6 +14,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.avatar', 'avatar'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
@@ -41,6 +42,8 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
       webserverWrapper.injectLess('contact', [lessFile], 'esn');
       webserverWrapper.addApp('contact', app);
+
+      require('./backend/webserver/api/contacts/avatarProvider').init(dependencies);
 
       return callback();
     },

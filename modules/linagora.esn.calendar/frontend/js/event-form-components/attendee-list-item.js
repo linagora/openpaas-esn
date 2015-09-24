@@ -10,9 +10,6 @@ angular.module('esn.calendar')
       scope: {
         attendee: '=',
         readOnly: '='
-      },
-      link: function(scope) {
-        scope.attendeeType = scope.attendee.name === scope.attendee.email ? 'email' : 'user';
       }
     };
   });
