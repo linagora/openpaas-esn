@@ -126,7 +126,11 @@ angular.module('linagora.esn.graceperiod')
     var tasks = {};
 
     function remove(id) {
-      if (tasks[id]) {
+      var task = tasks[id];
+      if (task) {
+        if (task.notification) {
+          task.notification.close();
+        }
         delete tasks[id];
         return $q.when();
       } else {
@@ -157,25 +161,27 @@ angular.module('linagora.esn.graceperiod')
     }
 
     function grace(id, text, linkText, delay, context) {
-      if (context) {
-        tasks[id] = context;
-      }
-      return notifyOfGracedRequest(text, linkText, delay);
+      var notify = notifyOfGracedRequest(text, linkText, delay);
+      addTask(id, context, notify.notification);
+      return notify.promise;
     }
 
     function clientGrace(text, linkText, delay) {
-      return notifyOfGracedRequest(text, linkText, delay);
+      return notifyOfGracedRequest(text, linkText, delay).promise;
     }
 
-    function addTask(taskId, context) {
+    function addTask(taskId, context, notification) {
       if (taskId) {
-        tasks[taskId] = context;
+        tasks[taskId] = {
+          notification: notification,
+          context: context
+        };
       }
     }
 
     function hasTaskFor(contextQuery) {
       return angular.isDefined(contextQuery) && Object.keys(tasks).some(function(taskId) {
-          var taskContext = tasks[taskId];
+          var taskContext = tasks[taskId].context;
           if (taskContext) {
             return Object.keys(contextQuery).every(function(contextKey) {
               return taskContext[contextKey] === contextQuery[contextKey];
@@ -203,41 +209,47 @@ angular.module('linagora.esn.graceperiod')
     }
 
     return function(text, linkText, delay) {
-      return $q(function(resolve) {
-        var notification = $.notify({
-          message: appendCancelLink(text, linkText)
-        }, {
-          type: 'success',
-          text: appendCancelLink(text, linkText),
-          placement: {
-            from: 'bottom',
-            align: 'center'
-          },
-          delay: delay || GRACE_DELAY,
-          onClosed: function() {
-            $rootScope.$applyAsync(function() {
-              resolve({ cancelled: false });
-            });
-          }
-        });
+      var deferred = $q.defer();
 
-        notification.$ele.find('a.cancel-task').click(function() {
+
+      var notification = $.notify({
+        message: appendCancelLink(text, linkText)
+      }, {
+        type: 'success',
+        text: appendCancelLink(text, linkText),
+        placement: {
+          from: 'bottom',
+          align: 'center'
+        },
+        delay: delay || GRACE_DELAY,
+        onClosed: function() {
           $rootScope.$applyAsync(function() {
-            resolve({
-              cancelled: true,
-              success: function() {
-                notification.close();
-              },
-              error: function(errorMessage) {
-                notification.update({
-                  type: 'danger',
-                  message: errorMessage,
-                  delay: ERROR_DELAY
-                });
-              }
-            });
+            deferred.resolve({ cancelled: false });
+          });
+        }
+      });
+
+      notification.$ele.find('a.cancel-task').click(function() {
+        $rootScope.$applyAsync(function() {
+          deferred.resolve({
+            cancelled: true,
+            success: function() {
+              notification.close();
+            },
+            error: function(errorMessage) {
+              notification.update({
+                type: 'danger',
+                message: errorMessage,
+                delay: ERROR_DELAY
+              });
+            }
           });
         });
       });
+
+      return {
+        notification: notification,
+        promise: deferred.promise
+      };
     };
   });
