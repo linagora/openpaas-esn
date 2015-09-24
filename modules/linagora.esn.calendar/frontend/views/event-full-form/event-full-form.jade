@@ -50,16 +50,7 @@
                   .fg-line
                     input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
-          .row
-            .col-xs-12
-              .form-group
-                .input-group
-                  span.input-group-addon
-                    i.mdi.mdi-repeat
-                  .fg-line.select
-                    select.form-control
-                      option(value="recurrenceA") recurrenceA
-                      option(value="recurrenceB") recurrenceB
+          event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 
           .row
             .col-xs-12
