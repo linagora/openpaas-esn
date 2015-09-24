@@ -69,7 +69,7 @@ angular.module('esn.calendar')
     function link(scope, element) {
       scope.$on('calendar:height', function(event, height) {
         element.height(height);
-      })
+      });
     }
 
     return {
@@ -77,5 +77,13 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
       link: link
-    }
+    };
+  })
+
+  .directive('toggleRightSidebarCalendarButton', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/calendar/toggle-right-sidebar-calendar-button.html'
+    };
   });
