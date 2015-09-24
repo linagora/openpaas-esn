@@ -4,131 +4,142 @@
 
 var expect = chai.expect;
 
-describe('The Unified Inbox Angular module controllers', function() {
+describe('The linagora.esn.unifiedinbox module controllers', function() {
 
-    var $route, $rootScope, $location, scope, $controller, JmapAPI;
+  var $route, $rootScope, $location, scope, $controller, jmapClient;
 
-    beforeEach(function() {
-      JmapAPI = {};
-      $route = {
-        current: {
-          params: {
-            mailbox: 'chosenMailbox',
-            emailId: '4'
-          }
+  beforeEach(function() {
+    $route = {
+      current: {
+        params: {
+          mailbox: 'chosenMailbox',
+          emailId: '4'
         }
+      }
+    };
+
+    angular.mock.module('ngRoute');
+    angular.mock.module('esn.core');
+
+    module('linagora.esn.unifiedinbox', function($provide) {
+      $provide.value('jmapClient', jmapClient = {});
+      $provide.value('$route', $route);
+      $provide.value('$location', $location = {});
+    });
+  });
+
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_) {
+    $rootScope = _$rootScope_;
+    $controller = _$controller_;
+
+    scope = $rootScope.$new();
+  }));
+
+  function initController(ctrl) {
+    $controller(ctrl, {
+      $scope: scope
+    });
+  }
+
+  describe('The listEmailsController', function() {
+
+    it('should set $scope.mailbox from the \'mailbox\' route parameter', function() {
+      jmapClient.getMessageList = function() { return $q.when(); };
+
+      initController('listEmailsController');
+
+      expect(scope.mailbox).to.equal('chosenMailbox');
+    });
+
+    it('should call jmapClient.getMessageList with correct arguments', function(done) {
+      jmapClient.getMessageList = function(options) {
+        expect(options).to.deep.equal({
+          filter: {
+            inMailboxes: ['chosenMailbox']
+          },
+          collapseThreads: true,
+          fetchMessages: true,
+          position: 0,
+          limit: 100
+        });
+
+        done();
       };
-      $location = {};
 
-      angular.mock.module('ngRoute');
-      angular.mock.module('esn.core');
-
-      module('linagora.esn.unifiedinbox', function($provide) {
-        $provide.value('JmapAPI', JmapAPI);
-        $provide.value('$route', $route);
-        $provide.value('$location', $location);
-      });
+      initController('listEmailsController');
     });
 
-    beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_) {
-      $rootScope = _$rootScope_;
-      $controller = _$controller_;
+    it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
+      jmapClient.getMessageList = function() {
+        return $q.when([[], [{ email: 1 }]]);
+      };
 
-      scope = $rootScope.$new();
-    }));
+      initController('listEmailsController');
 
-    describe('listEmailsController', function() {
+      scope.$watch('groupedEmails', function(before, after) {
+        expect(after).to.be.a('Array');
 
-      it('should take the mailbox variable from the route params', function() {
-        var calledWithMailbox;
-        JmapAPI.getEmails = function(mailbox) {
-          calledWithMailbox = mailbox;
-          return $q.when();
-        };
-
-        $controller('listEmailsController', {
-          $scope: scope
-        });
-
-        expect(calledWithMailbox).to.equal('chosenMailbox');
+        done();
       });
-
-      it('should assign the getEmails result to the scope', function() {
-        JmapAPI.getEmails = function(mailbox) {
-          return 'result';
-        };
-
-        $controller('listEmailsController', {
-          $scope: scope
-        });
-
-        expect(scope.groupedEmails).to.equal('result');
-      });
-
+      $rootScope.$digest();
     });
 
-    describe('viewEmailController', function() {
+  });
 
-      it('should take the mailbox and emailId variables from the route params', function() {
-        JmapAPI.getEmail = function() {};
+  describe('viewEmailController', function() {
 
-        $controller('viewEmailController', {
-          $scope: scope
+    it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
+      jmapClient.getMessages = function() { return $q.when(); };
+
+      initController('viewEmailController');
+
+      expect(scope.mailbox).to.equal('chosenMailbox');
+      expect(scope.emailId).to.equal('4');
+    });
+
+    it('should call jmapClient.getMessages with correct arguments', function(done) {
+      jmapClient.getMessages = function(options) {
+        expect(options).to.deep.equal({
+          ids: ['4']
         });
 
-        expect(scope.mailbox).to.equal('chosenMailbox');
-        expect(scope.emailId).to.equal('4');
-      });
+        done();
+      };
 
-      it('should assign the getEmail result to the scope', function() {
-        JmapAPI.getEmail = function(emailId) {
-          return 'result';
+      initController('viewEmailController');
+    });
+
+    it('should assign the returned message to $scope.email', function(done) {
+      jmapClient.getMessages = function() {
+        return $q.when([{ email: 1 }]);
+      };
+
+      initController('viewEmailController');
+
+      scope.$watch('email', function(before, after) {
+        expect(after).to.deep.equal({ email: 1 });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    describe('The moveToTrash fn', function() {
+
+      it('should update location to the parent mailbox', function(done) {
+        jmapClient.getMessages = function() { return $q.when(); };
+        $location.path = function(path) {
+          expect(path).to.equal('/unifiedinbox/chosenMailbox');
+
+          done();
         };
 
-        $controller('viewEmailController', {
-          $scope: scope
-        });
+        initController('viewEmailController');
 
-        expect(scope.email).to.equal('result');
-      });
-
-      describe('the moveToTrash fn', function() {
-
-        it('should delegate to JmapAPI with expected args', function(done) {
-          JmapAPI.getEmail = function() {
-            return 'result';
-          };
-          JmapAPI.moveToByRole = function(emailId, role) {
-            expect(scope.emailId).to.equal('4');
-            expect(role).to.equal('trash');
-            done();
-          };
-
-          $controller('viewEmailController', {
-            $scope: scope
-          });
-
-          scope.moveToTrash();
-        });
-
-        it('should update location to the parent mailbox', function(done) {
-          JmapAPI.getEmail = function() {
-            return 'result';
-          };
-          JmapAPI.moveToByRole = function() {};
-          $location.path = function(path) {
-            expect(path).to.equal('/unifiedinbox/chosenMailbox');
-            done();
-          };
-
-          $controller('viewEmailController', {
-            $scope: scope
-          });
-
-          scope.moveToTrash();
-        });
-
+        scope.moveToTrash();
       });
 
     });
+
+  });
 });
