@@ -10,7 +10,9 @@ languages.en = {
   COMMUNITY_CONTENTS: 'Welcome to the OpenPaas community',
   CHALLENGES_TITLE: 'Challenges',
   CHALLENGES_CONTENT: 'Here are some of our technical challenges',
-  PRESENTATIONS_TITLE: 'Videos',
+  PRESENTATIONS_TITLE: 'Presentation',
   PRESENTATIONS_CONTENT: 'Here you can get some useful content about OpenPaas',
-  BLOG_TITLE: 'Blog'
+  VIDEOS_TITLE: 'Latest Videos',
+  BLOG_TITLE: 'Blog',
+  LATEST_VIDEOS: 'Latest Videos'
 };
