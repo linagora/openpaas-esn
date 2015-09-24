@@ -65,18 +65,10 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('calendarLeftPane', function(MINI_USER_UI_CONFIG) {
-    function link(scope, element) {
-      scope.uiConfig = MINI_USER_UI_CONFIG;
-    }
-
+  .directive('calendarLeftPane', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
-      scope: {
-        eventSources: '='
-      },
-      link: link
+      templateUrl: '/calendar/views/calendar/calendar-left-pane.html'
     }
   });

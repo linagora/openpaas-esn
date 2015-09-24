@@ -1,0 +1,71 @@
+.calendar-left-pane {
+  .date-picker.mini-calendar {
+    text-align: center;
+
+    .dp-inline {
+      box-shadow: none;
+    }
+
+    .tr-dpnav {
+      th, button {
+        padding: 0;
+      }
+
+      th {
+        background: @darkPrimaryColor !important;
+      }
+
+      i {
+        font-size: 1.5em;
+      }
+    }
+
+    .tr-dpday {
+      th {
+        background: @primaryColor !important;
+      }
+    }
+
+    .dp-active {
+      background-color: @darkPrimaryColor !important;
+    }
+
+    .dp-table thead > tr th:first-child {
+      padding-left: 0;
+    }
+
+    .dp-table thead > tr th:last-child {
+      padding-right: 0;
+    }
+
+    .tr-dpday th {
+      padding: 0;
+    }
+
+    .dp-table tbody > tr td:first-child {
+      padding: 0;
+    }
+
+    .dp-table tbody > tr:first-child > td {
+      padding: 0;
+    }
+
+    .dp-table tbody > tr:last-child > td {
+      padding-bottom: 0;
+    }
+
+    .dp-table tbody > tr td:last-child {
+      padding-right: 0;
+    }
+
+    .dp-table tbody > tr:last-child > td {
+      padding-bottom: 0;
+    }
+
+    .btn-dpday {
+      border-radius: 50%;
+      width: 38px !important;
+      height: 38px;
+    }
+  }
+}
