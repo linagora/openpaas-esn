@@ -8,7 +8,7 @@
           .contact-buttons
             button.btn.btn-default(type='button', ng-click='close()')
               | #{__('Cancel')}
-            button.m-r-15.btn.btn-primary(ng-disabled='calling', type='button', ng-click='save()')
+            button.m-r-15.btn.btn-primary(ng-disabled='calling || !loaded', type='button', ng-click='save()')
               i.mdi.mdi-check.m-r-5
               | #{__('Save')}
             .contact-dropdown.lv-actions.actions
@@ -32,6 +32,6 @@
                 a(ng-click="deleteContact()") #{__('Delete')}
               li
                 a(ng-click="close()") #{__('Cancel')}
-    .card-body.card-padding
+    .card-body.card-padding.contact-body
       .contact-error-container
-      contact-edition-form(contact='contact')
+      contact-edition-form(ng-if='loaded && !error', contact='contact')
