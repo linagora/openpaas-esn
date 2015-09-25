@@ -359,6 +359,7 @@ describe('The calendar module services', function() {
       it('should create a copy of an eventObject ', function() {
         var src = {
           vcalendar: ['vcalendar', [], []],
+          vevent: ['vevent', [], []],
           something: 'original'
         };
         var dst = {
@@ -371,6 +372,7 @@ describe('The calendar module services', function() {
 
         expect(dst.something).to.equal('original');
         expect(dst.vcalendar).to.deep.equal(src.vcalendar);
+        expect(dst.vevent).to.deep.equal(src.vevent);
       });
     });
 
