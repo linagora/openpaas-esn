@@ -25,7 +25,7 @@ application.use('/js', express.static(FRONTEND_PATH + '/js'));
 
 var bodyParser = require('body-parser');
 application.use(bodyParser.json());
-application.use(bodyParser.urlencoded({ extended: true }));
+application.use(bodyParser.urlencoded());
 var cookieParser = require('cookie-parser');
 application.use(cookieParser('this is the secret!'));
 var session = require('express-session');
