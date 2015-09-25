@@ -605,16 +605,26 @@ angular.module('esn.calendar')
       }
     }
 
-    function copyEventObject(src, dest) {
-      var vcal;
-      if (src.vcalendar) {
-        vcal = ICAL.helpers.clone(src.vcalendar);
-        src.vcalendar = null;
+    function _extractICALObject(source, property) {
+      var value;
+      if (source[property]) {
+        value = ICAL.helpers.clone(source[property]);
+        source[property] = null;
+        return value;
       }
+    }
+
+    function copyEventObject(src, dest) {
+      var vcal = _extractICALObject(src, 'vcalendar');
+      var vevent = _extractICALObject(src, 'vevent');
       angular.copy(src, dest);
       if (vcal) {
         src.vcalendar = vcal;
         dest.vcalendar = vcal;
+      }
+      if (vevent) {
+        src.vcalendar = vevent;
+        dest.vcalendar = vevent;
       }
     }
 
