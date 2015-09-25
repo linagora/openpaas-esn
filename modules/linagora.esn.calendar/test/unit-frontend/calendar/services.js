@@ -1071,6 +1071,43 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
+      it('should be able to modify an instance', function(done) {
+        this.event.isInstance = true;
+        this.event.recurrenceId = moment();
+
+        var headers = { ETag: 'etag' };
+        var vcalendar = this.vcalendar;
+        var $httpBackend = this.$httpBackend;
+
+        this.gracePeriodService.grace = function() {
+          return $q.when({ cancelled: false });
+        };
+
+        this.gracePeriodService.remove = function(taskId) {
+          expect(taskId).to.equal('123456789');
+        };
+
+        this.calendarService.modify('/path/to/uid.ics', this.event, this.event, 'etag').then(
+          function(shell) {
+            // The returned item must be the master item, not the instance
+            expect(shell.isInstance).to.be.false;
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        function checkPUT(data) {
+          var comp = new ICAL.Component(JSON.parse(data));
+          expect(comp.getAllSubcomponents('vevent')).to.have.length(2);
+          return true;
+        }
+
+        $httpBackend.whenGET('/dav/api/path/to/uid.ics').respond(200, vcalendar.toJSON(), headers);
+        $httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', checkPUT).respond(202, {id: '123456789'});
+        $httpBackend.flush();
+        this.$rootScope.$apply();
+        $httpBackend.flush();
+      });
+
       it('should send etag as If-Match header', function(done) {
         var requestHeaders = {
           'Content-Type': 'application/calendar+json',

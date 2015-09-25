@@ -30,7 +30,6 @@ angular.module('esn.calendar')
       this.location = vevent.getFirstPropertyValue('location');
       this.description = vevent.getFirstPropertyValue('description');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
-      this.isInstance = !!vevent.getFirstProperty('recurrence-id');
       this.start = FCMoment(vevent.getFirstPropertyValue('dtstart').toJSDate());
       this.end = FCMoment(vevent.getFirstPropertyValue('dtend').toJSDate());
       this.formattedDate = this.start.format('MMMM D, YYYY');
@@ -45,7 +44,8 @@ angular.module('esn.calendar')
       }
 
       var recId = vevent.getFirstPropertyValue('recurrence-id');
-      this.isInstance = !!recId;
+      this.recurrenceId = recId ? FCMoment(recId.toJSDate()) : null;
+      this.isInstance = !!this.recurrenceId;
       this.id = recId ? this.uid + '_' + recId.convertToZone(ICAL.Timezone.utcTimezone) : this.uid;
 
       var attendees = this.attendees = [];
@@ -165,6 +165,11 @@ angular.module('esn.calendar')
         }
         var recur = new ICAL.Recur.fromData(data);
         vevent.addPropertyWithValue('rrule', recur);
+      }
+
+      if (shell.recurrenceId) {
+        var recId = ICAL.Time.fromJSDate(shell.recurrenceId.toDate());
+        vevent.addPropertyWithValue('recurrence-id', recId).setParameter('tzid', timezoneLocal);
       }
 
       vcalendar.addSubcomponent(vevent);
