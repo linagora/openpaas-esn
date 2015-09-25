@@ -104,7 +104,9 @@ describe('The domain middleware', function() {
       this.helpers.mock.models({});
 
       var req = {
-        query: {}
+        param: function() {
+          return null;
+        }
       };
       var res = {
         json: function(code) {
@@ -126,8 +128,8 @@ describe('The domain middleware', function() {
       });
 
       var req = {
-        query: {
-          domain_id: '123'
+        param: function() {
+          return '123';
         }
       };
       var res = {};
@@ -150,8 +152,8 @@ describe('The domain middleware', function() {
       });
 
       var req = {
-        query: {
-          domain_id: '123'
+        param: function() {
+          return '123';
         }
       };
 
@@ -178,8 +180,8 @@ describe('The domain middleware', function() {
       });
 
       var req = {
-        query: {
-          domain_id: '123'
+        param: function() {
+          return '123';
         }
       };
 

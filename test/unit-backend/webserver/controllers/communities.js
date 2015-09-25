@@ -133,7 +133,7 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community/permission', {});
 
       var req = {
-        query: {}
+        param: function() {}
       };
 
       var res = {
@@ -157,7 +157,7 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community/permission', {});
 
       var req = {
-        query: {}
+        param: function() {}
       };
 
       var res = {
@@ -196,7 +196,7 @@ describe('The communities controller', function() {
       });
 
       var req = {
-        query: {},
+        param: function() {},
         user: {_id: 1}
       };
 
@@ -219,7 +219,7 @@ describe('The communities controller', function() {
     it('should call the community module with domain in query when defined in the request', function(done) {
       var req = {
         domain: {_id: 123},
-        query: {}
+        param: function() {}
       };
 
       var mock = {
@@ -243,8 +243,11 @@ describe('The communities controller', function() {
     it('should call the community module with title in query when defined in the request', function(done) {
       var fakeTitle = 'fakeTitle';
       var req = {
-        query: {
-          title: fakeTitle
+        param: function(paramName) {
+          if (paramName === 'title') {
+            return fakeTitle;
+          }
+          return null;
         }
       };
 
@@ -264,8 +267,11 @@ describe('The communities controller', function() {
 
     it('should call the community module with title in query and escape regexp characters in the query', function(done) {
       var req = {
-        query: {
-          title: 'fake$Title*^'
+        param: function(paramName) {
+          if (paramName === 'title') {
+            return 'fake$Title^';
+          }
+          return null;
         }
       };
 
@@ -287,8 +293,11 @@ describe('The communities controller', function() {
     it('should call the community module with creator in query when defined in the request', function(done) {
       var creatorId = '1234';
       var req = {
-        query: {
-          creator: creatorId
+        param: function(paramName) {
+          if (paramName === 'creator') {
+            return creatorId;
+          }
+          return null;
         }
       };
 
@@ -1181,7 +1190,7 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        query: {}
+        param: function() {}
       };
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
@@ -1206,7 +1215,7 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        query: {}
+        param: function() {}
       };
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
@@ -1237,7 +1246,7 @@ describe('The communities controller', function() {
         community: {
           members: members
         },
-        query: {}
+        param: function() {}
       };
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
@@ -1274,9 +1283,13 @@ describe('The communities controller', function() {
         community: {
           members: members
         },
-        query: {
-          limit: limit,
-          offset: offset
+        param: function(name) {
+          if (name === 'limit') {
+            return limit;
+          }
+          if (name === 'offset') {
+            return offset;
+          }
         }
       };
 
@@ -2337,7 +2350,7 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        query: {},
+        param: function() {},
         isCommunityManager: true
       };
 
@@ -2363,7 +2376,7 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        query: {},
+        param: function() {},
         isCommunityManager: true
       };
 
@@ -2395,7 +2408,7 @@ describe('The communities controller', function() {
         community: {
           membershipRequests: requests
         },
-        query: {},
+        param: function() {},
         isCommunityManager: true
       };
 
@@ -2434,9 +2447,13 @@ describe('The communities controller', function() {
         community: {
           membershipRequests: requests
         },
-        query: {
-          limit: limit,
-          offset: offset
+        param: function(name) {
+          if (name === 'limit') {
+            return limit;
+          }
+          if (name === 'offset') {
+            return offset;
+          }
         }
       };
 
