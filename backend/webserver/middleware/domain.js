@@ -24,7 +24,7 @@ function load(req, res, next) {
 module.exports.load = load;
 
 function loadFromDomainIdParameter(req, res, next) {
-  var id = req.param('domain_id');
+  var id = req.query.domain_id;
   if (!id) {
     return res.json(400, { error: { code: 400, message: 'Missing parameter', details: 'The domain_id parameter is mandatory'}});
   }
