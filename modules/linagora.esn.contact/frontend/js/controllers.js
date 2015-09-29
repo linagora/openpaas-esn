@@ -59,7 +59,7 @@ angular.module('linagora.esn.contact')
       $log.debug('Error while loading contact', err);
       $scope.error = true;
       displayContactError('Cannot get contact details');
-    }). finally(function() {
+    }).finally (function() {
       $scope.loaded = true;
     });
 
