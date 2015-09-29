@@ -36,10 +36,12 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm) {
+    $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
+    $scope.loaded = false;
 
     $scope.close = closeContactForm;
 
@@ -53,22 +55,30 @@ angular.module('linagora.esn.contact')
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
-      $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
-    }, function() {
+    }, function(err) {
+      $log.debug('Error while loading contact', err);
+      $scope.error = true;
       displayContactError('Cannot get contact details');
+    }). finally(function() {
+      $scope.loaded = true;
     });
 
     sharedContactDataService.contact = {};
   })
   .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, defaultAvatarService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY) {
+    $scope.loaded = false;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
+
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
       $scope.oldDisplayName = $scope.contact.displayName;
       $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     }, function() {
+      $scope.error = true;
       displayContactError('Cannot get contact details');
+    }).finally (function() {
+      $scope.loaded = true;
     });
 
     $scope.close = function() {

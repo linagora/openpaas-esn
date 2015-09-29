@@ -10,12 +10,12 @@
               i.mdi.mdi-reply
               | #{__(' Back')}
             a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-              button.btn.btn-primary(ng-disabled='calling', type='button')
+              button.btn.btn-primary(ng-disabled='calling || !loaded', type='button')
                 i.mdi.mdi-pencil
                 | #{__(' Edit')}
-    .card-body.card-padding
+    .card-body.contact-body
       .contact-error-container
-      contact-display(contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
+      contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
 
   .contact-header.visible-xs(ng-swipe-right='close()')
       .contact-controls-wrapper
@@ -26,9 +26,9 @@
           div.hover-scale-animation.dropdown.pull-right.col-xs-6
             a.hover-scale-animation.p-l-5.p-r-10(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
               i.mdi.mdi-pencil
-      .contact-avatar 
-        img(ng-src='{{contact.photo || defaultAvatar}}')
-  .contact-content.visible-xs
+  .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
+    .contact-avatar
+      img(ng-src='{{contact.photo || defaultAvatar}}')
     .contact-error-container
       div.contact-fn
         | {{contact.displayName}}
