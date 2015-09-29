@@ -389,7 +389,6 @@ describe('The calendar module controllers', function() {
             }];
           } else {
             expect(event).to.equal('updateEvent');
-            console.log(data);
             expect(data).to.deep.equal({
               _allDay: '_allDay',
               _end: '_end',

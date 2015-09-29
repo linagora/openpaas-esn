@@ -30,13 +30,15 @@ angular.module('esn.calendar')
   .directive('eventRecurrenceEdition', function(moment, calendarUtils, RECUR_FREQ, WEEK_DAYS) {
     function link(scope, element) {
       scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
-      scope.event.recur = {
-        freq: RECUR_FREQ[0].value,
-        until: undefined,
-        weekday: [],
-        interval: 1,
-        count: undefined
-      };
+      if (!scope.event.recur) {
+        scope.event.recur = {
+          freq: RECUR_FREQ[0].value,
+          until: undefined,
+          byday: [],
+          interval: 1,
+          count: undefined
+        };
+      }
       scope.RECUR_FREQ = RECUR_FREQ;
       scope.WEEK_DAYS = Object.keys(WEEK_DAYS);
       scope.animateFlexContainer = false;
@@ -45,13 +47,13 @@ angular.module('esn.calendar')
       });
 
       scope.toggleWeekdays = function(weekday) {
-        var index = scope.event.recur.weekday.indexOf(WEEK_DAYS[weekday]);
+        var index = scope.event.recur.byday.indexOf(WEEK_DAYS[weekday]);
         if (index > -1) {
-          scope.event.recur.weekday.splice(index, 1);
+          scope.event.recur.byday.splice(index, 1);
         } else {
-          scope.event.recur.weekday.push(WEEK_DAYS[weekday]);
+          scope.event.recur.byday.push(WEEK_DAYS[weekday]);
         }
-        scope.event.recur.weekday.sort(function(weekdayA, weekdayB) {
+        scope.event.recur.byday.sort(function(weekdayA, weekdayB) {
           if (weekDaysValues.indexOf(weekdayA) > weekDaysValues.indexOf(weekdayB)) {
             return 1;
           } else if (weekDaysValues.indexOf(weekdayA) < weekDaysValues.indexOf(weekdayB)) {

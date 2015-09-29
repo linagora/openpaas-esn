@@ -1547,6 +1547,162 @@ describe('The calendar module services', function() {
         var vcalendar = this.calendarService.shellToICAL(shell);
         expect(vcalendar.toJSON()).to.deep.equal(ical);
       });
+
+      describe('for reccurent events', function() {
+
+        function getIcalWithRrule(rrule) {
+          return [
+            'vcalendar',
+            [],
+            [
+              [
+                'vevent',
+                [
+                  [
+                    'uid',
+                    {},
+                    'text',
+                    '00000000-0000-4000-a000-000000000000'
+                  ],
+                  [
+                    'summary',
+                    {},
+                    'text',
+                    'non-allday event'
+                  ],
+                  [
+                    'dtstart',
+                    {
+                      'tzid': 'Europe\/Paris'
+                    },
+                    'date-time',
+                    '2014-12-29T18:00:00'
+                  ],
+                  [
+                    'dtend',
+                    {
+                      'tzid': 'Europe\/Paris'
+                    },
+                    'date-time',
+                    '2014-12-29T19:00:00'
+                  ],
+                  [
+                    'transp',
+                    {},
+                    'text',
+                    'OPAQUE'
+                  ],
+                  rrule
+                ],
+                []
+              ]
+            ]
+          ];
+        }
+
+        it('should correctly create a recurrent event : daily + interval + count', function() {
+          var shell = {
+            start: moment(new Date(2014, 11, 29, 18, 0, 0)),
+            end: moment(new Date(2014, 11, 29, 19, 0, 0)),
+            allDay: false,
+            title: 'non-allday event',
+            recur: {
+              freq: 'DAILY',
+              interval: 2,
+              count: 3
+            }
+          };
+          var rrule = [
+            'rrule',
+            {},
+            'recur',
+            {
+              freq: 'DAILY',
+              count: [3],
+              interval: [2]
+            }
+          ];
+
+          var vcalendar = this.calendarService.shellToICAL(shell);
+          expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+        });
+
+        it('should correctly create a recurrent event : weekly + byday', function() {
+          var shell = {
+            start: moment(new Date(2014, 11, 29, 18, 0, 0)),
+            end: moment(new Date(2014, 11, 29, 19, 0, 0)),
+            allDay: false,
+            title: 'non-allday event',
+            recur: {
+              freq: 'WEEKLY',
+              byday: ['MO', 'WE', 'FR']
+            }
+          };
+
+          var rrule = [
+            'rrule',
+            {},
+            'recur',
+            {
+              freq: 'WEEKLY',
+              byday: ['MO', 'WE', 'FR']
+            }
+          ];
+
+          var vcalendar = this.calendarService.shellToICAL(shell);
+          expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+        });
+
+        it('should correctly create a recurrent event : monthly', function() {
+          var shell = {
+            start: moment(new Date(2014, 11, 29, 18, 0, 0)),
+            end: moment(new Date(2014, 11, 29, 19, 0, 0)),
+            allDay: false,
+            title: 'non-allday event',
+            recur: {
+              freq: 'MONTHLY'
+            }
+          };
+
+          var rrule = [
+            'rrule',
+            {},
+            'recur',
+            {
+              freq: 'MONTHLY'
+            }
+          ];
+
+          var vcalendar = this.calendarService.shellToICAL(shell);
+          expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+        });
+
+        it('should correctly create a recurrent event : yearly + until', function() {
+          var shell = {
+            start: moment(new Date(2014, 11, 29, 18, 0, 0)),
+            end: moment(new Date(2014, 11, 29, 19, 0, 0)),
+            allDay: false,
+            title: 'non-allday event',
+            recur: {
+              freq: 'YEARLY',
+              until: new Date(2024, 11, 29, 0, 0, 0)
+            }
+          };
+
+          var rrule = [
+            'rrule',
+            {},
+            'recur',
+            {
+              freq: 'YEARLY',
+              until: '2024-12-29T00:00:00'
+            }
+          ];
+
+          var vcalendar = this.calendarService.shellToICAL(shell);
+          expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+        });
+      });
     });
   });
 
