@@ -11,5 +11,15 @@
   "Cards": "Cards",
   "List": "List",
   "at": "at",
-  "Save": "Save"
+  "Save": "Save",
+  "Nickname": "Nickname",
+  "Work": "Work",
+  "Company": "Company",
+  "Job": "Job",
+  "Website": "Website",
+  "Address": "Address",
+  "Birthday": "Birthday",
+  "Home": "Home",
+  "Others": "Others",
+  "Comments": "Comments"
 }

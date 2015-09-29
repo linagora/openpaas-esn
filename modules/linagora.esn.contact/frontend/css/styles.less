@@ -8,6 +8,9 @@
 @contact-mobile-fn-color: #444;
 @contact-mobile-fn-size: 20pt;
 @contact-mobile-font-size: 16px;
+@contact-item-action-color: #333;
+@contact-mobile-title-color: #888;
+@contact-mobile-title-font-size: @contact-mobile-font-size + 1;
 
 #profile-main {
   a {
@@ -129,7 +132,6 @@ ul.dropdown {
 .contact-content.visible-xs {
   .contact-fn {
     text-align: center;
-    border-bottom:1px solid @m-gray;
     font-size: @contact-mobile-fn-size;
     background-color: @m-white;
     font-weight: 500;
@@ -141,48 +143,57 @@ ul.dropdown {
     button {
       width: 100%;
     }
-    .contact-card {
-      font-size: @contact-mobile-font-size;
-      min-height: 60px;
-      margin: 0;
-      width: 100%;
-      border-bottom: 1px solid @m-gray;
-      a {
-        color: @text-color;
+
+    .contact-items-group {
+      .title {
+        color: @contact-mobile-title-color;
+        font-size: @contact-mobile-title-font-size;
+        text-transform: uppercase;
       }
-      .tag-item {
-        background-color: @m-blue;
-        color: @m-white;
-        padding: 3px 5px 0px 5px;
-        margin: 2px;
-        float: left;
-        list-style: none;
-      }
-      ul.tag-list {
-        padding: 0;
-      }
+
+      background-color: @m-white;
+      padding: 6px 12px;
       .mdi {
+        color: @contact-item-action-color;
         font-size: 18pt;
         width: 30px;
         min-height: 100%;
         float: left;
       }
-      p, ul {
-        text-align: left;
-        text-transform: none;
-        margin: 0 0 0 60px;
+
+      .contact-item-data {
+        font-size: @contact-mobile-font-size;
+        min-height: 60px;
+        margin: 0;
+        width: 100%;
+        a {
+          color: @text-color;
+        }
+
+        p, ul {
+          text-align: left;
+          text-transform: none;
+          margin: 0 0 0 60px;
+        }
+
+        .type {
+          color: @m-gray;
+          font-size: 10pt;
+          text-transform: capitalize;
+        }
       }
-      .contact-card-type {
-        color: @m-gray;
-        font-size: 8pt;
+      .tag-item {
+        background-color: @m-blue;
+        color: @m-white;
+        padding: 1px 4px 0px 4px;
+        margin: 2px;
+        float: left;
+        list-style: none;
+        font-size: smaller;
       }
-      .contact-card-infos .contact-card-type {
-        margin-left: 0;
+      ul.tag-list {
+        padding: 0;
       }
-    }
-    div.contact-card {
-      padding: 6px 12px;
-      background-color: @m-white;
     }
   }
 }

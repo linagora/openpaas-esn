@@ -45,6 +45,21 @@ angular.module('linagora.esn.contact')
     $scope.contact = {};
     $scope.loaded = false;
 
+    function isAddressFilled(type) {
+      if (!$scope.contact.addresses || !$scope.contact.addresses.length) {
+        return false;
+      }
+      return $scope.contact.addresses.filter(function(address) {
+        return address.type.toLowerCase() === type.toLowerCase();
+      }).length;
+    }
+
+    $scope.getAddress = function(type) {
+      return $scope.contact.addresses.filter(function(address) {
+        return address.type.toLowerCase() === type.toLowerCase();
+      })[0];
+    };
+
     $scope.close = closeContactForm;
 
     $scope.deleteContact = function() {
@@ -52,6 +67,18 @@ angular.module('linagora.esn.contact')
       $timeout(function() {
         contactsService.deleteContact($scope.bookId, $scope.contact);
       }, 200);
+    };
+
+    $scope.shouldDisplayWork = function() {
+      return !!(($scope.contact.org && $scope.contact.org[0]) || $scope.contact.orgRole || $scope.contact.orgUri || isAddressFilled('work'));
+    };
+
+    $scope.shouldDisplayHome = function() {
+      return !!(isAddressFilled('home') || $scope.formattedBirthday || $scope.contact.nickname);
+    };
+
+    $scope.shouldDisplayOthers = function() {
+      return !!(isAddressFilled('other') || ($scope.contact.tags && $scope.contact.tags.length) || $scope.contact.notes);
     };
 
     if (contactUpdateDataService.contact) {

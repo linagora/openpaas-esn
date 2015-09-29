@@ -30,6 +30,10 @@ angular.module('linagora.esn.contact')
     }
 
     function getOrderedValues(array, priorities) {
+      if (!array || !array.length) {
+        return [];
+      }
+
       function getElementFromType(type) {
         var result = array.filter(function(element) {
           return notNullNorEmpty(element.type) && element.type.toLowerCase() === type.toLowerCase();
@@ -41,7 +45,7 @@ angular.module('linagora.esn.contact')
       }
 
       if (!notNullNorEmpty(priorities)) {
-        return getValue(array[0]);
+        return array;
       }
 
       var result = [];
@@ -59,7 +63,7 @@ angular.module('linagora.esn.contact')
       var result = getOrderedValues(array, priorities);
 
       if (notNullNorEmpty(result)) {
-        return result[0];
+        return result[0].value;
       }
 
       // return first non null value;
@@ -109,9 +113,9 @@ angular.module('linagora.esn.contact')
       }
 
       if (notNullNorEmpty(contact.emails)) {
-        var email = getValueFromArray(contact.emails, ['work', 'home']);
+        var email = getValueFromArray(contact.emails, ['work', 'home', 'other']);
         if (email) {
-          return email.value;
+          return email;
         }
       }
 
@@ -126,14 +130,14 @@ angular.module('linagora.esn.contact')
       if (notNullNorEmpty(contact.social)) {
         var social = getValueFromArray(contact.social, ['twitter', 'skype', 'google', 'linkedin', 'facebook']);
         if (social) {
-          return social.value;
+          return social;
         }
       }
 
       if (notNullNorEmpty(contact.tel)) {
         var tel = getValueFromArray(contact.tel, ['work', 'mobile', 'home']);
         if (tel) {
-          return tel.value;
+          return tel;
         }
       }
 
