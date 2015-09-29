@@ -25,7 +25,12 @@ angular.module('linagora.esn.contact')
       scope: {
         'contact': '='
       },
-      templateUrl: '/contact/views/partials/contact-edition-form.html'
+      templateUrl: '/contact/views/partials/contact-edition-form.html',
+      link: function(scope, element) {
+        // remove placeholder of the bs-datepicker
+        var datepicker = element.find('input[bs-datepicker]');
+        datepicker.removeAttr('placeholder');
+      }
     };
   })
   .directive('contactListItem', function() {

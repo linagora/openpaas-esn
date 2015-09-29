@@ -260,12 +260,6 @@ ul.dropdown {
   padding: 0 30px 0 0;
 }
 
-contact-edition-form {
-  .form-control {
-    margin-top: 10px;
-  }
-}
-
 contact-photo {
   position: relative;
   display: inline-block;
@@ -446,8 +440,18 @@ tags-input{
 }
 
 .multi-input-content, .multi-input-next{
+  font-weight: normal;
   .form-group {
     margin-bottom: 5px;
+  }
+  .form-control {
+    margin-top: 10px;
+  }
+}
+
+.multi-input-button {
+  .form-group {
+    margin-bottom: 0;
   }
 }
 
@@ -456,3 +460,5 @@ tags-input{
     margin-top: 25px;
   }
 }
+
+@import './contact-edition-form';
