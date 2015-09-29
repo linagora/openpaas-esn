@@ -5,6 +5,9 @@
 @contact-toolbar-switch-width: 65px;
 @contact-card-display-image-size: 96px;
 @full-size-avatar-max-resolution: 450px;
+@contact-mobile-fn-color: #444;
+@contact-mobile-fn-size: 20pt;
+@contact-mobile-font-size: 16px;
 
 #profile-main {
   a {
@@ -127,7 +130,10 @@ ul.dropdown {
   .contact-fn {
     text-align: center;
     border-bottom:1px solid @m-gray;
-    font-size: 18pt;
+    font-size: @contact-mobile-fn-size;
+    background-color: @m-white;
+    font-weight: 500;
+    color: @contact-mobile-fn-color;
   }
   .contact-infos {
     display: flex;
@@ -136,6 +142,7 @@ ul.dropdown {
       width: 100%;
     }
     .contact-card {
+      font-size: @contact-mobile-font-size;
       min-height: 60px;
       margin: 0;
       width: 100%;
