@@ -56,6 +56,8 @@ angular.module('linagora.esn.contact')
 
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
+      $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, ['work', 'home', 'other']);
+      $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, ['work', 'mobile', 'home', 'other']);
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
 
       $scope.$on('$routeChangeStart', function(evt, next, current) {
@@ -86,6 +88,8 @@ angular.module('linagora.esn.contact')
     } else {
       contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
         $scope.contact = card;
+        $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, ['work', 'home', 'other']);
+        $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, ['work', 'mobile', 'home', 'other']);
         $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
       }, function(err) {
         $log.debug('Error while loading contact', err);

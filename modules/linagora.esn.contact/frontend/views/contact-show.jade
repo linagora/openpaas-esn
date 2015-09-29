@@ -33,18 +33,18 @@
       div.contact-fn
         | {{contact.displayName}}
       .contact-infos
-        div(ng-repeat='tel in contact.tel track by $index')
-          a(ng-href='tel:{{tel.value}}')
-            button.waves-effect.btn.btn-default.contact-card(type='button')
-                i.mdi.mdi-phone
-                p {{tel.value}}
-                p.contact-card-type {{tel.type}}
-        div(ng-repeat='email in contact.emails track by $index')
-          a(ng-href='mailto:{{email.value}}')
-            button.btn.btn-default.waves-effect.contact-card(type='button')
-                i.mdi.mdi-email
-                p {{email.value}}
-                p.contact-card-type {{email.type}}
+        div(ng-repeat='tel in phones track by $index')
+          .contact-card
+            i.mdi.mdi-phone
+            p
+              a(ng-href='tel:{{tel.value}}') {{tel.value}}
+            p.contact-card-type {{tel.type}}
+        div(ng-repeat='email in emails track by $index')
+          .contact-card
+            i.mdi.mdi-email
+            p
+              a(ng-href='mailto:{{email.value}}') {{email.value}}
+            p.contact-card-type {{email.type}}
         button.waves-effect.btn.btn-default.contact-card(type='button' ng-repeat='social in contact.social track by $index')
             i.mdi.mdi-whatsapp(ng-if='social.type==="Skype"')
             i.mdi.mdi-twitter(ng-if='social.type==="Twitter"')
