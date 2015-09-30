@@ -58,7 +58,8 @@ angular.module('esnApp', [
   'esn.http',
   'esn.attendee',
   'materialAdmin',
-  'angular-nicescroll'
+  'angular-nicescroll',
+  'esn.swipe'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {

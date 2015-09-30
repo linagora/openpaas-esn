@@ -1,4 +1,4 @@
-{
+  {
   "name": "Linagora RSE",
   "main": "index.js",
   "version": "0.0.0",
@@ -77,7 +77,8 @@
     "char-api": "https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "angular-nicescroll": "0.0.5",
     "jmap-client": "0.0.2",
-    "autosize": "~3.0.13"
+    "autosize": "~3.0.13",
+    "interact": "~1.2.5"
   },
   "resolutions": {
     "jquery": "2.1.1",

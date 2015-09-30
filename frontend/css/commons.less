@@ -367,3 +367,81 @@
 html:not(.ie9) .select::before, .select::before {
   background-image: url('../../../components/material-admin/img/select.png');
 }
+
+.swipe-wrapper {
+  position: relative;
+  //margin-top: 50px;
+  //height: 100px;
+  overflow: hidden;
+
+  .appear {
+    opacity: 1;
+  }
+
+  .disappear {
+    opacity: 0;
+  }
+
+  .ahead {
+    z-index: 1;
+  }
+
+  .behind {
+    z-index: 0;
+  }
+
+  .opacity-transition {
+    transition: opacity 0.25s linear;
+  }
+
+  .swipe {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: @m-white;
+    z-index: 2;
+    transition: transform 0.25s ease-in-out;
+    -webkit-transition: transform 0.25s ease-in-out;
+
+    &.moving {
+      transition: none;
+      -webkit-transition: none;
+    }
+  }
+
+  .option {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+
+    .option-item {
+      position: absolute;
+      width: 70px;
+      height: 100%;
+      top: 0;
+      color: @textPrimaryColor;
+
+      i {
+        font-size: 40px;
+      }
+    }
+
+    &.right {
+      background-color: lighten(@m-orange, 10%);
+
+      .option-item {
+        right: 0;
+      }
+    }
+
+    &.left {
+      background-color: lighten(@m-green, 10%);
+
+      .option-item {
+        left: 0;
+      }
+    }
+  }
+}
+
