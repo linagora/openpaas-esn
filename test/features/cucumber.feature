@@ -4,5 +4,5 @@ Feature: Running Cucumber with Protractor
   to run my E2E tests
 
   Scenario: Wrapping WebDriver
-    Given I go on "index.html"
+    Given I go on "/"
     Then The title should equal "Home - OpenPaas"

@@ -9,10 +9,11 @@ exports.config = {
   },
   suites: {
     cucumber: '../features/cucumber.feature',
-    login: '../features/login/login.feature'
+    login: '../features/login/login.feature',
+    contact: '../features/login/contact.feature'
   },
   cucumberOpts: {
     require: '../features/steps/*.js',
     format: 'pretty'
   }
-}
+};
