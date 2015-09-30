@@ -58,7 +58,8 @@ angular.module('esnApp', [
   'esn.http',
   'esn.attendee',
   'materialAdmin',
-  'angular-nicescroll'
+  'angular-nicescroll',
+  'xeditable'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {
@@ -91,7 +92,28 @@ angular.module('esnApp', [
 
     $routeProvider.when('/profile', {
       templateUrl: '/views/esn/partials/profile',
-      controller: 'profilecontroller'
+      controller: 'profileViewController',
+      resolve: {
+        user: function(userAPI) {
+          return userAPI.currentUser().then(function(response) {
+            return response.data;
+          });
+        }
+      }
+    });
+
+    $routeProvider.when('/profile/:user_id', {
+      templateUrl: '/views/esn/partials/profile',
+      controller: 'profileViewController',
+      resolve: {
+        user: function($route, $location, userAPI) {
+          return userAPI.user($route.current.params.user_id).then(function(response) {
+            return response.data;
+          }, function() {
+            $location.path('/');
+          });
+        }
+      }
     });
 
     $routeProvider.when('/domains/:domain_id/members', {
@@ -166,8 +188,9 @@ angular.module('esnApp', [
     RestangularProvider.setFullResponse(true);
   })
 
-.run(function(session, ioConnectionManager) {
-  session.ready.then(function() {
+.run(function(session, ioConnectionManager, editableOptions) {
+    editableOptions.theme = 'bs3';
+    session.ready.then(function() {
     ioConnectionManager.connect();
   });
 });
