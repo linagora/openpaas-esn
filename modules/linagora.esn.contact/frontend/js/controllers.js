@@ -382,6 +382,16 @@ angular.module('linagora.esn.contact')
       return $scope.contact[property];
     }
 
+    $scope.swipeLeftHandler = function() {
+      console.log('swipe left');
+      setTimeout($scope.swipeClose, 1000);
+    };
+
+    $scope.swipeRightHandler = function() {
+      console.log('swipe right');
+      setTimeout($scope.swipeClose, 1000);
+    };
+
     $scope.email = getFirstValue('emails');
     $scope.tel = getFirstValue('tel');
     $scope.org = getFirstElement('org');

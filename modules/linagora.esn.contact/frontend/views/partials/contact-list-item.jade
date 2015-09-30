@@ -1,4 +1,4 @@
-.contact-list-item.p-5.swipe(ng-click='displayContact()')
+.contact-list-item.p-5.swipe(ng-click='displayContact()', swipe-left="swipeLeftHandler", swipe-right="swipeRightHandler", icon-left="mdi-phone")
   div.col-xs-2
     contact-photo.media-object(contact='contact', list-view='true')
   div.col-xs-8
@@ -28,4 +28,3 @@
               a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
             li
               a(ng-click="deleteContact()") Delete
-  
