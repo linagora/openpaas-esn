@@ -78,7 +78,8 @@
     "angular-nicescroll": "0.0.5",
     "jmap-client": "0.0.2",
     "autosize": "~3.0.13",
-    "interact": "~1.2.5"
+    "interact": "~1.2.5",
+    "dynamic-directive": "~1.0.0"
   },
   "resolutions": {
     "jquery": "2.1.1",
