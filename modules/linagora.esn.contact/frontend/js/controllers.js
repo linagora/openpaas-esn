@@ -363,7 +363,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, notificationFactory, gracePeriodService, CONTACT_EVENTS, GRACE_DELAY) {
+  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, notificationFactory, gracePeriodService, CONTACT_EVENTS, GRACE_DELAY, $window, $timeout) {
 
     function getFirstValue(property) {
       if (!$scope.contact[property] || !$scope.contact[property][0]) {
@@ -389,7 +389,20 @@ angular.module('linagora.esn.contact')
 
     $scope.swipeRightHandler = function() {
       console.log('swipe right');
-      setTimeout($scope.swipeClose, 1000);
+      $timeout(function() {
+        var defaultTel = '';
+        if($scope.contact.tel.length) {
+          defaultTel = $scope.contact.tel[0].value;
+        }
+//        var ref = $window.open('tel://' + defaultTel);
+        var oldURL = $window.location.href;
+        $window.location.href = 'tel://' + defaultTel;
+
+        $scope.swipeClose();
+        $timeout(function() {
+          $window.location.href = oldURL;
+        }, 100);
+      }, 250);
     };
 
     $scope.email = getFirstValue('emails');
