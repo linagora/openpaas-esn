@@ -382,7 +382,7 @@ angular.module('linagora.esn.contact')
       return $scope.contact[property];
     }
 
-    var menu = $dynamicMenu();
+    var menu = $dynamicMenu({scope: $scope});
     $scope.showModal = function() {
       menu.$promise.then(menu.show);
     };

@@ -1,6 +1,24 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
+  .directive('contactMailtoAction', function($window, $timeout) {
+    function link($scope) {
+     $scope.mailto = function () {
+       var oldURL = $window.location.href;
+       $window.location.href = 'mailto:' + $scope.$parent.email;
+
+       $timeout(function() {
+         $window.location.href = oldURL;
+       }, 100);
+     };
+    }
+    return {
+     replace: true,
+     restrict: 'E',
+     templateUrl: '/contact/views/partials/contact-mailto-action.html',
+     link: link
+    };
+  })
   .directive('contactNavbarLink', function() {
     return {
       restrict: 'E',

@@ -40,21 +40,28 @@ angular.module('linagora.esn.contact', [
     }
   });
 })
-  .run(function($q, $log, attendeeService, contactsService, session) {
-    var contactProvider = {
-      searchAttendee: function(query) {
-        return contactsService.searchAllAddressBooks(session.user._id, query).then(function(response) {
-          response.hits_list.forEach(function(contact) {
-            if (contact.emails && contact.emails.length !== 0) {
-              contact.email = contact.emails[0].value;
-            }
-          });
-          return response.hits_list;
-        }, function(error) {
-          $log('Error while searching contacts: ' + error);
-          return $q.when([]);
+.run(function(dynamicDirectiveService) {
+  var dir = new dynamicDirectiveService.DynamicDirective(
+         function(scope) {return true;},
+         'contact-mailto-action'
+         );
+  dynamicDirectiveService.addInjection('dynamic-menu-actions', dir);
+})
+.run(function($q, $log, attendeeService, contactsService, session) {
+  var contactProvider = {
+    searchAttendee: function(query) {
+      return contactsService.searchAllAddressBooks(session.user._id, query).then(function(response) {
+        response.hits_list.forEach(function(contact) {
+          if (contact.emails && contact.emails.length !== 0) {
+            contact.email = contact.emails[0].value;
+          }
         });
-      }
-    };
-    attendeeService.addProvider(contactProvider);
-  });
+        return response.hits_list;
+      }, function(error) {
+        $log('Error while searching contacts: ' + error);
+        return $q.when([]);
+      });
+    }
+  };
+  attendeeService.addProvider(contactProvider);
+});
