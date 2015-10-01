@@ -401,7 +401,7 @@ angular.module('linagora.esn.contact')
         }
 //        var ref = $window.open('tel://' + defaultTel);
         var oldURL = $window.location.href;
-        $window.location.href = 'tel://' + defaultTel;
+        $window.location.href = 'tel: ' + defaultTel;
 
         $scope.swipeClose();
         $timeout(function() {
