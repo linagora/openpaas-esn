@@ -79,6 +79,7 @@
     "jmap-client": "0.0.2",
     "autosize": "~3.0.13",
     "interact": "~1.2.5",
+    "awesome-angular-swipe": "https://github.com/linagora/awesome-angular-swipe.git",
     "dynamic-directive": "~1.0.0"
   },
   "resolutions": {
