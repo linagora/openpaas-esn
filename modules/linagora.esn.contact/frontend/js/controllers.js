@@ -363,7 +363,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, notificationFactory, gracePeriodService, CONTACT_EVENTS, GRACE_DELAY, $window, $timeout) {
+  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, notificationFactory, gracePeriodService, CONTACT_EVENTS, GRACE_DELAY, $window, $timeout, $dynamicMenu) {
 
     function getFirstValue(property) {
       if (!$scope.contact[property] || !$scope.contact[property][0]) {
@@ -382,8 +382,13 @@ angular.module('linagora.esn.contact')
       return $scope.contact[property];
     }
 
+    var menu = $dynamicMenu();
+    $scope.showModal = function() {
+      menu.$promise.then(menu.show);
+    };
     $scope.swipeLeftHandler = function() {
       console.log('swipe left');
+      $scope.showModal();
       setTimeout($scope.swipeClose, 1000);
     };
 
