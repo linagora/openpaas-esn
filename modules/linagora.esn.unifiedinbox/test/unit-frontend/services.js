@@ -1,22 +1,25 @@
 'use strict';
 
 /* global chai: false */
+/* global moment: false */
 
 var expect = chai.expect;
 
 describe('The Unified Inbox Angular module services', function() {
 
-  var nowDate = new Date('2015-08-20T04:00:00Z');
+  var nowDate = new Date('2015-08-20T04:00:00Z'),
+      localTimeZone = 'Europe/Paris';
 
   beforeEach(function() {
     angular.mock.module('esn.jmap-client-wrapper');
     angular.mock.module('esn.session');
+    angular.mock.module('angularMoment');
     angular.mock.module('linagora.esn.unifiedinbox');
   });
 
   beforeEach(module(function($provide) {
     $provide.constant('moment', function(argument) {
-      return window.moment(argument || nowDate);
+      return moment.tz(argument || nowDate, localTimeZone);
     });
   }));
 
@@ -111,8 +114,53 @@ describe('The Unified Inbox Angular module services', function() {
       ]);
     });
 
+    it('should put a received email in the week group if it is just newer than one week with both +7 TZ', function() {
+      localTimeZone = 'Asia/Ho_Chi_Minh';
+
+      var email = { date: '2015-08-13T08:00:00+07:00' },
+          emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
+
+      expect(emailGroupingTool.getGroupedEmails()).to.deep.equal([
+        {name: 'Today', dateFormat: 'shortTime', emails: []},
+        {name: 'This Week', dateFormat: 'short', emails: [email]},
+        {name: 'This Month', dateFormat: 'short', emails: []},
+        {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+      ]);
+    });
+
+    it('should put a received email in the week group if it is just newer than one week when email +7 TZ', function() {
+      localTimeZone = 'UTC';
+
+      var email = { date: '2015-08-13T08:00:00+07:00' },
+          emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
+
+      expect(emailGroupingTool.getGroupedEmails()).to.deep.equal([
+        {name: 'Today', dateFormat: 'shortTime', emails: []},
+        {name: 'This Week', dateFormat: 'short', emails: [email]},
+        {name: 'This Month', dateFormat: 'short', emails: []},
+        {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+      ]);
+    });
+
+    it('should put a received email in the week group if it is just newer than one week when now +7 TZ', function() {
+      localTimeZone = 'Asia/Ho_Chi_Minh';
+      nowDate = new Date('2015-08-21T05:00:00+07:00');
+
+      var email = { date: '2015-08-13T01:00:00+00:00' },
+          emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
+
+      expect(emailGroupingTool.getGroupedEmails()).to.deep.equal([
+        {name: 'Today', dateFormat: 'shortTime', emails: []},
+        {name: 'This Week', dateFormat: 'short', emails: [email]},
+        {name: 'This Month', dateFormat: 'short', emails: []},
+        {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+      ]);
+    });
+
     it('should put a received email in the month group if it is just older than one week with both +7 TZ', function() {
-      var email = { date: '2015-08-13T05:00:00+07:00' },
+      localTimeZone = 'Asia/Ho_Chi_Minh';
+
+      var email = { date: '2015-08-12T23:00:00+07:00' },
           emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
 
       expect(emailGroupingTool.getGroupedEmails()).to.deep.equal([
@@ -124,6 +172,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should put a received email in the month group if it is just older than one week when email +7 TZ', function() {
+      localTimeZone = 'UTC';
       var email = { date: '2015-08-13T05:00:00+07:00' },
           emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
 
@@ -136,6 +185,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should put a received email in the month group if it is just older than one week when now +7 TZ', function() {
+      localTimeZone = 'Asia/Ho_Chi_Minh';
       var email = { date: '2015-08-12T22:00:00+00:00' },
           emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
 
@@ -148,6 +198,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should put a received email in the month group if it is just older than one week with both -7 TZ', function() {
+      localTimeZone = 'America/Los_Angeles';
       var email = { date: '2015-08-12T15:00:00-07:00' },
           emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
 
@@ -160,6 +211,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should put a received email in the month group if it is just older than one week when email -7 TZ', function() {
+      localTimeZone = 'UTC';
       var email = { date: '2015-08-12T15:00:00-07:00' },
           emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
 
@@ -172,6 +224,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should put a received email in the month group if it is just older than one week when now -7 TZ', function() {
+      localTimeZone = 'America/Los_Angeles';
       var email = { date: '2015-08-12T22:00:00+00:00' },
           emailGroupingTool = new EmailGroupingTool('any mailbox id', [email]);
 
