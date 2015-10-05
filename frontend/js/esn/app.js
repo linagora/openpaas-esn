@@ -94,9 +94,11 @@ angular.module('esnApp', [
       templateUrl: '/views/esn/partials/profile',
       controller: 'profileViewController',
       resolve: {
-        user: function(userAPI) {
+        user: function($location, userAPI) {
           return userAPI.currentUser().then(function(response) {
             return response.data;
+          }, function() {
+            $location.path('/');
           });
         }
       }
