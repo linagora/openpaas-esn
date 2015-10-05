@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
-      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {}, CONTACT_EVENTS;
+      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, CONTACT_EVENTS;
 
   beforeEach(function() {
     usSpinnerService = {
@@ -26,14 +26,6 @@ describe('The Contacts Angular module', function() {
     liveRefreshContactService = {
       startListen: function() {},
       stopListen: function() {}
-    };
-    defaultAvatarService = {
-      getPhotoUrl: function(id) {
-        return photoCache[id];
-      },
-      insertPhotoUrl: function(id, url) {
-        photoCache[id] = 'localhost/avatar?cb=123456';
-      }
     };
     notificationFactory = {
       weakError: sinon.spy(),
@@ -83,7 +75,6 @@ describe('The Contacts Angular module', function() {
     module('linagora.esn.contact', function($provide) {
       $provide.value('contactsService', contactsService);
       $provide.value('liveRefreshContactService', liveRefreshContactService);
-      $provide.value('defaultAvatarService', defaultAvatarService);
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('$location', $location);
       $provide.value('selectionService', selectionService);
@@ -562,17 +553,6 @@ describe('The Contacts Angular module', function() {
           done();
         });
 
-        it('should store url if displayName changed', function(done) {
-          scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar', displayName: 'Foo Bar', photo: 'localhost/avatar'};
-          contactsService.modify = function() {
-            return $q.when({id: 1, firstName: 'Mini', lastName: 'Bar', displayName: 'Mini Bar', photo: 'localhost/avatar'});
-          };
-          this.initController();
-          scope.save();
-          scope.$digest();
-          expect(photoCache[1]).to.equal('localhost/avatar?cb=123456');
-          done();
-        });
     });
 
     describe('The deleteContact function', function() {
