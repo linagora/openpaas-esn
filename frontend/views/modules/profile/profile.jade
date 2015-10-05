@@ -1,14 +1,14 @@
 .container.full-width.no-padding-xs(ng-controller='profileEditionController')
   .block-header.hidden-xs
-    h2(ng-if="me()") #{__('My Account')}
-    h2(ng-if="!me()") {{user.firstname}} {{user.lastname}}
+    h2(ng-if="me") #{__('My Account')}
+    h2(ng-if="!me") {{user.firstname}} {{user.lastname}}
   #profile-main.card
     .pm-overview.c-overflow
       .pmo-pic
         .p-relative(ng-controller='avatarController')
           a
             img(ng-src="{{avatarURL}}")
-          a.pmop-edit(ng-if='me()' ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
+          a.pmop-edit(ng-if='me' ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
             i.mdi.mdi-camera
             span.hidden-xs
               | #{__('Update Profile Picture')}
@@ -37,9 +37,9 @@
                   | #{__('Phone')}
                 dd.visible-xs
                   {{user.main_phone}}
-                dd.hidden-xs(ng-if='!me()')
+                dd.hidden-xs(ng-if='!me')
                   {{::user.main_phone}}
-                dd.hidden-xs(ng-if='me()')
+                dd.hidden-xs(ng-if='me')
                   span(ng-click='phoneForm.$show()', editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)',
                   e-placeHolder="#{__('Phone')}", e-maxlength='20', e-class='custom-input-sm') {{ user.main_phone }}
                   a.edit-hint(ng-hide='phoneForm.$visible', ng-disabled='running.phone')
@@ -50,9 +50,9 @@
                   | #{__('Building Location')}
                   dd.visible-xs
                     {{ user.building_location }}
-                  dd.hidden-xs(ng-if='!me()')
+                  dd.hidden-xs(ng-if='!me')
                     {{::user.building_location}}
-                  dd.hidden-xs(ng-if='me()')
+                  dd.hidden-xs(ng-if='me')
                     span(ng-click='buildingForm.$show()', editable-text='user.building_location', e-form='buildingForm', onbeforesave='updateBuildingLocation($data)',
                     e-placeHolder="#{__('Building Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.building_location }}
                     a.edit-hint(ng-hide='buildingForm.$visible', ng-disabled='running.building_location')
@@ -63,9 +63,9 @@
                   | #{__('Office Location')}
                   dd.visible-xs
                     {{ user.office_location }}
-                  dd.hidden-xs(ng-if='!me()')
+                  dd.hidden-xs(ng-if='!me')
                     {{::user.office_location}}
-                  dd.hidden-xs(ng-if='me()')
+                  dd.hidden-xs(ng-if='me')
                     span(ng-click='officeForm.$show()', editable-text='user.office_location', e-form='officeForm', onbeforesave='updateOfficeLocation($data)',
                     e-placeHolder="#{__('Office Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.office_location }}
                     a.edit-hint(ng-hide='officeForm.$visible', ng-disabled='running.office_location')

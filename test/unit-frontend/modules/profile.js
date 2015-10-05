@@ -203,4 +203,54 @@ describe('The Profile Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.user.address);
     });
   });
+
+  describe('profileDisplay directive', function() {
+
+    var userId = 'userA';
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.avatar'));
+
+    beforeEach(function() {
+      angular.mock.module(function($provide) {
+        $provide.value('session', {
+          user: {
+            _id: userId
+          }
+        });
+      });
+    });
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should set the me flag to true when user is the current one', function() {
+      this.$rootScope.user = {
+        name: 'Me',
+        address: 'foo@bar.com',
+        _id: userId
+      };
+      var html = '<profile-display user="user"></profile-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.$digest();
+      var iscope = element.isolateScope();
+      expect(iscope.me).to.be.true;
+    });
+
+    it('should set the me flag to false when user is not the current one', function() {
+      this.$rootScope.user = {
+        name: 'Me',
+        address: 'foo@bar.com',
+        _id: '123'
+      };
+      var html = '<profile-display user="user"></profile-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.$digest();
+      var iscope = element.isolateScope();
+      expect(iscope.me).to.be.false;
+    });
+  });
 });

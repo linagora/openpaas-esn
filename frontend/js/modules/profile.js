@@ -9,9 +9,7 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
       },
       templateUrl: '/views/modules/profile/profile.html',
       link: function($scope) {
-        $scope.me = function() {
-          return session.user._id === $scope.user._id;
-        };
+        $scope.me = session.user._id === $scope.user._id;
       }
     };
   })
