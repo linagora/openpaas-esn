@@ -2,6 +2,54 @@
 
 angular.module('esn.sidebar', [])
 
+  .constant('CONTEXTUAL_SIDEBAR', {
+    animation: 'am-fade-and-slide-right',
+    prefixClass: 'aside',
+    prefixEvent: 'contextual-sidebar',
+    placement: 'right',
+    template: '/views/modules/sidebar/contextual-sidebar.html',
+    container: false,
+    element: null,
+    backdrop: true,
+    keyboard: true,
+    html: false,
+    show: false
+  })
+
+  .factory('contextualSidebarService', function($aside, CONTEXTUAL_SIDEBAR) {
+    var contextualSidebarService = function(config) {
+      var options = angular.extend({}, CONTEXTUAL_SIDEBAR, config);
+      return $aside(options);
+    };
+    return contextualSidebarService;
+  })
+
+  .directive('contextualSidebar', function(contextualSidebarService) {
+    function link(scope, element, attr) {
+      var options = {scope: scope};
+      angular.forEach(['template', 'templateUrl', 'controller', 'contentTemplate'], function(key) {
+        if (angular.isDefined(attr[key])) { options[key] = attr[key]; }
+      });
+      var sidebar = contextualSidebarService(options);
+
+      element.on('click', function() {
+        sidebar.toggle();
+      });
+
+      scope.$on('$destroy', function() {
+        if (sidebar) { sidebar.destroy(); }
+        options = null;
+        sidebar = null;
+      });
+    }
+
+    return {
+      restrict: 'A',
+      scope: true,
+      link: link
+    };
+  })
+
   .constant('SIDEBAR_EVENTS', {
     display: 'sidebar:display',
     open: 'sidebar:open',
@@ -93,6 +141,7 @@ angular.module('esn.sidebar', [])
       link: link
     };
   })
+
   .directive('toggleSubmenu', function() {
     return {
       restrict: 'A',
@@ -108,6 +157,7 @@ angular.module('esn.sidebar', [])
       }
     };
   })
+
   .directive('refreshNicescroll', function($timeout) {
     return {
       restric: 'A',
