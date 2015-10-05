@@ -1,5 +1,36 @@
 @import '../../../../frontend/css/commons';
 
+.avatarify {
+  @media (min-width: @screen-md-min) {
+    padding-left: 50px;
+    background: ~"url('/images/user.png') no-repeat center left/40px";
+  }
+}
+
+.groupedEmails {
+
+  .mdi.mdi-attachment {
+    font-size: 20px;
+    vertical-align: bottom;
+
+    margin-right: 5px;
+  }
+
+  .preview {
+    margin-top: 10px;
+  }
+
+}
+
+.emailer {
+  display: inline-block;
+
+  .email {
+    margin-left: 5px;
+  }
+
+}
+
 .email-view {
 
   .actions a {
@@ -48,7 +79,4 @@
     margin-left: 5px;
   }
 
-  span {
-    color: @text-color;
-  }
 }

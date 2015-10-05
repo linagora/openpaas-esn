@@ -33,4 +33,16 @@ angular.module('linagora.esn.unifiedinbox')
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role || 'default'];
       }
     };
+  })
+
+  .directive('emailer', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        emailer: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/emailer.html'
+    };
+  })
   });
