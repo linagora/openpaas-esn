@@ -53,8 +53,7 @@ module.exports = function(grunt) {
         flags: [
           '--disable 0110',
           '--nojsdoc',
-          '-e test/frontend/karma-include',
-          '-e modules/linagora.esn.calendar/frontend/js/thirdparty',
+          '-e test/frontend/karma-include,modules/linagora.esn.calendar/frontend/js/thirdparty',
           '-x frontend/js/modules/modernizr.js'
         ],
         reporter: {
