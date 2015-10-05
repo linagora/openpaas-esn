@@ -206,10 +206,10 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should change page on contactsService.create success', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
+        scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar'};
 
-        $location.path = function(path) {
-          expect(path).to.equal('/contact');
+        $location.url = function(path) {
+          expect(path).to.equal('/contact/show/' + bookId + '/1');
 
           done();
         };
