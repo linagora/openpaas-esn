@@ -13,7 +13,7 @@
       }
 
       th {
-        background: @darkPrimaryColor !important;
+        background: @darkPrimaryColor !important; /* override parent !important property */
       }
 
       i {
@@ -23,12 +23,12 @@
 
     .tr-dpday {
       th {
-        background: @primaryColor !important;
+        background: @primaryColor !important; /* override parent !important property */
       }
     }
 
     .dp-active {
-      background-color: @darkPrimaryColor !important;
+      background-color: @darkPrimaryColor !important; /* override parent !important property */
     }
 
     .dp-table thead > tr th:first-child {
@@ -65,7 +65,7 @@
 
     .btn-dpday {
       border-radius: 50%;
-      width: 38px !important;
+      width: 38px !important; /* override parent !important property */
       height: 38px;
     }
   }
