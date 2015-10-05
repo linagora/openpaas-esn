@@ -38,6 +38,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/calendar/user-calendar-navbar-link.html'
     };
   })
+
   .directive('toggleNicescroll', function(deviceDetector) {
     return {
       restrict: 'A',
@@ -61,5 +62,28 @@ angular.module('esn.calendar')
           });
         }
       }
+    };
+  })
+
+  .directive('calendarLeftPane', function() {
+    function link(scope, element) {
+      scope.$on('calendar:height', function(event, height) {
+        element.height(height);
+      });
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
+      link: link
+    };
+  })
+
+  .directive('toggleRightSidebarCalendarButton', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/calendar/toggle-right-sidebar-calendar-button.html'
     };
   });
