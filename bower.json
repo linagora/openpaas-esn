@@ -76,7 +76,7 @@
     "angular-fullscreen": "~1.0.1",
     "char-api": "https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "angular-nicescroll": "0.0.5",
-    "jmap-client": "0.0.2"
+    "jmap-client": "0.0.3"
   },
   "resolutions": {
     "jquery": "2.1.1",
@@ -84,8 +84,7 @@
     "bootstrap": "3.3.5",
     "fullcalendar": "~2.1.1",
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
-    "bootstrap-switch": "~3.3.2",
-    "overture": "FIX-ENDLESS-LOOP"
+    "bootstrap-switch": "~3.3.2"
   },
   "devDependencies": {
     "chai-datetime": "~1.4.0",

@@ -2,7 +2,8 @@
 
 angular.module('linagora.esn.unifiedinbox', [
   'esn.jmap-client-wrapper',
-  'angularMoment'
+  'angularMoment',
+  'esn.notification'
   ])
   .config(function($routeProvider) {
     $routeProvider.when('/unifiedinbox', {
