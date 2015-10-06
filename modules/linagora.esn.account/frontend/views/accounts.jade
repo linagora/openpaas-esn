@@ -9,5 +9,5 @@
       .account-error-container
   .vertiz-space
   .row
-    .col-xs-12
-      span {{accounts | json}}
+    .col-xs-12.col-md-6(ng-repeat='account in accounts')
+      account-card-displayer(account='account')

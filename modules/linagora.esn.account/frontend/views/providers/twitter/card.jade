@@ -1,0 +1,10 @@
+.card.account-card
+  .card-body
+    .flex-start
+      .p-10.flex-noshrink
+        a(href='')
+          .card-image
+            img(ng-src='{{::account.photo || "/images/activitystream.png"}}')
+      .p-t-10.p-r-10.account-info
+        div
+          strong {{::account.provider}}

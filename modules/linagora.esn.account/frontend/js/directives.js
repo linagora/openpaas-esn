@@ -20,4 +20,13 @@ angular.module('linagora.esn.account')
         };
       }
     };
+  })
+  .directive('accountCardDisplayer', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/account/views/partials/card-displayer.html',
+      scope: {
+        account: '='
+      }
+    };
   });
