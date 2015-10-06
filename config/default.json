@@ -61,7 +61,8 @@
     "linagora.esn.digest.daily",
     "linagora.esn.graceperiod",
     "linagora.esn.davproxy",
-    "linagora.esn.unifiedinbox"
+    "linagora.esn.unifiedinbox",
+    "linagora.esn.account"
   ],
   "email": {
     "templatesDir": "./templates/email"
