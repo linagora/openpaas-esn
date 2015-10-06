@@ -39,15 +39,15 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       this.initDirective(this.$scope);
@@ -66,15 +66,15 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       this.initDirective(this.$scope);
@@ -91,15 +91,15 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       element = this.initDirective(this.$scope);
@@ -111,15 +111,15 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       element = this.initDirective(this.$scope);
@@ -134,15 +134,15 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       element = this.initDirective(this.$scope);
@@ -163,15 +163,15 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       element = this.initDirective(this.$scope);
@@ -192,38 +192,38 @@ describe('The multi-input Angular module', function() {
       this.$scope.contact = {
         addresses: [
           {type: 'Home',
-          street: 'Somewhere over the rainbow',
-          zip: '777',
-          city: 'Yolopolis',
-          country: 'Yololand'},
+            street: 'Somewhere over the rainbow',
+            zip: '777',
+            city: 'Yolopolis',
+            country: 'Yololand'},
           {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
+            street: 'Somewhere else',
+            zip: '666',
+            city: 'Satantown',
+            country: 'Hell'}
         ]
       };
       element = this.initDirective(this.$scope);
       this.eleScope.content = [
         {type: 'Home',
-        street: '',
-        zip: '',
-        city: '',
-        country: ''},
+          street: '',
+          zip: '',
+          city: '',
+          country: ''},
         {type: 'Home',
-        street: 'Somewhere else',
-        zip: '666',
-        city: 'Satantown',
-        country: 'Hell'}
+          street: 'Somewhere else',
+          zip: '666',
+          city: 'Satantown',
+          country: 'Hell'}
       ];
       this.eleScope.verifyRemove(0);
       expect(this.eleScope.content).to.deep.equal([
         {type: 'Home',
-        street: 'Somewhere else',
-        zip: '666',
-        city: 'Satantown',
-        country: 'Hell'}
-     ]);
+          street: 'Somewhere else',
+          zip: '666',
+          city: 'Satantown',
+          country: 'Hell'}
+      ]);
     });
   });
   describe('The multiInputGroup directive', function() {
