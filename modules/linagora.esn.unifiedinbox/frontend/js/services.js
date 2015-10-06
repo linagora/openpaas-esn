@@ -36,7 +36,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     EmailGroupingTool.prototype.addEmail = function addEmail(email) {
-      var currentMoment = moment();
+      var currentMoment = moment().utc();
       var emailMoment = moment(email.date).utc();
 
       if (this._isToday(currentMoment, emailMoment)) {

@@ -40,7 +40,7 @@
     "blueimp-canvas-to-blob": "~2.1.0",
     "angular-motion": "~0.3.3",
     "animate.css": "~3.1.1",
-    "angular-moment": "~0.7.1",
+    "angular-moment": "0.10.1",
     "angular-file-upload": "danialfarid/angular-file-upload#~2.0.4",
     "bootstrap-additions": "~0.2.3",
     "angular-truncate": "sparkalow/angular-truncate",
@@ -90,6 +90,7 @@
     "chai-datetime": "~1.4.0",
     "sinon-chai": "~2.8.0",
     "chai": "~3.0.0",
-    "sinon-1.15.4": "http://sinonjs.org/releases/sinon-1.15.4.js"
+    "sinon-1.15.4": "http://sinonjs.org/releases/sinon-1.15.4.js",
+    "moment-timezone": "0.4.0"
   }
 }

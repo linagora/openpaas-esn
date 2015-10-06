@@ -29,6 +29,7 @@ module.exports = function(config) {
       'frontend/components/jquery.nicescroll/jquery.nicescroll.js',
       'frontend/components/angular-nicescroll/angular-nicescroll.js',
       'frontend/components/moment/moment.js',
+      'frontend/components/moment-timezone/builds/moment-timezone-with-data-2010-2020.min.js',
       'frontend/components/angular-moment/angular-moment.js',
       'frontend/components/jstzdetect/jstz.min.js',
       'frontend/components/angular-jstz/angular-jstz.js',
