@@ -2,7 +2,27 @@
 
 angular.module('esn.header', [])
 
-  .directive('mainHeader', function($window, $rootScope, Fullscreen, SIDEBAR_EVENTS, sideBarService) {
+  .factory('mainHeaderService', function(dynamicDirectiveService) {
+
+    function changeDisplay(directive) {
+      dynamicDirectiveService.resetInjection('main-header-middle-content');
+      dynamicDirectiveService.addInjection('main-header-middle-content', directive);
+    }
+
+    return {
+      changeDisplay: changeDisplay
+    };
+  })
+
+  .directive('mainHeaderContent', function() {
+    return {
+      restrict: 'E',
+      template: '<span>OpenPaas</span>',
+      replace: true
+    };
+  })
+
+  .directive('mainHeader', function($rootScope, mainHeaderService, dynamicDirectiveService, Fullscreen, SIDEBAR_EVENTS, sideBarService) {
     return {
       restrict: 'E',
       replace: true,
@@ -40,6 +60,10 @@ angular.module('esn.header', [])
         scope.show = function() {
           element.find('#header').removeClass('hide-top');
         };
+
+        // This is the default directive for the mainHeader.
+        var mainHeaderMiddleContent = new dynamicDirectiveService.DynamicDirective(function() {return true;}, 'main-header-content');
+        mainHeaderService.changeDisplay(mainHeaderMiddleContent);
       }
     };
   });

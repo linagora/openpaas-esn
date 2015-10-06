@@ -61,7 +61,9 @@ angular.module('esnApp', [
   'esn.attendee',
   'materialAdmin',
   'angular-nicescroll',
-  'xeditable'
+  'xeditable',
+  'op.dynamicDirective'
+>>>>>>> OR-1819 add dynamic-directive support for the mainHeader
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {
