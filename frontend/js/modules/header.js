@@ -2,7 +2,7 @@
 
 angular.module('esn.header', [])
 
-  .directive('esnHeader', function($window, $rootScope, Fullscreen, SIDEBAR_EVENTS, sideBarService) {
+  .directive('mainHeader', function($window, $rootScope, Fullscreen, SIDEBAR_EVENTS, sideBarService) {
     return {
       restrict: 'E',
       replace: true,
