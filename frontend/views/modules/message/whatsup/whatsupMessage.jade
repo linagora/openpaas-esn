@@ -1,9 +1,9 @@
 div
-  a.pull-left(ng-href='#/profile/{{message.author._id}}')
-    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  a.pull-left(ng-href='#/profile/{{::message.author._id}}')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
   div.media-body
     h4.media-heading
-      a(href="#/profile/{{message.author._id}}") {{message.author.firstname}} {{message.author.lastname}}
+      a(ng-href="#/profile/{{::message.author._id}}") {{message.author.firstname}} {{message.author.lastname}}
       small
         | &nbsp;-&nbsp;
         a(href="/#messages/{{message._id}}")
