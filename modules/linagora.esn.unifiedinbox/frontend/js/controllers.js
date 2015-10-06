@@ -16,12 +16,18 @@ angular.module('linagora.esn.unifiedinbox')
       $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
     });
   })
-  .controller('viewEmailController', function($scope, $route, $location, jmapClient, MAILBOX_ROLES) {
+  .controller('viewEmailController', function($scope, $route, $location, jmapClient, jmap, notificationFactory) {
     $scope.mailbox = $route.current.params.mailbox;
     $scope.emailId = $route.current.params.emailId;
 
     $scope.moveToTrash = function() {
-      $location.path('/unifiedinbox/' + $scope.mailbox);
+      $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH)
+        .then(function() {
+          notificationFactory.weakSuccess('Successfully moved message to trash', '');
+          $location.path('/unifiedinbox/' + $scope.mailbox);
+        }, function(err) {
+          notificationFactory.weakError('Failed to move message to trash', err.message || err);
+        });
     };
 
     jmapClient.getMessages({

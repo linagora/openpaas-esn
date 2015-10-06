@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module controllers', function() {
 
-  var $route, $rootScope, $location, scope, $controller, jmapClient;
+  var $route, $rootScope, $location, scope, $controller, jmapClient, jmap, notificationFactory;
 
   beforeEach(function() {
     $route = {
@@ -17,20 +17,27 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         }
       }
     };
+    notificationFactory = {
+      weakSuccess: function() {},
+      weakError: function() {}
+    };
 
     angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
+    angular.mock.module('esn.notification');
 
     module('linagora.esn.unifiedinbox', function($provide) {
       $provide.value('jmapClient', jmapClient = {});
       $provide.value('$route', $route);
       $provide.value('$location', $location = {});
+      $provide.value('notificationFactory', notificationFactory);
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
+    jmap = _jmap_;
 
     scope = $rootScope.$new();
   }));
@@ -86,7 +93,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
-  describe('viewEmailController', function() {
+  describe('The viewEmailController', function() {
 
     it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
       jmapClient.getMessages = function() { return $q.when(); };
@@ -126,8 +133,31 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The moveToTrash fn', function() {
 
-      it('should update location to the parent mailbox', function(done) {
-        jmapClient.getMessages = function() { return $q.when(); };
+      it('should call $scope.email.moveToMailboxWithRole with the "trash" role', function(done) {
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            moveToMailboxWithRole: function(role) {
+              expect(role).to.equal(jmap.MailboxRole.TRASH);
+
+              done();
+            }
+          }]);
+        };
+
+        initController('viewEmailController');
+        $rootScope.$digest();
+
+        scope.moveToTrash();
+      });
+
+      it('should update location to the parent mailbox when the message was successfully moved', function(done) {
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            moveToMailboxWithRole: function() {
+              return $q.when();
+            }
+          }]);
+        };
         $location.path = function(path) {
           expect(path).to.equal('/unifiedinbox/chosenMailbox');
 
@@ -135,8 +165,44 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
 
         initController('viewEmailController');
+        $rootScope.$digest();
 
         scope.moveToTrash();
+        $rootScope.$digest();
+      });
+
+      it('should notify weakSuccess when the message was successfully moved', function(done) {
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            moveToMailboxWithRole: function() {
+              return $q.when();
+            }
+          }]);
+        };
+        notificationFactory.weakSuccess = function() { done(); };
+
+        initController('viewEmailController');
+        $rootScope.$digest();
+
+        scope.moveToTrash();
+        $rootScope.$digest();
+      });
+
+      it('should notify weakError when the message cannot be moved', function(done) {
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            moveToMailboxWithRole: function() {
+              return $q.reject('Fail');
+            }
+          }]);
+        };
+        notificationFactory.weakError = function() { done(); };
+
+        initController('viewEmailController');
+        $rootScope.$digest();
+
+        scope.moveToTrash();
+        $rootScope.$digest();
       });
 
     });
