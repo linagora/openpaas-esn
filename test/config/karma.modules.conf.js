@@ -59,6 +59,7 @@ module.exports = function(config) {
       'frontend/components/remarkable-bootstrap-notify/bootstrap-notify.min.js',
       'frontend/components/char-api/lib/charAPI.js',
       'frontend/components/jmap-client/dist/jmap-client.js',
+      'frontend/components/dynamic-directive/dist/dynamic-directive.min.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',

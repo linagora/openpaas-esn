@@ -76,7 +76,8 @@
     "angular-fullscreen": "~1.0.1",
     "char-api": "https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "angular-nicescroll": "0.0.5",
-    "jmap-client": "0.0.3"
+    "jmap-client": "0.0.3",
+    "dynamic-directive": "1.0.0"
   },
   "resolutions": {
     "jquery": "2.1.1",
