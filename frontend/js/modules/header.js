@@ -2,15 +2,60 @@
 
 angular.module('esn.header', [])
 
-  .factory('mainHeaderService', function(dynamicDirectiveService) {
+  .constant('MAIN_HEADER', 'main-header-middle-content')
 
-    function changeDisplay(directive) {
-      dynamicDirectiveService.resetInjection('main-header-middle-content');
-      dynamicDirectiveService.addInjection('main-header-middle-content', directive);
+  .constant('SUB_HEADER', 'sub-header-content')
+
+  .constant('SUB_HEADER_HAS_INJECTION_EVENT', 'sub-header:hasInjection')
+
+  .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
+
+    function buildDynamicDirective(directiveName, scope) {
+      return new dynamicDirectiveService.DynamicDirective(true, directiveName, scope);
+    }
+
+    function changeMainHeaderDisplay(directiveName) {
+      var directive = buildDynamicDirective(directiveName);
+      dynamicDirectiveService.addInjection(MAIN_HEADER, directive);
+    }
+
+    function hasSubHeaderGotInjections() {
+      return dynamicDirectiveService.getInjections(SUB_HEADER, {}).length > 0;
+    }
+
+    function hasMainHeaderGotInjections() {
+      return dynamicDirectiveService.getInjections(MAIN_HEADER, {}).length > 0;
+    }
+
+    function changeSubHeaderDisplay(directiveName, scope) {
+      var directive = buildDynamicDirective(directiveName, scope);
+      dynamicDirectiveService.addInjection(SUB_HEADER, directive);
+      $rootScope.$broadcast(SUB_HEADER_HAS_INJECTION_EVENT, hasSubHeaderGotInjections());
+    }
+
+    function resetMainHeaderInjection() {
+      dynamicDirectiveService.resetInjections(MAIN_HEADER);
+    }
+
+    function resetSubHeaderInjection() {
+      dynamicDirectiveService.resetInjections(SUB_HEADER);
     }
 
     return {
-      changeDisplay: changeDisplay
+      mainHeader: {
+        addInjection: changeMainHeaderDisplay,
+        resetInjections: resetMainHeaderInjection,
+        hasInjections: hasMainHeaderGotInjections
+      },
+      subHeader: {
+        addInjection: changeSubHeaderDisplay,
+        resetInjections: resetSubHeaderInjection,
+        hasInjections: hasSubHeaderGotInjections
+      },
+      resetAllInjections: function() {
+        resetMainHeaderInjection();
+        resetSubHeaderInjection();
+      }
     };
   })
 
@@ -22,7 +67,7 @@ angular.module('esn.header', [])
     };
   })
 
-  .directive('mainHeader', function($rootScope, mainHeaderService, dynamicDirectiveService, Fullscreen, SIDEBAR_EVENTS, sideBarService) {
+  .directive('mainHeader', function($rootScope, headerService, dynamicDirectiveService, Fullscreen, SIDEBAR_EVENTS, SUB_HEADER_HAS_INJECTION_EVENT, sideBarService) {
     return {
       restrict: 'E',
       replace: true,
@@ -61,9 +106,11 @@ angular.module('esn.header', [])
           element.find('#header').removeClass('hide-top');
         };
 
-        // This is the default directive for the mainHeader.
-        var mainHeaderMiddleContent = new dynamicDirectiveService.DynamicDirective(function() {return true;}, 'main-header-content');
-        mainHeaderService.changeDisplay(mainHeaderMiddleContent);
+        scope.hasSubHeaderGotInjections = headerService.subHeader.hasInjections();
+
+        scope.$on(SUB_HEADER_HAS_INJECTION_EVENT, function(event, hasInjection) {
+          scope.hasSubHeaderGotInjections = hasInjection;
+        });
       }
     };
   });

@@ -16,5 +16,7 @@ div
         li.hover-scale-animation.toggle-fullscreen(device-detector)
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
+    .visible-xs
+      #sub-header.flex-vertical-centered(ng-if='hasSubHeaderGotInjections', dynamic-directive='sub-header-content')
   sidebar
   api-notification
