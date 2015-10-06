@@ -36,4 +36,34 @@ angular.module('esn.scroll', [])
         });
       }
     };
+  })
+  .directive('scrollListener', function() {
+    function link(scope) {
+      if (scope.disabled) {
+        return;
+      }
+      var position = $(window).scrollTop();
+      var toggled = false;
+      $(window).scroll(function(event) {
+        var scroll = $(window).scrollTop();
+        if (scroll > position && !toggled) {
+          toggled = true;
+          scope.onScrollDown();
+        } else if (scroll < position && toggled) {
+          toggled = false;
+          scope.onScrollUp();
+        }
+        position = scroll;
+      });
+    }
+
+    return {
+      restrict: 'A',
+      scope: {
+        onScrollDown: '=',
+        onScrollUp: '=',
+        disabled: '=?'
+      },
+      link: link
+    };
   });
