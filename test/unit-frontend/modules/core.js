@@ -187,4 +187,41 @@ describe('The Angular core module', function() {
       });
     });
   });
+
+  describe('The clickOutside directive', function() {
+
+    beforeEach(function() {
+      angular.mock.module('esn.core');
+    });
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$document_) {
+      this.$rootScope = _$rootScope_;
+      this.$scope = this.$rootScope.$new();
+      this.$compile = _$compile_;
+      this.$document = _$document_;
+    }));
+
+    it('should call the action when user clicks outside of the element', function(done) {
+      this.$scope.callMe = function() {
+        done();
+      };
+      var element = this.$compile('<div><div click-outside="callMe()"><span>Hello</span></div></div>')(this.$scope);
+      var body = this.$document.find('body').eq(0);
+      body.append(element);
+      this.$scope.$digest();
+      element.click();
+    });
+
+    it('should not call the action when user clicks inside of the element', function(done) {
+      this.$scope.callMe = function() {
+        done(new Error());
+      };
+      var element = this.$compile('<div><div click-outside="callMe()"><span class="findme">Hello</span></div></div>')(this.$scope);
+      this.$scope.$digest();
+      var body = this.$document.find('body').eq(0);
+      body.append(element);
+      element.find('.findme').click();
+      done();
+    });
+  });
 });

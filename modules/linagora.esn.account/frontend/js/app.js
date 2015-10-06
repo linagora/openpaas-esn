@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('linagora.esn.account', ['restangular', 'op.dynamicDirective'])
+angular.module('linagora.esn.account', ['restangular', 'op.dynamicDirective', 'esn.core'])
   .config(function($routeProvider, routeResolver) {
   $routeProvider.when('/accounts', {
     templateUrl: '/account/views/accounts',
