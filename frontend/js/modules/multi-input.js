@@ -59,7 +59,7 @@ angular.module('esn.multi-input', [])
 
     $scope.$watch('content', _updateTypes);
 
-    $scope.content = [];
+    $scope.content = $scope.content || [];
     $scope.newItem = {};
   })
   .directive('resetableInput', function($timeout) {
