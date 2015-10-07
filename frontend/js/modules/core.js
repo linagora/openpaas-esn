@@ -169,9 +169,9 @@ angular.module('esn.core', [])
       scope: {
         clickOutside: '&'
       },
-      link: function(scope, el) {
-        $document.on('click', function(e) {
-          if (el !== e.target && !el[0].contains(e.target)) {
+      link: function(scope, element) {
+        $document.on('click', function(event) {
+          if (element !== event.target && !element[0].contains(event.target)) {
             scope.$apply(function() {
               scope.$eval(scope.clickOutside);
             });

@@ -34,33 +34,33 @@ angular.module('esn.ui', ['op.dynamicDirective'])
       scope: {
         anchor: '@'
       },
-      link: function($scope, $element) {
+      link: function($scope, element) {
 
         function getModal() {
-          return angular.element($element[0].querySelector('.fab-modal-dropup'));
+          return angular.element(element[0].querySelector('.fab-modal-dropup'));
         }
 
         $scope.hide = function() {
-          var e = getModal();
-          if (!e) {
+          var modalElement = getModal();
+          if (!modalElement) {
             return;
           }
 
-          if (e.hasClass('active')) {
-            e.removeClass('active');
+          if (modalElement.hasClass('active')) {
+            modalElement.removeClass('active');
           }
         };
 
         $scope.onClick = function() {
-          var e = getModal();
-          if (!e) {
+          var modalElement = getModal();
+          if (!modalElement) {
             return;
           }
 
-          if (e.hasClass('active')) {
-            e.removeClass('active');
+          if (modalElement.hasClass('active')) {
+            modalElement.removeClass('active');
           } else {
-            e.addClass('active');
+            modalElement.addClass('active');
           }
         };
       }
