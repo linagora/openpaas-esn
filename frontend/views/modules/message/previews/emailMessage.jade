@@ -1,9 +1,9 @@
 div
-  a.pull-left(href='#')
+  a.pull-left(ng-href='#/profile/{{::message.author._id}}')
     img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
   div
     h4.media-heading
-      a(href="#") {{::message.author.firstname}} {{::message.author.lastname}} #{__('has shared an email')}
+      a(ng-href='#/profile/{{::message.author._id}}') {{::message.author.firstname}} {{::message.author.lastname}} #{__('has shared an email')}
       a(ng-href="/#messages/{{::message._id}}/activitystreams/{{::activitystreamUuid}}")
         small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
 

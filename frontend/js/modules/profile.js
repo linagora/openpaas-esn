@@ -1,13 +1,16 @@
 'use strict';
 
-angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn.user', 'esn.session'])
-  .directive('profileDisplay', function() {
+angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.session'])
+  .directive('profileDisplay', function(session) {
     return {
       restrict: 'E',
       scope: {
         user: '='
       },
-      templateUrl: '/views/modules/profile/profile.html'
+      templateUrl: '/views/modules/profile/profile.html',
+      link: function($scope) {
+        $scope.me = session.user._id === $scope.user._id;
+      }
     };
   })
 
@@ -44,9 +47,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
     };
   })
 
-  .controller('profileEditionController', function($scope, profileAPI, editableOptions) {
-    //theming for yes/no buttons in field modification confirmation
-    editableOptions.theme = 'bs3';
+  .controller('profileEditionController', function($scope, profileAPI) {
     var maxNameLength = 100;
 
     $scope.running = {
@@ -147,14 +148,16 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
     };
   })
 
-  .controller('profilecontroller', function($scope, userAPI) {
-    userAPI.currentUser().then(function(response) {
-      $scope.user = response.data;
-    });
+  .controller('profileViewController', function($scope, session, user) {
+    $scope.user = user;
   })
+
   .controller('avatarController', function($rootScope, $scope, $timeout) {
 
     $scope.getURL = function() {
+      if ($scope.user) {
+        return '/api/users/' + $scope.user._id + '/profile/avatar?cb=' + Date.now();
+      }
       return '/api/user/profile/avatar?cb=' + Date.now();
     };
 

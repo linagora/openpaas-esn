@@ -1,7 +1,7 @@
 .timeline-view(data-tv-type="text" ng-class="{'timeline-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
   .tv-header.media
-    a.tvh-user.pull-left(href='#')
-      img.img-responsive(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+    a.tvh-user.pull-left(ng-href='#/profile/{{::message.author._id}}')
+      img.img-responsive(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
     .media-body.p-t-5
       i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
       strong {{message.author.firstname}} {{message.author.lastname}}

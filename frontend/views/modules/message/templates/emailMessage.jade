@@ -1,9 +1,9 @@
 div(ng-class="{'timeline-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
-  a.pull-left(href='#')
-    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  a.pull-left(ng-href='#/profile/{{::message.author._id}}')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
   div.esn-email
     h4.media-heading
-      a(href="#") {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
+      a(ng-href='#/profile/{{::message.author._id}}') {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
       message-date-link(message='message', activitystream='activitystream')
     activity-stream-origin(ng-if='parentMessage', streams='streams', message='message', activitystream='streamable')
     div.email-message

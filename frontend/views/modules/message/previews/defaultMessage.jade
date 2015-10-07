@@ -1,10 +1,10 @@
 div.media
-  a.media-left.pull-left(href='#')
+  a.media-left.pull-left(ng-href='#/profile/{{::message.author._id}}')
     img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
   div.media-body
     div
       h4.media-heading
-        a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
+        a(ng-href='#/profile/{{::message.author._id}}') {{::message.author.firstname}} {{::message.author.lastname}}
         a(ng-href="/#messages/{{::message._id}}/activitystreams/{{::activitystreamUuid}}")
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
     message-attachments(message='message')
