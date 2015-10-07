@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
    * Restreamer breaks the stream and send the body as a whole so we don't use it
    * to get the list of every events.
    */
-  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, restreamer(), proxy.handle({json: true}));
+  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, restreamer(), middleware.removeContentLength, proxy.handle({json: true}));
 
   return router;
 };

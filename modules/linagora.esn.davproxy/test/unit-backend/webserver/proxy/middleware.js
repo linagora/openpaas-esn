@@ -6,6 +6,7 @@ var expect = chai.expect;
 describe('The proxy middleware', function() {
 
   var deps, dependencies;
+  var modulePath = '../../../../backend/webserver/proxy/middleware';
 
   beforeEach(function() {
     dependencies = {
@@ -32,7 +33,18 @@ describe('The proxy middleware', function() {
         };
       };
 
-      require('../../../../backend/webserver/proxy/middleware')(deps).generateNewToken(req);
+      require(modulePath)(deps).generateNewToken(req);
+    });
+  });
+
+  describe('The removeContentLength function', function() {
+
+    it('should remove content-length if headers exists', function(done) {
+      var req = { headers: { 'content-length': 12345, 'content-type': 'application/json' } };
+      require(modulePath)(deps).removeContentLength(req, {}, function() {
+        expect(req.headers).to.deep.equal({ 'content-type': 'application/json' });
+        done();
+      });
     });
   });
 });
