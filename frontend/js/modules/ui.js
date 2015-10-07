@@ -46,9 +46,7 @@ angular.module('esn.ui', ['op.dynamicDirective'])
             return;
           }
 
-          if (modalElement.hasClass('active')) {
-            modalElement.removeClass('active');
-          }
+          modalElement.removeClass('active');
         };
 
         $scope.onClick = function() {
@@ -56,12 +54,7 @@ angular.module('esn.ui', ['op.dynamicDirective'])
           if (!modalElement) {
             return;
           }
-
-          if (modalElement.hasClass('active')) {
-            modalElement.removeClass('active');
-          } else {
-            modalElement.addClass('active');
-          }
+          modalElement.toggleClass('active');
         };
       }
     };
