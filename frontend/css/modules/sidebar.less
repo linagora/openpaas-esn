@@ -1,6 +1,6 @@
 
 .aside#contextual-sidebar {
-  width: 80%;
+  width: 268px;
   top: 65px;
 
   .aside-body {
@@ -9,7 +9,9 @@
 }
 
 #sidebar {
-  z-index: 9;
+  z-index: 11;
+  top: 0;
+  height: 100%;
   .profile-menu {
     & > a {
       background: transparent url("../../../images/sidebar.png") no-repeat scroll left top / 100% auto;
@@ -80,5 +82,12 @@
         }
       }
     }
+  }
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) {
+  #sidebar {
+    top: 65px;
   }
 }
