@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-describe('The User model', function() {
+describe.only('The User model', function() {
   var User, Domain, email, email2, email_ci, email2_ci, helpers, userFixtures, domainFixtures;
 
   beforeEach(function(done) {
@@ -271,6 +271,39 @@ describe('The User model', function() {
       preferredEmailIndex: -1
     });
     u.save(helpers.callbacks.error(done));
+  });
+
+  it('should not fail when emails array is empty', function(done) {
+    var u = userFixtures.newDummyUser([email, email2]);
+
+    u.accounts.push({
+      type: 'email',
+      emails: [],
+      preferredEmailIndex: 3
+    });
+    u.save(helpers.callbacks.noError(done));
+  });
+
+  it('should not fail when emails array is undefined', function(done) {
+    var u = userFixtures.newDummyUser([email, email2]);
+
+    u.accounts.push({
+      type: 'email',
+      preferredEmailIndex: 1
+    });
+    u.save(helpers.callbacks.noError(done));
+  });
+
+  it('should be able to add oauth account data', function(done) {
+    var u = userFixtures.newDummyUser([email, email2]);
+
+    u.accounts.push({
+      type: 'oauth',
+      data: {
+        provider: 'twitter'
+      }
+    });
+    u.save(helpers.callbacks.noError(done));
   });
 
   it('should validate that preferredEmailIndex is < emails.length', function(done) {
