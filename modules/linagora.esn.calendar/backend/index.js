@@ -67,7 +67,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-form/filters.js',
         'event-message/directives.js',
         'event-quick-form/directives.js',
-        'event-full-form/directives.js'
+        'event-full-form/directives.js',
+        'event-full-form/controllers.js'
       ];
       webserverWrapper.injectAngularModules('calendar', jsFiles, ['esn.calendar', 'esn.ical'], ['esn']);
       var lessFile = path.resolve(__dirname, '../frontend/css/styles.less');

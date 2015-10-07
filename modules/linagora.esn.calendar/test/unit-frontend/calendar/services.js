@@ -218,7 +218,7 @@ describe('The calendar module services', function() {
   });
 
   describe('The eventService service', function() {
-    var element, fcTitle, fcContent, event;
+    var element, fcTitle, fcContent, event, calendarService;
 
     function Element() {
       this.innerElements = {};
@@ -260,11 +260,13 @@ describe('The calendar module services', function() {
           company_name: 'test'
         }
       };
+      calendarService = {};
 
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
         $provide.value('session', asSession);
+        $provide.value('calendarService', calendarService);
       });
 
       var vcalendar = {};
@@ -284,8 +286,9 @@ describe('The calendar module services', function() {
       element.innerElements['.fc-title'] = fcTitle;
     });
 
-    beforeEach(angular.mock.inject(function(eventService) {
+    beforeEach(angular.mock.inject(function(eventService, $rootScope) {
       this.eventService = eventService;
+      this.$rootScope = $rootScope;
     }));
 
     describe('render function', function() {
@@ -442,6 +445,55 @@ describe('The calendar module services', function() {
           end: moment('2015-01-01 10:00:00')
         };
         expect(this.eventService.isMajorModification(newEvent, oldEvent)).to.be.false;
+      });
+    });
+
+    describe('isNew function', function() {
+      it('should return true if event.id is undefined', function() {
+        expect(this.eventService.isNew({})).to.be.true;
+      });
+
+      it('should return false if event.id is defined', function() {
+        expect(this.eventService.isNew({id: '123'})).to.be.false;
+      });
+    });
+
+    describe('getEditedEvent function', function() {
+      it('should return a promise of editedEvent var if it is new', function(done) {
+        var event = {allDay: false};
+        this.eventService.setEditedEvent(event);
+        this.eventService.getEditedEvent().then(function(e) {
+          expect(e).to.deep.equal(event);
+          done();
+        }, done);
+        this.$rootScope.$apply();
+      });
+
+      it('should return a promise of editedEvent var if it is not a recurrent event', function(done) {
+        var event = {id: '123'};
+        this.eventService.setEditedEvent(event);
+        this.eventService.getEditedEvent().then(function(e) {
+          expect(e).to.deep.equal(event);
+          done();
+        }, done);
+        this.$rootScope.$apply();
+      });
+
+      it('should return calendarService.getEvent if editedEvent var is a recurrent event', function(done) {
+        var event = {id: '123', isInstance: true, path: '/calendars/event'};
+        this.eventService.setEditedEvent(event);
+
+        var eventFromServer = {id: 'anEvent'};
+        calendarService.getEvent = function(path) {
+          expect(path).to.equal(event.path);
+          return $q.when(eventFromServer);
+        };
+
+        this.eventService.getEditedEvent().then(function(e) {
+          expect(e).to.deep.equal(eventFromServer);
+          done();
+        }, done);
+        this.$rootScope.$apply();
       });
     });
   });

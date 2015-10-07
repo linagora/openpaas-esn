@@ -40,13 +40,14 @@ angular.module('esn.calendar')
         $scope.createModal.hide();
       };
 
-      $scope.isNew = controller.isNew;
+      $scope.isNew = eventService.isNew;
       $scope.deleteEvent = controller.deleteEvent;
-      $scope.submit = controller.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      $scope.submit = eventService.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       $scope.changeParticipation = controller.changeParticipation;
       $scope.canPerformCall = controller.canPerformCall;
 
       $scope.goToFullForm = function() {
+        eventService.setEditedEvent($scope.editedEvent);
         $scope.closeModal();
         $location.path('/calendar/event-full-form');
       };

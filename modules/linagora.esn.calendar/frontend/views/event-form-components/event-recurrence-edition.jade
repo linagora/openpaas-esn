@@ -36,7 +36,7 @@
               i.input-helper
               | #{__('Never')}
             label.radio.radio-inline
-              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil();")
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil();", ng-checked="event.recur.count")
               i.input-helper
               .input-group
                 span.input-group-addon #{__('After')}
@@ -44,7 +44,7 @@
                   input.input-sm.form-control(type="number", ng-model="event.recur.count", ng-focus="selectEndRadioButton(1)")
                 span.input-group-addon.last #{__('occurrences')}
             label.radio.radio-inline
-              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetCount();")
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetCount();", ng-checked="event.recur.until")
               i.input-helper
               .input-group
                 span.input-group-addon #{__('At')}

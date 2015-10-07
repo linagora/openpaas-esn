@@ -588,7 +588,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventService', function(session, ICAL) {
+  .service('eventService', function(session, ICAL, $q, calendarService) {
     var originalEvent = {};
     var editedEvent = {};
 
@@ -661,6 +661,10 @@ angular.module('esn.calendar')
       }
     }
 
+    function isNew(event) {
+      return angular.isUndefined(event.id);
+    }
+
     function isOrganizer(event) {
       var organizerMail = event && event.organizer && (event.organizer.email || event.organizer.emails[0]);
       return !organizerMail || (organizerMail in session.user.emailMap);
@@ -670,13 +674,27 @@ angular.module('esn.calendar')
       return !newEvent.start.isSame(oldEvent.start) || !newEvent.end.isSame(oldEvent.end);
     }
 
+    function setEditedEvent(event) {
+      editedEvent = event;
+    }
+
+    function getEditedEvent() {
+      if (!isNew(editedEvent) && editedEvent.isInstance) {
+        return calendarService.getEvent(editedEvent.path);
+      }
+      return $q.when(editedEvent);
+    }
+
     return {
       originalEvent: originalEvent,
       editedEvent: editedEvent,
       render: render,
       copyEventObject: copyEventObject,
+      isNew: isNew,
       isOrganizer: isOrganizer,
-      isMajorModification: isMajorModification
+      isMajorModification: isMajorModification,
+      getEditedEvent: getEditedEvent,
+      setEditedEvent: setEditedEvent
     };
 
   })
