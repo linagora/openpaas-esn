@@ -32,12 +32,12 @@ angular.module('linagora.esn.account')
       link: link
     };
   })
-  .run(function(dynamicDirectiveService, fabAnchorPoint) {
+  .run(function(dynamicDirectiveService, FAB_ANCHOR_POINT) {
     var directive = new dynamicDirectiveService.DynamicDirective(
       function($scope) {
         return true;
       },
       'twitter-account-menu-item'
     );
-    dynamicDirectiveService.addInjection(fabAnchorPoint, directive);
+    dynamicDirectiveService.addInjection(FAB_ANCHOR_POINT, directive);
   });
