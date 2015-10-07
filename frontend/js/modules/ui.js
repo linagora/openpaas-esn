@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.ui', [])
+angular.module('esn.ui', ['op.dynamicDirective'])
 
   .constant('DEFAULT_FAB_TYPE', 'mdi-content-create')
 
@@ -22,6 +22,46 @@ angular.module('esn.ui', [])
 
         $scope.fabAction = function() {
           $scope.onClick();
+        };
+      }
+    };
+  })
+
+  .directive('dynamicFabDropup', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/ui/dynamic-fab-dropup.html',
+      scope: {
+        anchor: '@'
+      },
+      link: function($scope, $element) {
+
+        function getModal() {
+          return angular.element($element[0].querySelector('.fab-modal-dropup'));
+        }
+
+        $scope.hide = function() {
+          var e = getModal();
+          if (!e) {
+            return;
+          }
+
+          if (e.hasClass('active')) {
+            e.removeClass('active');
+          }
+        };
+
+        $scope.onClick = function() {
+          var e = getModal();
+          if (!e) {
+            return;
+          }
+
+          if (e.hasClass('active')) {
+            e.removeClass('active');
+          } else {
+            e.addClass('active');
+          }
         };
       }
     };
