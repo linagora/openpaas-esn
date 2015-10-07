@@ -37,7 +37,7 @@ angular.module('esn.ui', ['op.dynamicDirective'])
       link: function($scope, element) {
 
         function getModal() {
-          return angular.element(element[0].querySelector('.fab-modal-dropup'));
+          return element.find('.fab-modal-dropup');
         }
 
         $scope.hide = function() {
