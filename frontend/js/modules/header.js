@@ -71,7 +71,7 @@ angular.module('esn.header', [])
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/esn/partials/header.html',
+      templateUrl: '/views/modules/header/header.html',
       link: function(scope, element, attrs) {
 
         function open() {

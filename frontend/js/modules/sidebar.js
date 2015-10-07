@@ -112,7 +112,7 @@ angular.module('esn.sidebar', [])
       restrict: 'E',
       link: link,
       replace: true,
-      templateUrl: '/views/esn/partials/sidebar.html'
+      templateUrl: '/views/modules/sidebar/sidebar.html'
     };
   })
 
