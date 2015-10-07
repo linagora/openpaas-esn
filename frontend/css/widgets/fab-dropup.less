@@ -10,17 +10,15 @@
   box-shadow: 0 2px 10px rgba(0,0,0,.1);
   transition: .4s ease-out;
 
-  // These line does the magic.
   transform: translateY(30px);
   -webkit-clip-path: circle(0% at 87% 87%);
   clip-path: circle(0 at 87% 87%);
 
   &.active {
     opacity: 1;
-    // These line does the magic.
     transform: translateY(0);
-    -webkit-clip-path: circle(200%  at 87% 87%);
-    clip-path: circle(200%  at 87% 87%);
+    -webkit-clip-path: circle(200% at 87% 87%);
+    clip-path: circle(200% at 87% 87%);
   }
 
   ul {
