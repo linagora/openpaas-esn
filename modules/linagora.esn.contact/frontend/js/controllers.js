@@ -219,20 +219,16 @@ angular.module('linagora.esn.contact')
       $scope.searchFailure = true;
     }
 
-    function loadPageComplete(spin) {
-      return function() {
-        $scope.loadingNextContacts = false;
-        if (spin) {
-          usSpinnerService.stop(SPINNER);
-        }
-      };
+    function loadPageComplete() {
+      $scope.loadingNextContacts = false;
+      usSpinnerService.stop(SPINNER);
     }
 
     $scope.search = function() {
       $scope.$emit(SCROLL_EVENTS.RESET_SCROLL);
       cleanSearchResults();
+      cleanCategories();
       if (!$scope.searchInput) {
-        cleanCategories();
         $scope.currentPage = 0;
         $scope.nextPage = 0;
         return $scope.loadContacts();
@@ -242,41 +238,27 @@ angular.module('linagora.esn.contact')
       $scope.searchFailure = false;
       $scope.loadingNextContacts = true;
       $scope.lastPage = false;
-      contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
-        cleanCategories();
-        setSearchResults(data);
-        addItemsToCategories(data.hits_list);
-        $scope.currentPage = data.current_page;
-        $scope.totalHits = $scope.totalHits + data.hits_list.length;
-        if ($scope.totalHits === data.total_hits) {
-          $scope.lastPage = true;
-        }
-      }, searchFailure
-      ).finally (loadPageComplete(false));
+      getSearchResults();
     };
 
-    function getNextResults(spin) {
-      $log.debug('Load next contacts, page', $scope.currentPage);
-      if (spin) {
-        usSpinnerService.spin(SPINNER);
-      }
-
+    function getSearchResults() {
+      $log.debug('Searching contacts, page', $scope.currentPage);
+      usSpinnerService.spin(SPINNER);
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.currentPage).then(function(data) {
-        $scope.currentPage = data.current_page;
-        addItemsToCategories(data.hits_list);
-        $scope.totalHits = $scope.totalHits + data.hits_list.length;
-        if ($scope.totalHits === data.total_hits) {
-          $scope.lastPage = true;
-        }
-      }, searchFailure
-      ).finally (loadPageComplete(spin));
+          setSearchResults(data);
+          $scope.currentPage = data.current_page;
+          addItemsToCategories(data.hits_list);
+          $scope.totalHits = $scope.totalHits + data.hits_list.length;
+          if ($scope.totalHits === data.total_hits) {
+            $scope.lastPage = true;
+          }
+        }, searchFailure
+      ).finally (loadPageComplete);
     }
 
-    function getNextContacts(spin) {
+    function getNextContacts() {
       $log.debug('Load next contacts, page', $scope.currentPage);
-      if (spin) {
-        usSpinnerService.spin(SPINNER);
-      }
+      usSpinnerService.spin(SPINNER);
 
       contactsService.list($scope.bookId, $scope.user._id, {page: $scope.nextPage || $scope.currentPage, cache: true, paginate: true}).then(function(data) {
         addItemsToCategories(data.contacts);
@@ -285,7 +267,7 @@ angular.module('linagora.esn.contact')
       }, function(err) {
         $log.error('Can not get contacts', err);
         displayContactError('Can not get contacts');
-      }).finally (loadPageComplete(spin));
+      }).finally (loadPageComplete);
     }
 
     function updateScrollState() {
@@ -303,21 +285,11 @@ angular.module('linagora.esn.contact')
     }
 
     function scrollSearchHandler() {
-      updateScrollState().then(function() {
-        getNextResults(true);
-      }, ongoingScroll);
-    }
-
-    function scrollContactsHandler() {
-      updateScrollState().then(function() {
-        getNextContacts(true);
-      }, ongoingScroll);
+      updateScrollState().then(getSearchResults, ongoingScroll);
     }
 
     $scope.loadContacts = function() {
-      updateScrollState().then(function() {
-        getNextContacts(false);
-      }, ongoingScroll);
+      updateScrollState().then(getNextContacts, ongoingScroll);
     };
 
     $scope.scrollHandler = function() {
@@ -325,7 +297,7 @@ angular.module('linagora.esn.contact')
       if ($scope.searchInput) {
         return scrollSearchHandler();
       }
-      scrollContactsHandler();
+      $scope.loadContacts();
     };
 
     if ($location.search().q) {

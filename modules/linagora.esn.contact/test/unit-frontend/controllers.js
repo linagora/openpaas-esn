@@ -1084,6 +1084,54 @@ describe('The Contacts Angular module', function() {
         $rootScope.$digest();
       });
 
+      it('should spin the throbber when loading contacts', function() {
+        var user = {_id: 123};
+        var usSpinnerService = {
+          spin: sinon.spy()
+        };
+        var contactsService = {
+          list: function() {
+            return $q.when({});
+          }
+        };
+        scope.currentPage = 1;
+
+        $controller('contactsListController', {
+          $scope: scope,
+          usSpinnerService: usSpinnerService,
+          contactsService: contactsService,
+          user: user
+        });
+        scope.loadContacts();
+        $rootScope.$digest();
+        expect(usSpinnerService.spin).to.have.been.called;
+      });
+
+      it('should stop the throbber when contacts are loaded', function() {
+        var user = {_id: 123};
+        var usSpinnerService = {
+          spin: function() {
+          },
+          stop: sinon.spy()
+        };
+        var contactsService = {
+          list: function() {
+            return $q.when({});
+          }
+        };
+        scope.currentPage = 1;
+
+        $controller('contactsListController', {
+          $scope: scope,
+          usSpinnerService: usSpinnerService,
+          contactsService: contactsService,
+          user: user
+        });
+        scope.loadContacts();
+        $rootScope.$digest();
+        expect(usSpinnerService.stop).to.have.been.called;
+      });
+
       it('should display error when contactsService.list fails', function(done) {
         var user = {_id: 123};
         var defer = $q.defer();
@@ -1137,6 +1185,68 @@ describe('The Contacts Angular module', function() {
     });
 
     describe('The search function', function() {
+
+      it('should spin the throbber when searching contacts', function() {
+        var user = {_id: 123};
+        var usSpinnerService = {
+          spin: sinon.spy()
+        };
+        var locationService = {
+          search: function() {
+            return {
+              q: 'a'
+            };
+          }
+        };
+        var contactsService = {
+          search: function() {
+            return $q.when({hits_list: []});
+          }
+        };
+
+        $controller('contactsListController', {
+          $scope: scope,
+          usSpinnerService: usSpinnerService,
+          contactsService: contactsService,
+          $location: locationService,
+          user: user
+        });
+        scope.search();
+        $rootScope.$digest();
+        expect(usSpinnerService.spin).to.have.been.called;
+      });
+
+      it('should stop the throbber when finished searching contacts', function() {
+        var user = {_id: 123};
+        var usSpinnerService = {
+          spin: function() {},
+          stop: sinon.spy()
+        };
+        var locationService = {
+          search: function() {
+            return {
+              q: 'a'
+            };
+          }
+        };
+        var contactsService = {
+          search: function() {
+            return $q.when({hits_list: []});
+          }
+        };
+
+        $controller('contactsListController', {
+          $scope: scope,
+          usSpinnerService: usSpinnerService,
+          contactsService: contactsService,
+          $location: locationService,
+          user: user
+        });
+        scope.search();
+        $rootScope.$digest();
+        expect(usSpinnerService.stop).to.have.been.called;
+      });
+
       it('should clean previous search results', function() {
         $controller('contactsListController', {
           $scope: scope,
