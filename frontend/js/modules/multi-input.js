@@ -3,7 +3,10 @@
 angular.module('esn.multi-input', [])
 .controller('MultiInputGroupController', function($scope) {
     function _updateTypes() {
-      $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
+      if ($scope.types) {
+        $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
+      }
+
     }
 
     this.acceptNew = function() {
@@ -124,6 +127,10 @@ angular.module('esn.multi-input', [])
         scope.deleteField = function(index) {
           controller.acceptRemove(index);
           controller.initFlags();
+        };
+
+        scope.isMultiTypeField = function() {
+          return !!(scope.types && scope.types.length > 0);
         };
       }
     };
