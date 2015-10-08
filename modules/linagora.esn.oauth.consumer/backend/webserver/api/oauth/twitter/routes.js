@@ -8,7 +8,10 @@ module.exports = function(router, dependencies) {
 
   router.get('/twitter/connect',
     authorizationMW.requiresAPILogin,
-    passport.authorize('twitter-authz', { failureRedirect: '/#/accounts' }));
+    passport.authorize('twitter-authz', {
+      failureRedirect: '/#/accounts',
+      callbackURL: '/oauth/twitter/connect/callback'
+    }));
 
   router.get('/twitter/connect/callback',
     authorizationMW.requiresAPILogin,

@@ -46,7 +46,6 @@ module.exports = function(dependencies) {
       passport.use('twitter-authz', new TwitterStrategy({
           consumerKey: oauth.twitter.consumer_key,
           consumerSecret: oauth.twitter.consumer_secret,
-          callbackURL: 'http://localhost:8080/oauth/twitter/connect/callback',
           passReqToCallback: true
         },
         function(req, token, tokenSecret, profile, callback) {
