@@ -15,9 +15,6 @@
           | {{tel}}
 
 .lv-actions.actions
-  li
-    a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-      i.mdi.mdi-pencil
   li.dropdown
     a(href='', data-toggle='dropdown', aria-expanded='true')
       i.mdi.mdi-dots-vertical
@@ -26,8 +23,8 @@
         a(ng-href="") Send Message
       li.visible-xs
         a(ng-href="") Call
-      li.visible-xs
-        a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
+      li
+        a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') Modify
       li
         a(ng-click="deleteContact()") Delete
 
