@@ -161,4 +161,22 @@ angular.module('esn.core', [])
     return {
       isValidEmail: isValidEmail
     };
+  })
+
+  .directive('clickOutside', function($document) {
+    return {
+      restrict: 'A',
+      scope: {
+        clickOutside: '&'
+      },
+      link: function(scope, element) {
+        $document.on('click', function(event) {
+          if (element !== event.target && !element[0].contains(event.target)) {
+            scope.$apply(function() {
+              scope.$eval(scope.clickOutside);
+            });
+          }
+        });
+      }
+    };
   });

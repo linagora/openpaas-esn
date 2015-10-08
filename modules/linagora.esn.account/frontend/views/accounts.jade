@@ -1,2 +1,13 @@
-div
-  span {{::accounts | json}}
+.accounts.col-xs-12
+  .row.all-centered
+    .block-header.flex-space-between.flex-vertical-centered.flex-wrap
+      h2 #{__('Accounts')}
+      dynamic-fab-dropup(anchor='accounts-item-anchorpoint')
+  .vertiz-space
+  .row
+    .col-xs-12
+      .account-error-container
+  .vertiz-space
+  .row
+    .col-xs-12.col-md-6(ng-repeat='account in accounts')
+      account-card-displayer(account='account')

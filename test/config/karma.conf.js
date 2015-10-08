@@ -58,6 +58,7 @@ module.exports = function(config) {
       'frontend/components/remarkable-bootstrap-notify/bootstrap-notify.min.js',
       'frontend/components/angular-fullscreen/src/angular-fullscreen.js',
       'frontend/components/char-api/lib/charAPI.js',
+      'frontend/components/dynamic-directive/dist/dynamic-directive.min.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/**/*.jade',
