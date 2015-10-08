@@ -30,6 +30,8 @@ var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
       app.use('/', this.api.oauth);
 
       var webserverWrapper = dependencies('webserver-wrapper');
+      webserverWrapper.injectAngularModules('oauth', ['app.js', 'services.js', 'providers/twitter.js'], 'linagora.esn.oauth', ['esn']);
+      webserverWrapper.addApp('account', app);
       webserverWrapper.addApp('oauth', app);
 
       return callback();

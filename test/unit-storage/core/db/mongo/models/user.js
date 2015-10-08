@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-describe.only('The User model', function() {
+describe('The User model', function() {
   var User, Domain, email, email2, email_ci, email2_ci, helpers, userFixtures, domainFixtures;
 
   beforeEach(function(done) {
