@@ -40,11 +40,11 @@ function init(dependencies) {
   });
 
   pubsub.topic(CONTACT_UPDATED).subscribe(function(data) {
-    if (data && data.bookId && data.vcard) {
+    if (data && data.bookId && data.contactId) {
       logger.info('Notifying contact update');
       synchronizeContactLists('contact:updated', {
         bookId: data.bookId,
-        vcard: data.vcard
+        contactId: data.contactId
       });
     } else {
       logger.warn('Not well-formed data on', CONTACT_UPDATED, 'pubsub event');

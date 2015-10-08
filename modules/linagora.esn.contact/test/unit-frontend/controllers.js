@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
-      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, CONTACT_EVENTS;
+      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS;
 
   beforeEach(function() {
     usSpinnerService = {
@@ -29,7 +29,8 @@ describe('The Contacts Angular module', function() {
     };
     notificationFactory = {
       weakError: sinon.spy(),
-      weakInfo: sinon.spy()
+      weakInfo: sinon.spy(),
+      strongError: sinon.spy()
     };
     $location = {
       path: function() {},
@@ -66,8 +67,19 @@ describe('The Contacts Angular module', function() {
           then: function() {}
         };
       },
-      cancel: function() {}
+      cancel: function() {},
+      flush: function() {}
     };
+
+    gracePeriodLiveNotification = {
+      registerListeners: function() {}
+    };
+
+    $window = {
+      addEventListener: function() {}
+    };
+
+    contactUpdateDataService = { contact: null, taskId: null };
 
     angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
@@ -81,7 +93,10 @@ describe('The Contacts Angular module', function() {
       $provide.value('$route', $route);
       $provide.value('$alert', function(options) { $alert.alert(options); });
       $provide.value('gracePeriodService', gracePeriodService);
+      $provide.value('gracePeriodLiveNotification', gracePeriodLiveNotification);
+      $provide.value('contactUpdateDataService', contactUpdateDataService);
       $provide.value('usSpinnerService', usSpinnerService);
+      $provide.value('$window', $window);
     });
   });
 
@@ -414,6 +429,98 @@ describe('The Contacts Angular module', function() {
       scope.$digest();
     });
 
+    describe('Tests show contact during graceperiod task', function() {
+
+      it('should show the contact taken from contactUpdateDataService', function() {
+        contactUpdateDataService.contact = { id: 'myId' };
+        this.initController();
+        expect(scope.contact).to.eql(contactUpdateDataService.contact);
+      });
+
+      it('should clear contactUpdateDataService.contact when switch to other path', function() {
+        contactUpdateDataService.contact = { id: 'myId' };
+        this.initController();
+
+        scope.$emit('$routeChangeStart', {
+          originalPath: '/some/path/other/than/contact/edit'
+        });
+
+        scope.$digest();
+        expect(contactUpdateDataService.contact).to.be.null;
+      });
+
+      it('should update contactUpdateDataService.contact when ther user edits contact again', function() {
+        contactUpdateDataService.contact = { id: 'myId' };
+        this.initController();
+
+        scope.contact = { id: 'myOtherId' };
+        scope.bookId = '123';
+        scope.cardId = '456';
+
+        scope.$emit('$routeChangeStart', {
+          originalPath: '/contact/edit/:bookId/:cardId',
+          params: {
+            bookId: '123',
+            cardId: '456'
+          }
+        });
+
+        scope.$digest();
+        expect(contactUpdateDataService.contact).to.eql(scope.contact);
+      });
+
+      it('should flush the task when switch to other path', function(done) {
+        contactUpdateDataService.contact = { id: 'myId' };
+        contactUpdateDataService.taskId = 'a taskId';
+
+        gracePeriodService.flush = function(taskId) {
+          expect(taskId).to.equal('a taskId');
+          done();
+        };
+
+        this.initController();
+
+        scope.$emit('$routeChangeStart', {
+          originalPath: '/some/path/other/than/contact/edit'
+        });
+
+        scope.$digest();
+      });
+
+      it('should update contact on CONTACT_EVENTS.CANCEL_UPDATE event', function() {
+        contactUpdateDataService.contact = { id: 'myId', firstName: 'Bob' };
+        contactUpdateDataService.taskId = 'a taskId';
+
+        this.initController();
+        scope.cardId = 'myId';
+        var newContact = { id: 'myId', firstName: 'Alice' };
+        scope.$emit(CONTACT_EVENTS.CANCEL_UPDATE, newContact);
+
+        scope.$digest();
+
+        expect(scope.contact).to.eql(newContact);
+      });
+
+      it('should flush the task on beforeunload event', function(done) {
+        contactUpdateDataService.contact = { id: 'myId' };
+        contactUpdateDataService.taskId = 'a taskId';
+
+        gracePeriodService.flush = sinon.spy();
+        $window.addEventListener = function(evt, handler) {
+          expect(evt).to.equal('beforeunload');
+          handler();
+          expect(gracePeriodService.flush.calledWithExactly('a taskId')).to.be.true;
+          done();
+        };
+
+        this.initController();
+
+      });
+
+    });
+
+
+
     describe('The deleteContact function', function() {
 
       it('should go back to the list of contacts when called', function(done) {
@@ -507,36 +614,128 @@ describe('The Contacts Angular module', function() {
       this.initController = $controller.bind(null, 'editContactController', { $scope: scope});
     });
 
+    it('should take contact from contactUpdateDataService if there was a graceperiod', function() {
+      contactUpdateDataService.contact = { id: 'myId' };
+      contactsService.getCard = sinon.spy();
+      this.initController();
+      expect(scope.contact).to.eql({ id: 'myId' });
+      expect(contactUpdateDataService.contact).to.be.null;
+      expect(contactsService.getCard.callCount).to.equal(0);
+    });
+
     describe('The save function', function() {
 
         it('should call contactsService.modify with the right bookId and cardId', function(done) {
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
           contactsService.modify = function(id, contact) {
             expect(id).to.deep.equal(bookId);
             expect(contact).to.deep.equal(scope.contact);
             done();
           };
-
-          contactsService.getCard = function(path) {
-            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-          };
-
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
           this.initController();
+          // modify the contact the make modify fn called
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
           scope.save();
         });
 
-        it('should go back to contact visualization page if success', function(done) {
-          scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar', displayName: 'Foo Bar'};
+        it('should call gracePeriodService.grace with the right taskId', function(done) {
+          contactsService.modify = function() {
+            return $q.when('a taskId');
+          };
 
-          $location.path = function(path) {
-            expect(path).to.equal('/contact/show/' + scope.bookId + '/' + scope.cardId);
+          gracePeriodService.grace = function(taskId) {
+            expect(taskId).to.equal('a taskId');
+            done();
+          };
+
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          this.initController();
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+          scope.save();
+          scope.$digest();
+        });
+
+        it('should register graceperiod live notification with the right taskId', function(done) {
+          gracePeriodLiveNotification.registerListeners = function(taskId) {
+            expect(taskId).to.equal('a taskId');
             done();
           };
 
           contactsService.modify = function() {
-            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar', displayName: 'Foo Bar'});
+            return $q.when('a taskId');
           };
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
           this.initController();
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+          scope.save();
+          scope.$digest();
+        });
+
+        it('should save updated contact and taskId contactUpdateDataService', function() {
+          contactsService.modify = function() {
+            return $q.when('a taskId');
+          };
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          this.initController();
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+          expect(contactUpdateDataService.contact).to.be.null;
+          expect(contactUpdateDataService.taskId).to.be.null;
+
+          scope.save();
+          scope.$digest();
+
+          expect(contactUpdateDataService.contact).to.eql(scope.contact);
+          expect(contactUpdateDataService.taskId).to.eql('a taskId');
+        });
+
+        it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
+          contactsService.modify = function() {
+            return $q.when('a taskId');
+          };
+
+          gracePeriodService.grace = function() {
+            return $q.when({
+              cancelled: true,
+              success: function() {}
+            });
+          };
+
+          gracePeriodService.cancel = function() {
+            return $q.when();
+          };
+
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          this.initController();
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+          $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
+            done();
+          });
+
+          scope.save();
+          scope.$digest();
+        });
+
+        it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on task failure', function(done) {
+          contactsService.modify = function() {
+            return $q.when('a taskId');
+          };
+
+          gracePeriodLiveNotification.registerListeners = function(taskId, onError) {
+            expect(taskId).to.equal('a taskId');
+            onError();
+          };
+
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          this.initController();
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+          $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
+            done();
+          });
+
           scope.save();
           scope.$digest();
         });
@@ -548,9 +747,30 @@ describe('The Contacts Angular module', function() {
           contactsService.modify = function() {
             return $q.reject();
           };
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
           this.initController();
+          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
           scope.save();
           done();
+        });
+
+        it('should show the contact without calling modify fn when the contact is not modified', function(done) {
+
+          $location.path = function(url) {
+            expect(url).to.equal('/contact/show/123/xyz');
+            done();
+          };
+          contactsService.modify = function() {
+            done('Should not call this function');
+            return $q.reject();
+          };
+
+          this.initController();
+
+          scope.bookId = '123';
+          scope.cardId = 'xyz';
+
+          scope.save();
         });
 
     });

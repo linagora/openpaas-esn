@@ -252,7 +252,7 @@ describe('The addressbooks module', function() {
       getController().updateContact(req);
     });
 
-    it('should send back HTTP 500 if http client call fails', function(done) {
+    it('should send back HTTP 500 if http client call fails on creation', function(done) {
       mockery.registerMock('../proxy/http-client', function(options, callback) {
         return callback(new Error('You failed'));
       });
@@ -260,13 +260,13 @@ describe('The addressbooks module', function() {
       getController().updateContact(req, {
         json: function(code, json) {
           expect(code).to.equal(500);
-          expect(json.error.details).to.match(/Error while updating contact on DAV server/);
+          expect(json.error.details).to.match(/Error while creating contact on DAV server/);
           done();
         }
       });
     });
 
-    it('should send back client response status code and body', function(done) {
+    it('should send back client response status code and body on creation', function(done) {
       var statusCode = 200;
       var body = {foo: 'bar'};
 
@@ -284,40 +284,42 @@ describe('The addressbooks module', function() {
     });
 
     it('should publish a "contacts:contact:update" event if request is an update', function(done) {
-      var statusCode = 200;
-      req.user = {_id: 1};
-      req.body = {foo: 'bar'};
       req.headers = {
         'if-match': 123
       };
-      var called = false;
+      req.user = { _id: '111' };
+      req.params.contactId = req.params.cardId;
 
       dependencies.pubsub.local.topic = function(name) {
         expect(name).to.equal('contacts:contact:update');
         return {
           publish: function(data) {
-            called = true;
-            expect(data).to.deep.equal({
-              contactId: req.params.contactId,
+            expect(data).to.eql({
+              contactId: req.params.cardId,
               bookId: req.params.bookId,
-              vcard: req.body,
               user: req.user
             });
+            done();
           }
         };
       };
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, {statusCode: statusCode}, {});
+      mockery.registerMock('../proxy', function() {
+        return function() {
+          return {
+            handle: function(options) {
+              expect(options.onSuccess).to.be.a.function;
+              expect(options.onError).to.be.a.function;
+              expect(options.json).to.be.true;
+              options.onSuccess(null, null, req, null, function() {});
+              return function() {};
+            }
+          };
+        };
       });
 
       getController().updateContact(req, {
-        json: function() {
-          avatarHelper().injectTextAvatar(123, req.body).then(function(output) {
-            expect(called).to.be.true;
-            done();
-          });
-        }
+        json: function() {}
       });
     });
 

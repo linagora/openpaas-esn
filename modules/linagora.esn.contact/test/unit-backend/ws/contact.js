@@ -161,10 +161,7 @@ describe('The contact WS events module', function() {
       it('should send update event with contact info in websockets when receiving contacts:contact:update event from the pubsub', function(done) {
         var pubsubData = {
           bookId: '123',
-          contactId: '456',
-          vcard: {
-            firstname: 'prenom'
-          }
+          contactId: '456'
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
         this.contactNamespace = {
@@ -176,7 +173,7 @@ describe('The contact WS events module', function() {
                 expect(roomId).to.equal(pubsubData.bookId);
                 expect(data).to.deep.equals({
                   room: pubsubData.bookId,
-                  data: { bookId: pubsubData.bookId, vcard: pubsubData.vcard }
+                  data: { bookId: pubsubData.bookId, contactId: pubsubData.contactId }
                 });
                 done();
               }

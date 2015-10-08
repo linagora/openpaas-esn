@@ -329,7 +329,7 @@ describe('The Contacts Angular module', function() {
       injectService();
       var contact1 = { id: 1, firstName: '1' };
       var contact2 = { id: 2, firstName: '2' };
-      contactsCacheService.put([contact1]);
+      contactsCacheService.put([contact1, contact2]);
       $rootScope.$emit(CONTACT_EVENTS.CREATED, contact2);
       expect(contactsCacheService.get()).to.eql([contact1, contact2]);
     });
@@ -867,7 +867,7 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should fail if status is 201', function(done) {
-        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(201, contactAsJCard);
+        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000')).respond(201);
 
         this.contactsService.modify(1, contact).then(null, function(response) {
             expect(response.status).to.equal(201);
@@ -879,12 +879,12 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should succeed on 200', function(done) {
-        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(200, contactAsJCard, { 'ETag': 'changed-etag' });
+      it('should succeed on 202', function(done) {
+        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000')).respond(202, '', { 'X-ESN-TASK-ID': 'taskId' });
 
         this.contactsService.modify(1, contact).then(
-          function(shell) {
-            expect(shell).to.shallowDeepEqual(contactWithChangedETag);
+          function(taskId) {
+            expect(taskId).to.equal('taskId');
             done();
           });
 
@@ -893,12 +893,11 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should succeed on 204', function(done) {
-        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(204, '');
-        this.$httpBackend.expectGET(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(200, contactAsJCard, { 'ETag': 'changed-etag' });
+        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000')).respond(204, '', { 'X-ESN-TASK-ID': 'taskId' });
 
         this.contactsService.modify(1, contact).then(
-          function(shell) {
-            expect(shell).to.shallowDeepEqual(contactWithChangedETag);
+          function(taskId) {
+            expect(taskId).to.equal('taskId');
             done();
           });
 
@@ -914,7 +913,7 @@ describe('The Contacts Angular module', function() {
           'Accept': 'application/json, text/plain, */*'
         };
 
-        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf'), function() { return true; }, requestHeaders).respond(200, contactAsJCard);
+        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000'), function() { return true; }, requestHeaders).respond(202);
 
         contact.etag = 'etag';
         this.contactsService.modify(1, contact).then(function() { done(); });
@@ -923,17 +922,13 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should emit CONTACT_EVENTS.UPDATED event with updated contact on 200', function(done) {
-        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
-        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(200,
-          ['vcard', [
-            ['version', {}, 'text', '4.0'],
-            ['uid', {}, 'text', 'myuid']
-          ], []], { 'ETag': 'changed-etag' });
+      it('should emit CONTACT_EVENTS.UPDATED event with updated contact on 202', function(done) {
+        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000';
+        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(202);
 
         var spy = sinon.spy(this.$rootScope, '$emit');
-        this.$rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, contact) {
-          expect(contact.id).to.equal('myuid');
+        this.$rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, updatedContact) {
+          expect(updatedContact).to.eql(contact);
           expect(spy.calledOnce).to.be.true;
           done();
         });
@@ -945,17 +940,12 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should emit CONTACT_EVENTS.UPDATED event with updated contact on 204', function(done) {
-        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
-        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(204, '');
-        this.$httpBackend.expectGET(this.getExpectedPath(requestPath)).respond(200,
-          ['vcard', [
-            ['version', {}, 'text', '4.0'],
-            ['uid', {}, 'text', 'myuid']
-          ], []], { 'ETag': 'changed-etag' });
+        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000';
+        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(204);
 
         var spy = sinon.spy(this.$rootScope, '$emit');
-        this.$rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, contact) {
-          expect(contact.id).to.equal('myuid');
+        this.$rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, updatedContact) {
+          expect(updatedContact).to.eql(contact);
           expect(spy.calledOnce).to.be.true;
           done();
         });

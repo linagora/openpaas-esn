@@ -38,7 +38,7 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService) {
     $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
@@ -54,49 +54,116 @@ angular.module('linagora.esn.contact')
       }, 200);
     };
 
-    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
-      $scope.contact = card;
+    if (contactUpdateDataService.contact) {
+      $scope.contact = contactUpdateDataService.contact;
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
-    }, function(err) {
-      $log.debug('Error while loading contact', err);
-      $scope.error = true;
-      displayContactError('Cannot get contact details');
-    }).finally (function() {
+
+      $scope.$on('$routeChangeStart', function(evt, next, current) {
+        gracePeriodService.flush(contactUpdateDataService.taskId);
+        // check if the user edit the contact again
+        if (next && next.originalPath && next.params &&
+            next.originalPath === '/contact/edit/:bookId/:cardId' &&
+            next.params.bookId === $scope.bookId &&
+            next.params.cardId === $scope.cardId) {
+          // cache the contact to show in editContactController
+          contactUpdateDataService.contact = $scope.contact;
+        } else {
+          contactUpdateDataService.contact = null;
+        }
+      });
+
+      $scope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function(evt, data) {
+        if (data.id === $scope.cardId) {
+          $scope.contact = data;
+        }
+      });
+
+      $window.addEventListener('beforeunload', function() {
+        gracePeriodService.flush(contactUpdateDataService.taskId);
+      });
+
       $scope.loaded = true;
-    });
+    } else {
+      contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
+        $scope.contact = card;
+        $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
+      }, function(err) {
+        $log.debug('Error while loading contact', err);
+        $scope.error = true;
+        displayContactError('Cannot get contact details');
+      }).finally (function() {
+        $scope.loaded = true;
+      });
+    }
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, $log) {
     $scope.loaded = false;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
+    $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
 
-    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
-      $scope.contact = card;
-      $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
-    }, function() {
-      $scope.error = true;
-      displayContactError('Cannot get contact details');
-    }).finally (function() {
+    function isContactModified() {
+      return JSON.stringify(oldContact) !== JSON.stringify($scope.contact);
+    }
+
+    var oldContact = {};
+    if (contactUpdateDataService.contact) {
+      $scope.contact = contactUpdateDataService.contact;
+      contactUpdateDataService.contact = null;
+      oldContact = angular.copy($scope.contact);
       $scope.loaded = true;
-    });
+    } else {
+      contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
+        $scope.contact = card;
+        oldContact = angular.copy(card);
+      }, function() {
+        $scope.error = true;
+        displayContactError('Cannot get contact details');
+      }).finally (function() {
+        $scope.loaded = true;
+      });
+    }
 
     $scope.close = function() {
       $location.path('/contact/show/' + $scope.bookId + '/' + $scope.cardId);
     };
 
     $scope.save = function() {
+      if (!isContactModified()) {
+        return $scope.close();
+      }
       return sendContactToBackend($scope, function() {
-        return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
-          $scope.contact = contact;
-          return contact;
-        }, function(err) {
+        return contactsService.modify($scope.bookId, $scope.contact).then(function(taskId) {
+          contactUpdateDataService.contact = $scope.contact;
+          contactUpdateDataService.taskId = taskId;
+
+          gracePeriodLiveNotification.registerListeners(
+            taskId, function() {
+              notificationFactory.strongError('', 'Failed to update contact, please try again later');
+              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, oldContact);
+            }
+          );
+
+          $scope.close();
+
+          return gracePeriodService.grace(taskId, 'You have just updated a contact.', 'Cancel')
+            .then(function(data) {
+              if (data.cancelled) {
+                return gracePeriodService.cancel(taskId).then(function() {
+                  data.success();
+                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, oldContact);
+                }, function(err) {
+                  data.error('Cannot cancel contact update');
+                });
+              } else {
+                gracePeriodService.remove(taskId);
+              }
+          });
         });
-      }).then(function() {
-        $location.path('/contact/show/' + $scope.bookId + '/' + $scope.cardId);
-      }, function(err) {
-        displayContactError(err);
+      }).then(null, function(err) {
+        displayContactError('The contact cannot be edited, please retry later');
         return $q.reject(err);
       });
     };

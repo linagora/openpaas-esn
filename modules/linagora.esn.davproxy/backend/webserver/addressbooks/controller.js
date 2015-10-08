@@ -80,18 +80,36 @@ module.exports = function(dependencies) {
     // Delete it to avoid issule relating to contentLength while sending request
     delete headers['content-length'];
 
-    client({method: 'PUT', body: req.body, headers: headers, url: getURL(req), json: true}, function(err, response, body) {
-      if (err) {
-        logger.error('Error while updating contact on DAV', err);
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while updating contact on DAV server'}});
-      }
+    if (create) {
+      client({method: 'PUT', body: req.body, headers: headers, url: getURL(req), json: true}, function(err, response, body) {
+        if (err) {
+          logger.error('Error while creating contact on DAV', err);
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while creating contact on DAV server'}});
+        }
 
-      avatarHelper.injectTextAvatar(req.params.bookId, req.body).then(function(newBody) {
-        pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: newBody, user: req.user});
+        avatarHelper.injectTextAvatar(req.params.bookId, req.body).then(function(newBody) {
+          pubsub.topic('contacts:contact:add').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: newBody, user: req.user});
+        });
+
+        return res.json(response.statusCode, body);
       });
+    } else {
+      return proxy.handle({
+        onError: function(response, data, req, res, callback) {
+          logger.error('Error while updating contact', req.params.contactId);
+          return callback(null, data);
+        },
 
-      return res.json(response.statusCode, body);
-    });
+        onSuccess: function(response, data, req, res, callback) {
+          logger.debug('Success while updating contact %s', req.params.contactId);
+          pubsub.topic('contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, user: req.user});
+
+          return callback(null, data);
+        },
+        json: true
+      })(req, res);
+    }
+
   }
 
   function deleteContact(req, res) {
