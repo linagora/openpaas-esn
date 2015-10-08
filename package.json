@@ -60,6 +60,7 @@
     "passport-http-bearer": "~1.0.1",
     "passport-ldaplng": "0.2.0",
     "passport-local": "^1.0.0",
+    "passport-twitter": "1.0.3",
     "passport-oauth2-client-password": "~0.1.1",
     "q": "~1.0.0",
     "randomstring": "~1.0.3",
