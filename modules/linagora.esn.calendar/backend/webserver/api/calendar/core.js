@@ -189,7 +189,6 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
     });
     return deferred.promise;
   });
-
   return esnconfig('web').get(function(err, web) {
     if (err) {
       return q.reject(err).nodeify(callback);
@@ -201,7 +200,6 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
       var port = staticConfig.webserver.port || '8080';
       baseUrl += port;
     }
-
     return q.all(getAllUsersAttendees).then(function(users) {
       var from = { objectType: 'email', id: organizer.email || organizer.emails[0] };
       var event = jcal2content(ics, baseUrl);
@@ -257,6 +255,8 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
               return !!event.description;
             case 'folder-download.png':
               return !!event.files;
+            case 'check.png':
+              return !(event.allDay && event.durationInDays === 1);
             default:
               return true;
           }
