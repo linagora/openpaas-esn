@@ -3,10 +3,9 @@
 var chai = require('chai');
 chai.use(require('chai-datetime'));
 var expect = chai.expect;
-var mongodb = require('mongodb');
 
 describe('The domain model module', function() {
-  var Domain, User, emails;
+  var Domain, User, emails, userFixtures;
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
@@ -15,6 +14,7 @@ describe('The domain model module', function() {
     this.testEnv.writeDBConfigFile();
     Domain = this.mongoose.model('Domain');
     User = this.mongoose.model('User');
+    userFixtures = this.helpers.requireFixture('models/users.js')(User);
     emails = ['foo@linagora.com', 'bar@linagora.com'];
 
     this.mongoose.connect(this.testEnv.mongoUrl, done);
@@ -30,8 +30,7 @@ describe('The domain model module', function() {
     it('should be recorded in lowercase, without spaces', function(done) {
       var initialName = '  ThE DoMaIn  ';
       var finalName = 'the domain';
-      var mongoUrl = this.testEnv.mongoUrl;
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var u = userFixtures.newDummyUser(emails);
 
       function saveUser(callback) {
         u.save(function(err, savedUser) {
@@ -49,14 +48,11 @@ describe('The domain model module', function() {
       }
 
       function test(savedDomain) {
-        mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+        Domain.findOne({_id: savedDomain._id}, function(err, domain) {
           if (err) { return done(err); }
-          db.collection('domains').findOne({_id: savedDomain._id}, function(err, domain) {
-            if (err) { return done(err); }
-            expect(domain).to.be.not.null;
-            expect(domain.name).to.equal(finalName);
-            db.close(done);
-          });
+          expect(domain).to.be.not.null;
+          expect(domain.name).to.equal(finalName);
+          done();
         });
       }
 
@@ -77,8 +73,7 @@ describe('The domain model module', function() {
     it('should be recorded in lowercase, without spaces', function(done) {
       var initialName = '  ThE CoMpAnY  ';
       var finalName = 'the company';
-      var mongoUrl = this.testEnv.mongoUrl;
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var u = userFixtures.newDummyUser(emails);
 
       function saveUser(callback) {
         u.save(function(err, savedUser) {
@@ -96,14 +91,11 @@ describe('The domain model module', function() {
       }
 
       function test(savedDomain) {
-        mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+        Domain.findOne({_id: savedDomain._id}, function(err, domain) {
           if (err) { return done(err); }
-          db.collection('domains').findOne({_id: savedDomain._id}, function(err, domain) {
-            if (err) { return done(err); }
-            expect(domain).to.be.not.null;
-            expect(domain.company_name).to.equal(finalName);
-            db.close(done);
-          });
+          expect(domain).to.be.not.null;
+          expect(domain.company_name).to.equal(finalName);
+          done();
         });
       }
 
@@ -123,11 +115,11 @@ describe('The domain model module', function() {
   describe('testCompany static method', function() {
 
     it('should return an domain object where company=company_name', function(done) {
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var u = userFixtures.newDummyUser(emails);
 
       u.save(function(err, savedUser) {
         if (err) {
-          done(err);
+          return done(err);
         }
 
         var dom = {
@@ -139,7 +131,7 @@ describe('The domain model module', function() {
         var i = new Domain(dom);
         i.save(function(err, data) {
           if (err) {
-            done(err);
+            return done(err);
           }
 
           Domain.testCompany(data.company_name, function(err, domain) {
@@ -152,7 +144,7 @@ describe('The domain model module', function() {
     });
 
     it('should return an domain object where company=company_name case insensitive', function(done) {
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var u = userFixtures.newDummyUser(emails);
 
       u.save(function(err, savedUser) {
         if (err) { return done(err); }
@@ -188,7 +180,7 @@ describe('The domain model module', function() {
   describe('testDomainCompany static method', function() {
 
     it('should return an domain object where domain.company_name=company_name and domain.name=domain_name', function(done) {
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var u = userFixtures.newDummyUser(emails);
 
       u.save(function(err, savedUser) {
         if (err) {
@@ -217,7 +209,7 @@ describe('The domain model module', function() {
     });
 
     it('should return an domain object where domain.company_name=company_name and domain.name=domain_name, case insensitive', function(done) {
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var u = userFixtures.newDummyUser(emails);
 
       u.save(function(err, savedUser) {
         if (err) { return done(err); }

@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('linagora.esn.account')
-  .directive('twitterAccountMenuItem', function($window) {
+  .directive('twitterAccountMenuItem', function(oauthStrategyRegistry) {
     function link($scope) {
       $scope.openTwitter = function() {
-        $window.open('http://twitter.com');
+        oauthStrategyRegistry.get('twitter')();
       };
     }
     return {

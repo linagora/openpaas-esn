@@ -2,8 +2,6 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
-var mongodb = require('mongodb');
-
 
 describe('The addmember handler', function() {
 
@@ -114,6 +112,7 @@ describe('The addmember handler', function() {
     var User;
     var Domain;
     var Invitation;
+    var userFixtures;
 
     before(function() {
       this.testEnv.writeDBConfigFile();
@@ -130,6 +129,7 @@ describe('The addmember handler', function() {
       Domain = this.helpers.requireBackend('core/db/mongo/models/domain');
       User = this.helpers.requireBackend('core/db/mongo/models/user');
       Invitation = this.helpers.requireBackend('core/db/mongo/models/invitation');
+      userFixtures = this.helpers.requireFixture('models/users.js')(User);
 
       var template = this.helpers.requireBackend('core/templates');
       template.user.store(done);
@@ -215,7 +215,6 @@ describe('The addmember handler', function() {
 
 
     it('should create a user if invitation and form data are set', function(done) {
-      var mongoUrl = this.testEnv.mongoUrl;
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       var invitation = {
         type: 'test',
@@ -224,9 +223,8 @@ describe('The addmember handler', function() {
         }
       };
 
-      var emails = [];
-      emails.push('toto@foo.com');
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var emails = ['toto@foo.com'];
+      var u = userFixtures.newDummyUser(emails);
 
       u.save(function(err, savedUser) {
         if (err) {
@@ -269,21 +267,14 @@ describe('The addmember handler', function() {
               expect(result).to.exist;
               expect(result.status).to.equal(201);
 
-              mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+              User.findOne({_id: result.result.resources.user}, function(err, user) {
                 if (err) {
                   return done(err);
                 }
-                db.collection('users').findOne({_id: result.result.resources.user}, function(err, user) {
-                  if (err) {
-                    return done(err);
-                  }
-                  expect(user).to.exist;
-                  var isMember = new User(user).isMemberOfDomain(result.result.resources.domain);
-                  expect(isMember).to.be.true;
-                  db.close(function() {
-                    done();
-                  });
-                });
+                expect(user).to.exist;
+                var isMember = new User(user).isMemberOfDomain(result.result.resources.domain);
+                expect(isMember).to.be.true;
+                done();
               });
             });
           });

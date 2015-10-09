@@ -947,7 +947,7 @@ describe('The collaborations API', function() {
     });
   });
 
-  describe('GET /api/collaboartions/:objectType/:id/membership', function() {
+  describe('GET /api/collaborations/:objectType/:id/membership', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
       this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/community/123/membership', done);
@@ -984,7 +984,7 @@ describe('The collaborations API', function() {
           name: 'MyDomain',
           company_name: 'MyAwesomeCompany'
         };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+        var foouser = fixtures.newDummyUser(['foo@bar.com'], 'secret');
 
         async.series([
           function(callback) {

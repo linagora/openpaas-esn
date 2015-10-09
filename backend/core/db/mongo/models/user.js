@@ -13,7 +13,7 @@ function validateEmail(email) {
 
 function validateEmails(emails) {
   if (!emails || !emails.length) {
-    return false;
+    return true;
   }
   var valid = true;
   emails.forEach(function(email) {
@@ -24,20 +24,34 @@ function validateEmails(emails) {
   return valid;
 }
 
+function hasEmail(accounts) {
+  return accounts.some(function(account) {
+    return account.emails.some(function(email) {
+      return !!email;
+    });
+  });
+}
+
+function validateAccounts(accounts) {
+  return accounts && accounts.length;
+}
+
 var UserAccountSchema = new mongoose.Schema({
   _id: false,
-  type: { type: String, enum: ['email'] },
+  type: { type: String, enum: ['email', 'oauth'] },
   hosted: { type: Boolean, default: false },
   emails: { type: [String], unique: true, validate: validateEmails },
   preferredEmailIndex: { type: Number, default: 0 },
+  timestamps: {
+    creation: {type: Date, default: Date.now}
+  },
   data: { type: Mixed }
 });
 
 UserAccountSchema.pre('validate', function(next) {
-  if (this.preferredEmailIndex < 0 || this.preferredEmailIndex >= this.emails.length) {
+  if (this.emails.length && (this.preferredEmailIndex < 0 || this.preferredEmailIndex >= this.emails.length)) {
     return next(new Error('The preferredEmailIndex field must be a valid index of the emails array.'));
   }
-
   next();
 });
 
@@ -69,7 +83,7 @@ var UserSchema = new mongoose.Schema({
   schemaVersion: {type: Number, default: 2},
   avatars: [ObjectId],
   currentAvatar: ObjectId,
-  accounts: [UserAccountSchema]
+  accounts: {type: [UserAccountSchema], required: true, validate: validateAccounts}
 });
 
 UserSchema.virtual('preferredEmail').get(function() {
@@ -107,6 +121,10 @@ UserSchema.pre('save', function(next) {
       return trim(email).toLowerCase();
     });
   });
+
+  if (!hasEmail(user.accounts)) {
+    return next(new Error('User must have at least one email'));
+  }
 
   if (!user.isModified('password')) {
     return next();

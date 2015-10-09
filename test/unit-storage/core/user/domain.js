@@ -37,13 +37,13 @@ describe('The user domain module', function() {
 
     it('should return users which belong to the given domain when calling getUsersList', function(done) {
       var User = this.helpers.requireBackend('core/db/mongo/models/user');
-
+      var userFixtures = this.helpers.requireFixture('models/users.js')(User);
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         if (err) { return done(err); }
 
-        var userWithoutDomain = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
+        var userWithoutDomain = userFixtures.newDummyUser(['foo@bar.com']);
         userWithoutDomain.save(function(err) {
           if (err) { done(err); }
 
