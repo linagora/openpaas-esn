@@ -31,6 +31,22 @@ describe('The User model', function() {
     }));
   });
 
+  it('should fail when user does not have email in accounts', function(done) {
+    userFixtures.newDummyUser([]).save(helpers.callbacks.errorWithMessage(done, 'User must have at least one email'));
+  });
+
+  it('should fail when user has empty accounts', function(done) {
+    var user = userFixtures.newDummyUser();
+    user.accounts = [];
+    user.save(helpers.callbacks.errorWithMessage(done, 'Validation failed'));
+  });
+
+  it('should fail when user has undefined accounts', function(done) {
+    var user = userFixtures.newDummyUser();
+    user.accounts = null;
+    user.save(helpers.callbacks.errorWithMessage(done, 'Validation failed'));
+  });
+
   it('should load the user from email', function(done) {
     userFixtures.newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function() {
         User.loadFromEmail(email, helpers.callbacks.noErrorAndData(done));
@@ -315,19 +331,6 @@ describe('The User model', function() {
       preferredEmailIndex: 2
     });
     u.save(helpers.callbacks.error(done));
-  });
-
-  it('should set preferredEmail to null when user has no accounts', function(done) {
-    var user = userFixtures.newDummyUser();
-
-    user.accounts = [];
-    user.save(helpers.callbacks.noErrorAnd(function(savedUser) {
-      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
-        expect(user.preferredEmail).to.equal(null);
-
-        done();
-      }));
-    }));
   });
 
   it('should set preferredEmail to the preferred email of the first hosted email account', function(done) {

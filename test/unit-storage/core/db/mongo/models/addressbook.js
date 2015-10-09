@@ -4,15 +4,15 @@ var expect = require('chai').expect;
 var mongodb = require('mongodb');
 
 describe('The AddressBook model', function() {
-  var AddressBook, ABName, User;
+  var AddressBook, ABName, User, userFixtures;
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
     this.helpers.requireBackend('core/db/mongo/models/addressbook');
     this.helpers.requireBackend('core/db/mongo/models/user');
-
     AddressBook = this.mongoose.model('AddressBook');
     User = this.mongoose.model('User');
+    userFixtures = this.helpers.requireFixture('models/users.js')(User);
     ABName = 'Professional';
 
     this.mongoose.connect(this.testEnv.mongoUrl, done);
@@ -36,10 +36,9 @@ describe('The AddressBook model', function() {
       });
     }
 
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.net']});
-    u.save(function(err, savedUser) {
+    userFixtures.newDummyUser(['foo@bar.net']).save(function(err, savedUser) {
       if (err) {
-        done(err);
+        return done(err);
       }
       var ab = new AddressBook({name: ABName, creator: savedUser._id});
 

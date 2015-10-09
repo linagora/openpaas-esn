@@ -188,8 +188,7 @@ describe('The communities API', function() {
         company_name: 'open-paas.org',
         administrator: user._id
       };
-
-      var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+      var user2 = fixtures.newDummyUser(['user2@linagora.com'], 'pwd');
       var title = 'C1';
 
       async.series([
@@ -469,7 +468,7 @@ describe('The communities API', function() {
         name: 'MyDomain',
         company_name: 'MyAwesomeCompany'
       };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+      var foouser = fixtures.newDummyUser(['foo@bar.com'], 'secret');
 
       async.series([
         function(callback) {
@@ -513,7 +512,7 @@ describe('The communities API', function() {
         name: 'MyDomain',
         company_name: 'MyAwesomeCompany'
       };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+      var foouser = fixtures.newDummyUser(['foo@bar.com'], 'secret');
 
       async.series([
         function(callback) {

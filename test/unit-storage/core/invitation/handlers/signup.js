@@ -143,6 +143,7 @@ describe('The signup handler', function() {
     var User;
     var Domain;
     var Invitation;
+    var userFixtures;
 
     before(function() {
       this.testEnv.writeDBConfigFile();
@@ -159,6 +160,7 @@ describe('The signup handler', function() {
       Domain = this.helpers.requireBackend('core/db/mongo/models/domain');
       User = this.helpers.requireBackend('core/db/mongo/models/user');
       Invitation = this.helpers.requireBackend('core/db/mongo/models/invitation');
+      userFixtures = this.helpers.requireFixture('models/users.js')(User);
 
       var template = this.helpers.requireBackend('core/templates');
       template.user.store(done);
@@ -187,10 +189,8 @@ describe('The signup handler', function() {
 
     it('should send back error when domain / company exist', function(done) {
       var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
-      var emails = [];
-
-      emails.push('toto@foo.com');
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+      var emails = ['toto@foo.com'];
+      var u = userFixtures.newDummyUser(emails);
 
       u.save(function(err, savedUser) {
         if (err) {
