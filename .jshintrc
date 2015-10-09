@@ -8,7 +8,7 @@
   "immed": true,
   "indent": 2,
   "latedef": true,
-  "newcap": true,
+  "newcap": false,
   "noarg": true,
   "quotmark": "single",
   "regexp": true,
@@ -36,4 +36,3 @@
     "it": false
   }
 }
-
