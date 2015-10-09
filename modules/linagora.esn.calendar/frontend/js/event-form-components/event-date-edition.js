@@ -116,11 +116,17 @@ angular.module('esn.calendar')
   .directive('dateToMoment', function(FCMoment) {
     function link(scope, element, attrs, controller) {
       function ensureFCMomentToModel(value) {
+        if (scope.event.allDay) {
+          return FCMoment(value).stripTime();
+        }
         return FCMoment(value);
       }
 
       /**
-       * Ensure that we only are using FCMoment type of date in hour code
+       * Ensure that we only are using FCMoment type of date in our code.
+       * It only strip the time if we are dealing with an allday event,
+       * because angular-strap date-picker only send back a datetime date format
+       * like "Sun Oct 11 2015 02:00:00 GMT+0200 (CEST)"
        */
       controller.$parsers.unshift(ensureFCMomentToModel);
     }
