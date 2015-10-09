@@ -2,9 +2,11 @@
   .card-body
     .flex-start
       .p-10.flex-noshrink
-        a(href='')
+        a(target='_blank' ng-href='https://twitter.com/{{::account.data.username}}')
           .card-image
-            img(ng-src='{{::account.photo || "/images/activitystream.png"}}')
+            .mdi.mdi-twitter
       .p-t-10.p-r-10.account-info
         div
-          strong {{::account.provider}}
+          h3 {{::account.data.display_name}}
+          a(target='_blank' ng-href='https://twitter.com/{{::account.data.username}}') @{{::account.data.username}}
+
