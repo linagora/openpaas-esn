@@ -11,8 +11,8 @@ angular.module('linagora.esn.account')
 
   .factory('accountService', function(AccountRestangular) {
 
-    function getAccounts() {
-      return AccountRestangular.all('accounts').getList();
+    function getAccounts(options) {
+      return AccountRestangular.all('accounts').getList(options);
     }
 
     return {

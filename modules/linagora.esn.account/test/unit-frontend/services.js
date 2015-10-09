@@ -22,6 +22,14 @@ describe('The Account Angular Services', function() {
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
+
+      it('should call GET /account/api/accounts?type=:type', function() {
+        var options = {type: 'oauth'};
+        this.$httpBackend.expectGET('/account/api/accounts?type=oauth').respond([]);
+        this.accountService.getAccounts(options);
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
     });
   });
 });
