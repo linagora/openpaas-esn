@@ -7,17 +7,18 @@ angular.module('esn.calendar')
       scope.dateOnBlur = scope.dateOnBlur || function() {};
       scope.allDayOnChange = scope.allDayOnChange || function() {};
 
-      // The first time the directive is loaded, we need to know if we will have to reset date
-      // to default value. This reset should also be done only the first time we are clicking the allday checkbox.
-      // After that start and end will be computed depending on scope.event.diff.
-      var resetDate = scope.event.allDay;
-
-      scope.resetToDefaultDate = function() {
-        if (resetDate) {
-          scope.event.start = calendarUtils.getNewStartDate();
-          scope.event.end = calendarUtils.getNewEndDate();
-          resetDate = false;
+      scope.setEventDates = function() {
+        if (scope.event.allDay) {
+          scope.event.start.stripTime();
+          scope.event.end.stripTime();
+        } else {
+          var nextHour = FCMoment().endOf('hour').add(1, 'seconds');
+          // We need to set back the utc flag to false here.
+          // See Ambiguously-timed Moments http://fullcalendar.io/docs/utilities/Moment/
+          scope.event.start.time(nextHour.time()).local();
+          scope.event.end.time(nextHour.time()).local();
         }
+        scope.$broadcast('event-date-edition:allday:changed');
       };
 
       scope.getMinDate = function() {
@@ -86,9 +87,6 @@ angular.module('esn.calendar')
         if (scope.event.allDay) {
           return FCMoment(value).add(1, 'days');
         }
-        // value here is a correct FCMoment but created into fullcalendar.
-        // We create a new instance to return an object from our own FCMoment
-        // factory.
         return FCMoment(value);
       }
 
@@ -104,6 +102,21 @@ angular.module('esn.calendar')
        * caldav has exclusive date/time end date.
        */
       ngModel.$parsers.push(addOneDayToModel);
+
+      scope.$on('event-date-edition:allday:changed', function() {
+        if (!scope.event.allDay) {
+          scope.event.end.subtract(1, 'days');
+          // We get back default 1 hour event
+          if (scope.event.start.isSame(scope.event.end, 'day')) {
+            scope.event.end.add(1, 'hours');
+          }
+        } else {
+          scope.event.end.add(1, 'days');
+        }
+        // Recalculate diff because end have changed outside the scope of
+        // onEndDateChange
+        scope.event.diff = scope.event.end.diff(scope.event.start);
+      });
     }
 
     return {
