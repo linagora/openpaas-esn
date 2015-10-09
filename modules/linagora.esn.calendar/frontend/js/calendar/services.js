@@ -92,7 +92,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY) {
+  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -118,8 +118,8 @@ angular.module('esn.calendar')
       this.description = vevent.getFirstPropertyValue('description');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
       this.isInstance = !!vevent.getFirstProperty('recurrence-id');
-      this.start = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
-      this.end = moment(vevent.getFirstPropertyValue('dtend').toJSDate());
+      this.start = FCMoment(vevent.getFirstPropertyValue('dtstart').toJSDate());
+      this.end = FCMoment(vevent.getFirstPropertyValue('dtend').toJSDate());
       this.formattedDate = this.start.format('MMMM D, YYYY');
       this.formattedStartTime = this.start.format('h');
       this.formattedStartA = this.start.format('a');
@@ -266,8 +266,8 @@ angular.module('esn.calendar')
     function list(calendarPath, start, end, timezone) {
       var req = {
         match: {
-          start: moment(start).format('YYYYMMDD[T]HHmmss'),
-          end: moment(end).format('YYYYMMDD[T]HHmmss')
+          start: FCMoment(start).format('YYYYMMDD[T]HHmmss'),
+          end: FCMoment(end).format('YYYYMMDD[T]HHmmss')
         }
       };
 
@@ -648,7 +648,7 @@ angular.module('esn.calendar')
 
   })
 
-  .service('calendarUtils', function(moment) {
+  .service('calendarUtils', function(FCMoment) {
     /**
      * Prepend a mail with 'mailto:'
      * @param {String} mail
@@ -684,14 +684,14 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Return a moment representing (the next hour) starting from Date.now()
+     * Return a FCMoment representing (the next hour) starting from Date.now()
      */
     function getNewStartDate() {
-      return moment().endOf('hour').add(1, 'seconds');
+      return FCMoment().endOf('hour').add(1, 'seconds');
     }
 
     /**
-     * Return a moment representing (the next hour + 1 hour) starting from Date.now()
+     * Return a FCMoment representing (the next hour + 1 hour) starting from Date.now()
      */
     function getNewEndDate() {
       return getNewStartDate().add(1, 'hours');
@@ -714,7 +714,7 @@ angular.module('esn.calendar')
     function getDateOnCalendarSelect(start, end) {
       if (end.diff(start, 'minutes') === 30) {
         var newStart = start.startOf('hour');
-        var newEnd = moment(newStart).add(1, 'hours');
+        var newEnd = FCMoment(newStart).add(1, 'hours');
         return { start: newStart, end: newEnd };
       } else {
         return { start: start, end: end };
