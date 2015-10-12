@@ -14,22 +14,14 @@ angular.module('linagora.esn.account')
       link: link
     };
   })
-  .directive('twitterAccountCard', function($window) {
-
-    function link($scope) {
-      $scope.open = function() {
-        $window.open('http://twitter.com');
-      };
-    }
-
+  .directive('twitterAccount', function() {
     return {
       replace: true,
       restrict: 'E',
       scope: {
         account: '='
       },
-      templateUrl: '/account/views/providers/twitter/card.html',
-      link: link
+      templateUrl: '/account/views/providers/twitter/account.html'
     };
   })
   .run(function(dynamicDirectiveService, FAB_ANCHOR_POINT) {
