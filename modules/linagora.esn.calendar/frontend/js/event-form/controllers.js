@@ -86,6 +86,11 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.createEvent(path, $scope.editedEvent, { graceperiod: true })
+        .then(function(response) {
+          if (response) {
+            notificationFactory.weakInfo('Calendar - ', event.title + ' has been created.');
+          }
+        })
         .catch(function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
@@ -101,6 +106,11 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
+        .then(function(response) {
+          if (response) {
+            notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been deleted.');
+          }
+        })
         .catch(function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
@@ -129,7 +139,7 @@ angular.module('esn.calendar')
         icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
         icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
         icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
-        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
+        _displayNotification(notificationFactory.weakInfo, 'Calendar - ', icalPartStatToReadableStatus[status]);
       }, function(err) {
         _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally(function() {
@@ -163,6 +173,11 @@ angular.module('esn.calendar')
       _hideModal();
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.isMajorModification($scope.editedEvent, $scope.event))
+        .then(function(response) {
+          if (response) {
+            notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');
+          }
+        })
         .catch(function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })

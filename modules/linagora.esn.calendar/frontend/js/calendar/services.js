@@ -332,7 +332,7 @@ angular.module('esn.calendar')
       .then(function(data) {
         var task = data;
         if (task.cancelled) {
-          gracePeriodService.cancel(taskId).then(function() {
+          return gracePeriodService.cancel(taskId).then(function() {
             if (oldEvent) {
               calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
             } else {
@@ -340,8 +340,10 @@ angular.module('esn.calendar')
               onCancel();
             }
             task.success();
+            return $q.when(false);
           }, function(err) {
             task.error(err.statusText);
+            return $q.when(false);
           });
         } else {
           return getEvent(path).then(function(shell) {

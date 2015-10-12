@@ -1161,6 +1161,7 @@ describe('The calendar module services', function() {
             expect(emitMessage).to.equal('modifiedCalendarItem');
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
+            expect(response).to.be.false;
             done();
           }
         );

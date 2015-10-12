@@ -48,9 +48,12 @@ angular.module('esn.calendar')
       });
       $scope.event.start = event.start;
       $scope.event.end = event.end;
-      calendarService.modifyEvent(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc).then(function() {
-        notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
-      });
+      calendarService.modifyEvent(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc)
+        .then(function(response) {
+          if (response) {
+            notificationFactory.weakInfo('Calendar - ', event.title + ' has been modified.');
+          }
+        });
     };
 
     windowJQuery.resize($scope.resizeCalendarHeight);

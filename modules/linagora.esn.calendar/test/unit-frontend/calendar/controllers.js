@@ -108,7 +108,7 @@ describe('The calendar module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, CalendarShell) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -117,7 +117,12 @@ describe('The calendar module controllers', function() {
     this.$window = $window;
     this.USER_UI_CONFIG = USER_UI_CONFIG;
     this.moment = moment;
+    this.CalendarShell = CalendarShell;
   }));
+
+  afterEach(function() {
+    liveNotification = null;
+  });
 
   describe('The userCalendarController controller', function() {
     it('should inject both header and subheader', function() {
@@ -359,6 +364,41 @@ describe('The calendar module controllers', function() {
       this.controller('calendarController', {
         $rootScope: this.rootScope,
         $scope: this.scope
+      });
+    });
+
+    describe('the eventDropAndResize listener', function() {
+      it('should call calendarService.modifyEvent with scope.event.path if it exists', function(done) {
+        var event = this.CalendarShell.fromIncompleteShell({
+          path: 'aPath',
+          etag: 'anEtag'
+        });
+        this.scope.event = event;
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
+          expect(path).to.equal(event.path);
+          expect(oldEvent).to.be.null;
+          expect(etag).to.equal(event.etag);
+          done();
+        };
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(event, {});
+      });
+
+      it('should call calendarService.modifyEvent with a built path if scope.event.path does not exist', function(done) {
+        var event = this.CalendarShell.fromIncompleteShell({
+          etag: 'anEtag'
+        });
+        var calendarHomeId = 'calendarHomeId';
+        this.scope.calendarHomeId = calendarHomeId;
+        this.scope.event = event;
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
+          expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
+          expect(oldEvent).to.be.null;
+          expect(etag).to.equal(event.etag);
+          done();
+        };
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(event, {});
       });
     });
 
