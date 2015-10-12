@@ -21,7 +21,8 @@ describe('The Contacts Angular module', function() {
       },
       getCard: function() {
         return $q.when(scope.contact);
-      }
+      },
+      ContactsShell: function() {}
     };
     liveRefreshContactService = {
       startListen: function() {},
