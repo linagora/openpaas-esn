@@ -108,16 +108,23 @@ angular.module('linagora.esn.contact')
       return JSON.stringify(oldContact) !== JSON.stringify($scope.contact);
     }
 
+    // angular.copy bug workaround
+    // https://github.com/angular/angular.js/pull/10116
+    // Should be replaced by angular.copy after upgrade to Angular 1.4.x
+    function cloneContact(contact) {
+      return new contactsService.ContactsShell(contact.vcard, contact.etag);
+    }
+
     var oldContact = {};
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
       contactUpdateDataService.contact = null;
-      oldContact = angular.copy($scope.contact);
+      oldContact = cloneContact($scope.contact);
       $scope.loaded = true;
     } else {
       contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
         $scope.contact = card;
-        oldContact = angular.copy(card);
+        oldContact = cloneContact(card);
       }, function() {
         $scope.error = true;
         displayContactError('Cannot get contact details');
