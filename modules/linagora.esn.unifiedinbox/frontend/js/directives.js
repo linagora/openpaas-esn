@@ -45,4 +45,14 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/partials/emailer.html'
     };
   })
+
+  .directive('emailerGroup', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        group: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/emailer-group.html'
+    };
   });

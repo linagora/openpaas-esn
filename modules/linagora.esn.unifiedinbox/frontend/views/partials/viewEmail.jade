@@ -1,20 +1,29 @@
-.email-view.col-xs-12.col-md-8
+.email-view.col-xs-12.col-md-10
+
+  ul.actions
+    li
+      a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Go back to mailbox')}")
+        i.mdi.mdi-v-centered.mdi-folder
+    li
+      a(ng-click="moveToTrash()" title="#{__('Move to trash')}")
+        i.mdi.mdi-v-centered.mdi-delete
+
   .block-header
-    h2 {{email.subject}}
-      small
-        img.lv-img-sm(src="images/user.png")
-        | {{email.from.name}} (#[a(ng-href="mailto:{{::email.from.email}}") {{email.from.email}}])
-        | - {{email.date | date}}
-    ul.actions
-      li
-        a(ng-href="/#/unifiedinbox/{{mailbox}}" title="Go to the mailbox")
-          i.mdi.mdi-v-centered.mdi-folder
-      li
-        a(ng-click="moveToTrash()" title="Move to trash")
-          i.mdi.mdi-v-centered.mdi-delete
-      li
-        a(href="")
-          i.mdi.mdi-v-centered.mdi-check
+    h2.subject {{::email.subject}}
+    h3.headers
+      .text-right
+        span.date {{::email.date | date:'short' }}
+        i.mdi.mdi-clock
+      .avatarify
+        .from
+          span.line-header #{__('From')}:
+          emailer(emailer="::email.from")
+        .to
+          span.line-header #{__('To')}:
+          emailer-group(group="::email.to")
+        .cc
+          span.line-header #{__('CC')}:
+          emailer-group(group="::email.cc")
 
   .card.listview.zoomIn
     .lv-body
@@ -22,21 +31,3 @@
       .lv-item.multilines(ng-if="!email.htmlBody") {{email.textBody}}
       .lv-item(ng-if="!email.htmlBody && !email.textBody") {{email.preview}}
         .text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
-
-    .lv-footer.clearfix(ng-if="email.attachments.length > 0")
-      .lv-item
-        i.mdi.mdi-lg.mdi-attachment
-      .col-xs-3(ng-repeat="att in email.attachments")
-        .card
-          .card-header.ch-alt
-            span {{att.name}}
-            ul.lv-actions.actions
-              li
-                a(ng-href="{{att.url}}")
-                  i.mdi.mdi-v-centered.mdi-download
-
-    .lv-footer
-      textarea(placeholder="Compose a new message there")
-      button
-        i.mdi.mdi-v-centered.mdi-send
-        

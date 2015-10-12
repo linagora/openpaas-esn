@@ -5,7 +5,7 @@ var i18n = require('i18n');
 i18n.configure(
   {
     defaultLocale: 'en',
-    locales: ['en', 'fr', 'vi'],
+    locales: ['en'],
     directory: __dirname + '/locales',
     updateFiles: false,
     indent: '  ',

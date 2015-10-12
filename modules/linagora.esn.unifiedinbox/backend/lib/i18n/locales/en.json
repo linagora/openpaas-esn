@@ -1,2 +1,8 @@
 {
+  "To": "To",
+  "From": "From",
+  "CC": "CC",
+  "BCC": "BCC",
+  "Go back to mailbox": "Go back to mailbox",
+  "Move to trash": "Move to trash"
 }
