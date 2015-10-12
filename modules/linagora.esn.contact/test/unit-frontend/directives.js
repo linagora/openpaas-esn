@@ -149,4 +149,79 @@ describe('The contact Angular module directives', function() {
       expect(element.find('.btn-contacts-cards-toggle')).to.be.enabled;
     });
   });
+
+
+  describe('The contactDisplay directive', function() {
+    var $compile, $rootScope, element, $scope;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+      $scope.contact = {
+        emails: [],
+        tel: [],
+        addresses: [],
+        social: [],
+        urls: []
+      };
+      element = $compile('<contact-display contact="contact"></contact-display>')($scope);
+      $scope.$digest();
+    }));
+
+    describe('The hasContactInformation fn', function() {
+
+      it('should return falsy value if there is no contact contact informations', function() {
+        var scope = element.isolateScope();
+        expect(scope.hasContactInformation()).to.not.be.ok;
+      });
+
+      it('should return truthy value if there are some contact informations', function() {
+        var scope = element.isolateScope();
+
+        scope.contact = { emails: ['mail@example.com'] };
+        expect(scope.hasContactInformation()).to.be.ok;
+
+        scope.contact = { tel: ['123'] };
+        expect(scope.hasContactInformation()).to.be.ok;
+
+        scope.contact = { addresses: ['Some place'] };
+        expect(scope.hasContactInformation()).to.be.ok;
+
+        scope.contact = { social: ['some IM'] };
+        expect(scope.hasContactInformation()).to.be.ok;
+
+        scope.contact = { urls: ['some websites'] };
+        expect(scope.hasContactInformation()).to.be.ok;
+      });
+
+    });
+
+    describe('The hasProfileInformation fn', function() {
+
+      it('should return falsy value if there is no contact profile informations', function() {
+        var scope = element.isolateScope();
+        expect(scope.hasProfileInformation()).to.not.be.ok;
+      });
+
+      it('should return truthy value if there are some profile informations', function() {
+        var scope = element.isolateScope();
+
+        scope.contact = { firstName: 'Alice' };
+        expect(scope.hasProfileInformation()).to.be.ok;
+
+        scope.contact = { lastName: 'Bob' };
+        expect(scope.hasProfileInformation()).to.be.ok;
+
+        scope.contact = { nickname: 'alicebob' };
+        expect(scope.hasProfileInformation()).to.be.ok;
+
+        scope.formattedBirthday = 'abcd';
+        expect(scope.hasProfileInformation()).to.be.ok;
+      });
+
+    });
+
+  });
+
 });

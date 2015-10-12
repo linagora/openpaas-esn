@@ -34,7 +34,7 @@
                 | #{__('Job Title')}
               dd 
                 | {{contact.orgRole}}
-      .pmb-block(ng-if='contact.emails.length>0 || contact.tel.length>0 || contact.addresses.length>0 || contact.social.length>0 || contact.urls.length>0')
+      .pmb-block(ng-if='hasContactInformation()')
         .pmbb-header
           h2 
             i.mdi.mdi-phone.m-r-5
@@ -82,7 +82,7 @@
                   | #{__('Websites')}
               dd
                 a(ng-href="{{website.value}}" target='_blank') {{website.value}}
-      .pmb-block(ng-if='contact.firstName || contact.lastName || contact.nickname || formattedBirthday')
+      .pmb-block(ng-if='hasProfileInformation()')
         .pmbb-header
           h2 
             i.mdi.mdi-account-box.m-r-5
