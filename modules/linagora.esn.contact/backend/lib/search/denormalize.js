@@ -25,8 +25,14 @@ module.exports = function(contact) {
   function getMultiValue(propName) {
     var props = vcard.getAllProperties(propName);
     return props.map(function(prop) {
-      var propVal = prop.getFirstValue();
-      return { type: prop.getParameter('type'), value: propVal };
+      var data = {
+        value: prop.getFirstValue()
+      };
+      var type = prop.getParameter('type');
+      if (type) {
+        data.type = type;
+      }
+      return data;
     });
   }
 

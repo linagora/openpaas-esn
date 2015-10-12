@@ -386,8 +386,14 @@ angular.module('linagora.esn.contact')
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
         return props.map(function(prop) {
-          var propVal = prop.getFirstValue();
-          return { type: prop.getParameter('type'), value: propVal };
+          var data = {
+            value: prop.getFirstValue()
+          };
+          var type = prop.getParameter('type');
+          if (type) {
+            data.type = type;
+          }
+          return data;
         });
       }
       function getMultiAddress(propName) {
@@ -414,15 +420,6 @@ angular.module('linagora.esn.contact')
       this.org = vcard.getFirstPropertyValue('org');
       this.orgRole = vcard.getFirstPropertyValue('role');
 
-
-      var orgUriProp = vcard.getAllProperties('url').filter(function(prop) {
-        return prop.getParameter('type') === 'Work';
-      })[0];
-
-      if (orgUriProp) {
-        this.orgUri = orgUriProp.getFirstValue();
-      }
-
       this.emails = getMultiValue('email').map(function(mail) {
         mail.value = mail.value.replace(/^mailto:/i, '');
         return mail;
@@ -435,6 +432,7 @@ angular.module('linagora.esn.contact')
 
       this.addresses = getMultiAddress('adr');
       this.social = getMultiValue('socialprofile');
+      this.urls = getMultiValue('url');
 
       var catprop = vcard.getFirstProperty('categories');
       var cats = catprop && catprop.getValues().concat([]);
@@ -556,6 +554,12 @@ angular.module('linagora.esn.contact')
         });
       }
 
+      if (shell.urls) {
+        shell.urls.forEach(function(data) {
+          vcard.addPropertyWithValue('url', data.value);
+        });
+      }
+
       if (shell.birthday) {
         if (shell.birthday instanceof Date) {
           var value = ICAL.Time.fromJSDate(shell.birthday);
@@ -569,15 +573,6 @@ angular.module('linagora.esn.contact')
 
       if (shell.nickname) {
         vcard.addPropertyWithValue('nickname', shell.nickname);
-      }
-
-      if (shell.orgUri) {
-        if (shell.orgUri.match(/^https?:/)) {
-          prop = vcard.addPropertyWithValue('url', shell.orgUri);
-        } else {
-          prop = vcard.addPropertyWithValue('url', 'http://' + shell.orgUri);
-        }
-        prop.setParameter('type', 'Work');
       }
 
       if (shell.notes) {

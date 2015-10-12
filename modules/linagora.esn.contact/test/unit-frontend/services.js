@@ -687,7 +687,7 @@ describe('The Contacts Angular module', function() {
             ['tel', { type: 'Work' }, 'uri', 'tel:123123'],
             ['adr', { type: 'Home' }, 'text', ['', '', 's', 'c', '', 'z', 'co']],
             ['org', {}, 'text', 'org'],
-            ['url', { type: 'Work' }, 'uri', 'http://linagora.com'],
+            ['url', {}, 'uri', 'http://linagora.com'],
             ['role', {}, 'text', 'role'],
             ['socialprofile', { type: 'Twitter' }, 'text', '@AwesomePaaS'],
             ['categories', {}, 'text', 'starred', 'asdf'],
@@ -715,7 +715,7 @@ describe('The Contacts Angular module', function() {
             type: 'Home', street: 's', city: 'c', zip: 'z', country: 'co'
           }]);
           expect(contact.org).to.equal('org');
-          expect(contact.orgUri).to.equal('http://linagora.com');
+          expect(contact.urls).to.eql([{ value: 'http://linagora.com' }]);
           expect(contact.orgRole).to.equal('role');
           expect(contact.social).to.deep.equal([{ type: 'Twitter', value: '@AwesomePaaS' }]);
           expect(contact.tags).to.deep.equal([{ text: 'asdf' }]);
@@ -1023,7 +1023,7 @@ describe('The Contacts Angular module', function() {
           social: [{ type: 'Twitter', value: '@AwesomePaaS' }],
           org: 'org',
           orgRole: 'role',
-          orgUri: 'orgUri',
+          urls: [{ value: 'http://mywebsite.com' }],
           birthday: new Date(2015, 0, 1),
           nickname: 'nick',
           notes: 'notes',
@@ -1038,7 +1038,7 @@ describe('The Contacts Angular module', function() {
           adr: 'ADR;TYPE=Home:;;s;c;;z;co',
           tel: 'TEL;TYPE=Home:tel:123123',
           org: 'ORG:org',
-          url: 'URL;TYPE=Work:http://orgUri',
+          url: 'URL:http://mywebsite.com',
           role: 'ROLE:role',
           socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
           categories: 'CATEGORIES:a,b,starred',
@@ -1438,7 +1438,7 @@ describe('The Contacts Angular module', function() {
           social: [],
           org: '',
           orgRole: 'role',
-          orgUri: 'orgUri',
+          urls: [],
           nickname: '',
           notes: '',
           photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
