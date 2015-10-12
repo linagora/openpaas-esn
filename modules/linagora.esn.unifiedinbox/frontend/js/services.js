@@ -73,4 +73,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     return EmailGroupingTool;
+  })
+
+  .factory('createHtmlElement', function() {
+    return function(tag, attributes) {
+      return angular.extend(document.createElement(tag), attributes || {});
+    };
   });

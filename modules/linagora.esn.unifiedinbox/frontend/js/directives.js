@@ -55,4 +55,32 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/partials/emailer-group.html'
     };
+  })
+
+  .directive('htmlEmailBody', function(createHtmlElement, iFrameResize) {
+    return {
+      restrict: 'E',
+      scope: {
+        email: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/html-email-body.html',
+      link: function(scope, element) {
+        element.find('iframe').load(function(event) {
+          scope.$emit('iframe:loaded', event.target);
+        });
+
+        scope.$on('iframe:loaded', function(event, iFrame) {
+          var iFrameDocument = iFrame.contentDocument;
+
+          iFrameDocument.body.appendChild(createHtmlElement('script', {src: '/components/iframe-resizer/js/iframeResizer.contentWindow.js'}));
+          iFrameDocument.head.appendChild(createHtmlElement('base', {target: '_blank'}));
+
+          iFrameResize({
+            checkOrigin: false,
+            scrolling: true,
+            inPageLinks: true
+          }, iFrame);
+        });
+      }
+    };
   });
