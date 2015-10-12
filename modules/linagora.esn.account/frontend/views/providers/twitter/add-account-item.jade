@@ -1,2 +1,7 @@
 li
-  a(ng-click='openTwitter()') Twitter
+  a(ng-click='openTwitter()')
+    .flex-vertical-centered
+      .p-10.flex-noshrink.item-image
+        .mdi.mdi-twitter
+      .item-text
+        span #{__('Twitter Account')}
