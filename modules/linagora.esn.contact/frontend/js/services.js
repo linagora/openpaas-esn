@@ -161,6 +161,9 @@ angular.module('linagora.esn.contact')
         } else {
           contact.photo += '?' + timestampParameter;
         }
+        if (contact.vcard) {
+          contact.vcard.updatePropertyWithValue('photo', contact.photo);
+        }
 
       }
     }

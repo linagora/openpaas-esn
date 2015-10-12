@@ -1353,9 +1353,10 @@ describe('The Contacts Angular module', function() {
 
   describe('The ContactsHelper service', function() {
 
-    beforeEach(angular.mock.inject(function(ContactsHelper, $rootScope) {
+    beforeEach(angular.mock.inject(function(ContactsHelper, $rootScope, _ICAL_) {
       this.$rootScope = $rootScope;
       this.contactHelper = ContactsHelper;
+      this.ICAL = _ICAL_;
     }));
 
     describe('The getFormattedAddress function', function() {
@@ -1621,6 +1622,18 @@ describe('The Contacts Angular module', function() {
         var contact = { photo: avatarUrl };
         this.contactHelper.forceReloadDefaultAvatar(contact);
         expect(contact.photo).to.equal(avatarUrl);
+      });
+
+      it('should upate the photo value in vcard', function() {
+        var vcard = new this.ICAL.Component(['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid'],
+            ['photo', {}, 'uri', 'http://abc.com/contact/api/contacts/123/456/avatar']
+        ]]);
+        var contact = { photo: 'http://abc.com/contact/api/contacts/123/456/avatar', vcard: vcard };
+        this.contactHelper.forceReloadDefaultAvatar(contact);
+        expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
+        expect(contact.vcard.getFirstPropertyValue('photo')).to.match(/123\/456\/avatar\?t=[0-10]+/);
       });
 
     });
