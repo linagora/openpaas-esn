@@ -544,6 +544,11 @@ describe('The calendar module services', function() {
         }
       };
 
+      this.modalCreated = false;
+      this.$modal = function(options) {
+        self.modalCreated = true;
+      };
+
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
@@ -553,6 +558,7 @@ describe('The calendar module services', function() {
         $provide.value('socket', self.socket);
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
+        $provide.value('$modal', self.$modal);
       });
     });
 
@@ -910,7 +916,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should succeed calling gracePeriodService.cancel', function(done) {
+      it('should succeed calling gracePeriodService.cancel and reopen the quick form modal', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -926,7 +932,7 @@ describe('The calendar module services', function() {
             success: successSpy
           });
         };
-        this.gracePeriodService.cancel = function(taskId) {
+        this.gracePeriodService.cancel = function() {
           var deffered = $q.defer();
           deffered.resolve({});
           return deffered.promise;
@@ -943,11 +949,13 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
-          function(response) {
+          function() {
             expect(emitMessage).to.equal('removedCalendarItem');
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
+            expect(self.modalCreated).to.be.true;
             done();
           }
         );

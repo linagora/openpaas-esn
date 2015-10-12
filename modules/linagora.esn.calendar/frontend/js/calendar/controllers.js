@@ -194,6 +194,7 @@ angular.module('esn.calendar')
         unregisterFunction();
       });
       gracePeriodService.flushAllTasks();
+      windowJQuery.off('resize', $scope.resizeCalendarHeight);
     });
 
     $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);

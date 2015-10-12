@@ -229,5 +229,16 @@ describe('The event-quick-form Angular module directives', function() {
       var event = this.$scope.$broadcast('$locationChangeStart');
       expect(event.defaultPrevented).to.be.false;
     });
+
+    describe('the closeModal function', function() {
+      it('should cache the editedEvent using eventService#setEditedEvent', function(done) {
+        this.initDirective(this.$scope);
+        this.eventUtils.setEditedEvent = function(event) {
+          expect(event).to.exist;
+          done();
+        };
+        this.$scope.closeModal();
+      });
+    });
   });
 });

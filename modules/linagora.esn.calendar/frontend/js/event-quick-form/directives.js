@@ -33,22 +33,23 @@ angular.module('esn.calendar')
   })
 
   .directive('eventQuickForm', function($location, $timeout, eventUtils) {
-    function link($scope, element, attrs, controller) {
+    function link(scope, element, attrs, controller) {
       controller.initFormData();
 
-      $scope.closeModal = function() {
-        $scope.createModal.hide();
+      scope.closeModal = function() {
+        eventUtils.setEditedEvent(scope.editedEvent);
+        scope.createModal.hide();
       };
 
-      $scope.isNew = eventUtils.isNew;
-      $scope.deleteEvent = controller.deleteEvent;
-      $scope.submit = eventUtils.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
-      $scope.changeParticipation = controller.changeParticipation;
-      $scope.canPerformCall = controller.canPerformCall;
+      scope.isNew = eventUtils.isNew;
+      scope.deleteEvent = controller.deleteEvent;
+      scope.submit = eventUtils.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      scope.changeParticipation = controller.changeParticipation;
+      scope.canPerformCall = controller.canPerformCall;
 
-      $scope.goToFullForm = function() {
-        eventUtils.setEditedEvent($scope.editedEvent);
-        $scope.closeModal();
+      scope.goToFullForm = function() {
+        eventUtils.setEditedEvent(scope.editedEvent);
+        scope.closeModal();
         $location.path('/calendar/event-full-form');
       };
 
@@ -56,7 +57,7 @@ angular.module('esn.calendar')
         element.find('.title')[0].focus();
       }, 0);
 
-      $scope.focusSubmitButton = function() {
+      scope.focusSubmitButton = function() {
         $timeout(function() {
           element.find('button[type="submit"]').focus();
         });

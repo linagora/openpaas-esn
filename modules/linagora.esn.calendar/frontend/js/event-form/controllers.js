@@ -54,7 +54,7 @@ angular.module('esn.calendar')
 
     function _hideModal() {
       if ($scope.createModal) {
-        $scope.createModal.hide();
+        $scope.closeModal();
       }
     }
 
@@ -76,7 +76,9 @@ angular.module('esn.calendar')
         $scope.calendarHomeId = calendarService.calendarHomeId;
       }
 
-      if ($scope.newAttendees) {
+      if ($scope.editedEvent.attendees && $scope.newAttendees) {
+        $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat($scope.newAttendees);
+      } else {
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
 

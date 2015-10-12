@@ -310,16 +310,16 @@ describe('The event-form module controllers', function() {
             partstat: 'ACCEPTED'
           };
 
+          this.scope.createModal = {};
+          this.scope.closeModal = function() {
+            expect(status).to.equal('ACCEPTED');
+            expect(self.notificationFactory.weakInfo).to.have.been.called;
+            done();
+          };
+
           this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
             status = _status_;
             return $q.when({});
-          };
-          this.scope.createModal = {
-            hide: function() {
-              expect(status).to.equal('ACCEPTED');
-              expect(self.notificationFactory.weakInfo).to.have.been.called;
-              done();
-            }
           };
           this.eventFormController = this.controller('eventFormController', {
             $rootScope: this.rootScope,
@@ -340,12 +340,11 @@ describe('The event-form module controllers', function() {
             status = _status_;
             return $q.when(null);
           };
-          this.scope.createModal = {
-            hide: function() {
-              expect(status).to.equal('DECLINED');
-              expect(self.notificationFactory.weakInfo).to.have.not.been.called;
-              done();
-            }
+          this.scope.createModal = {};
+          this.scope.closeModal = function() {
+            expect(status).to.equal('DECLINED');
+            expect(self.notificationFactory.weakInfo).to.have.not.been.called;
+            done();
           };
           this.eventFormController = this.controller('eventFormController', {
             $rootScope: this.rootScope,

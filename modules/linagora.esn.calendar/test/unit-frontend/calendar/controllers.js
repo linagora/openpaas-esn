@@ -158,6 +158,11 @@ describe('The calendar module controllers', function() {
       this.scope.calendarHomeId = 'calendarId';
     });
 
+    afterEach(function() {
+      this.gracePeriodService.flushAllTasks = function() {};
+      this.scope.$destroy();
+    });
+
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
       this.gracePeriodService.flushAllTasks = sinon.spy();
       this.controller('calendarController', {$scope: this.scope});

@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
+  .factory('calendarService', function($rootScope, $q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
 
     /**
      * List all calendars in the calendar home.
@@ -184,6 +184,9 @@ angular.module('esn.calendar')
                   gracePeriodService.cancel(taskId).then(function() {
                     calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
                     task.success();
+                    var scope = $rootScope.$new();
+                    scope.event = event;
+                    scope.modal = $modal({scope: scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
                   }, function(err) {
                     task.error(err.statusText);
                   });
@@ -311,7 +314,7 @@ angular.module('esn.calendar')
         });
       } else {
         prepareEvent = $q.when(event.vcalendar);
-      }
+      }notifyService
 
       if (!etag) {
         // This is a create event because the event is not created yet in sabre/dav,
