@@ -39,32 +39,6 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('toggleNicescroll', function(deviceDetector) {
-    return {
-      restrict: 'A',
-      link: function(scope, element, attr) {
-        if (!deviceDetector.isMobile()) {
-          element.parents('body').addClass('modal-open');
-          if (element.parents().getNiceScroll(0)) {
-            element.parents().getNiceScroll(0).hide();
-          } else {
-            element.parents().getNiceScroll().hide();
-          }
-
-          scope.$on('$locationChangeStart', function() {
-            element.parents('body').removeClass('modal-open');
-            if (element.parents().getNiceScroll(0)) {
-              element.parents().getNiceScroll(0).show();
-            } else {
-              element.parents().getNiceScroll().show();
-            }
-
-          });
-        }
-      }
-    };
-  })
-
   .directive('calendarLeftPane', function() {
     function link(scope, element) {
       scope.$on('calendar:height', function(event, height) {
