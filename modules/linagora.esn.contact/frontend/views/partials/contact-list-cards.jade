@@ -1,5 +1,7 @@
-.row.all-centered
+.row.all-centered(ng-switch='searchMode')
   .col-xs-12.col-md-10
     .contacts.clearfix.row.fadeIn200ms
-      div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+      div(ng-switch-when='false' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by contact.id")
+      div(ng-switch-when='true' on-finish-render ng-if='searchResult.data && searchResult.data.length')
+        contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', book-id="bookId", ng-repeat="contact in searchResult.data track by contact.id")
