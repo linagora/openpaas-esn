@@ -61,17 +61,27 @@ module.exports = function(dependencies) {
     }
 
     var elasticsearchQuery = {
-      sort: [
-        {'fn.sort': 'asc'}
-      ],
       query: {
         filtered: {
           query: {
             multi_match: {
               query: terms,
               type: 'cross_fields',
-              fields: ['fn', 'name', 'firstName', 'lastName', 'tel.value', 'job', 'tags.text', 'birthday', 'comments', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
-              operator: 'and'
+              fields: ['firstName^1000',
+                'lastName^1000',
+                'nickname^1000',
+                'org^100',
+                'tel.value^100',
+                'tags.text^100',
+                'comments^100',
+                'emails.value^100',
+                'socialprofiles.value^100',
+                'job^10',
+                'birthday',
+                'urls.value',
+                'addresses.full'],
+              operator: 'and',
+              tie_breaker: 0.1
             }
           }
         }
