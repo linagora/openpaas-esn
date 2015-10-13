@@ -25,6 +25,20 @@ describe('jcalHelper', function() {
     });
   });
 
+  describe('the getOrganizerEmail function', function() {
+    it('should return undefined if the ical component has no organizer', function() {
+      var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/noOrganizer.ics').toString('utf8');
+      var vcalendar = icaljs.Component.fromString(ics).toJSON();
+      expect(this.jcalHelper.getOrganizerEmail(vcalendar)).to.be.undefined;
+    });
+
+    it('should return the organizer email from the ical component', function() {
+      var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
+      var vcalendar = icaljs.Component.fromString(ics).toJSON();
+      expect(this.jcalHelper.getOrganizerEmail(vcalendar)).to.deep.equal('johndoe@open-paas.org');
+    });
+  });
+
   describe('jcal2content function', function() {
     var ics;
 
