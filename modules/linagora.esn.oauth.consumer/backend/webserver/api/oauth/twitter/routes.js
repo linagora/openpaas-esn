@@ -5,6 +5,7 @@ var passport = require('passport');
 module.exports = function(router, dependencies) {
 
   var authorizationMW = dependencies('authorizationMW');
+  var controller = require('./controller')(dependencies);
 
   router.get('/twitter/connect',
     authorizationMW.requiresAPILogin,
@@ -16,8 +17,6 @@ module.exports = function(router, dependencies) {
   router.get('/twitter/connect/callback',
     authorizationMW.requiresAPILogin,
     passport.authorize('twitter-authz', { failureRedirect: '/#/accounts' }),
-    function(req, res) {
-      res.redirect('/#/accounts');
-    }
+    controller.callback
   );
 };
