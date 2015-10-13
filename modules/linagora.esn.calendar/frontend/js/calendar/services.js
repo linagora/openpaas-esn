@@ -92,7 +92,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY) {
+  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -380,6 +380,20 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
       })
       .then(function() {
+        gracePeriodLiveNotification.registerListeners(taskId, function() {
+          gracePeriodService.remove(taskId);
+          $.notify({
+            message: 'Could not find the event to delete. Please refresh your calendar.'
+          }, {
+            type: 'danger',
+            placement: {
+              from: 'bottom',
+              align: 'center'
+            },
+            delay: CALENDAR_ERROR_DISPLAY_DELAY
+          });
+          calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+        });
         return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
       })
       .then(function(data) {
@@ -394,8 +408,10 @@ angular.module('esn.calendar')
             return $q.when(false);
           });
         } else {
-          gracePeriodService.remove(taskId);
-          calendarEventEmitter.websocket.emitRemovedEvent(vcalendar);
+          if (gracePeriodService.hasTask(taskId)) {
+            gracePeriodService.remove(taskId);
+            calendarEventEmitter.websocket.emitRemovedEvent(vcalendar);
+          }
           return $q.when(true);
         }
       });

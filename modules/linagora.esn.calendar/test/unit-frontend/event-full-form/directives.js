@@ -8,6 +8,7 @@ var expect = chai.expect;
 describe('The event-full-form Angular module directives', function() {
   beforeEach(function() {
     module('jadeTemplates');
+    angular.mock.module('linagora.esn.graceperiod');
     angular.mock.module('esn.calendar');
     this.gracePeriodService = {};
 
