@@ -1,6 +1,9 @@
 'use strict';
 
 angular.module('linagora.esn.account')
+  .constant('OAUTH_TWITTER_MESSAGES', {
+    denied: 'You denied access to your twitter account'
+  })
   .directive('twitterAccountMenuItem', function(oauthStrategyRegistry) {
     function link($scope) {
       $scope.openTwitter = function() {
@@ -24,7 +27,7 @@ angular.module('linagora.esn.account')
       templateUrl: '/account/views/providers/twitter/account.html'
     };
   })
-  .run(function(dynamicDirectiveService, FAB_ANCHOR_POINT) {
+  .run(function(dynamicDirectiveService, accountMessageRegistry, FAB_ANCHOR_POINT, OAUTH_TWITTER_MESSAGES) {
     var directive = new dynamicDirectiveService.DynamicDirective(
       function($scope) {
         return true;
@@ -32,4 +35,5 @@ angular.module('linagora.esn.account')
       'twitter-account-menu-item'
     );
     dynamicDirectiveService.addInjection(FAB_ANCHOR_POINT, directive);
+    accountMessageRegistry.register('twitter', OAUTH_TWITTER_MESSAGES);
   });
