@@ -11,7 +11,7 @@ angular.module('esn.header', [])
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
 
     function buildDynamicDirective(directiveName, scope) {
-      return new dynamicDirectiveService.DynamicDirective(true, directiveName, scope);
+      return new dynamicDirectiveService.DynamicDirective(true, directiveName, {scope: scope});
     }
 
     function changeMainHeaderDisplay(directiveName) {
