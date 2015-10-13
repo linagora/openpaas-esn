@@ -1,6 +1,7 @@
 .fab-modal-dropup {
-  bottom: 70px;
-  right: 70px;
+  width: 300px;
+  bottom: 40px;
+  right: 40px;
   position: fixed;
   background: white;
   border-radius: 2px;
@@ -42,5 +43,12 @@
     .item-image {
       font-size: 32px;
     }
+  }
+}
+
+@media (max-width: @screen-xs-min) {
+  .fab-modal-dropup {
+    // https://coderwall.com/p/yyou-q/css3-calc-in-less-css
+    width: ~"calc(100% - 80px)";
   }
 }
