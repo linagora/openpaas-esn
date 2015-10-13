@@ -191,6 +191,10 @@ angular.module('linagora.esn.graceperiod')
         });
     }
 
+    function hasTask(taskId) {
+      return !!tasks[taskId];
+    }
+
     return {
       grace: grace,
       clientGrace: clientGrace,
@@ -199,7 +203,8 @@ angular.module('linagora.esn.graceperiod')
       flushAllTasks: flushAllTasks,
       remove: remove,
       addTaskId: addTask,
-      hasTaskFor: hasTaskFor
+      hasTaskFor: hasTaskFor,
+      hasTask: hasTask
     };
   })
 
