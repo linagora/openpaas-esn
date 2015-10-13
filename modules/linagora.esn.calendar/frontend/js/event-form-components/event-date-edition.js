@@ -1,28 +1,29 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventDateEdition', function(moment, calendarUtils) {
+  .directive('eventDateEdition', function(FCMoment, calendarUtils) {
     function link(scope) {
       scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
       scope.dateOnBlur = scope.dateOnBlur || function() {};
       scope.allDayOnChange = scope.allDayOnChange || function() {};
 
-      // The first time the directive is loaded, we need to know if we will have to reset date
-      // to default value. This reset should also be done only the first time we are clicking the allday checkbox.
-      // After that start and end will be computed depending on scope.event.diff.
-      var resetDate = scope.event.allDay;
-
-      scope.resetToDefaultDate = function() {
-        if (resetDate) {
-          scope.event.start = calendarUtils.getNewStartDate();
-          scope.event.end = calendarUtils.getNewEndDate();
-          resetDate = false;
+      scope.setEventDates = function() {
+        if (scope.event.allDay) {
+          scope.event.start.stripTime();
+          scope.event.end.stripTime();
+        } else {
+          var nextHour = FCMoment().endOf('hour').add(1, 'seconds');
+          // We need to set back the utc flag to false here.
+          // See Ambiguously-timed Moments http://fullcalendar.io/docs/utilities/Moment/
+          scope.event.start.time(nextHour.time()).local();
+          scope.event.end.time(nextHour.time()).local();
         }
+        scope.$broadcast('event-date-edition:allday:changed');
       };
 
       scope.getMinDate = function() {
         if (scope.event.start) {
-          return moment(scope.event.start).subtract(1, 'days');
+          return FCMoment(scope.event.start).subtract(1, 'days');
         }
         return null;
       };
@@ -38,7 +39,7 @@ angular.module('esn.calendar')
         if (!scope.event.start) {
           return;
         }
-        scope.event.end = moment(scope.event.start).add(scope.event.diff / 1000, 'seconds');
+        scope.event.end = FCMoment(scope.event.start).add(scope.event.diff / 1000, 'seconds');
       };
 
       scope.onEndDateChange = function() {
@@ -46,7 +47,7 @@ angular.module('esn.calendar')
           return;
         }
         if (scope.event.end.isBefore(scope.event.start)) {
-          scope.event.end = moment(scope.event.start).add(1, 'hours');
+          scope.event.end = FCMoment(scope.event.start).add(1, 'hours');
         }
         scope.event.diff = scope.event.end.diff(scope.event.start);
       };
@@ -69,10 +70,10 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('friendlifyEndDate', function(moment) {
+  .directive('friendlifyEndDate', function(FCMoment) {
     function link(scope, element, attrs, ngModel) {
-      function _ToView(value) {
-        var valueToMoment = moment(new Date(value));
+      function subtractOneDayToView(value) {
+        var valueToMoment = FCMoment(new Date(value));
         if (scope.event.allDay && !valueToMoment.isSame(scope.event.start, 'day')) {
           var valueToDisplay = valueToMoment.subtract(1, 'days').format('YYYY/MM/DD');
           ngModel.$setViewValue(valueToDisplay);
@@ -82,11 +83,11 @@ angular.module('esn.calendar')
         return value;
       }
 
-      function _toModel(value) {
+      function addOneDayToModel(value) {
         if (scope.event.allDay) {
-          return moment(value).add(1, 'days');
+          return FCMoment(value).add(1, 'days');
         }
-        return value;
+        return FCMoment(value);
       }
 
       /**
@@ -94,13 +95,28 @@ angular.module('esn.calendar')
        * if it is an allDay. We must do it because fullCalendar uses exclusive date/time end date.
        * Also it is not necessary to do it if the end date is same day than the start date.
        */
-      ngModel.$formatters.unshift(_ToView);
+      ngModel.$formatters.unshift(subtractOneDayToView);
 
       /**
        * Ensure that if editedEvent is allDay, we had 1 days to event.end because fullCalendar and
        * caldav has exclusive date/time end date.
        */
-      ngModel.$parsers.push(_toModel);
+      ngModel.$parsers.push(addOneDayToModel);
+
+      scope.$on('event-date-edition:allday:changed', function() {
+        if (!scope.event.allDay) {
+          scope.event.end.subtract(1, 'days');
+          // We get back default 1 hour event
+          if (scope.event.start.isSame(scope.event.end, 'day')) {
+            scope.event.end.add(1, 'hours');
+          }
+        } else {
+          scope.event.end.add(1, 'days');
+        }
+        // Recalculate diff because end have changed outside the scope of
+        // onEndDateChange
+        scope.event.diff = scope.event.end.diff(scope.event.start);
+      });
     }
 
     return {
@@ -110,16 +126,22 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('dateToMoment', function(moment) {
+  .directive('dateToMoment', function(FCMoment) {
     function link(scope, element, attrs, controller) {
-      function _toModel(value) {
-        return moment(value);
+      function ensureFCMomentToModel(value) {
+        if (scope.event.allDay) {
+          return FCMoment(value).stripTime();
+        }
+        return FCMoment(value);
       }
 
       /**
-       * Ensure that we only are using moment type of date in hour code
+       * Ensure that we only are using FCMoment type of date in our code.
+       * It only strip the time if we are dealing with an allday event,
+       * because angular-strap date-picker only send back a datetime date format
+       * like "Sun Oct 11 2015 02:00:00 GMT+0200 (CEST)"
        */
-      controller.$parsers.unshift(_toModel);
+      controller.$parsers.unshift(ensureFCMomentToModel);
     }
 
     return {
