@@ -8,6 +8,5 @@
     .col-xs-12
       .account-error-container
   .vertiz-space
-  .row.card(ng-if='accounts && accounts.length')
-    .col-xs-12(ng-repeat='account in accounts')
-      account-displayer(account='account')
+  .col-xs-12.card(ng-if='accounts && accounts.length')
+    account-displayer(account='account', ng-repeat='account in accounts')
