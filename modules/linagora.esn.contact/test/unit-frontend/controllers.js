@@ -1841,24 +1841,6 @@ describe('The Contacts Angular module', function() {
       };
     }));
 
-    describe('Setting scope values', function() {
-
-      it('should set the first contact email and tel in scope', function(done) {
-        var tel1 = '+33499998899';
-        var tel2 = '+33499998800';
-        var email1 = 'yo@open-paas.org';
-        var email2 = 'lo@open-paas.org';
-
-        this.scope.contact.tel = [{type: 'Home', value: tel1}, {type: 'Work', value: tel2}];
-        this.scope.contact.emails = [{type: 'Home', value: email1}, {type: 'Work', value: email2}];
-        this.initController();
-        this.scope.$digest();
-        expect(this.scope.tel).to.equal(tel1);
-        expect(this.scope.email).to.equal(email1);
-        done();
-      });
-    });
-
     describe('the deleteContact function', function() {
 
       beforeEach(function() {
