@@ -32,7 +32,8 @@ describe('The Twitter strategy', function() {
       };
 
       getModule().upsertAccount(user, account, function(err, saved) {
-        expect(saved.accounts[0]).to.deep.equal(account);
+        expect(saved.status).to.equal('created');
+        expect(saved.user.accounts[0]).to.deep.equal(account);
         done();
       });
     });
@@ -68,7 +69,8 @@ describe('The Twitter strategy', function() {
       account.data.token_secret = token_secret;
 
       getModule().upsertAccount(user, account, function(err, saved) {
-        expect(saved.accounts[0]).to.deep.equal({
+        expect(saved.status).to.equal('updated');
+        expect(saved.user.accounts[0]).to.deep.equal({
           type: 'oauth',
           data: {
             provider: 'twitter',
@@ -79,7 +81,7 @@ describe('The Twitter strategy', function() {
             token_secret: token_secret
           }
         });
-        expect(saved.accounts[1]).to.deep.equal({
+        expect(saved.user.accounts[1]).to.deep.equal({
           type: 'oauth',
           data: {
             provider: 'twitter',
@@ -90,7 +92,7 @@ describe('The Twitter strategy', function() {
             token_secret: token_secret
           }
         });
-        expect(saved.accounts.length).to.equal(2);
+        expect(saved.user.accounts.length).to.equal(2);
         done();
       });
     });

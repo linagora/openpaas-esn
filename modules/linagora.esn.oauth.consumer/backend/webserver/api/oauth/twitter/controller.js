@@ -9,7 +9,12 @@ module.exports = function(dependencies) {
     if (req.query.denied) {
       return res.redirect('/#/accounts?status=denied&provider=twitter&token=' + req.query.denied);
     }
-    res.redirect('/#/accounts');
+
+    if (req.oauth && req.oauth.status) {
+      var status = req.oauth.status;
+      return res.redirect('/#/accounts?provider=twitter&status=' + status);
+    }
+    res.redirect('/#/accounts?provider=twitter');
   }
 
   return {
