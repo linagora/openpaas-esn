@@ -108,8 +108,8 @@ angular.module('esn.header', [])
 
         scope.hasSubHeaderGotInjections = headerService.subHeader.hasInjections();
 
-        scope.$on(SUB_HEADER_HAS_INJECTION_EVENT, function(event, hasInjection) {
-          scope.hasSubHeaderGotInjections = hasInjection;
+        scope.$on(SUB_HEADER_HAS_INJECTION_EVENT, function(event, hasInjections) {
+          scope.hasSubHeaderGotInjections = hasInjections;
         });
       }
     };
