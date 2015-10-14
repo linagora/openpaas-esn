@@ -1,0 +1,18 @@
+.account
+  .flex-vertical-centered
+    .p-10.flex-noshrink
+      a(target='_blank' ng-href='https://twitter.com/{{::account.data.username}}')
+        .account-image
+          .mdi.mdi-twitter
+    .p-r-10.account-info
+      h4
+        a(target='_blank' ng-href='https://twitter.com/{{::account.data.username}}') @{{::account.data.username}}
+      span {{::account.data.display_name}}
+    .p-r-10.lv-actions.actions
+      li.dropdown
+        a(href='', data-toggle='dropdown', aria-expanded='true')
+          i.mdi.mdi-dots-vertical
+        ul.dropdown-menu.dropdown-menu-right
+          li
+            a(ng-href='#') Delete
+

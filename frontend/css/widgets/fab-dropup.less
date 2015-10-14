@@ -1,10 +1,10 @@
 .fab-modal-dropup {
-  bottom: 70px;
-  right: 70px;
+  width: 300px;
+  bottom: 40px;
+  right: 40px;
   position: fixed;
   background: white;
   border-radius: 2px;
-  padding: 20px 0;
   opacity: 0.5;
   z-index: 2;
   box-shadow: 0 2px 10px rgba(0,0,0,.1);
@@ -27,7 +27,7 @@
     padding: 0;
 
     li {
-      padding: 10px 25px;
+      padding: 10px 15px;
       cursor: pointer;
       transition: .3s ease;
 
@@ -35,5 +35,20 @@
         background: rgba(0,0,0,.1);
       }
     }
+
+    .item-text {
+      font-size: 16px
+    }
+
+    .item-image {
+      font-size: 32px;
+    }
+  }
+}
+
+@media (max-width: @screen-xs-min) {
+  .fab-modal-dropup {
+    // https://coderwall.com/p/yyou-q/css3-calc-in-less-css
+    width: ~"calc(100% - 80px)";
   }
 }

@@ -38,10 +38,10 @@ angular.module('linagora.esn.account')
       }
     };
   })
-  .directive('accountCardDisplayer', function() {
+  .directive('accountDisplayer', function() {
     return {
       restrict: 'E',
-      templateUrl: '/account/views/partials/card-displayer.html',
+      templateUrl: '/account/views/partials/account-displayer.html',
       scope: {
         account: '='
       }
