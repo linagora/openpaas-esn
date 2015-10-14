@@ -64,7 +64,7 @@ describe('The Account Angular Controllers', function() {
       expect($scope.accounts[0].id).to.equal('keep');
     });
 
-    it('should call displayAccountMessage is $location.search().status and status === error)', function(done) {
+    it('should call displayAccountMessage if $location.search().status', function(done) {
       var provider = 'twitter';
       var status = 'error';
 
@@ -82,43 +82,6 @@ describe('The Account Angular Controllers', function() {
       var accounts = [];
       createController(accounts);
       $rootScope.$digest();
-    });
-
-    it('should call displayAccountMessage is $location.search().status and status === denied)', function(done) {
-      var provider = 'twitter';
-      var status = 'denied';
-
-      $location.search = function() {
-        return {
-          status: status,
-          provider: provider
-        };
-      };
-      displayAccountMessage = function(_provider, _status) {
-        expect(_provider).to.equal(provider);
-        expect(_status).to.equal(status);
-        done();
-      };
-      var accounts = [];
-      createController(accounts);
-      $rootScope.$digest();
-    });
-
-    it('should not call displayAccountMessage is $location.search().status and status === success)', function(done) {
-      var provider = 'twitter';
-      var status = 'success';
-
-      $location.search = function() {
-        return {
-          status: status,
-          provider: provider
-        };
-      };
-      displayAccountMessage = done;
-      var accounts = [];
-      createController(accounts);
-      $rootScope.$digest();
-      done();
     });
   });
 });

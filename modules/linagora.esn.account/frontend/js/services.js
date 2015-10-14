@@ -44,11 +44,17 @@ angular.module('linagora.esn.account')
     };
   })
 
-  .factory('displayAccountMessage', function($alert, accountMessageRegistry) {
-    return function(provider, type) {
+  .factory('displayAccountMessageLevel', function(OAUTH_MESSAGE_LEVELS) {
+    return function(status) {
+      return OAUTH_MESSAGE_LEVELS[status] || OAUTH_MESSAGE_LEVELS.default;
+    };
+  })
+
+  .factory('displayAccountMessage', function($alert, accountMessageRegistry, displayAccountMessageLevel) {
+    return function(provider, status) {
       $alert({
-        content: accountMessageRegistry.get(provider, type),
-        type: 'danger',
+        content: accountMessageRegistry.get(provider, status),
+        type: displayAccountMessageLevel(status),
         show: true,
         position: 'bottom',
         container: '.account-error-container',
