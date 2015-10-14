@@ -24,15 +24,22 @@
       },
       link: function($scope, $element) {
 
-        var tweetId = $scope.url.split('/').pop();
-        if (!tweetId) {
-          return;
+        function parseTweetId() {
+          var tweetId = $scope.url.split('/').pop();
+          if (!tweetId) {
+            return null;
+          }
+          // a trailing ?s=blabla is sometimes included in a tweet url
+          return tweetId.split('?').shift();
         }
 
-        twitterWidgetService.widgets.createTweet(
-          tweetId,
-          $element[0]
-        );
+        var tweetId = parseTweetId();
+        if (tweetId) {
+          twitterWidgetService.widgets.createTweet(
+            tweetId,
+            $element[0]
+          );
+        }
       }
     };
   });
