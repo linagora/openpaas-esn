@@ -1489,7 +1489,7 @@ describe('The Contacts Angular module', function() {
         expect(scope.currentPage).to.equal(0);
       });
 
-      it('should clean sorted_contacts', function() {
+      it('should clean search result data', function() {
         $controller('contactsListController', {
           $scope: scope,
           contactsService: {
@@ -1508,14 +1508,17 @@ describe('The Contacts Angular module', function() {
           }
         });
 
-        scope.sorted_contacts = 1;
+        scope.searchResult = {
+          data: 1
+        };
         scope.loadContacts = function() {};
         scope.search();
         scope.$digest();
-        expect(scope.sorted_contacts).to.not.exist;
+        expect(scope.searchMode).isTrue;
+        expect(scope.searchResult.data).to.not.exist;
       });
 
-      it('should get all the user contacts when searchInput is undefined', function(done) {
+      it('should quit search mode and get all the user contacts when searchInput is undefined', function(done) {
         $controller('contactsListController', {
           $scope: scope,
           contactsService: {
@@ -1528,7 +1531,11 @@ describe('The Contacts Angular module', function() {
           }
         });
 
-        scope.loadContacts = done;
+
+        scope.loadContacts = function() {
+          expect(scope.searchMode).isFalse;
+          done();
+        };
         scope.search();
         scope.$digest();
       });
@@ -1566,6 +1573,7 @@ describe('The Contacts Angular module', function() {
               return $q.when([]);
             },
             search: function(bookId, userId, data) {
+              expect(scope.searchMode).isTrue;
               expect(bookId).to.equal(scope.bookId);
               expect(userId).to.equal(scope.user._id);
               expect(data).to.equal(search);
@@ -1617,16 +1625,11 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
 
-        sortedContacts.A = [contactWithA];
-        sortedContacts.C = [contactWithC];
         expect(scope.searchResult.data).to.deep.equal(result.hits_list);
         expect(scope.currentPage).to.deep.equal(result.current_page);
         expect(scope.searchResult.count).to.equal(2);
         expect(scope.searchResult.formattedResultsCount).to.exist;
         expect(scope.searchFailure).to.be.false;
-        $timeout(function() {
-          expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
-        });
       });
 
       it('should displayContactError on search failure', function(done) {
