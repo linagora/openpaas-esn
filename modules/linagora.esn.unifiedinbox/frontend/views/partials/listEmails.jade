@@ -1,50 +1,19 @@
-.col-xs-12.col-md-8
+.col-xs-12.col-md-10
 
   .groupedEmails(ng-repeat="group in groupedEmails" ng-if="group.emails.length > 0")
     .block-header
       h2 {{::group.name}}
-      ul.lv-actions.actions
-        li
-          a(href="")
-            i.mdi.mdi-v-centered.mdi-timer
-        li.dropdown
-          a(href="")
-            i.mdi.mdi-v-centered.mdi-sort
-        li
-          a(href="")
-            i.mdi.mdi-v-centered.mdi-information
-        li
-          a(href="")
-            i.mdi.mdi-v-centered.mdi-dots-vertical
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
         .lv-item.media(ng-repeat="email in group.emails")
-          .checkbox.pull-left
-            label
-              input(value="" type="checkbox")
-              i.input-helper
-          .pull-left
-            img.lv-img-sm(src="images/user.png")
           a(ng-href="/#/unifiedinbox/{{::mailbox}}/{{::email.id}}")
             .media-body(ng-class="::{bold: email.isUnread}")
-              .pull-left
+              .lv-title.text-right.pull-right-sm
+                i.mdi.mdi-attachment(ng-if="::email.hasAttachment")
+                span.date {{::email.date | date: group.dateFormat}}
+              .avatarify
                 .lv-title {{::email.subject}}
-              .pull-right
-                .lv-title {{::email.date | date: group.dateFormat}}
-              .clearfix
-              small.lv-small {{::email.preview}}
-              ul.lv-attrs
-                li(ng-if="email.hasAttachment")
-                  a(href="")
-                    i.mdi.mdi-v-centered.mdi-attachment
-                li {{::email.from.name}}
-                  small  ({{::email.from.email}})
-              .lv-actions.actions.dropdown
-                a(href="" data-toggle="dropdown" aria-expanded="false")
-                  i.mdi.mdi-v-centered.mdi-dots-vertical
-                ul.dropdown-menu.dropdown-menu-right
-                  li
-                    a(href="") Edit
-                  li
-                    a(href="") Delete
+                emailer.lv-title(emailer="::email.from")
+                .clearfix
+            .lv-small.preview {{::email.preview}}

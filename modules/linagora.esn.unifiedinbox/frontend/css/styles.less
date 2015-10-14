@@ -1,9 +1,67 @@
 @import '../../../../frontend/css/commons';
 
+.comma {
+  margin-right: 2px;
+}
+
+.avatarify {
+  @media (min-width: @screen-md-min) {
+    padding-left: 50px;
+    background: ~"url('/images/user.png') no-repeat center left/40px";
+  }
+}
+
+.groupedEmails {
+
+  .mdi.mdi-attachment {
+    font-size: 20px;
+    vertical-align: bottom;
+
+    margin-right: 5px;
+  }
+
+  .preview {
+    margin-top: 10px;
+  }
+
+}
+
+.emailer {
+  display: inline-block;
+
+  .email {
+    margin-left: 5px;
+  }
+
+}
+
+.actions {
+  float: right;
+
+  a {
+    cursor: pointer;
+  }
+
+}
+
 .email-view {
 
-  .actions a {
-    cursor: pointer;
+  .subject {
+    color: @text-color;
+  }
+
+  .headers {
+    font-size: 13px;
+    color: @secondaryTextColor;
+
+    .mdi.mdi-clock {
+      margin-left: 5px;
+    }
+
+    .line-header {
+      margin-right: 5px;
+      font-style: italic;
+    }
   }
 
   .lv-avatar img {
@@ -48,7 +106,4 @@
     margin-left: 5px;
   }
 
-  span {
-    color: @text-color;
-  }
 }
