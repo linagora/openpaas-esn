@@ -8,7 +8,8 @@ describe('The Twitter OAuth Consumer contoller', function() {
   var deps;
   var req;
   var logger = {
-    debug: function() {}
+    debug: function() {},
+    info: function() {}
   };
   var dependencies = function(name) {
     return deps[name];

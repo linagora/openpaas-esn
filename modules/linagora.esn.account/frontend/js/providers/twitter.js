@@ -2,7 +2,8 @@
 
 angular.module('linagora.esn.account')
   .constant('OAUTH_TWITTER_MESSAGES', {
-    denied: 'You denied access to your twitter account'
+    denied: 'You denied access to your twitter account',
+    error: 'An error occured while accessing to your twitter account'
   })
   .directive('twitterAccountMenuItem', function(oauthStrategyRegistry) {
     function link($scope) {
