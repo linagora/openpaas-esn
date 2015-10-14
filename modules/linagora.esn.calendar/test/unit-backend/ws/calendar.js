@@ -147,18 +147,29 @@ describe('The calendar WS events module', function() {
 
       describe('event:updated websocket listener', function() {
 
-        it('should publish to the global pubsub for each existing mail in the received jcal object', function(done) {
+        it('should publish to the global pubsub for the organizer mail and each attendee mail in the received jcal object', function(done) {
+          var sentToGlobal = 0;
           this.pubsub.local = {
             topic: function(event) {
               expect(event).to.equal('calendar:event:updated');
               return {
                 forward: function(global, data) {
-                  expect(data).to.deep.equal({
-                    target: johnDoe,
-                    event: inputData,
-                    websocketEvent: 'event:updated'
-                  });
-                  done();
+                  if (sentToGlobal === 0) {
+                    expect(data).to.deep.equal({
+                      target: johnDoe,
+                      event: inputData,
+                      websocketEvent: 'event:updated'
+                    });
+
+                    sentToGlobal++;
+                  } else if (sentToGlobal === 1) {
+                    expect(data).to.deep.equal({
+                      target: organizer,
+                      event: inputData,
+                      websocketEvent: 'event:updated'
+                    });
+                    done();
+                  }
                 }
               };
             }
@@ -173,7 +184,7 @@ describe('The calendar WS events module', function() {
 
       describe('event:deleted websocket listener', function() {
 
-        it('should publish to the global pubsub for each existing mail in the received jcal object', function(done) {
+        it('should publish to the global pubsub for the organizer mail and each attendee mail in the received jcal object', function(done) {
           var sentToGlobal = 0;
           this.pubsub.local = {
             topic: function(event) {
