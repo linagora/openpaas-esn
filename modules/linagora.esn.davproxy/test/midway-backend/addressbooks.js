@@ -242,10 +242,6 @@ describe('The addressbooks dav proxy', function() {
           this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
         });
 
-        it('should return contact with matching fn', function(done) {
-          search.bind(this)('Brubru', done);
-        });
-
         it('should return contact with matching firstname', function(done) {
           search.bind(this)('bruce', done);
         });
