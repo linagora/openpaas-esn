@@ -7,8 +7,12 @@ angular.module('esn.calendar')
   .constant('PREFER_CALENDAR_HEADER', 'return=representation')
 
   .factory('pathBuilder', function() {
+    function root() {
+      return '/calendars';
+    }
+
     function forCalendarHomeId(calendarId) {
-      return '/calendars/' + calendarId;
+      return root() + '/' + calendarId;
     }
 
     function forCalendarId(calendarHomeId, calendarId) {
@@ -93,11 +97,45 @@ angular.module('esn.calendar')
      * @param  {String} calendarId The calendarId.
      * @return {Object}            The http response, A dav:root resource, expanded down to all dav:calendar resouces.
      */
-    function listCalendars(calendarId) {
-      var path = pathBuilder.forCalendarHomeId(calendarId);
-      return request('get', path, {Accept: ACCEPT_CALENDAR_HEADER})
+    function listAllCalendars() {
+      var path = pathBuilder.root();
+      return request('get', path + '.json', {Accept: ACCEPT_CALENDAR_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+
+    /**
+     * List all calendars in the calendar home.
+     * @param  {String} calendarId The calendarId.
+     * @return {Object}            The http response, A dav:home resource, containing all dav:calendar resources in it.
+     */
+    function listCalendars(calendarId) {
+      var path = pathBuilder.forCalendarHomeId(calendarId);
+      return request('get', path + '.json', {Accept: ACCEPT_CALENDAR_HEADER})
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+
+    /**
+     * Create a calendar in the specified calendar home.
+     * @param  {String}         calendarHomeId The calendarHomeId.
+     * @param  {ICAL.Component} vcalendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
+     * @return {Object}                        the http response.
+     */
+    function createCalendar(calendarHomeId, vcalendar) {
+      var path = pathBuilder.forCalendarHomeId(calendarHomeId);
+      var body = vcalendar.toJSON();
+      return request('post', path + '.json', null, body)
+        .then(function(response) {
+          if (response.status !== 201) {
             return $q.reject(response);
           }
           return response;
@@ -107,7 +145,9 @@ angular.module('esn.calendar')
     return {
       listEvents: listEvents,
       listCalendars: listCalendars,
-      listEventsForCalendar: listEventsForCalendar
+      listEventsForCalendar: listEventsForCalendar,
+      listAllCalendars: listAllCalendars,
+      createCalendar: createCalendar
     };
   })
 
