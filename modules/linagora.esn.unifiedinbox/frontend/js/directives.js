@@ -30,7 +30,7 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/sidebar/mailbox-display.html',
       link: function(scope) {
-        scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role || 'default'];
+        scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
       }
     };
   })

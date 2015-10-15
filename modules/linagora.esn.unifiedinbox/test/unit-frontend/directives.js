@@ -79,7 +79,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should set $scope.mailboxes to the returned mailboxes', function(done) {
-      jmapClient.getMailboxes = function() { return $q.when([{ mailbox: '1' }]); };
+      jmapClient.getMailboxes = function() { return $q.when([{ mailbox: '1', role: { value: null } }]); };
       compileDirective('<inbox-menu />');
 
       $scope.$watch('mailboxes', function(before, after) {
@@ -96,7 +96,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   describe('The mailboxDisplay directive', function() {
 
     it('should define $scope.mailboxIcons to default value if mailbox has no role', function() {
-      $scope.mailbox = {};
+      $scope.mailbox = {
+        role: {
+          value: null
+        }
+      };
       compileDirective('<mailbox-display mailbox="mailbox" />');
 
       expect(element.isolateScope().mailboxIcons).to.equal('defaultclass');
@@ -104,7 +108,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     it('should define $scope.mailboxIcons to the correct value when mailbox has a role', function() {
       $scope.mailbox = {
-        role: 'testrole'
+        role: {
+          value: 'testrole'
+        }
       };
       compileDirective('<mailbox-display mailbox="mailbox" />');
 
