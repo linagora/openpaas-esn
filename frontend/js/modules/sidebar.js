@@ -108,12 +108,14 @@ angular.module('esn.sidebar', [])
       }
     };
   })
-  .directive('refreshNicescroll', function() {
+  .directive('refreshNicescroll', function($timeout) {
     return {
       restric: 'A',
       link: function(scope, element, attr) {
         element.on('mouseover click touchstart touchmove', function() {
-          element.getNiceScroll().resize();
+          $timeout(function() {
+            element.getNiceScroll().resize();
+          }, 200);
         });
       }
     };
