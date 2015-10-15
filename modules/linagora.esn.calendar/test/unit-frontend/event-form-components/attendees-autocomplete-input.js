@@ -25,8 +25,9 @@ describe('The attendees-autocomplete-input component', function() {
       getAttendeeCandidates: function() {
         return $q.when([
           { id: '111111', firstname: 'first', lastname: 'last', email: 'user1@test.com', preferredEmail: 'user1@test.com', partstat: 'NEEDS-ACTION'},
-          { id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
-          { id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
+          { displayName: 'contact3', id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
+          { displayName: 'contact1', id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'},
+          { displayName: 'contact20', id: '444444', email: '4@last', preferredEmail: '4@last', partstat: 'NEEDS-ACTION'}
         ]);
       }
     };
@@ -61,12 +62,13 @@ describe('The attendees-autocomplete-input component', function() {
   describe('getInvitableAttendees', function() {
     var query = 'aQuery';
 
-    it('should call calendarAttendeeService and remove session.user', function(done) {
+    it('should call calendarAttendeeService, remove session.user and sort the other users based on the displayName property ', function(done) {
       this.initDirective(this.$scope);
       this.eleScope.getInvitableAttendees(query).then(function(response) {
         expect(response).to.deep.equal([
-          { id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
-          { id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
+          { displayName: 'contact1', id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'},
+          { displayName: 'contact3', id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
+          { displayName: 'contact20', id: '444444', email: '4@last', preferredEmail: '4@last', partstat: 'NEEDS-ACTION'}
         ]);
         done();
       });
@@ -80,7 +82,8 @@ describe('The attendees-autocomplete-input component', function() {
       }];
       this.eleScope.getInvitableAttendees(query).then(function(response) {
         expect(response).to.deep.equal([
-          { id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
+          { displayName: 'contact1', id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'},
+          { displayName: 'contact20', id: '444444', email: '4@last', preferredEmail: '4@last', partstat: 'NEEDS-ACTION'}
         ]);
         done();
       });
