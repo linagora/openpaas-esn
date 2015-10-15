@@ -61,7 +61,9 @@ function jcal2content(icalendar, baseUrl) {
   });
 
   var allDay = vevent.getFirstProperty('dtstart').type === 'date';
-  var end;
+  var startDate = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
+  var end, endDate;
+  var durationInDays = null;
   if (method === 'CANCEL') {
     end = null;
   } else {
@@ -70,8 +72,10 @@ function jcal2content(icalendar, baseUrl) {
       end: vevent.getFirstPropertyValue('dtend') || null,
       duration: vevent.getFirstPropertyValue('duration') || null
     });
-
-    var endDate = moment(moment(period.getEnd().toJSDate()));
+    endDate = moment(moment(period.getEnd().toJSDate()));
+    if (!!endDate && !!startDate) {
+      durationInDays = endDate.diff(startDate, 'days');
+    }
     // OR-1221: end is exclusive when the event is an allday event.
     // For end user, we are chosing an inclusive end date
     if (allDay) {
@@ -82,7 +86,6 @@ function jcal2content(icalendar, baseUrl) {
       time: endDate.format('LT')
     };
   }
-
   var organizer = vevent.getFirstProperty('organizer');
   var cn = organizer.getParameter('cn');
   var mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
@@ -91,8 +94,6 @@ function jcal2content(icalendar, baseUrl) {
     email: mail,
     avatar: url.resolve(baseUrl, 'api/avatars?objectType=user&email=' + mail)
   };
-
-  var startDate = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
 
   var content = {
     method: method,
@@ -107,7 +108,8 @@ function jcal2content(icalendar, baseUrl) {
     end: end,
     allDay: allDay,
     attendees: attendees,
-    organizer: organizer
+    organizer: organizer,
+    durationInDays: durationInDays
   };
 
   return content;

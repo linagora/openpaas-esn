@@ -43,6 +43,7 @@ describe('jcalHelper', function() {
           time: '3:30 PM'
         },
         allDay: false,
+        durationInDays: 0,
         location: 'https://hubl.in/openpaas',
         description: 'Présentation de OPENPAAS',
         organizer: {
@@ -75,6 +76,7 @@ describe('jcalHelper', function() {
         },
         end: null,
         allDay: false,
+        durationInDays: null,
         location: 'https://hubl.in/openpaas',
         description: 'Présentation de OPENPAAS',
         organizer: {
@@ -110,6 +112,7 @@ describe('jcalHelper', function() {
           time: '12:00 AM'
         },
         allDay: true,
+        durationInDays: 92,
         location: 'https://hubl.in/openpaas',
         description: 'Présentation de OPENPAAS',
         organizer: {
