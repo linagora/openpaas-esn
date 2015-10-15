@@ -7,12 +7,16 @@ angular.module('esn.calendar')
   .constant('PREFER_CALENDAR_HEADER', 'return=representation')
 
   .factory('pathBuilder', function() {
-    function forCalendarId(calendarId) {
+    function forCalendarHomeId(calendarId) {
       return '/calendars/' + calendarId;
     }
 
+    function forCalendarId(calendarHomeId, calendarId) {
+      return forCalendarHomeId(calendarHomeId) + '/' + calendarId;
+    }
+
     function forEvents(calendarId) {
-      return forCalendarId(calendarId) + '/events';
+      return forCalendarHomeId(calendarId) + '/events';
     }
 
     function forEventId(calendarId, eventId) {
@@ -20,6 +24,7 @@ angular.module('esn.calendar')
     }
 
     return {
+      forCalendarHomeId: forCalendarHomeId,
       forCalendarId: forCalendarId,
       forEvents: forEvents,
       forEventId: forEventId
@@ -56,12 +61,40 @@ angular.module('esn.calendar')
     }
 
     /**
+     * Queries one or more calendars for events. The dav:calendar resources will include their items.
+     * @param  {String}   calendarHomeId The calendarHomeId.
+     * @param  {String}   calendarId     The calendarId.
+     * @param  {FCMoment} start          FCMoment type of Date, specifying the start of the range.
+     * @param  {FCMoment} end            FCMoment type of Date, specifying the end of the range.
+     * @return {Object}                  An array of vcalendar items.
+     */
+    function listEventsForCalendar(calendarHomeId, calendarId, start, end) {
+      var body = {
+        match: {
+          start: start.format('YYYYMMDD[T]HHmmss'),
+          end: end.format('YYYYMMDD[T]HHmmss')
+        }
+      };
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      return request('post', path + '.json', null, body)
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
+            return [];
+          }
+          return response.data._embedded['dav:item'];
+        });
+    }
+
+    /**
      * List all calendar homes and calendars in the calendar root.
      * @param  {String} calendarId The calendarId.
      * @return {Object}            The http response, A dav:root resource, expanded down to all dav:calendar resouces.
      */
     function listCalendars(calendarId) {
-      var path = pathBuilder.forCalendarId(calendarId);
+      var path = pathBuilder.forCalendarHomeId(calendarId);
       return request('get', path, {Accept: ACCEPT_CALENDAR_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
@@ -73,7 +106,8 @@ angular.module('esn.calendar')
 
     return {
       listEvents: listEvents,
-      listCalendars: listCalendars
+      listCalendars: listCalendars,
+      listEventsForCalendar: listEventsForCalendar
     };
   })
 
