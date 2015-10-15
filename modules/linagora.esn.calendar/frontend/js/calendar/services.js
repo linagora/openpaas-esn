@@ -301,11 +301,8 @@ angular.module('esn.calendar')
         .catch ($q.reject);
     }
 
-    function remove(path, event, etag) {
-      var headers = {};
-      if (etag) {
-        headers['If-Match'] = etag;
-      } else {
+    function remove(eventPath, event, etag) {
+      if (!etag) {
         // This is a noop and the event is not created yet in sabre/dav,
         // we then should only remove the event from fullcalendar
         // and cancel the taskid corresponding on the event.
@@ -317,12 +314,9 @@ angular.module('esn.calendar')
 
       var taskId = null;
       var vcalendar = shellToICAL(event);
-      var shell = new CalendarShell(vcalendar, path, etag);
-      return request('delete', path, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(function(response) {
-        if (response.status !== 202) {
-          return $q.reject(response);
-        }
-        taskId = response.data.id;
+      var shell = new CalendarShell(vcalendar, eventPath, etag);
+      return eventAPI.remove(eventPath, etag).then(function(id) {
+        taskId = id;
         calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
       })
       .then(function() {
@@ -360,7 +354,8 @@ angular.module('esn.calendar')
           }
           return $q.when(true);
         }
-      });
+      })
+      .catch ($q.reject);
     }
 
     function modify(path, event, oldEvent, etag, majorModification, onCancel) {
@@ -370,15 +365,7 @@ angular.module('esn.calendar')
         });
       }
 
-      var headers = {
-        'Content-Type': 'application/calendar+json',
-        'Prefer': 'return=representation'
-      };
-      var body = shellToICAL(event).toJSON();
-
-      if (etag) {
-        headers['If-Match'] = etag;
-      } else {
+      if (!etag) {
         // This is a create event because the event is not created yet in sabre/dav,
         // we then should only cancel the first creation task.
         path = path.replace(/\/$/, '') + '/' + event.uid + '.ics';
@@ -392,11 +379,8 @@ angular.module('esn.calendar')
         var oldVcalendar = shellToICAL(oldEvent);
         var oldShell = new CalendarShell(oldVcalendar, path, etag);
       }
-      return request('put', path, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(function(response) {
-        if (response.status !== 202) {
-          return $q.reject(response);
-        }
-        taskId = response.data.id;
+      return eventAPI.modify(path, vcalendar).then(function(id) {
+        taskId = id;
         calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
       })
       .then(function() {
