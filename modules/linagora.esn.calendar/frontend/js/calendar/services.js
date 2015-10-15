@@ -258,59 +258,47 @@ angular.module('esn.calendar')
       }
 
       var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
-      var headers = { 'Content-Type': 'application/calendar+json' };
-      var body = vcalendar.toJSON();
-
-      if (options.graceperiod) {
-        var taskId = null;
-        return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
-          .then(function(response) {
-            if (response.status !== 202) {
-              return $q.reject(response);
-            }
-            taskId = response.data.id;
+      var taskId = null;
+      return eventAPI.create(eventPath, vcalendar, options)
+        .then(function(response) {
+          if (typeof response !== 'string') {
+            return response;
+          } else {
+            taskId = response;
             calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, null, null, taskId));
-          })
-          .then(function() {
-            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid});
-          })
-          .then(function(data) {
-            var task = data;
-            if (task.cancelled) {
-              gracePeriodService.cancel(taskId).then(function() {
-                calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
-                task.success();
-              }, function(err) {
-                task.error(err.statusText);
-              });
-            } else {
-              // Unfortunately, sabredav doesn't support Prefer:
-              // return=representation on the PUT request,
-              // so we have to retrieve the event again for the etag.
-              return getEvent(eventPath).then(function(shell) {
-                gracePeriodService.remove(taskId);
-                calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
-                return shell;
-              }, function(response) {
-                if (response.status === 404) {
-                  // Silently fail here because it is due to
-                  // the task being cancelled by another method.
-                  return;
+            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid})
+              .then(function(task) {
+                if (task.cancelled) {
+                  gracePeriodService.cancel(taskId).then(function() {
+                    calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
+                    task.success();
+                  }, function(err) {
+                    task.error(err.statusText);
+                  });
                 } else {
-                  return response;
+                  // Unfortunately, sabredav doesn't support Prefer:
+                  // return=representation on the PUT request,
+                  // so we have to retrieve the event again for the etag.
+                  return getEvent(eventPath).then(function(shell) {
+                    gracePeriodService.remove(taskId);
+                    calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+                    calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
+                    return shell;
+                  }, function(response) {
+                    if (response.status === 404) {
+                      // Silently fail here because it is due to
+                      // the task being cancelled by another method.
+                      return;
+                    } else {
+                      return response;
+                    }
+                  });
                 }
-              });
-            }
-          });
-      } else {
-        return request('put', eventPath, headers, body).then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
+              })
+              .catch ($q.reject);
           }
-          return response;
-        });
-      }
+        })
+        .catch ($q.reject);
     }
 
     function remove(path, event, etag) {
