@@ -6,15 +6,44 @@ angular.module('esn.calendar')
   .constant('CONTENT_TYPE_CALENDAR_HEADER', 'application/calendar+json')
   .constant('PREFER_CALENDAR_HEADER', 'return=representation')
 
-  .factory('calendarAPI', function(request, FCMoment) {
-    function listEvents(calendarPath, start, end, timezone) {
+  .factory('pathBuilder', function() {
+    function forCalendarId(calendarId) {
+      return '/calendars/' + calendarId;
+    }
+
+    function forEvents(calendarId) {
+      return forCalendarId(calendarId) + '/events';
+    }
+
+    function forEventId(calendarId, eventId) {
+      return forEvents(calendarId).replace(/\/$/, '') + '/' + eventId + '.ics';
+    }
+
+    return {
+      forCalendarId: forCalendarId,
+      forEvents: forEvents,
+      forEventId: forEventId
+    };
+  })
+
+  .factory('calendarAPI', function(request, FCMoment, pathBuilder, ACCEPT_CALENDAR_HEADER) {
+
+    /**
+     * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their items.
+     * @param  {String}   calendarId The calendarId.
+     * @param  {FCMoment} start      FCMoment type of Date, specifying the start of the range.
+     * @param  {FCMoment} end        FCMoment type of Date, specifying the end of the range.
+     * @return {Object}              An array of vcalendar items.
+     */
+    function listEvents(calendarId, start, end) {
       var body = {
         match: {
-          start: FCMoment(start).format('YYYYMMDD[T]HHmmss'),
-          end: FCMoment(end).format('YYYYMMDD[T]HHmmss')
+          start: start.format('YYYYMMDD[T]HHmmss'),
+          end: end.format('YYYYMMDD[T]HHmmss')
         }
       };
-      return request('post', calendarPath + '.json', null, body)
+      var path = pathBuilder.forEvents(calendarId);
+      return request('post', path + '.json', null, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -26,8 +55,25 @@ angular.module('esn.calendar')
         });
     }
 
+    /**
+     * List all calendar homes and calendars in the calendar root.
+     * @param  {String} calendarId The calendarId.
+     * @return {Object}            The http response, A dav:root resource, expanded down to all dav:calendar resouces.
+     */
+    function listCalendars(calendarId) {
+      var path = pathBuilder.forCalendarId(calendarId);
+      return request('get', path, {Accept: ACCEPT_CALENDAR_HEADER})
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+
     return {
-      listEvents: listEvents
+      listEvents: listEvents,
+      listCalendars: listCalendars
     };
   })
 

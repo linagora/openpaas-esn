@@ -6,8 +6,7 @@ angular.module('esn.calendar')
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        var path = '/calendars/' + calendarId + '/events';
-        return calendarService.list(path, start, end, timezone).then(
+        return calendarService.list(calendarId, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
               return !calendarShell.status || calendarShell.status !== 'CANCELLED';
