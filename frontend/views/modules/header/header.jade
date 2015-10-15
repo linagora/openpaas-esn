@@ -7,7 +7,9 @@ div
             .line.top
             .line.center
             .line.bottom
-        li.logo
+        li.logo(ng-if='disableScrollListener')
+          a(href='#') OpenPaaS
+        li.logo(ng-if='!disableScrollListener')
           a(href='#', dynamic-directive='main-header-middle-content')
       ul.list-inline.all-centered
         li.hover-scale-animation
