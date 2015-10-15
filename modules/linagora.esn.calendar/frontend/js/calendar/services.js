@@ -61,7 +61,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY,CALENDAR_ERROR_DISPLAY_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -221,15 +221,13 @@ angular.module('esn.calendar')
       return invitedAttendees;
     }
 
-    function getEvent(path) {
-      var headers = { Accept: 'application/calendar+json' };
-      return request('get', path, headers).then(function(response) {
-        if (response.status !== 200) {
-          return $q.reject(response);
-        }
-        var vcalendar = new ICAL.Component(response.data);
-        return new CalendarShell(vcalendar, path, response.headers('ETag'));
-      });
+    function getEvent(eventPath) {
+      return eventAPI.get(eventPath)
+        .then(function(response) {
+          var vcalendar = new ICAL.Component(response.data);
+          return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
+        })
+        .catch ($q.reject);
     }
 
     function list(calendarPath, start, end, timezone) {
