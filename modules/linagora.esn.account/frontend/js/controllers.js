@@ -15,8 +15,6 @@ angular.module('linagora.esn.account')
     if ($location.search().status) {
       $scope.status = $location.search().status;
       $scope.provider = $location.search().provider;
-      if ($scope.status === 'denied' || $scope.status === 'error') {
-        displayAccountMessage($scope.provider, $scope.status);
-      }
+      displayAccountMessage($scope.provider, $scope.status);
     }
   });

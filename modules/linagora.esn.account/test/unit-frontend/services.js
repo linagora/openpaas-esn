@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Account Angular Services', function() {
 
   describe('The displayAccountMessage service', function() {
-    var accountMessageRegistry, alertMock;
+    var accountMessageRegistry, displayAccountMessageLevel, alertMock;
 
     beforeEach(function() {
       accountMessageRegistry = {};
@@ -15,6 +15,7 @@ describe('The Account Angular Services', function() {
       module('esn.core');
       angular.mock.module(function($provide) {
         $provide.value('accountMessageRegistry', accountMessageRegistry);
+        $provide.value('displayAccountMessageLevel', displayAccountMessageLevel);
         $provide.value('$alert', function(options) {
           return alertMock(options);
         });
@@ -22,10 +23,11 @@ describe('The Account Angular Services', function() {
       module('linagora.esn.account');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, displayAccountMessage, accountMessageRegistry, $alert) {
+    beforeEach(angular.mock.inject(function($rootScope, displayAccountMessage, accountMessageRegistry, $alert, displayAccountMessageLevel) {
       this.$rootScope = $rootScope;
       this.displayAccountMessage = displayAccountMessage;
       this.accountMessageRegistry = accountMessageRegistry;
+      this.displayAccountMessageLevel = displayAccountMessageLevel;
       this.$alert = $alert;
     }));
 
@@ -38,6 +40,10 @@ describe('The Account Angular Services', function() {
         done();
       };
 
+      this.displayAccountMessageLevel = function() {
+        return 'error';
+      };
+
       this.accountMessageRegistry.get = function(_provider, _type) {
         expect(_provider).to.equal(provider);
         expect(_type).to.equal(type);
@@ -47,6 +53,47 @@ describe('The Account Angular Services', function() {
       this.displayAccountMessage(provider, type);
     });
 
+  });
+
+  describe('The displayAccountMessageLevel service', function() {
+    var accountMessageRegistry;
+
+    beforeEach(function() {
+      accountMessageRegistry = {};
+      module('ngRoute');
+      module('esn.core');
+      module('linagora.esn.account');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, displayAccountMessageLevel, OAUTH_MESSAGE_LEVELS) {
+      this.$rootScope = $rootScope;
+      this.displayAccountMessageLevel = displayAccountMessageLevel;
+      this.OAUTH_MESSAGE_LEVELS = OAUTH_MESSAGE_LEVELS;
+    }));
+
+    it('should send back the right level for denied status', function() {
+      expect(this.displayAccountMessageLevel('denied')).to.equal(this.OAUTH_MESSAGE_LEVELS.denied);
+    });
+
+    it('should send back the right level for error status', function() {
+      expect(this.displayAccountMessageLevel('error')).to.equal(this.OAUTH_MESSAGE_LEVELS.error);
+    });
+
+    it('should send back the right level for updated status', function() {
+      expect(this.displayAccountMessageLevel('updated')).to.equal(this.OAUTH_MESSAGE_LEVELS.updated);
+    });
+
+    it('should send back the right level for created status', function() {
+      expect(this.displayAccountMessageLevel('created')).to.equal(this.OAUTH_MESSAGE_LEVELS.created);
+    });
+
+    it('should send back the right level for unknown status', function() {
+      expect(this.displayAccountMessageLevel('not a good status')).to.equal(this.OAUTH_MESSAGE_LEVELS.default);
+    });
+
+    it('should send back the right level for undefined status', function() {
+      expect(this.displayAccountMessageLevel()).to.equal(this.OAUTH_MESSAGE_LEVELS.default);
+    });
   });
 
   describe('The accountMessageRegistry service', function() {

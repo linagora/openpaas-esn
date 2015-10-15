@@ -10,6 +10,7 @@ module.exports = function(dependencies) {
   var logger = dependencies('logger');
 
   function upsertAccount(user, account, callback) {
+    var status = 'created';
     function accountExists(userAccount) {
       return userAccount.type === account.type && userAccount.data && userAccount.data.provider === account.data.provider && userAccount.data.id === account.data.id;
     }
@@ -17,6 +18,7 @@ module.exports = function(dependencies) {
     var exists = user.accounts.some(accountExists);
 
     if (exists) {
+      status = 'updated';
       user.accounts.forEach(function(userAccount) {
         if (accountExists(userAccount)) {
           userAccount.data.username = account.data.username;
@@ -28,7 +30,12 @@ module.exports = function(dependencies) {
     } else {
       user.accounts.push(account);
     }
-    user.save(callback);
+    user.save(function(err, updated) {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, {user: updated, status: status});
+    });
   }
 
   function configure(callback) {
@@ -68,12 +75,15 @@ module.exports = function(dependencies) {
             }
           };
 
-          upsertAccount(req.user, account, function(err, user) {
+          upsertAccount(req.user, account, function(err, result) {
             if (err) {
               logger.error('Can not add external account to user', err);
               return callback(err);
             }
-            req.user = user;
+            req.oauth = {
+              status: result.status
+            };
+            req.user = result.user;
             return callback(null, req.user);
           });
         }));

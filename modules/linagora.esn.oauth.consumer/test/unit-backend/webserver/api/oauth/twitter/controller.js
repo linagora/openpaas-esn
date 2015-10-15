@@ -33,10 +33,24 @@ describe('The Twitter OAuth Consumer contoller', function() {
 
   describe('The callback controller', function() {
 
-    it('should redirect to /#/accounts when ok', function(done) {
+    it('should redirect to /#/accounts?provider=twitter when ok', function(done) {
       var res = {
         redirect: function(path) {
-          expect(path).to.equal('/#/accounts');
+          expect(path).to.equal('/#/accounts?provider=twitter');
+          done();
+        }
+      };
+      getController().callback(req, res);
+    });
+
+    it('should redirect to /#/accounts?provider=twitter&status=:status when status is defined in req.oauth', function(done) {
+      var status = 'created';
+      req.oauth = {
+        status: status
+      };
+      var res = {
+        redirect: function(path) {
+          expect(path).to.equal('/#/accounts?provider=twitter&status=' + status);
           done();
         }
       };
