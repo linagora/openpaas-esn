@@ -67,7 +67,7 @@ angular.module('esn.header', [])
     };
   })
 
-  .directive('mainHeader', function($rootScope, headerService, dynamicDirectiveService, Fullscreen, SIDEBAR_EVENTS, SUB_HEADER_HAS_INJECTION_EVENT, sideBarService) {
+  .directive('mainHeader', function($rootScope, deviceDetector, headerService, dynamicDirectiveService, Fullscreen, SIDEBAR_EVENTS, SUB_HEADER_HAS_INJECTION_EVENT, sideBarService) {
     return {
       restrict: 'E',
       replace: true,
@@ -105,6 +105,8 @@ angular.module('esn.header', [])
         scope.show = function() {
           element.find('#header').removeClass('hide-top');
         };
+
+        scope.disableScrollListener = !deviceDetector.isMobile();
 
         scope.hasSubHeaderGotInjections = headerService.subHeader.hasInjections();
 
