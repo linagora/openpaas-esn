@@ -59,6 +59,16 @@ angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
       );
     };
 
+    $scope.isLogin = true;
+    $scope.isRegister = false;
+    $scope.tab = function(tabNumber) {
+      if($scope.step != tabNumber) {
+        $scope.step = tabNumber;
+        $scope.isLogin = !$scope.isLogin;
+        $scope.isRegister = !$scope.isRegister;
+      }
+    };
+
     $scope.showError = function() {
       return loginErrorService.getError() && $location.path() !== '/' && !$scope.loginTask.running && !$scope.loginIn;
     };
@@ -101,4 +111,3 @@ angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
       return this.data.error;
     };
   });
-
