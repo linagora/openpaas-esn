@@ -61,7 +61,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY,CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY,CALENDAR_ERROR_DISPLAY_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -231,28 +231,19 @@ angular.module('esn.calendar')
     }
 
     function list(calendarPath, start, end, timezone) {
-      var req = {
-        match: {
-          start: FCMoment(start).format('YYYYMMDD[T]HHmmss'),
-          end: FCMoment(end).format('YYYYMMDD[T]HHmmss')
-        }
-      };
-
-      return request('post', calendarPath + '.json', null, req).then(function(response) {
-        if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
-          return [];
-        }
-        return response.data._embedded['dav:item'].reduce(function(shells, icaldata) {
-          var vcalendar = new ICAL.Component(icaldata.data);
-          var vevents = vcalendar.getAllSubcomponents('vevent');
-          vevents.forEach(function(vevent) {
-            var shell = new CalendarShell(vevent, icaldata._links.self.href, icaldata.etag);
-            shells.push(shell);
-          });
-
-          return shells;
-        }, []);
-      });
+      return calendarAPI.listEvents(calendarPath, start, end, timezone)
+        .then(function(events) {
+          return events.reduce(function(shells, icaldata) {
+            var vcalendar = new ICAL.Component(icaldata.data);
+            var vevents = vcalendar.getAllSubcomponents('vevent');
+            vevents.forEach(function(vevent) {
+              var shell = new CalendarShell(vevent, icaldata._links.self.href, icaldata.etag);
+              shells.push(shell);
+            });
+            return shells;
+          }, []);
+        })
+        .catch ($q.reject);
     }
 
     function create(calendarPath, vcalendar, options) {

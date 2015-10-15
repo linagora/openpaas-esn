@@ -4,8 +4,29 @@ angular.module('esn.calendar')
 
   .constant('ACCEPT_CALENDAR_HEADER', 'application/calendar+json')
 
-  .factory('calendarAPI', function(request) {
+  .factory('calendarAPI', function(request, FCMoment) {
+    function listEvents(calendarPath, start, end, timezone) {
+      var body = {
+        match: {
+          start: FCMoment(start).format('YYYYMMDD[T]HHmmss'),
+          end: FCMoment(end).format('YYYYMMDD[T]HHmmss')
+        }
+      };
+      return request('post', calendarPath + '.json', null, body)
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
+            return [];
+          }
+          return response.data._embedded['dav:item'];
+        });
+    }
 
+    return {
+      listEvents: listEvents
+    };
   })
 
   .factory('eventAPI', function(request, ACCEPT_CALENDAR_HEADER) {
@@ -38,7 +59,6 @@ angular.module('esn.calendar')
 
     return {
       get: get,
-      list: list,
       create: create,
       modify: modify,
       remove: remove,
