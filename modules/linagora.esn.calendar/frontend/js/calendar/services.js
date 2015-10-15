@@ -416,7 +416,8 @@ angular.module('esn.calendar')
             }
           });
         }
-      });
+      })
+      .catch ($q.reject);
     }
 
     function _applyPartstatToSpecifiedAttendees(event, emails, status) {
@@ -434,20 +435,6 @@ angular.module('esn.calendar')
       return needsModify;
     }
 
-    function _modifyPartStat(path, event, etag) {
-      var headers = {
-        'Content-Type': 'application/calendar+json',
-        'Prefer': 'return=representation'
-      };
-      var body = shellToICAL(event).toJSON();
-
-      if (etag) {
-        headers['If-Match'] = etag;
-      }
-
-      return request('put', path, headers, body);
-    }
-
     function changeParticipation(eventPath, event, emails, status, etag, emitEvents) {
       emitEvents = emitEvents || true;
       if (!angular.isArray(event.attendees)) {
@@ -458,7 +445,8 @@ angular.module('esn.calendar')
         return $q.when(null);
       }
 
-      return _modifyPartStat(eventPath, event, etag)
+      var vcalendar = shellToICAL(event);
+      return eventAPI.changeParticipation(eventPath, vcalendar, etag)
         .then(function(response) {
           if (response.status === 200) {
             var vcalendar = new ICAL.Component(response.data);
@@ -471,10 +459,9 @@ angular.module('esn.calendar')
               }
               return shell;
             });
-          } else {
-            return $q.reject(response);
           }
-        })['catch'](function(response) {
+        })
+        .catch (function(response) {
           if (response.status === 412) {
             return getEvent(eventPath).then(function(shell) {
               // A conflict occurred. We've requested the event data in the
