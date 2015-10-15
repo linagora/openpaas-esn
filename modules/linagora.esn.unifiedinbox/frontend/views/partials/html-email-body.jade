@@ -1,0 +1,4 @@
+// The email is displayed in an iframe because it's the easiest way to display raw HTML content
+// without having to deal with XSS security. The iframe is sandboxed so that even if there's style injection
+// or a malicious script running inside the email, this won't pollute the ESN...
+iframe.html-email-body(srcdoc="{{ ::email.htmlBody | trustAsHtml }}")

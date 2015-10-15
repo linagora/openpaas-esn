@@ -262,4 +262,33 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The createHtmlElement factory', function() {
+
+    var createHtmlElement;
+
+    beforeEach(inject(function(_createHtmlElement_) {
+      createHtmlElement = _createHtmlElement_;
+    }));
+
+    it('should return an HTML element', function() {
+      expect(createHtmlElement('div').tagName).to.equal('DIV');
+    });
+
+    it('should not fail when no attributes are given', function() {
+      expect(createHtmlElement('div').attributes).to.have.length(0);
+    });
+
+    it('should not fail when an empty object is given as attributes', function() {
+      expect(createHtmlElement('div', {}).attributes).to.have.length(0);
+    });
+
+    it('should merge attributes in the resulting element', function() {
+      expect(createHtmlElement('script', { type: 'text/javascript' }).attributes[0]).to.shallowDeepEqual({
+        name: 'type',
+        value: 'text/javascript'
+      });
+    });
+
+  });
+
 });

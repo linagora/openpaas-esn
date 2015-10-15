@@ -27,7 +27,7 @@
 
   .card.listview.zoomIn
     .lv-body
-      .lv-item(ng-if="email.htmlBody" ng-bind-html="email.htmlBody")
-      .lv-item.multilines(ng-if="!email.htmlBody") {{email.textBody}}
-      .lv-item(ng-if="!email.htmlBody && !email.textBody") {{email.preview}}
+      html-email-body(ng-if="email.htmlBody", email="::email")
+      .lv-item.multilines(ng-if="!email.htmlBody") {{::email.textBody}}
+      .lv-item(ng-if="!email.htmlBody && !email.textBody") {{::email.preview}}
         .text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
