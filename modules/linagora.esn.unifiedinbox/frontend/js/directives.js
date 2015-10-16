@@ -83,4 +83,15 @@ angular.module('linagora.esn.unifiedinbox')
         });
       }
     };
+  })
+
+  .directive('inboxAttachment', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        attachment: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/inbox-attachment.html'
+    };
   });

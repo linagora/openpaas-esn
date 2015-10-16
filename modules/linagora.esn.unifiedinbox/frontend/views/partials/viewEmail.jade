@@ -25,9 +25,13 @@
           span.line-header #{__('CC')}:
           emailer-group(group="::email.cc")
 
-  .card.listview.zoomIn
-    .lv-body
-      html-email-body(ng-if="email.htmlBody", email="::email")
-      .lv-item.multilines(ng-if="!email.htmlBody") {{::email.textBody}}
-      .lv-item(ng-if="!email.htmlBody && !email.textBody") {{::email.preview}}
-        .text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
+  .email-body
+    html-email-body(ng-if="email.htmlBody", email="::email")
+    .lv-item.multilines(ng-if="!email.htmlBody") {{::email.textBody}}
+    .lv-item(ng-if="!email.htmlBody && !email.textBody") {{::email.preview}}
+      .text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
+
+  .lv-footer(ng-if="email.attachments.length > 0")
+    .attachments
+      i.title.mdi.mdi-attachment #{__('Attachments')}
+      inbox-attachment(ng-repeat="attachment in ::email.attachments", ng-if="::!attachment.isInline", attachment="::attachment")
