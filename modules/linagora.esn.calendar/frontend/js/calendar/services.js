@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY,CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($q, FCMoment, jstz, uuid4, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -453,8 +453,8 @@ angular.module('esn.calendar')
           } else if (response.status === 204) {
             return getEvent(eventPath).then(function(shell) {
               if (emitEvents) {
-                $rootScope.$emit('modifiedCalendarItem', shell);
-                socket('/calendars').emit('event:updated', shell.vcalendar);
+                calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+                calendarEventEmitter.websocket.emitUpdatedEvent(shell.vcalendar);
               }
               return shell;
             });
