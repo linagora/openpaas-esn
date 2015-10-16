@@ -7,8 +7,12 @@ angular.module('esn.calendar')
     $scope.uiConfig = COMMUNITY_UI_CONFIG;
   })
 
-  .controller('userCalendarController', function($scope, user, USER_UI_CONFIG) {
+  .controller('userCalendarController', function($scope, user, deviceDetector, USER_UI_CONFIG) {
     $scope.calendarId = user._id;
+    //The following function should be uncommented once the fullcalendar.js is patched
+    //if (deviceDetector.isMobile()) {
+    //  USER_UI_CONFIG.calendar.header = false;
+    //}
     $scope.uiConfig = USER_UI_CONFIG;
   })
 

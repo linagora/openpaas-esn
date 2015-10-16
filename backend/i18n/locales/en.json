@@ -272,5 +272,10 @@
   "Modify": "Modify",
   "Delete": "Delete",
   "Add a new ": "Add a new ",
-  "Add a new address": "Add a new address"
+  "Add a new address": "Add a new address",
+  "Month View": "Month View",
+  "Week View": "Week View",
+  "Agenda Week View": "Agenda Week View",
+  "Day View": "Day View",
+  "Agenda Day View": "Agenda Day View"
 }

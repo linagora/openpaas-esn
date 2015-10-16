@@ -1,0 +1,22 @@
+.calendar-header-mobile(ng-if="isMobile()")
+  .calendar-controls.row
+    a.hover-scale-animation.col-xs-6(toggle-sub-calendar)
+      | Write what you want
+      i.mdi.mdi-menu-down
+    div.hover-scale-animation.dropdown.pull-right.col-xs-6
+      a.hover-scale-animation.p-l-5.p-r-10(toggle-calendar-today)
+        i.mdi.mdi-calendar-today
+      a.moreactions.dropdown-toggle.p-l-5.p-r-10(href='' data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+        i.mdi.mdi-view-headline
+      ul.dropdown-menu.dropdown-menu-right(role="menu")
+        li.active
+          a(href='', toggle-calendar-view="month") #{__('Month View')}
+        li
+          a(href='', toggle-calendar-view="basicWeek") #{__('Week View')}
+        li
+          a(href='', toggle-calendar-view="agendaWeek") #{__('Agenda Week View')}
+        li
+          a(href='', toggle-calendar-view="basicDay") #{__('Day View')}
+        li
+          a(href='', toggle-calendar-view="agendaDay") #{__('Agenda Day View')}
+.sub-calendar.collapse
