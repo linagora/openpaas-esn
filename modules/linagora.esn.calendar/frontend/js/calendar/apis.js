@@ -2,17 +2,17 @@
 
 angular.module('esn.calendar')
 
-  .constant('ACCEPT_CALENDAR_HEADER', 'application/calendar+json')
-  .constant('CONTENT_TYPE_CALENDAR_HEADER', 'application/calendar+json')
-  .constant('PREFER_CALENDAR_HEADER', 'return=representation')
+  .constant('CALENDAR_ACCEPT_HEADER', 'application/calendar+json')
+  .constant('CALENDAR_CONTENT_TYPE_HEADER', 'application/calendar+json')
+  .constant('CALENDAR_PREFER_HEADER', 'return=representation')
 
   .factory('pathBuilder', function() {
-    function root() {
+    function rootPath() {
       return '/calendars';
     }
 
     function forCalendarHomeId(calendarId) {
-      return root() + '/' + calendarId;
+      return rootPath() + '/' + calendarId;
     }
 
     function forCalendarId(calendarHomeId, calendarId) {
@@ -28,7 +28,7 @@ angular.module('esn.calendar')
     }
 
     return {
-      root: root,
+      rootPath: rootPath,
       forCalendarHomeId: forCalendarHomeId,
       forCalendarId: forCalendarId,
       forEvents: forEvents,
@@ -36,7 +36,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarAPI', function(request, FCMoment, pathBuilder, ACCEPT_CALENDAR_HEADER) {
+  .factory('calendarAPI', function(request, FCMoment, pathBuilder, CALENDAR_ACCEPT_HEADER) {
 
     /**
      * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
@@ -99,8 +99,8 @@ angular.module('esn.calendar')
      * @return {Object}            An array of dav:home items
      */
     function listAllCalendars() {
-      var path = pathBuilder.root();
-      return request('get', path + '/.json', {Accept: ACCEPT_CALENDAR_HEADER})
+      var path = pathBuilder.rootPath();
+      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -119,7 +119,7 @@ angular.module('esn.calendar')
      */
     function listCalendars(calendarId) {
       var path = pathBuilder.forCalendarHomeId(calendarId);
-      return request('get', path + '.json', {Accept: ACCEPT_CALENDAR_HEADER})
+      return request('get', path + '.json', {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -158,7 +158,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('eventAPI', function($q, request, ACCEPT_CALENDAR_HEADER, CONTENT_TYPE_CALENDAR_HEADER, CALENDAR_GRACE_DELAY, PREFER_CALENDAR_HEADER) {
+  .factory('eventAPI', function($q, request, CALENDAR_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
 
     /**
      * GET request used to get details of an event of path eventPath.
@@ -166,7 +166,7 @@ angular.module('esn.calendar')
      * @return {Object}           the http response.
      */
     function get(eventPath) {
-       return request('get', eventPath, {Accept: ACCEPT_CALENDAR_HEADER})
+       return request('get', eventPath, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -183,7 +183,7 @@ angular.module('esn.calendar')
      * @return {String||Object}           a taskId if with use the graceperiod, the http response otherwise.
      */
     function create(eventPath, vcalendar, options) {
-      var headers = {'Content-Type': CONTENT_TYPE_CALENDAR_HEADER};
+      var headers = {'Content-Type': CALENDAR_CONTENT_TYPE_HEADER};
       var body = vcalendar.toJSON();
       if (options.graceperiod) {
         return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
@@ -212,8 +212,8 @@ angular.module('esn.calendar')
      */
     function modify(eventPath, vcalendar, etag) {
       var headers = {
-        'Content-Type': CONTENT_TYPE_CALENDAR_HEADER,
-        'Prefer': PREFER_CALENDAR_HEADER
+        'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
+        'Prefer': CALENDAR_PREFER_HEADER
       };
       if (etag) {
         headers['If-Match'] = etag;
@@ -254,8 +254,8 @@ angular.module('esn.calendar')
      */
     function changeParticipation(eventPath, vcalendar, etag) {
       var headers = {
-        'Content-Type': CONTENT_TYPE_CALENDAR_HEADER,
-        'Prefer': PREFER_CALENDAR_HEADER
+        'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
+        'Prefer': CALENDAR_PREFER_HEADER
       };
       if (etag) {
         headers['If-Match'] = etag;
