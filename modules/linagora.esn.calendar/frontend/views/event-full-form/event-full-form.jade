@@ -85,7 +85,7 @@
             .col-xs-12
               .form-group
                 .input-group
-                  span.input-group-addon
+                  span.input-group-addon.textarea-icon
                     i.mdi.mdi-format-align-justify
                   .fg-line
-                    textarea.form-control(placeholder="#{__('Notes...')}")
+                    textarea.form-control(auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}")

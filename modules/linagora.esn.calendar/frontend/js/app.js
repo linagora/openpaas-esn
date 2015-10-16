@@ -3,6 +3,7 @@
 angular.module('esn.calendar', [
   'esn.core',
   'esn.authentication',
+  'esn.form.helper',
   'esn.ical',
   'esn.fcmoment',
   'esn.community',
