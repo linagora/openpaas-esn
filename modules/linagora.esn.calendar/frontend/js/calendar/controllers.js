@@ -16,7 +16,7 @@ angular.module('esn.calendar')
     $scope.uiConfig = USER_UI_CONFIG;
   })
 
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
 
     var windowJQuery = angular.element($window);
 
@@ -117,15 +117,15 @@ angular.module('esn.calendar')
     ];
 
     function liveNotificationHandlerOnCreate(msg) {
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', calendarService.icalToShell(msg));
+      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', CalendarShell.from(msg));
     }
 
     function liveNotificationHandlerOnUpdate(msg) {
-      _modifiedCalendarItem(calendarService.icalToShell(msg));
+      _modifiedCalendarItem(CalendarShell.from(msg));
     }
 
     function liveNotificationHandlerOnDelete(msg) {
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', calendarService.icalToShell(msg).id);
+      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', CalendarShell.from(msg).id);
     }
 
     var sio = livenotification('/calendars');

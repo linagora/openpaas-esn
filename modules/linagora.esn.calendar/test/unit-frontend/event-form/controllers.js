@@ -22,18 +22,18 @@ describe('The event-form module controllers', function() {
 
     this.calendarServiceMock = {
       calendarId: '1234',
-      shellToICAL: function(e) {
-        event = e;
-      },
       create: function() {
         return $q.when({});
-      },
-      icalToShell: function(event) {
-        return event;
       },
       modify: function(path , e) {
         event = e;
         return $q.when();
+      }
+    };
+
+    this.calendarShellMock = {
+      toICAL: function(e) {
+        event = e;
       }
     };
 
@@ -76,6 +76,7 @@ describe('The event-form module controllers', function() {
         return angular.extend($delegate, calendarUtilsMock);
       });
       $provide.value('calendarService', self.calendarServiceMock);
+      $provide.value('CalendarShell', self.calendarShellMock);
       $provide.value('session', sessionMock);
       $provide.value('notificationFactory', self.notificationFactory);
       $provide.value('gracePeriodService', self.gracePeriodService);

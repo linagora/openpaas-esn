@@ -23,14 +23,8 @@ describe('The calendar module controllers', function() {
 
     this.calendarServiceMock = {
       calendarId: '1234',
-      shellToICAL: function(e) {
-        event = e;
-      },
       create: function() {
         return $q.when({});
-      },
-      icalToShell: function(event) {
-        return event;
       },
       modify: function(path , e) {
         event = e;

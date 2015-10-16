@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventService, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
     if (!$scope.event) {
       $scope.event = eventService.originalEvent;
     }
@@ -88,7 +88,7 @@ angular.module('esn.calendar')
         emails: session.user.emails
       };
       var path = '/calendars/' + $scope.calendarId + '/events';
-      var vcalendar = calendarService.shellToICAL(event);
+      var vcalendar = CalendarShell.toICAL(event);
       $scope.restActive = true;
       _hideModal();
       calendarService.create(path, vcalendar, { graceperiod: true })

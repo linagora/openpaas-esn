@@ -60,175 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, FCMoment, jstz, uuid4, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
-    /**
-     * A shell that wraps an ical.js VEVENT component to be compatible with
-     * fullcalendar's objects.
-     *
-     * @param {ICAL.Component} vcalendar     The ical.js VCALENDAR component.
-     * @param {String} path                  The path on the caldav server.
-     * @param {String} etag                  The ETag of the event.
-     * @param {String} gracePeriodTaskId     The gracePeriodTaskId of the event.
-     */
-    function CalendarShell(vcomponent, path, etag, gracePeriodTaskId) {
-      var vcalendar, vevent;
-      if (vcomponent.name === 'vcalendar') {
-        vevent = vcomponent.getFirstSubcomponent('vevent');
-        vcalendar = vcomponent;
-      } else if (vcomponent.name === 'vevent') {
-        vevent = vcomponent;
-        vcalendar = vevent.parent;
-      }
-
-      this.uid = vevent.getFirstPropertyValue('uid');
-      this.title = vevent.getFirstPropertyValue('summary');
-      this.location = vevent.getFirstPropertyValue('location');
-      this.description = vevent.getFirstPropertyValue('description');
-      this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
-      this.start = FCMoment(vevent.getFirstPropertyValue('dtstart').toJSDate());
-      this.end = FCMoment(vevent.getFirstPropertyValue('dtend').toJSDate());
-      this.formattedDate = this.start.format('MMMM D, YYYY');
-      this.formattedStartTime = this.start.format('h');
-      this.formattedStartA = this.start.format('a');
-      this.formattedEndTime = this.end.format('h');
-      this.formattedEndA = this.end.format('a');
-
-      var status = vevent.getFirstPropertyValue('status');
-      if (status) {
-        this.status = status;
-      }
-
-      var recId = vevent.getFirstPropertyValue('recurrence-id');
-      this.isInstance = !!recId;
-      this.id = recId ? this.uid + '_' + recId.convertToZone(ICAL.Timezone.utcTimezone) : this.uid;
-
-      var attendees = this.attendees = [];
-
-      vevent.getAllProperties('attendee').forEach(function(att) {
-        var id = att.getFirstValue();
-        if (!id) {
-          return;
-        }
-        var cn = att.getParameter('cn');
-        var mail = calendarUtils.removeMailto(id);
-        var partstat = att.getParameter('partstat');
-        attendees.push({
-          fullmail: calendarUtils.fullmailOf(cn, mail),
-          email: mail,
-          name: cn || mail,
-          partstat: partstat,
-          displayName: cn || mail
-        });
-      });
-
-      var organizer = vevent.getFirstProperty('organizer');
-      if (organizer) {
-        var mail = calendarUtils.removeMailto(organizer.getFirstValue());
-        var cn = organizer.getParameter('cn');
-        this.organizer = {
-          fullmail: calendarUtils.fullmailOf(cn, mail),
-          email: mail,
-          name: cn || mail,
-          displayName: cn || mail
-        };
-      }
-
-      var recurrence = vevent.getFirstPropertyValue('rrule');
-      if (recurrence) {
-        this.recur = {};
-        this.recur.freq = recurrence.freq;
-        this.recur.interval = recurrence.interval ? parseInt(recurrence.interval) : 1;
-
-        if (recurrence.until) {
-          this.recur.until = FCMoment(recurrence.until.toJSDate());
-        }
-        if (recurrence.count) {
-          this.recur.count = parseInt(recurrence.count);
-        }
-        this.recur.byday = recurrence.byday || [];
-      }
-
-      // NOTE: changing any of the above properties won't update the vevent, or
-      // vice versa.
-      this.vcalendar = vcalendar;
-      this.vevent = vevent;
-      this.path = path;
-      this.etag = etag;
-      this.gracePeriodTaskId = gracePeriodTaskId;
-    }
-
-    var timezoneLocal = this.timezoneLocal || jstz.determine().name();
-
-    function shellToICAL(shell) {
-      var uid = shell.uid || uuid4.generate();
-      var vcalendar = new ICAL.Component('vcalendar');
-      var vevent = new ICAL.Component('vevent');
-      vevent.addPropertyWithValue('uid', uid);
-      vevent.addPropertyWithValue('summary', shell.title);
-
-      var dtstart = ICAL.Time.fromJSDate(shell.start.toDate());
-      var dtend = ICAL.Time.fromJSDate(shell.end.toDate());
-
-      dtstart.isDate = shell.allDay;
-      dtend.isDate = shell.allDay;
-
-      if (shell.organizer) {
-        var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.email || shell.organizer.emails[0]));
-        organizer.setParameter('cn', shell.organizer.displayName || calendarUtils.displayNameOf(shell.organizer.firstname, shell.organizer.lastname));
-      }
-
-      vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
-      vevent.addPropertyWithValue('dtend', dtend).setParameter('tzid', timezoneLocal);
-      vevent.addPropertyWithValue('transp', shell.allDay ? 'TRANSPARENT' : 'OPAQUE');
-
-      if (shell.location) {
-        vevent.addPropertyWithValue('location', shell.location);
-      }
-
-      if (shell.description) {
-        vevent.addPropertyWithValue('description', shell.description);
-      }
-
-      if (shell.attendees && shell.attendees.length) {
-        shell.attendees.forEach(function(attendee) {
-          var mail = attendee.email || attendee.emails[0];
-          var mailto = calendarUtils.prependMailto(mail);
-          var property = vevent.addPropertyWithValue('attendee', mailto);
-          property.setParameter('partstat', attendee.partstat || ICAL_PROPERTIES.partstat.needsaction);
-          property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
-          property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
-          if (attendee.displayName && attendee.displayName !== mail) {
-            property.setParameter('cn', attendee.displayName);
-          }
-        });
-      }
-
-      if (shell.recur && shell.recur.freq) {
-        var data = {};
-        data.freq = shell.recur.freq;
-        if (angular.isNumber(shell.recur.interval)) {
-          data.interval = [shell.recur.interval];
-        }
-        if (shell.recur.until) {
-          data.until = ICAL.Time.fromJSDate(shell.recur.until);
-        }
-        if (angular.isNumber(shell.recur.count)) {
-          data.count = [shell.recur.count];
-        }
-        if (shell.recur.byday && shell.recur.byday.length > 0) {
-          data.byday = shell.recur.byday;
-        }
-        var recur = new ICAL.Recur.fromData(data);
-        vevent.addPropertyWithValue('rrule', recur);
-      }
-
-      vcalendar.addSubcomponent(vevent);
-      return vcalendar;
-    }
-
-    function icalToShell(ical) {
-      return new CalendarShell(new ICAL.Component(ical));
-    }
+  .factory('calendarService', function($q, CalendarShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
 
     function getInvitedAttendees(vcalendar, emails) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
@@ -256,8 +88,7 @@ angular.module('esn.calendar')
     function getEvent(eventPath) {
       return eventAPI.get(eventPath)
         .then(function(response) {
-          var vcalendar = new ICAL.Component(response.data);
-          return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
+          return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
         })
         .catch ($q.reject);
     }
@@ -269,7 +100,7 @@ angular.module('esn.calendar')
             var vcalendar = new ICAL.Component(icaldata.data);
             var vevents = vcalendar.getAllSubcomponents('vevent');
             vevents.forEach(function(vevent) {
-              var shell = new CalendarShell(vevent, icaldata._links.self.href, icaldata.etag);
+              var shell = new CalendarShell(vevent, {path: icaldata._links.self.href, etag: icaldata.etag});
               shells.push(shell);
             });
             return shells;
@@ -297,7 +128,7 @@ angular.module('esn.calendar')
             return response;
           } else {
             taskId = response;
-            calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, null, null, taskId));
+            calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, {gracePeriodTaskId: taskId}));
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid})
               .then(function(task) {
                 if (task.cancelled) {
@@ -345,8 +176,8 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var vcalendar = shellToICAL(event);
-      var shell = new CalendarShell(vcalendar, eventPath, etag);
+      var vcalendar = CalendarShell.toICAL(event);
+      var shell = new CalendarShell(vcalendar, {path: eventPath, etag: etag});
       return eventAPI.remove(eventPath, etag).then(function(id) {
         taskId = id;
         calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
@@ -405,11 +236,11 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var vcalendar = shellToICAL(event);
-      var shell = new CalendarShell(vcalendar, path, etag);
+      var vcalendar = CalendarShell.toICAL(event);
+      var shell = new CalendarShell(vcalendar, {path: path, etag: etag});
       if (oldEvent) {
-        var oldVcalendar = shellToICAL(oldEvent);
-        var oldShell = new CalendarShell(oldVcalendar, path, etag);
+        var oldVcalendar = CalendarShell.toICAL(oldEvent);
+        var oldShell = new CalendarShell(oldVcalendar, {path: path, etag: etag});
       }
       return eventAPI.modify(path, vcalendar, etag).then(function(id) {
         taskId = id;
@@ -477,14 +308,14 @@ angular.module('esn.calendar')
         return $q.when(null);
       }
 
-      var vcalendar = shellToICAL(event);
+      var vcalendar = CalendarShell.toICAL(event);
       return eventAPI.changeParticipation(eventPath, vcalendar, etag)
         .then(function(response) {
           if (response.status === 200) {
-            var vcalendar = new ICAL.Component(response.data);
-            return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
+            return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
           } else if (response.status === 204) {
             return getEvent(eventPath).then(function(shell) {
+
               if (emitEvents) {
                 calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
                 calendarEventEmitter.websocket.emitUpdatedEvent(shell.vcalendar);
@@ -513,9 +344,6 @@ angular.module('esn.calendar')
       modify: modify,
       changeParticipation: changeParticipation,
       getEvent: getEvent,
-      shellToICAL: shellToICAL,
-      icalToShell: icalToShell,
-      timezoneLocal: timezoneLocal,
       getInvitedAttendees: getInvitedAttendees
     };
   })

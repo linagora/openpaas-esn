@@ -80,7 +80,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('eventMessageEdition', function(calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM) {
+  .directive('eventMessageEdition', function(CalendarShell, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM) {
 
     function link(scope, element, attrs, controller) {
 
@@ -129,7 +129,7 @@ angular.module('esn.calendar')
 
         var event = scope.event;
         var path = '/calendars/' + scope.calendarId + '/events';
-        var vcalendar = calendarService.shellToICAL(event);
+        var vcalendar = CalendarShell.toICAL(event);
         scope.restActive = true;
         calendarService.create(path, vcalendar, { graceperiod: false })
           .then(function(response) {
