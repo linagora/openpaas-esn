@@ -1285,6 +1285,46 @@ describe('The Contacts Angular module', function() {
       $rootScope.$broadcast('ngRepeatFinished');
     });
 
+    describe('The clearSearchInput function', function() {
+
+      it('should clear search input and all search results', function() {
+        var user = {_id: 123};
+        scope.searchInput = 'name';
+        scope.searchResult = {
+          data: ['name1', 'name2', 'name3']
+        };
+        scope.totalHits = 3;
+        scope.loadContacts = function() {};
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: contactsService,
+          user: user
+        });
+        scope.clearSearchInput();
+        expect(scope.searchInput).to.be.null;
+        expect(scope.searchResult).to.deep.equal({});
+        expect(scope.totalHits).to.equal(0);
+      });
+
+      it('should load contacts after clear input', function(done) {
+        var user = {_id: 123};
+        scope.loadContacts = sinon.spy();
+        var contactsService = {
+          list: function() {
+            done();
+          }
+        };
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: contactsService,
+          user: user
+        });
+        scope.clearSearchInput();
+        $rootScope.$digest();
+        expect(scope.loadContacts).to.have.been.calledOnce;
+      });
+    });
+
     describe('The loadContacts function', function() {
 
       it('should call the contactsService.list fn', function(done) {

@@ -299,15 +299,21 @@ angular.module('linagora.esn.contact')
       usSpinnerService.stop(SPINNER);
     }
 
+    function switchToList() {
+      $scope.searchMode = false;
+      $scope.currentPage = 0;
+      $scope.nextPage = 0;
+      cleanSearchResults();
+      $scope.appendQueryToURL();
+      $scope.loadContacts();
+    }
+
     $scope.search = function() {
       $scope.$emit(SCROLL_EVENTS.RESET_SCROLL);
       cleanSearchResults();
       cleanCategories();
       if (!$scope.searchInput) {
-        $scope.searchMode = false;
-        $scope.currentPage = 0;
-        $scope.nextPage = 0;
-        return $scope.loadContacts();
+        return switchToList();
       }
       $scope.searchMode = true;
       $scope.nextPage = null;
@@ -383,6 +389,11 @@ angular.module('linagora.esn.contact')
       $scope.searchInput = null;
       $scope.loadContacts();
     }
+
+    $scope.clearSearchInput = function() {
+      $scope.searchInput = null;
+      switchToList();
+    };
 
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {

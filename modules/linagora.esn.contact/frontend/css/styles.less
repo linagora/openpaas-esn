@@ -247,17 +247,30 @@ contact-list-item {
 .contacts-search {
   z-index: 2;
   top: 0;
+  border-radius: 2px;
 
   padding: 0 0 0 20px;
   input[type="text"] {
     background-color: @m-white;
-    border-radius: 2px;
     font-size: 18px;
-    padding: 0 10px 0 40px;
+    padding: 0 0 0 40px;
     height: @contact-toolbar-item-height;
     width: 100%;
     border: 0;
   }
+}
+
+.clear-input {
+  position: relative;
+  font-size: x-large;
+  height: @contact-toolbar-item-height;
+  background-color: @m-white;
+  color: @m-gray;
+  padding-top: 2px;
+}
+
+.clear-input:before {
+  background-color: @m-white;
 }
 
 @media (max-width: @screen-md-min) {
