@@ -45,22 +45,30 @@ function init(dependencies) {
         socket.leave(uuid);
       });
 
-      function _notifyAttendees(data, websocketEvent) {
-        var attendeesEmails = jcalHelper.getAttendeesEmails(data);
-        attendeesEmails.forEach(function(email) {
-          userModule.findByEmail(email, function(err, user) {
-            if (err || !user) {
-              logger.error('Could not notify event update for attendee : ', email);
-              return;
-            }
-            var msg = {
-              target: user,
-              event: data,
-              websocketEvent: websocketEvent
-            };
-            pubsub.local.topic('calendar:event:updated').forward(pubsub.global, msg);
-          });
+      function _notify(email, jcal, websocketEvent) {
+        userModule.findByEmail(email, function(err, user) {
+          if (err || !user) {
+            logger.error('Could not notify event update for : ', email);
+            return;
+          }
+          var msg = {
+            target: user,
+            event: jcal,
+            websocketEvent: websocketEvent
+          };
+          pubsub.local.topic('calendar:event:updated').forward(pubsub.global, msg);
         });
+      }
+
+      function _notifyAttendees(jcal, websocketEvent) {
+        var attendeesEmails = jcalHelper.getAttendeesEmails(jcal);
+        attendeesEmails.forEach(function(email) {
+          _notify(email, jcal, websocketEvent);
+        });
+      }
+
+      function _notifyOrganizer(jcal, websocketEvent) {
+        _notify(jcalHelper.getOrganizerEmail(jcal), jcal, websocketEvent);
       }
 
       socket.on('event:created', function(data) {
@@ -71,6 +79,7 @@ function init(dependencies) {
       });
       socket.on('event:deleted', function(data) {
         _notifyAttendees(data, 'event:deleted');
+        _notifyOrganizer(data, 'event:deleted');
       });
     });
 

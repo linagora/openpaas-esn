@@ -1,6 +1,6 @@
 'use strict';
 
-var icaljs = require('ical.js');
+var ICAL = require('ical.js');
 var moment = require('moment');
 var url = require('url');
 
@@ -45,7 +45,7 @@ function _getEmail(attendee) {
    }
  */
 function jcal2content(icalendar, baseUrl) {
-  var vcalendar = icaljs.Component.fromString(icalendar);
+  var vcalendar = ICAL.Component.fromString(icalendar);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
   var method = vcalendar.getFirstPropertyValue('method');
 
@@ -67,7 +67,7 @@ function jcal2content(icalendar, baseUrl) {
   if (method === 'CANCEL') {
     end = null;
   } else {
-    var period = icaljs.Period.fromData({
+    var period = ICAL.Period.fromData({
       start: vevent.getFirstPropertyValue('dtstart'),
       end: vevent.getFirstPropertyValue('dtend') || null,
       duration: vevent.getFirstPropertyValue('duration') || null
@@ -117,10 +117,20 @@ function jcal2content(icalendar, baseUrl) {
 module.exports.jcal2content = jcal2content;
 
 function getAttendeesEmails(icalendar) {
-  var vcalendar = new icaljs.Component(icalendar);
+  var vcalendar = new ICAL.Component(icalendar);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
   return vevent.getAllProperties('attendee').map(function(attendee) {
     return _getEmail(attendee);
   });
 }
 module.exports.getAttendeesEmails = getAttendeesEmails;
+
+function getOrganizerEmail(icalendar) {
+  var vcalendar = new ICAL.Component(icalendar);
+  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  var organizer = vevent.getFirstProperty('organizer');
+  if (organizer) {
+    return organizer.getFirstValue().replace(/^MAILTO:/i, '');
+  }
+}
+module.exports.getOrganizerEmail = getOrganizerEmail;

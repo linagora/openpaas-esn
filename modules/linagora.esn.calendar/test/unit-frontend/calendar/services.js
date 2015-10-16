@@ -50,6 +50,7 @@ describe('The calendar module services', function() {
       };
 
       var self = this;
+      angular.mock.module('linagora.esn.graceperiod');
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
@@ -489,7 +490,14 @@ describe('The calendar module services', function() {
       this.socketEmit = null;
       emitMessage = null;
 
-      this.gracePeriodService = {};
+      this.gracePeriodService = {
+        hasTask: function() {
+          return true;
+        }
+      };
+      this.gracePeriodLiveNotification = {
+        registerListeners: function() {}
+      };
 
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
@@ -499,6 +507,7 @@ describe('The calendar module services', function() {
         $provide.value('uuid4', self.uuid4);
         $provide.value('socket', self.socket);
         $provide.value('gracePeriodService', self.gracePeriodService);
+        $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
       });
     });
 
@@ -1172,7 +1181,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should succeed on 202', function(done) {
+      it('should succeed on 202 and send a websocket event', function(done) {
         this.gracePeriodService.grace = function() {
           return $q.when({
             cancelled: false
@@ -1218,10 +1227,7 @@ describe('The calendar module services', function() {
           return deffered.promise;
         };
 
-        var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:deleted');
-          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
-        });
+        var socketEmitSpy = sinon.spy();
         this.socketEmit = socketEmitSpy;
 
         emitMessage = null;
@@ -1233,6 +1239,78 @@ describe('The calendar module services', function() {
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
             expect(response).to.be.false;
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should register an error handler for grace period error', function(done) {
+        var taskId = '123456789';
+        var registerSpy = sinon.spy(function(id, onError, onSuccess) {
+          expect(id).to.equal(taskId);
+          expect(onError).to.be.a.function;
+          expect(onSuccess).to.not.exist;
+        });
+        this.gracePeriodLiveNotification.registerListeners = registerSpy;
+
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: false
+          });
+        };
+        this.gracePeriodService.remove = function(id) {
+          expect(id).to.equal(taskId);
+        };
+
+        emitMessage = null;
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: taskId});
+
+        this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
+          function(response) {
+            expect(emitMessage).to.equal('removedCalendarItem');
+            expect(registerSpy).to.have.been.called;
+            expect(response).to.be.true;
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed on 202 and not send a websocket event if graced remove failed', function(done) {
+        var taskId = '123456789';
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: false
+          });
+        };
+        this.gracePeriodService.remove = function(id) {
+          expect(taskId).to.equal(taskId);
+        };
+        this.gracePeriodService.hasTask = function() {
+          return false;
+        };
+
+        this.gracePeriodLiveNotification.registerListeners = function(id, onError, onSuccess) {
+          expect(id).to.equal(taskId);
+          expect(onError).to.be.a.function;
+          expect(onSuccess).to.not.exist;
+          onError();
+        };
+
+        var socketEmitSpy = sinon.spy();
+        this.socketEmit = socketEmitSpy;
+
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: taskId});
+
+        this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
+          function(response) {
+            expect(socketEmitSpy).to.have.not.been.called;
+            expect(response).to.be.true;
             done();
           }, unexpected.bind(null, done)
         );

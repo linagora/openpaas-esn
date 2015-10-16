@@ -394,6 +394,27 @@ describe('The GracePeriod Angular module', function() {
         expect(gracePeriodService.hasTaskFor({p: context.p})).to.be.true;
       });
     });
+
+    describe('The hasTask fn', function() {
+
+      var taskId = 'taskId';
+
+      beforeEach(function() {
+        gracePeriodService.addTaskId(taskId);
+      });
+
+      it('should return false if no id is given', function() {
+        expect(gracePeriodService.hasTask()).to.be.false;
+      });
+
+      it('should return false if no task exist for the given id', function() {
+        expect(gracePeriodService.hasTask('anotherId')).to.be.false;
+      });
+
+      it('should return true if a task exist for the given id', function() {
+        expect(gracePeriodService.hasTask(taskId)).to.be.true;
+      });
+    });
   });
 
 });
