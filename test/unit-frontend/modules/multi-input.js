@@ -378,5 +378,60 @@ describe('The multi-input Angular module', function() {
           value: 'work@mail.com'}
       ]);
     });
+
+    it('should hide the type select option when no types specified', function() {
+      this.$scope.contact = { emails: [] };
+      element = this.initDirective(this.$scope);
+
+      this.eleScope.types = null;
+      this.eleScope.$digest();
+
+      expect(this.eleScope.isMultiTypeField()).to.be.false;
+      expect(element.html()).to.not.have.string('select');
+    });
+
+    it('should not hide the type select option when types is specified', function() {
+      this.$scope.contact = { emails: [] };
+      element = this.initDirective(this.$scope);
+
+      this.eleScope.types = ['Work'];
+      this.eleScope.$digest();
+
+      expect(this.eleScope.isMultiTypeField()).to.be.true;
+      expect(element.html()).to.have.string('select');
+    });
+
   });
+
+
+  describe('The MultiInputGroupController controller', function() {
+
+    var MultiInputGroupController, $scope;
+
+    beforeEach(inject(function($rootScope, $controller) {
+      $scope = $rootScope.$new();
+      MultiInputGroupController = $controller('MultiInputGroupController', { $scope: $scope });
+    }));
+
+    describe('The _updateTypes fn', function() {
+
+      it('should update the type when types are specified', function() {
+        $scope.types = ['Work'];
+        $scope.newItem = {};
+        $scope.$digest();
+        expect($scope.newItem.type).to.equal('Work');
+      });
+
+      it('should not update the type when no types specified', function() {
+        $scope.types = [];
+        $scope.newItem = {};
+        $scope.$digest();
+        expect($scope.newItem.type).to.not.be.defined;
+      });
+
+    });
+
+  });
+
+
 });

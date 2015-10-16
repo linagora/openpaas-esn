@@ -15,7 +15,7 @@
           li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
   .pm-body.clearfix
     data(ui-view='')
-      .pmb-block(ng-if='contact.org || contact.orgRole || contact.orgUri')
+      .pmb-block(ng-if='contact.org || contact.orgRole')
         .pmbb-header
           h2 
             i.mdi.mdi-briefcase.m-r-5
@@ -34,13 +34,7 @@
                 | #{__('Job Title')}
               dd 
                 | {{contact.orgRole}}
-            dl.dl-horizontal(ng-if='contact.orgUri')
-              dt 
-                i.mdi.mdi-web.m-r-5 
-                | #{__('Company Website')}
-              dd 
-                a(ng-href="{{contact.orgUri}}" target='_blank') {{contact.orgUri}}
-      .pmb-block(ng-if='contact.emails.length!==0 || contact.tel.length!==0 || contact.addresses.length!==0 || contact.social.length!==0')
+      .pmb-block(ng-if='hasContactInformation()')
         .pmbb-header
           h2 
             i.mdi.mdi-phone.m-r-5
@@ -81,7 +75,14 @@
                   | #{__('Social Networks')}
               dd 
                 | {{social.type}}: {{social.value}}
-      .pmb-block(ng-if='contact.firstName || contact.lastName || contact.nickname || formattedBirthday')
+            dl.dl-horizontal(ng-repeat='website in contact.urls track by $index')
+              dt
+                .hide-if-not-first(ng-if='$first')
+                  i.mdi.mdi-web.m-r-5(ng-if='$first')
+                  | #{__('Websites')}
+              dd
+                a(ng-href="{{website.value}}" target='_blank') {{website.value}}
+      .pmb-block(ng-if='hasProfileInformation()')
         .pmbb-header
           h2 
             i.mdi.mdi-account-box.m-r-5

@@ -229,7 +229,7 @@ describe('The addressbooks dav proxy', function() {
               ['fn', {}, 'text', 'Brubru Will'],
               ['n', {}, 'text', ['Willis', 'Bruce']],
               ['org', {}, 'text', 'Master of the world'],
-              ['url', {type: 'Work'}, 'text', 'http://will.io'],
+              ['url', {}, 'uri', 'http://will.io'],
               ['socialprofile', {type: 'Twitter'}, 'text', '@twillis'],
               ['socialprofile', {type: 'Facebook'}, 'text', 'http://facebook.com/fbruce'],
               ['nickname', {}, 'text', 'Bruno'],
@@ -258,7 +258,7 @@ describe('The addressbooks dav proxy', function() {
           search.bind(this)('master of', done);
         });
 
-        it('should return contact with matching url', function(done) {
+        it('should return contact with matching urls', function(done) {
           search.bind(this)('http://will.io', done);
         });
 

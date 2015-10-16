@@ -28,6 +28,8 @@
             .fg-line
               tags-input.form-control(ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
       .row          
+        multi-input-group(multi-input-model='contact.urls', multi-input-texttype='url', multi-input-placeholder='#{__("Website")}')
+      .row          
         multi-input-group(multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}')
       .row
         .col-xs-3
@@ -42,12 +44,6 @@
         .col-sm-12
           .fg-line
             input.form-control(type='text', placeholder='#{__("Nickname")}', ng-model='contact.nickname')
-      .row(ng-show='contact.org')
-        label.control-label.sr-only #{__("Company Website")}
-        .col-sm-12
-          .form-group
-            .fg-line
-              input.form-control.floating-label(type='text', placeholder='#{__("Company Website")}', ng-model='contact.orgUri')
   .row
     .col-xs-12
       .form-group

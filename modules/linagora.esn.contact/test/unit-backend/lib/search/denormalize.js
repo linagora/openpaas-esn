@@ -14,7 +14,7 @@ describe('The contact denormalize module', function() {
         ['fn', {}, 'text', 'Bruce Willis'],
         ['n', {}, 'text', ['Willis', 'Bruce']],
         ['org', {}, 'text', 'Master of the world'],
-        ['url', {type: 'Work'}, 'text', 'http://brucewillis.io'],
+        ['url', {}, 'uri', 'http://brucewillis.io'],
         ['socialprofile', {type: 'Twitter'}, 'text', '@brucewillis'],
         ['socialprofile', {type: 'Facebook'}, 'text', 'http://facebook.com/brucewillis'],
         ['nickname', {}, 'text', 'Bruno'],
@@ -94,7 +94,7 @@ describe('The contact denormalize module', function() {
   });
 
   it('should set the urls', function() {
-    expect(denormalize().urls).to.deep.equal([{type: contact.vcard[1][5][1].type, value: contact.vcard[1][5][3]}]);
+    expect(denormalize().urls).to.deep.equal([{ value: contact.vcard[1][5][3] }]);
   });
 
   it('should set the tags', function() {

@@ -1,25 +1,24 @@
 .multi-input-content
   .form-group(ng-repeat='item in content track by $index')
-    .col-xs-4.col-sm-3
+    .col-xs-4.col-sm-3(ng-if="isMultiTypeField()")
       .fg-line
         .select
           select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
-    .col-xs-8.col-sm-9
+    div(ng-class="isMultiTypeField() ? 'col-xs-8 col-sm-9' : 'col-xs-12'")
       .fg-line(resetable-input)
         input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='item.value', ng-model-options='{updateOn:"blur"}', ng-change='verifyRemove($index)')
         i.clickable.invisible.mdi.mdi-minus-circle-outline.button-remove(ng-click="deleteField($index)")
 .multi-input-next(ng-if="showNextField || content.length === 0")
   .form-group
-    .col-xs-4.col-sm-3
+    .col-xs-4.col-sm-3(ng-if="isMultiTypeField()")
       .fg-line
         .select
           select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
-    .col-xs-8.col-sm-9
+    div(ng-class="isMultiTypeField() ? 'col-xs-8 col-sm-9' : 'col-xs-12'")
       .fg-line
         input.form-control.multi-input-text.input-next(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-change='verifyNew()', ng-blur='acceptNew()')
 .multi-input-button.clickable(ng-if="showAddButton" ng-click="addField()")
   .form-group
-    .col-xs-4.col-sm-3
-    .col-xs-8.col-sm-9.flex-vertical-centered.m-t-10
+    .flex-vertical-centered.m-t-10(ng-class="isMultiTypeField() ? 'col-xs-8 col-xs-offset-4 col-sm-9 col-sm-offset-3' : 'col-xs-12'")
       i.mdi.mdi-plus-circle.button-add.m-r-5
       | #{__("Add a new ")} {{placeholder.toLowerCase()}}

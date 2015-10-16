@@ -16,7 +16,24 @@ angular.module('linagora.esn.contact')
         'formattedBirthday': '=',
         'defaultAvatar': '='
       },
-      templateUrl: '/contact/views/partials/contact-display.html'
+      templateUrl: '/contact/views/partials/contact-display.html',
+      link: function($scope) {
+        $scope.hasContactInformation = function() {
+          return ($scope.contact.emails && $scope.contact.emails.length > 0) ||
+                 ($scope.contact.tel && $scope.contact.tel.length > 0) ||
+                 ($scope.contact.addresses && $scope.contact.addresses.length > 0) ||
+                 ($scope.contact.social && $scope.contact.social.length > 0) ||
+                 ($scope.contact.urls && $scope.contact.urls.length > 0);
+        };
+
+        $scope.hasProfileInformation = function() {
+          return !!($scope.contact.firstName ||
+                    $scope.contact.lastName ||
+                    $scope.contact.nickname ||
+                    $scope.formattedBirthday);
+        };
+
+      }
     };
   })
   .directive('contactEditionForm', function() {
