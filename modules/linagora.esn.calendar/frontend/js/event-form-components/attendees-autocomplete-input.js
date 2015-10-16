@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('attendeesAutocompleteInput', function($q, session, calendarAttendeeService, emailService, AUTOCOMPLETE_MAX_RESULTS) {
+  .directive('attendeesAutocompleteInput', function($q, session, calendarAttendeeService, emailService, naturalService, AUTOCOMPLETE_MAX_RESULTS) {
     function link(scope) {
       scope.onAddingAttendee = function(att) {
         // Attendees are added via tags-input, which uses displayName as the
@@ -41,10 +41,12 @@ angular.module('esn.calendar')
             });
           }
         });
-
         return calendarAttendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
           attendeeCandidates = attendeeCandidates.filter(function(attendeeCandidate) {
             return !(attendeeCandidate.email in addedAttendees) && !(attendeeCandidate.email in session.user.emailMap);
+          });
+          attendeeCandidates.sort(function(a, b) {
+            return naturalService.naturalSort(a.displayName, b.displayName);
           });
           return attendeeCandidates.slice(0, AUTOCOMPLETE_MAX_RESULTS);
         });

@@ -17,7 +17,8 @@ angular.module('esn.calendar', [
   'esn.widget.helper',
   'uuid4',
   'ui.calendar',
-  'ng.deviceDetector'
+  'ng.deviceDetector',
+  'naturalSort'
 ])
   .config(function($routeProvider, routeResolver) {
 
