@@ -378,7 +378,7 @@ angular.module('esn.calendar')
         var oldVcalendar = shellToICAL(oldEvent);
         var oldShell = new CalendarShell(oldVcalendar, path, etag);
       }
-      return eventAPI.modify(path, vcalendar).then(function(id) {
+      return eventAPI.modify(path, vcalendar, etag).then(function(id) {
         taskId = id;
         calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
       })

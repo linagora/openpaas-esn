@@ -28,6 +28,7 @@ angular.module('esn.calendar')
     }
 
     return {
+      root: root,
       forCalendarHomeId: forCalendarHomeId,
       forCalendarId: forCalendarId,
       forEvents: forEvents,
@@ -38,11 +39,11 @@ angular.module('esn.calendar')
   .factory('calendarAPI', function(request, FCMoment, pathBuilder, ACCEPT_CALENDAR_HEADER) {
 
     /**
-     * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their items.
+     * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarId The calendarId.
      * @param  {FCMoment} start      FCMoment type of Date, specifying the start of the range.
      * @param  {FCMoment} end        FCMoment type of Date, specifying the end of the range.
-     * @return {Object}              An array of vcalendar items.
+     * @return {Object}              An array of dav:items items.
      */
     function listEvents(calendarId, start, end) {
       var body = {
@@ -65,12 +66,12 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Queries one or more calendars for events. The dav:calendar resources will include their items.
+     * Queries one or more calendars for events. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHomeId The calendarHomeId.
      * @param  {String}   calendarId     The calendarId.
      * @param  {FCMoment} start          FCMoment type of Date, specifying the start of the range.
      * @param  {FCMoment} end            FCMoment type of Date, specifying the end of the range.
-     * @return {Object}                  An array of vcalendar items.
+     * @return {Object}                  An array of dav:item items.
      */
     function listEventsForCalendar(calendarHomeId, calendarId, start, end) {
       var body = {
@@ -93,25 +94,28 @@ angular.module('esn.calendar')
     }
 
     /**
-     * List all calendar homes and calendars in the calendar root.
+     * List all calendar homes and calendars in the calendar root. A dav:root resource, expanded down to all dav:home resouces.
      * @param  {String} calendarId The calendarId.
-     * @return {Object}            The http response, A dav:root resource, expanded down to all dav:calendar resouces.
+     * @return {Object}            An array of dav:home items
      */
     function listAllCalendars() {
       var path = pathBuilder.root();
-      return request('get', path + '.json', {Accept: ACCEPT_CALENDAR_HEADER})
+      return request('get', path + '/.json', {Accept: ACCEPT_CALENDAR_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
           }
-          return response;
+          if (!response.data || !response.data._embedded || !response.data._embedded['dav:home']) {
+            return [];
+          }
+          return response.data._embedded['dav:home'];
         });
     }
 
     /**
-     * List all calendars in the calendar home.
+     * List all calendars in the calendar home. A dav:home resource, containing all dav:calendar resources in it.
      * @param  {String} calendarId The calendarId.
-     * @return {Object}            The http response, A dav:home resource, containing all dav:calendar resources in it.
+     * @return {Object}            An array of dav:calendar
      */
     function listCalendars(calendarId) {
       var path = pathBuilder.forCalendarHomeId(calendarId);
@@ -120,7 +124,10 @@ angular.module('esn.calendar')
           if (response.status !== 200) {
             return $q.reject(response);
           }
-          return response;
+          if (!response.data || !response.data._embedded || !response.data._embedded['dav:calendar']) {
+            return [];
+          }
+          return response.data._embedded['dav:calendar'];
         });
     }
 
@@ -205,10 +212,12 @@ angular.module('esn.calendar')
      */
     function modify(eventPath, vcalendar, etag) {
       var headers = {
-        'If-Match': etag,
         'Content-Type': CONTENT_TYPE_CALENDAR_HEADER,
         'Prefer': PREFER_CALENDAR_HEADER
       };
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
       var body = vcalendar.toJSON();
       return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
         .then(function(response) {
