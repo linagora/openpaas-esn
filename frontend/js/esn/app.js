@@ -6,6 +6,8 @@ angular.module('esnApp', [
   'restangular',
   'ngRoute',
   'mgcrea.ngStrap.affix',
+  'mgcrea.ngStrap.modal',
+  'mgcrea.ngStrap.aside',
   'angularMoment',
   'truncate',
   'openpaas-logo',
@@ -59,7 +61,8 @@ angular.module('esnApp', [
   'esn.attendee',
   'materialAdmin',
   'angular-nicescroll',
-  'xeditable'
+  'xeditable',
+  'op.dynamicDirective'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {

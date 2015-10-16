@@ -1,5 +1,5 @@
 div
-  header#header
+  header#header(scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show', disabled='disableScrollListener')
     div.header-inner.flex-vertical-centered
       ul.list-inline.all-centered
         li#menu-trigger(side-bar-toggler)
@@ -7,8 +7,10 @@ div
             .line.top
             .line.center
             .line.bottom
-        li.logo
+        li.logo(ng-if='disableScrollListener')
           a(href='#') OpenPaaS
+        li.logo(ng-if='!disableScrollListener')
+          a(href='#', dynamic-directive='main-header-middle-content')
       ul.list-inline.all-centered
         li.hover-scale-animation
           a(href='')
@@ -16,5 +18,7 @@ div
         li.hover-scale-animation.toggle-fullscreen(device-detector)
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
+    .visible-xs
+      #sub-header.flex-vertical-centered(ng-if='hasSubHeaderGotInjections', dynamic-directive='sub-header-content')
   sidebar
   api-notification

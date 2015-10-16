@@ -4,6 +4,7 @@ angular.module('esn.scroll', [])
   .constant('SCROLL_EVENTS', {
     RESET_SCROLL: 'scroll:reset'
   })
+  .constant('SCROLL_DIFF_DELTA', 5) // in px
   .directive('keepScrollPosition', function($log, SCROLL_EVENTS, $cacheFactory, $location, $document, $timeout) {
     var CACHE_KEY = 'scrollPosition';
 
@@ -35,5 +36,36 @@ angular.module('esn.scroll', [])
 
         });
       }
+    };
+  })
+  .directive('scrollListener', function(SCROLL_DIFF_DELTA) {
+    function link(scope) {
+      var position = $(window).scrollTop();
+      var toggled = false;
+      $(window).scroll(function(event) {
+        if (scope.disabled) {
+          return;
+        }
+        var scroll = $(window).scrollTop();
+        var diff = scroll - position;
+        if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
+          toggled = true;
+          scope.onScrollDown();
+        } else if (diff < 0 && toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
+          toggled = false;
+          scope.onScrollUp();
+        }
+        position = scroll;
+      });
+    }
+
+    return {
+      restrict: 'A',
+      scope: {
+        onScrollDown: '=',
+        onScrollUp: '=',
+        disabled: '=?'
+      },
+      link: link
     };
   });

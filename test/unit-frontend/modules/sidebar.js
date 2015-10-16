@@ -14,6 +14,71 @@ describe('The Sidebar Angular module', function() {
     module('esn.sidebar');
   });
 
+  describe('The contextualSidebar directive', function() {
+    var toggle;
+    var destroy;
+    var options;
+
+    beforeEach(function() {
+      toggle = sinon.spy();
+      destroy = sinon.spy();
+      var contextualSidebarService = function(opt) {
+        options = opt;
+        return {
+          toggle: toggle,
+          destroy: destroy
+        };
+      };
+      angular.mock.module(function($provide) {
+        $provide.value('contextualSidebarService', contextualSidebarService);
+      });
+    });
+
+    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
+      this.$compile = _$compile_;
+      this.$rootScope = _$rootScope_;
+      this.$scope = this.$rootScope.$new();
+
+      this.initDirective = function(html, scope) {
+        this.element = this.$compile(html)(scope);
+        scope.$digest();
+        return this.element;
+      };
+    }));
+
+    it('should allow overriding only template, templateUrl, controller and contentTemplate', function() {
+      this.initDirective(
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left"/>',
+        this.$scope
+      );
+      expect(options).to.shallowDeepEqual({
+        template: 'template',
+        templateUrl: 'templateUrl',
+        controller: 'controller',
+        contentTemplate: 'contentTemplate'
+      });
+    });
+
+    it('should call toggle on click', function() {
+      var element = this.initDirective(
+        '<div contextual-sidebar/>',
+        this.$scope
+      );
+      element.triggerHandler('click');
+      expect(toggle).to.have.been.called;
+    });
+
+    it('should call destroy on $destroy', function() {
+      var element = this.initDirective(
+        '<div contextual-sidebar/>',
+        this.$scope
+      );
+      element.scope().$destroy();
+      expect(destroy).to.have.been.called;
+    });
+
+  });
+
   describe('The sidebar directive', function() {
     var sideBarServiceMock = {};
     var $documentMock = [{

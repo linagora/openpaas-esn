@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -13,8 +14,9 @@ describe('The esn.header Angular module', function() {
     module('esn.header');
   });
 
-  describe('The esnHeader directive', function() {
+  describe('The mainHeader directive', function() {
     var sideBarServiceMock = {};
+    var spy = sinon.spy();
 
     beforeEach(module(function($provide) {
       sideBarServiceMock.isLeftSideBarOpen = function() { return false; };
@@ -25,6 +27,11 @@ describe('The esn.header Angular module', function() {
       $provide.provider('apiNotificationDirective', function() {
         this.$get = function() { return {}; };
       });
+      $provide.value('headerService', {
+        subHeader: {
+          hasInjections: spy
+        }
+      });
     }));
 
     beforeEach(inject(function($compile, $rootScope, SIDEBAR_EVENTS) {
@@ -33,11 +40,17 @@ describe('The esn.header Angular module', function() {
       this.SIDEBAR_EVENTS = SIDEBAR_EVENTS;
       this.$scope = this.$rootScope.$new();
 
-      var html = '<esn-header></esn-header>';
+      var html = '<main-header></main-header>';
       this.element = this.$compile(html)(this.$scope);
       this.$scope.$digest();
       this.menuTrigger = this.element.find('#menu-trigger');
     }));
+
+    it('should recompute sub header injections on \'sub-header:hasInjection\'', function() {
+      this.$rootScope.$broadcast('sub-header:hasInjection', true);
+      expect(spy).to.have.been.called;
+      expect(this.$scope.hasSubHeaderGotInjections).to.be.true;
+    });
 
     describe('when receiving "display: true"', function() {
 
