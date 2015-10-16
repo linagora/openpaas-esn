@@ -35,3 +35,5 @@
     .attachments
       i.title.mdi.mdi-attachment #{__('Attachments')}
       inbox-attachment(ng-repeat="attachment in ::email.attachments", ng-if="::!attachment.isInline", attachment="::attachment")
+
+  inbox-fab

@@ -2,6 +2,18 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .directive('inboxFab', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/inbox-fab.html',
+      link: function(scope) {
+        scope.compose = function compose() {
+          console.log('The unified inbox fab button has been clicked');
+        };
+      }
+    };
+  })
+
   .directive('inboxMenu', function(session, jmapClient) {
     return {
       restrict: 'E',
