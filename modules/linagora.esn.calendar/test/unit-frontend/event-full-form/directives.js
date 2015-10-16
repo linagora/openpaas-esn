@@ -24,12 +24,7 @@ describe('The event-full-form Angular module directives', function() {
     beforeEach(function() {
       angular.mock.module(function($provide, $controllerProvider) {
         $controllerProvider.register('eventFormController', function($scope) {
-          $scope.event = {};
-          $scope.editedEvent = {};
           this.initFormData = function() {};
-          this.isNew = function() {
-            return !$scope.selectedEvent._id;
-          };
           this.addNewEvent = spyNewEvent;
           this.modifyEvent = spyModifyEvent;
         });
@@ -51,7 +46,7 @@ describe('The event-full-form Angular module directives', function() {
     }));
 
     it('should have a submit function that is addNewEvent', function() {
-      this.$scope.selectedEvent = {
+      this.$scope.editedEvent = {
         allDay: true,
         start: this.moment('2013-02-08 12:30'),
         end: this.moment('2013-02-08 13:30'),
@@ -63,8 +58,8 @@ describe('The event-full-form Angular module directives', function() {
     });
 
     it('should have a submit function that is modifyEvent', function() {
-      this.$scope.selectedEvent = {
-        _id: '12345',
+      this.$scope.editedEvent = {
+        id: '12345',
         allDay: true,
         start: this.moment('2013-02-08 12:30'),
         end: this.moment('2013-02-08 13:30'),

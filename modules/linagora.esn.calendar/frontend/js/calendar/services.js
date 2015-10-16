@@ -117,7 +117,6 @@ angular.module('esn.calendar')
       this.location = vevent.getFirstPropertyValue('location');
       this.description = vevent.getFirstPropertyValue('description');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
-      this.isInstance = !!vevent.getFirstProperty('recurrence-id');
       this.start = FCMoment(vevent.getFirstPropertyValue('dtstart').toJSDate());
       this.end = FCMoment(vevent.getFirstPropertyValue('dtend').toJSDate());
       this.formattedDate = this.start.format('MMMM D, YYYY');
@@ -164,6 +163,21 @@ angular.module('esn.calendar')
           name: cn || mail,
           displayName: cn || mail
         };
+      }
+
+      var recurrence = vevent.getFirstPropertyValue('rrule');
+      if (recurrence) {
+        this.recur = {};
+        this.recur.freq = recurrence.freq;
+        this.recur.interval = recurrence.interval ? parseInt(recurrence.interval) : 1;
+
+        if (recurrence.until) {
+          this.recur.until = FCMoment(recurrence.until.toJSDate());
+        }
+        if (recurrence.count) {
+          this.recur.count = parseInt(recurrence.count);
+        }
+        this.recur.byday = recurrence.byday || [];
       }
 
       // NOTE: changing any of the above properties won't update the vevent, or
@@ -219,6 +233,25 @@ angular.module('esn.calendar')
             property.setParameter('cn', attendee.displayName);
           }
         });
+      }
+
+      if (shell.recur && shell.recur.freq) {
+        var data = {};
+        data.freq = shell.recur.freq;
+        if (angular.isNumber(shell.recur.interval)) {
+          data.interval = [shell.recur.interval];
+        }
+        if (shell.recur.until) {
+          data.until = ICAL.Time.fromJSDate(shell.recur.until);
+        }
+        if (angular.isNumber(shell.recur.count)) {
+          data.count = [shell.recur.count];
+        }
+        if (shell.recur.byday && shell.recur.byday.length > 0) {
+          data.byday = shell.recur.byday;
+        }
+        var recur = new ICAL.Recur.fromData(data);
+        vevent.addPropertyWithValue('rrule', recur);
       }
 
       vcalendar.addSubcomponent(vevent);
@@ -571,7 +604,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventService', function(session, ICAL) {
+  .service('eventService', function(session, ICAL, $q, calendarService) {
     var originalEvent = {};
     var editedEvent = {};
 
@@ -644,6 +677,10 @@ angular.module('esn.calendar')
       }
     }
 
+    function isNew(event) {
+      return angular.isUndefined(event.id);
+    }
+
     function isOrganizer(event) {
       var organizerMail = event && event.organizer && (event.organizer.email || event.organizer.emails[0]);
       return !organizerMail || (organizerMail in session.user.emailMap);
@@ -653,13 +690,27 @@ angular.module('esn.calendar')
       return !newEvent.start.isSame(oldEvent.start) || !newEvent.end.isSame(oldEvent.end);
     }
 
+    function setEditedEvent(event) {
+      editedEvent = event;
+    }
+
+    function getEditedEvent() {
+      if (!isNew(editedEvent) && editedEvent.isInstance) {
+        return calendarService.getEvent(editedEvent.path);
+      }
+      return $q.when(editedEvent);
+    }
+
     return {
       originalEvent: originalEvent,
       editedEvent: editedEvent,
       render: render,
       copyEventObject: copyEventObject,
+      isNew: isNew,
       isOrganizer: isOrganizer,
-      isMajorModification: isMajorModification
+      isMajorModification: isMajorModification,
+      getEditedEvent: getEditedEvent,
+      setEditedEvent: setEditedEvent
     };
 
   })

@@ -3,15 +3,15 @@
 angular.module('esn.calendar')
 
   .controller('eventFormController', function($scope, $alert, calendarUtils, calendarService, eventService, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+    if (!$scope.event) {
+      $scope.event = eventService.originalEvent;
+    }
+    if (!$scope.editedEvent) {
+      $scope.editedEvent = eventService.editedEvent;
+    }
 
-    $scope.event = eventService.originalEvent;
-    $scope.editedEvent = eventService.editedEvent;
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
-
-    this.isNew = function(event) {
-      return angular.isUndefined(event._id);
-    };
 
     function _displayError(err) {
       $alert({

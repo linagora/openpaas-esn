@@ -31,7 +31,13 @@ angular.module('esn.calendar', [
     });
 
     $routeProvider.when('/calendar/event-full-form', {
-      templateUrl: '/calendar/views/event-full-form/event-full-form-view'
+      templateUrl: '/calendar/views/event-full-form/event-full-form-view',
+      resolve: {
+        event: function(eventService) {
+          return eventService.getEditedEvent();
+        }
+      },
+      controller: 'eventFullFormController'
     });
 
     $routeProvider.when('/calendar', {

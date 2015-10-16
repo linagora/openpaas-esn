@@ -6,9 +6,9 @@ angular.module('esn.calendar')
     function link(scope, element, attrs, controller) {
       controller.initFormData();
 
-      scope.isNew = controller.isNew;
+      scope.isNew = eventService.isNew;
       scope.deleteEvent = controller.deleteEvent;
-      scope.submit = controller.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      scope.submit = eventService.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       scope.changeParticipation = controller.changeParticipation;
       scope.goBack = function(callback) {
         $location.path('/calendar');

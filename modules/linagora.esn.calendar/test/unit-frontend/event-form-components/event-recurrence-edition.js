@@ -31,7 +31,7 @@ describe('The event-recurrence-edition component', function() {
       recur: {
         freq: undefined,
         until: undefined,
-        weekday: [],
+        byday: [],
         interval: 1,
         count: undefined
       }
@@ -42,17 +42,17 @@ describe('The event-recurrence-edition component', function() {
     it('should splice the weekday and sort the array', function() {
       this.$scope.event = {};
       this.initDirective(this.$scope);
-      this.$scope.event.recur.weekday = ['SU', 'WE', 'TU', 'MO'];
+      this.$scope.event.recur.byday = ['SU', 'WE', 'TU', 'MO'];
       this.eleScope.toggleWeekdays('W');
-      expect(this.$scope.event.recur.weekday).to.deep.equal(['MO', 'TU', 'SU']);
+      expect(this.$scope.event.recur.byday).to.deep.equal(['MO', 'TU', 'SU']);
     });
 
     it('should push the weekday and sort the array', function() {
       this.$scope.event = {};
       this.initDirective(this.$scope);
-      this.$scope.event.recur.weekday = ['SU', 'WE', 'TU', 'MO'];
+      this.$scope.event.recur.byday = ['SU', 'WE', 'TU', 'MO'];
       this.eleScope.toggleWeekdays('F');
-      expect(this.$scope.event.recur.weekday).to.deep.equal(['MO', 'TU', 'WE', 'FR', 'SU']);
+      expect(this.$scope.event.recur.byday).to.deep.equal(['MO', 'TU', 'WE', 'FR', 'SU']);
     });
   });
 
@@ -85,7 +85,7 @@ describe('The event-recurrence-edition component', function() {
       this.$scope.event = {
         recur: {
           freq: 'WEEKLY',
-          count: 'COUNT'
+          count: 10
         }
       };
       this.initDirective(this.$scope);
