@@ -183,7 +183,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -409,29 +409,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, notificationFactory, gracePeriodService, CONTACT_EVENTS, GRACE_DELAY) {
-
-    function getFirstValue(property) {
-      if (!$scope.contact[property] || !$scope.contact[property][0]) {
-        return;
-      }
-      return $scope.contact[property][0].value;
-    }
-
-    function getFirstElement(property) {
-      if ($scope.contact[property] && $scope.contact[property][0]) {
-        return $scope.contact[property][0];
-      }
-    }
-
-    function getElement(property) {
-      return $scope.contact[property];
-    }
-
-    $scope.email = getFirstValue('emails');
-    $scope.tel = getFirstValue('tel');
-    $scope.org = getFirstElement('org');
-    $scope.role = getElement('orgRole');
+  .controller('contactItemController', function($scope, $rootScope, $location, contactsService) {
 
     $scope.displayContact = function() {
       $location.path('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
