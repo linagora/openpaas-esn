@@ -1,10 +1,25 @@
 tags-input .tags .input {
   .form-control;
+  background-color: transparent;
+  height: 30px;
+  &:not(.fc-alt){
+    border: none;
+  }
 }
 
 tags-input .tags .tag-item {
   .btn;
   .btn-primary;
+  &:not(.btn-link){
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16);
+  }
+  .remove-button {
+    color: @m-white;
+  }
+  line-height: 1;
+  &.selected {
+    background: lighten(@m-red, 10%);
+  }
 }
 
 tags-input .tags input.input {
@@ -12,5 +27,21 @@ tags-input .tags input.input {
 }
 
 tags-input .autocomplete .suggestion-list {
-  max-height: 300px;
+  max-height: 350px;
+  .suggestion-item.selected {
+    background: @primaryColor;
+  }
+}
+
+.autocomplete-information {
+  background: @body-bg;
+  padding: 5px 10px;
+  text-align: center;
+  font-style: italic;
+  color: @secondaryTextColor;
+}
+
+.tags-input .host {
+  margin-bottom: 0;
+  margin-top: 0;
 }
