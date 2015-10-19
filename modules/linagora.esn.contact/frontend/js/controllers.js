@@ -342,7 +342,10 @@ angular.module('linagora.esn.contact')
       $log.debug('Load next contacts, page', $scope.currentPage);
       usSpinnerService.spin(SPINNER);
 
-      contactsService.list($scope.bookId, $scope.user._id, {page: $scope.nextPage || $scope.currentPage, cache: true, paginate: true}).then(function(data) {
+      contactsService.list($scope.bookId, $scope.user._id, {
+        page: $scope.nextPage || $scope.currentPage,
+        paginate: true
+      }).then(function(data) {
         addItemsToCategories(data.contacts);
         $scope.lastPage = data.last_page;
         $scope.nextPage = data.next_page;
