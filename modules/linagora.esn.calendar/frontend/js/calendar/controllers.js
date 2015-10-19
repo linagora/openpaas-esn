@@ -124,6 +124,13 @@ angular.module('esn.calendar')
       }),
       $rootScope.$on('addedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', data);
+      }),
+      $rootScope.$on('calendars-list:toggleView', function(event, data) {
+        if (data.toggled) {
+          uiCalendarConfig.calendars[data.id || $scope.calendarHomeId].fullCalendar('render');
+        } else {
+          uiCalendarConfig.calendars[data.id || $scope.calendarHomeId].fullCalendar('render');
+        }
       })
     ];
 
