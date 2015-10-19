@@ -8,7 +8,8 @@ angular.module('welcomeApp', [
     'esn.company',
     'restangular',
     'ngRoute',
-    'materialAdmin'
+    'materialAdmin',
+    'esn.ui'
   ].concat(angularInjections))
   .config(function($routeProvider, RestangularProvider) {
 
