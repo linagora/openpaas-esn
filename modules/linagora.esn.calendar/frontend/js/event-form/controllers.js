@@ -73,8 +73,8 @@ angular.module('esn.calendar')
         $scope.editedEvent.title = EVENT_FORM.title.default;
       }
 
-      if (!$scope.calendarId) {
-        $scope.calendarId = calendarService.calendarId;
+      if (!$scope.calendarHomeId) {
+        $scope.calendarHomeId = calendarService.calendarHomeId;
       }
 
       if ($scope.newAttendees) {
@@ -87,7 +87,7 @@ angular.module('esn.calendar')
         displayName: displayName,
         emails: session.user.emails
       };
-      var path = '/calendars/' + $scope.calendarId + '/events';
+      var path = '/calendars/' + $scope.calendarHomeId + '/events';
       var vcalendar = CalendarShell.toICAL(event);
       $scope.restActive = true;
       _hideModal();
@@ -101,8 +101,8 @@ angular.module('esn.calendar')
     };
 
     this.deleteEvent = function() {
-      if (!$scope.calendarId) {
-        $scope.calendarId = calendarService.calendarId;
+      if (!$scope.calendarHomeId) {
+        $scope.calendarHomeId = calendarService.calendarHomeId;
       }
       $scope.restActive = true;
       _hideModal();
@@ -149,8 +149,8 @@ angular.module('esn.calendar')
         return;
       }
 
-      if (!$scope.calendarId) {
-        $scope.calendarId = calendarService.calendarId;
+      if (!$scope.calendarHomeId) {
+        $scope.calendarHomeId = calendarService.calendarHomeId;
       }
 
       if ($scope.editedEvent.attendees && $scope.newAttendees) {
@@ -167,7 +167,7 @@ angular.module('esn.calendar')
       }
       $scope.restActive = true;
       _hideModal();
-      var path = $scope.event.path || '/calendars/' + $scope.calendarId + '/events';
+      var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       calendarService.modify(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventService.isMajorModification($scope.editedEvent, $scope.event))
         .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');

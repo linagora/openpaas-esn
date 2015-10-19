@@ -18,7 +18,7 @@ angular.module('esn.calendar')
       restrict: 'E',
       templateUrl: '/calendar/views/calendar/calendar.html',
       scope: {
-        calendarId: '=',
+        calendarHomeId: '=',
         uiConfig: '='
       },
       controller: 'calendarController',
@@ -78,7 +78,7 @@ angular.module('esn.calendar')
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.on('click', function() {
-          uiCalendarConfig.calendars[calendarService.calendarId].fullCalendar('changeView', attrs.toggleCalendarView);
+          uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('changeView', attrs.toggleCalendarView);
         });
       }
     };
@@ -89,7 +89,7 @@ angular.module('esn.calendar')
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.on('click', function() {
-          uiCalendarConfig.calendars[calendarService.calendarId].fullCalendar('today');
+          uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('today');
         });
       }
     };

@@ -118,8 +118,8 @@ angular.module('esn.calendar')
           scope.event.title = EVENT_FORM.title.default;
         }
 
-        if (!scope.calendarId) {
-          scope.calendarId = calendarService.calendarId;
+        if (!scope.calendarHomeId) {
+          scope.calendarHomeId = calendarService.calendarHomeId;
         }
 
         if (!scope.activitystream.activity_stream && !scope.activitystream.activity_stream.uuid) {
@@ -128,7 +128,7 @@ angular.module('esn.calendar')
         }
 
         var event = scope.event;
-        var path = '/calendars/' + scope.calendarId + '/events';
+        var path = '/calendars/' + scope.calendarHomeId + '/events';
         var vcalendar = CalendarShell.toICAL(event);
         scope.restActive = true;
         calendarService.create(path, vcalendar, { graceperiod: false })

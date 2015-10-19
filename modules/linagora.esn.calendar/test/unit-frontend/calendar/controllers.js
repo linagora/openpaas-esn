@@ -134,7 +134,7 @@ describe('The calendar module controllers', function() {
 
     beforeEach(function() {
       this.scope.uiConfig = this.USER_UI_CONFIG;
-      this.scope.calendarId = 'calendarId';
+      this.scope.calendarHomeId = 'calendarId';
     });
 
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
