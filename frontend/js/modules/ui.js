@@ -13,12 +13,15 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     return {
       scope: {
         onClick: '&',
-        icon: '@'
+        icon: '@',
+        type: '=?'
       },
       templateUrl: '/views/modules/ui/fab.html',
       link: function($scope) {
 
-        $scope.fab_icon = FAB_ICONS[$scope.icon] || DEFAULT_FAB_ICON;
+        $scope.option = {};
+        $scope.option.fab_icon = FAB_ICONS[$scope.icon] || DEFAULT_FAB_ICON;
+        $scope.option.type = $scope.type || 'button';
 
         $scope.fabAction = function() {
           $scope.onClick();
