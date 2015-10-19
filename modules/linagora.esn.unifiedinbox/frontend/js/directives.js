@@ -101,4 +101,19 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/partials/inbox-attachment.html'
     };
+  })
+
+  .directive('composer', function(notificationFactory) {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/composer.html',
+      link: function(scope) {
+
+        scope.send = function send() {
+          notificationFactory.weakSuccess('Success', 'Your email has been sent');
+          scope.$hide();
+        };
+
+      }
+    };
   });

@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmapClient, iFrameResize = function() {};
+  var $compile, $rootScope, $scope, element, jmapClient, notificationFactory, iFrameResize = function() {};
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -32,6 +32,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return iFrameResize;
       }
     });
+    $provide.value('notificationFactory', notificationFactory = {});
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_) {
@@ -115,6 +116,42 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       compileDirective('<mailbox-display mailbox="mailbox" />');
 
       expect(element.isolateScope().mailboxIcons).to.equal('testclass');
+    });
+
+  });
+
+
+  describe('The composer directive', function() {
+
+    it('should notify when the email is sent', function() {
+      $scope.$hide = function() {};
+
+      var title, text;
+      notificationFactory.weakSuccess = function(callTitle, callText) {
+        title = callTitle;
+        text = callText;
+      };
+      compileDirective('<composer />');
+
+      $scope.send();
+
+      expect(title).to.equal('Success');
+      expect(text).to.equal('Your email has been sent');
+    });
+
+    it('should hide the composer when email is sent', function() {
+      notificationFactory.weakSuccess = function() {};
+
+      var callCount = 0;
+      $scope.$hide = function() {
+        callCount++;
+      };
+
+      compileDirective('<composer />');
+
+      $scope.send();
+
+      expect(callCount).to.equal(1);
     });
 
   });
