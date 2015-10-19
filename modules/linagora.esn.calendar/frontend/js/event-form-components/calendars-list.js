@@ -9,7 +9,8 @@ angular.module('esn.calendar')
           id: calendar.getId(),
           name: calendar.getName(),
           color: calendar.getColor(),
-          description: calendar.getDescription()
+          description: calendar.getDescription(),
+          toggled: true
         };
       });
       scope.newCalendars = angular.copy(scope.oldCalendars);
@@ -52,6 +53,11 @@ angular.module('esn.calendar')
         scope.newCalendar.color = '#' + Math.random().toString(16).substr(-6);
         scope.newCalendars.push(scope.newCalendar);
         scope.newCalendar = {};
+      };
+
+      scope.toggleCalendar = function(calendar)  {
+        calendar.toggled = !calendar.toggled;
+        scope.$emit('calendars-list:toggleView', calendar);
       };
     }
 

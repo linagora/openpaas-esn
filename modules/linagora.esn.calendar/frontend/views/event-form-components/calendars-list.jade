@@ -10,12 +10,14 @@
     .clearfix
   .lv-body
     .p-10
-      a.lv-item(href="", ng-repeat="calendar in newCalendars")
+      a.lv-item(href="", ng-repeat="calendar in newCalendars", ng-click="toggleCalendar(calendar)")
         .media
           .pull-left
             i.mdi.mdi-label(ng-style="{'color': calendar.color}")
-          .pull-left(ng-if="!formToggled")
+          .pull-left(ng-if="!formToggled && calendar.toggled")
             i.mdi.mdi-checkbox-marked-outline
+          .pull-left(ng-if="!formToggled && !calendar.toggled")
+            i.mdi.mdi-checkbox-blank-outline
           .pull-right(ng-if="formToggled", ng-click="remove(calendar)")
             i.mdi.mdi-delete
           .media-body
