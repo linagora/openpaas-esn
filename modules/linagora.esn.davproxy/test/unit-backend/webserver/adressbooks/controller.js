@@ -283,11 +283,12 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should publish a "contacts:contact:update" event if request is an update', function(done) {
+    it('should publish a "contacts:contact:update" event with new contact if request is an update', function(done) {
       req.headers = {
         'if-match': 123
       };
       req.user = { _id: '111' };
+      req.body = { fn: 'abc' };
       req.params.contactId = req.params.cardId;
 
       dependencies.pubsub.local.topic = function(name) {
@@ -297,6 +298,7 @@ describe('The addressbooks module', function() {
             expect(data).to.eql({
               contactId: req.params.cardId,
               bookId: req.params.bookId,
+              vcard: req.body,
               user: req.user
             });
             done();

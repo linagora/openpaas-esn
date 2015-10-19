@@ -102,7 +102,7 @@ module.exports = function(dependencies) {
 
         onSuccess: function(response, data, req, res, callback) {
           logger.debug('Success while updating contact %s', req.params.contactId);
-          pubsub.topic('contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, user: req.user});
+          pubsub.topic('contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body, user: req.user});
 
           return callback(null, data);
         },
