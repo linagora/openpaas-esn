@@ -18,7 +18,7 @@ angular.module('esn.calendar')
     });
   })
 
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, calendars, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
 
     var windowJQuery = angular.element($window);
 

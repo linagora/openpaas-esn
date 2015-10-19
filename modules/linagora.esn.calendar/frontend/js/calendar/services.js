@@ -6,7 +6,7 @@ angular.module('esn.calendar')
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        return calendarService.list(calendarId, start, end, timezone).then(
+        return calendarService.listEvents(calendarId, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
               return !calendarShell.status || calendarShell.status !== 'CANCELLED';
@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, CalendarShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
 
     function getInvitedAttendees(vcalendar, emails) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
@@ -93,7 +93,7 @@ angular.module('esn.calendar')
         .catch ($q.reject);
     }
 
-    function list(calendarPath, start, end, timezone) {
+    function listEvents(calendarPath, start, end, timezone) {
       return calendarAPI.listEvents(calendarPath, start, end, timezone)
         .then(function(events) {
           return events.reduce(function(shells, icaldata) {
@@ -105,6 +105,18 @@ angular.module('esn.calendar')
             });
             return shells;
           }, []);
+        })
+        .catch ($q.reject);
+    }
+
+    function listCalendars(calendarId) {
+      return calendarAPI.listCalendars(calendarId)
+        .then(function(calendars) {
+          var vcalendars = [];
+          calendars.forEach(function(calendar) {
+            vcalendars.push(new CalendarCollectionShell(calendar));
+          });
+          return vcalendars;
         })
         .catch ($q.reject);
     }
@@ -338,7 +350,8 @@ angular.module('esn.calendar')
     }
 
     return {
-      list: list,
+      listEvents: listEvents,
+      listCalendars: listCalendars,
       create: create,
       remove: remove,
       modify: modify,
