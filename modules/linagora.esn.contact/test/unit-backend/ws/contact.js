@@ -91,6 +91,25 @@ describe('The contact WS events module', function() {
       expect(this.pubsub_callback_deleted).to.be.a('function');
     });
 
+    it('should register pubsub subscriber for contacts:contact:update', function() {
+      var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
+      mod.init(this.moduleHelpers.dependencies);
+      expect(this.pubsub_callback_updated).to.be.a('function');
+    });
+
+    it('should warning if the pubsub event data is empty', function() {
+      var count = 0;
+      var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
+      mod.init(this.moduleHelpers.dependencies);
+      this.logger.warn = function() {
+        count++;
+      };
+      this.pubsub.local.topic(CONTACT_ADDED).publish({});
+      this.pubsub.local.topic(CONTACT_DELETED).publish({});
+      this.pubsub.local.topic(CONTACT_UPDATED).publish({});
+      expect(count).to.equal(3);
+    });
+
     describe('contacts:contact:add subscriber', function() {
 
       it('should send create event with contact info in websockets when receiving contacts:contact:add event from the pubsub', function(done) {
