@@ -11,20 +11,12 @@ angular.module('esn.ui', ['op.dynamicDirective'])
 
   .directive('fab', function(FAB_ICONS, DEFAULT_FAB_ICON) {
     return {
-      scope: {
-        onClick: '&',
-        icon: '@',
-        type: '=?'
-      },
+      restrict: 'AE',
       templateUrl: '/views/modules/ui/fab.html',
-      link: function($scope) {
-
-        $scope.option = {};
-        $scope.option.fab_icon = FAB_ICONS[$scope.icon] || DEFAULT_FAB_ICON;
-        $scope.option.type = $scope.type || 'button';
-
-        $scope.fabAction = function() {
-          $scope.onClick();
+      link: function($scope, element, attrs) {
+        $scope.options = {
+          fab_icon: FAB_ICONS[attrs.icon] || DEFAULT_FAB_ICON,
+          type: attrs.type || 'button'
         };
       }
     };
