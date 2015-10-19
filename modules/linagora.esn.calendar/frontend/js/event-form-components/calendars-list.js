@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .directive('calendarsList', function(uuid4) {
+  .directive('calendarsList', function(CalendarCollectionShell, uuid4) {
     function link(scope) {
       scope.oldCalendars = scope.calendars.map(function(calendar) {
         return {
@@ -29,9 +29,12 @@ angular.module('esn.calendar')
         }
         var calendarsToAdd = _diff(scope.newCalendars, scope.oldCalendars, 'id');
         var calendarsToRemove = _diff(scope.oldCalendars, scope.newCalendars, 'id');
-        console.log(calendarsToAdd, calendarsToRemove);
-        // TODO Do something with calendarsToAdd and calendarsToRemove
-        scope.calendars = scope.newCalendars;
+        if (calendarsToAdd.length) {
+          scope.$emit('calendars-list:added', calendarsToAdd);
+        }
+        if (calendarsToAdd.length) {
+          scope.$emit('calendars-list:removed', calendarsToRemove);
+        }
         scope.toggleForm();
       };
 
