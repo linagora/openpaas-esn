@@ -456,12 +456,6 @@ describe('The Contacts Angular module', function() {
         expect(scope.shouldDisplayWork()).to.be.true;
       });
 
-      it('should return true when orgUri is defined', function() {
-        contactUpdateDataService.contact = {orgUri: 'http://linagora.com'};
-        this.initController();
-        expect(scope.shouldDisplayWork()).to.be.true;
-      });
-
       it('should return true when work address is filled', function() {
         contactUpdateDataService.contact = {addresses: [{type: 'work', value: 'Paris'}]};
         this.initController();

@@ -99,6 +99,10 @@
             p {{address.zip}} {{address.city}}
             p {{address.country}}
             p.type #{__('Address')}
+          .contact-item-data(ng-if="contact.urls")
+            p(ng-repeat='url in contact.urls')
+              a(ng-href='{{url.value}}' target='_blank') {{url.value}}
+            p.type #{__('Websites')}
           .contact-item-data(ng-if='contact.tags.length!=0')
             ul.tag-list
               li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
