@@ -85,16 +85,15 @@ angular.module('esn.calendar')
     };
 
     $scope.eventSources = [calendarEventSource($scope.calendarHomeId, $scope.displayCalendarError)];
-    /*
     calendarService.listCalendars($scope.calendarHomeId)
       .then(function(calendars) {
-        eventSources.concat(calendars.map(function(calendar) {
-          console.log(calendar);
-          if (calendar.id) {
+        $scope.calendars = calendars;
+        $scope.eventSources.concat(calendars.map(function(calendar) {
+          if (calendar.getId()) {
             return calendarEventSource(calendar.id, $scope.displayCalendarError);
           }
         }));
-      });*/
+      });
 
     function _modifiedCalendarItem(newEvent) {
       var calendar = uiCalendarConfig.calendars[$scope.calendarHomeId];
