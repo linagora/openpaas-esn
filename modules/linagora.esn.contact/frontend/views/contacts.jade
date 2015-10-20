@@ -11,8 +11,7 @@
           .clear-input
             span.clickable.mdi.mdi-close(ng-click="clearSearchInput()", ng-show="searchInput")
 
-        button.btn.btn-float.bgm-accent.m-btn(type="button", ng-click="openContactCreation()")
-          i.mdi.mdi-plus
+        fab(ng-click='openContactCreation()')
   .vertiz-space
   .row
     .col-xs-12.text-center.contacts-search-results.fadeIn200ms(ng-switch="searchResult.count" ng-if="!!searchInput")

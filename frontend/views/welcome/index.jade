@@ -26,6 +26,7 @@ html.login-content
     script(src='/components/remarkable-bootstrap-notify/bootstrap-notify.min.js')
     script(src='js/material.js')
     script(src='/components/material-admin/js/modules/form.js')
+    script(src='/components/dynamic-directive/dist/dynamic-directive.min.js')
     +injectJSFromModules('welcome', injections)
     +injectAngularFromModules('welcome', injections)
     script(src='js/welcome/app.js')
@@ -35,6 +36,7 @@ html.login-content
     script(src='js/modules/login.js')
     script(src='js/modules/form-helper.js')
     script(src='js/modules/modernizr.js')
+    script(src='js/modules/ui.js')
 
   body.login(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     .aligner(ng-view ng-cloak)

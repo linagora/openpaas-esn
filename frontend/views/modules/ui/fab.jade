@@ -1,2 +1,2 @@
-a.btn.btn-primary.btn-icon.waves-effect(ng-click="fabAction()")
-  i(class="{{::fab_type}}")
+button.btn.btn-float.m-btn(type="{{ ::options.type }}", class="btn-{{ ::options.color }}")
+  i(ng-class="::options.fabIcon")

@@ -2,26 +2,24 @@
 
 angular.module('esn.ui', ['op.dynamicDirective'])
 
-  .constant('DEFAULT_FAB_TYPE', 'mdi-content-create')
-
-  // types are defined from http://fezvrasta.github.io/bootstrap-material-design/bootstrap-elements.html#icon
-  .constant('FAB_TYPES', {
-    create: 'mdi mdi-plus'
+  .constant('DEFAULT_COLOR_CLASS', 'accent')
+  .constant('FAB_ICONS', {
+    default: 'mdi mdi-plus',
+    create: 'mdi mdi-plus',
+    'new-user': 'mdi mdi-account-plus',
+    next: 'mdi mdi-arrow-right'
   })
 
-  .directive('fab', function(FAB_TYPES, DEFAULT_FAB_TYPE) {
+  .directive('fab', function(FAB_ICONS, DEFAULT_COLOR_CLASS) {
     return {
-      scope: {
-        onClick: '&',
-        type: '@'
-      },
+      restrict: 'AE',
+      replace: true,
       templateUrl: '/views/modules/ui/fab.html',
-      link: function($scope) {
-
-        $scope.fab_type = FAB_TYPES[$scope.type] || DEFAULT_FAB_TYPE;
-
-        $scope.fabAction = function() {
-          $scope.onClick();
+      link: function($scope, element, attrs) {
+        $scope.options = {
+          fabIcon: FAB_ICONS[attrs.icon] || FAB_ICONS.default,
+          color: attrs.color || DEFAULT_COLOR_CLASS,
+          type: attrs.type || 'button'
         };
       }
     };
