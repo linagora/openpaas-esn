@@ -72,12 +72,12 @@ describe('The event-full-form Angular module directives', function() {
   });
 
   describe('The eventFullForm directive', function() {
-    beforeEach(angular.mock.inject(function($compile, $rootScope, $timeout, eventService) {
+    beforeEach(angular.mock.inject(function($compile, $rootScope, $timeout, eventUtils) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$timeout = $timeout;
       this.$scope = this.$rootScope.$new();
-      this.eventService = eventService;
+      this.eventUtils = eventUtils;
 
       this.initDirective = function(scope) {
         var html = '<event-full-form/>';
@@ -87,14 +87,14 @@ describe('The event-full-form Angular module directives', function() {
       };
     }));
 
-    it('should reset eventService events on element $destroy', function() {
-      this.eventService.originalEvent = { aEvent: 'aEvent' };
-      this.eventService.editedEvent = { aEvent: 'aEvent' };
+    it('should reset eventUtils events on element $destroy', function() {
+      this.eventUtils.originalEvent = { aEvent: 'aEvent' };
+      this.eventUtils.editedEvent = { aEvent: 'aEvent' };
       var element = this.initDirective(this.$scope);
       element.remove();
 
-      expect(this.eventService.originalEvent).to.deep.equal({});
-      expect(this.eventService.editedEvent).to.deep.equal({});
+      expect(this.eventUtils.originalEvent).to.deep.equal({});
+      expect(this.eventUtils.editedEvent).to.deep.equal({});
     });
 
     describe('scope.goBack', function() {

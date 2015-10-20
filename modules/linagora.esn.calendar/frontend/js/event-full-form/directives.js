@@ -2,13 +2,13 @@
 
 angular.module('esn.calendar')
 
-  .directive('eventFullForm', function($timeout, $location, eventService) {
+  .directive('eventFullForm', function($timeout, $location, eventUtils) {
     function link(scope, element, attrs, controller) {
       controller.initFormData();
 
-      scope.isNew = eventService.isNew;
+      scope.isNew = eventUtils.isNew;
       scope.deleteEvent = controller.deleteEvent;
-      scope.submit = eventService.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      scope.submit = eventUtils.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       scope.changeParticipation = controller.changeParticipation;
       scope.goBack = function(callback) {
         $location.path('/calendar');
@@ -20,8 +20,8 @@ angular.module('esn.calendar')
       };
 
       function _resetStoredEvents() {
-        eventService.originalEvent = {};
-        eventService.editedEvent = {};
+        eventUtils.originalEvent = {};
+        eventUtils.editedEvent = {};
       }
 
       element.on('$destroy', _resetStoredEvents);

@@ -2,12 +2,12 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventService, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
     if (!$scope.event) {
-      $scope.event = eventService.originalEvent;
+      $scope.event = eventUtils.originalEvent;
     }
     if (!$scope.editedEvent) {
-      $scope.editedEvent = eventService.editedEvent;
+      $scope.editedEvent = eventUtils.editedEvent;
     }
 
     $scope.restActive = false;
@@ -27,15 +27,15 @@ angular.module('esn.calendar')
 
     this.initFormData = function() {
       if ($scope.selectedEvent) {
-        eventService.copyEventObject($scope.selectedEvent, $scope.event);
-        eventService.copyEventObject($scope.selectedEvent, $scope.editedEvent);
+        eventUtils.copyEventObject($scope.selectedEvent, $scope.event);
+        eventUtils.copyEventObject($scope.selectedEvent, $scope.editedEvent);
       } else if (!$scope.event.start) {
         $scope.event = {
           start: calendarUtils.getNewStartDate(),
           end: calendarUtils.getNewEndDate(),
           allDay: false
         };
-        eventService.copyEventObject($scope.event, $scope.editedEvent);
+        eventUtils.copyEventObject($scope.event, $scope.editedEvent);
       }
 
       $scope.newAttendees = [];
@@ -50,7 +50,7 @@ angular.module('esn.calendar')
           }
         });
       }
-      $scope.isOrganizer = eventService.isOrganizer($scope.event);
+      $scope.isOrganizer = eventUtils.isOrganizer($scope.event);
     };
 
     function _hideModal() {
@@ -91,7 +91,7 @@ angular.module('esn.calendar')
       var vcalendar = CalendarShell.toICAL(event);
       $scope.restActive = true;
       _hideModal();
-      calendarService.create(path, vcalendar, { graceperiod: true })
+      calendarService.createEvent(path, vcalendar, { graceperiod: true })
         .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
@@ -106,7 +106,7 @@ angular.module('esn.calendar')
       }
       $scope.restActive = true;
       _hideModal();
-      calendarService.remove($scope.event.path, $scope.event, $scope.event.etag)
+      calendarService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
         .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
@@ -168,7 +168,7 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
-      calendarService.modify(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventService.isMajorModification($scope.editedEvent, $scope.event))
+      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.isMajorModification($scope.editedEvent, $scope.event))
         .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })

@@ -32,7 +32,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('eventQuickForm', function($location, $timeout, eventService) {
+  .directive('eventQuickForm', function($location, $timeout, eventUtils) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -40,14 +40,14 @@ angular.module('esn.calendar')
         $scope.createModal.hide();
       };
 
-      $scope.isNew = eventService.isNew;
+      $scope.isNew = eventUtils.isNew;
       $scope.deleteEvent = controller.deleteEvent;
-      $scope.submit = eventService.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      $scope.submit = eventUtils.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       $scope.changeParticipation = controller.changeParticipation;
       $scope.canPerformCall = controller.canPerformCall;
 
       $scope.goToFullForm = function() {
-        eventService.setEditedEvent($scope.editedEvent);
+        eventUtils.setEditedEvent($scope.editedEvent);
         $scope.closeModal();
         $location.path('/calendar/event-full-form');
       };
@@ -63,8 +63,8 @@ angular.module('esn.calendar')
       };
 
       function _resetStoredEvents() {
-        eventService.originalEvent = {};
-        eventService.editedEvent = {};
+        eventUtils.originalEvent = {};
+        eventUtils.editedEvent = {};
       }
 
       element.on('$destroy', _resetStoredEvents);

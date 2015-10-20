@@ -73,14 +73,14 @@ describe('The event-quick-form Angular module directives', function() {
   });
 
   describe('The eventQuickForm directive', function() {
-    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, moment, calendarUtils, eventService) {
+    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, moment, calendarUtils, eventUtils) {
       this.$timeout = $timeout;
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.moment = moment;
       this.calendarUtils = calendarUtils;
-      this.eventService = eventService;
+      this.eventUtils = eventUtils;
 
       this.initDirective = function(scope) {
         var html = '<event-quick-form/>';
@@ -186,14 +186,14 @@ describe('The event-quick-form Angular module directives', function() {
       expect(this.$scope.editedEvent.allDay).to.be.false;
     });
 
-    it('should reset eventService events on element $destroy', function() {
-      this.eventService.originalEvent = { aEvent: 'aEvent' };
-      this.eventService.editedEvent = { aEvent: 'aEvent' };
+    it('should reset eventUtils events on element $destroy', function() {
+      this.eventUtils.originalEvent = { aEvent: 'aEvent' };
+      this.eventUtils.editedEvent = { aEvent: 'aEvent' };
       var element = this.initDirective(this.$scope);
       element.remove();
 
-      expect(this.eventService.originalEvent).to.deep.equal({});
-      expect(this.eventService.editedEvent).to.deep.equal({});
+      expect(this.eventUtils.originalEvent).to.deep.equal({});
+      expect(this.eventUtils.editedEvent).to.deep.equal({});
     });
 
     it('should prevent default back behavior when closeModal is shown', function(done) {
