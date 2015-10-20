@@ -19,14 +19,10 @@
     a(href='', data-toggle='dropdown', aria-expanded='true')
       i.mdi.mdi-dots-vertical
     ul.dropdown-menu.dropdown-menu-right
-      li.visible-xs
-        a(ng-href="") Send Message
-      li.visible-xs.contact-item-action
-        a(ng-href="") Call
       li
-        a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') Modify
+        a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') #{__('Edit')}
       li
-        a(ng-click="deleteContact()") Delete
+        a(ng-click="deleteContact()") #{__('Delete')}
 
 .contact-list-item.p-10.visible-xs(ng-click='displayContact()')
   .pull-left.touch-zone

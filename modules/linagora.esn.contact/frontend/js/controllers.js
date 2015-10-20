@@ -45,6 +45,21 @@ angular.module('linagora.esn.contact')
     $scope.contact = {};
     $scope.loaded = false;
 
+    function isAddressFilled(type) {
+      if (!$scope.contact.addresses || !$scope.contact.addresses.length) {
+        return false;
+      }
+      return $scope.contact.addresses.filter(function(address) {
+        return address.type.toLowerCase() === type.toLowerCase();
+      }).length;
+    }
+
+    $scope.getAddress = function(type) {
+      return $scope.contact.addresses.filter(function(address) {
+        return address.type.toLowerCase() === type.toLowerCase();
+      })[0];
+    };
+
     $scope.close = closeContactForm;
 
     $scope.deleteContact = function() {
@@ -54,8 +69,22 @@ angular.module('linagora.esn.contact')
       }, 200);
     };
 
+    $scope.shouldDisplayWork = function() {
+      return !!(($scope.contact.org && $scope.contact.org[0]) || $scope.contact.orgRole || isAddressFilled('work'));
+    };
+
+    $scope.shouldDisplayHome = function() {
+      return !!(isAddressFilled('home') || $scope.formattedBirthday || $scope.contact.nickname);
+    };
+
+    $scope.shouldDisplayOthers = function() {
+      return !!(isAddressFilled('other') || ($scope.contact.tags && $scope.contact.tags.length) || $scope.contact.notes);
+    };
+
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
+      $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, ['work', 'home', 'other']);
+      $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, ['work', 'mobile', 'home', 'other']);
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
 
       $scope.$on('$routeChangeStart', function(evt, next, current) {
@@ -86,6 +115,8 @@ angular.module('linagora.esn.contact')
     } else {
       contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
         $scope.contact = card;
+        $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, ['work', 'home', 'other']);
+        $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, ['work', 'mobile', 'home', 'other']);
         $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
       }, function(err) {
         $log.debug('Error while loading contact', err);

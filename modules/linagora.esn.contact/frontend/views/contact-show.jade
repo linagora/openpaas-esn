@@ -33,52 +33,79 @@
       div.contact-fn
         | {{contact.displayName}}
       .contact-infos
-        div(ng-repeat='tel in contact.tel track by $index')
-          a(ng-href='tel:{{tel.value}}')
-            button.waves-effect.btn.btn-default.contact-card(type='button')
-                i.mdi.mdi-phone
-                p {{tel.value}}
-                p.contact-card-type {{tel.type}}
-        div(ng-repeat='email in contact.emails track by $index')
-          a(ng-href='mailto:{{email.value}}')
-            button.btn.btn-default.waves-effect.contact-card(type='button')
-                i.mdi.mdi-email
-                p {{email.value}}
-                p.contact-card-type {{email.type}}
-        button.waves-effect.btn.btn-default.contact-card(type='button' ng-repeat='social in contact.social track by $index')
-            i.mdi.mdi-whatsapp(ng-if='social.type==="Skype"')
-            i.mdi.mdi-twitter(ng-if='social.type==="Twitter"')
-            i.mdi.mdi-account-circle(ng-if='social.type!=="Skype" && social.type!=="Twitter"')
-            p {{social.value}}
-            p.contact-card-type {{social.type}}
-        div(ng-repeat='website in contact.urls track by $index')
-          a(target="_blank" ng-href='{{website.value}}')
-            button.waves-effect.btn.btn-default.contact-card(ng-if='website.value')
-              i.mdi.mdi-web
-              p {{website.value}}
-              p.contact-card-type Website
-        .contact-card(ng-repeat='address in contact.addresses track by $index')
-            i.mdi.mdi-map-marker
+
+        .contact-items-group(ng-if='phones && phones.length')
+          i.mdi.mdi-phone
+          div(ng-repeat='tel in phones track by $index')
+            .contact-item-data
+              p
+                a(ng-href='tel:{{tel.value}}') {{tel.value}}
+              p.type {{tel.type}}
+
+        .contact-items-group(ng-if='emails && emails.length')
+          i.mdi.mdi-email
+          div(ng-repeat='email in emails track by $index')
+            .contact-item-data
+              p
+                a(ng-href='mailto:{{email.value}}') {{email.value}}
+              p.type {{email.type}}
+
+        .contact-items-group(ng-if='contact.social && contact.social.length')
+          i.mdi.mdi-account-circle
+          div(ng-repeat='social in contact.social track by $index')
+            .contact-item-data
+              p {{social.value}}
+              p.type {{social.type}}
+
+        .contact-items-group(ng-if='shouldDisplayWork()')
+          div
+            p.title #{__('Work')}
+          .contact-item-data(ng-if='contact.org[0]')
+            p {{contact.org[0]}}
+            p.type #{__('Company')}
+          .contact-item-data(ng-if='contact.orgRole')
+            p {{contact.orgRole}}
+            p.type #{__('Job')}
+          .contact-item-data(ng-if='contact.orgUri')
+            p
+              a(ng-href='{{contact.orgUri}}' target='_blank') {{contact.orgUri}}
+            p.type #{__('Website')}
+          .contact-item-data(ng-if="getAddress('work')" ng-model="address" ng-init="address = getAddress('work')")
             p {{address.street}}
             p {{address.zip}} {{address.city}}
             p {{address.country}}
-            p.contact-card-type {{address.type}}
-        .contact-card(ng-if='contact.org[0] || contact.orgRole')
-            i.mdi.mdi-briefcase
-            p(ng-if='contact.org[0]') {{contact.org[0]}}
-            p(ng-if='contact.orgRole') {{contact.orgRole}}
-        .contact-card(type='button' ng-if='contact.tags.length!=0')
-            i.mdi.mdi-tag-multiple
+            p.type #{__('Address')}
+
+        .contact-items-group(ng-if='shouldDisplayHome()')
+          div
+            p.title #{__('Home')}
+          .contact-item-data(ng-if="getAddress('home')" ng-model="address" ng-init="address = getAddress('home')")
+            p {{address.street}}
+            p {{address.zip}} {{address.city}}
+            p {{address.country}}
+            p.type #{__('Address')}
+          .contact-item-data(ng-if='contact.nickname')
+            p {{contact.nickname}}
+            p.type #{__('Nickname')}
+          .contact-item-data(ng-if='formattedBirthday')
+            p {{formattedBirthday}}
+            p.type #{__('Birthday')}
+
+        .contact-items-group(ng-if='shouldDisplayOthers()')
+          div
+            p.title #{__('Others')}
+          .contact-item-data(ng-if="getAddress('other')" ng-model="address" ng-init="address = getAddress('other')")
+            p {{address.street}}
+            p {{address.zip}} {{address.city}}
+            p {{address.country}}
+            p.type #{__('Address')}
+          .contact-item-data(ng-if="contact.urls")
+            p(ng-repeat='url in contact.urls')
+              a(ng-href='{{url.value}}' target='_blank') {{url.value}}
+            p.type #{__('Websites')}
+          .contact-item-data(ng-if='contact.tags.length!=0')
             ul.tag-list
               li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
-        .contact-card(ng-if='contact.firstName || contact.lastName || contact.nickname')
-            i.mdi.mdi-account
-            p(ng-if='contact.firstName') First name: {{contact.firstName}}
-            p(ng-if='contact.lastName') Last name: {{contact.lastName}}
-            p(ng-if='contact.nickname') Nickname: {{contact.nickname}}
-        .contact-card(ng-if='formattedBirthday')
-            i.mdi.mdi-cake-variant
-            p {{formattedBirthday}}
-        .contact-card(ng-if='contact.notes')
-            i.mdi.mdi-clipboard-text
+          .contact-item-data(ng-if='contact.notes')
             p {{contact.notes}}
+            p.type #{__('Comments')}

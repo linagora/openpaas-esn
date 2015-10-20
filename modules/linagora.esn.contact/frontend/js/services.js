@@ -21,6 +21,60 @@ angular.module('linagora.esn.contact')
         return birthday;
     }
 
+    function notNullNorEmpty(value) {
+      return value && value.length > 0;
+    }
+
+    function getValue(element) {
+      return (element && element.value) ? element.value : null;
+    }
+
+    function getOrderedValues(array, priorities) {
+      if (!array || !array.length) {
+        return [];
+      }
+
+      function getElementFromType(type) {
+        var result = array.filter(function(element) {
+          return notNullNorEmpty(element.type) && element.type.toLowerCase() === type.toLowerCase();
+        });
+
+        if (notNullNorEmpty(result)) {
+          return result[0];
+        }
+      }
+
+      if (!notNullNorEmpty(priorities)) {
+        return array;
+      }
+
+      var result = [];
+      priorities.forEach(function(priority) {
+        var v = getValue(getElementFromType(priority));
+        if (v) {
+          result.push({type: priority, value: v});
+        }
+      });
+      return result;
+    }
+
+    function getValueFromArray(array, priorities) {
+
+      var result = getOrderedValues(array, priorities);
+
+      if (notNullNorEmpty(result)) {
+        return result[0].value;
+      }
+
+      // return first non null value;
+      var filter = array.filter(function(element) {
+        return getValue(element) !== null;
+      });
+      if (notNullNorEmpty(filter)) {
+        return getValue(filter[0]);
+      }
+    }
+
     function getFormattedAddress(address) {
       var result = '';
       if (!address) {
@@ -46,52 +100,6 @@ angular.module('linagora.esn.contact')
 
     function getFormattedName(contact) {
 
-      function notNullNorEmpty(value) {
-        return value && value.length > 0;
-      }
-
-      function getValueFromArray(array, priorities) {
-
-        function getElementFromType(type) {
-          var result = array.filter(function(element) {
-            return notNullNorEmpty(element.type) && element.type.toLowerCase() === type.toLowerCase();
-          });
-
-          if (notNullNorEmpty(result)) {
-            return result[0];
-          }
-        }
-
-        function getValue(element) {
-          return (element && element.value) ? element.value : null;
-        }
-
-        if (!notNullNorEmpty(priorities)) {
-          return getValue(array[0]);
-        }
-
-        var result = [];
-        priorities.forEach(function(priority) {
-          var v = getValue(getElementFromType(priority));
-          if (v) {
-            result.push(v);
-          }
-        });
-
-        if (notNullNorEmpty(result)) {
-          return result[0];
-        }
-
-        // return first non null value;
-        var filter = array.filter(function(element) {
-          return getValue(element) !== null;
-        });
-        if (notNullNorEmpty(filter)) {
-          return getValue(filter[0]);
-        }
-
-      }
-
       if (notNullNorEmpty(contact.firstName) && notNullNorEmpty(contact.lastName)) {
         return contact.firstName + ' ' + contact.lastName;
       }
@@ -105,7 +113,7 @@ angular.module('linagora.esn.contact')
       }
 
       if (notNullNorEmpty(contact.emails)) {
-        var email = getValueFromArray(contact.emails, ['work', 'home']);
+        var email = getValueFromArray(contact.emails, ['work', 'home', 'other']);
         if (email) {
           return email;
         }
@@ -172,7 +180,8 @@ angular.module('linagora.esn.contact')
       getFormattedName: getFormattedName,
       getFormattedBirthday: getFormattedBirthday,
       getFormattedAddress: getFormattedAddress,
-      forceReloadDefaultAvatar: forceReloadDefaultAvatar
+      forceReloadDefaultAvatar: forceReloadDefaultAvatar,
+      getOrderedValues: getOrderedValues
     };
   })
   .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {

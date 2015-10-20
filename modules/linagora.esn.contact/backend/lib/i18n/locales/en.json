@@ -1,5 +1,7 @@
 {
   "Contacts": "Contacts",
+  "Edit": "Edit",
+  "Delete": "Delete",
   "Create a new contact": "Create a new contact",
   "Email": "Email",
   "Choose an avatar for the contact": "Choose an avatar for the contact",
@@ -11,5 +13,15 @@
   "Cards": "Cards",
   "List": "List",
   "at": "at",
-  "Save": "Save"
+  "Save": "Save",
+  "Nickname": "Nickname",
+  "Work": "Work",
+  "Company": "Company",
+  "Job": "Job",
+  "Website": "Website",
+  "Address": "Address",
+  "Birthday": "Birthday",
+  "Home": "Home",
+  "Others": "Others",
+  "Comments": "Comments"
 }

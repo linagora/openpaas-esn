@@ -430,6 +430,99 @@ describe('The Contacts Angular module', function() {
       scope.$digest();
     });
 
+    describe('The $scope.shouldDisplayWork function', function() {
+
+      it('should return false when nothing defined', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        expect(scope.shouldDisplayWork()).to.be.false;
+      });
+
+      it('should return false when org element is empty', function() {
+        contactUpdateDataService.contact = {org: []};
+        this.initController();
+        expect(scope.shouldDisplayWork()).to.be.false;
+      });
+
+      it('should return true when one org element is defined', function() {
+        contactUpdateDataService.contact = {org: ['linagora']};
+        this.initController();
+        expect(scope.shouldDisplayWork()).to.be.true;
+      });
+
+      it('should return true when orgRole is defined', function() {
+        contactUpdateDataService.contact = {orgRole: 'CTO'};
+        this.initController();
+        expect(scope.shouldDisplayWork()).to.be.true;
+      });
+
+      it('should return true when work address is filled', function() {
+        contactUpdateDataService.contact = {addresses: [{type: 'work', value: 'Paris'}]};
+        this.initController();
+        expect(scope.shouldDisplayWork()).to.be.true;
+      });
+    });
+
+    describe('The $scope.shouldDisplayHome function', function() {
+
+      it('should return false when nothing defined', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        expect(scope.shouldDisplayHome()).to.be.false;
+      });
+
+      it('should return true when home address is filled', function() {
+        contactUpdateDataService.contact = {addresses: [{type: 'home', value: 'Montpellier'}]};
+        this.initController();
+        expect(scope.shouldDisplayHome()).to.be.true;
+      });
+
+      it('should return true when birthday is filled', function() {
+        contactUpdateDataService.contact = {birthday: '15/12/1978'};
+        this.initController();
+        expect(scope.shouldDisplayHome()).to.be.true;
+      });
+
+      it('should return true when nickname is filled', function() {
+        contactUpdateDataService.contact = {nickname: 'yolo'};
+        this.initController();
+        expect(scope.shouldDisplayHome()).to.be.true;
+      });
+    });
+
+    describe('The $scope.shouldDisplayOthers function', function() {
+
+      it('should return false when nothing defined', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.false;
+      });
+
+      it('should return true when other address is defined', function() {
+        contactUpdateDataService.contact = {addresses: [{type: 'other', value: 'Toulouse'}]};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.true;
+      });
+
+      it('should return false when other tags are defined but empty', function() {
+        contactUpdateDataService.contact = {tags: []};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.false;
+      });
+
+      it('should return true when other tags are defined and not empty', function() {
+        contactUpdateDataService.contact = {tags: ['js', 'node']};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.true;
+      });
+
+      it('should return true when notes are defined', function() {
+        contactUpdateDataService.contact = {notes: 'This guy is so funky'};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.true;
+      });
+    });
+
     describe('Tests show contact during graceperiod task', function() {
 
       it('should show the contact taken from contactUpdateDataService', function() {
@@ -519,8 +612,6 @@ describe('The Contacts Angular module', function() {
       });
 
     });
-
-
 
     describe('The deleteContact function', function() {
 

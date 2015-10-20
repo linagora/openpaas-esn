@@ -959,6 +959,47 @@ describe('The Contacts Angular module', function() {
       this.ICAL = _ICAL_;
     }));
 
+    describe('The getOrderedValues function', function() {
+      it('should return empty array when input is undefined', function() {
+        expect(this.contactHelper.getOrderedValues()).to.deep.equal([]);
+      });
+
+      it('should return empty array when input is input array', function() {
+        expect(this.contactHelper.getOrderedValues([])).to.deep.equal([]);
+      });
+
+      it('should return ordered elements based on given priority', function() {
+        var a = {type: 'a', value: 1};
+        var b = {type: 'b', value: 2};
+        var c = {type: 'c', value: 3};
+        expect(this.contactHelper.getOrderedValues([a, b, c], ['b', 'c', 'a'])).to.deep.equal([b, c, a]);
+      });
+
+      it('should return input when priorities are not defined', function() {
+        var a = {type: 'a', value: 1};
+        var b = {type: 'b', value: 2};
+        var c = {type: 'c', value: 3};
+        expect(this.contactHelper.getOrderedValues([a, b, c])).to.deep.equal([a, b, c]);
+      });
+
+      it('should return input when priorities are empty', function() {
+        var a = {type: 'a', value: 1};
+        var b = {type: 'b', value: 2};
+        var c = {type: 'c', value: 3};
+        expect(this.contactHelper.getOrderedValues([a, b, c], [])).to.deep.equal([a, b, c]);
+      });
+
+      it('should return only element with given priorities', function() {
+        var a = {type: 'a', value: 1};
+        var b = {type: 'b', value: 2};
+        var c = {type: 'c', value: 3};
+        var d = {type: 'd', value: 4};
+        var e = {type: 'e', value: 5};
+        expect(this.contactHelper.getOrderedValues([a, b, c, d, e], ['c', 'b', 'a'])).to.deep.equal([c, b, a]);
+      });
+
+    });
+
     describe('The getFormattedAddress function', function() {
 
       beforeEach(function() {
