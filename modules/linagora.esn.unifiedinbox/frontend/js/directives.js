@@ -114,6 +114,10 @@ angular.module('linagora.esn.unifiedinbox')
           scope.$hide();
         };
 
+        scope.$on('$destroy', function() {
+          notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+        });
+
       }
     };
   });

@@ -154,6 +154,22 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(callCount).to.equal(1);
     });
 
+    it('should notify and save draft when the composer is destroyed', function() {
+      $scope.$hide = function() {};
+
+      var title, text;
+      notificationFactory.weakInfo = function(callTitle, callText) {
+        title = callTitle;
+        text = callText;
+      };
+      compileDirective('<composer />');
+
+      $scope.$emit('$destroy');
+
+      expect(title).to.equal('Note');
+      expect(text).to.equal('Your email has been saved as draft');
+    });
+
   });
 
   /**
