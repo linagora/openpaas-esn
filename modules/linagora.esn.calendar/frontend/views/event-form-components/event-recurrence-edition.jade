@@ -12,7 +12,7 @@
             ng-disabled="readOnly")
     .form-group.event-recurrence-flex-container(ng-show="event.rrule.freq !== undefined")
       .interval
-        span.col-xs-2 #{__('Interval')}:
+        span.col-xs-3 #{__('Interval')}:
         .col-xs-10
           .fg-line.recurrence-interval-input
             input.input-sm.form-control(type="number", ng-model="event.rrule.interval")
@@ -27,9 +27,9 @@
           label.checkbox.checkbox-inline(ng-repeat="day in WEEK_DAYS")
             input.form-control(ng-click="toggleWeekdays(day)", type="checkbox")
             i.input-helper
-            {{day}}
+              {{day}}
       .end
-        span.col-xs-2 #{__('End')}:
+        span.col-xs-3 #{__('End')}:
         div.radios.col-xs-10
             label.radio.radio-inline
               input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil(); resetCount();", checked)

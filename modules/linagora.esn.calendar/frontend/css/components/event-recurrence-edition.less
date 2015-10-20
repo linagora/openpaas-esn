@@ -30,9 +30,10 @@
 
     .on-days {
       .labels {
-        display: flex;
-        flex-wrap: nowrap;
         justify-content: space-between;
+        .checkbox {
+          margin-left: 5px;
+        }
       }
     }
 
@@ -52,9 +53,15 @@
         }
 
         label {
-          margin-bottom: 5px;
+          margin-bottom: 12px;
         }
       }
     }
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .event-recurrence-flex-container {
+    margin-left: 50px;
   }
 }
