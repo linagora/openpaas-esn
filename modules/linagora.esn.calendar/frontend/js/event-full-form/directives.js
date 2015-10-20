@@ -2,8 +2,9 @@
 
 angular.module('esn.calendar')
 
-  .directive('eventFullForm', function($timeout, $location, eventUtils) {
+  .directive('eventFullForm', function($timeout, $location, eventUtils, headerService) {
     function link(scope, element, attrs, controller) {
+      headerService.subHeader.addInjection('event-full-form-subheader', scope);
       controller.initFormData();
 
       scope.isNew = eventUtils.isNew;
@@ -12,6 +13,7 @@ angular.module('esn.calendar')
       scope.changeParticipation = controller.changeParticipation;
       scope.goBack = function(callback) {
         $location.path('/calendar');
+        headerService.subHeader.resetInjections();
         if (callback) {
           // Timeout the callback so that fullcalendar events are
           // correctly handled after location has changed.
@@ -33,5 +35,13 @@ angular.module('esn.calendar')
       controller: 'eventFormController',
       templateUrl: '/calendar/views/event-full-form/event-full-form.html',
       link: link
+    };
+  })
+
+  .directive('eventFullFormSubheader', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/event-full-form/event-full-form-subheader.html'
     };
   });

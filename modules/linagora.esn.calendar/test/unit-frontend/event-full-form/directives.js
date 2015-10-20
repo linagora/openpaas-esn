@@ -11,10 +11,17 @@ describe('The event-full-form Angular module directives', function() {
     angular.mock.module('linagora.esn.graceperiod');
     angular.mock.module('esn.calendar');
     this.gracePeriodService = {};
+    this.headerService = {
+      subHeader: {
+        addInjection: function() {},
+        resetInjections: function() {}
+      }
+    };
 
     var self = this;
     angular.mock.module(function($provide) {
       $provide.value('gracePeriodService', self.gracePeriodService);
+      $provide.value('headerService', self.headerService);
     });
   });
 
@@ -98,11 +105,25 @@ describe('The event-full-form Angular module directives', function() {
       expect(this.eventUtils.editedEvent).to.deep.equal({});
     });
 
+    it('should call headerService to add a directive to the subheader', function(done) {
+      this.headerService.subHeader.addInjection = function(directive) {
+        expect(directive).to.equal('event-full-form-subheader');
+        done();
+      };
+      this.initDirective(this.$scope);
+    });
+
     describe('scope.goBack', function() {
       it('should $timeout the callback function in argument', function(done) {
         this.initDirective(this.$scope);
         this.$scope.goBack(done);
         this.$timeout.flush();
+      });
+
+      it('should call headerService to reset injections in the subheader', function(done) {
+        this.headerService.subHeader.resetInjections = done;
+        this.initDirective(this.$scope);
+        this.$scope.goBack();
       });
     });
   });
