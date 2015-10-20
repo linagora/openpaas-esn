@@ -617,9 +617,12 @@ describe('The Contacts Angular module', function() {
 
     it('should take contact from contactUpdateDataService if there was a graceperiod', function() {
       contactUpdateDataService.contact = { id: 'myId' };
+      contactsService.shellToVCARD = function() {
+        return 'vcard';
+      };
       contactsService.getCard = sinon.spy();
       this.initController();
-      expect(scope.contact).to.eql({ id: 'myId' });
+      expect(scope.contact).to.eql({ id: 'myId', vcard: 'vcard' });
       expect(contactUpdateDataService.contact).to.be.null;
       expect(contactsService.getCard.callCount).to.equal(0);
     });
@@ -766,8 +769,9 @@ describe('The Contacts Angular module', function() {
             return $q.reject();
           };
 
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          contactUpdateDataService.contact = true;
           this.initController();
-
           scope.bookId = '123';
           scope.cardId = 'xyz';
 
