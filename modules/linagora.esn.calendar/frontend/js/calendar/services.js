@@ -6,8 +6,7 @@ angular.module('esn.calendar')
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        var path = '/calendars/' + calendarId + '/events';
-        return calendarService.list(path, start, end, timezone).then(
+        return calendarService.list(calendarId, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
               return !calendarShell.status || calendarShell.status !== 'CANCELLED';
@@ -22,37 +21,6 @@ angular.module('esn.calendar')
           });
       };
     };
-  })
-
-  .factory('request', function($http, $q, DAV_PATH) {
-    function ensurePathToProxy(path) {
-      return path.substring(path.indexOf('/calendars'), path.length);
-    }
-
-    function _configureRequest(method, path, headers, body, params) {
-      var url = DAV_PATH;
-
-      headers = headers || {};
-
-      var config = {
-        url: url + ensurePathToProxy(path),
-        method: method,
-        headers: headers,
-        params: params
-      };
-
-      if (body) {
-        config.data = body;
-      }
-
-      return $q.when(config);
-    }
-
-    function request(method, path, headers, body, params) {
-      return _configureRequest(method, path, headers, body, params).then($http);
-    }
-
-    return request;
   })
 
   .factory('calendarEventEmitter', function($rootScope, $q, socket) {
@@ -92,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, FCMoment, request, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($q, FCMoment, jstz, uuid4, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -285,40 +253,29 @@ angular.module('esn.calendar')
       return invitedAttendees;
     }
 
-    function getEvent(path) {
-      var headers = { Accept: 'application/calendar+json' };
-      return request('get', path, headers).then(function(response) {
-        if (response.status !== 200) {
-          return $q.reject(response);
-        }
-        var vcalendar = new ICAL.Component(response.data);
-        return new CalendarShell(vcalendar, path, response.headers('ETag'));
-      });
+    function getEvent(eventPath) {
+      return eventAPI.get(eventPath)
+        .then(function(response) {
+          var vcalendar = new ICAL.Component(response.data);
+          return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
+        })
+        .catch ($q.reject);
     }
 
     function list(calendarPath, start, end, timezone) {
-      var req = {
-        match: {
-          start: FCMoment(start).format('YYYYMMDD[T]HHmmss'),
-          end: FCMoment(end).format('YYYYMMDD[T]HHmmss')
-        }
-      };
-
-      return request('post', calendarPath + '.json', null, req).then(function(response) {
-        if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
-          return [];
-        }
-        return response.data._embedded['dav:item'].reduce(function(shells, icaldata) {
-          var vcalendar = new ICAL.Component(icaldata.data);
-          var vevents = vcalendar.getAllSubcomponents('vevent');
-          vevents.forEach(function(vevent) {
-            var shell = new CalendarShell(vevent, icaldata._links.self.href, icaldata.etag);
-            shells.push(shell);
-          });
-
-          return shells;
-        }, []);
-      });
+      return calendarAPI.listEvents(calendarPath, start, end, timezone)
+        .then(function(events) {
+          return events.reduce(function(shells, icaldata) {
+            var vcalendar = new ICAL.Component(icaldata.data);
+            var vevents = vcalendar.getAllSubcomponents('vevent');
+            vevents.forEach(function(vevent) {
+              var shell = new CalendarShell(vevent, icaldata._links.self.href, icaldata.etag);
+              shells.push(shell);
+            });
+            return shells;
+          }, []);
+        })
+        .catch ($q.reject);
     }
 
     function create(calendarPath, vcalendar, options) {
@@ -333,66 +290,51 @@ angular.module('esn.calendar')
       }
 
       var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
-      var headers = { 'Content-Type': 'application/calendar+json' };
-      var body = vcalendar.toJSON();
-
-      if (options.graceperiod) {
-        var taskId = null;
-        return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
-          .then(function(response) {
-            if (response.status !== 202) {
-              return $q.reject(response);
-            }
-            taskId = response.data.id;
+      var taskId = null;
+      return eventAPI.create(eventPath, vcalendar, options)
+        .then(function(response) {
+          if (typeof response !== 'string') {
+            return response;
+          } else {
+            taskId = response;
             calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, null, null, taskId));
-          })
-          .then(function() {
-            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid});
-          })
-          .then(function(data) {
-            var task = data;
-            if (task.cancelled) {
-              gracePeriodService.cancel(taskId).then(function() {
-                calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
-                task.success();
-              }, function(err) {
-                task.error(err.statusText);
-              });
-            } else {
-              // Unfortunately, sabredav doesn't support Prefer:
-              // return=representation on the PUT request,
-              // so we have to retrieve the event again for the etag.
-              return getEvent(eventPath).then(function(shell) {
-                gracePeriodService.remove(taskId);
-                calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
-                return shell;
-              }, function(response) {
-                if (response.status === 404) {
-                  // Silently fail here because it is due to
-                  // the task being cancelled by another method.
-                  return;
+            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid})
+              .then(function(task) {
+                if (task.cancelled) {
+                  gracePeriodService.cancel(taskId).then(function() {
+                    calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
+                    task.success();
+                  }, function(err) {
+                    task.error(err.statusText);
+                  });
                 } else {
-                  return response;
+                  // Unfortunately, sabredav doesn't support Prefer:
+                  // return=representation on the PUT request,
+                  // so we have to retrieve the event again for the etag.
+                  return getEvent(eventPath).then(function(shell) {
+                    gracePeriodService.remove(taskId);
+                    calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+                    calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
+                    return shell;
+                  }, function(response) {
+                    if (response.status === 404) {
+                      // Silently fail here because it is due to
+                      // the task being cancelled by another method.
+                      return;
+                    } else {
+                      return response;
+                    }
+                  });
                 }
-              });
-            }
-          });
-      } else {
-        return request('put', eventPath, headers, body).then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
+              })
+              .catch ($q.reject);
           }
-          return response;
-        });
-      }
+        })
+        .catch ($q.reject);
     }
 
-    function remove(path, event, etag) {
-      var headers = {};
-      if (etag) {
-        headers['If-Match'] = etag;
-      } else {
+    function remove(eventPath, event, etag) {
+      if (!etag) {
         // This is a noop and the event is not created yet in sabre/dav,
         // we then should only remove the event from fullcalendar
         // and cancel the taskid corresponding on the event.
@@ -404,12 +346,9 @@ angular.module('esn.calendar')
 
       var taskId = null;
       var vcalendar = shellToICAL(event);
-      var shell = new CalendarShell(vcalendar, path, etag);
-      return request('delete', path, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(function(response) {
-        if (response.status !== 202) {
-          return $q.reject(response);
-        }
-        taskId = response.data.id;
+      var shell = new CalendarShell(vcalendar, eventPath, etag);
+      return eventAPI.remove(eventPath, etag).then(function(id) {
+        taskId = id;
         calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
       })
       .then(function() {
@@ -447,7 +386,8 @@ angular.module('esn.calendar')
           }
           return $q.when(true);
         }
-      });
+      })
+      .catch ($q.reject);
     }
 
     function modify(path, event, oldEvent, etag, majorModification, onCancel) {
@@ -457,15 +397,7 @@ angular.module('esn.calendar')
         });
       }
 
-      var headers = {
-        'Content-Type': 'application/calendar+json',
-        'Prefer': 'return=representation'
-      };
-      var body = shellToICAL(event).toJSON();
-
-      if (etag) {
-        headers['If-Match'] = etag;
-      } else {
+      if (!etag) {
         // This is a create event because the event is not created yet in sabre/dav,
         // we then should only cancel the first creation task.
         path = path.replace(/\/$/, '') + '/' + event.uid + '.ics';
@@ -479,11 +411,8 @@ angular.module('esn.calendar')
         var oldVcalendar = shellToICAL(oldEvent);
         var oldShell = new CalendarShell(oldVcalendar, path, etag);
       }
-      return request('put', path, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(function(response) {
-        if (response.status !== 202) {
-          return $q.reject(response);
-        }
-        taskId = response.data.id;
+      return eventAPI.modify(path, vcalendar, etag).then(function(id) {
+        taskId = id;
         calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
       })
       .then(function() {
@@ -519,7 +448,8 @@ angular.module('esn.calendar')
             }
           });
         }
-      });
+      })
+      .catch ($q.reject);
     }
 
     function _applyPartstatToSpecifiedAttendees(event, emails, status) {
@@ -537,20 +467,6 @@ angular.module('esn.calendar')
       return needsModify;
     }
 
-    function _modifyPartStat(path, event, etag) {
-      var headers = {
-        'Content-Type': 'application/calendar+json',
-        'Prefer': 'return=representation'
-      };
-      var body = shellToICAL(event).toJSON();
-
-      if (etag) {
-        headers['If-Match'] = etag;
-      }
-
-      return request('put', path, headers, body);
-    }
-
     function changeParticipation(eventPath, event, emails, status, etag, emitEvents) {
       emitEvents = emitEvents || true;
       if (!angular.isArray(event.attendees)) {
@@ -561,7 +477,8 @@ angular.module('esn.calendar')
         return $q.when(null);
       }
 
-      return _modifyPartStat(eventPath, event, etag)
+      var vcalendar = shellToICAL(event);
+      return eventAPI.changeParticipation(eventPath, vcalendar, etag)
         .then(function(response) {
           if (response.status === 200) {
             var vcalendar = new ICAL.Component(response.data);
@@ -569,15 +486,14 @@ angular.module('esn.calendar')
           } else if (response.status === 204) {
             return getEvent(eventPath).then(function(shell) {
               if (emitEvents) {
-                $rootScope.$emit('modifiedCalendarItem', shell);
-                socket('/calendars').emit('event:updated', shell.vcalendar);
+                calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+                calendarEventEmitter.websocket.emitUpdatedEvent(shell.vcalendar);
               }
               return shell;
             });
-          } else {
-            return $q.reject(response);
           }
-        })['catch'](function(response) {
+        })
+        .catch (function(response) {
           if (response.status === 412) {
             return getEvent(eventPath).then(function(shell) {
               // A conflict occurred. We've requested the event data in the

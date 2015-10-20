@@ -73,8 +73,8 @@ describe('The calendar module services', function() {
         '_embedded': {'dav:item': []}
       });
 
-      var start = new Date(2014, 0, 1);
-      var end = new Date(2014, 0, 2);
+      var start = moment(new Date(2014, 0, 1));
+      var end = moment(new Date(2014, 0, 2));
 
       var source = this.calendarEventSource('test', function() {
       });
@@ -123,8 +123,8 @@ describe('The calendar module services', function() {
         }
       });
 
-      var start = new Date(2014, 0, 1);
-      var end = new Date(2014, 0, 2);
+      var start = moment(new Date(2014, 0, 1));
+      var end = moment(new Date(2014, 0, 2));
 
       var source = this.calendarEventSource('test');
 
@@ -145,8 +145,8 @@ describe('The calendar module services', function() {
       angular.mock.module(function($provide) {
         $provide.factory('calendarService', function() {
           return {
-            list: function(path, startMoment, endMoment, timezone) {
-              expect(path).to.equals('/calendars/' + calendarId + '/events');
+            list: function(id, startMoment, endMoment, timezone) {
+              expect(id).to.equals('test');
               expect(startMoment).to.deep.equal(start);
               expect(endMoment).to.deep.equal(end);
               expect(timezone).to.equals(localTimezone);
@@ -580,7 +580,7 @@ describe('The calendar module services', function() {
         var data = {
           match: { start: '20140101T000000', end: '20140102T000000' }
         };
-        this.$httpBackend.expectPOST('/dav/api/path/to/calendar.json', data).respond({
+        this.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
           '_links': {
             'self': { 'href': '/prepath/path/to/calendar.json' }
           },
@@ -605,10 +605,10 @@ describe('The calendar module services', function() {
           }
         });
 
-        var start = new Date(2014, 0, 1);
-        var end = new Date(2014, 0, 2);
+        var start = moment(new Date(2014, 0, 1));
+        var end = moment(new Date(2014, 0, 2));
 
-        this.calendarService.list('/path/to/calendar', start, end, false).then(function(events) {
+        this.calendarService.list('uid', start, end, false).then(function(events) {
             expect(events).to.be.an.array;
             expect(events.length).to.equal(1);
             expect(events[0].id).to.equal('myuid');
@@ -631,7 +631,7 @@ describe('The calendar module services', function() {
         var data = {
           match: { start: '20140101T000000', end: '20140103T000000' }
         };
-        this.$httpBackend.expectPOST('/dav/api/path/to/calendar.json', data).respond({
+        this.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
           '_links': {
             'self': { 'href': '/prepath/path/to/calendar.json' }
           },
@@ -665,10 +665,10 @@ describe('The calendar module services', function() {
           }
         });
 
-        var start = new Date(2014, 0, 1);
-        var end = new Date(2014, 0, 3);
+        var start = moment(new Date(2014, 0, 1));
+        var end = moment(new Date(2014, 0, 3));
 
-        this.calendarService.list('/path/to/calendar', start, end, false).then(function(events) {
+        this.calendarService.list('uid', start, end, false).then(function(events) {
             expect(events).to.be.an.array;
             expect(events.length).to.equal(2);
             expect(events[0].uid).to.equal('myuid');
