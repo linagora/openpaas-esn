@@ -84,15 +84,18 @@ angular.module('esn.calendar')
       });
     };
 
-    $scope.eventSources = [calendarEventSource($scope.calendarHomeId, $scope.displayCalendarError)];
+    $scope.eventSourcesMap = {};
+    $scope.eventSources = [];
     calendarService.listCalendars($scope.calendarHomeId)
       .then(function(calendars) {
         $scope.calendars = calendars;
-        $scope.eventSources.concat(calendars.map(function(calendar) {
-          if (calendar.getId()) {
-            return calendarEventSource(calendar.id, $scope.displayCalendarError);
-          }
-        }));
+        $scope.calendars.forEach(function(calendar) {
+          $scope.eventSourcesMap[calendar.getHref()] = {
+            events: calendarEventSource(calendar.getHref(), $scope.displayCalendarError),
+            color: calendar.getColor()
+          };
+          uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
+        });
       });
 
     function _modifiedCalendarItem(newEvent) {
@@ -125,12 +128,20 @@ angular.module('esn.calendar')
       $rootScope.$on('addedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', data);
       }),
-      $rootScope.$on('calendars-list:toggleView', function(event, data) {
-        if (data.toggled) {
-          uiCalendarConfig.calendars[data.id || $scope.calendarHomeId].fullCalendar('render');
+      $rootScope.$on('calendars-list:toggleView', function(event, calendar) {
+        if (calendar.toggled) {
+          uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
         } else {
-          uiCalendarConfig.calendars[data.id || $scope.calendarHomeId].fullCalendar('render');
+          uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
         }
+      }),
+      $rootScope.$on('calendars-list:added', function(event, calendars) {
+        calendars.forEach(function(calendar) {
+          calendarService.createCalendar($scope.calendarHomeId, calendar);
+        });
+      }),
+      $rootScope.$on('calendars-list:removed', function(event, data) {
+
       })
     ];
 

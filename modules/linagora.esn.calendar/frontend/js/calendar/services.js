@@ -3,10 +3,10 @@
 angular.module('esn.calendar')
 
   .factory('calendarEventSource', function($log, calendarService) {
-    return function(calendarId, errorCallback) {
+    return function(calendarPath, errorCallback) {
       return function(start, end, timezone, callback) {
-        $log.debug('Getting events for %s', calendarId);
-        return calendarService.listEvents(calendarId, start, end, timezone).then(
+        $log.debug('Getting events for %s', calendarPath);
+        return calendarService.listEvents(calendarPath, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
               return !calendarShell.status || calendarShell.status !== 'CANCELLED';
@@ -109,14 +109,27 @@ angular.module('esn.calendar')
         .catch ($q.reject);
     }
 
-    function listCalendars(calendarId) {
-      return calendarAPI.listCalendars(calendarId)
+    /**
+     * List all calendars in the calendar home.
+     * @param  {String}     calendarHomeId  The calendar home id
+     * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
+     */
+    function listCalendars(calendarHomeId) {
+      return calendarAPI.listCalendars(calendarHomeId)
         .then(function(calendars) {
           var vcalendars = [];
           calendars.forEach(function(calendar) {
             vcalendars.push(new CalendarCollectionShell(calendar));
           });
           return vcalendars;
+        })
+        .catch ($q.reject);
+    }
+
+    function createCalendar(calendarId, calendar) {
+      return calendarAPI.createCalendar(calendarId, CalendarCollectionShell.toDavCalendar(calendar))
+        .then(function(response) {
+          return response;
         })
         .catch ($q.reject);
     }
@@ -353,6 +366,7 @@ angular.module('esn.calendar')
       listEvents: listEvents,
       listCalendars: listCalendars,
       create: create,
+      createCalendar: createCalendar,
       remove: remove,
       modify: modify,
       changeParticipation: changeParticipation,

@@ -76,7 +76,7 @@ describe('The calendar module services', function() {
       var start = moment(new Date(2014, 0, 1));
       var end = moment(new Date(2014, 0, 2));
 
-      var source = this.calendarEventSource('test', function() {
+      var source = this.calendarEventSource('/dav/api/calendars/test/events.json', function() {
       });
 
       source(start, end, false, function(events) {
@@ -126,7 +126,7 @@ describe('The calendar module services', function() {
       var start = moment(new Date(2014, 0, 1));
       var end = moment(new Date(2014, 0, 2));
 
-      var source = this.calendarEventSource('test');
+      var source = this.calendarEventSource('/dav/api/calendars/test/events.json');
 
       source(start, end, false, function(events) {
         expect(events).to.deep.equal([]);
@@ -145,7 +145,7 @@ describe('The calendar module services', function() {
       angular.mock.module(function($provide) {
         $provide.factory('calendarService', function() {
           return {
-            list: function(id, startMoment, endMoment, timezone) {
+            listEvents: function(id, startMoment, endMoment, timezone) {
               expect(id).to.equals('test');
               expect(startMoment).to.deep.equal(start);
               expect(endMoment).to.deep.equal(end);
@@ -577,7 +577,7 @@ describe('The calendar module services', function() {
       ICAL = _ICAL_;
     }));
 
-    describe('The list fn', function() {
+    describe('The listEvents fn', function() {
 
       it('should list non-recurring events', function(done) {
         var data = {
@@ -611,7 +611,7 @@ describe('The calendar module services', function() {
         var start = moment(new Date(2014, 0, 1));
         var end = moment(new Date(2014, 0, 2));
 
-        this.calendarService.list('uid', start, end, false).then(function(events) {
+        this.calendarService.listEvents('/calendars/uid/events.json', start, end, false).then(function(events) {
             expect(events).to.be.an.array;
             expect(events.length).to.equal(1);
             expect(events[0].id).to.equal('myuid');
@@ -671,7 +671,7 @@ describe('The calendar module services', function() {
         var start = moment(new Date(2014, 0, 1));
         var end = moment(new Date(2014, 0, 3));
 
-        this.calendarService.list('uid', start, end, false).then(function(events) {
+        this.calendarService.listEvents('/calendars/uid/events.json', start, end, false).then(function(events) {
             expect(events).to.be.an.array;
             expect(events.length).to.equal(2);
             expect(events[0].uid).to.equal('myuid');

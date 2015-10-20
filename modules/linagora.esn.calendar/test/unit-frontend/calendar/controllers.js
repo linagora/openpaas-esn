@@ -29,6 +29,12 @@ describe('The calendar module controllers', function() {
       modify: function(path , e) {
         event = e;
         return $q.when();
+      },
+      listCalendars: function() {
+        return $q.when([{
+          getHref: function() { return 'href'; },
+          getColor: function() { return 'color'; }
+        }]);
       }
     };
 

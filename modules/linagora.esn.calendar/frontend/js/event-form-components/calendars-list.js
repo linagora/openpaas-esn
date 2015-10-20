@@ -2,11 +2,19 @@
 
 angular.module('esn.calendar')
 
-  .directive('calendarsList', function(CalendarCollectionShell, uuid4) {
+  /**
+   * This directive takes an array of CalendarCollectionShell in entry and the calendarHomeId, then emit those events:
+   *     calendars-list:added - with an array of CalendarCollectionShell
+   *     calendars-list:removed - with an array of CalendarCollectionShell
+   *     calendars-list:toggleView - with  the calendar which should be toggled
+   *
+   */
+  .directive('calendarsList', function(calendarService, CalendarCollectionShell, uuid4) {
     function link(scope) {
+      scope.calendars = scope.calendars || [];
       scope.oldCalendars = scope.calendars.map(function(calendar) {
         return {
-          id: calendar.getId(),
+          href: calendar.getHref(),
           name: calendar.getName(),
           color: calendar.getColor(),
           description: calendar.getDescription(),
@@ -28,20 +36,20 @@ angular.module('esn.calendar')
             return !arrayB.some(function(itemB) { return itemA[property] === itemB[property]; });
           });
         }
-        var calendarsToAdd = _diff(scope.newCalendars, scope.oldCalendars, 'id');
-        var calendarsToRemove = _diff(scope.oldCalendars, scope.newCalendars, 'id');
+        var calendarsToAdd = _diff(scope.newCalendars, scope.oldCalendars, 'href');
+        var calendarsToRemove = _diff(scope.oldCalendars, scope.newCalendars, 'href');
         if (calendarsToAdd.length) {
-          scope.$emit('calendars-list:added', calendarsToAdd);
+          scope.$emit('calendars-list:added', calendarsToAdd.map(CalendarCollectionShell.from));
         }
         if (calendarsToAdd.length) {
-          scope.$emit('calendars-list:removed', calendarsToRemove);
+          scope.$emit('calendars-list:removed', calendarsToRemove.map(CalendarCollectionShell.from));
         }
         scope.toggleForm();
       };
 
       scope.remove = function(toremove) {
         scope.newCalendars = scope.newCalendars.filter(function(calendar) {
-          return calendar.id !== toremove.id;
+          return calendar.href !== toremove.href;
         });
       };
 
@@ -49,8 +57,9 @@ angular.module('esn.calendar')
         if (!scope.newCalendar.name) {
           return;
         }
-        scope.newCalendar.id = uuid4.generate();
+        scope.newCalendar.href = CalendarCollectionShell.buildHref(calendarService.calendarHomeId, uuid4.generate());
         scope.newCalendar.color = '#' + Math.random().toString(16).substr(-6);
+        scope.newCalendar.toggled = true;
         scope.newCalendars.push(scope.newCalendar);
         scope.newCalendar = {};
       };

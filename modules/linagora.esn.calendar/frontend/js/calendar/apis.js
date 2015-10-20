@@ -12,26 +12,21 @@ angular.module('esn.calendar')
     }
 
     function forCalendarHomeId(calendarId) {
-      return rootPath() + '/' + calendarId;
+      return rootPath() + '/' + calendarId + '.json';
     }
 
     function forCalendarId(calendarHomeId, calendarId) {
-      return forCalendarHomeId(calendarHomeId) + '/' + calendarId;
-    }
-
-    function forEvents(calendarId) {
-      return forCalendarHomeId(calendarId) + '/events';
+      return root() + '/' + calendarHomeId + '/' + calendarId + '.json';
     }
 
     function forEventId(calendarId, eventId) {
-      return forEvents(calendarId).replace(/\/$/, '') + '/' + eventId + '.ics';
+      return (root() + '/' + calendarId + '/events').replace(/\/$/, '') + '/' + eventId + '.ics';
     }
 
     return {
       rootPath: rootPath,
       forCalendarHomeId: forCalendarHomeId,
       forCalendarId: forCalendarId,
-      forEvents: forEvents,
       forEventId: forEventId
     };
   })
@@ -40,20 +35,19 @@ angular.module('esn.calendar')
 
     /**
      * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
-     * @param  {String}   calendarId The calendarId.
-     * @param  {FCMoment} start      FCMoment type of Date, specifying the start of the range.
-     * @param  {FCMoment} end        FCMoment type of Date, specifying the end of the range.
-     * @return {Object}              An array of dav:items items.
+     * @param  {String}   calendarHref The href of the calendar.
+     * @param  {FCMoment} start        FCMoment type of Date, specifying the start of the range.
+     * @param  {FCMoment} end          FCMoment type of Date, specifying the end of the range.
+     * @return {Object}                An array of dav:items items.
      */
-    function listEvents(calendarId, start, end) {
+    function listEvents(calendarHref, start, end) {
       var body = {
         match: {
           start: start.format('YYYYMMDD[T]HHmmss'),
           end: end.format('YYYYMMDD[T]HHmmss')
         }
       };
-      var path = pathBuilder.forEvents(calendarId);
-      return request('post', path + '.json', null, body)
+      return request('post', calendarHref, null, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -81,7 +75,7 @@ angular.module('esn.calendar')
         }
       };
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
-      return request('post', path + '.json', null, body)
+      return request('post', path, null, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -119,7 +113,7 @@ angular.module('esn.calendar')
      */
     function listCalendars(calendarId) {
       var path = pathBuilder.forCalendarHomeId(calendarId);
-      return request('get', path + '.json', {Accept: CALENDAR_ACCEPT_HEADER})
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -133,14 +127,13 @@ angular.module('esn.calendar')
 
     /**
      * Create a calendar in the specified calendar home.
-     * @param  {String}         calendarHomeId The calendarHomeId.
-     * @param  {ICAL.Component} vcalendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
+     * @param  {String}         calendarHomeId   The calendar home id in which to create a new calendar
+     * @param  {ICAL.Component} calendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
      * @return {Object}                        the http response.
      */
-    function createCalendar(calendarHomeId, vcalendar) {
+    function createCalendar(calendarHomeId, calendar) {
       var path = pathBuilder.forCalendarHomeId(calendarHomeId);
-      var body = vcalendar.toJSON();
-      return request('post', path + '.json', null, body)
+      return request('post', path, null, calendar)
         .then(function(response) {
           if (response.status !== 201) {
             return $q.reject(response);
