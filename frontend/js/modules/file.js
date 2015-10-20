@@ -888,6 +888,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       'text/x-uuencode': 'uu',
       'text/x-vcalendar': 'vcs',
       'text/x-vcard': 'vcf',
+      'text/xml': 'xml',
       'video/3gpp': '3gp',
       'video/3gpp2': '3g2',
       'video/h261': 'h261',

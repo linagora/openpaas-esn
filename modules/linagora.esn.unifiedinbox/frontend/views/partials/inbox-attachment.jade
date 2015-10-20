@@ -1,0 +1,5 @@
+a.attachment(ng-href="{{ ::attachment.url }}", target="_blank")
+  img.icon(fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png")
+  .metadata
+    h2.ellipsis {{ ::attachment.name }}
+    small.ellipsis {{ ::attachment.size | bytes }}

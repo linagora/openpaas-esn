@@ -106,11 +106,92 @@
     margin-left: 5px;
   }
 
+  .email-body {
+    padding: 5px;
+  }
+
   .html-email-body {
     width: 100%;
-    position: absolute;
 
     border: none;
+  }
+
+  .attachments {
+    border: 1px solid @secondaryTextColor;
+    border-radius: 5px;
+
+    .title {
+      font-size: 13px;
+      display: block;
+    }
+  }
+
+  .attachment {
+
+    animation: fadeIn 0.5s;
+    -webkit-animation: fadeIn 0.5s;
+
+    background-color: @primaryColor;
+    color: @textPrimaryColor;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    position: relative;
+    margin: 5px;
+    height: 64px;
+    display: inline-block;
+    width: 95%;
+    max-width: 300px;
+
+    .icon {
+      position: absolute;
+      top: 8px;
+      left: 5px;
+      width: 48px;
+      height: 48px;
+    }
+
+    .metadata {
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.9);
+      padding-top: 16px;
+      padding-left: 55px;
+
+      & > h2 {
+        margin: 0;
+        line-height: 100%;
+        font-size: 14px;
+        font-weight: 300;
+        color: @textPrimaryColor;
+      }
+
+      & > small {
+        margin-bottom: 2px;
+        display: block;
+      }
+
+      & > h2,
+      & > small {
+        .text-overflow();
+      }
+    }
+
+    &:before {
+      .transition(width);
+      .transition-duration(200ms);
+      .backface-visibility(hidden);
+      content: "";
+      width: 0;
+      height: 100%;
+      background: rgba(0,0,0,0.1);
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    &:hover {
+      &:before {
+        width: 58px;
+      }
+    }
   }
 
 }

@@ -76,7 +76,7 @@
     "angular-fullscreen": "~1.0.1",
     "char-api": "https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "angular-nicescroll": "0.0.5",
-    "jmap-client": "0.0.3",
+    "jmap-client": "0.0.4",
     "dynamic-directive": "2.0.0",
     "iframe-resizer": "3.4.2",
     "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git"
