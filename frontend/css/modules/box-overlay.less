@@ -26,12 +26,21 @@
     right: 100px;
     bottom: 0;
     width: 400px;
-    height: 300px;
+    max-height: 500px;
     float: right;
     margin: 0 10px 10px 0;
     overflow: hidden;
     position: relative;
-    transition: height 0.1s ease-out;
+    transition: max-height 0.1s ease-out;
+  }
+
+  .panel-heading {
+    background-color: @primaryColor;
+    color: @textPrimaryColor;
+
+    i, span {
+      color: @textPrimaryColor;
+    }
   }
 
   .panel-title {
@@ -39,12 +48,11 @@
   }
 
   .panel-body {
-    padding: 5px;
+    padding: 0;
   }
 
   &.minimized {
-    height: 40px;
-    min-height: 0;
+    max-height: 40px;
 
     .toggle-minimize {
       transform: rotate(180deg);

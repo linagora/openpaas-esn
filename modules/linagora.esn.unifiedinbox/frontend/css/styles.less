@@ -197,8 +197,64 @@
 
 .compose {
 
-  textarea {
+  .compose-header {
+    background-color: @body-bg;
+    padding-top: 10px;
+
+    @media(min-width: @screen-sm-min) {
+      padding-top: 0;
+    }
+
+    .row {
+      margin: 0;
+    }
+
+    input {
+      background-color: inherit;
+      height: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+
+    .picture {
+      .hidden-xs;
+      .text-center;
+      padding: 5px 5px 0 5px;
+    }
+
+    .picture img {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+    }
+
+    .recipients {
+      padding-right: 0;
+    }
+
+    .more-recipients {
+      font-size: 2em;
+      cursor: pointer;
+      padding-left: 0;
+      text-align: end;
+
+      &.isCollapsed {
+        transform: rotate(180deg);
+        padding-right: 0;
+      }
+    }
+  }
+
+  .compose-subject {
+    padding: 0 5px 0 5px;
+    height: auto;
+  }
+
+  .compose-body {
     min-height: 110px;
+    padding: 5px;
   }
 
   .btn-group {

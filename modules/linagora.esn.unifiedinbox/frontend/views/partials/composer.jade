@@ -1,6 +1,29 @@
-form.compose(ng-submit="send()")
-  input.form-control(type="text", placeholder="to", autofocus=true)
-  textarea.form-control(type="text", placeholder="Hello, ..")
+form.form-horizontal.compose(ng-submit="send()")
+
+  .compose-header
+    .row
+      .picture.col-sm-1.hidden-xs
+        img(ng-controller='avatarController' ng-src='{{avatarURL}}')
+      .recipients.col-xs-11.col-sm-10
+        .form-group
+          label.col-xs-1.control-label(for="to") To
+          .col-xs-10
+            input.form-control(type="text", name="to")
+        .form-group(ng-hide="isCollapsed")
+          label.col-xs-1.control-label(for="cc") Cc
+          .col-xs-10
+            input.form-control(type="text", name="cc")
+        .form-group(ng-hide="isCollapsed")
+          label.col-xs-1.control-label(for="bcc") Bcc
+          .col-xs-10
+            input.form-control(type="text", name="bcc")
+      .more-recipients.col-xs-1(ng-class="{ 'isCollapsed': isCollapsed }")
+        span(ng-click="isCollapsed = !isCollapsed")
+            i.mdi.mdi-chevron-down
+
+    input.form-control.compose-subject(type="text", placeholder="Subject")
+
+  textarea.form-control.compose-body(type="text", placeholder="Hello, ..")
   .btn-group(role="group", aria-label="label")
     button.btn.btn-primary(type="submit", value="submit") Send 
       i.mdi.mdi-send
