@@ -27,6 +27,9 @@ aside#sidebar(collaborations-event-listener)
         li: a(href='/#/appstore')
           i.mdi.mdi-package-variant
           | #{__('Module Manager')}
+        li: a(href='/#/accounts')
+          i.mdi.mdi-database
+          | #{__('Accounts Manager')}
         injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
         li: a(href='/logout')
           i.mdi.mdi-account-remove
