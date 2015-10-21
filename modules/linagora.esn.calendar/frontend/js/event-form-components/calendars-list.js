@@ -6,7 +6,7 @@ angular.module('esn.calendar')
    * This directive takes an array of CalendarCollectionShell in entry and the calendarHomeId, then emit those events:
    *     calendars-list:added - with an array of CalendarCollectionShell
    *     calendars-list:removed - with an array of CalendarCollectionShell
-   *     calendars-list:toggleView - with  the calendar which should be toggled
+   *     calendars-list:toggleView - with the calendar {href: '', name: '', color: '', description: '', toggled: true||false} which should be toggled
    *
    */
   .directive('calendarsList', function(calendarService, CalendarCollectionShell, uuid4) {

@@ -8,9 +8,13 @@ var expect = chai.expect;
 describe('The calendar module controllers', function() {
   var event;
   var liveNotification;
+  var fullCalendarSpy;
+  var createCalendarSpy;
 
   beforeEach(function() {
     event = {};
+    fullCalendarSpy = sinon.spy();
+    createCalendarSpy = sinon.spy();
 
     var calendarUtilsMock = {
       getNewStartDate: function() {
@@ -23,10 +27,10 @@ describe('The calendar module controllers', function() {
 
     this.calendarServiceMock = {
       calendarId: '1234',
-      create: function() {
+      createEvent: function() {
         return $q.when({});
       },
-      modify: function(path , e) {
+      modifyEvent: function(path , e) {
         event = e;
         return $q.when();
       },
@@ -34,7 +38,14 @@ describe('The calendar module controllers', function() {
         return $q.when([{
           getHref: function() { return 'href'; },
           getColor: function() { return 'color'; }
+        }, {
+          getHref: function() { return 'href2'; },
+          getColor: function() { return 'color2'; }
         }]);
+      },
+      createCalendar: function() {
+        createCalendarSpy();
+        return $q.when();
       }
     };
 
@@ -51,8 +62,7 @@ describe('The calendar module controllers', function() {
     this.uiCalendarConfig = {
       calendars: {
         calendarId: {
-          fullCalendar: function() {
-          },
+          fullCalendar: fullCalendarSpy,
           offset: function() {
             return {
               top: 1
@@ -169,49 +179,76 @@ describe('The calendar module controllers', function() {
       expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
     });
 
-    it('The eventRender function should render the event', function() {
+    it('The list calendars and call addEventSource for each', function() {
       this.controller('calendarController', {$scope: this.scope});
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
+      this.scope.$digest();
+      expect(this.scope.calendars.length).to.equal(2);
+      expect(this.scope.calendars[0].getHref()).to.equal('href');
+      expect(this.scope.calendars[0].getColor()).to.equal('color');
+      expect(this.scope.calendars[1].getHref()).to.equal('href2');
+      expect(this.scope.calendars[1].getColor()).to.equal('color2');
+      expect(this.scope.eventSourcesMap.href.color).to.equal('color');
+      expect(this.scope.eventSourcesMap.href2.color).to.equal('color2');
+      expect(this.scope.eventSourcesMap.href.events).to.be.a('Array');
+      expect(this.scope.eventSourcesMap.href2.events).to.be.a('Array');
+      expect(fullCalendarSpy).to.have.been.calledTwice;
+    });
 
-      uiCalendarDiv.appendTo(document.body);
-      this.scope.$apply();
-      this.$timeout.flush();
+    it('should createCalendar on calendars-list:added', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      var called = 0;
 
-      var weekButton = uiCalendarDiv.find('.fc-agendaWeek-button');
-      expect(weekButton.length).to.equal(1);
-      var dayButton = uiCalendarDiv.find('.fc-agendaDay-button');
-      expect(dayButton.length).to.equal(1);
-
-      var checkRender = function() {
-        var title = uiCalendarDiv.find('.fc-title');
-        expect(title.length).to.equal(1);
-        expect(title.hasClass('ellipsis')).to.be.true;
-        expect(title.text()).to.equal('RealTest (Paris)');
-
-        var eventLink = uiCalendarDiv.find('a');
-        expect(eventLink.length).to.equal(1);
-        expect(eventLink.hasClass('event-common')).to.be.true;
-        expect(eventLink.attr('title')).to.equal('description!');
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
+        if (event !== 'addEventSource') {
+          return;
+        }
+        called++;
       };
+      this.rootScope.$broadcast('calendars-list:added', [{
+        getHref: function() { return 'href'; },
+        getColor: function() { return 'color'; }
+      }, {
+        getHref: function() { return 'href2'; },
+        getColor: function() { return 'color2'; }
+      }]);
+      this.scope.$digest();
 
-      checkRender();
-      weekButton.click();
-      this.scope.$apply();
-      try {
-        this.$timeout.flush();
-      } catch (exception) {
-        // Depending on the context, the 'no defered tasks' exception can occur
-      }
-      checkRender();
-      dayButton.click();
-      this.scope.$apply();
-      try {
-        this.$timeout.flush();
-      } catch (exception) {
-        // Depending on the context, the 'no defered tasks' exception can occur
-      }
-      checkRender();
-      uiCalendarDiv.remove();
+      // 2 are already added at initialization of the controller.
+      expect(called).to.equal(4);
+      expect(createCalendarSpy).to.have.been.calledTwice;
+    });
+
+    it('should emit addEventSource on calendars-list:toggleView and calendar.toggled is true', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      var called = 0;
+
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
+        if (event !== 'addEventSource') {
+          return;
+        }
+        called++;
+      };
+      this.rootScope.$broadcast('calendars-list:toggleView', {toggled: true});
+      this.scope.$digest();
+
+      // 2 are already added at initialization of the controller.
+      expect(called).to.equal(3);
+    });
+
+    it('should emit removeEventSource on calendars-list:toggleView and calendar.toggled is false', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      var called = 0;
+
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
+        if (event !== 'removeEventSource') {
+          return;
+        }
+        called++;
+      };
+      this.rootScope.$broadcast('calendars-list:toggleView', {toggled: false});
+      this.scope.$digest();
+
+      expect(called).to.equal(1);
     });
 
     it('should resize the calendar height twice when the controller is created', function() {
@@ -219,7 +256,10 @@ describe('The calendar module controllers', function() {
       var called = 0;
 
       var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
+        if (event === 'addEventSource') {
+          return;
+        }
         called++;
       };
 
@@ -236,6 +276,7 @@ describe('The calendar module controllers', function() {
 
     it('should resize the calendar height once when the window is resized', function() {
       this.controller('calendarController', {$scope: this.scope});
+      this.scope.$digest();
       var called = 0;
 
       var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
@@ -247,7 +288,7 @@ describe('The calendar module controllers', function() {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
 
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
         called++;
       };
 
@@ -296,7 +337,7 @@ describe('The calendar module controllers', function() {
         $alert: $alertMock,
         calendarEventSource: calendarEventSourceMock
       });
-
+      this.scope.$digest();
     });
 
     it('should initialize a listener on event:created ws event', function(done) {

@@ -16,11 +16,11 @@ angular.module('esn.calendar')
     }
 
     function forCalendarId(calendarHomeId, calendarId) {
-      return root() + '/' + calendarHomeId + '/' + calendarId + '.json';
+      return rootPath() + '/' + calendarHomeId + '/' + calendarId + '.json';
     }
 
     function forEventId(calendarId, eventId) {
-      return (root() + '/' + calendarId + '/events').replace(/\/$/, '') + '/' + eventId + '.ics';
+      return (rootPath() + '/' + calendarId + '/events').replace(/\/$/, '') + '/' + eventId + '.ics';
     }
 
     return {

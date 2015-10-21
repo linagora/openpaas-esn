@@ -137,11 +137,22 @@ angular.module('esn.calendar')
       }),
       $rootScope.$on('calendars-list:added', function(event, calendars) {
         calendars.forEach(function(calendar) {
-          calendarService.createCalendar($scope.calendarHomeId, calendar);
+          calendarService.createCalendar($scope.calendarHomeId, calendar)
+            .then(function() {
+              $log.debug('Successfully added a new calendar', calendar);
+              // Updating eventSources of fullcalendar
+              $scope.eventSourcesMap[calendar.getHref()] = {
+                events: calendarEventSource(calendar.getHref(), $scope.displayCalendarError),
+                color: calendar.getColor()
+              };
+              uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
+            })
+            .catch ($scope.displayCalendarError);
         });
       }),
-      $rootScope.$on('calendars-list:removed', function(event, data) {
-
+      $rootScope.$on('calendars-list:removed', function(event, calendars) {
+        // TODO not implemented yet
+        $log.debug('Calendars to remove', calendars);
       })
     ];
 

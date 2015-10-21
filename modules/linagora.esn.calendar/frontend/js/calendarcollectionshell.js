@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarCollectionShell', function(ICAL, uuid4, pathBuilder) {
+  .factory('CalendarCollectionShell', function(pathBuilder) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -35,6 +35,7 @@ angular.module('esn.calendar')
 
     /**
      * Return a dav:calendar used in body of request about calendars
+     * Note that it's only used when creating a calendar for now.
      * @param  {Object} shell  a CalendarCollectionShell or an object like {href: '', name: '', color: '', description: ''}
      * @return {Object}        {'dav:name': '', 'apple:color': '', 'caldav:description': ''}
      */

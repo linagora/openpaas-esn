@@ -79,10 +79,40 @@ angular.module('esn.calendar')
         .catch ($q.reject);
     }
 
-    function createCalendar(calendarId, calendar) {
-      return calendarAPI.createCalendar(calendarId, CalendarCollectionShell.toDavCalendar(calendar))
+    /**
+     * Create a new calendar in the calendar home defined by its id.
+     * @param  {String}                   calendarHomeId the id of the calendar in which we will create a new calendar
+     * @param  {CalendarCollectionShell}  calendar       the calendar to create
+     * @return {Object}                                  the http response
+     */
+    function createCalendar(calendarHomeId, calendar) {
+      return calendarAPI.createCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function(response) {
           return response;
+        })
+        .catch ($q.reject);
+    }
+
+    /**
+     * List all events between a specific range [start..end] in a calendar defined by its path.<
+     * @param  {String}   calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
+     * @param  {FCMoment} start        start date
+     * @param  {FCMoment} end          end date (inclusive)
+     * @param  {String}   timezone     the timezone in which we want the returned events to be in
+     * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
+     */
+    function listEvents(calendarPath, start, end, timezone) {
+      return calendarAPI.listEvents(calendarPath, start, end, timezone)
+        .then(function(events) {
+          return events.reduce(function(shells, icaldata) {
+            var vcalendar = new ICAL.Component(icaldata.data);
+            var vevents = vcalendar.getAllSubcomponents('vevent');
+            vevents.forEach(function(vevent) {
+              var shell = new CalendarShell(vevent, {path: icaldata._links.self.href, etag: icaldata.etag});
+              shells.push(shell);
+            });
+            return shells;
+          }, []);
         })
         .catch ($q.reject);
     }
@@ -125,30 +155,6 @@ angular.module('esn.calendar')
       return eventAPI.get(eventPath)
         .then(function(response) {
           return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
-        })
-        .catch ($q.reject);
-    }
-
-    /**
-     * List all events between a specific range [start..end] in a calendar defined by its path.<
-     * @param  {String}   calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
-     * @param  {FCMoment} start        start date
-     * @param  {FCMoment} end          end date (inclusive)
-     * @param  {String}   timezone     the timezone in which we want the returned events to be in
-     * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
-     */
-    function listEvents(calendarPath, start, end, timezone) {
-      return calendarAPI.listEvents(calendarPath, start, end, timezone)
-        .then(function(events) {
-          return events.reduce(function(shells, icaldata) {
-            var vcalendar = new ICAL.Component(icaldata.data);
-            var vevents = vcalendar.getAllSubcomponents('vevent');
-            vevents.forEach(function(vevent) {
-              var shell = new CalendarShell(vevent, {path: icaldata._links.self.href, etag: icaldata.etag});
-              shells.push(shell);
-            });
-            return shells;
-          }, []);
         })
         .catch ($q.reject);
     }
