@@ -12,7 +12,7 @@ angular.module('linagora.esn.contact')
       }
     });
   })
-  .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, $dateFormatter) {
+  .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, CONTACT_ATTRIBUTES_ORDER, $dateFormatter) {
 
     function getFormattedBirthday(birthday) {
       if (birthday instanceof Date) {
@@ -34,14 +34,10 @@ angular.module('linagora.esn.contact')
         return [];
       }
 
-      function getElementFromType(type) {
-        var result = array.filter(function(element) {
+      function getElementsFromType(type) {
+        return array.filter(function(element) {
           return notNullNorEmpty(element.type) && element.type.toLowerCase() === type.toLowerCase();
-        });
-
-        if (notNullNorEmpty(result)) {
-          return result[0];
-        }
+        }) || [];
       }
 
       if (!notNullNorEmpty(priorities)) {
@@ -50,10 +46,12 @@ angular.module('linagora.esn.contact')
 
       var result = [];
       priorities.forEach(function(priority) {
-        var v = getValue(getElementFromType(priority));
-        if (v) {
-          result.push({type: priority, value: v});
-        }
+        getElementsFromType(priority).forEach(function(element) {
+          var v = getValue(element);
+          if (v) {
+            result.push({type: priority, value: v});
+          }
+        });
       });
       return result;
     }
@@ -176,12 +174,23 @@ angular.module('linagora.esn.contact')
       }
     }
 
+    function fillScopeContactData($scope, contact) {
+      if (!contact) {
+        return;
+      }
+      $scope.contact = contact;
+      $scope.emails = getOrderedValues($scope.contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
+      $scope.phones = getOrderedValues($scope.contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
+      $scope.formattedBirthday = getFormattedBirthday(contact.birthday);
+    }
+
     return {
       getFormattedName: getFormattedName,
       getFormattedBirthday: getFormattedBirthday,
       getFormattedAddress: getFormattedAddress,
       forceReloadDefaultAvatar: forceReloadDefaultAvatar,
-      getOrderedValues: getOrderedValues
+      getOrderedValues: getOrderedValues,
+      fillScopeContactData: fillScopeContactData
     };
   })
   .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {

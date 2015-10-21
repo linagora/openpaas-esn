@@ -959,6 +959,43 @@ describe('The Contacts Angular module', function() {
       this.ICAL = _ICAL_;
     }));
 
+    describe('The fillScopeContactData function', function() {
+
+      it('should not modify scope when contact is undefined', function() {
+        var scope = {};
+        this.contactHelper.fillScopeContactData(scope);
+        expect(scope).to.deep.equal({});
+      });
+
+      it('should fill the scope with the contact', function() {
+        var scope = {};
+        var contact = {emails: [{type: 'work', value: 'me@work.com'}, {type: 'home', value: 'me@home.com'}]};
+        this.contactHelper.fillScopeContactData(scope, contact);
+        expect(scope.contact).to.deep.equal(contact);
+      });
+
+      it('should fill the scope with the contact emails', function() {
+        var scope = {};
+        var contact = {emails: [{type: 'work', value: 'me@work.com'}, {type: 'home', value: 'me@home.com'}]};
+        this.contactHelper.fillScopeContactData(scope, contact);
+        expect(scope.emails.length).to.equal(2);
+      });
+
+      it('should fill the scope with the contact phones', function() {
+        var scope = {};
+        var contact = {tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
+        this.contactHelper.fillScopeContactData(scope, contact);
+        expect(scope.phones.length).to.equal(2);
+      });
+
+      it('should fill the scope with the contact formattedBirthday', function() {
+        var scope = {};
+        var contact = {birthday: '123', tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
+        this.contactHelper.fillScopeContactData(scope, contact);
+        expect(scope.formattedBirthday).to.be.defined;
+      });
+    });
+
     describe('The getOrderedValues function', function() {
       it('should return empty array when input is undefined', function() {
         expect(this.contactHelper.getOrderedValues()).to.deep.equal([]);
@@ -996,6 +1033,17 @@ describe('The Contacts Angular module', function() {
         var d = {type: 'd', value: 4};
         var e = {type: 'e', value: 5};
         expect(this.contactHelper.getOrderedValues([a, b, c, d, e], ['c', 'b', 'a'])).to.deep.equal([c, b, a]);
+      });
+
+      it('should return ordered elements based on given priority even when same types appears several times', function() {
+        var a = {type: 'a', value: 1};
+        var b = {type: 'b', value: 2};
+        var c = {type: 'c', value: 3};
+        var d = {type: 'd', value: 4};
+        var e = {type: 'e', value: 6};
+        var aa = {type: 'a', value: 5};
+        var bb = {type: 'b', value: 7};
+        expect(this.contactHelper.getOrderedValues([a, b, c, d, e, aa, bb], ['a', 'b'])).to.deep.equal([a, aa, b, bb]);
       });
 
     });
