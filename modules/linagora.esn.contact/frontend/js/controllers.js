@@ -55,10 +55,7 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.fillContactData = function(contact) {
-      $scope.contact = contact;
-      $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
-      $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
-      $scope.formattedBirthday = ContactsHelper.getFormattedBirthday(contact.birthday);
+      ContactsHelper.fillScopeContactData($scope, contact);
     };
 
     $scope.getAddress = function(type) {
@@ -89,6 +86,7 @@ angular.module('linagora.esn.contact')
     };
 
     if (contactUpdateDataService.contact) {
+
       $scope.fillContactData(contactUpdateDataService.contact);
 
       $scope.$on('$routeChangeStart', function(evt, next, current) {

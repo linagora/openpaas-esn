@@ -41,14 +41,14 @@
             | #{__('Contact')}
         .pmbb-body.p-l-30
           .pmbb-view
-            dl.dl-horizontal(ng-repeat='email in contact.emails track by $index')
+            dl.dl-horizontal(ng-repeat='email in emails track by $index')
               dt 
                 .hide-if-not-first(ng-if='$first') 
                   i.mdi.mdi-email.m-r-5
                   | #{__('Emails')}
               dd 
                 a(ng-href='mailto:{{email.value}}') {{email.type}}: {{email.value}}
-            dl.dl-horizontal(ng-repeat='tel in contact.tel track by $index')
+            dl.dl-horizontal(ng-repeat='tel in phones track by $index')
               dt 
                 .hide-if-not-first(ng-if='$first') 
                   i.mdi.mdi-tablet-android.m-r-5(ng-if='$first') 
