@@ -54,6 +54,10 @@ angular.module('linagora.esn.contact')
       }).length;
     }
 
+    $scope.fillContactData = function(contact) {
+      ContactsHelper.fillScopeContactData($scope, contact);
+    };
+
     $scope.getAddress = function(type) {
       return $scope.contact.addresses.filter(function(address) {
         return address.type.toLowerCase() === type.toLowerCase();
@@ -82,10 +86,8 @@ angular.module('linagora.esn.contact')
     };
 
     if (contactUpdateDataService.contact) {
-      $scope.contact = contactUpdateDataService.contact;
-      $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, ['work', 'home', 'other']);
-      $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, ['work', 'mobile', 'home', 'other']);
-      $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
+
+      $scope.fillContactData(contactUpdateDataService.contact);
 
       $scope.$on('$routeChangeStart', function(evt, next, current) {
         gracePeriodService.flush(contactUpdateDataService.taskId);
@@ -113,12 +115,8 @@ angular.module('linagora.esn.contact')
 
       $scope.loaded = true;
     } else {
-      contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
-        $scope.contact = card;
-        $scope.emails = ContactsHelper.getOrderedValues($scope.contact.emails, ['work', 'home', 'other']);
-        $scope.phones = ContactsHelper.getOrderedValues($scope.contact.tel, ['work', 'mobile', 'home', 'other']);
-        $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
-      }, function(err) {
+      contactsService.getCard($scope.bookId, $scope.cardId).then($scope.fillContactData,
+        function(err) {
         $log.debug('Error while loading contact', err);
         $scope.error = true;
         displayContactError('Cannot get contact details');

@@ -8,7 +8,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
-  .directive('contactDisplay', function() {
+  .directive('contactDisplay', function(ContactsHelper) {
     return {
       restrict: 'E',
       scope: {
@@ -18,6 +18,9 @@ angular.module('linagora.esn.contact')
       },
       templateUrl: '/contact/views/partials/contact-display.html',
       link: function($scope) {
+
+        ContactsHelper.fillScopeContactData($scope, $scope.contact);
+
         $scope.hasContactInformation = function() {
           return ($scope.contact.emails && $scope.contact.emails.length > 0) ||
                  ($scope.contact.tel && $scope.contact.tel.length > 0) ||
@@ -36,13 +39,16 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactEditionForm', function() {
+  .directive('contactEditionForm', function(CONTACT_ATTRIBUTES_ORDER) {
     return {
       restrict: 'E',
       scope: {
         'contact': '='
       },
-      templateUrl: '/contact/views/partials/contact-edition-form.html'
+      templateUrl: '/contact/views/partials/contact-edition-form.html',
+      link: function($scope) {
+        $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
+      }
     };
   })
   .directive('contactListItem', function() {

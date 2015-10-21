@@ -430,6 +430,42 @@ describe('The Contacts Angular module', function() {
       scope.$digest();
     });
 
+    describe('The fillContactData function', function() {
+      it('should fill the scope with the contact', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        var contact = {emails: [{type: 'work', value: 'me@work.com'}, {type: 'home', value: 'me@home.com'}]};
+        scope.fillContactData(contact);
+        contactUpdateDataService.contact = contact;
+        expect(scope.contact).to.deep.equal(contact);
+      });
+
+      it('should fill the scope with the contact emails', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        var contact = {emails: [{type: 'work', value: 'me@work.com'}, {type: 'home', value: 'me@home.com'}]};
+        scope.fillContactData(contact);
+        expect(scope.emails.length).to.equal(2);
+      });
+
+      it('should fill the scope with the contact phones', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        var contact = {tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
+        scope.fillContactData(contact);
+        expect(scope.phones.length).to.equal(2);
+      });
+
+      it('should fill the scope with the contact formattedBirthday', function() {
+        contactUpdateDataService.contact = {};
+        this.initController();
+        var contact = {birthday: '123', tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
+        scope.fillContactData(contact);
+        expect(scope.formattedBirthday).to.be.defined;
+      });
+
+    });
+
     describe('The $scope.shouldDisplayWork function', function() {
 
       it('should return false when nothing defined', function() {
