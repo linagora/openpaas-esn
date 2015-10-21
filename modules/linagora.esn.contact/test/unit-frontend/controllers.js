@@ -521,6 +521,18 @@ describe('The Contacts Angular module', function() {
         this.initController();
         expect(scope.shouldDisplayOthers()).to.be.true;
       });
+
+      it('should return false when other urls are defined but empty', function() {
+        contactUpdateDataService.contact = {urls: []};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.false;
+      });
+
+      it('should return true when other tags are defined and not empty', function() {
+        contactUpdateDataService.contact = {urls: ['foo', 'bar']};
+        this.initController();
+        expect(scope.shouldDisplayOthers()).to.be.true;
+      });
     });
 
     describe('Tests show contact during graceperiod task', function() {

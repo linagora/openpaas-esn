@@ -78,7 +78,7 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.shouldDisplayOthers = function() {
-      return !!(isAddressFilled('other') || ($scope.contact.tags && $scope.contact.tags.length) || $scope.contact.notes);
+      return !!(isAddressFilled('other') || ($scope.contact.tags && $scope.contact.tags.length) || $scope.contact.notes || ($scope.contact.urls && $scope.contact.urls.length));
     };
 
     if (contactUpdateDataService.contact) {
