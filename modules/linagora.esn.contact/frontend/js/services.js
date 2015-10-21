@@ -18,7 +18,7 @@ angular.module('linagora.esn.contact')
       if (birthday instanceof Date) {
         return moment(birthday).format('L'); // jshint ignore:line
       }
-        return birthday;
+      return birthday;
     }
 
     function notNullNorEmpty(value) {

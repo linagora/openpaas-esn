@@ -36,13 +36,16 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactEditionForm', function() {
+  .directive('contactEditionForm', function(CONTACT_ATTRIBUTES_ORDER) {
     return {
       restrict: 'E',
       scope: {
         'contact': '='
       },
-      templateUrl: '/contact/views/partials/contact-edition-form.html'
+      templateUrl: '/contact/views/partials/contact-edition-form.html',
+      link: function($scope) {
+        $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
+      }
     };
   })
   .directive('contactListItem', function() {
