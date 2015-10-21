@@ -6,6 +6,7 @@ angular.module('esn.ui', ['op.dynamicDirective'])
   .constant('FAB_ICONS', {
     default: 'mdi mdi-plus',
     create: 'mdi mdi-plus',
+    pen: 'mdi mdi-pencil',
     'new-user': 'mdi mdi-account-plus',
     next: 'mdi mdi-arrow-right'
   })
