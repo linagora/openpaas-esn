@@ -54,7 +54,8 @@ angular.module('linagora.esn.contact', [
           $log('Error while searching contacts: ' + error);
           return $q.when([]);
         });
-      }
+      },
+      templateUrl: '/contact/views/partials/contact-auto-complete.html'
     };
     attendeeService.addProvider(contactProvider);
   });
