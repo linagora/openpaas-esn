@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.box-overlay', [])
+angular.module('esn.box-overlay', ['esn.back-detector'])
   .provider('$boxOverlay', function() {
     this.$get = function($window, $rootScope, $compile, $templateCache, $http) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
@@ -109,12 +109,16 @@ angular.module('esn.box-overlay', [])
 
         overlay.show();
         if (scope.boxAutoDestroy) {
-          scope.$on('$destroy', function() {
+          scope.cleanup = function() {
             if (overlay) {
               overlay.destroy();
             }
+
             overlay = null;
-          });
+          };
+
+          //catchBackButton.listenOnce().then(scope.cleanup);
+          scope.$on('$destroy', scope.cleanup);
         }
       });
     }
