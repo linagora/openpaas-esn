@@ -135,33 +135,27 @@ angular.module('linagora.esn.contact')
     $scope.cardId = $route.current.params.cardId;
     $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
 
-    function isContactModified() {
-      return JSON.stringify(oldContact) !== JSON.stringify($scope.contact);
-    }
-
-    // angular.copy bug workaround
-    // https://github.com/angular/angular.js/pull/10116
-    // Should be replaced by angular.copy after upgrade to Angular 1.4.x
-    function cloneContact(contact) {
-      return new contactsService.ContactsShell(contact.vcard, contact.etag);
-    }
-
-    var oldContact = {};
+    var oldContact = '';
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
+      $scope.contact.vcard = contactsService.shellToVCARD($scope.contact);
       contactUpdateDataService.contact = null;
-      oldContact = cloneContact($scope.contact);
+      oldContact = JSON.stringify($scope.contact);
       $scope.loaded = true;
     } else {
       contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
         $scope.contact = card;
-        oldContact = cloneContact(card);
+        oldContact = JSON.stringify(card);
       }, function() {
         $scope.error = true;
         displayContactError('Cannot get contact details');
       }).finally (function() {
         $scope.loaded = true;
       });
+    }
+
+    function isContactModified() {
+      return oldContact !== JSON.stringify($scope.contact);
     }
 
     $scope.close = function() {
@@ -180,7 +174,7 @@ angular.module('linagora.esn.contact')
           gracePeriodLiveNotification.registerListeners(
             taskId, function() {
               notificationFactory.strongError('', 'Failed to update contact, please try again later');
-              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, oldContact);
+              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new contactsService.ContactsShell($scope.contact.vcard, $scope.contact.etag));
             }
           );
 
@@ -191,7 +185,7 @@ angular.module('linagora.esn.contact')
               if (data.cancelled) {
                 return gracePeriodService.cancel(taskId).then(function() {
                   data.success();
-                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, oldContact);
+                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new contactsService.ContactsShell($scope.contact.vcard, $scope.contact.etag));
                 }, function(err) {
                   data.error('Cannot cancel contact update');
                 });
