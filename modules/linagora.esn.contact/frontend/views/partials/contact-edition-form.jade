@@ -14,7 +14,7 @@
             input.form-control.floating-label(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
           .fg-line
             input.form-control.floating-label(type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
-      multi-input-group(multi-input-model='contact.emails', multi-input-types='CONTACT_ATTRIBUTES_ORDER.email', multi-input-texttype='text', multi-input-placeholder='#{__("Email")}')
+      multi-input-group(multi-input-model='contact.emails', multi-input-types='CONTACT_ATTRIBUTES_ORDER.email', multi-input-texttype='text', multi-input-placeholder='#{__("Email")}', multi-input-autocapitalize='off')
       multi-input-group(multi-input-model='contact.tel', multi-input-types='CONTACT_ATTRIBUTES_ORDER.phone', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
       multi-input-group-address( multi-input-model='contact.addresses', multi-input-types='CONTACT_ATTRIBUTES_ORDER.address')
     .col-xs-12.col-lg-5
