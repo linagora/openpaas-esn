@@ -288,7 +288,11 @@ contact-list-item {
   height: @contact-toolbar-item-height;
   background-color: @m-white;
   color: @m-gray;
-  padding-top: 2px;
+  padding: 2px 10px 0 10px;
+  width: 44px;
+  span {
+    .fadeIn200ms();
+  }
 }
 
 .clear-input:before {
