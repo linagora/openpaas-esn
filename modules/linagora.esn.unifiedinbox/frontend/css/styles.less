@@ -232,6 +232,15 @@
 
     .recipients {
       padding-right: 0;
+
+      .form-group {
+        opacity: 1;
+        transition: opacity 0.2s ease-out;
+
+        &.ng-hide {
+          opacity: 0;
+        }
+      }
     }
 
     .more-recipients {
@@ -239,6 +248,8 @@
       cursor: pointer;
       padding-left: 0;
       text-align: end;
+      transform: rotate(0deg);
+      transition: transform 0.2s ease-out;
 
       &.isCollapsed {
         transform: rotate(180deg);
