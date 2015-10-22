@@ -81,6 +81,16 @@ angular.module('esn.core', [])
   .filter('urlencode', function($window) {
     return $window.encodeURIComponent;
   })
+  .filter('prefixLink', function() {
+    return function(input, type) {
+      if (type === 'http') {
+        if (!/^https?:\/\//.test(input)) {
+          input = 'http://' + input;
+        }
+      }
+      return input;
+    };
+  })
   .directive('fallbackSrc', function() {
     return {
       link: function postLink(scope, element, attrs) {

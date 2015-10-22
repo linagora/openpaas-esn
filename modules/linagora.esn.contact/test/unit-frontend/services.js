@@ -665,6 +665,7 @@ describe('The Contacts Angular module', function() {
 
         compareShell(this.contactsService, shell, ical);
       });
+
     });
 
 
@@ -1115,6 +1116,8 @@ describe('The Contacts Angular module', function() {
         this.workTel = { type: 'Work', value: '+33333333' };
         this.otherTel = { type: 'Other', value: '+44444444' };
 
+        this.url = { value: 'http://linagora.com' };
+
       });
 
       beforeEach(function() {
@@ -1235,6 +1238,11 @@ describe('The Contacts Angular module', function() {
       it('should return other tel when defined', function() {
         this.shell.tel = [this.otherTel];
         this.expectEqual(this.otherTel.value);
+      });
+
+      it('should return url when defined', function() {
+        this.shell.urls = [this.url];
+        this.expectEqual(this.url.value);
       });
 
       it('should return notes when defined', function() {

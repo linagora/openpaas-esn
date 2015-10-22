@@ -235,7 +235,7 @@ describe('The multi-input Angular module', function() {
       this.$scope = this.$rootScope.$new();
       this.$compile = _$compile_;
       this.$timeout = _$timeout_;
-      var defaultDirective = '<multi-input-group multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="text", multi-input-placeholder="Email"></multi-input-group>';
+      var defaultDirective = '<multi-input-group multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="email", multi-input-placeholder="Email"></multi-input-group>';
 
       this.initDirective = function(scope, directive) {
         var html = directive || defaultDirective;
@@ -263,6 +263,7 @@ describe('The multi-input Angular module', function() {
       expect(this.eleScope.content.length).to.be.equal(2);
       expect(this.eleScope.showNextField).to.be.false;
     });
+
     it('should display a blank input if there is no existing content', function() {
       this.$scope.contact = {
         emails: []
@@ -271,6 +272,7 @@ describe('The multi-input Angular module', function() {
       expect(this.eleScope.content.length).to.be.equal(0);
       expect(this.eleScope.showNextField).to.be.true;
     });
+
     it('should display an "add a field button" when there is existing content', function() {
       this.$scope.contact = {
         emails: [
@@ -283,6 +285,30 @@ describe('The multi-input Angular module', function() {
       this.initDirective(this.$scope);
       expect(this.eleScope.showAddButton).to.be.true;
     });
+
+    it('should have inputs ignoring built-in HTML5 type validator', function() {
+      this.$scope.contact = {
+        emails: [{
+          type: 'Home',
+          value: 'home@mail.com'
+        }]
+      };
+      var element = this.initDirective(this.$scope);
+      this.eleScope.showNextField = true;
+      this.eleScope.$digest();
+
+      var itemInput = element.find('input');
+      itemInput.val('this_is_an_invalid_email_1');
+      itemInput.triggerHandler('input');
+      itemInput.triggerHandler('blur');
+      expect(this.eleScope.content[0].value).to.equal('this_is_an_invalid_email_1');
+
+      var nextItemInput = element.find('input[ng-model="newItem.value"]');
+      nextItemInput.val('this_is_an_invalid_email_2');
+      nextItemInput.triggerHandler('input');
+      expect(this.eleScope.newItem.value).to.equal('this_is_an_invalid_email_2');
+    });
+
     it('should not display an "add a field button" when there is no existing content', function() {
       this.$scope.contact = {
         emails: []
@@ -290,6 +316,7 @@ describe('The multi-input Angular module', function() {
       this.initDirective(this.$scope);
       expect(this.eleScope.showAddButton).to.be.false;
     });
+
     it('should add a blank field on click on "add a field" button', function() {
       this.$scope.contact = {
         emails: [
@@ -304,6 +331,7 @@ describe('The multi-input Angular module', function() {
       expect(this.eleScope.showAddButton).to.be.false;
       expect(this.eleScope.showNextField).to.be.true;
     });
+
     it('should set the focus on the newly created street field', function() {
       this.$scope.contact = {
         emails: [
@@ -321,6 +349,7 @@ describe('The multi-input Angular module', function() {
       this.$timeout.flush();
       expect(spy).to.have.been.calledOnce;
     });
+
     it('should display an "add a field" button when the new input is not empty', function() {
       this.$scope.contact = {
         emails: [
@@ -339,6 +368,7 @@ describe('The multi-input Angular module', function() {
       this.eleScope.verifyNew();
       expect(this.eleScope.showAddButton).to.be.true;
     });
+
     it('should not display an "add a field" button when the new input is empty', function() {
       this.$scope.contact = {
         emails: [
@@ -357,6 +387,7 @@ describe('The multi-input Angular module', function() {
       this.eleScope.verifyNew();
       expect(this.eleScope.showAddButton).to.be.false;
     });
+
     it('should remove existing input when user empty it', function() {
       this.$scope.contact = {
         emails: [
@@ -440,6 +471,5 @@ describe('The multi-input Angular module', function() {
     });
 
   });
-
 
 });

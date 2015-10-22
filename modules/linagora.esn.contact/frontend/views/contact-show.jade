@@ -101,7 +101,7 @@
             p.type #{__('Address')}
           .contact-item-data(ng-if="contact.urls")
             p(ng-repeat='url in contact.urls')
-              a(ng-href='{{url.value}}' target='_blank') {{url.value}}
+              a(ng-href='{{url.value|prefixLink:"http"}}' target='_blank') {{url.value}}
             p.type #{__('Websites')}
           .contact-item-data(ng-if='contact.tags.length!=0')
             ul.tag-list
