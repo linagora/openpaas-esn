@@ -7,7 +7,7 @@
 
   @media(min-width: @screen-sm-min) {
     width: auto;
-    height: auto;
+    height: 250px;
   }
 }
 
@@ -28,7 +28,7 @@
     width: 400px;
     max-height: 500px;
     float: right;
-    margin: 0 10px 10px 0;
+    margin: 0 10px 0 0;
     overflow: hidden;
     position: relative;
     transition: max-height 0.1s ease-out;
@@ -55,6 +55,7 @@
 
   &.minimized {
     max-height: 40px;
+    top: 210px;
 
     .toggle-minimize {
       transform: rotate(180deg);

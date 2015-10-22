@@ -264,11 +264,22 @@
   }
 
   .compose-body {
-    min-height: 110px;
     padding: 5px;
+    border-bottom: 0;
   }
 
-  .btn-group {
-    float: right;
+  .compose-buttons {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+
+    @media(min-width: @screen-sm-min) {
+      bottom: 0;
+    }
   }
+
+}
+
+.minimized .compose-buttons {
+  display: none;
 }

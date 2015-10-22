@@ -23,7 +23,7 @@ form.form-horizontal.compose(ng-submit="send()")
 
     input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}")
 
-  textarea.form-control.compose-body(type="text", placeholder="#{__('Start to type here')}")
-  .btn-group(role="group", aria-label="label")
+  textarea.form-control.compose-body(type="text", placeholder="#{__('Start to type here')}", ng-class="{ 'isCollapsed': isCollapsed }")
+  .btn-group.compose-buttons(role="group", aria-label="label")
     button.btn.btn-primary(type="submit", value="submit") #{__('Send')}
       i.mdi.mdi-send
