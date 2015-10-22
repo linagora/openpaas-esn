@@ -78,23 +78,23 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('toggleCalendarView', function(uiCalendarConfig) {
+  .directive('toggleCalendarView', function(uiCalendarConfig, calendarService) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.on('click', function() {
-          uiCalendarConfig.calendars[scope.calendarId].fullCalendar('changeView', attrs.toggleCalendarView);
+          uiCalendarConfig.calendars[calendarService.calendarId].fullCalendar('changeView', attrs.toggleCalendarView);
         });
       }
     };
   })
 
-  .directive('toggleCalendarToday', function(uiCalendarConfig) {
+  .directive('toggleCalendarToday', function(uiCalendarConfig, calendarService) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.on('click', function() {
-          uiCalendarConfig.calendars[scope.calendarId].fullCalendar('today');
+          uiCalendarConfig.calendars[calendarService.calendarId].fullCalendar('today');
         });
       }
     };
