@@ -152,6 +152,38 @@ describe('The Angular core module', function() {
     });
   });
 
+
+  describe('The prefixLink filter', function() {
+    var prefixLink;
+
+    beforeEach(inject(function($filter) {
+      prefixLink = $filter('prefixLink');
+    }));
+
+    it('should return original input if type is undefined', function() {
+      var input = 'abcxyz';
+      expect(prefixLink(input)).to.equal(input);
+    });
+
+    describe('The http type', function() {
+      var type = 'http';
+
+      it('should prefix http:// when it is not present', function() {
+        expect(prefixLink('abc.com', type)).to.equal('http://abc.com');
+      });
+
+      it('should return original input when http:// is present', function() {
+        expect(prefixLink('http://abc.com', type)).to.equal('http://abc.com');
+      });
+
+      it('should return original input when https:// is present', function() {
+        expect(prefixLink('https://abc.com', type)).to.equal('https://abc.com');
+      });
+    });
+
+  });
+
+
   describe('The urlencode filter', function() {
     var urlencode;
     beforeEach(inject(function($filter) {
