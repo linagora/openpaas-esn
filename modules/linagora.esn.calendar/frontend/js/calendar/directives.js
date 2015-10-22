@@ -12,11 +12,6 @@ angular.module('esn.calendar')
        */
       $timeout(function() {
         element.find('.calendar').css('height', 'auto');
-        var today = element.find('.fc-today-button');
-        today.addClass('btn waves-effect');
-        var buttonGroup = element.find('.fc-button-group');
-        buttonGroup.addClass('btn-group');
-        buttonGroup.children().addClass('btn waves-effect');
       }, 0);
     }
     return {

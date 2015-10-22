@@ -3,40 +3,42 @@
 .fc-toolbar {
   background-color: @darkPrimaryColor;
 
-  .btn {
-    padding: 6px 12px;
-    color: @textPrimaryColor;
-  }
+  .fc-button-group {
+    box-shadow: none !important; /* override material-admin value */
 
-  .fc-today-button, .fc-button-group, .fc-today-button.ui-button.ui-state-default.ui-corner-left.ui-corner-right.btn.waves-effect {
-    margin-top: 2px;
-    box-shadow: none;
-  }
-
-  .ui-state-disabled {
-    cursor: pointer;
-  }
-
-  .ui-button:hover>span:after {
-    left: -1px;
-    top: -1px;
-  }
-
-  .fc-agendaWeek-button, .fc-agendaDay-button {
-    width: 55px;
-  }
-
-  .fc-month-button {
-    width: 65px;
-  }
-
-  .fc-today-button.ui-button.ui-state-default.ui-corner-left.ui-corner-right.btn.waves-effect {
-    width: 70px;
-    background-color: @lightPrimaryColor;
-    &.ui-state-disabled {
-      background-color: @darkPrimaryColor;
-      box-shadow: none;
+    button {
+      box-shadow:none !important; /* override material-admin value */
+      width: auto;
+      .btn;
     }
+
+    .ui-state-active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+  }
+
+  .ui-button:hover {
+    background: inherit;
+    background-color: darken(@darkPrimaryColor, 5%);
+  }
+
+  .fc-today-button {
+    box-shadow:none !important; /* override material-admin value */
+    width: auto;
+    .btn;
+  }
+
+  .fc-today-button.ui-state-default {
+    font-weight: bold;
+  }
+
+  .fc-today-button.ui-state-default.ui-state-disabled {
+    font-weight: inherit;
+  }
+
+  .ui-state-hover {
+    border: none;
   }
 }
 
@@ -52,32 +54,4 @@
 .fc-toolbar .ui-button>span.ui-icon-circle-triangle-e:before {
   font-family: 'MaterialDesignIcons';
   content: "\f144";
-}
-
-.fc-toolbar .ui-state-hover:not(.fc-prev-button):not(.fc-next-button) {
-  background: @ui-state-hover;
-}
-
-.fc-toolbar .ui-state-active {
-  font-weight: bold;
-}
-
-.fc-toolbar .ui-state-default {
-  -webkit-transition: all;
-  -o-transition: all;
-  transition: all;
-  -webkit-transition-duration: 200ms;
-  transition-duration: 200ms;
-}
-
-/* Small devices (tablets, 768px and up) */
-@media (min-width: @screen-sm-min) {
-  .fc-toolbar {
-    .fc-agendaWeek-button, .fc-agendaDay-button {
-      display:block;
-    }
-    .fc-basicWeek-button, .fc-basicDay-button {
-      display:none;
-    }
-  }
 }
