@@ -139,6 +139,10 @@ angular.module('linagora.esn.contact')
         }
       }
 
+      if (notNullNorEmpty(contact.urls)) {
+        return contact.urls[0].value;
+      }
+
       if (notNullNorEmpty(contact.notes)) {
         return contact.notes;
       }
