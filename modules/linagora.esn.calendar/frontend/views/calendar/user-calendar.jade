@@ -1,8 +1,7 @@
-div
+.user-calendar
   event-create-button(user='user')
-  toggle-right-sidebar-calendar-button.visible-xs
-  .row.nomargin
+  .row(ng-if="alertMessage")
     .col-xs-12
       span.calendar-error-message {{alertMessage}}
-  .row.nomargin
+  .row
     calendar-view(calendar-id='calendarId', ui-config='uiConfig')

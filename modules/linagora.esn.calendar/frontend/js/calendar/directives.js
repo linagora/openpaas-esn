@@ -78,14 +78,6 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('toggleRightSidebarCalendarButton', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/calendar/toggle-right-sidebar-calendar-button.html'
-    };
-  })
-
   .directive('toggleCalendarView', function(uiCalendarConfig) {
     return {
       restrict: 'A',
