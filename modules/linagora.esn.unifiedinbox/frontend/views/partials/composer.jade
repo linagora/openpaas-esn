@@ -8,7 +8,7 @@ form.form-horizontal.compose(ng-submit="send()")
         .form-group
           label.col-xs-1.control-label(for="to") #{__('To')}
           .col-xs-10
-            input.form-control(type="text", name="to")
+            input.form-control(type="text", name="to", autofocus)
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label(for="cc") #{__('CC')}
           .col-xs-10

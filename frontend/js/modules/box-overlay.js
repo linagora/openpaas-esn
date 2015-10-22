@@ -2,7 +2,7 @@
 
 angular.module('esn.box-overlay', ['esn.back-detector'])
   .provider('$boxOverlay', function() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -36,13 +36,13 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         };
 
         scope.$hide = function() {
-          scope.$$postDigest(function() {
+          $timeout(function() {
             $boxOverlay.hide();
           });
         };
 
         scope.$close = function() {
-          scope.$$postDigest(function() {
+          $timeout(function() {
             $boxOverlay.destroy();
           });
         };
@@ -60,6 +60,14 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
 
             boxElement.addClass('box-overlay-open');
             container().append(boxElement);
+
+            $timeout(function() {
+              var toFocus = boxElement.find('[autofocus]')[0];
+              if (toFocus) {
+                toFocus.focus();
+              }
+            });
+
           });
         };
 

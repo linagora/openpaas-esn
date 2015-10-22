@@ -14,13 +14,14 @@ describe('The box-overlay Angular module', function() {
 
   describe('boxOverlay directive', function() {
 
-    var $compile, $rootScope, $scope, $httpBackend, element;
+    var $compile, $rootScope, $scope, $httpBackend, $timeout, element;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_, _$timeout_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $httpBackend = _$httpBackend_;
+      $timeout = _$timeout_;
     }));
 
     afterEach(function() {
@@ -71,6 +72,40 @@ describe('The box-overlay Angular module', function() {
       compileAndClickTheButton('<button box-overlay box-title="The title !" />');
 
       expect(overlays().find('.panel-title').text()).to.match(/The title !/);
+    });
+
+    it('should not try to focus when no element has the autofocus attr in the template', function() {
+      $httpBackend.expectGET('/path/to/the/template').respond('<div class="i-am-the-template">Test</div>');
+
+      compileAndClickTheButton('<button box-overlay box-template-url="/path/to/the/template" />');
+      $httpBackend.flush();
+      $timeout.flush();
+
+      expect(overlays().find('.i-am-the-template')).to.have.length(1);
+    });
+
+    it('should focus an autofocus element found in the template', function() {
+      $httpBackend.expectGET('/path/to/the/template').respond('<input class="i-am-the-template" autofocus>Test</input>');
+
+      compileAndClickTheButton('<button box-overlay box-template-url="/path/to/the/template" />');
+      $httpBackend.flush();
+      $timeout.flush();
+
+      expect(overlays().find('.i-am-the-template')[0]).to.equal(document.activeElement);
+    });
+
+    it('should focus the autofocus element of a newly shown overlay', function() {
+      $httpBackend.expectGET('/path/to/the/template').respond('<input class="i-am-the-template" autofocus>Test</input>');
+      compileAndClickTheButton('<button box-overlay box-template-url="/path/to/the/template" />');
+      $httpBackend.flush();
+      $timeout.flush();
+
+      $httpBackend.expectGET('/path/to/another/template').respond('<input class="i-am-another-template" autofocus>Test</input>');
+      compileAndClickTheButton('<button box-overlay box-template-url="/path/to/another/template" />');
+      $httpBackend.flush();
+      $timeout.flush();
+
+      expect(overlays().find('.i-am-another-template')[0]).to.equal(document.activeElement);
     });
 
   });
