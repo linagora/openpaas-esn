@@ -235,9 +235,10 @@ describe('The multi-input Angular module', function() {
       this.$scope = this.$rootScope.$new();
       this.$compile = _$compile_;
       this.$timeout = _$timeout_;
+      var defaultDirective = '<multi-input-group multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="text", multi-input-placeholder="Email"></multi-input-group>';
 
-      this.initDirective = function(scope) {
-        var html = '<multi-input-group multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="text", multi-input-placeholder="Email"></multi-input-group>';
+      this.initDirective = function(scope, directive) {
+        var html = directive || defaultDirective;
         var element = this.$compile(html)(scope);
         scope.$digest();
         this.eleScope = element.isolateScope();
@@ -401,6 +402,13 @@ describe('The multi-input Angular module', function() {
       expect(element.html()).to.have.string('select');
     });
 
+    it('should set autocapitalize from input', function() {
+      this.$scope.contact = { emails: [] };
+      var directive = '<multi-input-group multi-input-autocapitalize="off", multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="text", multi-input-placeholder="Email"></multi-input-group>';
+      element = this.initDirective(this.$scope, directive);
+      this.eleScope.$digest();
+      expect(this.eleScope.autocapitalize).to.equal('off');
+    });
   });
 
 

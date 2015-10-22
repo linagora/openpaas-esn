@@ -90,11 +90,14 @@ angular.module('esn.multi-input', [])
         content: '=multiInputModel',
         types: '=multiInputTypes',
         inputType: '@multiInputTexttype',
-        placeholder: '@multiInputPlaceholder'
+        placeholder: '@multiInputPlaceholder',
+        autocapitalize: '@multiInputAutocapitalize'
       },
       templateUrl: '/views/modules/multi-input/multi-input-group.html',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
+        scope.autocapitalize = scope.autocapitalize || 'on';
+
         scope.verifyNew = function() {
           if (scope.newItem.value) {
             scope.showAddButton = true;
