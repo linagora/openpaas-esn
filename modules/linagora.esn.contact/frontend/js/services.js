@@ -455,6 +455,7 @@ angular.module('linagora.esn.contact')
 
       if (shell.urls) {
         shell.urls.forEach(function(data) {
+
           vcard.addPropertyWithValue('url', data.value);
         });
       }

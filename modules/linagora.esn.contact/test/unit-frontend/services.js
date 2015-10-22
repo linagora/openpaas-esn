@@ -665,6 +665,7 @@ describe('The Contacts Angular module', function() {
 
         compareShell(this.contactsService, shell, ical);
       });
+
     });
 
 

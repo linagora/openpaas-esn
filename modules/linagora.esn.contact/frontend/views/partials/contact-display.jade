@@ -81,7 +81,7 @@
                   i.mdi.mdi-web.m-r-5(ng-if='$first')
                   | #{__('Websites')}
               dd
-                a(ng-href="{{website.value}}" target='_blank') {{website.value}}
+                a(ng-href="{{website.value|prefixLink:'http'}}" target='_blank') {{website.value}}
       .pmb-block(ng-if='hasProfileInformation()')
         .pmbb-header
           h2 
