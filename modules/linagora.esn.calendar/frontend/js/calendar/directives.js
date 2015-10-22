@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('calendarDisplay', function($timeout) {
+  .directive('calendarView', function($timeout) {
     function link(scope, element) {
       /*
        * Hiding the header in mobile first template does not work well with FullCalendar
