@@ -1430,6 +1430,18 @@ describe('The Contacts Angular module', function() {
         $rootScope.$digest();
         expect(scope.loadContacts).to.have.been.calledOnce;
       });
+
+      it('should update location after clear input', function(done) {
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+        scope.appendQueryToURL = done;
+        scope.clearSearchInput();
+        $rootScope.$digest();
+      });
     });
 
     describe('The loadContacts function', function() {
@@ -1634,6 +1646,17 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
         expect(scope.searchResult).to.deep.equal({});
         expect(scope.currentPage).to.equal(0);
+      });
+
+      it('should update location on each search', function(done) {
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+        scope.appendQueryToURL = done;
+        scope.search();
       });
 
       it('should clean search result data', function() {
