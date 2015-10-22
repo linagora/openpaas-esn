@@ -3,7 +3,15 @@
 angular.module('esn.calendar')
   .directive('calendarDisplay', function($timeout) {
     function link(scope, element) {
+      /*
+       * Hiding the header in mobile first template does not work well with FullCalendar
+       * because it needs a div :visible to be initialized. This visibility is gotten beacause
+       * the header has a certain height. To have a css close solution, in css element.find('.calendar')
+       * height is forced to 1px, and element.find('.fc-toolbar') is .hidden-xs. We then should reset
+       * the element.find('.calendar') height to auto to have original value.
+       */
       $timeout(function() {
+        element.find('.calendar').css('height', 'auto');
         var today = element.find('.fc-today-button');
         today.addClass('btn waves-effect');
         var buttonGroup = element.find('.fc-button-group');
@@ -23,18 +31,19 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('calendarHeaderMobile', function(deviceDetector) {
-    // The link function should be deleted once the fullcalendar.js is patched
-    function link(scope, element) {
-      scope.isMobile = deviceDetector.isMobile;
-      if (deviceDetector.isMobile()) {
-        scope.uiConfig.calendar.header = false;
-      }
-    }
+  .directive('calendarHeaderMobile', function() {
     return {
       restrict: 'E',
-      templateUrl: '/calendar/views/calendar/calendar-header-mobile.html',
-      link: link
+      replace: true,
+      templateUrl: '/calendar/views/calendar/calendar-header-mobile.html'
+    };
+  })
+
+  .directive('calendarHeaderContent', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      template: '<span>My Calendar</span>'
     };
   })
 
@@ -98,7 +107,6 @@ angular.module('esn.calendar')
       }
     };
   })
-
 
   .directive('toggleSubCalendar', function() {
     return {
