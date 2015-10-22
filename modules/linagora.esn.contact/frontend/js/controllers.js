@@ -332,25 +332,32 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.search = function() {
+      if ($scope.searching) {
+        return;
+      }
+
       $scope.$emit(SCROLL_EVENTS.RESET_SCROLL);
       cleanSearchResults();
       cleanCategories();
       if (!$scope.searchInput) {
         return switchToList();
       }
+      $scope.searching = true;
       $scope.searchMode = true;
       $scope.nextPage = null;
       $scope.currentPage = 1;
       $scope.searchFailure = false;
       $scope.loadingNextContacts = true;
       $scope.lastPage = false;
-      getSearchResults();
+      getSearchResults().finally (function() {
+        $scope.searching = false;
+      });
     };
 
     function getSearchResults() {
       $log.debug('Searching contacts, page', $scope.currentPage);
       usSpinnerService.spin(SPINNER);
-      contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.currentPage).then(function(data) {
+      return contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.currentPage).then(function(data) {
           setSearchResults(data);
           $scope.currentPage = data.current_page;
           $scope.totalHits = $scope.totalHits + data.hits_list.length;

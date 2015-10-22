@@ -1245,7 +1245,10 @@ describe('The Contacts Angular module', function() {
       contactsService.search = function() {
         expect(scope.searchInput).to.equal(query);
         mySpy();
-        return $q.when([]);
+        return $q.when({
+        hits_list: [],
+          total_hits: 0
+        });
       };
       $controller('contactsListController', {
         $scope: scope,
@@ -1255,6 +1258,7 @@ describe('The Contacts Angular module', function() {
         }
       });
       scope.searchInput = 'QueryB';
+      scope.$digest();
       $rootScope.$broadcast('$routeUpdate');
       expect(scope.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledTwice;
@@ -1981,6 +1985,36 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
         expect(scope.searchFailure).to.be.true;
+      });
+
+      it('should prevent search when previous search is not complete', function() {
+        var search = 'Bruce Willis';
+        var called = 0;
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            },
+            search: function() {
+              called++;
+              // the search will be never resolved
+              return $q.defer().promise;
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.search();
+        scope.$digest();
+        scope.search();
+        scope.$digest();
+        expect(called).to.equal(1);
       });
     });
   });
