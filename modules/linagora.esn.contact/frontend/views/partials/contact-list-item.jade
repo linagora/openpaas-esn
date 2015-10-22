@@ -5,14 +5,14 @@
     .lv-title
       | {{contact.displayName}}
     ul.lv-attrs
-      li.hidden-xs(ng-show='contact.emails[0].value')
+      li.hidden-xs(ng-show='emails[0].value')
         span
           i.mdi.mdi-email-outline
-          a(ng-href="mailto:{{contact.emails[0].value}}") {{contact.emails[0].value}}
-      li.hidden-xs(ng-show='contact.tel[0].value')
+          a(ng-href="mailto:{{emails[0].value}}") {{emails[0].value}}
+      li.hidden-xs(ng-show='phone[0].value')
         span
           i.mdi.mdi-phone
-          | {{contact.tel[0].value}}
+          | {{phone[0].value}}
 
 .lv-actions.actions
   li.dropdown
