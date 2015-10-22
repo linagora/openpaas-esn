@@ -11,6 +11,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
 
+    angular.mock.module('esn.ui');
     angular.mock.module('esn.session');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
@@ -56,6 +57,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     $compile(element)($scope);
     $scope.$digest();
+    return element;
   }
 
   describe('The inboxMenu directive', function() {
@@ -228,6 +230,44 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       };
 
       compileDirective('<html-email-body email="email" />');
+    });
+
+  });
+
+  describe('The inboxFab directive', function() {
+
+    function findInnerFabButton(fab) {
+      return angular.element(fab.children('button')[0]);
+    }
+
+    it('should have enabled button by default', function() {
+      var fab = compileDirective('<inbox-fab></inbox-fab>');
+
+      var button = findInnerFabButton(fab);
+
+      expect(button.hasClass('btn-accent')).to.equal(true);
+      expect(button.attr('disabled')).to.not.match(/disabled/);
+    });
+
+    it('should disable the button when no space left on screen', function() {
+      var fab = compileDirective('<inbox-fab></inbox-fab>');
+      $scope.$emit('box-overlay:no-space-left-on-screen');
+
+      var button = findInnerFabButton(fab);
+
+      expect(button.hasClass('btn-accent')).to.equal(false);
+      expect(button.attr('disabled')).to.match(/disabled/);
+    });
+
+    it('should enable the button when new space left on screen', function() {
+      var fab = compileDirective('<inbox-fab></inbox-fab>');
+      $scope.$emit('box-overlay:no-space-left-on-screen');
+      $scope.$emit('box-overlay:space-left-on-screen');
+
+      var button = findInnerFabButton(fab);
+
+      expect(button.hasClass('btn-accent')).to.equal(true);
+      expect(button.attr('disabled')).to.not.match(/disabled/);
     });
 
   });

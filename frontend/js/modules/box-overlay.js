@@ -1,8 +1,45 @@
 'use strict';
 
 angular.module('esn.box-overlay', ['esn.back-detector'])
+
+  .constant('MAX_BOX_COUNT', 2)
+  .service('boxOverlayService', function($rootScope, MAX_BOX_COUNT) {
+
+    var boxCount = 0;
+
+    function spaceLeftOnScreen() {
+      return boxCount < MAX_BOX_COUNT;
+    }
+
+    function onlyOneSpaceLeftOnScreen() {
+      return boxCount === (MAX_BOX_COUNT - 1);
+    }
+
+    return {
+      addBox: function() {
+        if (!spaceLeftOnScreen()) {
+          return false;
+        }
+
+        boxCount++;
+        if (!spaceLeftOnScreen()) {
+          $rootScope.$emit('box-overlay:no-space-left-on-screen');
+        }
+        return true;
+      },
+      removeBox: function() {
+        if (boxCount > 0) {
+          boxCount--;
+          if (onlyOneSpaceLeftOnScreen()) {
+            $rootScope.$emit('box-overlay:space-left-on-screen');
+          }
+        }
+      }
+    };
+  })
+
   .provider('$boxOverlay', function() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -27,6 +64,10 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         var boxElement,
             scope = angular.extend($rootScope.$new(), config),
             $boxOverlay = { $scope: scope };
+
+        if (!boxOverlayService.addBox()) {
+          return;
+        }
 
         scope.minimized = false;
         $boxOverlay.$isShown = scope.$isShown = false;
@@ -77,6 +118,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
           }
 
           $boxOverlay.$isShown = scope.$isShown = false;
+          boxOverlayService.removeBox();
 
           if (boxElement) {
             boxElement.remove();
@@ -114,6 +156,10 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
     function postLink(scope, element) {
       element.on('click', function() {
         var overlay = $boxOverlay(buildOptions(scope));
+
+        if (angular.isUndefined(overlay)) {
+          return;
+        }
 
         overlay.show();
         if (scope.boxAutoDestroy) {

@@ -30,9 +30,20 @@ describe('The box-overlay Angular module', function() {
 
     function compileAndClickTheButton(html) {
       element = $compile(html)($scope);
+      return clickTheButton(element);
+    }
 
-      element.click();
+    function clickTheButton(button) {
+      button.click();
       $rootScope.$digest();
+      return button;
+    }
+
+    function closeFirstBox() {
+      var closeButtons = angular.element('.box-overlay-open i.close');
+      var closeButton = angular.element(closeButtons[0]);
+      closeButton.triggerHandler('click');
+      $timeout.flush();
     }
 
     function overlays() {
@@ -106,6 +117,43 @@ describe('The box-overlay Angular module', function() {
       $timeout.flush();
 
       expect(overlays().find('.i-am-another-template')[0]).to.equal(document.activeElement);
+    });
+
+    it('should accept to open two boxes', function() {
+
+      var notificationCount = 0;
+      $rootScope.$on('box-overlay:no-space-left-on-screen', function() {
+        notificationCount++;
+      });
+
+      var button = compileAndClickTheButton('<button box-overlay />');
+      clickTheButton(button);
+
+      expect(overlays()).to.have.length(2);
+      expect(notificationCount).to.equal(1);
+    });
+
+    it('should not accept to have three boxes', function() {
+      var button = compileAndClickTheButton('<button box-overlay />');
+      clickTheButton(button);
+      clickTheButton(button);
+
+      expect(overlays()).to.have.length(2);
+    });
+
+    it('should accept to reopen a box when one has been closed', function() {
+      var notificationCount = 0;
+      $rootScope.$on('box-overlay:space-left-on-screen', function() {
+        notificationCount++;
+      });
+
+      var button = compileAndClickTheButton('<button box-overlay />');
+      clickTheButton(button);
+      closeFirstBox();
+      clickTheButton(button);
+
+      expect(overlays()).to.have.length(2);
+      expect(notificationCount).to.equal(1);
     });
 
   });

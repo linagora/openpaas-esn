@@ -5,7 +5,33 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('inboxFab', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/partials/inbox-fab.html'
+      templateUrl: '/unifiedinbox/views/partials/inbox-fab.html',
+      link: function(scope, element) {
+
+        function findButton() {
+          return element.children('button').first();
+        }
+
+        function disableFab() {
+          var button = findButton();
+          button.toggleClass('btn-accent');
+          button.attr('disabled', 'disabled');
+        }
+
+        function enableFab() {
+          var button = findButton();
+          button.toggleClass('btn-accent');
+          button.removeAttr('disabled');
+        }
+
+        scope.$root.$on('box-overlay:no-space-left-on-screen', function() {
+          disableFab();
+        });
+
+        scope.$root.$on('box-overlay:space-left-on-screen', function() {
+          enableFab();
+        });
+      }
     };
   })
 
