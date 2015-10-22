@@ -2,7 +2,6 @@
 
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
 
 var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
   dependencies: [
