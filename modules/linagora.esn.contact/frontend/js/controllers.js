@@ -336,7 +336,6 @@ angular.module('linagora.esn.contact')
       $scope.currentPage = 0;
       $scope.nextPage = 0;
       cleanSearchResults();
-      $scope.appendQueryToURL();
       $scope.loadContacts();
     }
 
@@ -346,6 +345,7 @@ angular.module('linagora.esn.contact')
       }
 
       $scope.$emit(SCROLL_EVENTS.RESET_SCROLL);
+      $scope.appendQueryToURL();
       cleanSearchResults();
       cleanCategories();
       if (!$scope.searchInput) {
@@ -434,6 +434,7 @@ angular.module('linagora.esn.contact')
 
     $scope.clearSearchInput = function() {
       $scope.searchInput = null;
+      $scope.appendQueryToURL();
       switchToList();
     };
 
