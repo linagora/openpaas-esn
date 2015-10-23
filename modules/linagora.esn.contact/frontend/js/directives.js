@@ -158,4 +158,11 @@ angular.module('linagora.esn.contact')
         scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
       }
     };
+  })
+
+  .directive('contactListHeader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-header.html'
+    };
   });
