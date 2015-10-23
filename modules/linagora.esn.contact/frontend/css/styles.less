@@ -15,6 +15,7 @@
 @contact-search-form-bg-color: @body-bg;
 
 @import './header';
+@import './search';
 
 #profile-main {
   a {
@@ -268,59 +269,6 @@ contact-list-item {
 
 .letter-list .block-header {
   margin-bottom: 15px;
-}
-
-.contacts-search {
-  z-index: 2;
-  top: 0;
-  border-radius: 2px;
-
-  padding: 0 0 0 20px;
-  input[type="text"] {
-    background-color: @contact-search-form-bg-color;
-    font-size: 18px;
-    padding: 0 0 0 40px;
-    height: @contact-toolbar-item-height;
-    width: 100%;
-    border: 0;
-  }
-}
-
-.clear-input {
-  position: relative;
-  font-size: x-large;
-  height: @contact-toolbar-item-height;
-  background-color: @contact-search-form-bg-color;
-  color: @m-gray;
-  padding: 2px 10px 0 10px;
-  width: 44px;
-  span {
-    .fadeIn200ms();
-  }
-}
-
-.clear-input:before {
-  background-color: @m-white;
-}
-
-@media (max-width: @screen-md-min) {
-  .contacts-search {
-    flex-grow: 1;
-  }
-}
-
-.contacts-search:before {
-  font-family: 'MaterialDesignIcons';
-  content: "\f3ab";
-  position: absolute;
-  padding: 2px 10px 0 10px;
-  font-size: x-large;
-  color: @m-gray;
-}
-
-.contacts-search .form-control:focus {
-  background-position: right center;
-  padding: 0 30px 0 0;
 }
 
 contact-edition-form {
