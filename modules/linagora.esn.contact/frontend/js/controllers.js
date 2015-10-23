@@ -38,12 +38,17 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService) {
     $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
     $scope.loaded = false;
+
+    headerService.subHeader.addInjection('contact-show-subheader', $scope);
+    $scope.$on('$routeChangeStart', function() {
+      headerService.subHeader.resetInjections();
+    });
 
     function isAddressFilled(type) {
       if (!$scope.contact.addresses || !$scope.contact.addresses.length) {
