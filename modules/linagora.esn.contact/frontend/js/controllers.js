@@ -273,12 +273,21 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {
-      if ($scope.searchInput) { return; }
-      $scope.categories.removeItemWithId(contact.id);
+      if ($scope.searchInput) {
+        contact.deleted = true;
+      } else {
+        $scope.categories.removeItemWithId(contact.id);
+      }
+
     });
 
     $scope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(e, data) {
-      addItemsToCategories([data]);
+      if ($scope.searchInput) {
+        data.deleted = false;
+      } else {
+        addItemsToCategories([data]);
+      }
+
     });
 
     $scope.$on('ngRepeatFinished', function() {

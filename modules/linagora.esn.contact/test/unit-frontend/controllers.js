@@ -1036,6 +1036,40 @@ describe('The Contacts Angular module', function() {
       $rootScope.$digest();
     });
 
+    it('should hide contact on CONTACT_EVENTS.DELETED while in search mode', function() {
+      var contact = { lastName: 'Last' };
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: { _id: '123' }
+      });
+
+      scope.searchInput = 'someQuery';
+      $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
+      expect(contact.deleted).to.be.true;
+    });
+
+    it('should show contact on CONTACT_EVENTS.CANCEL_DELETE while in search mode', function() {
+      var contact = { lastName: 'Last' };
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: { _id: '123' }
+      });
+
+      scope.searchInput = 'someQuery';
+      $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+      expect(contact.deleted).to.be.false;
+    });
+
     it('should add the contact to the full contact list on CONTACT_EVENTS.CREATED event', function(done) {
       var contact = {
         lastName: 'Last'
