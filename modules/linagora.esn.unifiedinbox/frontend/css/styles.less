@@ -195,15 +195,14 @@
   }
 }
 
+
+/* Extra small devices (phones, less than 768px) */
+/* No media query since this is the default in Bootstrap */
 .compose {
 
   .compose-header {
     background-color: @body-bg;
     padding-top: 10px;
-
-    @media(min-width: @screen-sm-min) {
-      padding-top: 0;
-    }
 
     .row {
       margin: 0;
@@ -272,14 +271,26 @@
     position: absolute;
     bottom: 20px;
     right: 0;
-
-    @media(min-width: @screen-sm-min) {
-      bottom: 0;
-    }
   }
 
 }
 
 .minimized .compose-buttons {
   display: none;
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
+
+  .compose {
+
+    .compose-header {
+      padding-top: 0;
+    }
+
+    .compose-buttons {
+      bottom: 0;
+    }
+  }
+
 }
