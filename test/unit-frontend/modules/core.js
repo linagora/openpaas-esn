@@ -165,6 +165,11 @@ describe('The Angular core module', function() {
       expect(prefixLink(input)).to.equal(input);
     });
 
+    it('should ignore type case', function() {
+      expect(prefixLink('abc.com', 'http')).to.equal('http://abc.com');
+      expect(prefixLink('abc.com', 'HTTP')).to.equal('http://abc.com');
+    });
+
     describe('The http type', function() {
       var type = 'http';
 
@@ -179,6 +184,36 @@ describe('The Angular core module', function() {
       it('should return original input when https:// is present', function() {
         expect(prefixLink('https://abc.com', type)).to.equal('https://abc.com');
       });
+    });
+
+    describe('The skype type', function() {
+      var type = 'skype';
+
+      it('should prefix skype: when it is not present', function() {
+        expect(prefixLink('linagora', type)).to.equal('skype:linagora');
+      });
+
+      it('should return original input when skype: is present', function() {
+        expect(prefixLink('skype:linagora', type)).to.equal('skype:linagora');
+      });
+
+    });
+
+    describe('The twitter type', function() {
+      var type = 'twitter';
+
+      it('should prefix http://twitter.com/ when it is not present', function() {
+        expect(prefixLink('linagora', type)).to.equal('http://twitter.com/linagora');
+      });
+
+      it('should return original input when http://twitter.com/ is present', function() {
+        expect(prefixLink('http://twitter.com/linagora', type)).to.equal('http://twitter.com/linagora');
+      });
+
+      it('should return original input when https://twitter.com/ is present', function() {
+        expect(prefixLink('https://twitter.com/linagora', type)).to.equal('https://twitter.com/linagora');
+      });
+
     });
 
   });

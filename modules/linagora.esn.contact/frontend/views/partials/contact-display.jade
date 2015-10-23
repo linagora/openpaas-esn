@@ -73,7 +73,10 @@
                 .hide-if-not-first(ng-if='$first') 
                   i.mdi.mdi-earth.m-r-5(ng-if='$first')
                   | #{__('Social Networks')}
-              dd 
+              dd(ng-if="['Skype', 'Twitter'].indexOf(social.type) > -1")
+                | {{social.type}}:
+                a(ng-href="{{social.value|prefixLink:social.type}}", target="_blank") {{social.value}}
+              dd(ng-if="['Skype', 'Twitter'].indexOf(social.type) === -1")
                 | {{social.type}}: {{social.value}}
             dl.dl-horizontal(ng-repeat='website in contact.urls track by $index')
               dt
