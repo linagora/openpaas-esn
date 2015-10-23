@@ -16,7 +16,7 @@ angular.module('esn.calendar')
     }
     return {
       restrict: 'E',
-      templateUrl: 'calendar/views/calendar/calendar.html',
+      templateUrl: '/calendar/views/calendar/calendar.html',
       scope: {
         calendarId: '=',
         uiConfig: '='
