@@ -172,4 +172,11 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-show-subheader.html'
     };
+  })
+
+  .directive('contactEditSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-edit-subheader.html'
+    };
   });

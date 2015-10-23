@@ -132,11 +132,16 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, $log) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService) {
     $scope.loaded = false;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
+
+    headerService.subHeader.addInjection('contact-edit-subheader', $scope);
+    $scope.$on('$routeChangeStart', function() {
+      headerService.subHeader.resetInjections();
+    });
 
     var oldContact = '';
     if (contactUpdateDataService.contact) {
