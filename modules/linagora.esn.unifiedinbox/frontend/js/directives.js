@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('inboxFab', function() {
+  .directive('inboxFab', function($timeout, boxOverlayService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/inbox-fab.html',
@@ -14,22 +14,30 @@ angular.module('linagora.esn.unifiedinbox')
 
         function disableFab() {
           var button = findButton();
-          button.toggleClass('btn-accent');
-          button.attr('disabled', 'disabled');
+          button.removeClass('btn-accent');
+          scope.isDisabled = true;
         }
 
         function enableFab() {
           var button = findButton();
-          button.toggleClass('btn-accent');
-          button.removeAttr('disabled');
+          button.addClass('btn-accent');
+          scope.isDisabled = false;
         }
 
-        scope.$root.$on('box-overlay:no-space-left-on-screen', function() {
+        scope.$on('box-overlay:no-space-left-on-screen', function() {
           disableFab();
         });
 
-        scope.$root.$on('box-overlay:space-left-on-screen', function() {
+        scope.$on('box-overlay:space-left-on-screen', function() {
           enableFab();
+        });
+
+        $timeout(function() {
+          if (!boxOverlayService.spaceLeftOnScreen()) {
+            disableFab();
+          } else {
+            enableFab();
+          }
         });
       }
     };

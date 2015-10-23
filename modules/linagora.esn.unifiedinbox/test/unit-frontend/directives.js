@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmapClient, notificationFactory, iFrameResize = function() {};
+  var $compile, $rootScope, $scope, element, jmapClient, notificationFactory, $timeout, iFrameResize = function() {};
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -36,9 +36,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('notificationFactory', notificationFactory = {});
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    $timeout = _$timeout_;
   }));
 
   beforeEach(function() {
@@ -234,42 +235,71 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
+
   describe('The inboxFab directive', function() {
+
+    var boxOverlayService;
+
+    beforeEach(inject(function(_boxOverlayService_) {
+      boxOverlayService = _boxOverlayService_;
+    }));
 
     function findInnerFabButton(fab) {
       return angular.element(fab.children('button')[0]);
     }
 
-    it('should have enabled button by default', function() {
-      var fab = compileDirective('<inbox-fab></inbox-fab>');
-
-      var button = findInnerFabButton(fab);
-
+    function expectFabToBeEnabled(button) {
+      $scope.$digest();
+      expect($scope.isDisabled).to.equal(false);
       expect(button.hasClass('btn-accent')).to.equal(true);
       expect(button.attr('disabled')).to.not.match(/disabled/);
+    }
+
+    function expectFabToBeDisabled(button) {
+      $scope.$digest();
+      expect($scope.isDisabled).to.equal(true);
+      expect(button.hasClass('btn-accent')).to.equal(false);
+      expect(button.attr('disabled')).to.match(/disabled/);
+    }
+
+    function compileFabDirective() {
+      var fab = compileDirective('<inbox-fab></inbox-fab>');
+      $timeout.flush();
+      return findInnerFabButton(fab);
+    }
+
+    it('should have enabled button when space left on screen when linked', function() {
+      boxOverlayService.spaceLeftOnScreen = function() {return true;};
+
+      var button = compileFabDirective();
+
+      expectFabToBeEnabled(button);
+    });
+
+    it('should have disabled button when no space left on screen when linked', function() {
+      boxOverlayService.spaceLeftOnScreen = function() {return false;};
+
+      var button = compileFabDirective();
+
+      expectFabToBeDisabled(button);
     });
 
     it('should disable the button when no space left on screen', function() {
-      var fab = compileDirective('<inbox-fab></inbox-fab>');
+      var button = compileFabDirective();
+
       $scope.$emit('box-overlay:no-space-left-on-screen');
 
-      var button = findInnerFabButton(fab);
-
-      expect(button.hasClass('btn-accent')).to.equal(false);
-      expect(button.attr('disabled')).to.match(/disabled/);
+      expectFabToBeDisabled(button);
     });
 
     it('should enable the button when new space left on screen', function() {
-      var fab = compileDirective('<inbox-fab></inbox-fab>');
+      var button = compileFabDirective();
+
       $scope.$emit('box-overlay:no-space-left-on-screen');
       $scope.$emit('box-overlay:space-left-on-screen');
 
-      var button = findInnerFabButton(fab);
-
-      expect(button.hasClass('btn-accent')).to.equal(true);
-      expect(button.attr('disabled')).to.not.match(/disabled/);
+      expectFabToBeEnabled(button);
     });
-
   });
 
 });

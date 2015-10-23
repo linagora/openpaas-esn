@@ -16,6 +16,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
     }
 
     return {
+      spaceLeftOnScreen: spaceLeftOnScreen,
       addBox: function() {
         if (!spaceLeftOnScreen()) {
           return false;
@@ -23,7 +24,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
 
         boxCount++;
         if (!spaceLeftOnScreen()) {
-          $rootScope.$emit('box-overlay:no-space-left-on-screen');
+          $rootScope.$broadcast('box-overlay:no-space-left-on-screen');
         }
         return true;
       },
@@ -31,7 +32,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         if (boxCount > 0) {
           boxCount--;
           if (onlyOneSpaceLeftOnScreen()) {
-            $rootScope.$emit('box-overlay:space-left-on-screen');
+            $rootScope.$broadcast('box-overlay:space-left-on-screen');
           }
         }
       }
