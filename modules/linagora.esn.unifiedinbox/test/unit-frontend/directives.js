@@ -53,11 +53,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   function compileDirective(html) {
-    element = angular.element(html);
-    element.appendTo(document.body);
-
-    $compile(element)($scope);
+    element = $compile(html)($scope);
     $scope.$digest();
+    element.appendTo(document.body);
     return element;
   }
 
@@ -135,7 +133,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         text = callText;
       };
       compileDirective('<composer />');
-
       $scope.send();
 
       expect(title).to.equal('Success');
@@ -172,9 +169,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(title).to.equal('Note');
       expect(text).to.equal('Your email has been saved as draft');
     });
-
   });
-
   /**
    * PhantomJS does not work fine with iFrame and 'load' events, thus the .skip()
    * Tests run under Chrome and Firefox, though...
@@ -301,5 +296,4 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expectFabToBeEnabled(button);
     });
   });
-
 });

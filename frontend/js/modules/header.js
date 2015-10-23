@@ -94,6 +94,14 @@ angular.module('esn.header', [])
 
         scope.$on('$destroy', unregister);
 
+        scope.$on('header:hide', function() {
+          element.addClass('hidden');
+        });
+
+        scope.$on('header:show', function() {
+          element.removeClass('hidden');
+        });
+
         scope.toggleFullScreen = function() {
           Fullscreen.toggleAll();
         };

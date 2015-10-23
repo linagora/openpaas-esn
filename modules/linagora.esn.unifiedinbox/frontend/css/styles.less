@@ -249,11 +249,18 @@
       text-align: end;
       .rotateZ3d(0deg);
       transition: transform 0.2s ease-out;
+      a > i {
+        font-size: 0.6em;
+      }
 
       &.isCollapsed {
         .rotateZ3d(180deg);
         padding-right: 0;
       }
+    }
+
+    .btn-group {
+      float: right;
     }
   }
 
@@ -263,8 +270,8 @@
   }
 
   .compose-body {
-    padding: 5px;
     border-bottom: 0;
+    padding:0;
   }
 
   .compose-buttons {
@@ -277,8 +284,95 @@
 
 .minimized .compose-buttons {
   display: none;
+
+  & > .btn-group {
+    float: right;
+  }
+
+  .more-recipients, .picture {
+    margin-top: 5px;
+  }
 }
 
+.panel-heading.note-toolbar .note-alignment .dropdown-menu {
+  min-width: 190px;
+  background-color: @primaryColor;
+}
+
+.note-editor {
+  .note-editing-area .note-editable {
+    min-height: 70px;
+  }
+  .note-popover .note-image-popover {
+    background-color: @primaryColor ;
+  }
+  .btn-group:not(.dropdown-menu) .btn-default {
+    color: @textPrimaryColor;
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+      .caret {
+        border-top-color:  @textPrimaryColor;
+      }
+      &.active, &:hover {
+        background-color: lighten(@primaryColor, 10%);
+        color: @textPrimaryColor;
+      }
+  }
+  .open > .dropdown-toggle {
+    background-color: lighten(@primaryColor, 10%);
+    color: @textPrimaryColor;
+      &.btn-default:hover, &.btn-default:focus {
+        background-color: lighten(@primaryColor, 10%);
+        color: @textPrimaryColor;
+      }
+  }
+  &.panel.panel-default {
+    margin-bottom: 0;
+  }
+}
+.compose-body .panel-default > .panel-heading {
+  padding: 5px;
+  background-color: @primaryColor ;
+  border-radius: 0;
+  &.note-toolbar > .btn-group {
+    margin-top: 0;
+  }
+}
+
+.btn-group:not(.bootstrap-select) {
+  box-shadow: none;
+}
+
+.tooltip .fade .bottom .in {
+  background-color: lighten(@primaryColor, 10%);
+}
+
+@media (max-width: @screen-xs-max) {
+  .btn-sm, .btn-group > .btn {
+    font-size: 18px;
+  }
+  .note-editor .note-toolbar {
+    .note-headline {
+      display: none;
+    }
+  }
+  .note-alignment > .btn-group {
+    display: none;
+  }
+
+  .note-editor .note-editing-area .note-editable {
+    min-height: 300px;
+  }
+}
+
+@media (min-width: @screen-xs-max) {
+  .note-editor .note-toolbar {
+    .note-fullscreen {
+      display: none;
+    }
+  }
+}
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
 

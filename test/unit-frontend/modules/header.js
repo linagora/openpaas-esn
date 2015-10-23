@@ -66,6 +66,19 @@ describe('The esn.header Angular module', function() {
       });
     });
 
+    describe('the hideEventListener', function() {
+
+      it('should hide header when a hide-header event is received', function() {
+        this.$rootScope.$broadcast('header:hide', '');
+        expect(this.element.hasClass('hidden')).to.equal(true);
+      });
+
+      it('should show header when a show-header event is received', function() {
+        this.$rootScope.$broadcast('header:show', '');
+        expect(this.element.hasClass('hidden')).to.equal(false);
+      });
+    });
+
     describe('when receiving "display: false"', function() {
 
       it('should do nothing if the sidebar is close', function() {

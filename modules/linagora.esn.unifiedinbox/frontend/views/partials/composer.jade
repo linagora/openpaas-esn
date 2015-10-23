@@ -1,5 +1,4 @@
 form.form-horizontal.compose(ng-submit="send()")
-
   .compose-header
     .row
       .picture.col-sm-1.hidden-xs
@@ -23,7 +22,8 @@ form.form-horizontal.compose(ng-submit="send()")
 
     input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}")
 
-  textarea.form-control.compose-body(type="text", placeholder="#{__('Start to type here')}", ng-class="{ 'isCollapsed': isCollapsed }")
+  .compose-body(ng-model="emailBody", ng-class="{ 'isCollapsed': isCollapsed }")
+    summernote(config="summernoteOptions")
   .btn-group.compose-buttons(role="group", aria-label="label")
     button.btn.btn-primary(type="submit", value="submit") #{__('Send')}
       i.mdi.mdi-send
