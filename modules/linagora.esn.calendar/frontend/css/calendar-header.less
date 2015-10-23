@@ -21,6 +21,7 @@
   .ui-button:hover {
     background: inherit;
     background-color: darken(@darkPrimaryColor, 5%);
+    color: @m-black !important; /* override material-admin value */
   }
 
   .fc-today-button {
@@ -42,8 +43,11 @@
   }
 }
 
-.fc th {
-  background: @primaryColor;
+.fc {
+  margin-bottom: 0;
+  th {
+    background: @m-white;
+  }
 }
 
 .fc-toolbar .ui-button>span.ui-icon-circle-triangle-w:before {
@@ -54,4 +58,10 @@
 .fc-toolbar .ui-button>span.ui-icon-circle-triangle-e:before {
   font-family: 'MaterialDesignIcons';
   content: "\f144";
+}
+
+@media (min-width: @screen-sm-min) {
+  .fc th {
+    background: @primaryColor;
+  }
 }
