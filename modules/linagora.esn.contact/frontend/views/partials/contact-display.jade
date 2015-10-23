@@ -47,14 +47,16 @@
                   i.mdi.mdi-email.m-r-5
                   | #{__('Emails')}
               dd 
-                a(ng-href='mailto:{{email.value}}') {{email.type}}: {{email.value}}
+                | {{email.type}}:&nbsp;
+                a(ng-href='mailto:{{email.value}}') {{email.value}}
             dl.dl-horizontal(ng-repeat='tel in phones track by $index')
               dt 
                 .hide-if-not-first(ng-if='$first') 
                   i.mdi.mdi-tablet-android.m-r-5(ng-if='$first') 
                   | #{__('Phone numbers')}
               dd 
-                a(ng-href='tel:{{tel.value}}') {{tel.type}}: {{tel.value}}
+                | {{tel.type}}:&nbsp;
+                a(ng-href='tel:{{tel.value}}') {{tel.value}}
             dl.dl-horizontal(ng-repeat='address in contact.addresses track by $index')
               dt 
                 .hide-if-not-first(ng-if='$first') 
@@ -74,7 +76,7 @@
                   i.mdi.mdi-earth.m-r-5(ng-if='$first')
                   | #{__('Social Networks')}
               dd(ng-if="['Skype', 'Twitter'].indexOf(social.type) > -1")
-                | {{social.type}}:
+                | {{social.type}}:&nbsp;
                 a(ng-href="{{social.value|prefixLink:social.type}}", target="_blank") {{social.value}}
               dd(ng-if="['Skype', 'Twitter'].indexOf(social.type) === -1")
                 | {{social.type}}: {{social.value}}
