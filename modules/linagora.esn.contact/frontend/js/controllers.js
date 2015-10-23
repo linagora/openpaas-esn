@@ -453,7 +453,9 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, contactsService) {
+  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, ContactsHelper) {
+
+    ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
     $scope.displayContact = function() {
       $location.path('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
