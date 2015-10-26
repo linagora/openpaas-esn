@@ -31,13 +31,13 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarAPI', function(request, FCMoment, pathBuilder, CALENDAR_ACCEPT_HEADER) {
+  .factory('calendarAPI', function(request, pathBuilder, CALENDAR_ACCEPT_HEADER) {
 
     /**
      * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHref The href of the calendar.
-     * @param  {FCMoment} start        FCMoment type of Date, specifying the start of the range.
-     * @param  {FCMoment} end          FCMoment type of Date, specifying the end of the range.
+     * @param  {fcMoment} start        fcMoment type of Date, specifying the start of the range.
+     * @param  {fcMoment} end          fcMoment type of Date, specifying the end of the range.
      * @return {Object}                An array of dav:items items.
      */
     function listEvents(calendarHref, start, end) {
@@ -63,8 +63,8 @@ angular.module('esn.calendar')
      * Queries one or more calendars for events. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHomeId The calendarHomeId.
      * @param  {String}   calendarId     The calendarId.
-     * @param  {FCMoment} start          FCMoment type of Date, specifying the start of the range.
-     * @param  {FCMoment} end            FCMoment type of Date, specifying the end of the range.
+     * @param  {fcMoment} start          fcMoment type of Date, specifying the start of the range.
+     * @param  {fcMoment} end            fcMoment type of Date, specifying the end of the range.
      * @return {Object}                  An array of dav:item items.
      */
     function listEventsForCalendar(calendarHomeId, calendarId, start, end) {

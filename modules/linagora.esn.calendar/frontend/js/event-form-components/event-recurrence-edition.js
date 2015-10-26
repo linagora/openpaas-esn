@@ -27,16 +27,12 @@ angular.module('esn.calendar')
     S: 'SA',
     Su: 'SU'
   })
-  .directive('eventRecurrenceEdition', function(moment, calendarUtils, RECUR_FREQ, WEEK_DAYS) {
+  .directive('eventRecurrenceEdition', function(calendarUtils, RECUR_FREQ, WEEK_DAYS) {
     function link(scope, element) {
       scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
-      if (!scope.event.recur) {
-        scope.event.recur = {
-          freq: RECUR_FREQ[0].value,
-          until: undefined,
-          byday: [],
-          interval: 1,
-          count: undefined
+      if (!scope.event.rrule) {
+        scope.event.rrule = {
+          freq: RECUR_FREQ[0].value
         };
       }
       scope.RECUR_FREQ = RECUR_FREQ;
@@ -47,13 +43,14 @@ angular.module('esn.calendar')
       });
 
       scope.toggleWeekdays = function(weekday) {
-        var index = scope.event.recur.byday.indexOf(WEEK_DAYS[weekday]);
+        var index = scope.event.rrule.byday.indexOf(WEEK_DAYS[weekday]);
+        var newDays = scope.event.rrule.byday.slice();
         if (index > -1) {
-          scope.event.recur.byday.splice(index, 1);
+          newDays.splice(index, 1);
         } else {
-          scope.event.recur.byday.push(WEEK_DAYS[weekday]);
+          newDays.push(WEEK_DAYS[weekday]);
         }
-        scope.event.recur.byday.sort(function(weekdayA, weekdayB) {
+        newDays.sort(function(weekdayA, weekdayB) {
           if (weekDaysValues.indexOf(weekdayA) > weekDaysValues.indexOf(weekdayB)) {
             return 1;
           } else if (weekDaysValues.indexOf(weekdayA) < weekDaysValues.indexOf(weekdayB)) {
@@ -62,27 +59,28 @@ angular.module('esn.calendar')
             return 0;
           }
         });
+        scope.event.rrule.byday = newDays;
       };
 
       scope.selectEndRadioButton = function(index) {
         var radioButtons = element.find('input[name="inlineRadioEndOptions"]');
         radioButtons[index].checked = true;
-        // reset event.recur.until if we are clicking on After ... occurrences input.
+        // reset event.rrule.until if we are clicking on After ... occurrences input.
         if (index === 1) {
           scope.resetUntil();
         }
-        // reset event.recur.until if we are clicking on At ... input.
+        // reset event.rrule.until if we are clicking on At ... input.
         if (index === 2) {
           scope.resetCount();
         }
       };
 
       scope.resetUntil = function() {
-        scope.event.recur.until = undefined;
+        scope.event.rrule.until = undefined;
       };
 
       scope.resetCount = function() {
-        scope.event.recur.count = undefined;
+        scope.event.rrule.count = undefined;
       };
     }
 

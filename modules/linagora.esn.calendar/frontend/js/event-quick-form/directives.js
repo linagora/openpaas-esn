@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventQuickFormWizard', function(WidgetWizard, $rootScope) {
-    function link($scope, element) {
+  .directive('eventQuickFormWizard', function(WidgetWizard) {
+    function link($scope) {
       $scope.wizard = new WidgetWizard([
         '/calendar/views/event-quick-form/event-quick-form-wizard-step-0'
       ]);

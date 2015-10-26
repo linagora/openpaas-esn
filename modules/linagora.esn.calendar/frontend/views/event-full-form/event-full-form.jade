@@ -26,7 +26,7 @@
             .col-xs-12
               .form-group
                 .fg-line
-                  input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+                  input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
 
           .row
             .col-xs-12
@@ -48,7 +48,7 @@
                   span.input-group-addon
                     i.mdi.mdi-map-marker
                   .fg-line
-                    input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                    input.input.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
           event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 

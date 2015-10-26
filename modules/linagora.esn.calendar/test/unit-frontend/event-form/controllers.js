@@ -34,6 +34,22 @@ describe('The event-form module controllers', function() {
     this.calendarShellMock = {
       toICAL: function(e) {
         event = e;
+      },
+
+      fromIncompleteShell: function(e) {
+        Object.defineProperty(e, 'allDay', {
+          enumerable: true,
+          get: function() {
+            // Not quite accurate, but the question is if we need to mock
+            // CalendarShell anyway.
+            return this.start && this.start.hour !== 0;
+          }
+        });
+
+        e.clone = function() {
+          return angular.copy(this);
+        };
+        return e;
       }
     };
 
@@ -108,8 +124,8 @@ describe('The event-form module controllers', function() {
           end: this.moment('2013-02-08 10:30'),
           allDay: false
         };
-        expect(this.scope.editedEvent).to.deep.equal(expected);
-        expect(this.scope.event).to.deep.equal(expected);
+        expect(this.scope.event).to.contain.all.keys(expected);
+        expect(this.scope.editedEvent).to.contain.all.keys(expected);
       });
 
       it('should initialize the scope with $scope.event and $scope.editedEvent if $scope.selecteEvent exists', function() {
@@ -118,7 +134,10 @@ describe('The event-form module controllers', function() {
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           allDay: false,
-          otherProperty: 'aString'
+          otherProperty: 'aString',
+          clone: function() {
+            return angular.copy(this);
+          }
         };
         this.eventFormController.initFormData();
         expect(this.scope.event).to.deep.equal(this.scope.selectedEvent);
@@ -134,7 +153,10 @@ describe('The event-form module controllers', function() {
           organizer: {
             email: 'user@test.com'
           },
-          otherProperty: 'aString'
+          otherProperty: 'aString',
+          clone: function() {
+            return angular.copy(this);
+          }
         };
         this.eventFormController.initFormData();
         expect(this.scope.isOrganizer).to.equal(true);
@@ -148,7 +170,10 @@ describe('The event-form module controllers', function() {
           organizer: {
             email: 'other@test.com'
           },
-          otherProperty: 'aString'
+          otherProperty: 'aString',
+          clone: function() {
+            return angular.copy(this);
+          }
         };
         this.eventFormController.initFormData();
         expect(this.scope.isOrganizer).to.equal(false);
@@ -343,7 +368,7 @@ describe('The event-form module controllers', function() {
         this.scope.editedEvent = {};
         this.scope.newAttendees = ['user1@test.com', 'user2@test.com'];
         this.eventFormController.addNewEvent();
-        expect(event).to.deep.equal({
+        expect(this.scope.editedEvent).to.deep.equal({
           title: 'No title',
           attendees: ['user1@test.com', 'user2@test.com'],
           organizer: {

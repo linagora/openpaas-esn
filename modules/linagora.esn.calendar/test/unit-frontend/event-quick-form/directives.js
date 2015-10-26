@@ -24,7 +24,7 @@ describe('The event-quick-form Angular module directives', function() {
     var spyModifyEvent = sinon.spy();
     beforeEach(function() {
       angular.mock.module(function($provide, $controllerProvider) {
-        $controllerProvider.register('eventFormController', function($scope) {
+        $controllerProvider.register('eventFormController', function() {
           this.initFormData = function() {};
           this.addNewEvent = spyNewEvent;
           this.modifyEvent = spyModifyEvent;
@@ -32,11 +32,11 @@ describe('The event-quick-form Angular module directives', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($compile, $rootScope, moment) {
+    beforeEach(angular.mock.inject(function($compile, $rootScope, fcMoment) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
-      this.moment = moment;
+      this.fcMoment = fcMoment;
 
       this.initDirective = function(scope) {
         var html = '<event-quick-form/>';
@@ -49,8 +49,8 @@ describe('The event-quick-form Angular module directives', function() {
     it('should have a submit function that is addNewEvent', function() {
       this.$scope.editedEvent = {
         allDay: true,
-        start: this.moment('2013-02-08 12:30'),
-        end: this.moment('2013-02-08 13:30'),
+        start: this.fcMoment('2013-02-08 12:30'),
+        end: this.fcMoment('2013-02-08 13:30'),
         location: 'aLocation'
       };
       this.initDirective(this.$scope);
@@ -62,9 +62,10 @@ describe('The event-quick-form Angular module directives', function() {
       this.$scope.editedEvent = {
         id: '12345',
         allDay: true,
-        start: this.moment('2013-02-08 12:30'),
-        end: this.moment('2013-02-08 13:30'),
-        location: 'aLocation'
+        start: this.fcMoment('2013-02-08 12:30'),
+        end: this.fcMoment('2013-02-08 13:30'),
+        location: 'aLocation',
+        etag: '123456'
       };
       this.initDirective(this.$scope);
       this.$scope.submit();
@@ -73,12 +74,12 @@ describe('The event-quick-form Angular module directives', function() {
   });
 
   describe('The eventQuickForm directive', function() {
-    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, moment, calendarUtils, eventUtils) {
+    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, fcMoment, calendarUtils, eventUtils) {
       this.$timeout = $timeout;
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
-      this.moment = moment;
+      this.fcMoment = fcMoment;
       this.calendarUtils = calendarUtils;
       this.eventUtils = eventUtils;
 
@@ -164,9 +165,12 @@ describe('The event-quick-form Angular module directives', function() {
     it('should initiate $scope.editedEvent and $scope.event from $scope.selectedEvent', function() {
       this.$scope.selectedEvent = {
         allDay: true,
-        start: this.moment('2013-02-08 12:30'),
-        end: this.moment('2013-02-08 13:30'),
-        location: 'aLocation'
+        start: this.fcMoment('2013-02-08 12:30'),
+        end: this.fcMoment('2013-02-08 13:30'),
+        location: 'aLocation',
+        clone: function() {
+          return angular.copy(this);
+        }
       };
       this.initDirective(this.$scope);
       expect(this.$scope.editedEvent).to.shallowDeepEqual({
@@ -181,8 +185,8 @@ describe('The event-quick-form Angular module directives', function() {
 
     it('should initiate $scope.editedEvent with default values if $scope.event does not exists', function() {
       this.initDirective(this.$scope);
-      expect(this.moment(this.$scope.editedEvent.start).isSame(this.calendarUtils.getNewStartDate())).to.be.true;
-      expect(this.moment(this.$scope.editedEvent.end).isSame(this.calendarUtils.getNewEndDate())).to.be.true;
+      expect(this.$scope.editedEvent.start.isSame(this.calendarUtils.getNewStartDate(), 'second')).to.be.true;
+      expect(this.$scope.editedEvent.end.isSame(this.calendarUtils.getNewEndDate(), 'second')).to.be.true;
       expect(this.$scope.editedEvent.allDay).to.be.false;
     });
 

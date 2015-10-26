@@ -31,12 +31,23 @@ angular.module('esn.calendar')
     };
 
     $scope.eventClick = function(event) {
-      $scope.event = event;
+      $scope.event = new CalendarShell(event.vcalendar, {
+        etag: event.etag,
+        path: event.path,
+        gracePeriodTaskId: event.gracePeriodTaskId
+      });
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 
     $scope.eventDropAndResize = function(event, delta, revertFunc) {
       var path = event.path || '/calendars/' + $scope.calendarHomeId + '/events';
+      $scope.event = new CalendarShell(event.vcalendar, {
+        etag: event.etag,
+        path: event.path,
+        gracePeriodTaskId: event.gracePeriodTaskId
+      });
+      $scope.event.start = event.start;
+      $scope.event.end = event.end;
       calendarService.modifyEvent(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc).then(function() {
         notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
       });
@@ -64,11 +75,10 @@ angular.module('esn.calendar')
     $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize;
     $scope.uiConfig.calendar.select = function(start, end) {
       var date = calendarUtils.getDateOnCalendarSelect(start, end);
-      $scope.event = {
+      $scope.event = CalendarShell.fromIncompleteShell({
         start: date.start,
-        end: date.end,
-        allDay: !start.hasTime(end)
-      };
+        end: date.end
+      });
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 

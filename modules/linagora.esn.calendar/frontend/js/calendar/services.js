@@ -96,8 +96,8 @@ angular.module('esn.calendar')
     /**
      * List all events between a specific range [start..end] in a calendar defined by its path.<
      * @param  {String}   calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
-     * @param  {FCMoment} start        start date
-     * @param  {FCMoment} end          end date (inclusive)
+     * @param  {fcMoment} start        start date
+     * @param  {fcMoment} end          end date (inclusive)
      * @param  {String}   timezone     the timezone in which we want the returned events to be in
      * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
      */
@@ -163,35 +163,26 @@ angular.module('esn.calendar')
      * Create a new event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
      * period service.
      * @param  {String}             calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
-     * @param  {ICAL.Component}     vcalendar    the vcalendar to PUT to the caldav server
+     * @param  {CalendarShell}      event        the event to PUT to the caldav server
      * @param  {Object}             options      options needed for the creation. For now it only accept {graceperiod: true||false}
      * @return {Mixed}                           the new event wrap into a CalendarShell if it works, the http response otherwise.
      */
-    function createEvent(calendarPath, vcalendar, options) {
-      var vevent = vcalendar.getFirstSubcomponent('vevent');
-      if (!vevent) {
-        return $q.reject(new Error('Missing VEVENT in VCALENDAR'));
-      }
-
-      var uid = vevent.getFirstPropertyValue('uid');
-      if (!uid) {
-        return $q.reject(new Error('Missing UID in VEVENT'));
-      }
-
-      var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
+    function createEvent(calendarPath, event, options) {
+      var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
       var taskId = null;
-      return eventAPI.create(eventPath, vcalendar, options)
+      return eventAPI.create(eventPath, event.vcalendar, options)
         .then(function(response) {
           if (typeof response !== 'string') {
             return response;
           } else {
             taskId = response;
-            calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, {gracePeriodTaskId: taskId}));
-            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid})
+            event.gracePeriodTaskId = taskId;
+            calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
+            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
                 if (task.cancelled) {
                   gracePeriodService.cancel(taskId).then(function() {
-                    calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
+                    calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
                     task.success();
                   }, function(err) {
                     task.error(err.statusText);
@@ -225,10 +216,10 @@ angular.module('esn.calendar')
     /**
      * Remove an event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
      * period service.
-     * @param  {String}     eventPath the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
-     * @param  {Object}     event     The event from fullcalendar. It is used in case of rollback.
-     * @param  {String}     etag      The etag
-     * @return {Boolean}              true if it works, false if it does not.
+     * @param  {String}        eventPath the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
+     * @param  {CalendarShell} event     The event from fullcalendar. It is used in case of rollback.
+     * @param  {String}        etag      The etag
+     * @return {Boolean}                 true if it works, false if it does not.
      */
     function removeEvent(eventPath, event, etag) {
       if (!etag) {
@@ -242,11 +233,9 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var vcalendar = CalendarShell.toICAL(event);
-      var shell = new CalendarShell(vcalendar, {path: eventPath, etag: etag});
       return eventAPI.remove(eventPath, etag).then(function(id) {
         taskId = id;
-        calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
+        calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
       })
       .then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
@@ -261,7 +250,7 @@ angular.module('esn.calendar')
             },
             delay: CALENDAR_ERROR_DISPLAY_DELAY
           });
-          calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+          calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
         });
         return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
       })
@@ -269,7 +258,7 @@ angular.module('esn.calendar')
         var task = data;
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {
-            calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+            calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             task.success();
             return $q.when(false);
           }, function(err) {
@@ -279,7 +268,7 @@ angular.module('esn.calendar')
         } else {
           if (gracePeriodService.hasTask(taskId)) {
             gracePeriodService.remove(taskId);
-            calendarEventEmitter.websocket.emitRemovedEvent(vcalendar);
+            calendarEventEmitter.websocket.emitRemovedEvent(event.vcalendar);
           }
           return $q.when(true);
         }
@@ -290,19 +279,17 @@ angular.module('esn.calendar')
     /**
      * Remove an event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
      * period service.
-     * @param  {String}     path              the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
-     * @param  {Object}     event             the event from fullcalendar. It is used in case of rollback.
-     * @param  {Object}     oldEvent          the event from fullcalendar. It is used in case of rollback.
-     * @param  {String}     etag              the etag
-     * @param  {boolean}    majorModification it is used to reset invited attendees status to 'NEEDS-ACTION'
-     * @param  {Function}   onCancel          callback called in case of rollback, ie when we cancel the task
-     * @return {Mixed}                        the new event wrap into a CalendarShell if it works, the http response otherwise.
+     * @param  {String}            path              the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
+     * @param  {CalendarShell}     event             the event from fullcalendar. It is used in case of rollback.
+     * @param  {CalendarShell}     oldEvent          the event from fullcalendar. It is used in case of rollback.
+     * @param  {String}            etag              the etag
+     * @param  {boolean}           majorModification it is used to reset invited attendees status to 'NEEDS-ACTION'
+     * @param  {Function}          onCancel          callback called in case of rollback, ie when we cancel the task
+     * @return {Mixed}                               the new event wrap into a CalendarShell if it works, the http response otherwise.
      */
     function modifyEvent(path, event, oldEvent, etag, majorModification, onCancel) {
       if (majorModification) {
-        event.attendees.forEach(function(attendee) {
-          attendee.partstat = 'NEEDS-ACTION';
-        });
+        event.changeParticipation('NEEDS-ACTION');
       }
 
       if (!etag) {
@@ -313,15 +300,10 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var vcalendar = CalendarShell.toICAL(event);
-      var shell = new CalendarShell(vcalendar, {path: path, etag: etag});
-      if (oldEvent) {
-        var oldVcalendar = CalendarShell.toICAL(oldEvent);
-        var oldShell = new CalendarShell(oldVcalendar, {path: path, etag: etag});
-      }
-      return eventAPI.modify(path, vcalendar, etag).then(function(id) {
+
+      return eventAPI.modify(path, event.vcalendar, etag).then(function(id) {
         taskId = id;
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
       })
       .then(function() {
         return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
@@ -330,8 +312,8 @@ angular.module('esn.calendar')
         var task = data;
         if (task.cancelled) {
           gracePeriodService.cancel(taskId).then(function() {
-            if (oldShell) {
-              calendarEventEmitter.fullcalendar.emitModifiedEvent(oldShell);
+            if (oldEvent) {
+              calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
             } else {
               onCancel = onCancel || function() {};
               onCancel();
@@ -360,30 +342,15 @@ angular.module('esn.calendar')
       .catch($q.reject);
     }
 
-    function _applyPartstatToSpecifiedAttendees(event, emails, status) {
-      var emailMap = {};
-      var needsModify = false;
-
-      emails.forEach(function(email) { emailMap[email.toLowerCase()] = true; });
-      event.attendees.forEach(function(attendee) {
-        if ((attendee.email.toLowerCase() in emailMap) && attendee.partstat !== status) {
-          attendee.partstat = status;
-          needsModify = true;
-        }
-      });
-
-      return needsModify;
-    }
-
     /**
      * Change the status of participation of all emails (attendees) of an event
-     * @param  {String}            path       the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
-     * @param  {Object}            event      the event in which we seek the attendees
-     * @param  {[String]}          emails     an array of emails
-     * @param  {String}            status     the status in which attendees status will be set
-     * @param  {String}            etag       the etag
-     * @param  {Boolean}           emitEvents it is used
-     * @return {Mixed}                        the event as CalendarShell in case of 200 or 204, the response otherwise
+     * @param  {String}                   path       the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
+     * @param  {CalendarShell}            event      the event in which we seek the attendees
+     * @param  {[String]}                 emails     an array of emails
+     * @param  {String}                   status     the status in which attendees status will be set
+     * @param  {String}                   etag       the etag
+     * @param  {Boolean}                  emitEvents it is used
+     * @return {Mixed}                               the event as CalendarShell in case of 200 or 204, the response otherwise
      * Note that we retry the request in case of 412. This is the code returned for a conflict.
      */
     function changeParticipation(eventPath, event, emails, status, etag, emitEvents) {
@@ -392,12 +359,11 @@ angular.module('esn.calendar')
         return $q.when(null);
       }
 
-      if (!_applyPartstatToSpecifiedAttendees(event, emails, status)) {
+      if (!event.changeParticipation(status, emails)) {
         return $q.when(null);
       }
 
-      var vcalendar = CalendarShell.toICAL(event);
-      return eventAPI.changeParticipation(eventPath, vcalendar, etag)
+      return eventAPI.changeParticipation(eventPath, event.vcalendar, etag)
         .then(function(response) {
           if (response.status === 200) {
             return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
@@ -467,7 +433,7 @@ angular.module('esn.calendar')
         });
       }
 
-      if (event.isInstance) {
+      if (event.isInstance()) {
         element.addClass('event-is-instance');
         angular.element('<i class="mdi mdi-sync"/>').insertBefore(timeSpan);
       }
@@ -488,31 +454,14 @@ angular.module('esn.calendar')
       }
     }
 
-    function _extractICALObject(source, property) {
-      var value;
-      if (source[property]) {
-        value = ICAL.helpers.clone(source[property]);
-        source[property] = null;
-        return value;
-      }
-    }
-
-    function copyEventObject(src, dest) {
-      var vcal = _extractICALObject(src, 'vcalendar');
-      var vevent = _extractICALObject(src, 'vevent');
-      angular.copy(src, dest);
-      if (vcal) {
-        src.vcalendar = vcal;
-        dest.vcalendar = vcal;
-      }
-      if (vevent) {
-        src.vcalendar = vevent;
-        dest.vcalendar = vevent;
-      }
-    }
-
+    /**
+     * Return true or false either the event is new (not in caldav yet) or not.
+     * We are using etag which is filled by the caldav server on creation
+     * @param  {CalendarShell}  event the event to checkbox
+     * @return {Boolean}        true if event is not yet on the server, false otherwise
+     */
     function isNew(event) {
-      return angular.isUndefined(event.id);
+      return angular.isUndefined(event.etag);
     }
 
     function isOrganizer(event) {
@@ -529,7 +478,7 @@ angular.module('esn.calendar')
     }
 
     function getEditedEvent() {
-      if (!isNew(editedEvent) && editedEvent.isInstance) {
+      if (!isNew(editedEvent) && editedEvent.isInstance()) {
         return calendarService.getEvent(editedEvent.path);
       }
       return $q.when(editedEvent);
@@ -539,7 +488,6 @@ angular.module('esn.calendar')
       originalEvent: originalEvent,
       editedEvent: editedEvent,
       render: render,
-      copyEventObject: copyEventObject,
       isNew: isNew,
       isOrganizer: isOrganizer,
       isMajorModification: isMajorModification,
@@ -549,7 +497,7 @@ angular.module('esn.calendar')
 
   })
 
-  .service('calendarUtils', function(FCMoment) {
+  .service('calendarUtils', function(fcMoment) {
     /**
      * Prepend a mail with 'mailto:'
      * @param {String} mail
@@ -585,14 +533,14 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Return a FCMoment representing (the next hour) starting from Date.now()
+     * Return a fcMoment representing (the next hour) starting from Date.now()
      */
     function getNewStartDate() {
-      return FCMoment().endOf('hour').add(1, 'seconds');
+      return fcMoment().endOf('hour').add(1, 'seconds');
     }
 
     /**
-     * Return a FCMoment representing (the next hour + 1 hour) starting from Date.now()
+     * Return a fcMoment representing (the next hour + 1 hour) starting from Date.now()
      */
     function getNewEndDate() {
       return getNewStartDate().add(1, 'hours');
@@ -615,7 +563,7 @@ angular.module('esn.calendar')
     function getDateOnCalendarSelect(start, end) {
       if (end.diff(start, 'minutes') === 30) {
         var newStart = start.startOf('hour');
-        var newEnd = FCMoment(newStart).add(1, 'hours');
+        var newEnd = fcMoment(newStart).add(1, 'hours');
         return { start: newStart, end: newEnd };
       } else {
         return { start: start, end: end };

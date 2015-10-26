@@ -60,6 +60,7 @@ describe('The event-full-form Angular module directives', function() {
     it('should have a submit function that is modifyEvent', function() {
       this.$scope.editedEvent = {
         id: '12345',
+        etag: '12345',
         allDay: true,
         start: this.moment('2013-02-08 12:30'),
         end: this.moment('2013-02-08 13:30'),
