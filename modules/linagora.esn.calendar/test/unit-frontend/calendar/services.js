@@ -667,8 +667,8 @@ describe('The calendar module services', function() {
           expect(events).to.be.an.array;
           expect(events.length).to.equal(2);
           expect(events[0].uid).to.equal('myuid');
-          expect(events[0].isInstance).to.be.true;
-          expect(events[0].id).to.equal('myuid_2014-01-01T02:03:04Z');
+          expect(events[0].isInstance()).to.be.true;
+          expect(events[0].id).to.equal('myuid_2014-01-01T01:03:04+00:00');
           expect(events[0].start.toDate()).to.equalDate(moment('2014-01-01 02:03:04').toDate());
           expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
           expect(events[0].vcalendar).to.be.an('object');
@@ -677,8 +677,8 @@ describe('The calendar module services', function() {
           expect(events[0].path).to.equal('/prepath/path/to/calendar/myuid.ics');
 
           expect(events[1].uid).to.equal('myuid');
-          expect(events[1].isInstance).to.be.true;
-          expect(events[1].id).to.equal('myuid_2014-01-02T02:03:04Z');
+          expect(events[1].isInstance()).to.be.true;
+          expect(events[1].id).to.equal('myuid_2014-01-02T01:03:04+00:00');
           expect(events[1].start.toDate()).to.equalDate(moment('2014-01-02 02:03:04').toDate());
           expect(events[1].end.toDate()).to.equalDate(moment('2014-01-02 03:03:04').toDate());
           expect(events[1].vcalendar).to.be.an('object');
@@ -983,6 +983,7 @@ describe('The calendar module services', function() {
         });
         vcalendar.addSubcomponent(vevent);
         this.vcalendar = vcalendar;
+        this.vevent = vevent;
         this.event = new this.CalendarShell(this.vcalendar);
       });
 
@@ -1033,6 +1034,43 @@ describe('The calendar module services', function() {
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
+      });
+
+      it('should be able to modify an instance', function(done) {
+        var occShell = this.event.clone();
+        occShell.recurrenceId = this.fcMoment();
+
+        var headers = { ETag: 'etag' };
+        var vcalendar = angular.copy(this.vcalendar.toJSON());
+        var $httpBackend = this.$httpBackend;
+
+        this.gracePeriodService.grace = function() {
+          return $q.when({ cancelled: false });
+        };
+
+        this.gracePeriodService.remove = function(taskId) {
+          expect(taskId).to.equal('123456789');
+        };
+
+        this.calendarService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag').then(
+          function(shell) {
+            // The returned item must be the master item, not the instance
+            expect(shell.isInstance()).to.be.false;
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        function checkPUT(data) {
+          vcalendar = new ICAL.Component(JSON.parse(data));
+          expect(vcalendar.getAllSubcomponents('vevent')).to.have.length(2);
+          return true;
+        }
+
+        $httpBackend.whenGET('/dav/api/path/to/uid.ics').respond(200, vcalendar, headers);
+        $httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', checkPUT).respond(202, {id: '123456789'});
+        $httpBackend.flush();
+        this.$rootScope.$apply();
+        $httpBackend.flush();
       });
 
       it('should send etag as If-Match header', function(done) {

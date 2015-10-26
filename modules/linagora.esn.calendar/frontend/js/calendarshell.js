@@ -30,6 +30,7 @@ angular.module('esn.calendar')
         vevent = vcomponent;
         vcalendar = vevent.parent;
       }
+
       this.vcalendar = vcalendar;
       this.vevent = vevent;
 
@@ -100,6 +101,16 @@ angular.module('esn.calendar')
           }
         }
         return this._recurrenceId;
+      },
+      set recurrenceId(value) {
+        this._recurrenceId = undefined;
+        if (value) {
+          var recid = ICAL.Time.fromJSDate(value.toDate());
+          recid.zone = ICAL.Timezone.localTimezone;
+          recid.isDate = !value.hasTime();
+          var recprop = this.vevent.updatePropertyWithValue('recurrence-id', recid);
+          recprop.setParameter('tzid', timezoneLocal);
+        }
       },
 
       get rrule() {

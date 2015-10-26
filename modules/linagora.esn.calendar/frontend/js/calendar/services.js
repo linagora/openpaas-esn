@@ -292,6 +292,27 @@ angular.module('esn.calendar')
         event.changeParticipation('NEEDS-ACTION');
       }
 
+      var prepareEvent;
+      if (event.isInstance()) {
+        prepareEvent = getEvent(path).then(function(shell) {
+          var mastervcal = shell.vcalendar;
+          var mastervevents = mastervcal.getAllSubcomponents('vevent');
+
+          for (var i = 0, len = mastervevents.length; i < len; i++) {
+            var vevent = mastervevents[i];
+            var recId = vevent.getFirstPropertyValue('recurrence-id');
+            if (recId && event.recurrenceId.isSame(recId.toJSDate())) {
+              event.vcalendar.removeSubcomponent(vevent);
+              break;
+            }
+          }
+          mastervcal.addSubcomponent(event.vcalendar.getFirstSubcomponent('vevent'));
+          return mastervcal;
+        });
+      } else {
+        prepareEvent = $q.when(event.vcalendar);
+      }
+
       if (!etag) {
         // This is a create event because the event is not created yet in sabre/dav,
         // we then should only cancel the first creation task.
