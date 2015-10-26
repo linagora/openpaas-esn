@@ -22,10 +22,10 @@ describe('The event-form module controllers', function() {
 
     this.calendarServiceMock = {
       calendarId: '1234',
-      create: function() {
+      createEvent: function() {
         return $q.when({});
       },
-      modify: function(path , e) {
+      modifyEvent: function(path , e) {
         event = e;
         return $q.when();
       }
@@ -83,12 +83,12 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, eventService) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, eventUtils) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.moment = moment;
-    this.eventService = eventService;
+    this.eventUtils = eventUtils;
   }));
 
   describe('The eventFormController controller', function() {
@@ -157,7 +157,7 @@ describe('The event-form module controllers', function() {
 
     describe('modifyEvent function', function() {
       beforeEach(function() {
-        this.eventService.isMajorModification = function() {};
+        this.eventUtils.isMajorModification = function() {};
       });
 
       describe('as an organizer', function() {
@@ -257,7 +257,7 @@ describe('The event-form module controllers', function() {
             etag: '123123'
           };
 
-          this.calendarServiceMock.modify = sinon.spy(function(path, event, oldEvent, etag) {
+          this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
             expect(event.title).to.equal('title');
             expect(oldEvent.title).to.equal('oldtitle');
             expect(path).to.equal('/path/to/event');
@@ -268,7 +268,7 @@ describe('The event-form module controllers', function() {
           this.eventFormController.modifyEvent();
 
           this.scope.$digest();
-          expect(this.calendarServiceMock.modify).to.have.been.called;
+          expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
         });
       });
 
