@@ -10,8 +10,8 @@
           strong {{contact.displayName}}
         div.p-t-5(ng-show='emails[0].value')
           a(ng-href="mailto:{{emails[0].value}}") {{emails[0].value}}
-        .p-t-5(ng-if='phone[0].value')
-          a(ng-href="tel:{{phone[0].value}}") {{phone[0].value}}
+        .p-t-5(ng-if='phones[0].value')
+          a(ng-href="tel:{{phones[0].value}}") {{phones[0].value}}
         .p-t-5
           span {{contact.orgRole}}
           span(ng-if='contact.orgRole && contact.orgName') &nbsp;#{__('at')}&nbsp;
