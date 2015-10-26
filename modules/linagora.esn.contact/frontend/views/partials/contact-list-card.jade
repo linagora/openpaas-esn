@@ -14,5 +14,5 @@
           a(ng-href="tel:{{phone[0].value}}") {{phone[0].value}}
         .p-t-5
           span {{contact.orgRole}}
-          span(ng-if='contact.orgRole && contact.org[0]') &nbsp;#{__('at')}&nbsp;
-          span {{contact.org[0]}}
+          span(ng-if='contact.orgRole && contact.orgName') &nbsp;#{__('at')}&nbsp;
+          span {{contact.orgName}}

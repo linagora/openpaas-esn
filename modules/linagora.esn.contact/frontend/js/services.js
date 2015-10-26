@@ -117,8 +117,8 @@ angular.module('linagora.esn.contact')
         }
       }
 
-      if (notNullNorEmpty(contact.org)) {
-        return contact.org;
+      if (notNullNorEmpty(contact.orgName)) {
+        return contact.orgName;
       }
 
       if (notNullNorEmpty(contact.nickname)) {
@@ -321,6 +321,7 @@ angular.module('linagora.esn.contact')
       this.lastName = name ? name[0] : '';
 
       this.org = vcard.getFirstPropertyValue('org');
+      this.orgName = this.org ? this.org[0] : '';
       this.orgRole = vcard.getFirstPropertyValue('role');
 
       this.emails = getMultiValue('email').map(function(mail) {
@@ -420,8 +421,8 @@ angular.module('linagora.esn.contact')
         vcard.addProperty(prop);
       }
 
-      if (shell.org) {
-        vcard.addPropertyWithValue('org', shell.org);
+      if (shell.orgName) {
+        vcard.addPropertyWithValue('org', [shell.orgName]);
       }
 
       if (shell.orgRole) {

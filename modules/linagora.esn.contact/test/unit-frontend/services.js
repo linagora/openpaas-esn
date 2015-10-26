@@ -621,7 +621,7 @@ describe('The Contacts Angular module', function() {
           tel: [{ type: 'Home', value: '123123' }],
           addresses: [{ type: 'Home', street: 's', city: 'c', zip: 'z', country: 'co' }],
           social: [{ type: 'Twitter', value: '@AwesomePaaS' }],
-          org: 'org',
+          orgName: 'org',
           orgRole: 'role',
           urls: [{ value: 'http://mywebsite.com' }],
           birthday: new Date(2015, 0, 1),
@@ -1128,7 +1128,7 @@ describe('The Contacts Angular module', function() {
           tel: [],
           addresses: [],
           social: [],
-          org: '',
+          orgName: '',
           orgRole: 'role',
           urls: [],
           nickname: '',
@@ -1166,8 +1166,8 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should return org when when !firstName && !lastName && org', function() {
-        this.shell.org = 'MyOrg';
-        this.expectEqual(this.shell.org);
+        this.shell.orgName = 'MyOrg';
+        this.expectEqual(this.shell.orgName);
       });
 
       it('should return nickname when !firstName && !lastName && !org && nickname', function() {

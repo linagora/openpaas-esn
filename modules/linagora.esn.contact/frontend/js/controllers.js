@@ -79,7 +79,7 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.shouldDisplayWork = function() {
-      return !!(($scope.contact.org && $scope.contact.org[0]) || $scope.contact.orgRole || isAddressFilled('work'));
+      return !!($scope.contact.orgName || $scope.contact.orgRole || isAddressFilled('work'));
     };
 
     $scope.shouldDisplayHome = function() {
