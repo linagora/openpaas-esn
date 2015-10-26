@@ -194,6 +194,11 @@
   -ie-animation-name: rotate;
 }
 
+.rotateZ3d(@val) {
+  -webkit-transform: rotateZ(@val);
+  transform: rotateZ(@val);
+}
+
 @keyframes rotate {
   from {
     tranform: rotate(0deg);

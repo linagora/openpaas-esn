@@ -247,11 +247,11 @@
       cursor: pointer;
       padding-left: 0;
       text-align: end;
-      transform: rotate(0deg);
+      .rotateZ3d(0deg);
       transition: transform 0.2s ease-out;
 
       &.isCollapsed {
-        transform: rotate(180deg);
+        .rotateZ3d(180deg);
         padding-right: 0;
       }
     }
