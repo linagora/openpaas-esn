@@ -83,6 +83,7 @@ html
     script(src='/components/angular-summernote/dist/angular-summernote.min.js')
     script(src='/components/iframe-resizer/js/iframeResizer.min.js')
     script(src='/components/autosize/dist/autosize.min.js')
+    script(src='/components/offline/offline.min.js')
     +injectAngularFromModules('esn', injections)
     +injectJSFromModules('esn', injections)
     script(src='js/esn/app.js')
@@ -155,6 +156,7 @@ html
     script(src='js/material.js')
     script(src='js/modules/back-detector.js')
     script(src='js/modules/fullscreen-edit-form.js')
+    script(src='js/modules/esn.offline.js')
     script(src='/components/material-admin/js/modules/form.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController" ng-nicescroll nice-option="{cursorcolor: 'rgba(0,0,0,0.4)', cursorborder: 'none', cursorwidth:'6px', autohidemode: false, zindex: 12}")

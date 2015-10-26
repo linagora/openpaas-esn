@@ -64,6 +64,7 @@ module.exports = function(config) {
       'frontend/components/summernote/dist/summernote.min.js',
       'frontend/components/angular-summernote/dist/angular-summernote.min.js',
       'frontend/components/autosize/dist/autosize.min.js',
+      'frontend/components/offline/offline.min.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/**/*.jade',

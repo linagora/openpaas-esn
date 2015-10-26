@@ -63,7 +63,8 @@ angular.module('esnApp', [
   'angular-nicescroll',
   'xeditable',
   'op.dynamicDirective',
-  'esn.back-detector'
+  'esn.back-detector',
+  'esn.offline-wrapper'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {

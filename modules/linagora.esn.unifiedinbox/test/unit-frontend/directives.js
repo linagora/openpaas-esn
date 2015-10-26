@@ -1,18 +1,19 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
-
-  var $compile, $rootScope, $scope, element, jmapClient, notificationFactory, $timeout, iFrameResize = function() {};
+  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, Offline = {}, notificationFactory, iFrameResize = function() {};
   var attendeeService;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
 
     angular.mock.module('esn.ui');
+    angular.mock.module('esn.core');
     angular.mock.module('esn.session');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
@@ -38,11 +39,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('attendeeService', attendeeService = {
       addProvider: function() {}
     });
+    $provide.value('Offline', Offline);
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    $q = _$q_;
     $timeout = _$timeout_;
   }));
 
@@ -135,54 +138,200 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
-
   describe('The composer directive', function() {
+    var closeNotificationSpy = sinon.spy();
+    var hideScopeSpy = sinon.spy();
+    var notificationTitle = '', notificationText = '';
+    beforeEach(function() {
+      Offline.state = 'up';
 
-    it('should notify when the email is sent', function() {
-      $scope.$hide = function() {};
+      $scope.$hide = hideScopeSpy;
 
-      var title, text;
       notificationFactory.weakSuccess = function(callTitle, callText) {
-        title = callTitle;
-        text = callText;
+        notificationTitle = callTitle;
+        notificationText = callText;
       };
-      compileDirective('<composer />');
 
-      $scope.send();
+      notificationFactory.weakError = function(callTitle, callText) {
+        notificationTitle = callTitle;
+        notificationText = callText;
+      };
 
-      expect(title).to.equal('Success');
-      expect(text).to.equal('Your email has been sent');
+      notificationFactory.notify = function() {
+        notificationTitle = 'Info';
+        notificationText = 'Sending';
+        return {
+          close: closeNotificationSpy
+        };
+      };
     });
 
-    it('should hide the composer when email is sent', function() {
-      notificationFactory.weakSuccess = function() {};
-
-      var callCount = 0;
-      $scope.$hide = function() {
-        callCount++;
+    it('should not send an email with no recipient', function() {
+      $scope.rcpt = {
+        to: [],
+        cc: [],
+        bcc: []
       };
 
-      compileDirective('<composer />');
-
+      var element = compileDirective('<composer/>');
       $scope.send();
+      $scope.$digest();
+      expect(notificationTitle).to.equal('Note');
+      expect(notificationText).to.equal('Your email should have at least one recipient');
+      expect(hideScopeSpy).to.not.be.called;
+      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
+    });
 
-      expect(callCount).to.equal(1);
+    it('should not send if an invalid email is used as a recipient', function() {
+      $scope.rcpt = {
+        to: [{displayName: '1', email: '1@linagora.com'}],
+        cc: [{displayName: 'me', email: 'myemailATlinagoraPOINTcom'}],
+        bcc: []
+      };
+
+      var element = compileDirective('<composer/>');
+      $scope.send();
+      $scope.$digest();
+      expect(notificationTitle).to.equal('Note');
+      expect(notificationText).to.equal('Some recipient emails are not valid');
+      expect(hideScopeSpy).to.not.be.called;
+      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
+    });
+
+    it('should not send an email during offline state', function() {
+      Offline.state = 'down';
+
+      $scope.rcpt = {
+        to: [{displayName: '1', email: '1@linagora.com'}],
+        cc: [],
+        bcc: []
+      };
+
+      var element = compileDirective('<composer/>');
+      $scope.send();
+      $scope.$digest();
+      expect(notificationTitle).to.equal('Note');
+      expect(notificationText).to.equal('Your device loses its Internet connection. Try later!');
+      expect(hideScopeSpy).to.not.be.called;
+      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
+    });
+
+
+    it('should successfully notify when a valid email is sent', function() {
+      $scope.sendViaJMAP = function() {
+        var defer = $q.defer();
+        defer.resolve();
+        return defer.promise;
+      };
+
+      $scope.rcpt = {
+        to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+        cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
+        bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
+      };
+
+      var expectedRcpt = {
+        to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+        cc: [{displayName: '3', email: '3@linagora.com'}],
+        bcc: [{displayName: '4', email: '4@linagora.com'}]
+      };
+
+      var element = compileDirective('<composer/>');
+      $scope.send();
+      $scope.$digest();
+      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
+      expect($scope.rcpt).to.shallowDeepEqual(expectedRcpt);
+      expect(hideScopeSpy).to.be.called;
+      expect(closeNotificationSpy).to.be.called;
+      expect(notificationTitle).to.equal('Success');
+      expect(notificationText).to.equal('Your email has been sent');
+    });
+
+    it('should successfully send an email even if only bcc is used', function() {
+      $scope.sendViaJMAP = function() {
+        var defer = $q.defer();
+        defer.resolve();
+        return defer.promise;
+      };
+
+      $scope.rcpt = {
+        to: [],
+        cc: [],
+        bcc: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      var element = compileDirective('<composer/>');
+      $scope.send();
+      $scope.$digest();
+      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
+      expect(hideScopeSpy).to.be.called;
+      expect(closeNotificationSpy).to.be.called;
+      expect(notificationTitle).to.equal('Success');
+      expect(notificationText).to.equal('Your email has been sent');
+    });
+
+
+    it('should notify immediately about sending email for slow connection. The final notification is shown once the email is sent', function() {
+      $scope.sendViaJMAP = function() {
+        var defer = $q.defer();
+        $timeout(function() {
+          return defer.resolve();
+        }, 200);
+        return defer.promise;
+      };
+
+      $scope.rcpt = {
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      var element = compileDirective('<composer/>');
+      $scope.send();
+      $scope.$digest();
+      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
+      expect(notificationTitle).to.equal('Info');
+      expect(notificationText).to.equal('Sending');
+      $timeout.flush(201);
+      expect(closeNotificationSpy).to.be.called;
+      expect(notificationTitle).to.equal('Success');
+      expect(notificationText).to.equal('Your email has been sent');
+      expect(hideScopeSpy).to.be.called;
+    });
+
+    it('should notify immediately about sending email for slow connection. this notification is then replaced by an error one in the case of failure', function() {
+      $scope.sendViaJMAP = function() {
+        var defer = $q.defer();
+        $timeout(function() {
+          return defer.reject();
+        }, 200);
+        return defer.promise;
+      };
+
+      $scope.rcpt = {
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      var element = compileDirective('<composer/>');
+      $scope.send();
+      $scope.$digest();
+      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
+      expect(notificationTitle).to.equal('Info');
+      expect(notificationText).to.equal('Sending');
+      $timeout.flush(201);
+      expect(closeNotificationSpy).to.be.called;
+      expect(notificationTitle).to.equal('Error');
+      expect(notificationText).to.equal('An error has occurred while sending email');
+      expect(hideScopeSpy).to.be.called;
     });
 
     it('should notify and save draft when the composer is destroyed', function() {
-      $scope.$hide = function() {};
-
-      var title, text;
       notificationFactory.weakInfo = function(callTitle, callText) {
-        title = callTitle;
-        text = callText;
+        notificationTitle = callTitle;
+        notificationText = callText;
       };
       compileDirective('<composer />');
-
       $scope.$emit('$destroy');
-
-      expect(title).to.equal('Note');
-      expect(text).to.equal('Your email has been saved as draft');
+      expect(notificationTitle).to.equal('Note');
+      expect(notificationText).to.equal('Your email has been saved as draft');
     });
 
     it('should expose a search function through its controller', function() {

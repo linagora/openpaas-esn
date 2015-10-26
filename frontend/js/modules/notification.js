@@ -1,12 +1,17 @@
 'use strict';
 
 angular.module('esn.notification', ['angularMoment'])
-  .factory('notificationFactory', function() {
+
+  .factory('notifyService', function() {
+    return $.notify;
+  })
+
+  .factory('notificationFactory', function(notifyService) {
     var bottom_right = { from: 'bottom', align: 'right'},
         top_right = { from: 'top', align: 'right' };
 
     function notify(type, title, text, placement, delay) {
-      return $.notify({
+      return notifyService({
         title: title,
         message: text
       }, {
@@ -49,7 +54,8 @@ angular.module('esn.notification', ['angularMoment'])
       weakError: weakError,
       weakSuccess: weakSuccess,
       strongInfo: strongInfo,
-      strongError: strongError
+      strongError: strongError,
+      notify: notify
     };
 
   });
