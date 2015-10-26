@@ -1,4 +1,4 @@
-.btn-group(role="group")
-  button.btn.btn-primary.btn-contacts-list-toggle(type="button", ng-click="displayAs = CONTACT_LIST_DISPLAY.list;resetScroll()" ng-disabled="displayAs === CONTACT_LIST_DISPLAY.list" ng-class="{toggled: displayAs === 'list'}") #{__('List')}
-  button.btn.btn-primary.btn-contacts-cards-toggle(type="button" ng-click="displayAs = CONTACT_LIST_DISPLAY.cards;resetScroll()" ng-disabled="displayAs === CONTACT_LIST_DISPLAY.cards" ng-class="{toggled: displayAs === 'cards'}") #{__('Cards')}
-  
+.contact-toggle-switch
+  span.hidden-xs.list-item(ng-class='{"toggle-active": (displayAs === CONTACT_LIST_DISPLAY.list)}') #{__('List')}
+  toggle-switch(ng-model='toggleContactDisplay', color='white')
+  span.hidden-xs.card-item(ng-class='{"toggle-active": (displayAs === CONTACT_LIST_DISPLAY.cards)}') #{__('Cards')}

@@ -13,6 +13,8 @@ describe('The contact Angular module directives', function() {
     angular.mock.module('esn.api-notification');
     angular.mock.module('linagora.esn.contact');
     angular.mock.module('esn.alphalist');
+    angular.mock.module('esn.form.helper');
+    angular.mock.module('esn.header');
     module('jadeTemplates');
   });
 
@@ -131,22 +133,22 @@ describe('The contact Angular module directives', function() {
       $scope.$digest();
     });
 
-    it('should have list button activated at start', function() {
-      expect(element.find('.btn-contacts-list-toggle')).to.be.disabled;
-      expect(element.find('.btn-contacts-cards-toggle')).to.be.enabled;
+    it('should highlight list text list at start', function() {
+      expect(element.find('.list-item')).to.have.class('toggle-active');
+      expect(element.find('.card-item')).to.not.have.class('toggle-active');
     });
 
-    it('should switch buttons when clicking on cards one', function() {
-      element.find('.btn-contacts-cards-toggle').click();
-      expect(element.find('.btn-contacts-list-toggle')).to.be.enabled;
-      expect(element.find('.btn-contacts-cards-toggle')).to.be.disabled;
+    it('should highlight card text when clicking on toggle button', function() {
+      element.find('.ts-helper').click();
+      expect(element.find('.list-item')).to.not.have.class('toggle-active');
+      expect(element.find('.card-item')).to.have.class('toggle-active');
     });
 
-    it('should switch buttons back to intial state when clicking on cards then list', function() {
-      element.find('.btn-contacts-cards-toggle').click();
-      element.find('.btn-contacts-list-toggle').click();
-      expect(element.find('.btn-contacts-list-toggle')).to.be.disabled;
-      expect(element.find('.btn-contacts-cards-toggle')).to.be.enabled;
+    it('should switch back to initial state when clicking on toggle 2 times', function() {
+      element.find('.ts-helper').click();
+      element.find('.ts-helper').click();
+      expect(element.find('.list-item')).to.have.class('toggle-active');
+      expect(element.find('.card-item')).to.not.have.class('toggle-active');
     });
   });
 
