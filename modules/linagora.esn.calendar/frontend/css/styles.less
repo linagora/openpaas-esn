@@ -10,50 +10,15 @@
 @import './components/event-recurrence-edition';
 @import './components/calendars-list';
 @import './components/mini-calendar';
+@import './user-calendar';
 @import './calendar-right-sidebar';
 @import './calendar-left-pane';
 @import './calendar-header';
 @import './calendar-grid';
+@import './calendar-header-mobile';
 @import './calendar-view';
 @import './allday-row';
 @import './event-quick-form';
 @import './event-full-form';
 @import './event-message-edition';
 @import './event';
-
-.calendar-header-mobile {
-  width: 100%;
-  margin: 0px;
-  background-color: @primaryColor;
-  .mdi {
-    font-size: 1.9em;
-    color: @textPrimaryColor;
-    padding: 10px 0;
-  }
-  .row > a {
-    text-align: left;
-    font-weight: 500;
-    color: @m-white;
-    i {
-      vertical-align: middle;
-    }
-  }
-  .row > .dropdown {
-    text-align: right;
-  }
-  .calendar-controls {
-    margin: 0;
-    transition: 1s background;
-  }
-}
-
-.sub-calendar {
-  height: 100px;
-}
-
-// The attribute should be deleted once the fullcalendar.js is patched
-.fc-toolbar{
-  @media screen and (max-width: @screen-xs-max) {
-    display: none;
-  }
-}

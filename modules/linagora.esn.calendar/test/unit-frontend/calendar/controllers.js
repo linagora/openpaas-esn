@@ -57,6 +57,8 @@ describe('The calendar module controllers', function() {
     };
 
     this.gracePeriodService = {};
+    this.headerServiceMock = {};
+    this.userMock = {};
 
     var self = this;
     angular.mock.module('esn.calendar');
@@ -70,6 +72,8 @@ describe('The calendar module controllers', function() {
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('gracePeriodService', self.gracePeriodService);
+      $provide.value('headerService', self.headerServiceMock);
+      $provide.value('user', self.userMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -98,6 +102,33 @@ describe('The calendar module controllers', function() {
     this.USER_UI_CONFIG = USER_UI_CONFIG;
     this.moment = moment;
   }));
+
+  describe('The userCalendarController controller', function() {
+    it('should inject both header and subheader', function() {
+      this.headerServiceMock.mainHeader = {
+          addInjection: sinon.spy()
+      };
+      this.headerServiceMock.subHeader = {
+          addInjection: sinon.spy()
+      };
+      this.controller('userCalendarController', {$scope: this.scope});
+      expect(this.headerServiceMock.mainHeader.addInjection).to.have.been.calledOnce;
+      expect(this.headerServiceMock.subHeader.addInjection).to.have.been.calledOnce;
+    });
+
+    it('should resetInjection on scope destroy', function() {
+      this.headerServiceMock.mainHeader = {
+          addInjection: function() {}
+      };
+      this.headerServiceMock.subHeader = {
+          addInjection: function() {}
+      };
+      this.headerServiceMock.resetAllInjections = sinon.spy();
+      this.controller('userCalendarController', {$scope: this.scope});
+      this.scope.$destroy();
+      expect(this.headerServiceMock.resetAllInjections).to.have.been.calledOnce;
+    });
+  });
 
   describe('The calendarController controller', function() {
 

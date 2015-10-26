@@ -7,13 +7,15 @@ angular.module('esn.calendar')
     $scope.uiConfig = COMMUNITY_UI_CONFIG;
   })
 
-  .controller('userCalendarController', function($scope, user, deviceDetector, USER_UI_CONFIG) {
+  .controller('userCalendarController', function($scope, user, headerService, USER_UI_CONFIG) {
     $scope.calendarId = user._id;
-    //The following function should be uncommented once the fullcalendar.js is patched
-    //if (deviceDetector.isMobile()) {
-    //  USER_UI_CONFIG.calendar.header = false;
-    //}
     $scope.uiConfig = USER_UI_CONFIG;
+
+    headerService.mainHeader.addInjection('calendar-header-content');
+    headerService.subHeader.addInjection('calendar-header-mobile', $scope);
+    $scope.$on('$destroy', function() {
+      headerService.resetAllInjections();
+    });
   })
 
   .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
@@ -22,7 +24,7 @@ angular.module('esn.calendar')
 
     $scope.resizeCalendarHeight = function() {
       var calendar = uiCalendarConfig.calendars[$scope.calendarId];
-      var height = windowJQuery.height() - calendar.offset().top - 10;
+      var height = windowJQuery.height() - calendar.offset().top;
       height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
       calendar.fullCalendar('option', 'height', height);
       $rootScope.$broadcast('calendar:height', height);

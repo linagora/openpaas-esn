@@ -2,34 +2,34 @@
   .listview.p-t-5.calendars-list
     .lv-body
       .p-10
-        a.lv-item(href="")
+        a.lv-item(href="", toggle-calendar-view="basicDay")
           .media
             .pull-left
               i.mdi.mdi-menu
             .media-body
               .lv-title
-                span Planning
-        a.lv-item(href="")
+                span #{__('Planning')}
+        a.lv-item(href="", toggle-calendar-view="agendaDay")
           .media
             .pull-left
               i.mdi.mdi-view-day
             .media-body
               .lv-title
-                span Day
-        a.lv-item(href="")
+                span #{__('Day')}
+        a.lv-item(href="", toggle-calendar-view="agendaWeek")
           .media
             .pull-left
               i.mdi.mdi-view-week
             .media-body
               .lv-title
-                span Week
-        a.lv-item(href="")
+                span #{__('Week')}
+        a.lv-item(href="", toggle-calendar-view="month")
           .media
             .pull-left
               i.mdi.mdi-calendar-blank
             .media-body
               .lv-title
-                span Month
+                span #{__('Month')}
     .lv-footer
 
   calendars-list(calendars="calendars")

@@ -53,5 +53,9 @@
   "Never": "Never",
   "After": "After",
   "occurrences": "occurrences",
-  "At": "At"
+  "At": "At",
+  "Planning": "Planning",
+  "Day": "Day",
+  "Week": "Week",
+  "Month": "Month"
 }
