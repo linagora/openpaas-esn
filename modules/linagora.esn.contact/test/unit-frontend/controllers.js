@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
-  var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
+  var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService, headerService,
       notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS;
 
   beforeEach(function() {
@@ -82,6 +82,13 @@ describe('The Contacts Angular module', function() {
 
     contactUpdateDataService = { contact: null, taskId: null };
 
+    headerService = {
+      subHeader: {
+        addInjection: function() {},
+        resetInjections: function() {}
+      }
+    };
+
     angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
 
@@ -98,6 +105,7 @@ describe('The Contacts Angular module', function() {
       $provide.value('contactUpdateDataService', contactUpdateDataService);
       $provide.value('usSpinnerService', usSpinnerService);
       $provide.value('$window', $window);
+      $provide.value('headerService', headerService);
     });
   });
 
@@ -408,6 +416,20 @@ describe('The Contacts Angular module', function() {
 
     beforeEach(function() {
       this.initController = $controller.bind(null, 'showContactController', { $scope: scope});
+    });
+
+    it('should inject show header', function(done) {
+      headerService.subHeader.addInjection = function(directive) {
+        expect(directive).to.equal('contact-show-subheader');
+        done();
+      };
+      this.initController();
+    });
+
+    it('should call headerService to reset injections in the subheader on route change', function(done) {
+      headerService.subHeader.resetInjections = done;
+      this.initController();
+      scope.$emit('$routeChangeStart', {});
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
@@ -752,6 +774,20 @@ describe('The Contacts Angular module', function() {
 
     beforeEach(function() {
       this.initController = $controller.bind(null, 'editContactController', { $scope: scope});
+    });
+
+    it('should inject edition header', function(done) {
+      headerService.subHeader.addInjection = function(directive) {
+        expect(directive).to.equal('contact-edit-subheader');
+        done();
+      };
+      this.initController();
+    });
+
+    it('should call headerService to reset injections in the subheader on route change', function(done) {
+      headerService.subHeader.resetInjections = done;
+      this.initController();
+      scope.$emit('$routeChangeStart', {});
     });
 
     it('should take contact from contactUpdateDataService if there was a graceperiod', function() {

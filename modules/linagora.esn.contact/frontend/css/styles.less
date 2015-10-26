@@ -14,6 +14,8 @@
 @contact-mobile-title-font-size: @contact-mobile-font-size + 1;
 @contact-search-form-bg-color: @body-bg;
 
+@import './header';
+
 #profile-main {
   a {
     color: @text-color;
@@ -62,47 +64,6 @@ ul.dropdown {
   h1 {
     font-size: 22px;
     color: @m-white;
-  }
-}
-
-.contact-header.visible-xs {
-  background-color: transparent;
-  & > .contact-controls-wrapper {
-    position: absolute;
-    z-index: 7;
-    width: 100%;
-    margin: 0;
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
-    .mdi {
-      font-size: 1.9em;
-      color: @m-white;
-      padding: 10px 0;
-    }
-    .row > a {
-      text-align: left;
-      text-transform: uppercase;
-      font-weight: 500;
-    }
-    .row > .dropdown {
-      text-align: right;
-    }
-    .contact-controls {
-      margin: 0;
-      transition: 1s background;
-    }
-    .contact-controls.affix {
-      margin: 0;
-      transition: 1s background;
-      position: fixed;
-      top: 64px !important; /* needed to overwrite styles automatically set using the style attribute */
-      width: 100% !important; /* needed to overwrite styles automatically set using the style attribute */
-      z-index: 7;
-      background-color: @primaryColor;
-    }
-  }
-  img {
-    width: 100%;
-    border-bottom: 1px solid @gray;
   }
 }
 

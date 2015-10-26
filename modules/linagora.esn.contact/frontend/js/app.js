@@ -1,9 +1,19 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
-  'restangular', 'esn.alphalist', 'mgcrea.ngStrap.datepicker', 'mgcrea.ngStrap.alert', 'uuid4',
-  'mgcrea.ngStrap.helpers.dateParser', 'mgcrea.ngStrap.helpers.dateFormatter', 'linagora.esn.graceperiod',
-  'esn.search', 'esn.scroll', 'esn.multi-input', 'esn.attendee'
+  'restangular',
+  'esn.alphalist',
+  'mgcrea.ngStrap.datepicker',
+  'mgcrea.ngStrap.alert',
+  'uuid4',
+  'mgcrea.ngStrap.helpers.dateParser',
+  'mgcrea.ngStrap.helpers.dateFormatter',
+  'linagora.esn.graceperiod',
+  'esn.search',
+  'esn.scroll',
+  'esn.multi-input',
+  'esn.attendee',
+  'esn.header'
 ])
   .config(function($routeProvider, routeResolver) {
   $routeProvider.when('/contact', {
