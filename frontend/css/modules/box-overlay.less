@@ -11,6 +11,8 @@
 }
 
 .box-overlay-open {
+  .flex-column;
+
   position: absolute;
   left: 0;
   top: @header-height;
@@ -34,6 +36,9 @@
   }
 
   .panel-body {
+    .flex-column;
+    .flex-shorthand(1);
+
     padding: 0;
   }
 
@@ -43,6 +48,10 @@
 
     .toggle-minimize {
       .rotateZ3d(180deg);
+    }
+
+    .panel-body {
+      display: none;
     }
   }
 

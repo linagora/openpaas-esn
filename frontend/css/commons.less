@@ -118,6 +118,18 @@
   display: -webkit-flex;
 }
 
+.flex-column {
+  .flex;
+
+  flex-direction: column;
+  -webkit-flex-direction: column;
+}
+
+.flex-shorthand(@grow, @shrink: 0, @basis: auto) {
+  flex: @grow @shrink @basis;
+  -webkit-flex: @grow @shrink @basis;
+}
+
 .flex-horizontal-centered {
   .flex();
   -webkit-justify-content: center;
@@ -165,19 +177,23 @@
   .flex-vertical-centered;
 }
 
+.align-self(@value) {
+  align-self: @value;
+  -webkit-align-self: @value;
+}
+
 .aligner {
   height: 100%;
   .all-centered;
 }
 
 .aligner-item-top {
-  align-self: flex-start;
+  .align-self(flex-start);
 }
 
 .aligner-item-bottom {
-  align-self: flex-end;
+  .align-self(flex-end);
 }
-
 
 .rotate, .mdi-spin {
   animation-duration: 2s;
