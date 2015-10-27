@@ -3,44 +3,82 @@
 angular.module('esn.box-overlay', ['esn.back-detector'])
 
   .constant('MAX_BOX_COUNT', 2)
+
   .service('boxOverlayService', function($rootScope, MAX_BOX_COUNT) {
 
-    var boxCount = 0;
+    var boxScopes = [];
+
+    function count() {
+      return boxScopes.length;
+    }
 
     function spaceLeftOnScreen() {
-      return boxCount < MAX_BOX_COUNT;
+      return count() < MAX_BOX_COUNT;
     }
 
     function onlyOneSpaceLeftOnScreen() {
-      return boxCount === (MAX_BOX_COUNT - 1);
+      return count() === (MAX_BOX_COUNT - 1);
     }
 
     return {
       spaceLeftOnScreen: spaceLeftOnScreen,
-      addBox: function() {
+      addBox: function(scope) {
         if (!spaceLeftOnScreen()) {
           return false;
         }
 
-        boxCount++;
+        boxScopes.push(scope);
+
         if (!spaceLeftOnScreen()) {
           $rootScope.$broadcast('box-overlay:no-space-left-on-screen');
         }
+
         return true;
       },
-      removeBox: function() {
-        if (boxCount > 0) {
-          boxCount--;
-          if (onlyOneSpaceLeftOnScreen()) {
-            $rootScope.$broadcast('box-overlay:space-left-on-screen');
+      removeBox: function(scope) {
+        if (count() > 0) {
+          var index = boxScopes.indexOf(scope);
+
+          if (index > -1) {
+            boxScopes.splice(index, 1);
+
+            if (onlyOneSpaceLeftOnScreen()) {
+              $rootScope.$broadcast('box-overlay:space-left-on-screen');
+            }
           }
         }
+      },
+      maximizedBoxExists: function() {
+        return boxScopes.some(function(scope) { return scope.isMaximized(); });
+      },
+      minimizeOthers: function(me) {
+        return boxScopes
+          .filter(function(scope) { return scope !== me; })
+          .forEach(function(scope) { scope.$minimize(); });
       }
     };
   })
 
+  .factory('StateManager', function() {
+    function StateManager() {
+      this.state = StateManager.STATES.NORMAL;
+    }
+
+    StateManager.STATES = {
+      NORMAL: 'NORMAL',
+      MINIMIZED: 'MINIMIZED',
+      MAXIMIZED: 'MAXIMIZED'
+    };
+
+    StateManager.prototype.toggle = function(newState) {
+      this.state = this.state === newState ? StateManager.STATES.NORMAL : newState;
+    };
+
+    return StateManager;
+  })
+
   .provider('$boxOverlay', function() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService, StateManager) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -49,7 +87,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
 
       function ensureContainerElementExists() {
         if (container().length === 0) {
-          angular.element($window.document.body).append('<div class="box-overlay-container"></div>');
+          angular.element($window.document.body).append($compile('<box-overlay-container></box-overlay-container>')($rootScope.$new()));
         }
       }
 
@@ -64,17 +102,37 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
       function BoxOverlayFactory(config) {
         var boxElement,
             scope = angular.extend($rootScope.$new(), config),
-            $boxOverlay = { $scope: scope };
+            $boxOverlay = { $scope: scope},
+            stateManager = new StateManager();
 
-        if (!boxOverlayService.addBox()) {
+        if (!boxOverlayService.addBox(scope)) {
           return;
         }
 
-        scope.minimized = false;
         $boxOverlay.$isShown = scope.$isShown = false;
 
+        scope.isMinimized = function() {
+          return stateManager.state === StateManager.STATES.MINIMIZED;
+        };
+
+        scope.isMaximized = function() {
+          return stateManager.state === StateManager.STATES.MAXIMIZED;
+        };
+
         scope.$toggleMinimized = function() {
-          scope.minimized = !scope.minimized;
+          stateManager.toggle(StateManager.STATES.MINIMIZED);
+        };
+
+        scope.$minimize = function() {
+          stateManager.state = StateManager.STATES.MINIMIZED;
+        };
+
+        scope.$toggleMaximized = function() {
+          stateManager.toggle(StateManager.STATES.MAXIMIZED);
+
+          if (scope.isMaximized()) {
+            boxOverlayService.minimizeOthers(scope);
+          }
         };
 
         scope.$hide = function() {
@@ -119,7 +177,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
           }
 
           $boxOverlay.$isShown = scope.$isShown = false;
-          boxOverlayService.removeBox();
+          boxOverlayService.removeBox(scope);
 
           if (boxElement) {
             boxElement.remove();
@@ -146,6 +204,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
       return BoxOverlayFactory;
     };
   })
+
   .directive('boxOverlay', function($boxOverlay) {
     function buildOptions(scope) {
       return {
@@ -172,7 +231,6 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
             overlay = null;
           };
 
-          //catchBackButton.listenOnce().then(scope.cleanup);
           scope.$on('$destroy', scope.cleanup);
         }
       });
@@ -186,5 +244,16 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         boxTemplateUrl: '@'
       },
       link: postLink
+    };
+  })
+
+  .directive('boxOverlayContainer', function(boxOverlayService) {
+    return {
+      restrict: 'AE',
+      replace: true,
+      template: '<div class="box-overlay-container" ng-class="{ \'maximized\': isMaximized() }"></div>',
+      link: function($scope) {
+        $scope.isMaximized = boxOverlayService.maximizedBoxExists;
+      }
     };
   });
