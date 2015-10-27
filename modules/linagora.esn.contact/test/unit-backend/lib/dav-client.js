@@ -29,6 +29,16 @@ describe('The contacts dav-client Module', function() {
       });
       getModule().rawClient({});
     });
+
+    it('should set query option', function(done) {
+      var query = { x: '1234' };
+      mockery.registerMock('request', function(options, callback) {
+        expect(options.qs).to.deep.equal(query);
+        done();
+      });
+      getModule().rawClient({ query: query });
+    });
+
   });
 
   describe('The get function', function() {
