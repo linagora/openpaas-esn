@@ -1337,4 +1337,95 @@ describe('The Contacts Angular module', function() {
 
   });
 
+  describe('The toggleContactDisplayService', function() {
+    var $rootScope,
+      $cacheFactory,
+      toggleContactDisplayService,
+      CONTACT_LIST_DISPLAY,
+      CONTACT_LIST_DISPLAY_EVENTS;
+
+    beforeEach(function() {
+      inject(function(_$rootScope_, _toggleContactDisplayService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_, _$cacheFactory_) {
+        $rootScope = _$rootScope_;
+        toggleContactDisplayService = _toggleContactDisplayService_;
+        CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
+        CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
+        $cacheFactory = _$cacheFactory_;
+      });
+    });
+
+    describe('The getInitialDisplay function', function() {
+
+      it('should return list as default value', function() {
+        expect(toggleContactDisplayService.getInitialDisplay()).to.equal(CONTACT_LIST_DISPLAY.list);
+      });
+
+      it('should return the data from cache when current is not defined', function() {
+        var value = CONTACT_LIST_DISPLAY.cards;
+        toggleContactDisplayService._cacheValue(value);
+        expect(toggleContactDisplayService.getInitialDisplay()).to.equal(value);
+      });
+
+    });
+
+    describe('The getCurrentDisplay function', function() {
+
+      it('should return list as default value when current is not defind', function() {
+        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(CONTACT_LIST_DISPLAY.list);
+      });
+
+      it('should return the current value', function() {
+        var value = 'foo';
+        toggleContactDisplayService.setCurrentDisplay(value);
+        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
+      });
+
+    });
+
+    describe('The setCurrentDisplay function', function() {
+      it('should cache value', function() {
+        var value = 'foo';
+        toggleContactDisplayService.setCurrentDisplay(value);
+        expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
+      });
+
+      it('should cache value', function() {
+        var value = 'foo';
+        toggleContactDisplayService.setCurrentDisplay(value);
+        expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
+      });
+
+      it('should set current value', function() {
+        var value = 'foo';
+        toggleContactDisplayService.setCurrentDisplay(value);
+        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
+      });
+
+      it('should notify', function(done) {
+        var value = 'foo';
+        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(event, data) {
+          expect(data).to.equal(value);
+          done();
+        });
+        toggleContactDisplayService.setCurrentDisplay(value);
+        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
+      });
+
+    });
+
+    describe('The _getCache function', function() {
+      it('should return an object', function() {
+        expect(toggleContactDisplayService._getCache()).to.be.an.object;
+      });
+    });
+
+    describe('The cache value functions', function() {
+      it('should be able to get a cached value', function() {
+        var value = 'foobar';
+        toggleContactDisplayService._cacheValue(value);
+        expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
+      });
+    });
+  });
+
 });

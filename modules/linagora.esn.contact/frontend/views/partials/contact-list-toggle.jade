@@ -1,4 +1,4 @@
 .contact-toggle-switch
-  span.hidden-xs.list-item(ng-class='{"toggle-active": (displayAs === CONTACT_LIST_DISPLAY.list)}') #{__('List')}
+  span.list-item(ng-class='{"toggle-active": !toggleContactDisplay}') #{__('List')}
   toggle-switch(ng-model='toggleContactDisplay', color='white')
-  span.hidden-xs.card-item(ng-class='{"toggle-active": (displayAs === CONTACT_LIST_DISPLAY.cards)}') #{__('Cards')}
+  span.card-item(ng-class='{"toggle-active": toggleContactDisplay}') #{__('Cards')}

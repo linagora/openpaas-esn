@@ -78,20 +78,22 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function(CONTACT_LIST_DISPLAY, $cacheFactory) {
-    var CACHE_KEY = 'contact';
+  .directive('contactListDisplayer', function($rootScope, toggleContactDisplayService, CONTACT_LIST_DISPLAY_EVENTS) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-displayer.html',
       link: function($scope) {
-        var listDisplayCache = $cacheFactory.get(CACHE_KEY);
-        if (!listDisplayCache) {
-          listDisplayCache = $cacheFactory(CACHE_KEY);
-        }
-        $scope.$on('$locationChangeStart', function(event, next, current) {
-          listDisplayCache.put('listDisplay', $scope.displayAs);
+
+        $scope.displayAs = toggleContactDisplayService.getCurrentDisplay();
+
+        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(evt, value) {
+          $scope.displayAs = value;
         });
-        $scope.displayAs = listDisplayCache.get('listDisplay') || CONTACT_LIST_DISPLAY.list;
+
+        $scope.$on('$locationChangeStart', function() {
+          toggleContactDisplayService.setCurrentDisplay($scope.displayAs);
+        });
+
       }
     };
   })
@@ -147,22 +149,42 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, SCROLL_EVENTS, $rootScope) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS, SCROLL_EVENTS, $rootScope, toggleContactDisplayService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
       link: function(scope) {
-        scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
-        scope.toggleContactDisplay = false;
+
+        function isToggleOn(value) {
+          return value === CONTACT_LIST_DISPLAY.cards;
+        }
+
+        scope.toggleContactDisplay = isToggleOn(toggleContactDisplayService.getCurrentDisplay());
 
         scope.resetScroll = function() {
           $rootScope.$broadcast(SCROLL_EVENTS.RESET_SCROLL);
         };
 
-        scope.$watch('toggleContactDisplay', function(newValue) {
-          scope.displayAs = newValue ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list;
+        scope.updateDisplay = function(toggleOn) {
+          toggleContactDisplayService.setCurrentDisplay(toggleOn ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list);
           scope.resetScroll();
+        };
+
+        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(evt, value) {
+          var toggleValue = isToggleOn(value);
+          if (toggleValue === scope.toggleContactDisplay) {
+            return;
+          }
+          scope.toggleContactDisplay = toggleValue;
         });
+
+        scope.$watch('toggleContactDisplay', function(newValue, oldValue) {
+          if (oldValue === newValue) {
+            return;
+          }
+          scope.updateDisplay(newValue);
+        });
+
       }
     };
   })
