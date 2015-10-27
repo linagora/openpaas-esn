@@ -174,6 +174,13 @@ angular.module('linagora.esn.contact')
     };
   })
 
+  .directive('contactListSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-subheader.html'
+    };
+  })
+
   .directive('contactShowSubheader', function() {
     return {
       restrict: 'E',
