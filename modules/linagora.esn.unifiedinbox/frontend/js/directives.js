@@ -2,14 +2,43 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('inboxFab', function() {
+  .directive('inboxFab', function($timeout, boxOverlayService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/inbox-fab.html',
-      link: function(scope) {
-        scope.compose = function compose() {
-          console.log('The unified inbox fab button has been clicked');
-        };
+      link: function(scope, element) {
+
+        function findButton() {
+          return element.children('button').first();
+        }
+
+        function disableFab() {
+          var button = findButton();
+          button.removeClass('btn-accent');
+          scope.isDisabled = true;
+        }
+
+        function enableFab() {
+          var button = findButton();
+          button.addClass('btn-accent');
+          scope.isDisabled = false;
+        }
+
+        scope.$on('box-overlay:no-space-left-on-screen', function() {
+          disableFab();
+        });
+
+        scope.$on('box-overlay:space-left-on-screen', function() {
+          enableFab();
+        });
+
+        $timeout(function() {
+          if (!boxOverlayService.spaceLeftOnScreen()) {
+            disableFab();
+          } else {
+            enableFab();
+          }
+        });
       }
     };
   })
@@ -105,5 +134,26 @@ angular.module('linagora.esn.unifiedinbox')
         attachment: '='
       },
       templateUrl: '/unifiedinbox/views/partials/inbox-attachment.html'
+    };
+  })
+
+  .directive('composer', function(notificationFactory) {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/composer.html',
+      link: function(scope) {
+
+        scope.isCollapsed = true;
+
+        scope.send = function send() {
+          notificationFactory.weakSuccess('Success', 'Your email has been sent');
+          scope.$hide();
+        };
+
+        scope.$on('$destroy', function() {
+          notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+        });
+
+      }
     };
   });

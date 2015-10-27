@@ -193,5 +193,104 @@
       }
     }
   }
+}
+
+
+/* Extra small devices (phones, less than 768px) */
+/* No media query since this is the default in Bootstrap */
+.compose {
+
+  .compose-header {
+    background-color: @body-bg;
+    padding-top: 10px;
+
+    .row {
+      margin: 0;
+    }
+
+    input {
+      background-color: inherit;
+      height: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+
+    .picture {
+      .hidden-xs;
+      .text-center;
+      padding: 5px 5px 0 5px;
+    }
+
+    .picture img {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+    }
+
+    .recipients {
+      padding-right: 0;
+
+      .form-group {
+        opacity: 1;
+        transition: opacity 0.2s ease-out;
+
+        &.ng-hide {
+          opacity: 0;
+        }
+      }
+    }
+
+    .more-recipients {
+      font-size: 2em;
+      cursor: pointer;
+      padding-left: 0;
+      text-align: end;
+      .rotateZ3d(0deg);
+      transition: transform 0.2s ease-out;
+
+      &.isCollapsed {
+        .rotateZ3d(180deg);
+        padding-right: 0;
+      }
+    }
+  }
+
+  .compose-subject {
+    padding: 0 5px 0 5px;
+    height: auto;
+  }
+
+  .compose-body {
+    padding: 5px;
+    border-bottom: 0;
+  }
+
+  .compose-buttons {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+  }
+
+}
+
+.minimized .compose-buttons {
+  display: none;
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
+
+  .compose {
+
+    .compose-header {
+      padding-top: 0;
+    }
+
+    .compose-buttons {
+      bottom: 0;
+    }
+  }
 
 }

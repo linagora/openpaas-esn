@@ -1,0 +1,80 @@
+/* Extra small devices (phones, less than 768px) */
+/* No media query since this is the default in Bootstrap */
+
+.box-overlay-container {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.box-overlay-open {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 20px 0 0 0;
+  z-index: 5;
+
+  .panel-heading {
+    background-color: @primaryColor;
+    color: @textPrimaryColor;
+
+    i, span {
+      color: @textPrimaryColor;
+    }
+  }
+
+  .panel-title {
+    cursor: pointer;
+  }
+
+  .panel-body {
+    padding: 0;
+  }
+
+  &.minimized {
+    max-height: 40px;
+    top: 210px;
+
+    .toggle-minimize {
+      .rotateZ3d(180deg);
+    }
+  }
+
+  .close {
+    margin-left: 5px;
+  }
+
+  .toggle-minimize {
+    .rotateZ3d(0deg);
+    transition: transform 0.1s ease-out;
+  }
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
+
+  .box-overlay-container {
+    width: auto;
+    height: 250px;
+  }
+
+  .box-overlay-open {
+    left: auto;
+    top: auto;
+    right: 100px;
+    bottom: 0;
+    width: 400px;
+    max-height: 500px;
+    float: right;
+    margin: 0 10px 0 0;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.1s ease-out;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+}

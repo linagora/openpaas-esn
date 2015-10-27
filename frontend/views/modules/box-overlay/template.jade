@@ -1,0 +1,7 @@
+.panel.panel-default(ng-class="{ 'minimized': minimized }")
+  .panel-heading
+    div.panel-title(ng-click="$toggleMinimized()")
+      i.close.mdi.mdi-close(ng-click="$close()")
+      span.close.toggle-minimize.mdi.mdi-chevron-down
+      span {{title}}
+  .panel-body(ng-include="templateUrl")

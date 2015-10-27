@@ -1,0 +1,29 @@
+form.form-horizontal.compose(ng-submit="send()")
+
+  .compose-header
+    .row
+      .picture.col-sm-1.hidden-xs
+        img(ng-controller='avatarController' ng-src='{{avatarURL}}')
+      .recipients.col-xs-11.col-sm-10
+        .form-group
+          label.col-xs-1.control-label(for="to") #{__('To')}
+          .col-xs-10
+            input.form-control(type="text", name="to", autofocus)
+        .form-group.ng-hide(ng-hide="isCollapsed")
+          label.col-xs-1.control-label(for="cc") #{__('CC')}
+          .col-xs-10
+            input.form-control(type="text", name="cc")
+        .form-group.ng-hide(ng-hide="isCollapsed")
+          label.col-xs-1.control-label(for="bcc") #{__('BCC')}
+          .col-xs-10
+            input.form-control(type="text", name="bcc")
+      .more-recipients.col-xs-1(ng-class="{ 'isCollapsed': isCollapsed }")
+        span(ng-click="isCollapsed = !isCollapsed")
+            i.mdi.mdi-chevron-up
+
+    input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}")
+
+  textarea.form-control.compose-body(type="text", placeholder="#{__('Start to type here')}", ng-class="{ 'isCollapsed': isCollapsed }")
+  .btn-group.compose-buttons(role="group", aria-label="label")
+    button.btn.btn-primary(type="submit", value="submit") #{__('Send')}
+      i.mdi.mdi-send

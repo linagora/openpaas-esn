@@ -6,11 +6,12 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmapClient, iFrameResize = function() {};
+  var $compile, $rootScope, $scope, element, jmapClient, notificationFactory, $timeout, iFrameResize = function() {};
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
 
+    angular.mock.module('esn.ui');
     angular.mock.module('esn.session');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
@@ -32,11 +33,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return iFrameResize;
       }
     });
+    $provide.value('notificationFactory', notificationFactory = {});
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    $timeout = _$timeout_;
   }));
 
   beforeEach(function() {
@@ -55,6 +58,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     $compile(element)($scope);
     $scope.$digest();
+    return element;
   }
 
   describe('The inboxMenu directive', function() {
@@ -119,6 +123,58 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
+
+  describe('The composer directive', function() {
+
+    it('should notify when the email is sent', function() {
+      $scope.$hide = function() {};
+
+      var title, text;
+      notificationFactory.weakSuccess = function(callTitle, callText) {
+        title = callTitle;
+        text = callText;
+      };
+      compileDirective('<composer />');
+
+      $scope.send();
+
+      expect(title).to.equal('Success');
+      expect(text).to.equal('Your email has been sent');
+    });
+
+    it('should hide the composer when email is sent', function() {
+      notificationFactory.weakSuccess = function() {};
+
+      var callCount = 0;
+      $scope.$hide = function() {
+        callCount++;
+      };
+
+      compileDirective('<composer />');
+
+      $scope.send();
+
+      expect(callCount).to.equal(1);
+    });
+
+    it('should notify and save draft when the composer is destroyed', function() {
+      $scope.$hide = function() {};
+
+      var title, text;
+      notificationFactory.weakInfo = function(callTitle, callText) {
+        title = callTitle;
+        text = callText;
+      };
+      compileDirective('<composer />');
+
+      $scope.$emit('$destroy');
+
+      expect(title).to.equal('Note');
+      expect(text).to.equal('Your email has been saved as draft');
+    });
+
+  });
+
   /**
    * PhantomJS does not work fine with iFrame and 'load' events, thus the .skip()
    * Tests run under Chrome and Firefox, though...
@@ -177,6 +233,73 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       compileDirective('<html-email-body email="email" />');
     });
 
+  });
+
+
+  describe('The inboxFab directive', function() {
+
+    var boxOverlayService;
+
+    beforeEach(inject(function(_boxOverlayService_) {
+      boxOverlayService = _boxOverlayService_;
+    }));
+
+    function findInnerFabButton(fab) {
+      return angular.element(fab.children('button')[0]);
+    }
+
+    function expectFabToBeEnabled(button) {
+      $scope.$digest();
+      expect($scope.isDisabled).to.equal(false);
+      expect(button.hasClass('btn-accent')).to.equal(true);
+      expect(button.attr('disabled')).to.not.match(/disabled/);
+    }
+
+    function expectFabToBeDisabled(button) {
+      $scope.$digest();
+      expect($scope.isDisabled).to.equal(true);
+      expect(button.hasClass('btn-accent')).to.equal(false);
+      expect(button.attr('disabled')).to.match(/disabled/);
+    }
+
+    function compileFabDirective() {
+      var fab = compileDirective('<inbox-fab></inbox-fab>');
+      $timeout.flush();
+      return findInnerFabButton(fab);
+    }
+
+    it('should have enabled button when space left on screen when linked', function() {
+      boxOverlayService.spaceLeftOnScreen = function() {return true;};
+
+      var button = compileFabDirective();
+
+      expectFabToBeEnabled(button);
+    });
+
+    it('should have disabled button when no space left on screen when linked', function() {
+      boxOverlayService.spaceLeftOnScreen = function() {return false;};
+
+      var button = compileFabDirective();
+
+      expectFabToBeDisabled(button);
+    });
+
+    it('should disable the button when no space left on screen', function() {
+      var button = compileFabDirective();
+
+      $scope.$emit('box-overlay:no-space-left-on-screen');
+
+      expectFabToBeDisabled(button);
+    });
+
+    it('should enable the button when new space left on screen', function() {
+      var button = compileFabDirective();
+
+      $scope.$emit('box-overlay:no-space-left-on-screen');
+      $scope.$emit('box-overlay:space-left-on-screen');
+
+      expectFabToBeEnabled(button);
+    });
   });
 
 });

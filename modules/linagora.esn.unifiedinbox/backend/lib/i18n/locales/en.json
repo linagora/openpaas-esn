@@ -5,5 +5,9 @@
   "BCC": "BCC",
   "Go back to mailbox": "Go back to mailbox",
   "Move to trash": "Move to trash",
-  "Attachments": "Attachments"
+  "Attachments": "Attachments",
+  "Subject": "Subject",
+  "Start to type here": "Start to type here",
+  "Send": "Send",
+  "Compose an email": "Compose an email"
 }
