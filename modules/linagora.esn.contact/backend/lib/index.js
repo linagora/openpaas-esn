@@ -12,6 +12,7 @@ module.exports = function(dependencies) {
   return {
     start: start,
     search: search,
-    client: require('./dav-client')
+    davClient: require('./dav-client'),
+    client: require('./client')(dependencies)
   };
 };
