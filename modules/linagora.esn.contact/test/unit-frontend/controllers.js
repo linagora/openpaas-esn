@@ -496,14 +496,8 @@ describe('The Contacts Angular module', function() {
         expect(scope.shouldDisplayWork()).to.be.false;
       });
 
-      it('should return false when org element is empty', function() {
-        contactUpdateDataService.contact = {org: []};
-        this.initController();
-        expect(scope.shouldDisplayWork()).to.be.false;
-      });
-
-      it('should return true when one org element is defined', function() {
-        contactUpdateDataService.contact = {org: ['linagora']};
+      it('should return true when orgName is defined', function() {
+        contactUpdateDataService.contact = {orgName: 'linagora'};
         this.initController();
         expect(scope.shouldDisplayWork()).to.be.true;
       });

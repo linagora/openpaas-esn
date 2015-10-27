@@ -52,8 +52,8 @@
         .contact-items-group(ng-if='shouldDisplayWork()')
           div
             p.title #{__('Work')}
-          .contact-item-data(ng-if='contact.org[0]')
-            p {{contact.org[0]}}
+          .contact-item-data(ng-if='contact.orgName')
+            p {{contact.orgName}}
             p.type #{__('Company')}
           .contact-item-data(ng-if='contact.orgRole')
             p {{contact.orgRole}}

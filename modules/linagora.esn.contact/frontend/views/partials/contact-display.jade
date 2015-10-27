@@ -22,12 +22,12 @@
             | #{__('Job')}
         .pmbb-body.p-l-30
           .pmbb-view
-            dl.dl-horizontal(ng-if='contact.org')
+            dl.dl-horizontal(ng-if='contact.orgName')
               dt 
                 i.mdi.mdi-factory.m-r-5 
                 | #{__('Organisation')}
               dd 
-                | {{contact.org[0]}}
+                | {{contact.orgName}}
             dl.dl-horizontal(ng-if='contact.orgRole')
               dt 
                 i.mdi.mdi-email.m-r-5 
