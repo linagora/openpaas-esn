@@ -17,7 +17,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('composerController', function($scope) {
+  .controller('composerController', function($scope, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
     function getToolbarConfiguration() {
       var toolbarConfiguration = [
         ['style', ['bold', 'italic', 'underline', 'strikethrough']],
@@ -32,6 +32,14 @@ angular.module('linagora.esn.unifiedinbox')
       focus: true,
       airMode: false,
       toolbar: getToolbarConfiguration()
+    };
+
+    this.search = function(query) {
+      return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
+        return recipients.filter(function(recipient) {
+          return recipient.email;
+        });
+      });
     };
   })
 

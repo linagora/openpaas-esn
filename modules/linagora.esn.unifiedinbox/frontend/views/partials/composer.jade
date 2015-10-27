@@ -1,4 +1,5 @@
-form.form-horizontal.compose(ng-submit="send()")
+form.form-horizontal.compose(ng-submit="send()", fullscreen-edit-form-container)
+
   .compose-header
     .row
       .picture.col-sm-1.hidden-xs
@@ -7,15 +8,18 @@ form.form-horizontal.compose(ng-submit="send()")
         .form-group
           label.col-xs-1.control-label(for="to") #{__('To')}
           .col-xs-10
-            input.form-control(type="text", name="to", autofocus)
+            fullscreen-recipients-auto-complete.hidden-sm.hidden-md.hidden-lg(ng-model="rcpt.to")
+            recipients-auto-complete.hidden-xs(ng-model="rcpt.to")
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label(for="cc") #{__('CC')}
           .col-xs-10
-            input.form-control(type="text", name="cc")
+            fullscreen-recipients-auto-complete.hidden-sm.hidden-md.hidden-lg(ng-model="rcpt.cc")
+            recipients-auto-complete.hidden-xs(ng-model="rcpt.cc")
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label(for="bcc") #{__('BCC')}
           .col-xs-10
-            input.form-control(type="text", name="bcc")
+            fullscreen-recipients-auto-complete.hidden-sm.hidden-md.hidden-lg(ng-model="rcpt.bcc")
+            recipients-auto-complete.hidden-xs(ng-model="rcpt.bcc")
       .more-recipients.col-xs-1(ng-class="{ 'isCollapsed': isCollapsed }")
         span(ng-click="isCollapsed = !isCollapsed")
             i.mdi.mdi-chevron-up

@@ -154,7 +154,34 @@ angular.module('linagora.esn.unifiedinbox')
         scope.$on('$destroy', function() {
           notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
         });
+      }
+    };
+  })
 
+  .directive('recipientsAutoComplete', function() {
+    return {
+      restrict: 'E',
+      require: '^composer',
+      scope: {
+        tags: '=ngModel'
+      },
+      templateUrl: '/unifiedinbox/views/partials/recipients-auto-complete.html',
+      link: function($scope, element, attrs, composer) {
+        $scope.search = composer.search;
+      }
+    };
+  })
+
+  .directive('fullscreenRecipientsAutoComplete', function() {
+    return {
+      restrict: 'E',
+      require: '^composer',
+      scope: {
+        tags: '=ngModel'
+      },
+      templateUrl: '/unifiedinbox/views/partials/fullscreen-recipients-auto-complete.html',
+      link: function($scope, element, attrs, composer) {
+        $scope.search = composer.search;
       }
     };
   });

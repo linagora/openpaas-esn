@@ -8,7 +8,9 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.file',
   'esn.box-overlay',
   'esn.profile',
-  'esn.summernote-wrapper'
+  'esn.summernote-wrapper',
+  'esn.attendee',
+  'esn.fullscreen-edit-form'
   ])
   .config(function($routeProvider) {
     $routeProvider.when('/unifiedinbox', {

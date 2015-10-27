@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, element, jmapClient, notificationFactory, $timeout, iFrameResize = function() {};
+  var attendeeService;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -34,6 +35,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       }
     });
     $provide.value('notificationFactory', notificationFactory = {});
+    $provide.value('attendeeService', attendeeService = {
+      addProvider: function() {}
+    });
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
@@ -52,10 +56,20 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     }
   });
 
-  function compileDirective(html) {
-    element = $compile(html)($scope);
-    $scope.$digest();
+  function compileDirective(html, data) {
+    element = angular.element(html);
     element.appendTo(document.body);
+
+    if (data) {
+      for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+          element.data(key, data[key]);
+        }
+      }
+    }
+
+    $compile(element)($scope);
+    $scope.$digest();
     return element;
   }
 
@@ -133,6 +147,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         text = callText;
       };
       compileDirective('<composer />');
+
       $scope.send();
 
       expect(title).to.equal('Success');
@@ -169,7 +184,49 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(title).to.equal('Note');
       expect(text).to.equal('Your email has been saved as draft');
     });
+
+    it('should expose a search function through its controller', function() {
+      expect(compileDirective('<composer />').controller('composer').search).to.be.a('function');
+    });
+
+    it('should delegate searching to attendeeService', function(done) {
+      attendeeService.getAttendeeCandidates = function(query, limit) {
+        expect(query).to.equal('open-paas.org');
+
+        done();
+      };
+
+      compileDirective('<composer />').controller('composer').search('open-paas.org');
+    });
+
+    it('should exclude search results with no email', function(done) {
+      attendeeService.getAttendeeCandidates = function(query, limit) {
+        expect(query).to.equal('open-paas.org');
+
+        return $q.when([{
+          displayName: 'user1',
+          email: 'user1@open-paas.org'
+        }, {
+          displayName: 'user2'
+        }]);
+      };
+
+      compileDirective('<composer />')
+        .controller('composer')
+        .search('open-paas.org')
+        .then(function(results) {
+          expect(results).to.deep.equal([{
+            displayName: 'user1',
+            email: 'user1@open-paas.org'
+          }]);
+        })
+        .then(done, done);
+
+      $rootScope.$digest();
+    });
+
   });
+
   /**
    * PhantomJS does not work fine with iFrame and 'load' events, thus the .skip()
    * Tests run under Chrome and Firefox, though...
@@ -296,4 +353,69 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expectFabToBeEnabled(button);
     });
   });
+
+  describe('The inboxMenu directive', function() {
+
+    it('should set $scope.email to the logged-in user email', function() {
+      compileDirective('<inbox-menu />');
+
+      expect($scope.email).to.equal('user@open-paas.org');
+    });
+
+    it('should define $scope.toggleOpen as a function', function() {
+      compileDirective('<inbox-menu />');
+
+      expect($scope.toggleOpen).to.be.a('function');
+    });
+
+    it('should call jmapClient.getMailboxes() with no arguments when toggleOpen is called', function(done) {
+      jmapClient.getMailboxes = done;
+      compileDirective('<inbox-menu />');
+
+      $scope.toggleOpen();
+    });
+
+    it('should set $scope.mailboxes to the returned mailboxes', function(done) {
+      jmapClient.getMailboxes = function() { return $q.when([{ mailbox: '1', role: { value: null } }]); };
+      compileDirective('<inbox-menu />');
+
+      $scope.$watch('mailboxes', function(before, after) {
+        expect(after).to.shallowDeepEqual([{ mailbox: '1' }]);
+
+        done();
+      });
+
+      $scope.toggleOpen();
+      $rootScope.$digest();
+    });
+  });
+
+  describe('The recipientsAutoComplete directive', function() {
+
+    it('should define $scope.search from the composer directive controller', function(done) {
+      compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>', {
+        $composerController: {
+          search: done
+        }
+      });
+
+      element.find('recipients-auto-complete').isolateScope().search();
+    });
+
+  });
+
+  describe('The fullscreenRecipientsAutoComplete directive', function() {
+
+    it('should define $scope.search from the composer directive controller', function(done) {
+      compileDirective('<div fullscreen-edit-form-container><fullscreen-recipients-auto-complete ng-model="model"></fullscreen-recipients-auto-complete></div>', {
+        $composerController: {
+          search: done
+        }
+      });
+
+      element.find('fullscreen-recipients-auto-complete').isolateScope().search();
+    });
+
+  });
+
 });

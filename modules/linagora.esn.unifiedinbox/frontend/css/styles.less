@@ -1,5 +1,7 @@
 @import '../../../../frontend/css/commons';
 
+@autocompleteFontSize: 10px;
+
 .comma {
   margin-right: 2px;
 }
@@ -233,6 +235,8 @@
       padding-right: 0;
 
       .form-group {
+        .flex-vertical-centered;
+
         opacity: 1;
         transition: opacity 0.2s ease-out;
 
@@ -259,8 +263,54 @@
       }
     }
 
-    .btn-group {
-      float: right;
+    .tags {
+      .flex;
+
+      .input {
+        text-align: right;
+      }
+
+      .tag-list {
+        .flex;
+
+        width: 70%;
+        overflow: hidden;
+        flex: 1;
+      }
+    }
+
+  }
+
+  tags-input {
+    .host {
+      margin-bottom: 0;
+    }
+
+    .tags {
+      border: 1px solid lighten(@m-gray, 30%);
+      
+      .input {
+        height: 25px;
+      }
+
+      .tag-item {
+        margin: 1px;
+        padding: 4px 8px;
+
+        font-size: @autocompleteFontSize;
+        text-transform: none;
+        box-shadow: none;
+      }
+    }
+
+    .auto-complete-match {
+      img {
+        width: 35px;
+      }
+
+      .row {
+        font-size: 0.8em;
+      }
     }
   }
 
@@ -380,6 +430,20 @@
 
     .compose-header {
       padding-top: 0;
+
+      .tags {
+        display: block;
+
+        .input {
+          text-align: left;
+        }
+
+        .tag-list {
+          display: inline;
+          width: auto;
+          overflow: auto;
+        }
+      }
     }
 
     .compose-buttons {
