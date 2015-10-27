@@ -16,6 +16,25 @@ angular.module('linagora.esn.unifiedinbox')
       $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
     });
   })
+
+  .controller('composerController', function($scope) {
+    function getToolbarConfiguration() {
+      var toolbarConfiguration = [
+        ['style', ['bold', 'italic', 'underline', 'strikethrough']],
+        ['textsize', ['fontsize']],
+        ['alignment', ['paragraph', 'ul', 'ol']],
+        ['fullscreen', ['fullscreen']]
+      ];
+      return toolbarConfiguration;
+    }
+
+    $scope.summernoteOptions = {
+      focus: true,
+      airMode: false,
+      toolbar: getToolbarConfiguration()
+    };
+  })
+
   .controller('viewEmailController', function($scope, $route, $location, jmapClient, jmap, notificationFactory) {
     $scope.mailbox = $route.current.params.mailbox;
     $scope.emailId = $route.current.params.emailId;

@@ -141,6 +141,7 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/composer.html',
+      controller: 'composerController',
       link: function(scope) {
 
         scope.isCollapsed = true;

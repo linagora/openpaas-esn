@@ -79,7 +79,8 @@
     "jmap-client": "0.0.4",
     "dynamic-directive": "2.0.0",
     "iframe-resizer": "3.4.2",
-    "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git"
+    "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git",
+    "angular-summernote": "0.5.1"
   },
   "resolutions": {
     "jquery": "2.1.1",
