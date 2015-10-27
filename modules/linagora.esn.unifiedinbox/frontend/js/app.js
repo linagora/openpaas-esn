@@ -14,14 +14,14 @@ angular.module('linagora.esn.unifiedinbox', [
   ])
   .config(function($routeProvider) {
     $routeProvider.when('/unifiedinbox', {
-      templateUrl: '/unifiedinbox/views/partials/unifiedinbox'
+      templateUrl: '/unifiedinbox/views/unifiedinbox'
     });
     $routeProvider.when('/unifiedinbox/:mailbox', {
-      templateUrl: '/unifiedinbox/views/partials/listEmails',
+      templateUrl: '/unifiedinbox/views/listEmails',
       controller: 'listEmailsController'
     });
     $routeProvider.when('/unifiedinbox/:mailbox/:emailId', {
-      templateUrl: '/unifiedinbox/views/partials/viewEmail',
+      templateUrl: '/unifiedinbox/views/viewEmail',
       controller: 'viewEmailController'
     });
   });

@@ -140,7 +140,7 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('composer', function(notificationFactory) {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/partials/composer.html',
+      templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope) {
 
@@ -165,7 +165,7 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         tags: '=ngModel'
       },
-      templateUrl: '/unifiedinbox/views/partials/recipients-auto-complete.html',
+      templateUrl: '/unifiedinbox/views/composer/recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
       }
@@ -179,7 +179,7 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         tags: '=ngModel'
       },
-      templateUrl: '/unifiedinbox/views/partials/fullscreen-recipients-auto-complete.html',
+      templateUrl: '/unifiedinbox/views/composer/fullscreen-recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
       }
