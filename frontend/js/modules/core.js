@@ -1,6 +1,9 @@
 'use strict';
 
 angular.module('esn.core', [])
+  .config(function($compileProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|skype):/);
+  })
   .factory('CounterFactory', function($log, $timeout) {
 
     function Counter(initialCount, refreshTimer, refreshFn) {
@@ -82,11 +85,24 @@ angular.module('esn.core', [])
     return $window.encodeURIComponent;
   })
   .filter('prefixLink', function() {
+    var linkTypes = {
+      HTTP: {
+        pattern: /^https?:\/\//,
+        prefix: 'http://'
+      },
+      SKYPE: {
+        pattern: /^skype:/,
+        prefix: 'skype:'
+      },
+      TWITTER: {
+        pattern: /https?:\/\/twitter\.com\/.*?$/,
+        prefix: 'http://twitter.com/'
+      }
+    };
     return function(input, type) {
-      if (type === 'http') {
-        if (!/^https?:\/\//.test(input)) {
-          input = 'http://' + input;
-        }
+      var linkType = linkTypes[String(type).toUpperCase()];
+      if (linkType && !linkType.pattern.test(input)) {
+        input = linkType.prefix + input;
       }
       return input;
     };

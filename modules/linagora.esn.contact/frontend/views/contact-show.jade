@@ -46,7 +46,9 @@
           i.mdi.mdi-account-circle
           div(ng-repeat='social in contact.social track by $index')
             .contact-item-data
-              p {{social.value}}
+              p(ng-if="['Skype', 'Twitter'].indexOf(social.type) > -1")
+                a(ng-href="{{social.value|prefixLink:social.type}}") {{social.value}}
+              p(ng-if="['Skype', 'Twitter'].indexOf(social.type) === -1") {{social.value}}
               p.type {{social.type}}
 
         .contact-items-group(ng-if='shouldDisplayWork()')
