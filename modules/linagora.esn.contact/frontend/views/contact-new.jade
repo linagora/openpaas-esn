@@ -10,15 +10,6 @@
               | #{__('Cancel')}
             button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
               | #{__('Create')}
-    .contact-header.visible-xs
-      .contact-controls-wrapper
-        .contact-controls.row(data-offset-top="0" bs-affix)
-          a.hover-scale-animation.col-xs-5(href='', ng-click='accept()')
-            i.mdi.mdi-check.m-l-5
-            | #{__('Create')}
-          .col-xs-4
-          a.hover-scale-animation.col-xs-3(href='', ng-click='close()')
-            i.mdi.mdi-close.m-l-5
     .card-body.card-padding
       .contact-error-container
       contact-edition-form(contact='contact')
