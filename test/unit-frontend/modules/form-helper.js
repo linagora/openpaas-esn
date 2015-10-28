@@ -89,20 +89,36 @@ describe('The esn.form.helper Angular module', function() {
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
 
-      var html = '<toggle-switch></toggle-switch>';
-      this.element = this.$compile(html)(this.$scope);
-      this.$scope.$digest();
-      this.isolateScope = this.element.isolateScope();
+      this.initDirective = function(html) {
+        html = html || '<toggle-switch></toggle-switch>';
+        this.element = this.$compile(html)(this.$scope);
+        this.$scope.$digest();
+        this.isolateScope = this.element.isolateScope();
+      };
     }));
 
     it('should set ngModel to false if the attribute "ng-model" is undefined', function() {
+      this.initDirective();
       expect(this.isolateScope.ngModel).to.equal(false);
     });
 
     it('should change ngModel to true when toggle is called', function() {
+      this.initDirective();
       this.isolateScope.toggle();
       expect(this.isolateScope.ngModel).to.equal(true);
     });
+
+    it('should have a default color', function() {
+      this.initDirective();
+      expect(this.isolateScope.color).to.be.defined;
+    });
+
+    it('should set the color to the given one', function() {
+      var color = 'red';
+      this.initDirective('<toggle-switch color="' + color + '"/>');
+      expect(this.isolateScope.color).to.equal(color);
+    });
+
   });
 
 });

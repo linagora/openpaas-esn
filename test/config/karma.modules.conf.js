@@ -80,6 +80,7 @@ module.exports = function(config) {
       'frontend/views/modules/maps/**/*.jade',
       'frontend/views/modules/domain/**/*.jade',
       'frontend/views/modules/ui/**/*.jade',
+      'frontend/views/modules/form**/*.jade',
 
       // fixtures
       {pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true},

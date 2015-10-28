@@ -14,10 +14,7 @@ header
                   span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
 
           .contacts-list-toolbar
+            .contacts-search
+              contact-search-form
             .contacts-toggle
               contact-list-toggle
-            .contacts-search
-              form(ng-submit='search()')
-                input(type="text", ng-model="searchInput", ng-change='search()', ng-blur='appendQueryToURL()', ng-model-options="{updateOn: 'default blur', debounce: {'default': 600, 'blur': 0}}")
-            .clear-input
-              span.clickable.mdi.mdi-close(ng-click="clearSearchInput()", ng-show="searchInput")

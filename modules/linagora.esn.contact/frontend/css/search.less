@@ -1,0 +1,57 @@
+.contacts-search-form {
+
+  .flex();
+
+  .contacts-search-input {
+    z-index: 2;
+    top: 0;
+    border-radius: 2px;
+
+    padding: 0 0 0 20px;
+    input[type="text"] {
+      background-color: @contact-search-form-bg-color;
+      font-size: 18px;
+      padding: 0 0 0 40px;
+      height: @contact-toolbar-item-height;
+      width: 100%;
+      border: 0;
+    }
+
+    .clear-input:before {
+      background-color: @m-white;
+    }
+  }
+
+  .contacts-search-input:before {
+    font-family: 'MaterialDesignIcons';
+    content: "\f3ab";
+    position: absolute;
+    padding: 2px 10px 0 10px;
+    font-size: x-large;
+    color: @m-gray;
+  }
+
+  .contacts-search-input .form-control:focus {
+    background-position: right center;
+    padding: 0 30px 0 0;
+  }
+
+  .clear-search-input {
+    position: relative;
+    font-size: x-large;
+    height: @contact-toolbar-item-height;
+    background-color: @contact-search-form-bg-color;
+    color: @m-gray;
+    padding: 2px 10px 0 10px;
+    width: 44px;
+    span {
+      .fadeIn200ms();
+    }
+  }
+
+  @media (max-width: @screen-md-min) {
+    .contacts-search-input {
+      flex-grow: 1;
+    }
+  }
+}

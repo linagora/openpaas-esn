@@ -152,10 +152,17 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
       link: function(scope) {
+        scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
+        scope.toggleContactDisplay = false;
+
         scope.resetScroll = function() {
           $rootScope.$broadcast(SCROLL_EVENTS.RESET_SCROLL);
         };
-        scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
+
+        scope.$watch('toggleContactDisplay', function(newValue) {
+          scope.displayAs = newValue ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list;
+          scope.resetScroll();
+        });
       }
     };
   })
