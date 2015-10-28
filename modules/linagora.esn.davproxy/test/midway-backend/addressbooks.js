@@ -113,10 +113,11 @@ describe('The addressbooks dav proxy', function() {
           var yo = 'lo';
           var lo = 'yo';
 
-          var path = '/addressbooks/123/contacts.json';
+          var path = '/addressbooks/123/contacts/456.vcf';
           var called = false;
 
-          self.dav.get(path, function(req, res) {
+          // only contact update and deletion proxy the header
+          self.dav.delete(path, function(req, res) {
             expect(req.headers.yo).to.equal(yo);
             expect(req.headers.lo).to.equal(lo);
             called = true;
@@ -133,7 +134,7 @@ describe('The addressbooks dav proxy', function() {
                 return done(err);
               }
 
-              var req = loggedInAsUser(request(self.app).get(PREFIX + path));
+              var req = loggedInAsUser(request(self.app). delete(PREFIX + path));
               req.set('yo', yo);
               req.set('lo', lo);
               req.expect(200).end(function(err) {
