@@ -13,6 +13,7 @@ angular.module('linagora.esn.unifiedinbox')
     spam: 'mdi mdi-email',
     templates: 'mdi mdi-email'
   })
+  .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
 
   .constant('jmapAPIUrl', 'https://proxy.jmap.io/jmap/b6ed15b6-5611-11e5-b11b-0026b9fac7aa/')
   .constant('jmapAuthToken', 'b6ed15b6-5611-11e5-b11b-0026b9fac7aa');

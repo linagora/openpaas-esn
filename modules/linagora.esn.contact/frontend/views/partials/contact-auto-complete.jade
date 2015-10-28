@@ -1,5 +1,5 @@
-.row.user-auto-complete
-  img.col-xs-2.col-sm-1.nopadding(src='/images/user.png', fallback-src='/images/user.png', ng-src='{{data.photo}}')
+.row.auto-complete-match
+  img.col-xs-1.col-sm-1(src='/images/user.png', fallback-src='/images/user.png', ng-src='{{data.photo}}')
   .row
     .col-xs-10.col-sm-11(ng-if="data.firstName || data.lastName", ng-bind-html="$highlight(data.firstName + ' '+ data.lastName)")
     .col-xs-10.col-sm-11(ng-if="data.emails", ng-bind-html="$highlight(data.emails[0].value)")

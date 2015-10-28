@@ -1,0 +1,50 @@
+.fullscreen-edit-form {
+
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+
+  background-color: @m-white;
+
+  .header {
+    background-color: @primaryColor;
+
+    .mdi {
+      font-size: 40px;
+    }
+  }
+
+  .host {
+    margin-top: 0;
+  }
+
+  .autocomplete {
+    margin: 0;
+
+    border: none;
+    box-shadow: none;
+  }
+
+}
+
+.tag-list {
+  position: relative;
+
+  .overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    background: linear-gradient(to right, rgba(255,255,255,0) 80%, rgba(255,255,255,1) 100%);
+  }
+}
+
+.focused {
+  .fullscreen-edit-form {
+    display: block;
+  }
+}
