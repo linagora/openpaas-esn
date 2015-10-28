@@ -78,7 +78,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function($rootScope, toggleContactDisplayService, CONTACT_LIST_DISPLAY_EVENTS) {
+  .directive('contactListDisplayer', function($rootScope, toggleContactDisplayService, toggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-displayer.html',
@@ -86,7 +86,7 @@ angular.module('linagora.esn.contact')
 
         $scope.displayAs = toggleContactDisplayService.getCurrentDisplay();
 
-        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(evt, value) {
+        toggleEventService.listen($scope, function(evt, value) {
           $scope.displayAs = value;
         });
 
@@ -149,7 +149,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS, SCROLL_EVENTS, $rootScope, toggleContactDisplayService) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, SCROLL_EVENTS, $rootScope, toggleContactDisplayService, toggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
@@ -170,7 +170,7 @@ angular.module('linagora.esn.contact')
           scope.resetScroll();
         };
 
-        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(evt, value) {
+        toggleEventService.listen(scope, function(evt, value) {
           var toggleValue = isToggleOn(value);
           if (toggleValue === scope.toggleContactDisplay) {
             return;

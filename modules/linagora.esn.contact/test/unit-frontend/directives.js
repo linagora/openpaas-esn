@@ -118,7 +118,7 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListToggle directive', function() {
 
-    var $compile, $rootScope, element, $scope, toggleContactDisplayService, toggleContactDisplayServiceMock, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS;
+    var $compile, $rootScope, element, $scope, toggleContactDisplayService, toggleEventService, toggleContactDisplayServiceMock, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS;
 
     beforeEach(function() {
 
@@ -131,10 +131,11 @@ describe('The contact Angular module directives', function() {
         $provide.value('toggleContactDisplayService', toggleContactDisplayServiceMock);
       });
 
-      inject(function(_$compile_, _$rootScope_, _toggleContactDisplayService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_) {
+      inject(function(_$compile_, _$rootScope_, _toggleContactDisplayService_, _toggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         toggleContactDisplayService = _toggleContactDisplayService_;
+        toggleEventService = _toggleEventService_;
         CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
         CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
         $scope = $rootScope.$new();
@@ -196,7 +197,7 @@ describe('The contact Angular module directives', function() {
         $scope.toggleContactDisplay = true;
         initDirective();
         $scope.$digest();
-        $rootScope.$emit(CONTACT_LIST_DISPLAY_EVENTS.toggle, CONTACT_LIST_DISPLAY.cards);
+        toggleEventService.broadcast(CONTACT_LIST_DISPLAY.cards);
         expect($scope.toggleContactDisplay).to.be.true;
       });
 
@@ -204,7 +205,7 @@ describe('The contact Angular module directives', function() {
         $scope.toggleContactDisplay = true;
         initDirective();
         $scope.$digest();
-        $rootScope.$emit(CONTACT_LIST_DISPLAY_EVENTS.toggle, CONTACT_LIST_DISPLAY.list);
+        toggleEventService.broadcast(CONTACT_LIST_DISPLAY.list);
         expect($scope.toggleContactDisplay).to.be.false;
       });
     });
@@ -235,7 +236,7 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListDisplayer directive', function() {
 
-    var $compile, $rootScope, element, $scope, toggleContactDisplayService, toggleContactDisplayServiceMock, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS;
+    var $compile, $rootScope, element, $scope, toggleContactDisplayService, toggleEventService, toggleContactDisplayServiceMock, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS;
 
     beforeEach(function() {
 
@@ -250,10 +251,11 @@ describe('The contact Angular module directives', function() {
         $provide.value('toggleContactDisplayService', toggleContactDisplayServiceMock);
       });
 
-      inject(function(_$compile_, _$rootScope_, _toggleContactDisplayService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_) {
+      inject(function(_$compile_, _$rootScope_, _toggleContactDisplayService_, _toggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         toggleContactDisplayService = _toggleContactDisplayService_;
+        toggleEventService = _toggleEventService_;
         CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
         CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
         $scope = $rootScope.$new();
@@ -274,11 +276,11 @@ describe('The contact Angular module directives', function() {
       expect($scope.displayAs).to.equal(value);
     });
 
-    it('should set displayAs with the CONTACT_LIST_DISPLAY_EVENTS.toggle $rootScope event value', function() {
+    it('should set displayAs with the toggleEventService.broadcast event value', function() {
       var value = 'the value';
       element = initDirective();
       $scope.$digest();
-      $rootScope.$emit(CONTACT_LIST_DISPLAY_EVENTS.toggle, value);
+      toggleEventService.broadcast(value);
       expect($scope.displayAs).to.equal(value);
     });
 

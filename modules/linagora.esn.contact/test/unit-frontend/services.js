@@ -1341,13 +1341,24 @@ describe('The Contacts Angular module', function() {
     var $rootScope,
       $cacheFactory,
       toggleContactDisplayService,
+      toggleEventService,
       CONTACT_LIST_DISPLAY,
       CONTACT_LIST_DISPLAY_EVENTS;
 
+    var toggleEventServiceMock = {
+      broadcast: function() {},
+      listen: function() {}
+    };
+
     beforeEach(function() {
-      inject(function(_$rootScope_, _toggleContactDisplayService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_, _$cacheFactory_) {
+
+      module(function($provide) {
+        $provide.value('toggleEventService', toggleEventServiceMock);
+      });
+      inject(function(_$rootScope_, _toggleContactDisplayService_, _toggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_, _$cacheFactory_) {
         $rootScope = _$rootScope_;
         toggleContactDisplayService = _toggleContactDisplayService_;
+        toggleEventService = _toggleEventService_;
         CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
         CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
         $cacheFactory = _$cacheFactory_;
@@ -1401,12 +1412,11 @@ describe('The Contacts Angular module', function() {
         expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
       });
 
-      it('should notify', function(done) {
+      it('should broadcast event', function(done) {
         var value = 'foo';
-        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(event, data) {
-          expect(data).to.equal(value);
+        toggleEventServiceMock.broadcast = function() {
           done();
-        });
+        };
         toggleContactDisplayService.setCurrentDisplay(value);
         expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
       });
@@ -1426,6 +1436,60 @@ describe('The Contacts Angular module', function() {
         expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
       });
     });
+  });
+
+  describe('The toggleEventService service', function() {
+    var $rootScope,
+      toggleEventService,
+      CONTACT_LIST_DISPLAY_EVENTS;
+
+    beforeEach(function() {
+      inject(function(_$rootScope_, _toggleEventService_, _CONTACT_LIST_DISPLAY_EVENTS_) {
+        $rootScope = _$rootScope_;
+        toggleEventService = _toggleEventService_;
+        CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
+      });
+    });
+
+    describe('The broadcast function', function() {
+      it('should call $rootScope.$broadcast with toggle event', function(done) {
+
+        var data = 'My event';
+        $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(evt, value) {
+          expect(value).to.equal(data);
+          done();
+        });
+
+        toggleEventService.broadcast(data);
+      });
+    });
+
+    describe('The listen function', function() {
+      it('should listen to toggle event', function(done) {
+
+        var eventCallback = function() {};
+        var scope = {
+          '$on': function(event, callback) {
+            expect(CONTACT_LIST_DISPLAY_EVENTS.toggle).to.equal(event);
+            expect(callback).to.equal(eventCallback);
+            done();
+          }
+        };
+        toggleEventService.listen(scope, eventCallback);
+      });
+
+      it('should call event callback', function(done) {
+        var event = 'My event';
+        var scope = $rootScope.$new();
+        function callback(evt, data) {
+          expect(data).to.equal(event);
+          done();
+        }
+        toggleEventService.listen(scope, callback);
+        toggleEventService.broadcast(event);
+      });
+    });
+
   });
 
 });
