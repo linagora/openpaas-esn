@@ -133,9 +133,30 @@ describe('The Contacts Angular module', function() {
       });
     });
 
+    it('should inject create header', function(done) {
+      var headerService = {
+        subHeader: {
+          addInjection: function(directive) {
+            expect(directive).to.equal('contact-create-subheader');
+            done();
+          }
+        }
+      };
+
+      $controller('newContactController', {
+        $scope: scope,
+        sharedContactDataService: {
+          contact: {}
+        },
+        headerService: headerService
+      });
+    });
+
     it('should initialize $scope.contact to an already existing one when defined', function() {
-      var scope = {},
-          contact = {lastName: 'Last'};
+      var scope = {
+        '$on': function() {}
+      },
+      contact = {lastName: 'Last'};
 
       $controller('newContactController', {
         $scope: scope,
@@ -148,11 +169,13 @@ describe('The Contacts Angular module', function() {
     });
 
     it('should clear sharedContactDataService.contact after initialization', function() {
-      var scope = {},
-          contact = {lastName: 'Last'},
-          sharedContactDataService = {
-            contact: contact
-          };
+      var scope = {
+        '$on': function() {}
+      },
+      contact = {lastName: 'Last'},
+      sharedContactDataService = {
+        contact: contact
+      };
 
       $controller('newContactController', {
         $scope: scope,

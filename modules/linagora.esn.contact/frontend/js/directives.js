@@ -210,6 +210,13 @@ angular.module('linagora.esn.contact')
     };
   })
 
+  .directive('contactCreateSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-create-subheader.html'
+    };
+  })
+
   .directive('contactEditSubheader', function() {
     return {
       restrict: 'E',
