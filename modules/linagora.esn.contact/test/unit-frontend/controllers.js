@@ -982,6 +982,18 @@ describe('The Contacts Angular module', function() {
 
   describe('The contactsListController controller', function() {
 
+    it('should inject show header', function(done) {
+      headerService.subHeader.addInjection = function(directive) {
+        expect(directive).to.equal('contact-list-subheader');
+        done();
+      };
+      $controller('contactsListController', {
+        $scope: scope,
+        headerService: headerService,
+        user: { _id: '123' }
+      });
+    });
+
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
       gracePeriodService.flushAllTasks = sinon.spy();
       $controller('contactsListController', {

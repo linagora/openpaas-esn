@@ -1,5 +1,17 @@
-contact-show-subheader, contact-edit-subheader {
+contact-show-subheader, contact-edit-subheader, contact-list-subheader {
   width: 100%;
+}
+
+contact-list-subheader {
+  contact-search-form {
+    flex-grow: 1;
+  }
+
+  .contact-show-aside {
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+  }
 }
 
 .contact-subheader {
@@ -10,7 +22,6 @@ contact-show-subheader, contact-edit-subheader {
     .mdi {
       font-size: 1.9em;
       color: @m-white;
-      padding: 10px 0;
     }
     .row > a {
       text-align: left;

@@ -14,7 +14,8 @@ angular.module('linagora.esn.contact', [
   'esn.multi-input',
   'esn.attendee',
   'esn.header',
-  'esn.form.helper'
+  'esn.form.helper',
+  'esn.sidebar'
 ])
   .config(function($routeProvider, routeResolver) {
   $routeProvider.when('/contact', {

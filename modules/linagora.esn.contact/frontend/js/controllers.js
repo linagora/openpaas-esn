@@ -216,7 +216,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -232,6 +232,11 @@ angular.module('linagora.esn.contact')
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
     $scope.currentPage = 0;
     $scope.searchMode = false;
+
+    headerService.subHeader.addInjection('contact-list-subheader', $scope);
+    $scope.$on('$routeChangeStart', function() {
+      headerService.subHeader.resetInjections();
+    });
 
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {

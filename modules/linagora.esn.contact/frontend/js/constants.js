@@ -9,6 +9,9 @@ angular.module('linagora.esn.contact')
     list: 'list',
     cards: 'cards'
   })
+  .constant('CONTACT_LIST_DISPLAY_EVENTS', {
+    toggle: 'contactlist:toggle'
+  })
   .constant('CONTACT_ATTRIBUTES_ORDER', {
     email: ['Work', 'Home', 'Other'],
     address: ['Work', 'Home', 'Other'],
