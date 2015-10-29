@@ -30,6 +30,10 @@ function rawClient(options, callback) {
     requestOptions.body = options.body;
   }
 
+  if (options.query) {
+    requestOptions.qs = options.query;
+  }
+
   request(requestOptions, callback);
 }
 module.exports.rawClient = rawClient;

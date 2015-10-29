@@ -1,7 +1,6 @@
 'use strict';
 
 var q = require('q');
-var client = require('../proxy/http-client');
 var PATH = 'addressbooks';
 
 module.exports = function(dependencies) {
@@ -12,24 +11,22 @@ module.exports = function(dependencies) {
   var proxy = require('../proxy')(dependencies)(PATH);
   var avatarHelper = require('./avatarHelper')(dependencies);
 
-
-  function getURL(req) {
-    return [req.davserver, '/', PATH, req.url].join('');
-  }
-
   function getContactUrl(req, bookId, contactId) {
     return [req.davserver, '/', PATH, '/', bookId, '/contacts/', contactId, '.vcf'].join('');
   }
 
   function getContactsFromDAV(req, res) {
-    var headers = req.headers || {};
-    headers.ESNToken = req.token && req.token.token ? req.token.token : '';
+    var options = {
+      ESNToken: req.token && req.token.token ? req.token.token : ''
+    };
 
-    client({headers: headers, url: getURL(req), json: true}, function(err, response, body) {
-      if (err) {
-        logger.error('Error while getting contact from DAV', err);
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact from DAV server'}});
-      }
+    contactModule.lib.client(options)
+    .addressbook(req.params.bookId)
+    .contacts()
+    .list(req.query)
+    .then(function(data) {
+      var body = data.body;
+      var response = data.response;
       // inject text avatar if there's no avatar
       if (body && body._embedded && body._embedded['dav:item']) {
         q.all(body._embedded['dav:item'].map(function(davItem) {
@@ -38,28 +35,43 @@ module.exports = function(dependencies) {
               davItem.data = newData;
             });
         })).then(function() {
-          return res.json(response.statusCode, body);
+          return res.status(response.statusCode).json(body);
         });
       } else {
-        return res.json(response.statusCode, body);
+        return res.status(response.statusCode).json(body);
       }
-
+    }, function(err) {
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: 'Error while getting contacts from DAV server'
+        }
+      });
     });
   }
 
   function getContact(req, res) {
-    var headers = req.headers || {};
-    headers.ESNToken = req.token && req.token.token ? req.token.token : '';
+    var options = {
+      ESNToken: req.token && req.token.token ? req.token.token : ''
+    };
 
-    client({headers: headers, url: getURL(req), json: true}, function(err, response, body) {
-      if (err) {
-        logger.error('Error while getting contact from DAV', err);
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact from DAV server'}});
-      }
-      avatarHelper.injectTextAvatar(req.params.bookId, body).then(function(newBody) {
-        return res.json(response.statusCode, newBody);
+    contactModule.lib.client(options)
+    .addressbook(req.params.bookId)
+    .contacts(req.params.contactId)
+    .get()
+    .then(function(data) {
+      avatarHelper.injectTextAvatar(req.params.bookId, data.body).then(function(newBody) {
+        return res.status(data.response.statusCode).json(newBody);
       });
-
+    }, function(err) {
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: 'Error while getting contact from DAV server'
+        }
+      });
     });
   }
 
@@ -81,17 +93,23 @@ module.exports = function(dependencies) {
     delete headers['content-length'];
 
     if (create) {
-      client({method: 'PUT', body: req.body, headers: headers, url: getURL(req), json: true}, function(err, response, body) {
-        if (err) {
-          logger.error('Error while creating contact on DAV', err);
-          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while creating contact on DAV server'}});
-        }
-
+      contactModule.lib.client({ ESNToken: headers.ESNToken })
+      .addressbook(req.params.bookId)
+      .contacts(req.params.contactId)
+      .create(req.body)
+      .then(function(data) {
         avatarHelper.injectTextAvatar(req.params.bookId, req.body).then(function(newBody) {
           pubsub.topic('contacts:contact:add').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: newBody, user: req.user});
         });
-
-        return res.json(response.statusCode, body);
+        res.status(data.response.statusCode).json(data.body);
+      }, function(err) {
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while creating contact on DAV server'
+          }
+        });
       });
     } else {
       return proxy.handle({
@@ -143,7 +161,7 @@ module.exports = function(dependencies) {
         },
         url: getContactUrl(req, req.params.bookId, contact._id)
       };
-      return contactModule.lib.client.get(options).then(function(data) {
+      return contactModule.lib.davClient.get(options).then(function(data) {
         return data;
       }, function(err) {
         logger.warn('Error while getting contact', err);

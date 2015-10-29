@@ -38,6 +38,23 @@ describe('The addressbooks module', function() {
       },
       config: function() {
         return {};
+      },
+      contact: {
+        lib: {
+          client: function() {
+            return {
+              addressbook: function() {
+                return {
+                  get: function() {},
+                  list: function() {},
+                  create: function() {},
+                  update: function() {},
+                  del: function() {}
+                };
+              }
+            };
+          }
+        }
       }
     };
     deps = function(name) {
@@ -63,30 +80,62 @@ describe('The addressbooks module', function() {
           token: 123
         },
         davserver: 'http://dav:8080',
-        url: '/foo/bar'
+        url: '/foo/bar',
+        query: { q: 'some query' }
       };
     });
 
-    it('should set right parameters', function(done) {
-      mockery.registerMock('../proxy/http-client', function(options) {
-        expect(options.headers.ESNToken).to.equal(req.token.token);
-        expect(options.json).to.be.true;
-        done();
-      });
+    it('should call contact client with right parameters', function(done) {
+      req.params.bookId = '123';
+      dependencies.contact.lib.client = function(options) {
+        expect(options.ESNToken).to.equal(req.token.token);
+        return {
+          addressbook: function(bookId) {
+            expect(bookId).to.equal(req.params.bookId);
+            return {
+              contacts: function() {
+                return {
+                  list: function(query) {
+                    expect(query).to.eql(req.query);
+                    done();
+                    return q.resolve();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContactsFromDAV(req);
     });
 
-    it('should send back HTTP 500 if http client call fails', function(done) {
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(new Error('You failed'));
-      });
+    it('should send back HTTP 500 if contact client reject promise', function(done) {
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  list: function() {
+                    return q.reject();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContactsFromDAV(req, {
-        json: function(code, json) {
+        status: function(code) {
           expect(code).to.equal(500);
-          expect(json.error.details).to.match(/Error while getting contact from DAV server/);
-          done();
+          return {
+            json: function(data) {
+              expect(data.error.details).to.match(/Error while getting contacts from DAV server/);
+              done();
+            }
+          };
         }
       });
     });
@@ -95,16 +144,36 @@ describe('The addressbooks module', function() {
       var statusCode = 200;
       var body = {foo: 'bar'};
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, {statusCode: statusCode}, body);
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  list: function() {
+                    return q.resolve({
+                      response: { statusCode: statusCode },
+                      body: body
+                    });
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContactsFromDAV(req, {
-        json: function(code, json) {
+        status: function(code) {
           expect(code).to.equal(statusCode);
-          expect(json).to.deep.equal(body);
-          done();
+          return {
+            json: function(json) {
+              expect(json).to.deep.equal(body);
+              done();
+            }
+          };
         }
+
       });
     });
 
@@ -129,16 +198,36 @@ describe('The addressbooks module', function() {
       var avatarUrl1 = 'http://localhost:8080/contact/api/contacts/123/abc/avatar';
       var avatarUrl2 = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, { statusCode: statusCode }, body);
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  list: function() {
+                    return q.resolve({
+                      response: { statusCode: statusCode },
+                      body: body
+                    });
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContactsFromDAV(req, {
-        json: function(code, json) {
-          expect(JSON.stringify(json)).to.contains(avatarUrl1);
-          expect(JSON.stringify(json)).to.contains(avatarUrl2);
-          done();
+        status: function() {
+          return {
+            json: function(json) {
+              expect(JSON.stringify(json)).to.contains(avatarUrl1);
+              expect(JSON.stringify(json)).to.contains(avatarUrl2);
+              done();
+            }
+          };
         }
+
       });
     });
 
@@ -159,27 +248,60 @@ describe('The addressbooks module', function() {
       };
     });
 
-    it('should set right parameters', function(done) {
-      mockery.registerMock('../proxy/http-client', function(options) {
-        expect(options.headers.ESNToken).to.equal(req.token.token);
-        expect(options.json).to.be.true;
-        done();
-      });
+    it('should call contact client with right parameters', function(done) {
+      req.params.bookId = '123';
+      req.params.contactId = '456';
+      dependencies.contact.lib.client = function(options) {
+        expect(options.ESNToken).to.equal(req.token.token);
+        return {
+          addressbook: function(bookId) {
+            expect(bookId).to.equal(req.params.bookId);
+            return {
+              contacts: function(contactId) {
+                expect(contactId).to.equal(req.params.contactId);
+                return {
+                  get: function() {
+                    done();
+                    return q.resolve();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContact(req);
     });
 
-    it('should send back HTTP 500 if http client call fails', function(done) {
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(new Error('You failed'));
-      });
+    it('should send back HTTP 500 if contact client reject promise', function(done) {
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  get: function() {
+                    return q.reject();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContact(req, {
-        json: function(code, json) {
+        status: function(code) {
           expect(code).to.equal(500);
-          expect(json.error.details).to.match(/Error while getting contact from DAV server/);
-          done();
+          return {
+            json: function(json) {
+              expect(json.error.details).to.match(/Error while getting contact from DAV server/);
+              done();
+            }
+          };
         }
+
       });
     });
 
@@ -187,15 +309,34 @@ describe('The addressbooks module', function() {
       var statusCode = 200;
       var body = {foo: 'bar'};
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, {statusCode: statusCode}, body);
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  get: function() {
+                    return q.resolve({
+                      response: { statusCode: statusCode },
+                      body: body
+                    });
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContact(req, {
-        json: function(code, json) {
+        status: function(code) {
           expect(code).to.equal(statusCode);
-          expect(json).to.deep.equal(body);
-          done();
+          return {
+            json: function(json) {
+              expect(json).to.deep.equal(body);
+              done();
+            }
+          };
         }
       });
     });
@@ -210,15 +351,35 @@ describe('The addressbooks module', function() {
       req.params.bookId = '123';
       var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, { statusCode: statusCode }, body);
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  get: function() {
+                    return q.resolve({
+                      response: { statusCode: statusCode },
+                      body: body
+                    });
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().getContact(req, {
-        json: function(code, json) {
-          expect(JSON.stringify(json)).to.contains(avatarUrl);
-          done();
+        status: function() {
+          return {
+            json: function(json) {
+              expect(JSON.stringify(json)).to.contains(avatarUrl);
+              done();
+            }
+          };
         }
+
       });
     });
 
@@ -237,32 +398,64 @@ describe('The addressbooks module', function() {
         params: {
           bookId: 'book123',
           cardId: 'card123'
-        }
+        },
+        body: 'body'
       };
     });
 
-    it('should set right parameters', function(done) {
-      mockery.registerMock('../proxy/http-client', function(options) {
-        expect(options.headers.ESNToken).to.equal(req.token.token);
-        expect(options.json).to.be.true;
-        expect(options.method).to.equal('PUT');
-        done();
-      });
+    it('should call contact client with right parameters on creation', function(done) {
+      dependencies.contact.lib.client = function(options) {
+        expect(options.ESNToken).to.equal(req.token.token);
+        return {
+          addressbook: function(bookId) {
+            expect(bookId).to.equal(req.params.bookId);
+            return {
+              contacts: function(contactId) {
+                expect(contactId).to.equal(req.params.contactId);
+                return {
+                  create: function(contact) {
+                    expect(contact).to.eql(req.body);
+                    done();
+                    return q.resolve();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().updateContact(req);
     });
 
-    it('should send back HTTP 500 if http client call fails on creation', function(done) {
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(new Error('You failed'));
-      });
+    it('should send back HTTP 500 if http client rejects promise on creation', function(done) {
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  create: function() {
+                    return q.reject();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().updateContact(req, {
-        json: function(code, json) {
+        status: function(code) {
           expect(code).to.equal(500);
-          expect(json.error.details).to.match(/Error while creating contact on DAV server/);
-          done();
+          return {
+            json: function(json) {
+              expect(json.error.details).to.match(/Error while creating contact on DAV server/);
+              done();
+            }
+          };
         }
+
       });
     });
 
@@ -270,15 +463,34 @@ describe('The addressbooks module', function() {
       var statusCode = 200;
       var body = {foo: 'bar'};
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, {statusCode: statusCode}, body);
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  create: function() {
+                    return q.resolve({
+                      response: { statusCode: statusCode },
+                      body: body
+                    });
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().updateContact(req, {
-        json: function(code, json) {
+        status: function(code) {
           expect(code).to.equal(statusCode);
-          expect(json).to.deep.equal(body);
-          done();
+          return {
+            json: function(json) {
+              expect(json).to.deep.equal(body);
+              done();
+            }
+          };
         }
       });
     });
@@ -348,17 +560,37 @@ describe('The addressbooks module', function() {
         };
       };
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-        return callback(null, {statusCode: statusCode}, {});
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  create: function() {
+                    return q.resolve({
+                      response: { statusCode: statusCode },
+                      body: req.body
+                    });
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
 
       getController().updateContact(req, {
-        json: function() {
-          avatarHelper().injectTextAvatar(123, req.body).then(function(output) {
-            expect(called).to.be.true;
-            done();
-          });
+        status: function() {
+          return {
+            json: function() {
+              avatarHelper().injectTextAvatar(123, req.body).then(function(output) {
+                expect(called).to.be.true;
+                done();
+              });
+            }
+          };
         }
+
       });
     });
 
@@ -372,13 +604,28 @@ describe('The addressbooks module', function() {
       ];
 
       mockery.registerMock('../proxy/http-client', function(options, callback) {
-        expect(JSON.stringify(options.body)).to.not.contains(avatarUrl);
-        done();
+
       });
 
-      getController().updateContact(req, {
-        json: function(code, json) {}
-      });
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbook: function() {
+            return {
+              contacts: function() {
+                return {
+                  create: function(contact) {
+                    expect(JSON.stringify(contact)).to.not.contains(avatarUrl);
+                    done();
+                    return q.resolve();
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
+
+      getController().updateContact(req);
     });
 
   });
@@ -484,6 +731,9 @@ describe('The addressbooks module', function() {
               expect(options).to.deep.equal({search: search, userId: user._id, bookId: bookId, page: page, limit: limit});
               done();
             }
+          },
+          davClient: {
+            get: function() {}
           }
         }
       };
@@ -586,7 +836,7 @@ describe('The addressbooks module', function() {
               return callback(null, {list: [{_id: '1'}, {_id: '2'}, {_id: '3'}], total_count: cards.length});
             }
           },
-          client: {
+          davClient: {
             get: function() {
               called++;
               return q(cards[called - 1]);
@@ -622,7 +872,7 @@ describe('The addressbooks module', function() {
               return callback(null, {list: result, total_count: result.length});
             }
           },
-          client: {
+          davClient: {
             get: function() {
               call++;
               if (call === 3) {
@@ -661,7 +911,7 @@ describe('The addressbooks module', function() {
               return callback(null, {list: result, total_count: result.length});
             }
           },
-          client: {
+          davClient: {
             get: function() {
               call++;
               if (call === 3) {
@@ -706,7 +956,7 @@ describe('The addressbooks module', function() {
               return callback(null, {list: result, total_count: total});
             }
           },
-          client: {
+          davClient: {
             get: function() {
               call++;
               if (call === 3) {
