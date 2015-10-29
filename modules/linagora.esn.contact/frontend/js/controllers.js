@@ -2,9 +2,14 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $route, $location, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q) {
+  .controller('newContactController', function($rootScope, $scope, $route, $location, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = sharedContactDataService.contact;
+
+    headerService.subHeader.addInjection('contact-create-subheader', $scope);
+    $scope.$on('$routeChangeStart', function() {
+      headerService.subHeader.resetInjections();
+    });
 
     $scope.close = closeContactForm;
     $scope.accept = function() {
