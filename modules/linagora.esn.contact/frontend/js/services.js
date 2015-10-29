@@ -110,19 +110,23 @@ angular.module('linagora.esn.contact')
         return contact.lastName;
       }
 
+      if (notNullNorEmpty(contact.orgName)) {
+        return contact.orgName;
+      }
+
+      if (notNullNorEmpty(contact.orgRole)) {
+        return contact.orgRole;
+      }
+
+      if (notNullNorEmpty(contact.nickname)) {
+        return contact.nickname;
+      }
+
       if (notNullNorEmpty(contact.emails)) {
         var email = getValueFromArray(contact.emails, ['work', 'home', 'other']);
         if (email) {
           return email;
         }
-      }
-
-      if (notNullNorEmpty(contact.orgName)) {
-        return contact.orgName;
-      }
-
-      if (notNullNorEmpty(contact.nickname)) {
-        return contact.nickname;
       }
 
       if (notNullNorEmpty(contact.social)) {
@@ -132,6 +136,10 @@ angular.module('linagora.esn.contact')
         }
       }
 
+      if (notNullNorEmpty(contact.urls)) {
+        return contact.urls[0].value;
+      }
+
       if (notNullNorEmpty(contact.tel)) {
         var tel = getValueFromArray(contact.tel, ['work', 'mobile', 'home']);
         if (tel) {
@@ -139,16 +147,8 @@ angular.module('linagora.esn.contact')
         }
       }
 
-      if (notNullNorEmpty(contact.urls)) {
-        return contact.urls[0].value;
-      }
-
       if (notNullNorEmpty(contact.notes)) {
         return contact.notes;
-      }
-
-      if (notNullNorEmpty(contact.addresses)) {
-        return getFormattedAddress(contact.addresses[0]);
       }
 
       if (notNullNorEmpty(contact.tags) && contact.tags[0] && contact.tags[0].text) {
@@ -158,6 +158,11 @@ angular.module('linagora.esn.contact')
       if (contact.birthday) {
         return $dateFormatter.formatDate(contact.birthday, CONTACT_DATE_FORMAT);
       }
+
+      if (notNullNorEmpty(contact.addresses)) {
+        return getFormattedAddress(contact.addresses[0]);
+      }
+
     }
 
     function forceReloadDefaultAvatar(contact) {

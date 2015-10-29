@@ -1121,38 +1121,15 @@ describe('The Contacts Angular module', function() {
       });
 
       beforeEach(function() {
-        this.shell = {
-          starred: true,
-          tags: [],
-          emails: [],
-          tel: [],
-          addresses: [],
-          social: [],
-          orgName: '',
-          orgRole: 'role',
-          urls: [],
-          nickname: '',
-          notes: '',
-          photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
-        };
+        this.shell = {};
 
         this.expectEqual = function(value) {
           expect(this.contactHelper.getFormattedName(this.shell)).to.equal(value);
         };
 
-        this.expectNotEqual = function(value) {
-          expect(this.contactHelper.getFormattedName(this.shell)).to.not.equal(value);
-        };
-
         this.expectUndefined = function() {
           expect(this.contactHelper.getFormattedName(this.shell)).to.be.undefined;
         };
-      });
-
-      it('should return firstName + _ + lastName when both defined', function() {
-        this.shell.firstName = 'Foo';
-        this.shell.lastName = 'Bar';
-        this.expectEqual(this.shell.firstName + ' ' + this.shell.lastName);
       });
 
       it('should return firstname when firstname defined and lastname undefined', function() {
@@ -1165,105 +1142,8 @@ describe('The Contacts Angular module', function() {
         this.expectEqual(this.shell.lastName);
       });
 
-      it('should return org when when !firstName && !lastName && org', function() {
-        this.shell.orgName = 'MyOrg';
-        this.expectEqual(this.shell.orgName);
-      });
-
-      it('should return nickname when !firstName && !lastName && !org && nickname', function() {
-        this.shell.nickname = 'FooBar';
-        this.expectEqual(this.shell.nickname);
-      });
-
-      it('should return work email when defined', function() {
-        this.shell.emails = [this.homeEmail, this.workEmail, this.otherEmail];
-        this.expectEqual(this.workEmail.value);
-      });
-
-      it('should return home email when !work', function() {
-        this.shell.emails = [this.homeEmail, this.otherEmail];
-        this.expectEqual(this.homeEmail.value);
-      });
-
-      it('should return other email when !work && !home', function() {
-        this.shell.emails = [this.otherEmail];
-        this.expectEqual(this.otherEmail.value);
-      });
-
-      it('should return twitter account when defined', function() {
-        this.shell.social = [this.twitter, this.google, this.linkedin, this.fb, this.skype];
-        this.expectEqual(this.twitter.value);
-      });
-
-      it('should return skype account when defined', function() {
-        this.shell.social = [this.google, this.linkedin, this.fb, this.skype];
-        this.expectEqual(this.skype.value);
-      });
-
-      it('should return google account when defined', function() {
-        this.shell.social = [this.linkedin, this.google, this.fb];
-        this.expectEqual(this.google.value);
-      });
-
-      it('should return linkedin account when defined', function() {
-        this.shell.social = [this.linkedin, this.fb];
-        this.expectEqual(this.linkedin.value);
-      });
-
-      it('should return facebook account when defined', function() {
-        this.shell.social = [this.fb, this.otherSocial];
-        this.expectEqual(this.fb.value);
-      });
-
-      it('should return other social account when defined', function() {
-        this.shell.social = [this.otherSocial];
-        this.expectEqual(this.otherSocial.value);
-      });
-
-      it('should return work tel when defined', function() {
-        this.shell.tel = [this.homeTel, this.workTel, this.mobileTel, this.otherTel];
-        this.expectEqual(this.workTel.value);
-      });
-
-      it('should return mobile tel when defined', function() {
-        this.shell.tel = [this.homeTel, this.mobileTel, this.otherTel];
-        this.expectEqual(this.mobileTel.value);
-      });
-
-      it('should return home tel when defined', function() {
-        this.shell.tel = [this.homeTel, this.otherTel];
-        this.expectEqual(this.homeTel.value);
-      });
-
-      it('should return other tel when defined', function() {
-        this.shell.tel = [this.otherTel];
-        this.expectEqual(this.otherTel.value);
-      });
-
-      it('should return url when defined', function() {
-        this.shell.urls = [this.url];
-        this.expectEqual(this.url.value);
-      });
-
-      it('should return notes when defined', function() {
-        this.shell.notes = 'This is a note';
-        this.expectEqual(this.shell.notes);
-      });
-
-      it('should return first tag when defined', function() {
-        var expected = 'A';
-        this.shell.tags = [{text: expected}, {text: 'B'}];
-        this.expectEqual(expected);
-      });
-
-      it('should not return first tag when empty', function() {
-        this.shell.tags = [{text: ''}, {text: 'B'}];
-        this.expectNotEqual('');
-      });
-
-      it('should return formatted birthday if defined and a Date', function() {
-        this.shell.birthday = new Date(1942, 0, 1);
-        this.expectEqual('01/01/1942');
+      it('should return undefined when no values', function() {
+        this.expectUndefined();
       });
 
       it('should return birthday as-is if defined but not a Date', function() {
@@ -1271,24 +1151,92 @@ describe('The Contacts Angular module', function() {
         this.expectEqual('I am not a date');
       });
 
-      it('should return formatted address when address is defined', function() {
-        this.shell.addresses = [{street: 'My street', zip: 'My zip', city: 'My city', country: 'My country'}];
-        var result = this.contactHelper.getFormattedName(this.shell);
-        expect(result).to.match(/My street/);
-        expect(result).to.match(/My zip/);
-        expect(result).to.match(/My city/);
-        expect(result).to.match(/My country/);
-      });
+      it('should return with the correct order', function() {
+        this.shell = {
+          firstName: 'Foo',
+          lastName: 'Bar',
+          orgName: 'MyOrg',
+          orgRole: 'role',
+          nickname: 'FooBar',
+          emails: [this.workEmail, this.homeEmail, this.otherEmail],
+          social: [this.twitter, this.skype, this.google, this.linkedin, this.fb, this.otherSocial],
+          urls: [this.url],
+          tel: [this.workTel, this.mobileTel, this.homeTel, this.otherTel],
+          notes: 'This is a note',
+          tags: [{text: 'A'}, {text: 'B'}],
+          birthday: new Date(1942, 0, 1),
+          addresses: [{street: 'My street', zip: 'My zip', city: 'My city', country: 'My country'}],
+          starred: true,
+          photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        };
 
-      it('should return undefined when no values', function() {
-        this.shell = {};
-        this.expectUndefined();
-      });
+        this.expectEqual(this.shell.firstName + ' ' + this.shell.lastName);
 
-      it('should return email before company', function() {
-        this.shell.emails = [this.otherEmail];
-        this.shell.org = 'MyOrg';
+        this.shell.firstName = this.shell.lastName = '';
+        this.expectEqual('MyOrg');
+
+        this.shell.orgName = '';
+        this.expectEqual('role');
+
+        this.shell.orgRole = '';
+        this.expectEqual('FooBar');
+
+        this.shell.nickname = '';
+        this.expectEqual(this.workEmail.value);
+
+        this.shell.emails.shift();
+        this.expectEqual(this.homeEmail.value);
+
+        this.shell.emails.shift();
         this.expectEqual(this.otherEmail.value);
+
+        this.shell.emails.shift();
+        this.expectEqual(this.twitter.value);
+
+        this.shell.social.shift();
+        this.expectEqual(this.skype.value);
+
+        this.shell.social.shift();
+        this.expectEqual(this.google.value);
+
+        this.shell.social.shift();
+        this.expectEqual(this.linkedin.value);
+
+        this.shell.social.shift();
+        this.expectEqual(this.fb.value);
+
+        this.shell.social.shift();
+        this.expectEqual(this.otherSocial.value);
+
+        this.shell.social.shift();
+        this.expectEqual(this.url.value);
+
+        this.shell.urls.shift();
+        this.expectEqual(this.workTel.value);
+
+        this.shell.tel.shift();
+        this.expectEqual(this.mobileTel.value);
+
+        this.shell.tel.shift();
+        this.expectEqual(this.homeTel.value);
+
+        this.shell.tel.shift();
+        this.expectEqual(this.otherTel.value);
+
+        this.shell.tel.shift();
+        this.expectEqual('This is a note');
+
+        this.shell.notes = '';
+        this.expectEqual('A');
+
+        this.shell.tags.shift();
+        this.expectEqual('B');
+
+        this.shell.tags.shift();
+        this.expectEqual('01/01/1942');
+
+        this.shell.birthday = '';
+        this.expectEqual('My street My city My zip My country');
       });
     });
 
