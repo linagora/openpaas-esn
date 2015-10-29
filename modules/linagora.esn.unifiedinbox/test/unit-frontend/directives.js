@@ -139,10 +139,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   describe('The composer directive', function() {
+
     var closeNotificationSpy = sinon.spy();
     var hideScopeSpy = sinon.spy();
     var notificationTitle = '', notificationText = '';
-    beforeEach(function() {
+    var draftService;
+
+    beforeEach(inject(function(_draftService_) {
+      draftService = _draftService_;
       Offline.state = 'up';
 
       $scope.$hide = hideScopeSpy;
@@ -164,7 +168,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
           close: closeNotificationSpy
         };
       };
-    });
+    }));
 
     it('should not send an email with no recipient', function() {
       $scope.email = {
@@ -316,7 +320,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-
       $scope.email = {
         rcpt: {
           to: [{displayName: '1', email: '1@linagora.com'}]
@@ -336,15 +339,25 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(hideScopeSpy).to.be.called;
     });
 
-    it('should notify and save draft when the composer is destroyed', function() {
-      notificationFactory.weakInfo = function(callTitle, callText) {
-        notificationTitle = callTitle;
-        notificationText = callText;
+    it('should save draft when the composer is destroyed', function() {
+      var originalEmailState, newEmailState;
+      draftService.startDraft = function(originalEmail) {
+        originalEmailState = originalEmail;
+        return {
+          save: function(newEmail) {
+            newEmailState = newEmail;
+          }
+        };
       };
+
+      $scope.email = {originalState: 'yo', rcpt: {to: [], cc: [], bcc: []}};
       compileDirective('<composer />');
+
+      $scope.email = {newState: 'lo', rcpt: {to: ['to@domain'], cc: [], bcc: []}};
       $scope.$emit('$destroy');
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Your email has been saved as draft');
+
+      expect(originalEmailState).to.deep.equal({originalState: 'yo', rcpt: {to: [], cc: [], bcc: []}});
+      expect(newEmailState).to.deep.equal({newState: 'lo', rcpt: {to: ['to@domain'], cc: [], bcc: []}});
     });
 
     it('should expose a search function through its controller', function() {

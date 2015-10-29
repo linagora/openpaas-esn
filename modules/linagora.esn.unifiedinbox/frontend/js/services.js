@@ -167,4 +167,55 @@ angular.module('linagora.esn.unifiedinbox')
       removeDuplicateRecipients: removeDuplicateRecipients,
       noRecipient: noRecipient
     };
+  })
+
+  .service('draftService', function($log, jmap, jmapClient, session) {
+
+    function Draft(originalEmailState) {
+      this.originalEmailState = angular.copy(originalEmailState);
+    }
+
+    Draft.prototype.needToBeSaved = function(newEmailState) {
+      var original = this.originalEmailState || {};
+      original.rcpt = original.rcpt || {};
+      original.subject = (original.subject || '').trim();
+      original.htmlBody = (original.htmlBody || '').trim();
+
+      var newest = newEmailState || {};
+      newest.rcpt = newest.rcpt || {};
+      newest.subject = (newest.subject || '').trim();
+      newest.htmlBody = (newest.htmlBody || '').trim();
+
+      return (
+        original.subject !== newest.subject ||
+        original.htmlBody !== newest.htmlBody ||
+        JSON.stringify(original.rcpt.to || []) !== JSON.stringify(newest.rcpt.to || []) ||
+        JSON.stringify(original.rcpt.cc || []) !== JSON.stringify(newest.rcpt.cc || []) ||
+        JSON.stringify(original.rcpt.bcc || []) !== JSON.stringify(newest.rcpt.bcc || [])
+      );
+    };
+
+    Draft.prototype.save = function(newEmailState) {
+      if (!this.needToBeSaved(newEmailState)) {
+        return;
+      }
+      jmapClient
+        .saveAsDraft(new jmap.OutboundMessage(jmapClient, {
+          from: new jmap.EMailer({
+            email: session.user.preferredEmail,
+            name: session.user.name
+          }),
+          subject: newEmailState.subject,
+          htmlBody: newEmailState.htmlBody,
+          to: newEmailState.rcpt.to,
+          cc: newEmailState.rcpt.cc,
+          bcc: newEmailState.rcpt.bcc
+        }));
+    };
+
+    return {
+      startDraft: function(originalEmailState) {
+        return new Draft(originalEmailState);
+      }
+    };
   });

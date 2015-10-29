@@ -17,3 +17,4 @@ angular.module('linagora.esn.unifiedinbox')
 
   .constant('jmapAPIUrl', 'https://proxy.jmap.io/jmap/b6ed15b6-5611-11e5-b11b-0026b9fac7aa/')
   .constant('jmapAuthToken', 'b6ed15b6-5611-11e5-b11b-0026b9fac7aa');
+

@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global moment: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -394,6 +395,263 @@ describe('The Unified Inbox Angular module services', function() {
         expect(expectedRcpt).to.shallowDeepEqual(rcpt);
       });
     });
+  });
+
+  describe('The draftService service', function() {
+
+    var draftService, jmapClient, session;
+
+    beforeEach(inject(function(_draftService_, _jmapClient_, _session_) {
+      draftService = _draftService_;
+      jmapClient = _jmapClient_;
+      session = _session_;
+    }));
+
+    describe('The needToBeSaved method', function() {
+
+      it('should return false if original and new are both undefined object', function() {
+        var draft = draftService.startDraft(undefined);
+        expect(draft.needToBeSaved(undefined)).to.equal(false);
+      });
+
+      it('should return false if original and new are both empty object', function() {
+        var draft = draftService.startDraft({});
+        expect(draft.needToBeSaved({})).to.equal(false);
+      });
+
+      it('should look for differences after having copying original', function() {
+        var content = {subject: 'yo'};
+
+        var draft = draftService.startDraft(content);
+        content.subject = 'lo';
+
+        expect(draft.needToBeSaved(content)).to.equal(true);
+      });
+
+      it('should return false if original and new are equal', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: ['to@domain'],
+            cc: ['cc@domain'],
+            bcc: ['bcc@domain']
+          }
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: ['to@domain'],
+            cc: ['cc@domain'],
+            bcc: ['bcc@domain']
+          }
+        })).to.equal(false);
+      });
+
+      it('should return true if original has one more field', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo'
+        })).to.equal(true);
+      });
+
+      it('should return true if new state has one more field', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text'
+        })).to.equal(true);
+      });
+
+      it('should return true if original has difference into rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: []}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: ['second@domain']}
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: ['first@domain']}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: ['second@domain']}
+        })).to.equal(true);
+      });
+
+      it('should return false if one has empty subject and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: '',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: undefined,
+          htmlBody: 'text'
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: undefined,
+          htmlBody: 'text'
+        });
+        expect(draft2.needToBeSaved({
+          subject: '',
+          htmlBody: 'text'
+        })).to.equal(false);
+      });
+
+      it('should return false if one has space only subject and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: ' ',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: undefined,
+          htmlBody: 'text'
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: undefined,
+          htmlBody: 'text'
+        });
+        expect(draft2.needToBeSaved({
+          subject: ' ',
+          htmlBody: 'text'
+        })).to.equal(false);
+      });
+
+      it('should return false if one has empty body and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: undefined
+        });
+        expect(draft.needToBeSaved({
+          subject: 'subject',
+          htmlBody: ''
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: ''
+        });
+        expect(draft2.needToBeSaved({
+          subject: 'subject',
+          htmlBody: undefined
+        })).to.equal(false);
+      });
+
+      it('should return false if one has space only body and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: undefined
+        });
+        expect(draft.needToBeSaved({
+          subject: 'subject',
+          htmlBody: ' '
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: ' '
+        });
+        expect(draft2.needToBeSaved({
+          subject: 'subject',
+          htmlBody: undefined
+        })).to.equal(false);
+      });
+
+      it('should return false if original has empty rcpt property', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: []}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text'
+        })).to.equal(false);
+      });
+
+      it('should return false if new has empty rcpt property', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: []}
+        })).to.equal(false);
+      });
+
+    });
+
+    describe('The save method', function() {
+
+      it('should do nothing if needToBeSaved returns false', function() {
+        jmapClient.saveAsDraft = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return false;};
+        draft.save({});
+
+        expect(jmapClient.saveAsDraft).to.not.have.been.called;
+      });
+
+      it('should call saveAsDraft if needToBeSaved returns true', function() {
+        jmapClient.saveAsDraft = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({rcpt: {}});
+
+        expect(jmapClient.saveAsDraft).to.have.been.called;
+      });
+
+      it('should call saveAsDraft with OutboundMessage filled with properties', function() {
+        jmapClient.saveAsDraft = sinon.spy();
+        session.user = {preferredEmail: 'yo@lo', name: 'me'};
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({
+          subject: 'expected subject',
+          htmlBody: 'expected htmlBody',
+          rcpt: {
+            to: [{email: 'to@domain', name: 'to'}],
+            cc: [{email: 'cc@domain', name: 'cc'}],
+            bcc: [{email: 'bcc@domain', name: 'bcc'}]
+          }
+        });
+
+        expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
+          sinon.match({
+            from: {email: 'yo@lo', name: 'me'},
+            subject: 'expected subject',
+            htmlBody: 'expected htmlBody',
+            to: [{email: 'to@domain', name: 'to'}],
+            cc: [{email: 'cc@domain', name: 'cc'}],
+            bcc: [{email: 'bcc@domain', name: 'bcc'}]
+          }));
+      });
+
+    });
+
   });
 
 });

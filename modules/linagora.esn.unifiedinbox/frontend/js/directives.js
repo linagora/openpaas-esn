@@ -137,7 +137,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($q, $timeout, notificationFactory) {
+  .directive('composer', function($q, $timeout, notificationFactory, draftService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -188,9 +188,11 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.isCollapsed = true;
 
+        var draft = draftService.startDraft(scope.email);
         scope.$on('$destroy', function() {
-          notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+          draft.save(scope.email);
         });
+
       }
     };
   })
