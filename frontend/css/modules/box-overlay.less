@@ -7,7 +7,7 @@
   bottom: 0;
   width: 100%;
   height: 100%;
-  z-index: 1000; // Notifications have z-index: 1030 and we want them over us
+  z-index: ~"calc(@{header-z-index} - 1)";
 }
 
 .box-overlay-open {
@@ -78,6 +78,7 @@
       height: 100%;
       top: 0;
       left: 0;
+      z-index: ~"calc(@{header-z-index} + 1)";
 
       background-color: rgba(0, 0, 0, 0.3);
 
