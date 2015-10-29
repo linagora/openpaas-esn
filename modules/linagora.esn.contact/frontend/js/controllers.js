@@ -216,7 +216,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -305,10 +305,6 @@ angular.module('linagora.esn.contact')
 
     });
 
-    $scope.$on('ngRepeatFinished', function() {
-      if (!$scope.searchInput) {$scope.$emit('viewRenderFinished');}
-    });
-
     $scope.$on('$destroy', function() {
       gracePeriodService.flushAllTasks();
     });
@@ -359,7 +355,6 @@ angular.module('linagora.esn.contact')
         return;
       }
 
-      $scope.$emit(SCROLL_EVENTS.RESET_SCROLL);
       $scope.appendQueryToURL();
       cleanSearchResults();
       cleanCategories();
