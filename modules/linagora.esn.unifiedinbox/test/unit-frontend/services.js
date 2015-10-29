@@ -399,12 +399,15 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The draftService service', function() {
 
-    var draftService, jmapClient, session;
+    var draftService, jmapClient, session, notificationFactory, $log, $rootScope;
 
-    beforeEach(inject(function(_draftService_, _jmapClient_, _session_) {
+    beforeEach(inject(function(_draftService_, _jmapClient_, _session_, _notificationFactory_, _$log_, _$rootScope_) {
       draftService = _draftService_;
       jmapClient = _jmapClient_;
       session = _session_;
+      notificationFactory = _notificationFactory_;
+      $log = _$log_;
+      $rootScope = _$rootScope_;
     }));
 
     describe('The needToBeSaved method', function() {
@@ -614,7 +617,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should call saveAsDraft if needToBeSaved returns true', function() {
-        jmapClient.saveAsDraft = sinon.spy();
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
 
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
@@ -624,7 +627,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
-        jmapClient.saveAsDraft = sinon.spy();
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
         session.user = {preferredEmail: 'yo@lo', name: 'me'};
 
         var draft = draftService.startDraft({});
@@ -648,6 +651,34 @@ describe('The Unified Inbox Angular module services', function() {
             cc: [{email: 'cc@domain', name: 'cc'}],
             bcc: [{email: 'bcc@domain', name: 'bcc'}]
           }));
+      });
+
+      it('should notify when has saved successfully', function() {
+        jmapClient.saveAsDraft = function() {return $q.when({});};
+        notificationFactory.weakInfo = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({rcpt: {}});
+
+        $rootScope.$digest();
+        expect(notificationFactory.weakInfo).to.have.been.called;
+        expect(notificationFactory.weakInfo).to.have.been.calledWithExactly('Note', 'Your email has been saved as draft');
+      });
+
+      it('should notify when has not saved successfully', function() {
+        var err = {message: 'rejected with err'};
+        jmapClient.saveAsDraft = function() {return $q.reject(err);};
+        notificationFactory.weakError = sinon.spy();
+        $log.error = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({rcpt: {}});
+
+        $rootScope.$digest();
+        expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
+        expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
       });
 
     });

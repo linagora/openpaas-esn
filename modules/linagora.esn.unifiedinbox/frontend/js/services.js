@@ -169,7 +169,16 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($log, jmap, jmapClient, session) {
+  .service('draftService', function($log, jmap, jmapClient, session, notificationFactory) {
+
+    function saveDraftSuccess() {
+      notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+    }
+
+    function saveDraftFailed(err) {
+      notificationFactory.weakError('Error', 'Your email has not been saved');
+      $log.error('A draft has not been saved', err);
+    }
 
     function Draft(originalEmailState) {
       this.originalEmailState = angular.copy(originalEmailState);
@@ -210,7 +219,8 @@ angular.module('linagora.esn.unifiedinbox')
           to: newEmailState.rcpt.to,
           cc: newEmailState.rcpt.cc,
           bcc: newEmailState.rcpt.bcc
-        }));
+        }))
+        .then(saveDraftSuccess, saveDraftFailed);
     };
 
     return {
