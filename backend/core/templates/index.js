@@ -16,7 +16,6 @@ function injectTemplates() {
   });
 }
 
-
 module.exports.inject = function(callback) {
   if (mongo.isConnected()) {
     injectTemplates();

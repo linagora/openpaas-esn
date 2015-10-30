@@ -75,8 +75,8 @@ var lookup = function(obj, field) {
   chain = field.split(']').join('').split('[');
   for (i = 0, len = chain.length; i < len; i++) {
     prop = obj[chain[i]];
-    if (typeof(prop) === 'undefined') { return null; }
-    if (typeof(prop) !== 'object') { return prop; }
+    if (typeof prop === 'undefined') { return null; }
+    if (typeof prop !== 'object') { return prop; }
     obj = prop;
   }
   return null;

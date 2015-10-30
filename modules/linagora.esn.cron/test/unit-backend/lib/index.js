@@ -83,7 +83,7 @@ describe('The Cron Module', function() {
 
       mockRegistry({
         update: function(job, callback) {
-          states[job.state] ++;
+          states[job.state]++;
           return callback();
         },
         get: function(id, callback) {
@@ -120,7 +120,7 @@ describe('The Cron Module', function() {
 
       mockRegistry({
         update: function(job, callback) {
-          states[job.state] ++;
+          states[job.state]++;
           return callback();
         },
         get: function(id, callback) {

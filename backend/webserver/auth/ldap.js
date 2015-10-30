@@ -4,7 +4,6 @@ var LDAPStrategy = require('passport-ldaplng').Strategy;
 var esnconfig = require('../../core/esn-config');
 var ldaputils = require('../../core/auth/ldap');
 
-
 var defaultldap = {
   url: 'ldap://localhost:1389',
   adminDn: 'uid=admin,ou=passport-ldapauth',

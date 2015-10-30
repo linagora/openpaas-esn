@@ -1,6 +1,5 @@
 'use strict';
 
-
 var ical = require('ical.js');
 var charAPI = require('charAPI');
 var PATH = 'addressbooks';

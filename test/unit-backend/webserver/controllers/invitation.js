@@ -177,14 +177,6 @@ describe('the invitation controller', function() {
         );
         this.callback(null, true);
       });
-
-
-
     });
-
-
-
-
-
   });
 });

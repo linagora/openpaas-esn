@@ -37,7 +37,6 @@ describe('The contact helper module', function() {
       });
     });
 
-
     it('should send back an error if xml parsing fails', function(done) {
       var mongooseMock = {
         model: function() {
@@ -60,7 +59,6 @@ describe('The contact helper module', function() {
         done();
       });
     });
-
 
     it('should send back an error if the address book could not be found or created', function(done) {
       var user = {
@@ -97,7 +95,6 @@ describe('The contact helper module', function() {
         done();
       });
     });
-
 
     it('should send back an error if the contact could not be found or created', function(done) {
       var user = {

@@ -163,7 +163,6 @@ describe('The messages middleware', function() {
       middleware(req, res, done);
     });
 
-
     it('should send back 403 if type specific reply permissions return false', function(done) {
       mockery.registerMock('../../core/message/permission', {
         canReply: function(message, user, callback) {
@@ -527,6 +526,4 @@ describe('The messages middleware', function() {
       middleware(req, res, done);
     });
   });
-
-
-  });
+});

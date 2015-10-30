@@ -27,7 +27,6 @@ module.exports.isStillValid = function(invitation, done) {
   }
 };
 
-
 /**
  * Validate the input invitation data.
  * First, validate locally then delegate to the handler for specific check.
@@ -116,4 +115,3 @@ module.exports.finalize = function(invitation, data, done) {
     return done(err, result);
   });
 };
-

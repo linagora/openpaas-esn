@@ -59,7 +59,6 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
       phone: false
     };
 
-
     $scope.initFullName = function(firstname, lastname) {
       if (firstname && lastname) {
         $scope.fullName = firstname + ' ' + lastname;
@@ -79,7 +78,7 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
           $scope.running[runningMarker] = false;
           return error.statusText;
         }
-      ).finally (function() {
+      ).finally(function() {
         $scope.running[runningMarker] = false;
       });
     };
@@ -108,7 +107,7 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
           $scope.running.name = false;
           return error.statusText;
         }
-      ).finally (function() {
+      ).finally(function() {
         $scope.$emit('username:updated');
       });
     };

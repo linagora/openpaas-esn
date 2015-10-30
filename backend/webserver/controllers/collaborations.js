@@ -15,7 +15,7 @@ function transform(collaboration, user, callback) {
 
   var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
 
-  if (typeof(collaboration.toObject) === 'function') {
+  if (typeof collaboration.toObject === 'function') {
     collaboration = collaboration.toObject();
   }
 
@@ -409,7 +409,7 @@ function removeMembershipRequest(req, res) {
     return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
   }
 
-  if (!req.collaboration.membershipRequests || ! ('filter' in req.collaboration.membershipRequests)) {
+  if (!req.collaboration.membershipRequests || !('filter' in req.collaboration.membershipRequests)) {
     return res.send(204);
   }
 

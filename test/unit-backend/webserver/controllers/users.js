@@ -1132,7 +1132,7 @@ describe('The User controller', function() {
           expect(code).to.equal(200);
           expect(data._id).to.exist;
           expect(data._id).to.have.property('toHexString');
-         done();
+          done();
         }
       };
       users.postProfileAvatar(req, res);
@@ -1244,7 +1244,6 @@ describe('The User controller', function() {
 
       users.getProfileAvatar(req, res);
     });
-
 
     it('should return 200, add to the cache, and the stream of the avatar file if all is ok', function(done) {
       var image = {

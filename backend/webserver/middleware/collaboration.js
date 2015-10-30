@@ -47,7 +47,7 @@ function canLeave(req, res, next) {
 }
 module.exports.canLeave = canLeave;
 
-  function requiresCollaborationMember(req, res, next) {
+function requiresCollaborationMember(req, res, next) {
   collaborationModule.isMember(req.collaboration, {objectType: 'user', id: req.user._id}, function(err, isMember) {
     if (err) {
       return res.json(500, {error: 500, message: 'Server error', details: 'Can not define the collaboration membership: ' + err.message});

@@ -315,7 +315,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
             $scope.requests = response.data || [];
           }, function(err) {
             $scope.error = err.status;
-          }).finally (function() {
+          }).finally(function() {
             $scope.loading = false;
           });
         };
@@ -363,7 +363,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
             });
           }, function() {
             $scope.error = true;
-          }).finally (function() {
+          }).finally(function() {
             $scope.sending = false;
           });
         };
@@ -379,7 +379,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
             });
           }, function() {
             $scope.error = true;
-          }).finally (function() {
+          }).finally(function() {
             $scope.sending = false;
           });
         };
@@ -427,7 +427,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
           $scope.memberCount = result.data.length;
         }, function() {
           $scope.error = true;
-        }).finally (function() {
+        }).finally(function() {
           $scope.restActive = false;
           usSpinnerService.stop($scope.spinnerKey);
         });
@@ -444,7 +444,6 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
         updateMembersList();
       }
     };
-
 
     $scope.init();
   })

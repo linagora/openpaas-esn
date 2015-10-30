@@ -127,9 +127,9 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
     delete injection.objectType;
 
     if (objectType === 'domain') {
-      updates = {$push: {'domainInjections': injection}, 'moduleName': moduleName};
+      updates = {$push: {domainInjections: injection}, moduleName: moduleName};
     } else {
-      updates = {$push: {'targetInjections': injection}, 'moduleName': moduleName};
+      updates = {$push: {targetInjections: injection}, moduleName: moduleName};
     }
 
     var options = {};

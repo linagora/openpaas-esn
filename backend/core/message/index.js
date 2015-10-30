@@ -103,7 +103,7 @@ function getWithAuthors(uuid, callback) {
       return mongoose.Types.ObjectId(id);
     });
 
-    return userModel.find({ _id: { '$in': ids } }).exec(function(err, authors) {
+    return userModel.find({ _id: {$in: ids } }).exec(function(err, authors) {
       if (err) { return callback(err); }
 
       applyAuthors(authorsMap, authors);

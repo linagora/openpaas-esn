@@ -737,8 +737,6 @@ describe('The esn.activitystreams-tracker Angular module', function() {
         expect(this.ASTrackerSubscriptionService.get(objectType)).to.have.length(2);
       });
     });
-
   });
-
 
 });

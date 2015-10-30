@@ -121,167 +121,170 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
   }).factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
 
-  var sharedService = {};
-  sharedService.image = null;
-  sharedService.selection = {};
-  sharedService.error = null;
-
-  sharedService.setImage = function(image) {
-    this.image = image;
-    $rootScope.$broadcast('crop:loaded');
-  };
-
-  sharedService.getImage = function() {
-    return this.image;
-  };
-
-  sharedService.getError = function() {
-    return this.error;
-  };
-
-  sharedService.setError = function(error) {
-    this.error = error;
-    $rootScope.$broadcast('crop:error', error);
-  };
-
-  sharedService.reset = function() {
-    $rootScope.$broadcast('crop:reset');
-  };
-
-  sharedService.broadcastSelection = function(x) {
-    this.selection = x;
-    $rootScope.$broadcast('crop:selected', x);
-  };
-
-  sharedService.computeCanvasSelection = function computeCanvasSelection(img, ratio, selection) {
-    var w = selection.w * ratio;
-    if (w > img.naturalWidth) {
-      w = img.naturalWidth;
-    }
-    var h = selection.h * ratio;
-    if (h > img.naturalHeight) {
-      h = img.naturalHeight;
-    }
-    return {
-      x: selection.x * ratio,
-      y: selection.y * ratio,
-      w: w,
-      h: h
-    };
-  };
-
-  sharedService.getBlob = function getBlob(mime, callback) {
-    var canvas = document.createElement('canvas');
-    canvas.width = AVATAR_MIN_SIZE_PX;
-    canvas.height = AVATAR_MIN_SIZE_PX;
-
-    var context = canvas.getContext('2d');
-    var image = sharedService.getImage();
-    var ratio = sharedService.selection.ratio || 1;
-    var selection = sharedService.selection.cords;
-    if (selection.w === 0 || selection.h === 0) {
-      context.drawImage(image, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
-    } else {
-      var canvasSelection = sharedService.computeCanvasSelection(image, ratio, selection);
-      context.drawImage(image, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
-    }
-    canvas.toBlob(callback, mime);
-  };
-
-  sharedService.clear = function() {
+    var sharedService = {};
     sharedService.image = null;
     sharedService.selection = {};
     sharedService.error = null;
-  };
 
-  return sharedService;
+    sharedService.setImage = function(image) {
+      this.image = image;
+      $rootScope.$broadcast('crop:loaded');
+    };
 
-}).directive('imgPreview', function(selectionService, AVATAR_MIN_SIZE_PX) {
+    sharedService.getImage = function() {
+      return this.image;
+    };
 
-  return {
-    restrict: 'A',
-    replace: true,
-    link: function($scope, element) {
-      var canvas = element[0];
-      canvas.width = canvas.height = AVATAR_MIN_SIZE_PX;
-      var ctx = canvas.getContext('2d');
-      $scope.$on('crop:reset', function() {
-        canvas.width = canvas.width;
-      });
-      $scope.$on('crop:selected', function(context, data) {
-        var selection = data.cords;
-        var ratio = data.ratio || 1;
-        var img = selectionService.getImage();
+    sharedService.getError = function() {
+      return this.error;
+    };
 
-        canvas.width = canvas.width;
-        if (Math.round(selection.w * ratio) < AVATAR_MIN_SIZE_PX || Math.round(selection.h * ratio) < AVATAR_MIN_SIZE_PX) {
-          ctx.drawImage(img, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
-        } else {
-          var canvasSelection = selectionService.computeCanvasSelection(img, ratio, selection);
-          ctx.drawImage(img, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
-        }
-      });
-    }
-  };
-}).directive('imgLoaded', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      width: '='
-    },
-    link: function(scope, element, attr) {
-      var myImg;
-      var clear = function() {
-        if (myImg) {
-          myImg.next().remove();
-          myImg.remove();
-          myImg = undefined;
-        }
+    sharedService.setError = function(error) {
+      this.error = error;
+      $rootScope.$broadcast('crop:error', error);
+    };
+
+    sharedService.reset = function() {
+      $rootScope.$broadcast('crop:reset');
+    };
+
+    sharedService.broadcastSelection = function(x) {
+      this.selection = x;
+      $rootScope.$broadcast('crop:selected', x);
+    };
+
+    sharedService.computeCanvasSelection = function computeCanvasSelection(img, ratio, selection) {
+      var w = selection.w * ratio;
+      if (w > img.naturalWidth) {
+        w = img.naturalWidth;
+      }
+      var h = selection.h * ratio;
+      if (h > img.naturalHeight) {
+        h = img.naturalHeight;
+      }
+      return {
+        x: selection.x * ratio,
+        y: selection.y * ratio,
+        w: w,
+        h: h
       };
+    };
 
-      scope.$on('crop:reset', clear);
-      scope.$on('crop:loaded', function() {
-        clear();
-        var image = selectionService.getImage();
-        var canvas = document.createElement('canvas');
+    sharedService.getBlob = function getBlob(mime, callback) {
+      var canvas = document.createElement('canvas');
+      canvas.width = AVATAR_MIN_SIZE_PX;
+      canvas.height = AVATAR_MIN_SIZE_PX;
 
-        var width = scope.width || 380;
-        var height = image.height * (width / image.width);
-        var ratio = image.width / width;
-        var minsize = AVATAR_MIN_SIZE_PX / ratio;
-        canvas.width = width;
-        canvas.height = height;
+      var context = canvas.getContext('2d');
+      var image = sharedService.getImage();
+      var ratio = sharedService.selection.ratio || 1;
+      var selection = sharedService.selection.cords;
+      if (selection.w === 0 || selection.h === 0) {
+        context.drawImage(image, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
+      } else {
+        var canvasSelection = sharedService.computeCanvasSelection(image, ratio, selection);
+        context.drawImage(image, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
+      }
+      canvas.toBlob(callback, mime);
+    };
 
+    sharedService.clear = function() {
+      sharedService.image = null;
+      sharedService.selection = {};
+      sharedService.error = null;
+    };
+
+    return sharedService;
+
+  })
+  .directive('imgPreview', function(selectionService, AVATAR_MIN_SIZE_PX) {
+
+    return {
+      restrict: 'A',
+      replace: true,
+      link: function($scope, element) {
+        var canvas = element[0];
+        canvas.width = canvas.height = AVATAR_MIN_SIZE_PX;
         var ctx = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        $scope.$on('crop:reset', function() {
+          canvas.width = canvas.width;
+        });
+        $scope.$on('crop:selected', function(context, data) {
+          var selection = data.cords;
+          var ratio = data.ratio || 1;
+          var img = selectionService.getImage();
 
-        element.after('<img />');
-        myImg = element.next();
-        myImg.attr('src', canvas.toDataURL());
-        myImg.attr('width', width);
-        myImg.attr('height', height);
-
-        var broadcastSelection = function(x) {
-          selectionService.broadcastSelection({cords: x, ratio: ratio});
+          canvas.width = canvas.width;
+          if (Math.round(selection.w * ratio) < AVATAR_MIN_SIZE_PX || Math.round(selection.h * ratio) < AVATAR_MIN_SIZE_PX) {
+            ctx.drawImage(img, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
+          } else {
+            var canvasSelection = selectionService.computeCanvasSelection(img, ratio, selection);
+            ctx.drawImage(img, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
+          }
+        });
+      }
+    };
+  })
+  .directive('imgLoaded', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        width: '='
+      },
+      link: function(scope, element, attr) {
+        var myImg;
+        var clear = function() {
+          if (myImg) {
+            myImg.next().remove();
+            myImg.remove();
+            myImg = undefined;
+          }
         };
 
-        $(myImg).Jcrop({
-          bgColor: 'black',
-          bgOpacity: 0.6,
-          setSelect: [0, 0, minsize, minsize],
-          minSize: [minsize, minsize],
-          aspectRatio: 1,
-          touchSupport: true,
-          onSelect: broadcastSelection,
-          onChange: deviceDetector.isDesktop() ? broadcastSelection : function(x) {}
-        });
+        scope.$on('crop:reset', clear);
+        scope.$on('crop:loaded', function() {
+          clear();
+          var image = selectionService.getImage();
+          var canvas = document.createElement('canvas');
 
-      });
-      scope.$on('$destroy', clear);
-    }
-  };
-}).directive('loadButton', function(selectionService, AVATAR_MIN_SIZE_PX) {
+          var width = scope.width || 380;
+          var height = image.height * (width / image.width);
+          var ratio = image.width / width;
+          var minsize = AVATAR_MIN_SIZE_PX / ratio;
+          canvas.width = width;
+          canvas.height = height;
+
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+          element.after('<img />');
+          myImg = element.next();
+          myImg.attr('src', canvas.toDataURL());
+          myImg.attr('width', width);
+          myImg.attr('height', height);
+
+          var broadcastSelection = function(x) {
+            selectionService.broadcastSelection({cords: x, ratio: ratio});
+          };
+
+          $(myImg).Jcrop({
+            bgColor: 'black',
+            bgOpacity: 0.6,
+            setSelect: [0, 0, minsize, minsize],
+            minSize: [minsize, minsize],
+            aspectRatio: 1,
+            touchSupport: true,
+            onSelect: broadcastSelection,
+            onChange: deviceDetector.isDesktop() ? broadcastSelection : function(x) {}
+          });
+
+        });
+        scope.$on('$destroy', clear);
+      }
+    };
+  })
+  .directive('loadButton', function(selectionService, AVATAR_MIN_SIZE_PX) {
 
     return {
       restrict: 'A',
@@ -326,54 +329,53 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         });
       }
     };
-})
-.directive('avatarPicker', function(selectionService, $alert) {
-  function link($scope, element, attrs) {
-    $scope.image = {
-      selected: false
-    };
-    $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : '/images/community.png';
+  })
+  .directive('avatarPicker', function(selectionService, $alert) {
+    function link($scope, element, attrs) {
+      $scope.image = {
+        selected: false
+      };
+      $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : '/images/community.png';
 
-    var alertInstance = null;
-    function destroyAlertInstance() {
-      if (alertInstance) {
-        alertInstance.destroy();
-        alertInstance = null;
+      var alertInstance = null;
+      function destroyAlertInstance() {
+        if (alertInstance) {
+          alertInstance.destroy();
+          alertInstance = null;
+        }
       }
+
+      $scope.removeSelectedImage = function() {
+        selectionService.clear();
+        $scope.image.selected = false;
+      };
+
+      $scope.$on('crop:loaded', function() {
+        destroyAlertInstance();
+        $scope.image.selected = true;
+        $scope.$apply();
+      });
+
+      $scope.$on('crop:error', function(context, error) {
+        if (error) {
+          alertInstance = $alert({
+            title: '',
+            content: error,
+            type: 'danger',
+            show: true,
+            position: 'bottom',
+            container: element.find('.avatar-picker-error'),
+            animation: 'am-fade'
+          });
+        }
+      });
+
     }
 
-
-    $scope.removeSelectedImage = function() {
-      selectionService.clear();
-      $scope.image.selected = false;
+    return {
+      scope: {},
+      restrict: 'E',
+      templateUrl: '/views/modules/avatar/avatar-picker.html',
+      link: link
     };
-
-    $scope.$on('crop:loaded', function() {
-      destroyAlertInstance();
-      $scope.image.selected = true;
-      $scope.$apply();
-    });
-
-    $scope.$on('crop:error', function(context, error) {
-      if (error) {
-        alertInstance = $alert({
-          title: '',
-          content: error,
-          type: 'danger',
-          show: true,
-          position: 'bottom',
-          container: element.find('.avatar-picker-error'),
-          animation: 'am-fade'
-        });
-      }
-    });
-
-  }
-
-  return {
-    scope: {},
-    restrict: 'E',
-    templateUrl: '/views/modules/avatar/avatar-picker.html',
-    link: link
-  };
-});
+  });

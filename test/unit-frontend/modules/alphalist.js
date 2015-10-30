@@ -57,9 +57,9 @@ describe('The Alpha List module', function() {
 
         expect(categories).to.eql({
           '#': [items[3], newContact],
-          'A': [],
-          'B': [items[1]],
-          'C': [items[2]]
+          A: [],
+          B: [items[1]],
+          C: [items[2]]
         });
 
       });

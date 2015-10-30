@@ -10,12 +10,12 @@ angular.module('esn.appstore', [
   'frapontillo.bootstrap-switch'
 ]).config(function($routeProvider) {
 
-    $routeProvider.when('/appstore', {
+  $routeProvider.when('/appstore', {
       templateUrl: '/appstore/views/appstore/appstore',
       controller: 'appstoreController'
     });
 
-    $routeProvider.when('/appstore/apps/:id', {
+  $routeProvider.when('/appstore/apps/:id', {
       templateUrl: '/appstore/views/appstore/appstore-app-details',
       controller: 'appstoreAppController',
       resolve: {
@@ -32,7 +32,7 @@ angular.module('esn.appstore', [
       }
     });
 
-    $routeProvider.when('/appstore/communities/:id/apps', {
+  $routeProvider.when('/appstore/communities/:id/apps', {
       templateUrl: '/appstore/views/community/applications',
       controller: 'communityAppstoreController',
       resolve: {
@@ -63,4 +63,4 @@ angular.module('esn.appstore', [
         }
       }
     });
-  });
+});

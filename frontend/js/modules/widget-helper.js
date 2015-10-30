@@ -44,7 +44,6 @@ angular.module('esn.widget.helper', ['mgcrea.ngStrap.modal'])
       self.template = steps[0];
     };
 
-
     this.init();
   }
   return Wizard;

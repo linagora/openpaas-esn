@@ -19,13 +19,13 @@ angular.module('esn.calendar')
     label: 'Repeat yearly'
   }])
   .constant('WEEK_DAYS', {
-    'M': 'MO',
-    'T': 'TU',
-    'W': 'WE',
-    'Th': 'TH',
-    'F': 'FR',
-    'S': 'SA',
-    'Su': 'SU'
+    M: 'MO',
+    T: 'TU',
+    W: 'WE',
+    Th: 'TH',
+    F: 'FR',
+    S: 'SA',
+    Su: 'SU'
   })
   .directive('eventRecurrenceEdition', function(moment, calendarUtils, RECUR_FREQ, WEEK_DAYS) {
     function link(scope, element) {
@@ -43,7 +43,7 @@ angular.module('esn.calendar')
       scope.WEEK_DAYS = Object.keys(WEEK_DAYS);
       scope.animateFlexContainer = false;
       var weekDaysValues = Object.keys(WEEK_DAYS).map(function(key) {
-          return WEEK_DAYS[key];
+        return WEEK_DAYS[key];
       });
 
       scope.toggleWeekdays = function(weekday) {

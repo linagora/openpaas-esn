@@ -51,7 +51,7 @@ module.exports.getTracker = function(type) {
     updateQuery.$set['timelines.' + activityStreamUuid] = lastTimelineEntryReadId;
     Tracker.update({_id: userId}, updateQuery, {upsert: true}, function(err) {
       if (err) {
-        logger.error('Error while updating by ID a TimelineEntriesTracker : ', + err.message);
+        logger.error('Error while updating by ID a TimelineEntriesTracker : ', +err.message);
         return callback(err);
       }
       return callback();
@@ -229,7 +229,7 @@ module.exports.getTracker = function(type) {
           }
           var isReply = doc.inReplyTo && doc.inReplyTo.length > 0;
           var tuple = isReply ? doc.inReplyTo[0] : doc.object;
-          hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published} , responses: [], read: true};
+          hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published}, responses: [], read: true};
 
           if (isReply) {
             hash[tuple._id].responses.push({message: doc.object, timelineentry: {_id: doc._id, published: doc.published}, read: false});
@@ -254,4 +254,3 @@ module.exports.getTracker = function(type) {
     buildThreadViewSinceLastTimelineEntry: buildThreadViewSinceLastTimelineEntry
   };
 };
-

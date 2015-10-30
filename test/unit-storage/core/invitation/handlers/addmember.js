@@ -107,7 +107,6 @@ describe('The addmember handler', function() {
     });
   });
 
-
   describe('The finalize fn', function() {
     var User;
     var Domain;
@@ -148,7 +147,6 @@ describe('The addmember handler', function() {
       });
     });
 
-
     it('should send back error if data is not set', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.finalize({}, null, function(err) {
@@ -156,7 +154,6 @@ describe('The addmember handler', function() {
         done();
       });
     });
-
 
     it('should send back error if invitation is already finalized', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
@@ -183,7 +180,6 @@ describe('The addmember handler', function() {
         });
       });
     });
-
 
     it('should send back error when domain / company do not exist', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
@@ -212,7 +208,6 @@ describe('The addmember handler', function() {
       });
 
     });
-
 
     it('should create a user if invitation and form data are set', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');

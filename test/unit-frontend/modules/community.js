@@ -635,7 +635,6 @@ describe.skip('The Community Angular module', function() {
 
     });
 
-
     it('should transform the image to blob', function(done) {
       var img = {img: 'test'};
       this.selectionService.setImage(img);
@@ -1528,7 +1527,7 @@ describe.skip('The Community Angular module', function() {
       var self = this;
       this.communityService = {};
       angular.mock.module(function($provide) {
-          $provide.value('communityService', self.communityService);
+        $provide.value('communityService', self.communityService);
       });
       module('jadeTemplates');
     });
@@ -1660,7 +1659,7 @@ describe.skip('The Community Angular module', function() {
       var self = this;
       this.communityService = {};
       angular.mock.module(function($provide) {
-          $provide.value('communityService', self.communityService);
+        $provide.value('communityService', self.communityService);
       });
       module('jadeTemplates');
     });

@@ -18,7 +18,7 @@ module.exports.registerSocket = registerSocket;
 
 function unregisterSocket(socket) {
   var userId = iohelper.getUserId(socket);
-  if (! (userId in websockets)) {
+  if (!(userId in websockets)) {
     logger.warn('Weird: try to unregister socket for user ' + userId + ', and this user have no socket');
     return;
   }
@@ -39,7 +39,7 @@ function unregisterSocket(socket) {
 module.exports.unregisterSocket = unregisterSocket;
 
 function getSocketsForUser(userId) {
-  if (! (userId in websockets)) {
+  if (!(userId in websockets)) {
     return [];
   }
   return websockets[userId].slice();

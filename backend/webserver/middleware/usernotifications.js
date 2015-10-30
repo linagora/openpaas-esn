@@ -4,7 +4,7 @@ var async = require('async');
 
 function checkIsTarget(userId, usernotification) {
   if (usernotification && usernotification.target) {
-      return usernotification.target + '' === userId + '';
+    return usernotification.target + '' === userId + '';
   }
   return false;
 }

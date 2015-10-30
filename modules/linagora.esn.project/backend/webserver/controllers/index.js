@@ -12,7 +12,7 @@ function transform(lib, project, user, callback) {
 
   var membershipRequest = lib.getMembershipRequest(project, user);
 
-  if (typeof(project.toObject) === 'function') {
+  if (typeof (project.toObject) === 'function') {
     project = project.toObject();
   }
 

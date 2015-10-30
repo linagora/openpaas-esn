@@ -255,7 +255,6 @@ describe('The activitystreams core module', function() {
       });
     });
 
-
     it('should return the entries before a given one with the right number defined by limit', function(done) {
       var domain = {
         name: 'MyAwesomeDomainForTestLimit',
@@ -314,7 +313,7 @@ describe('The activitystreams core module', function() {
 
         async.series([createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, function(callback) {
           createTimelineEntry(domain, true, callback);
-          }, createTimelineEntryJob],
+        }, createTimelineEntryJob],
           function(err) {
             if (err) {
               return done(err);
@@ -384,7 +383,6 @@ describe('The activitystreams core module', function() {
           createTimelineEntry(domain, false, callback);
         };
 
-
         var d = new Domain(domain);
         d.save(function(err, saved) {
           if (err) {
@@ -394,7 +392,7 @@ describe('The activitystreams core module', function() {
 
           async.series([createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, function(callback) {
             createTimelineEntry(domain, true, callback);
-            }, createTimelineEntryJob, createTimelineEntryJob],
+          }, createTimelineEntryJob, createTimelineEntryJob],
             function(err) {
               if (err) {
                 return done(err);
@@ -463,7 +461,6 @@ describe('The activitystreams core module', function() {
           createTimelineEntry(domain, false, callback);
         };
 
-
         var d = new Domain(domain);
         d.save(function(err, saved) {
           if (err) {
@@ -473,7 +470,7 @@ describe('The activitystreams core module', function() {
 
           async.series([createTimelineEntryJob, function(callback) {
             createTimelineEntry(domain, true, callback);
-            }, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob],
+          }, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob],
             function(err) {
               if (err) {
                 return done(err);

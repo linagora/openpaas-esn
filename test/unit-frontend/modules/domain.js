@@ -130,7 +130,6 @@ describe('The Domain Angular module', function() {
     });
   });
 
-
   describe('inviteMembersInput directive', function() {
 
     describe('submit button', function() {

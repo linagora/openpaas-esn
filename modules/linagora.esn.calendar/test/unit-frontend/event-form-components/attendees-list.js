@@ -39,10 +39,10 @@ describe('The attendees-list component', function() {
       this.initDirective(this.$scope);
       expect(this.eleScope.attendeesPerPartstat).to.deep.equal({
         'NEEDS-ACTION': 1,
-        'ACCEPTED': 1,
-        'TENTATIVE': 1,
-        'DECLINED': 1,
-        'OTHER': 1
+        ACCEPTED: 1,
+        TENTATIVE: 1,
+        DECLINED: 1,
+        OTHER: 1
       });
     });
 
@@ -59,10 +59,10 @@ describe('The attendees-list component', function() {
       this.$scope.$broadcast('event:attendees:updated');
       expect(this.eleScope.attendeesPerPartstat).to.deep.equal({
         'NEEDS-ACTION': 0,
-        'ACCEPTED': 2,
-        'TENTATIVE': 0,
-        'DECLINED': 2,
-        'OTHER': 1
+        ACCEPTED: 2,
+        TENTATIVE: 0,
+        DECLINED: 2,
+        OTHER: 1
       });
     });
 

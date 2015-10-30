@@ -215,7 +215,6 @@ describe('The esn.activitystream Angular module', function() {
       this.$rootScope.$digest();
     });
 
-
   });
 
   describe('activitystreamAPI service', function() {
@@ -378,7 +377,6 @@ describe('The esn.activitystream Angular module', function() {
 
   });
 
-
   describe('activityStreamUpdates service', function() {
     beforeEach(function() {
       angular.mock.module('esn.activitystream');
@@ -455,7 +453,7 @@ describe('The esn.activitystream Angular module', function() {
           };
         };
         this.asAPI = { get: function() {
-         expect(arguments[0]).to.equal('0987654321');
+          expect(arguments[0]).to.equal('0987654321');
           done();
         }};
 
@@ -506,7 +504,9 @@ describe('The esn.activitystream Angular module', function() {
         ];
         this.restcursor = function(api) {
           return {
-            nextItems: function(callback) { this.endOfStream = true; return callback(null, entries); },
+            nextItems: function(callback) {
+              this.endOfStream = true; return callback(null, entries);
+            },
             endOfStream: false
           };
         };
@@ -542,7 +542,7 @@ describe('The esn.activitystream Angular module', function() {
               done();
             },
             function(err) {done(new Error('I should not be called'));}
-          ).catch (function(err) {
+          ).catch(function(err) {
             throw err;
           });
           $httpBackend.flush();
@@ -560,7 +560,9 @@ describe('The esn.activitystream Angular module', function() {
         ];
         this.restcursor = function(api) {
           return {
-            nextItems: function(callback) { this.endOfStream = true; return callback(null, entries); },
+            nextItems: function(callback) {
+              this.endOfStream = true; return callback(null, entries);
+            },
             endOfStream: false
           };
         };
@@ -594,7 +596,7 @@ describe('The esn.activitystream Angular module', function() {
               done();
             },
             function(err) {done(new Error('I should not be called'));}
-          ).catch (function(err) {
+          ).catch(function(err) {
             throw err;
           });
           $httpBackend.flush();
@@ -697,7 +699,7 @@ describe('The esn.activitystream Angular module', function() {
               done();
             },
             function(err) {done(new Error('I should not be called'));}
-          ).catch (function(err) {
+          ).catch(function(err) {
             throw err;
           });
           $httpBackend.flush();

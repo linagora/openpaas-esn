@@ -30,16 +30,16 @@ describe('The calendar module apis', function() {
 
       it('should request the correct path and return an array of items included in dav:item', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:item': [{
-              '_links': {
-                'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
+              _links: {
+                self: { href: '/prepath/path/to/calendar/myuid.ics' }
               },
-              'etag': '"123123"',
-              'data': [
+              etag: '"123123"',
+              data: [
                 'vcalendar', [], [
                   ['vevent', [
                     ['uid', {}, 'text', 'myuid'],
@@ -57,11 +57,11 @@ describe('The calendar module apis', function() {
         this.calendarAPI.listEvents('test', this.moment('20140101T000000'), this.moment('20140102T000000'))
           .then(function(data) {
             expect(data).to.deep.equal([{
-              '_links': {
-                'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
+              _links: {
+                self: { href: '/prepath/path/to/calendar/myuid.ics' }
               },
-              'etag': '"123123"',
-              'data': [
+              etag: '"123123"',
+              data: [
                 'vcalendar', [], [
                   ['vevent', [
                     ['uid', {}, 'text', 'myuid'],
@@ -86,10 +86,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded is not defined', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': null
+          _embedded: null
         });
         this.calendarAPI.listEvents('test', this.moment('20140101T000000'), this.moment('20140102T000000'))
           .then(function(data) {
@@ -99,10 +99,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded[\'dav:item\'] is not defined', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:item': null
           }
         });
@@ -116,7 +116,7 @@ describe('The calendar module apis', function() {
       it('should return an Error if response.status is not 200', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond(500, 'Error');
         this.calendarAPI.listEvents('test', this.moment('20140101T000000'), this.moment('20140102T000000'))
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -129,16 +129,16 @@ describe('The calendar module apis', function() {
 
       it('should request the correct path and return an array of items included in dav:item', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', data).respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:item': [{
-              '_links': {
-                'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
+              _links: {
+                self: { href: '/prepath/path/to/calendar/myuid.ics' }
               },
-              'etag': '"123123"',
-              'data': [
+              etag: '"123123"',
+              data: [
                 'vcalendar', [], [
                   ['vevent', [
                     ['uid', {}, 'text', 'myuid'],
@@ -156,11 +156,11 @@ describe('The calendar module apis', function() {
         this.calendarAPI.listEventsForCalendar('subtest', 'test', this.moment('20140101T000000'), this.moment('20140102T000000'))
           .then(function(data) {
             expect(data).to.deep.equal([{
-              '_links': {
-                'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
+              _links: {
+                self: { href: '/prepath/path/to/calendar/myuid.ics' }
               },
-              'etag': '"123123"',
-              'data': [
+              etag: '"123123"',
+              data: [
                 'vcalendar', [], [
                   ['vevent', [
                     ['uid', {}, 'text', 'myuid'],
@@ -185,10 +185,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded is not defined', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', data).respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': null
+          _embedded: null
         });
         this.calendarAPI.listEventsForCalendar('subtest', 'test', this.moment('20140101T000000'), this.moment('20140102T000000'))
           .then(function(data) {
@@ -198,10 +198,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded[\'dav:item\'] is not defined', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', data).respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:item': null
           }
         });
@@ -215,7 +215,7 @@ describe('The calendar module apis', function() {
       it('should return an Error if response.status is not 200', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', data).respond(500, 'Error');
         this.calendarAPI.listEventsForCalendar('subtest', 'test', this.moment('20140101T000000'), this.moment('20140102T000000'))
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -224,10 +224,10 @@ describe('The calendar module apis', function() {
     describe('listAllCalendars request', function() {
       it('should request the correct path and return an array of items included in dav:home', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/.json').respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:home': ['dav:calendar']
           }
         });
@@ -249,10 +249,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded is not defined', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/.json').respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': null
+          _embedded: null
         });
 
         this.calendarAPI.listAllCalendars()
@@ -263,10 +263,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded[\'dav:home\'] is not defined', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/.json').respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:home': null
           }
         });
@@ -281,7 +281,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/.json').respond(500, 'Error');
 
         this.calendarAPI.listAllCalendars()
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -290,10 +290,10 @@ describe('The calendar module apis', function() {
     describe('listCalendars request', function() {
       it('should request the correct path and return an array of items included in dav:calendar', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/test.json').respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:calendar': ['dav:calendar']
           }
         });
@@ -315,10 +315,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded is not defined', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/test.json').respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': null
+          _embedded: null
         });
 
         this.calendarAPI.listCalendars('test')
@@ -329,10 +329,10 @@ describe('The calendar module apis', function() {
 
       it('should return an empty array if response.data._embedded[\'dav:calendar\'] is not defined', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/test.json').respond({
-          '_links': {
-            'self': { 'href': '/prepath/path/to/calendar.json' }
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
           },
-          '_embedded': {
+          _embedded: {
             'dav:calendar': null
           }
         });
@@ -347,7 +347,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/test.json').respond(500, 'Error');
 
         this.calendarAPI.listCalendars('test')
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -373,7 +373,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectPOST('/dav/api/calendars/test.json', vcalendar).respond(500, 'Error');
 
         this.calendarAPI.createCalendar('test', vcalendar)
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -395,7 +395,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectGET('/dav/api/calendars/test', vcalendar).respond(500, 'Error');
 
         this.eventAPI.get('test', vcalendar)
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -415,7 +415,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectPUT('/dav/api/calendars/test.json', vcalendar).respond(500, 'Error');
 
         this.eventAPI.create('test', vcalendar, {graceperiod: true})
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -433,7 +433,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectPUT('/dav/api/calendars/test.json', vcalendar).respond(500, 'Error');
 
         this.eventAPI.create('test', vcalendar, {graceperiod: false})
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -453,7 +453,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectPUT('/dav/api/calendars/test.json', vcalendar).respond(500, 'Error');
 
         this.eventAPI.modify('test', vcalendar, 'etag')
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -473,7 +473,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectDELETE('/dav/api/calendars/test.json', vcalendar).respond(500, 'Error');
 
         this.eventAPI.remove('test', 'etag')
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });
@@ -502,7 +502,7 @@ describe('The calendar module apis', function() {
         this.$httpBackend.expectPUT('/dav/api/calendars/test.json', vcalendar).respond(500, 'Error');
 
         this.eventAPI.changeParticipation('test', vcalendar, 'etag')
-          .catch (function(err) {
+          .catch(function(err) {
             expect(err).to.exist;
           });
       });

@@ -18,7 +18,7 @@ angular.module('esn.background', [])
         $log.info('Task error', err);
       };
 
-      var promise = $q.when(task).then(done, fail).finally (function() {
+      var promise = $q.when(task).then(done, fail).finally(function() {
         tasks.splice(tasks.indexOf(task), 1);
       });
 

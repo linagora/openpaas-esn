@@ -43,7 +43,7 @@ describe('The esn.websocket Angular module', function() {
           socketIOClientMock.namespaces[namespace].callbacks =
             socketIOClientMock.namespaces[namespace].callbacks.filter(function(element) {
               return element !== callback;
-          });
+            });
         }
       };
     }
@@ -55,8 +55,8 @@ describe('The esn.websocket Angular module', function() {
         to: function(room) {
           return {
             emit: function(event, data) {
-              if (! socketIOClientMock.namespaces[namespace] ||
-                ! socketIOClientMock.namespaces[namespace].callbacks) {
+              if (!socketIOClientMock.namespaces[namespace] ||
+                !socketIOClientMock.namespaces[namespace].callbacks) {
                 return;
               }
               socketIOClientMock.namespaces[namespace].callbacks.forEach(function(callback) {

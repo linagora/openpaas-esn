@@ -460,7 +460,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         button.attr('disabled', 'true');
         pollAPI.vote(scope.message._id, vote)
         .then(onVoteSuccess, onVoteFailure)
-        .finally (function() {
+        .finally(function() {
           button.removeAttr('disabled');
         });
       };
@@ -639,7 +639,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       application: 'mdi-file-document',
       image: 'mdi-file-image',
       video: 'mdi-file-video',
-      'default': 'mdi-file-outline'
+      default: 'mdi-file-outline'
     };
     return {
       restrict: 'E',
@@ -655,7 +655,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       application: 'mdi-file-document',
       image: 'mdi-file-image',
       video: 'mdi-file-video',
-      'default': 'mdi-file-outline'
+      default: 'mdi-file-outline'
     };
     return {
       restrict: 'E',
@@ -784,7 +784,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       }, function(err) {
         $log.error('Can not share message', err.data);
         $scope.displayError('Error while sharing message');
-      }).finally (function() {
+      }).finally(function() {
         $scope.sending = false;
       });
     };
@@ -877,8 +877,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
             defer.resolve({status: 'error', _id: attachment.response._id});
           });
           calls.push(defer.promise);
-        }
-        else if (attachment.uploading) {
+        } else if (attachment.uploading) {
           attachment.cancel();
         }
       });
@@ -1042,8 +1041,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
     return {
       restrict: 'E',
       scope: {
-        'message': '=',
-        'activitystream': '='
+        message: '=',
+        activitystream: '='
       },
       templateUrl: '/views/modules/message/templates/includes/messageDateLink.html'
     };

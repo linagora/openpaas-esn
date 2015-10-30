@@ -36,7 +36,7 @@ angular.module('esn.activitystream')
       delete $scope.asMessagesUpdates;
       activityStreamUpdates(streamUuid, $scope).then(function() {
       }, function(err) {
-      }).finally (function() {
+      }).finally(function() {
         // we have to plug here the throbber once the websocket stuff is on
         $scope.restActive[streamUuid] = false;
         $rootScope.$emit('activitystream:updated', {
@@ -55,8 +55,7 @@ angular.module('esn.activitystream')
       aggregator.loadMoreElements(function(error, items) {
         if (error) {
           $scope.displayError('Error while retrieving messages. ' + error);
-        }
-        else {
+        } else {
           for (var i = 0; i < items.length; i++) {
             if (!$scope.mostRecentActivityID) {
               $scope.mostRecentActivityID = items[i]._id;

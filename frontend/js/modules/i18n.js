@@ -3,11 +3,11 @@
 angular.module('esn.i18n', ['restangular'])
   .controller('localeController', function($scope, $window, i18nAPI) {
     var prettyLocales = {
-      'en': 'English',
-      'fr': 'Français'
+      en: 'English',
+      fr: 'Français'
     };
     var unPrettyLocales = {
-      'English': 'en',
+      English: 'en',
       'Français': 'fr'
     };
     i18nAPI.getCurrentLocale().then(function(locale) {

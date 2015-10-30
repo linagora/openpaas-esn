@@ -15,7 +15,7 @@ angular.module('esn.company', ['restangular'])
     restrict: 'A',
     scope: true,
     require: 'ngModel',
-    link: function(scope, elem , attrs, control) {
+    link: function(scope, elem, attrs, control) {
       var lastValue = null;
       control.$viewChangeListeners.push(function() {
         var companyName = control.$viewValue;

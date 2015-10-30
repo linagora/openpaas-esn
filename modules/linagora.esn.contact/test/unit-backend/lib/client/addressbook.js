@@ -33,7 +33,6 @@ describe('The contact client APIs', function() {
     return require('../../../../backend/lib/client')(dependencies);
   }
 
-
   describe('The addressbook fn', function() {
     var CLIENT_OPTIONS = { ESNToken: '1111' };
     var BOOK_ID = '123';
@@ -99,7 +98,6 @@ describe('The contact client APIs', function() {
         });
       });
 
-
       describe('The get fn', function() {
         it('should call davClient with right parameters', function(done) {
           mockery.registerMock('../dav-client', {
@@ -144,7 +142,6 @@ describe('The contact client APIs', function() {
         });
 
       });
-
 
       describe('The create fn', function() {
         it('should call davClient with right parameters', function(done) {
@@ -193,7 +190,6 @@ describe('The contact client APIs', function() {
         });
       });
 
-
       describe('The update fn', function() {
         it('should call davClient with right parameters', function(done) {
           var contact = { id: '456' };
@@ -241,7 +237,6 @@ describe('The contact client APIs', function() {
           });
         });
       });
-
 
       describe('The deleteContact fn', function() {
         it('should call davClient with right parameters', function(done) {

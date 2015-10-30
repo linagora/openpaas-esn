@@ -115,8 +115,7 @@ describe('The Member Angular module', function() {
 
           if (self.callCount <= self.successfullCallsCount) {
             expect(opts.offset).to.equal(self.searchConf.searchLimit * (self.callCount - 1));
-          }
-          else {
+          } else {
             expect(opts.offset).to.equal(self.searchConf.searchLimit * self.successfullCallsCount);
           }
 
@@ -134,8 +133,7 @@ describe('The Member Angular module', function() {
               self.scope.loadMoreElements();
             }};
             return promise;
-          }
-          else if (self.callCount === self.maxCount) {
+          } else if (self.callCount === self.maxCount) {
             done();
           }
         };

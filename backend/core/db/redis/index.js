@@ -41,7 +41,7 @@ var getRedisConfiguration = function(options) {
 var createClient = function(options, callback) {
   var redisConfig = getRedisConfiguration(options);
 
-  var client = redisConfig.client || new require('redis').createClient(redisConfig.port || redisConfig.socket, redisConfig.host, redisConfig);
+  var client = redisConfig.client || require('redis').createClient(redisConfig.port || redisConfig.socket, redisConfig.host, redisConfig);
   if (redisConfig.pass) {
     client.auth(redisConfig.pass, function(err) {
       if (err) {

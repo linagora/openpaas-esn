@@ -45,7 +45,7 @@ function list(options, callback) {
   var totalCountQuery = require('extend')(true, {}, contactsQuery);
   totalCountQuery.count();
 
-  contactsQuery.skip(options.offset || defaultOffset).limit(options.limit || defaultLimit).sort({'given_name' : 'asc'});
+  contactsQuery.skip(options.offset || defaultOffset).limit(options.limit || defaultLimit).sort({given_name: 'asc'});
 
   return totalCountQuery.exec(function(err, count) {
     if (err) {

@@ -89,5 +89,3 @@ var user = function(req, res) {
   return res.json(200, req.user);
 };
 module.exports.user = user;
-
-

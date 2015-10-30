@@ -115,7 +115,6 @@ describe('The document store routes resource', function() {
       });
     });
 
-
     it('should fail when username is set and password is not set', function(done) {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017, dbname: 'then', username: 'toto'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
@@ -183,7 +182,6 @@ describe('The document store routes resource', function() {
       });
     });
 
-
     it('should store configuration to file with username and password', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok', username: 'toto', password: 'chain'};
       var mongoConnectionString = 'mongodb://toto:chain@localhost:27017/openpaas-test-ok';
@@ -200,9 +198,7 @@ describe('The document store routes resource', function() {
         });
       });
     });
-
   });
-
 
   describe('The document store routes resource', function() {
 

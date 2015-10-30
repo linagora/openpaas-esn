@@ -17,7 +17,7 @@ angular.module('esn.http', ['restangular'])
 
   .factory('redirectWhenNotAuthInterceptor', function($q, httpErrorHandler) {
     return {
-      'responseError': function(rejection) {
+      responseError: function(rejection) {
         if (rejection.status === 401) {
           httpErrorHandler.redirectToLogin();
         }

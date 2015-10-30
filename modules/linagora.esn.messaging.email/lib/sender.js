@@ -201,7 +201,7 @@ module.exports = function(lib, dependencies) {
             if (!err && collaboration) {
               return getMessageTargets(collaboration[0], message, function(err, targets) {
                 if (err || !targets) {
-                    return callback(err, targets);
+                  return callback(err, targets);
                 }
                 targets = targets.map(function(target) {
                   return {

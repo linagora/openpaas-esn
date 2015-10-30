@@ -76,7 +76,7 @@ describe('The User Angular module', function() {
 
     describe('displayNameOf() method', function() {
       it('should return firstname lastname if both exist', function() {
-        var user = {firstname: 'f' , lastname: 'l', preferredEmail: 'email' };
+        var user = {firstname: 'f', lastname: 'l', preferredEmail: 'email' };
         expect(this.userUtils.displayNameOf(user)).to.equal('f l');
       });
 

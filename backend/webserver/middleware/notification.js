@@ -25,5 +25,3 @@ var userCanWriteNotification = function(req, res, next) {
   return userCanReadNotification(req, res, next);
 };
 module.exports.userCanWriteNotification = userCanWriteNotification;
-
-

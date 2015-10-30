@@ -1055,7 +1055,7 @@ describe('The communities controller', function() {
         getUserCommunities: function(q, r, callback) {
           return callback(null, result);
         },
-        isMember: function(c, u , callback) {
+        isMember: function(c, u, callback) {
           return callback(null, true);
         },
         getMembershipRequest: function() {
@@ -1089,7 +1089,7 @@ describe('The communities controller', function() {
         getUserCommunities: function(q, r, callback) {
           return callback(null, result);
         },
-        isMember: function(c, u , callback) {
+        isMember: function(c, u, callback) {
           return callback(null, true);
         },
         getMembershipRequest: function() {
@@ -1124,7 +1124,7 @@ describe('The communities controller', function() {
         getUserCommunities: function(q, r, callback) {
           return callback(null, result);
         },
-        isMember: function(c, u , callback) {
+        isMember: function(c, u, callback) {
           return callback(null, true);
         },
         getMembershipRequest: function() {
@@ -1404,7 +1404,6 @@ describe('The communities controller', function() {
       communities.getMember(req, res);
     });
   });
-
 
   describe('The join fn', function() {
     it('should send back 400 if req.community is undefined', function(done) {

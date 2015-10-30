@@ -11,7 +11,7 @@ angular.module('esn.appstore')
         $scope.applications = response.data;
       }, function(err) {
         $scope.error = true;
-      }).finally (function() {
+      }).finally(function() {
         $scope.loading = false;
       });
     };
@@ -73,8 +73,7 @@ angular.module('esn.appstore')
           function(response) {
             if (response.data.length === 0) {
               $scope.step = 1;
-            }
-            else {
+            } else {
               $scope.validationError.unique = true;
             }
             $scope.titleValidationRunning = false;
@@ -149,7 +148,7 @@ angular.module('esn.appstore')
                   $log.debug('avatar uploaded');
                 }).error(function(error) {
                   $log.debug('avatar upload error', error);
-                }).finally (function() {
+                }).finally(function() {
                 defer.resolve();
               });
             });
@@ -177,7 +176,7 @@ angular.module('esn.appstore')
               $log.debug('artifact uploaded');
             }).error(function(error) {
               $log.debug('artifact upload error', error);
-            }).finally (function() {
+            }).finally(function() {
               $scope.percent = 100;
               defer.resolve();
             }
@@ -192,7 +191,7 @@ angular.module('esn.appstore')
               $log.debug('Avatar and artifact uploaded');
             }, function(err) {
               $log.debug('Avatar and/or Artifact upload failure', err);
-            }).finally (function() {
+            }).finally(function() {
               return done(data.data._id);
             });
           },

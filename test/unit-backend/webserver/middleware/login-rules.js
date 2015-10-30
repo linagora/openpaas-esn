@@ -34,7 +34,6 @@ describe('The login-rules middleware', function() {
     middleware(req, {}, next);
   });
 
-
   it('should call next when user login limit is not reached', function(done) {
     var req = {
       body: {

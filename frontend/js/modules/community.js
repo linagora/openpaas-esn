@@ -105,7 +105,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
 
       $timeout(function() {
         notifyProgress(d, 'post', 1);
-      },0);
+      }, 0);
 
       communityAPI.create(community).then(
         function(data) {
@@ -244,7 +244,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.error = true;
           $scope.communities = [];
         }
-      ).finally (
+      ).finally(
         function() {
           $scope.loading = false;
         }
@@ -264,7 +264,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.error = true;
           $scope.communities = [];
         }
-      ).finally (
+      ).finally(
         function() {
           $scope.loading = false;
         }
@@ -288,7 +288,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.error = true;
           $scope.communities = [];
         }
-      ).finally (
+      ).finally(
         function() {
           $scope.loading = false;
         }
@@ -381,7 +381,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
             $scope.requests = response.data;
           }, function() {
             getErrorElement().removeClass('hidden');
-          }).finally (function() {
+          }).finally(function() {
             calling = false;
             getLoadingElement().addClass('hidden');
           });
@@ -466,7 +466,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.disabled = true;
           communityService.join($scope.community, $scope.user)
           .then($scope.onJoin, $scope.onFail)
-          .finally (function() {
+          .finally(function() {
             $scope.disabled = false;
           });
         };
@@ -494,7 +494,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.disabled = true;
           communityService.leave($scope.community, $scope.user)
           .then($scope.onLeave, $scope.onFail)
-          .finally (function() {
+          .finally(function() {
             $scope.disabled = false;
           });
         };
@@ -522,7 +522,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.disabled = true;
           communityService.requestMembership($scope.community, $scope.user)
             .then($scope.onRequest, $scope.onFail)
-            .finally (function() {
+            .finally(function() {
               $scope.disabled = false;
             });
         };
@@ -550,7 +550,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           $scope.disabled = true;
           communityService.cancelRequestMembership($scope.community, $scope.user)
             .then($scope.onCancelRequest, $scope.onFail)
-            .finally (function() {
+            .finally(function() {
             $scope.disabled = false;
           });
         };
@@ -782,7 +782,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
             $scope.requests = response.data || [];
           }, function() {
             $scope.error = true;
-          }).finally (function() {
+          }).finally(function() {
             $scope.loading = false;
           });
         };
@@ -826,7 +826,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
             $rootScope.$emit('community:request:accepted', {community: $scope.community._id, user: $scope.user._id});
           }, function() {
             $scope.error = true;
-          }).finally (function() {
+          }).finally(function() {
             $scope.sending = false;
           });
         };
@@ -839,7 +839,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
             $rootScope.$emit('community:request:declined', {community: $scope.community._id, user: $scope.user._id});
           }, function() {
             $scope.error = true;
-          }).finally (function() {
+          }).finally(function() {
             $scope.sending = false;
           });
         };
@@ -935,8 +935,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
               response.data.forEach(function(user) {
                 if (user.firstname && user.lastname) {
                   user.displayName = user.firstname + ' ' + user.lastname;
-                }
-                else {
+                } else {
                   user.displayName = user.emails[0];
                 }
                 $scope.query = '';
@@ -1019,25 +1018,25 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
   .controller('communityAStrackerController',
   function($rootScope, $scope, $log, AStrackerHelpers, communityAPI, ASTrackerNotificationService) {
 
-      $scope.activityStreams = ASTrackerNotificationService.streams;
+    $scope.activityStreams = ASTrackerNotificationService.streams;
 
-      AStrackerHelpers.getActivityStreamsWithUnreadCount('community', function(err, result) {
-        if (err) {
-          $scope.error = 'Error while getting unread message: ' + err;
-          $log.error($scope.error, err);
-          return;
+    AStrackerHelpers.getActivityStreamsWithUnreadCount('community', function(err, result) {
+      if (err) {
+        $scope.error = 'Error while getting unread message: ' + err;
+        $log.error($scope.error, err);
+        return;
+      }
+
+      result.forEach(function(element) {
+        element.objectType = 'community';
+        element.href = '/#/communities/' + element.target._id;
+        element.img = '/api/communities/' + element.target._id + '/avatar';
+        var registered = ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
+        if (registered) {
+          ASTrackerNotificationService.addItem(element);
         }
-
-        result.forEach(function(element) {
-          element.objectType = 'community';
-          element.href = '/#/communities/' + element.target._id;
-          element.img = '/api/communities/' + element.target._id + '/avatar';
-          var registered = ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
-          if (registered) {
-            ASTrackerNotificationService.addItem(element);
-          }
-        });
       });
+    });
   })
   .directive('listCommunityActivityStreams', function() {
     return {

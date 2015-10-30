@@ -10,9 +10,8 @@ module.exports.I18n = I18n;
 
 function validateI18n(value) {
   if (!value) { return false;}
-  if (! ('label' in value)) { return false; }
-  if (! ('text' in value)) { return false; }
+  if (!('label' in value)) { return false; }
+  if (!('text' in value)) { return false; }
   return true;
 }
 module.exports.validateI18n = validateI18n;
-

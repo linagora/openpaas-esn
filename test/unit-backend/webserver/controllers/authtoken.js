@@ -244,7 +244,6 @@ describe('The authtoken controller', function() {
     controller.isValid(req, res);
   });
 
-
   it('authenticateByToken should return HTTP 400 if token is not defined in request', function(done) {
 
     var auth = {

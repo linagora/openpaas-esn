@@ -25,7 +25,7 @@ angular.module('esn.form.helper', [])
     restrict: 'A',
     scope: true,
     require: 'ngModel',
-    link: function(scope, elem , attrs, control) {
+    link: function(scope, elem, attrs, control) {
       var checker = function() {
         var e1 = scope.$eval(attrs.ngModel);
         var e2 = scope.$eval(attrs.passwordMatch);

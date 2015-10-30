@@ -25,7 +25,7 @@ angular.module('esn.user-notification',
           }, function(err) {
             $log.error('Error setting ' + id + ' as read: ' + err);
           })
-          .finally (function() {
+          .finally(function() {
             $scope.unreadCount.refresh();
           });
       };
@@ -39,7 +39,7 @@ angular.module('esn.user-notification',
           }, function(err) {
             $log.error('Error setting ' + ids.toString() + ' as read: ' + err);
           })
-          .finally (function() {
+          .finally(function() {
           $scope.unreadCount.refresh();
         });
       };
@@ -90,14 +90,14 @@ angular.module('esn.user-notification',
   })
   .controller('userNotificationPopoverController', function($scope, userNotificationAPI, paginator, OFFSET_START, LIMIT_PAGER) {
 
-      $scope.loading = false;
-      $scope.error = false;
-      $scope.notificationsCache = [];
-      $scope.notifications = [];
-      $scope.totalNotifications = 0;
-      $scope.display = false;
+    $scope.loading = false;
+    $scope.error = false;
+    $scope.notificationsCache = [];
+    $scope.notifications = [];
+    $scope.totalNotifications = 0;
+    $scope.display = false;
 
-      function updateData(err, items, page) {
+    function updateData(err, items, page) {
         if (err) {
           $scope.error = true;
         } else {
@@ -117,7 +117,7 @@ angular.module('esn.user-notification',
         }
       }
 
-      $scope.initPager = function(nbItemsPerPage) {
+    $scope.initPager = function(nbItemsPerPage) {
         (function(offset, limit, callback) {
           var options = {limit: limit, offset: offset};
           var loader = {
@@ -133,7 +133,7 @@ angular.module('esn.user-notification',
                 return callback(null, response.data);
               }, function(err) {
                 return callback(err);
-              }).finally (function() {
+              }).finally(function() {
                 $scope.loading = false;
               });
             }
@@ -145,10 +145,10 @@ angular.module('esn.user-notification',
             return callback(null);
           }, function(err) {
             return callback(err);
-          }).finally (function() {
+          }).finally(function() {
             $scope.loading = false;
           });
-        }) (OFFSET_START, LIMIT_PAGER, function(err) {
+        })(OFFSET_START, LIMIT_PAGER, function(err) {
           if (err) {
             $scope.error = true;
             return;
@@ -159,14 +159,14 @@ angular.module('esn.user-notification',
         });
       };
 
-      $scope.nextPage = function() {
+    $scope.nextPage = function() {
         return $scope.pager.nextPage(updateData);
       };
 
-      $scope.previousPage = function() {
+    $scope.previousPage = function() {
         return $scope.pager.previousPage(updateData);
       };
-    })
+  })
   .controller('requestMembershipActionNotificationController', function($scope, objectTypeResolver, userNotificationAPI) {
     $scope.error = false;
     $scope.loading = true;
@@ -183,13 +183,13 @@ angular.module('esn.user-notification',
           function(error) {
             $scope.error = error;
           }
-        ).finally (function() {
+        ).finally(function() {
           $scope.loading = false;
         });
 
       }, function() {
         $scope.error = true;
-      }).finally (function() {
+      }).finally(function() {
       $scope.loading = false;
     });
   })
@@ -276,7 +276,7 @@ angular.module('esn.user-notification',
           }
         }, function() {
           $scope.error = true;
-        }).finally (function() {
+        }).finally(function() {
           $scope.loading = false;
         });
       }
@@ -308,7 +308,7 @@ angular.module('esn.user-notification',
           $scope.collaborationPath = $scope.notification.complement.objectType === 'community' ? 'communities' : 'projects';
         }, function() {
           $scope.error = true;
-        }).finally (function() {
+        }).finally(function() {
           $scope.loading = false;
         });
       }
@@ -355,7 +355,7 @@ angular.module('esn.user-notification',
                 function(error) {
                   $scope.error = error;
                 }
-              ).finally (function() {
+              ).finally(function() {
                 $scope.restActive = false;
               });
             },
@@ -387,7 +387,7 @@ angular.module('esn.user-notification',
                 function(error) {
                   $scope.error = error;
                 }
-              ).finally (function() {
+              ).finally(function() {
                 $scope.restActive = false;
               });
             },
@@ -429,7 +429,7 @@ angular.module('esn.user-notification',
           );
         }, function() {
           $scope.error = true;
-        }).finally (function() {
+        }).finally(function() {
           $scope.loading = false;
         });
       }

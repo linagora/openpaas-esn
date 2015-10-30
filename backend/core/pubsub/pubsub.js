@@ -68,7 +68,7 @@ Pubsub.prototype._createInterface = function(topic) {
 };
 
 Pubsub.prototype.topic = function(name) {
-  if (! (name in this._channels)) {
+  if (!(name in this._channels)) {
     this._channels[name] = this._createInterface(name);
   }
   return this._channels[name];

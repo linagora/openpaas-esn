@@ -159,7 +159,7 @@ angular.module('esn.calendar')
      * @return {Object}           the http response.
      */
     function get(eventPath) {
-       return request('get', eventPath, {Accept: CALENDAR_ACCEPT_HEADER})
+      return request('get', eventPath, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -206,7 +206,7 @@ angular.module('esn.calendar')
     function modify(eventPath, vcalendar, etag) {
       var headers = {
         'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
-        'Prefer': CALENDAR_PREFER_HEADER
+        Prefer: CALENDAR_PREFER_HEADER
       };
       if (etag) {
         headers['If-Match'] = etag;
@@ -248,7 +248,7 @@ angular.module('esn.calendar')
     function changeParticipation(eventPath, vcalendar, etag) {
       var headers = {
         'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
-        'Prefer': CALENDAR_PREFER_HEADER
+        Prefer: CALENDAR_PREFER_HEADER
       };
       if (etag) {
         headers['If-Match'] = etag;

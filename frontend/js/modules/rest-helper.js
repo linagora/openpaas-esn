@@ -66,8 +66,6 @@ angular.module('esn.rest.helper', [])
     return self;
   };
 
-
-
 })
 .factory('restcursor', function() {
 

@@ -19,8 +19,7 @@ angular.module('esn.multi-input', [])
       if ($scope.content.length === 0) {
         $scope.showAddButton = false;
         $scope.showNextField = true;
-      }
-      else {
+      } else {
         $scope.showAddButton = true;
         $scope.showNextField = false;
       }
@@ -51,7 +50,7 @@ angular.module('esn.multi-input', [])
     this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
       var args = arguments;
       return function($index) {
-       $scope.content.forEach(function(item) {
+        $scope.content.forEach(function(item) {
           if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
             _acceptRemove($index);
             self.initFlags();
@@ -101,8 +100,7 @@ angular.module('esn.multi-input', [])
         scope.verifyNew = function() {
           if (scope.newItem.value) {
             scope.showAddButton = true;
-          }
-          else {
+          } else {
             scope.showAddButton = false;
           }
         };
@@ -159,8 +157,7 @@ angular.module('esn.multi-input', [])
         scope.verifyNew = function() {
           if (isAddressFilled()) {
             scope.showAddButton = true;
-          }
-          else {
+          } else {
             scope.showAddButton = false;
           }
         };

@@ -134,7 +134,7 @@ describe('The activity streams tracker core module', function() {
               return callback(null, {
                 _id: '12345',
                 timelines: {
-                  '98765': '6789'
+                  98765: '6789'
                 }
               });
             }

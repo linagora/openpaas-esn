@@ -436,7 +436,6 @@ describe('The messages API', function() {
       });
   });
 
-
   it('should be able to post a whatsup message on an open community', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
@@ -743,7 +742,7 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid }
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid }
         });
         req.expect(400);
         req.end(done);
@@ -758,8 +757,8 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          'target': [
-            {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
+          target: [
+            {objectType: 'activitystream', id: '976f55e7-b72f-4ac0-afb2-400a85c50951' }
           ]
         });
         req.expect(400);
@@ -775,9 +774,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': uuid.v4() },
-          'target': [
-            {'objectType': 'activitystream', 'id': uuid.v4() }
+          resource: {objectType: 'activitystream', id: uuid.v4()},
+          target: [
+            {objectType: 'activitystream', id: uuid.v4()}
           ]
         });
         req.expect(404);
@@ -799,9 +798,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': privateCommunity.activity_stream.uuid },
-          'target': [
-            {'objectType': 'activitystream', 'id': uuid.v4() }
+          resource: {objectType: 'activitystream', id: privateCommunity.activity_stream.uuid},
+          target: [
+            {objectType: 'activitystream', id: uuid.v4()}
           ]
         });
         req.expect(403);
@@ -825,9 +824,9 @@ describe('The messages API', function() {
         var id = new ObjectId();
         var req = loggedInAsUser(request(app).post('/api/messages/' + id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
-          'target': [
-            {'objectType': 'activitystream', 'id': community.activity_stream.uuid }
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          target: [
+            {objectType: 'activitystream', id: community.activity_stream.uuid}
           ]
         });
         req.expect(404);
@@ -849,9 +848,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + messageOnOpenCommunity._id + '/shares'));
         req.send({
-          'resource': { 'id': openCommunity.activity_stream.uuid },
-          'target': [
-            {'objectType': 'activitystream', 'id': restrictedCommunity.activity_stream.uuid }
+          resource: {id: openCommunity.activity_stream.uuid},
+          target: [
+            {objectType: 'activitystream', id: restrictedCommunity.activity_stream.uuid}
           ]
         });
         req.expect(400);
@@ -873,9 +872,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + messageOnOpenCommunity._id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
-          'target': [
-            {'objectType': 'activitystream', 'id': restrictedCommunity.activity_stream.uuid }
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          target: [
+            {objectType: 'activitystream', id: restrictedCommunity.activity_stream.uuid}
           ]
         });
         req.expect(400);
@@ -897,9 +896,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message2._id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
-          'target': [
-            {'objectType': 'activitystream', 'id': restrictedCommunity.activity_stream.uuid }
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          target: [
+            {objectType: 'activitystream', id: restrictedCommunity.activity_stream.uuid}
           ]
         });
         req.expect(201);
@@ -916,9 +915,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
-          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
-          'target': [
-            {'objectType': 'activitystream', 'id': community.activity_stream.uuid }
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          target: [
+            {objectType: 'activitystream', id: community.activity_stream.uuid}
           ]
         });
         req.expect(201);
@@ -946,8 +945,8 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + commentId + '/shares'));
         req.send({
-            'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
-            'target': [{'objectType': 'activitystream', 'id': community.activity_stream.uuid }]
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          target: [{objectType: 'activitystream', id: community.activity_stream.uuid}]
         });
         req.expect(201);
         req.end(function(err, res) {
@@ -990,8 +989,8 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
-          'resource': {'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid},
-          'target': [target]
+          resource: {objectType: 'activitystream', id: openCommunity.activity_stream.uuid},
+          target: [target]
         });
         req.expect(201);
         req.end(function(err, res) {

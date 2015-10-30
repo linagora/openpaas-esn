@@ -70,7 +70,7 @@ angular.module('esn.project')
 
     $timeout(function() {
       notifyProgress(d, 'post', 1);
-    },0);
+    }, 0);
 
     projectAPI.create(project).then(
       function(data) {

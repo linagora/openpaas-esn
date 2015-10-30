@@ -11,7 +11,6 @@ describe('The core local pubsub module', function() {
     pubsub = this.helpers.requireBackend('core').pubsub.local;
   });
 
-
   it('should fire the subscribed callbacks when an event is published', function(done) {
     function handler1() {
       counter++;

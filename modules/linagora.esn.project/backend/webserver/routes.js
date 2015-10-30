@@ -1,6 +1,5 @@
 'use strict';
 
-
 function projectWebserverRoutes(app, projectLib, dependencies) {
 
   function views(req, res, next) {

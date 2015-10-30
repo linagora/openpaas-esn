@@ -34,13 +34,13 @@ describe('The Collaboration permission module', function() {
         }
         return callback(null, true);
       });
-       module.filterWritable(collaborations, user, function(err, result) {
-         expect(result.length).to.exist;
-         expect(result).to.not.include(collaborations[0]);
-         expect(result).to.include(collaborations[1]);
-         expect(result).to.include(collaborations[2]);
-         done();
-       });
+      module.filterWritable(collaborations, user, function(err, result) {
+        expect(result.length).to.exist;
+        expect(result).to.not.include(collaborations[0]);
+        expect(result).to.include(collaborations[1]);
+        expect(result).to.include(collaborations[2]);
+        done();
+      });
     });
   });
 });

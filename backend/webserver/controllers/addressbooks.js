@@ -21,7 +21,6 @@ function getAddressBooks(req, res) {
     return res.json(412, {error: {status: 412, message: 'Invalid parameter', details: '"creator" parameter should be a valid objectId'}});
   }
 
-
   addressbookModule.list(req.query.creator, function(err, response) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Can not load addressbooks', details: err}});

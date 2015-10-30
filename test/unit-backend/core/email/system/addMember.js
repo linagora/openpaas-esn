@@ -35,7 +35,6 @@ describe('The add member email module', function() {
     });
   });
 
-
   it('should fail when invitation data is not set', function(done) {
     var coreMock = function() {
       return {

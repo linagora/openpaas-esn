@@ -1528,7 +1528,6 @@ describe('The collaborations API', function() {
             );
           }
 
-
           var req = self.loggedInAsUser(
             request(webserver.application)
               .put('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
@@ -1646,7 +1645,6 @@ describe('The collaborations API', function() {
               return json;
             };
           }
-
 
           async.series([
             function(callback) {
@@ -2004,7 +2002,6 @@ describe('The collaborations API', function() {
               return json;
             };
           }
-
 
           async.series([
             function(callback) {
@@ -2534,7 +2531,6 @@ describe('The collaborations API', function() {
               }
             );
           }
-
 
           var req = self.loggedInAsUser(
             request(webserver.application)

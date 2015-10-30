@@ -63,11 +63,11 @@ function getUsersList(domains, query, cb) {
   var domainIds = domains.map(function(domain) {
     return domain._id || domain;
   });
-  var userQuery = User.find().where('domains.domain_id'). in (domainIds);
+  var userQuery = User.find().where('domains.domain_id').in(domainIds);
   var totalCountQuery = require('extend')(true, {}, userQuery);
   totalCountQuery.count();
 
-  userQuery.skip(query.offset).limit(query.limit).sort({'firstname': 'asc'});
+  userQuery.skip(query.offset).limit(query.limit).sort({firstname: 'asc'});
 
   return totalCountQuery.exec(function(err, count) {
     if (err) {

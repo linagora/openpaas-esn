@@ -104,11 +104,10 @@ function get(req, res) {
     }
 
     if (!readStream) {
-     if (req.accepts('html')) {
+      if (req.accepts('html')) {
         res.status(404);
         return res.render('commons/404', { url: req.url });
-      }
-      else {
+      } else {
         return res.json(404, {
           error: 404,
           message: 'Not Found',

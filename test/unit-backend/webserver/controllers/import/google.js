@@ -76,7 +76,6 @@ describe('The contacts controller module', function() {
       contacts.fetchGoogleContacts(req, res);
     });
 
-
     it('should redirect to /#/contacts if query is incomplete', function(done) {
       var mongooseMock = {
         model: function() {
@@ -103,7 +102,6 @@ describe('The contacts controller module', function() {
       };
       contacts.fetchGoogleContacts(req, res);
     });
-
 
     it('should return HTTP 500 if google token could not be got', function(done) {
       var mongooseMock = {

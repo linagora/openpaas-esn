@@ -731,7 +731,6 @@ describe('The collaboration module', function() {
 
   });
 
-
   describe('cancelMembershipRequest() method', function() {
     beforeEach(function() {
       this.helpers.mock.models({});

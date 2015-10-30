@@ -12,7 +12,6 @@ describe('The multi-input Angular module', function() {
     module('jadeTemplates');
   });
 
-
   describe('The multiInputGroupAddress directive', function() {
 
     var element;
@@ -441,7 +440,6 @@ describe('The multi-input Angular module', function() {
       expect(this.eleScope.autocapitalize).to.equal('off');
     });
   });
-
 
   describe('The MultiInputGroupController controller', function() {
 

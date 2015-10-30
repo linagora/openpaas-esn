@@ -65,13 +65,13 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
 
 .factory('sessionFactory', function($log, $q, userAPI, domainAPI, session) {
 
-      function onError(error, callback) {
+  function onError(error, callback) {
         if (error && error.data) {
           return callback(error.data);
         }
       }
 
-      function fetchUser(callback) {
+  function fetchUser(callback) {
         userAPI.currentUser().then(function(response) {
           var user = response.data;
           session.setUser(user);
@@ -98,7 +98,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
         });
       }
 
-      function fetchDomain(domainId, callback) {
+  function fetchDomain(domainId, callback) {
         domainAPI.get(domainId).then(function(response) {
           session.setDomain(response.data);
           return callback(null);
@@ -107,7 +107,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
         });
       }
 
-      return {
+  return {
         fetchUser: fetchUser
       };
-    });
+});

@@ -22,7 +22,6 @@ describe('The companies routes', function() {
     });
   });
 
-
   describe('HEAD /api/companies', function() {
     var webserver = null;
     var Domain;
@@ -109,6 +108,5 @@ describe('The companies routes', function() {
       });
     });
   });
-
 
 });

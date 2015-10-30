@@ -20,7 +20,7 @@ describe('The user login module', function() {
     it('should call loginSuccess of a mongoose User model', function(done) {
       var called = false;
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             var user = {
               loginSuccess: function(callback) {
@@ -49,7 +49,7 @@ describe('The user login module', function() {
     it('should propagate err on error', function(done) {
       var called = false;
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             var user = {
               loginSuccess: function(callback) {
@@ -76,7 +76,7 @@ describe('The user login module', function() {
 
     it('should fail if no user is retrieved from the database', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(null, null);
           }
@@ -105,7 +105,7 @@ describe('The user login module', function() {
     it('should call loginFailuer of a mongoose User model', function(done) {
       var called = false;
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             var user = {
               loginFailure: function(callback) {
@@ -134,7 +134,7 @@ describe('The user login module', function() {
     it('should propagate err on error', function(done) {
       var called = false;
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             var user = {
               loginFailure: function(callback) {
@@ -161,7 +161,7 @@ describe('The user login module', function() {
 
     it('should fail if no user is retrieved from the database', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(null, null);
           }
@@ -200,7 +200,7 @@ describe('The user login module', function() {
 
     it('should return true if size is lower than configured value', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(null, {
               login: {
@@ -220,7 +220,7 @@ describe('The user login module', function() {
 
     it('should return false if size is equal to configured value', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(null, {
               login: {
@@ -240,7 +240,7 @@ describe('The user login module', function() {
 
     it('should return false if size is greater than default value', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(null, {
               login: {
@@ -260,7 +260,7 @@ describe('The user login module', function() {
 
     it('should propagate err on error', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(new Error('ERROR'), {});
           }
@@ -280,7 +280,7 @@ describe('The user login module', function() {
 
     it('should fail if no user is retrieved from the database', function(done) {
       mockModels({
-        'User': {
+        User: {
           loadFromEmail: function(email, callback) {
             callback(null, null);
           }

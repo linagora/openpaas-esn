@@ -85,8 +85,7 @@ describe('The Profile Angular module', function() {
               callback(null); //emulates that the first call executed right
             }};
             return promise;
-          }
-          else {
+          } else {
             expect(fieldName).to.equal('lastname');
             expect(fieldValue).to.equal(newLastName);
             done();

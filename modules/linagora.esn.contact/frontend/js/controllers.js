@@ -29,13 +29,13 @@ angular.module('linagora.esn.contact')
         return gracePeriodService.clientGrace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
             .then(function(data) {
               if (data.cancelled) {
-                  contactsService.remove($scope.bookId, $scope.contact).then(function() {
+                contactsService.remove($scope.bookId, $scope.contact).then(function() {
                     data.success();
                     openContactForm($scope.bookId, $scope.contact);
                   }, function(err) {
                     data.error('Cannot cancel contact creation, the contact is created');
                     return $q.reject(err);
-                });
+                  });
               }
             });
       });
@@ -130,7 +130,7 @@ angular.module('linagora.esn.contact')
         $log.debug('Error while loading contact', err);
         $scope.error = true;
         displayContactError('Cannot get contact details');
-      }).finally (function() {
+      }).finally(function() {
         $scope.loaded = true;
       });
     }
@@ -162,7 +162,7 @@ angular.module('linagora.esn.contact')
       }, function() {
         $scope.error = true;
         displayContactError('Cannot get contact details');
-      }).finally (function() {
+      }).finally(function() {
         $scope.loaded = true;
       });
     }
@@ -205,7 +205,7 @@ angular.module('linagora.esn.contact')
               } else {
                 gracePeriodService.remove(taskId);
               }
-          });
+            });
         });
       }).then(null, function(err) {
         displayContactError('The contact cannot be edited, please retry later');
@@ -315,15 +315,15 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on('$routeUpdate', function() {
-        if (!$location.search().q) {
-          if (!$scope.searchInput) {return;}
-          $scope.searchInput = null;
-          return $scope.search();
-        }
-        if ($location.search().q.replace(/\+/g, ' ') !== $scope.searchInput) {
-          $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
-          return $scope.search();
-        }
+      if (!$location.search().q) {
+        if (!$scope.searchInput) {return;}
+        $scope.searchInput = null;
+        return $scope.search();
+      }
+      if ($location.search().q.replace(/\+/g, ' ') !== $scope.searchInput) {
+        $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
+        return $scope.search();
+      }
     });
 
     $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);
@@ -373,7 +373,7 @@ angular.module('linagora.esn.contact')
       $scope.searchFailure = false;
       $scope.loadingNextContacts = true;
       $scope.lastPage = false;
-      getSearchResults().finally (function() {
+      getSearchResults().finally(function() {
         $scope.searching = false;
       });
     };
@@ -389,7 +389,7 @@ angular.module('linagora.esn.contact')
             $scope.lastPage = true;
           }
         }, searchFailure
-      ).finally (loadPageComplete);
+      ).finally(loadPageComplete);
     }
 
     function getNextContacts() {
@@ -406,7 +406,7 @@ angular.module('linagora.esn.contact')
       }, function(err) {
         $log.error('Can not get contacts', err);
         displayContactError('Can not get contacts');
-      }).finally (loadPageComplete);
+      }).finally(loadPageComplete);
     }
 
     function updateScrollState() {

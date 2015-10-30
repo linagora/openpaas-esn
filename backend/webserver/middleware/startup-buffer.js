@@ -4,7 +4,6 @@ var core = require('../../core'),
     topic = core.pubsub.local.topic('webserver:mongosessionstoreEnabled'),
     maxWaitTTL = 5000;
 
-
 function startupBuffer(timeout) {
   var bypass = false;
   var queue = [];

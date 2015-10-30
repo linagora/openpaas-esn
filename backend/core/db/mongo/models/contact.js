@@ -3,7 +3,6 @@
 var mongoose = require('mongoose');
 var trim = require('trim');
 
-
 var ContactSchema = new mongoose.Schema({
   owner: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
   addressbooks: {type: [mongoose.Schema.Types.ObjectId], ref: 'AddressBook'},
@@ -15,14 +14,13 @@ var ContactSchema = new mongoose.Schema({
 });
 
 ContactSchema.pre('save', function(next) {
-  var contact = this;
+  var self = this;
 
-  contact.emails = contact.emails.map(function(email) {
+  self.emails = self.emails.map(function(email) {
     return trim(email).toLowerCase();
   });
 
   return next();
 });
-
 
 module.exports = mongoose.model('Contact', ContactSchema);

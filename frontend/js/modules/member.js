@@ -34,8 +34,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
 
       if (count < 1000) {
         $scope.search.formattedCount = count;
-      }
-      else {
+      } else {
         var len = Math.ceil(Math.log(count + 1) / Math.LN10);
         var num = Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3);
 
@@ -47,8 +46,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       $scope.error = false;
       if ($scope.restActive) {
         return;
-      }
-      else {
+      } else {
         $scope.restActive = true;
         $scope.search.running = true;
         formatResultsCount(0);
@@ -59,7 +57,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
           $scope.members = $scope.members.concat(data.data);
         }, function() {
           $scope.error = true;
-        }).finally (function() {
+        }).finally(function() {
           $scope.search.running = false;
           $scope.restActive = false;
           usSpinnerService.stop('memberSpinner');

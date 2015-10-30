@@ -114,7 +114,7 @@ module.exports.userToMember = function(document) {
     return result;
   }
 
-  if (typeof(document.member.toObject) === 'function') {
+  if (typeof document.member.toObject  === 'function') {
     result.user = document.member.toObject();
   } else {
     result.user = document.member;
@@ -169,7 +169,7 @@ module.exports.getManagers = function(community, query, callback) {
 
 function getUserCommunities(user, options, callback) {
   var q = options || {};
-  if (typeof(options) === 'function') {
+  if (typeof options === 'function') {
     callback = options;
     q = {};
   }

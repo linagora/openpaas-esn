@@ -8,7 +8,7 @@ describe('The daily digest mail builder', function() {
   var module, resultedJson;
 
   var deps = {
-    'digesttracker': {},
+    digesttracker: {},
     'content-sender': {
       send: function(from, to, content, options) {
         var defer = q.defer();

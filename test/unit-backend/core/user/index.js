@@ -99,7 +99,7 @@ describe('The user core module', function() {
     it('should lowercase the email array and flatten it into an $or array', function(done) {
       userModule.findByEmail(['Test@linagora.com', 'tESt2@linagora.com'], function(err, query) {
         expect(query).to.deep.equal({
-          '$or': [
+          $or: [
             {
               accounts: {
                 $elemMatch: {
@@ -177,7 +177,7 @@ describe('The user core module', function() {
         expect(query).to.deep.equal({ _id: '1234'});
         expect(option).to.deep.equal({
           $set: {
-            'param': 'value'
+            param: 'value'
           }
         });
         done();
@@ -189,7 +189,7 @@ describe('The user core module', function() {
         expect(query).to.deep.equal({ _id: '1235'});
         expect(option).to.deep.equal({
           $set: {
-            'param': 'value'
+            param: 'value'
           }
         });
         done();

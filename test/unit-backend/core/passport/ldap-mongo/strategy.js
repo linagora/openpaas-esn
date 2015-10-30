@@ -174,7 +174,6 @@ describe('The ldap-mongo passport strategy', function() {
       s.authenticate(req, options);
     });
 
-
     it('should call passport#fail when user is not found in any LDAP', function(done) {
       var usermodule = {
         findByEmail: function(user, callback) {

@@ -16,7 +16,6 @@ function getGoogleOAuthURL(req, res) {
 }
 module.exports.getGoogleOAuthURL = getGoogleOAuthURL;
 
-
 function fetchGoogleContacts(req, response) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
     return response.send(500, 'User not set');

@@ -307,7 +307,6 @@ describe('The oauthclients controller', function() {
     });
   });
 
-
   describe('get method', function() {
     var validReq;
     before(function() {

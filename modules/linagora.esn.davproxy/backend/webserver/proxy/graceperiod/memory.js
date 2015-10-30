@@ -21,7 +21,7 @@ module.exports = function(dependencies) {
         method: req.method,
         url: target,
         headers: {
-          'ESNToken': req.token.token
+          ESNToken: req.token.token
         }
       };
 

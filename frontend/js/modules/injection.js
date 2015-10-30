@@ -30,8 +30,7 @@ angular.module('esn.injection', [])
         });
         if (thisAnchorInjections.length === 0) {
           return;
-        }
-        else {
+        } else {
           thisAnchorInjections.forEach(function(injection) {
             injection.values.forEach(function(injectionData) {
               var template = angular.element(buildHtmlFromInjectionData(injectionData));

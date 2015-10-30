@@ -48,7 +48,6 @@ describe('The activitystreams controller module', function() {
       }
     });
 
-
     var timelineMock = {
       query: function(options, cb) {
         return cb(new Error());

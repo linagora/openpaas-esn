@@ -47,22 +47,22 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
     if (trusted) {
       return this;
     }
-    var lib = this;
+    var self = this;
     var proxyLib = {
       injectJS: function(js, innerApps) {
-        return lib.injectJS(moduleName, js, innerApps);
+        return self.injectJS(moduleName, js, innerApps);
       },
       injectCSS: function(css, innerApps) {
-        return lib.injectCSS(moduleName, css, innerApps);
+        return self.injectCSS(moduleName, css, innerApps);
       },
       injectLess: function(less, innerApps) {
-        return lib.injectLess(moduleName, less, innerApps);
+        return self.injectLess(moduleName, less, innerApps);
       },
       injectAngularModules: function(js, moduleNames, innerApps) {
-        return lib.injectAngularModules(moduleName, js, moduleNames, innerApps);
+        return self.injectAngularModules(moduleName, js, moduleNames, innerApps);
       },
       addApp: function(expressApp) {
-        return lib.addApp(moduleName, expressApp);
+        return self.addApp(moduleName, expressApp);
       }
     };
     return proxyLib;

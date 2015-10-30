@@ -182,9 +182,9 @@ module.exports = function(dependencies) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while searching contacts'}});
       }
       var json = {
-        '_links': {
-          'self': {
-            'href': req.originalUrl
+        _links: {
+          self: {
+            href: req.originalUrl
           }
         },
         _total_hits: result.total_count,
@@ -208,12 +208,11 @@ module.exports = function(dependencies) {
               res.header('X-ESN-Items-Count', result.total_count);
               return res.json(200, json);
             }
-          }
-          else {
+          } else {
             avatarHelper.injectTextAvatar(req.params.bookId, vcard).then(function(newVcard) {
               json._embedded['dav:item'].push({
-                '_links': {
-                  'self': getContactUrl(req, req.params.bookId, result.list._id)
+                _links: {
+                  self: getContactUrl(req, req.params.bookId, result.list._id)
                 },
                 data: newVcard
               });

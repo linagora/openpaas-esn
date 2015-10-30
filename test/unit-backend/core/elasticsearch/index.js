@@ -205,7 +205,7 @@ describe('The elasticsearch module', function() {
       };
 
       var client = {
-        'delete': function(options, callback) {
+        delete: function(options, callback) {
           expect(options.index).to.equal(opts.index);
           expect(options.type).to.equal(opts.type);
           expect(options.id).to.equal(opts.id);
@@ -230,7 +230,7 @@ describe('The elasticsearch module', function() {
       };
 
       var client = {
-        'search': function(options, callback) {
+        search: function(options, callback) {
           expect(options).to.deep.equal(opts);
           callback();
         }

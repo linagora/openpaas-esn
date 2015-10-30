@@ -153,7 +153,6 @@ describe('The esn.session Angular module', function() {
       $rootScope.$digest();
     });
 
-
     it('should render the error template if there is an error in the domain request', function(done) {
       service.fetchUser(function(error) {
         if (error) {

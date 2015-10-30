@@ -65,7 +65,6 @@ var calculateFitFontSize = function(canvasContext, canvasSize, text) {
 // export as a private method for testing purpose (still need more discussion)
 module.exports._calculateFitFontSize = calculateFitFontSize;
 
-
 /**
  * Generate avatar from text
  * @param  {Object}  options input object contain:
@@ -123,7 +122,6 @@ var generateFromText = function(options) {
 };
 
 module.exports.generateFromText = generateFromText;
-
 
 /**
  * Get colors based on 3 last characters of uuid

@@ -154,7 +154,7 @@ describe('The Contacts Angular module', function() {
 
     it('should initialize $scope.contact to an already existing one when defined', function() {
       var scope = {
-        '$on': function() {}
+        $on: function() {}
       },
       contact = {lastName: 'Last'};
 
@@ -170,7 +170,7 @@ describe('The Contacts Angular module', function() {
 
     it('should clear sharedContactDataService.contact after initialization', function() {
       var scope = {
-        '$on': function() {}
+        $on: function() {}
       },
       contact = {lastName: 'Last'},
       sharedContactDataService = {
@@ -717,7 +717,7 @@ describe('The Contacts Angular module', function() {
           expect(id).to.deep.equal(bookId);
           expect(contact).to.deep.equal(scope.contact);
           done();
-      };
+        };
 
         contactsService.getCard = function(path) {
           return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
@@ -821,7 +821,7 @@ describe('The Contacts Angular module', function() {
 
     describe('The save function', function() {
 
-        it('should call contactsService.modify with the right bookId and cardId', function(done) {
+      it('should call contactsService.modify with the right bookId and cardId', function(done) {
           contactsService.modify = function(id, contact) {
             expect(id).to.deep.equal(bookId);
             expect(contact).to.deep.equal(scope.contact);
@@ -834,7 +834,7 @@ describe('The Contacts Angular module', function() {
           scope.save();
         });
 
-        it('should call gracePeriodService.grace with the right taskId', function(done) {
+      it('should call gracePeriodService.grace with the right taskId', function(done) {
           contactsService.modify = function() {
             return $q.when('a taskId');
           };
@@ -852,7 +852,7 @@ describe('The Contacts Angular module', function() {
           scope.$digest();
         });
 
-        it('should register graceperiod live notification with the right taskId', function(done) {
+      it('should register graceperiod live notification with the right taskId', function(done) {
           gracePeriodLiveNotification.registerListeners = function(taskId) {
             expect(taskId).to.equal('a taskId');
             done();
@@ -868,7 +868,7 @@ describe('The Contacts Angular module', function() {
           scope.$digest();
         });
 
-        it('should save updated contact and taskId contactUpdateDataService', function() {
+      it('should save updated contact and taskId contactUpdateDataService', function() {
           contactsService.modify = function() {
             return $q.when('a taskId');
           };
@@ -886,7 +886,7 @@ describe('The Contacts Angular module', function() {
           expect(contactUpdateDataService.taskId).to.eql('a taskId');
         });
 
-        it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
+      it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
           contactsService.modify = function() {
             return $q.when('a taskId');
           };
@@ -914,7 +914,7 @@ describe('The Contacts Angular module', function() {
           scope.$digest();
         });
 
-        it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on task failure', function(done) {
+      it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on task failure', function(done) {
           contactsService.modify = function() {
             return $q.when('a taskId');
           };
@@ -936,7 +936,7 @@ describe('The Contacts Angular module', function() {
           scope.$digest();
         });
 
-        it('should not change page if the contact is invalid', function(done) {
+      it('should not change page if the contact is invalid', function(done) {
           $location.path = function() {
             done('This test should not change the location');
           };
@@ -950,31 +950,31 @@ describe('The Contacts Angular module', function() {
           done();
         });
 
-        it('should show the contact without calling modify fn when the contact is not modified', function(done) {
+      it('should show the contact without calling modify fn when the contact is not modified', function(done) {
 
-          $location.path = function(url) {
+        $location.path = function(url) {
             expect(url).to.equal('/contact/show/123/xyz');
             done();
           };
-          contactsService.modify = function() {
+        contactsService.modify = function() {
             done('Should not call this function');
             return $q.reject();
           };
 
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          contactUpdateDataService.contact = true;
-          this.initController();
-          scope.bookId = '123';
-          scope.cardId = 'xyz';
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        contactUpdateDataService.contact = true;
+        this.initController();
+        scope.bookId = '123';
+        scope.cardId = 'xyz';
 
-          scope.save();
-        });
+        scope.save();
+      });
 
     });
 
     describe('The deleteContact function', function() {
 
-        it('should go back to the list of contacts when called', function(done) {
+      it('should go back to the list of contacts when called', function(done) {
           $location.path = function(path) {
             expect(path).to.equal('/contact');
             done();
@@ -983,7 +983,7 @@ describe('The Contacts Angular module', function() {
           scope.deleteContact();
         });
 
-        it('should call contactsService.remove with the right bookId and cardId', function(done) {
+      it('should call contactsService.remove with the right bookId and cardId', function(done) {
           scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
           contactsService.deleteContact = function(id, contact) {
             expect(id).to.deep.equal(bookId);
@@ -1254,7 +1254,7 @@ describe('The Contacts Angular module', function() {
       $timeout.flush();
     });
 
-    it('should load contact list when no query is specified in the URL' , function(done) {
+    it('should load contact list when no query is specified in the URL', function(done) {
       var query = null;
       var locationMock = {
         search: function() {
@@ -1306,7 +1306,7 @@ describe('The Contacts Angular module', function() {
       done();
     });
 
-    it('should load search result list when a query is specified in the URL' , function(done) {
+    it('should load search result list when a query is specified in the URL', function(done) {
       var query = 'Chuck Norris';
       var locationMock = {
         search: function() {
@@ -1331,7 +1331,7 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    it('should refresh list on route update when the queries in the URL and in the search input are different' , function(done) {
+    it('should refresh list on route update when the queries in the URL and in the search input are different', function(done) {
       var query = 'QueryA';
       var mySpy = sinon.spy();
       var locationMock = {
@@ -1345,7 +1345,7 @@ describe('The Contacts Angular module', function() {
         expect(scope.searchInput).to.equal(query);
         mySpy();
         return $q.when({
-        hits_list: [],
+          hits_list: [],
           total_hits: 0
         });
       };
@@ -1364,7 +1364,7 @@ describe('The Contacts Angular module', function() {
       done();
     });
 
-    it('should not refresh list on route update when the queries in the URL and in the search input are the same' , function(done) {
+    it('should not refresh list on route update when the queries in the URL and in the search input are the same', function(done) {
       var query = 'QueryA';
       var mySpy = sinon.spy();
       var locationMock = {
@@ -1510,7 +1510,6 @@ describe('The Contacts Angular module', function() {
         expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
       });
     });
-
 
     describe('The clearSearchInput function', function() {
 
@@ -1820,7 +1819,6 @@ describe('The Contacts Angular module', function() {
             _id: '123'
           }
         });
-
 
         scope.loadContacts = function() {
           expect(scope.searchMode).isFalse;

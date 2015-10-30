@@ -113,20 +113,20 @@ UserSchema.virtual('emails').get(function() {
 });
 
 UserSchema.pre('save', function(next) {
-  var user = this;
+  var self = this;
   var SALT_FACTOR = 5;
 
-  user.accounts.forEach(function(account) {
+  self.accounts.forEach(function(account) {
     account.emails = account.emails.map(function(email) {
       return trim(email).toLowerCase();
     });
   });
 
-  if (!hasEmail(user.accounts)) {
+  if (!hasEmail(self.accounts)) {
     return next(new Error('User must have at least one email'));
   }
 
-  if (!user.isModified('password')) {
+  if (!self.isModified('password')) {
     return next();
   }
 
@@ -135,11 +135,11 @@ UserSchema.pre('save', function(next) {
       return next(err);
     }
 
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
+    bcrypt.hash(self.password, salt, null, function(err, hash) {
       if (err) {
         return next(err);
       }
-      user.password = hash;
+      self.password = hash;
       next();
     });
   });

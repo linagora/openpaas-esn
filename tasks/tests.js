@@ -9,8 +9,8 @@ module.exports = function(grunt) {
     });
 
     if (!options.target) {
-        grunt.fatal.fail('Missing target in options');
-        return;
+      grunt.fatal.fail('Missing target in options');
+      return;
     }
 
     var files = this.files.reduce(function(a, b) {
@@ -29,13 +29,13 @@ module.exports = function(grunt) {
     var targets = [];
     var configBase = options.target.replace(/:/g, '.');
     for (var chunkId = 1; files.length; chunkId++) {
-        var chunkFiles = commonFiles.concat(files.splice(0, chunkSize));
-        grunt.config.set(configBase + chunkId + '.options.files', chunkFiles);
-        targets.push(options.target + chunkId);
+      var chunkFiles = commonFiles.concat(files.splice(0, chunkSize));
+      grunt.config.set(configBase + chunkId + '.options.files', chunkFiles);
+      targets.push(options.target + chunkId);
     }
 
     if (targets.length > 1) {
-        grunt.log.ok('Splitting ' + totalFiles + ' tests into ' + targets.length + ' chunks');
+      grunt.log.ok('Splitting ' + totalFiles + ' tests into ' + targets.length + ' chunks');
     }
     grunt.task.run(targets);
   });

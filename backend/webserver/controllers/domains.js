@@ -82,8 +82,7 @@ function getMembers(req, res) {
         res.header('X-ESN-Items-Count', result.total_count);
         return res.json(200, result.list.map(utils.sanitizeUser));
       });
-    }
-    else {
+    } else {
       userDomain.getUsersList([domain], query, function(err, result) {
         if (err) {
           return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
