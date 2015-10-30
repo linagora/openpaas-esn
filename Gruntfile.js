@@ -48,26 +48,6 @@ module.exports = function(grunt) {
         src: []
       }
     },
-    gjslint: {
-      options: {
-        flags: [
-          '--disable 0110',
-          '--nojsdoc',
-          '-e test/frontend/karma-include,modules/linagora.esn.calendar/frontend/js/thirdparty',
-          '-x frontend/js/modules/modernizr.js'
-        ],
-        reporter: {
-          name: CI ? 'gjslint_xml' : 'console',
-          dest: CI ? 'gjslint.xml' : undefined
-        }
-      },
-      all: {
-        src: ['<%= jshint.all.src %>']
-      },
-      quick: {
-        src: ['<%= jshint.quick.src %>']
-      }
-    },
     jscs: {
       options: {
         config: '.jscsrc'
@@ -193,7 +173,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-shell-spawn');
