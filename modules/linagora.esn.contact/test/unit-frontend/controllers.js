@@ -1511,25 +1511,6 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    it('should fire viewRenderFinished event to scroll to old position', function(done) {
-      scope.$on('viewRenderFinished', function() {
-        done();
-      });
-
-      $controller('contactsListController', {
-        $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
-        user: {
-          _id: '123'
-        }
-      });
-
-      $rootScope.$broadcast('ngRepeatFinished');
-    });
 
     describe('The clearSearchInput function', function() {
 

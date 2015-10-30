@@ -149,7 +149,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, SCROLL_EVENTS, $rootScope, toggleContactDisplayService, toggleEventService) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope, toggleContactDisplayService, toggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
@@ -161,13 +161,8 @@ angular.module('linagora.esn.contact')
 
         scope.toggleContactDisplay = isToggleOn(toggleContactDisplayService.getCurrentDisplay());
 
-        scope.resetScroll = function() {
-          $rootScope.$broadcast(SCROLL_EVENTS.RESET_SCROLL);
-        };
-
         scope.updateDisplay = function(toggleOn) {
           toggleContactDisplayService.setCurrentDisplay(toggleOn ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list);
-          scope.resetScroll();
         };
 
         toggleEventService.listen(scope, function(evt, value) {
