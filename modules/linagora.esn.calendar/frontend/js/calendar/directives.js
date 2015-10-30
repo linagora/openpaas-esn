@@ -73,6 +73,25 @@ angular.module('esn.calendar')
     };
   })
 
+  /**
+   * This directive enhances the auto-size directive of material admin.
+   * In fact, it corrects the initial height (i.e., when loading) of an autoSize element
+   * have a see: https://github.com/jackmoore/autosize/issues/248
+   */
+  .directive('autoSizeAndUpdate', function($timeout, autosize) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        if (element[0]) {
+          autosize(element);
+          $timeout(function() {
+            autosize.update(element);
+          }, 0);
+        }
+      }
+    };
+  })
+
   .directive('toggleCalendarView', function(uiCalendarConfig, calendarService) {
     return {
       restrict: 'A',

@@ -1,6 +1,9 @@
 'use strict';
 
 angular.module('esn.form.helper', [])
+.factory('autosize', function($window) {
+    return $window.autosize;
+  })
 .directive('esnTrackFirstBlur', function() {
   return {
     restrict: 'A',
