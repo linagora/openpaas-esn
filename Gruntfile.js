@@ -68,6 +68,18 @@ module.exports = function(grunt) {
         src: ['<%= jshint.quick.src %>']
       }
     },
+    jscs: {
+      options: {
+        config: '.jscsrc'
+      },
+      all: {
+
+        src: ['<%= jshint.all.src %>', '!test/frontend/karma-include/*', '!frontend/js/modules/modernizr.js', '!modules/**/thirdparty/*.js']
+      },
+      quick: {
+        src: ['<%= jshint.quick.src %>']
+      }
+    },
     lint_pattern: {
       options: {
         rules: [
@@ -190,6 +202,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-inspector');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
+  grunt.loadNpmTasks('grunt-jscs');
 
   grunt.loadTasks('tasks');
 
@@ -223,14 +236,14 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern']);
+  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'jscs:all', 'lint_pattern']);
 
   /**
    * Usage:
    *   grunt linters-dev              # Run linters against files changed in git
    *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
    */
-  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick', 'lint_pattern:quick']);
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'jscs:quick', 'lint_pattern:quick']);
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {

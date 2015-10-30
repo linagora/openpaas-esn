@@ -97,6 +97,7 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-docker-spawn": "^1.1.0",
     "grunt-gjslint": "^0.1.6",
+    "grunt-jscs": "^2.3.0",
     "grunt-karma": "^0.11.2",
     "grunt-lint-pattern": "^0.1.4",
     "grunt-mocha-cli": "~1.8.0",
