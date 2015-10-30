@@ -6,15 +6,58 @@ var expect = chai.expect;
 
 describe('The box-overlay Angular module', function() {
 
+  var $compile, $rootScope, $scope, $timeout, element;
+
+  function compile(html) {
+    element = $compile(html)($scope);
+    $scope.$digest();
+
+    return element;
+  }
+
+  function compileAndClickTheButton(html) {
+    compile(html);
+
+    return clickTheButton(element);
+  }
+
+  function clickTheButton(button) {
+    button.click();
+    $rootScope.$digest();
+    return button;
+  }
+
+  function closeFirstBox() {
+    var closeButton = angular.element('.box-overlay-open i.close').first();
+    closeButton.triggerHandler('click');
+    $timeout.flush();
+  }
+
+  function maximizeFirstBox() {
+    angular.element('.box-overlay-open .toggle-maximize').first().click();
+  }
+
+  function minimizeFirstBox() {
+    angular.element('.box-overlay-open .toggle-minimize').first().click();
+  }
+
+  function overlays() {
+    return angular.element('.box-overlay-open');
+  }
+
   beforeEach(module('jadeTemplates'));
 
   beforeEach(function() {
     angular.mock.module('esn.box-overlay');
   });
 
+  afterEach(function() {
+    angular.element('.box-overlay-container').remove();
+  });
+
   describe('boxOverlay directive', function() {
 
-    var $compile, $rootScope, $scope, $httpBackend, $timeout, element;
+    var $httpBackend;
 
     beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_, _$timeout_) {
       $compile = _$compile_;
@@ -27,28 +70,6 @@ describe('The box-overlay Angular module', function() {
     afterEach(function() {
       overlays().remove(); // Removes all overlays that might have been left in the DOM
     });
-
-    function compileAndClickTheButton(html) {
-      element = $compile(html)($scope);
-      return clickTheButton(element);
-    }
-
-    function clickTheButton(button) {
-      button.click();
-      $rootScope.$digest();
-      return button;
-    }
-
-    function closeFirstBox() {
-      var closeButtons = angular.element('.box-overlay-open i.close');
-      var closeButton = angular.element(closeButtons[0]);
-      closeButton.triggerHandler('click');
-      $timeout.flush();
-    }
-
-    function overlays() {
-      return angular.element('.box-overlay-open');
-    }
 
     it('should display the overlay when the calling element is clicked', function() {
       compileAndClickTheButton('<button box-overlay />');
@@ -154,6 +175,50 @@ describe('The box-overlay Angular module', function() {
 
       expect(overlays()).to.have.length(2);
       expect(notificationCount).to.equal(1);
+    });
+
+    it('should set the "maximized" CSS class when the box is maximized', function() {
+      compileAndClickTheButton('<button box-overlay />');
+      maximizeFirstBox();
+
+      expect(overlays().first().hasClass('maximized')).to.equal(true);
+      expect(overlays().first().hasClass('minimized')).to.equal(false);
+    });
+
+    it('should set the "minimized" CSS class when the box is minimized', function() {
+      compileAndClickTheButton('<button box-overlay />');
+      minimizeFirstBox();
+
+      expect(overlays().first().hasClass('minimized')).to.equal(true);
+      expect(overlays().first().hasClass('maximized')).to.equal(false);
+    });
+
+    it('should minimize other boxes when a box is maximized', function() {
+      compileAndClickTheButton('<button box-overlay />');
+      compileAndClickTheButton('<button box-overlay />');
+      maximizeFirstBox();
+
+      expect(overlays().first().hasClass('maximized')).to.equal(true);
+      expect(overlays().first().hasClass('minimized')).to.equal(false);
+      expect(overlays().last().hasClass('maximized')).to.equal(false);
+      expect(overlays().last().hasClass('minimized')).to.equal(true);
+    });
+
+  });
+
+  describe('The boxOverlayContainer directive', function() {
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    it('should set the "maximized" CSS class when one box is maximized', function() {
+      compileAndClickTheButton('<button box-overlay />');
+      maximizeFirstBox();
+
+      expect(angular.element('.box-overlay-container').hasClass('maximized')).to.equal(true);
     });
 
   });
