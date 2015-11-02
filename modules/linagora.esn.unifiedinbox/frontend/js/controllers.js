@@ -17,7 +17,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('composerController', function($scope, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
+  .controller('composerController', function($scope, notificationFactory, emailSendingService, Offline, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
     function getToolbarConfiguration() {
       var toolbarConfiguration = [
         ['style', ['bold', 'italic', 'underline', 'strikethrough']],
@@ -40,6 +40,27 @@ angular.module('linagora.esn.unifiedinbox')
           return recipient.email;
         });
       });
+    };
+
+    $scope.validateEmailSending = function(rcpt) {
+      if (emailSendingService.noRecipient(rcpt)) {
+        notificationFactory.weakError('Note', 'Your email should have at least one recipient');
+        return false;
+      }
+
+      if (!emailSendingService.emailsAreValid(rcpt)) {
+        notificationFactory.weakError('Note', 'Some recipient emails are not valid');
+        return false;
+      }
+
+      if (!Offline.state || Offline.state === 'down') {
+        notificationFactory.weakError('Note', 'Your device loses its Internet connection. Try later!');
+        return false;
+      }
+
+      emailSendingService.removeDuplicateRecipients(rcpt);
+
+      return true;
     };
   })
 

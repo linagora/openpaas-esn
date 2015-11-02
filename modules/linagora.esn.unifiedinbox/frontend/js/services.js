@@ -79,4 +79,92 @@ angular.module('linagora.esn.unifiedinbox')
     return function(tag, attributes) {
       return angular.extend(document.createElement(tag), attributes || {});
     };
+  })
+
+  .factory('emailSendingService', function(emailService) {
+
+    /**
+     * Add the following logic when sending an email:
+     * Check for an invalid email used as a recipient
+     * @param {recipient object} rcpt
+     */
+    function emailsAreValid(rcpt) {
+      if (!rcpt) {
+        return false;
+      }
+
+      rcpt.to = rcpt.to || [];
+      rcpt.cc = rcpt.cc || [];
+      rcpt.bcc = rcpt.bcc || [];
+
+      function isValidTagEmail(tag) {
+        return emailService.isValidEmail(tag.email);
+      }
+
+      var combinedList = [rcpt.to, rcpt.cc, rcpt.bcc];
+      return combinedList.every(function(emails) {
+        return emails.every(isValidTagEmail);
+      });
+    }
+
+    /**
+     * Add the following logic when sending an email:
+     *  Add the same recipient multiple times, in multiples fields (TO, CC...): allowed.
+     *  This multi recipient must receive the email as a TO > CC > BCC recipient in this order.
+     *  If the person is in TO and CC, s/he receives as TO. If s/he is in CC/BCC, receives as CC, etc).
+     * @param {recipient object} rcpt
+     */
+    function removeDuplicateRecipients(rcpt) {
+      var itemContainedInArray = function(array, item) {
+        return array.indexOf(item) !== -1;
+      };
+
+      if (!rcpt) {
+        return;
+      }
+
+      rcpt.to = rcpt.to || [];
+      rcpt.cc = rcpt.cc || [];
+      rcpt.bcc = rcpt.bcc || [];
+
+      var toEmailsList = rcpt.to.map(function(item) {
+        return item.email;
+      });
+      var ccEmailsList = rcpt.cc.map(function(item) {
+        return item.email;
+      });
+
+      rcpt.cc = rcpt.cc.filter(function(item) {
+        return !itemContainedInArray(toEmailsList, item.email);
+      });
+      rcpt.bcc = rcpt.bcc.filter(function(item) {
+        return !itemContainedInArray(toEmailsList, item.email) && !itemContainedInArray(ccEmailsList, item.email);
+      });
+    }
+
+    /**
+     * Add the following logic to email sending:
+     * check whether the user is trying to send an email with no recipient at all
+     * @param {recipient object} rcpt
+     */
+    function noRecipient(rcpt) {
+      if (!rcpt) {
+        return true;
+      }
+
+      rcpt.to = rcpt.to || [];
+      rcpt.cc = rcpt.cc || [];
+      rcpt.bcc = rcpt.bcc || [];
+
+      if (rcpt.to.length === 0 && rcpt.cc.length === 0 && rcpt.bcc.length === 0) {
+        return true;
+      }
+      return false;
+    }
+
+    return {
+      emailsAreValid: emailsAreValid,
+      removeDuplicateRecipients: removeDuplicateRecipients,
+      noRecipient: noRecipient
+    };
   });

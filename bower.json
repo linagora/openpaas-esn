@@ -81,7 +81,8 @@
     "iframe-resizer": "3.4.2",
     "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git",
     "angular-summernote": "0.5.1",
-    "autosize": "3.0.13"
+    "autosize": "3.0.13",
+    "offline": "0.7.14"
   },
   "resolutions": {
     "jquery": "2.1.1",
