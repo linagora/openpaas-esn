@@ -2134,6 +2134,7 @@ describe('The Contacts Angular module', function() {
         },
         cancel: function() {}
       };
+      this.$location = {};
     });
 
     beforeEach(angular.mock.inject(function($rootScope, _CONTACT_EVENTS_, _GRACE_DELAY_) {
@@ -2179,6 +2180,20 @@ describe('The Contacts Angular module', function() {
         done(new Error());
       });
 
+    });
+
+    describe('The displayContact fn', function() {
+      it('should call $location.url to change path to show contact', function(done) {
+        var self = this;
+        this.initController();
+        this.scope.bookId = '123';
+        this.scope.contact = { id: '456' };
+        this.$location.url = function(url) {
+          expect(url).to.equal('/contact/show/' + self.scope.bookId + '/' + self.scope.contact.id);
+          done();
+        };
+        this.scope.displayContact();
+      });
     });
 
   });

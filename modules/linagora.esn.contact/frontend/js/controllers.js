@@ -483,7 +483,8 @@ angular.module('linagora.esn.contact')
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
     $scope.displayContact = function() {
-      $location.path('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+      // use url instead of path to remove search and hash from URL
+      $location.url('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
     };
 
     $scope.deleteContact = function() {
