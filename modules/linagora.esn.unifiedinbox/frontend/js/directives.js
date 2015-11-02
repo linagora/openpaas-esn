@@ -137,19 +137,56 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function(notificationFactory) {
+  .directive('composer', function($q, $timeout, notificationFactory) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
-      link: function(scope) {
+      link: function(scope, element) {
+        // for test purposes: the send function which is supposed to be called to send messages via JMAP client
+        if (!scope.sendViaJMAP) {
+          scope.sendViaJMAP = function() {
+            var defer = $q.defer();
+            $timeout(function() {
+              return defer.resolve();
+            }, 3000);
+            return defer.promise;
+          };
+        }
 
-        scope.isCollapsed = true;
+        function disableSend() {
+          var sendButton = element.find('.btn-primary');
+          sendButton.attr('disabled', 'disabled');
+        }
+
+        function enableSend() {
+          var sendButton = element.find('.btn-primary');
+          sendButton.removeAttr('disabled');
+        }
 
         scope.send = function send() {
-          notificationFactory.weakSuccess('Success', 'Your email has been sent');
-          scope.$hide();
+          disableSend();
+          if (scope.validateEmailSending(scope.rcpt)) {
+
+            scope.$hide();
+
+            var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
+            scope.sendViaJMAP().then(
+              function() {
+                notify.close();
+                notificationFactory.weakSuccess('Success', 'Your email has been sent');
+              },
+              function() {
+                notify.close();
+                notificationFactory.weakError('Error', 'An error has occurred while sending email');
+              }
+            );
+          } else {
+            enableSend();
+          }
         };
+
+        scope.isCollapsed = true;
 
         scope.$on('$destroy', function() {
           notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
