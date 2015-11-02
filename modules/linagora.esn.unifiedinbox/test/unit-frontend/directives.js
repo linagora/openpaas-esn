@@ -167,10 +167,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should not send an email with no recipient', function() {
-      $scope.rcpt = {
-        to: [],
-        cc: [],
-        bcc: []
+      $scope.email = {
+        rcpt: {
+          to: [],
+          cc: [],
+          bcc: []
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -183,10 +185,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should not send if an invalid email is used as a recipient', function() {
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}],
-        cc: [{displayName: 'me', email: 'myemailATlinagoraPOINTcom'}],
-        bcc: []
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: 'me', email: 'myemailATlinagoraPOINTcom'}],
+          bcc: []
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -201,10 +205,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     it('should not send an email during offline state', function() {
       Offline.state = 'down';
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}],
-        cc: [],
-        bcc: []
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [],
+          bcc: []
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -223,10 +229,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-        cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
-        bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
+          bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
+        }
       };
 
       var expectedRcpt = {
@@ -239,7 +247,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.send();
       $scope.$digest();
       expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-      expect($scope.rcpt).to.shallowDeepEqual(expectedRcpt);
+      expect($scope.email.rcpt).to.shallowDeepEqual(expectedRcpt);
       expect(hideScopeSpy).to.be.called;
       expect(closeNotificationSpy).to.be.called;
       expect(notificationTitle).to.equal('Success');
@@ -253,10 +261,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [],
-        cc: [],
-        bcc: [{displayName: '1', email: '1@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [],
+          cc: [],
+          bcc: [{displayName: '1', email: '1@linagora.com'}]
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -278,8 +288,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}]
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -304,8 +316,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}]
+
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}]
+        }
       };
 
       var element = compileDirective('<composer/>');

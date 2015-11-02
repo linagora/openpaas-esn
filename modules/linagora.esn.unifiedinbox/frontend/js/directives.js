@@ -166,7 +166,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.send = function send() {
           disableSend();
-          if (scope.validateEmailSending(scope.rcpt)) {
+          if (scope.validateEmailSending(scope.email.rcpt)) {
 
             scope.$hide();
 
