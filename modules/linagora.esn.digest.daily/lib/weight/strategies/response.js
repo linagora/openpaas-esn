@@ -4,9 +4,9 @@
 
 module.exports = function() {
 
-function computeMessagesWeight(messages) {
+  function computeMessagesWeight(messages) {
 
-  messages.forEach(function(message) {
+    messages.forEach(function(message) {
     message.weight = 0;
 
     if (message.responses && message.responses.length > 0) {
@@ -17,8 +17,8 @@ function computeMessagesWeight(messages) {
       });
     }
   });
-  return messages;
-}
+    return messages;
+  }
   return {
     computeMessagesWeight: computeMessagesWeight
   };

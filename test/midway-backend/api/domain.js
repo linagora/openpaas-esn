@@ -5,7 +5,6 @@ var request = require('supertest'),
     sinon = require('sinon'),
     ObjectId = require('bson').ObjectId;
 
-
 describe('The domain API', function() {
   var app;
   var user1Domain1Manager, user2Domain1Member;

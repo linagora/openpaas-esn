@@ -394,9 +394,9 @@ describe('The community module', function() {
             return callback(null, [
               {_id: 'id1', firstname: 'user1'},
               {_id: 'id2', firstname: 'user2'}
-              ]);
-            }
+            ]);
           }
+        }
       });
 
       var community = this.helpers.requireBackend('core/community/index');

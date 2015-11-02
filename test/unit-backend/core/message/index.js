@@ -198,12 +198,12 @@ describe('The message core module', function() {
           }
         };
         this.findOneCb(null, {
-            objectType: 'whatsup',
-            author: 'user1',
-            responses: [
-              { objectType: 'whatsup', author: 'user2' },
-              { objectType: 'whatsup', author: 'user1' }
-            ]
+          objectType: 'whatsup',
+          author: 'user1',
+          responses: [
+            { objectType: 'whatsup', author: 'user2' },
+            { objectType: 'whatsup', author: 'user1' }
+          ]
         });
       });
     });
@@ -514,7 +514,6 @@ describe('The message core module', function() {
       });
     });
 
-
     it('should return messages populated with their authors', function() {
       var messageModule = this.helpers.requireBackend('core/message');
       var user3 = {
@@ -539,8 +538,7 @@ describe('The message core module', function() {
               };
             }
           };
-        }
-        else {
+        } else {
           var messageModel = function() {
             return {
               init: function(message) {

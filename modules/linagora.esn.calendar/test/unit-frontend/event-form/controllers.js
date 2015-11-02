@@ -25,7 +25,7 @@ describe('The event-form module controllers', function() {
       createEvent: function() {
         return $q.when({});
       },
-      modifyEvent: function(path , e) {
+      modifyEvent: function(path, e) {
         event = e;
         return $q.when();
       }

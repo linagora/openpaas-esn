@@ -14,7 +14,7 @@ describe('The startup-buffer middleware', function() {
     setTimeout(function() {
       expect(called).to.be.true;
       done();
-    },600);
+    }, 600);
   });
   it('should unblock buffer if the event "webserver:mongosessionstoreEnabled" is received', function() {
     var core = this.helpers.requireBackend('core'),

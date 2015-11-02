@@ -34,7 +34,7 @@ describe('The Grace Period Module', function() {
 
     it('should fail when job is undefined', function(done) {
       var module = require('../../../lib/index')(dependencies);
-        module.create(null, 1000).then(function() {
+      module.create(null, 1000).then(function() {
           done(new Error());
         }, function(err) {
           expect(err.message).to.match(/job is required/);

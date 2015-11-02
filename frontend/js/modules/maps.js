@@ -74,7 +74,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
               $scope.position.message = data.data.display_name || $scope.position.message;
               $scope.position.display_name = data.data.display_name;
             }, function(err) {
-            }).finally (function() {
+            }).finally(function() {
               $scope.position.load = false;
             });
           }, function(err) {
@@ -85,7 +85,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
             if (err.error.code === 2) {
               $scope.position.unavailable = true;
             }
-          }).finally (function() {
+          }).finally(function() {
             $scope.position.load = false;
           });
         };

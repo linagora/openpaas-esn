@@ -255,7 +255,6 @@ describe('The invitation controller', function() {
           .end(done);
       });
 
-
       this.app = this.helpers.requireBackend('webserver/application');
       var app = this.app;
       var admUser = this.models.users[0],
@@ -270,7 +269,6 @@ describe('The invitation controller', function() {
       });
 
     });
-
 
     it('should return 404 for a too old invitation', function(done) {
       var self = this;
@@ -289,8 +287,6 @@ describe('The invitation controller', function() {
             .end(done);
         });
       });
-
-
 
       this.app = this.helpers.requireBackend('webserver/application');
       var app = this.app;

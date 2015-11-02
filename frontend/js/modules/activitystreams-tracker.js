@@ -177,93 +177,93 @@ angular.module('esn.activitystreams-tracker', [
   .factory('ASTrackerNotificationService',
   function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session) {
 
-      this.notifications = {};
-      this.activityStreams = [];
-      var self = this;
+    this.notifications = {};
+    this.activityStreams = [];
+    var self = this;
 
-      function updateUnread(activityStreamUuid, count) {
-        if (! self.activityStreams) {
-          return;
+    function updateUnread(activityStreamUuid, count) {
+      if (!self.activityStreams) {
+        return;
+      }
+      self.activityStreams.some(function(activityStream) {
+        if (activityStream.uuid === activityStreamUuid) {
+          activityStream.unread_count = count;
+          return true;
         }
-        self.activityStreams.some(function(activityStream) {
-          if (activityStream.uuid === activityStreamUuid) {
-            activityStream.unread_count = count;
-            return true;
-          }
+      });
+    }
+
+    function liveNotificationHandler(data) {
+      var activityStreamUuid = data.target[0]._id;
+
+      if (data.verb === 'update') {
+        $rootScope.$emit('activitystream:updateMessage', data);
+      }
+
+      if (data.actor._id !== session.user._id) {
+        ASTrackerAPI.getUnreadCount(activityStreamUuid).then(function(response) {
+          updateUnread(activityStreamUuid, response.data.unread_count);
         });
       }
+    }
 
-      function liveNotificationHandler(data) {
-        var activityStreamUuid = data.target[0]._id;
+    var getUnreadUpdate = function(activityStreamUuid) {
+      updateUnread(activityStreamUuid, 0);
+      $rootScope.$emit('activitystream:userUpdateRequest', {
+        activitystreamUuid: activityStreamUuid
+      });
+    };
 
-        if (data.verb === 'update') {
-          $rootScope.$emit('activitystream:updateMessage', data);
-        }
+    function removeAllListeners() {
+      self.notifications.forEach(function() {
+        self.notification.removeListener('notification', liveNotificationHandler);
+      });
+    }
 
-        if (data.actor._id !== session.user._id) {
-          ASTrackerAPI.getUnreadCount(activityStreamUuid).then(function(response) {
-            updateUnread(activityStreamUuid, response.data.unread_count);
-          });
-        }
+    function subscribeToStreamNotification(streamId) {
+      if (self.notifications[streamId]) {
+        return false;
       }
+      var socketIORoom = livenotification('/activitystreams', streamId).on('notification', liveNotificationHandler);
+      self.notifications[streamId] = socketIORoom;
+      return true;
+    }
 
-      var getUnreadUpdate = function(activityStreamUuid) {
-        updateUnread(activityStreamUuid, 0);
-        $rootScope.$emit('activitystream:userUpdateRequest', {
-          activitystreamUuid: activityStreamUuid
-        });
-      };
-
-      function removeAllListeners() {
-        self.notifications.forEach(function() {
-          self.notification.removeListener('notification', liveNotificationHandler);
-        });
+    function unsubscribeFromStreamNotification(streamId) {
+      if (self.notifications[streamId]) {
+        self.notifications[streamId].removeListener('notification', liveNotificationHandler);
+        delete self.notifications[streamId];
       }
+    }
 
-      function subscribeToStreamNotification(streamId) {
-        if (self.notifications[streamId]) {
-          return false;
-        }
-        var socketIORoom = livenotification('/activitystreams', streamId).on('notification', liveNotificationHandler);
-        self.notifications[streamId] = socketIORoom;
-        return true;
-      }
+    function streamNotificationHasSubscribers(streamId) {
+      return !!self.notifications[streamId];
+    }
 
-      function unsubscribeFromStreamNotification(streamId) {
-        if (self.notifications[streamId]) {
-          self.notifications[streamId].removeListener('notification', liveNotificationHandler);
-          delete self.notifications[streamId];
-        }
-      }
+    function addItem(stream) {
+      self.activityStreams.push(stream);
+    }
 
-      function streamNotificationHasSubscribers(streamId) {
-        return !!self.notifications[streamId];
-      }
-
-      function addItem(stream) {
-        self.activityStreams.push(stream);
-      }
-
-      function removeItem(streamId) {
-        for (var i in self.activityStreams) {
-          if (self.activityStreams[i].uuid === streamId) {
-            self.activityStreams.splice(i, 1);
-            break;
-          }
+    function removeItem(streamId) {
+      for (var i in self.activityStreams) {
+        if (self.activityStreams[i].uuid === streamId) {
+          self.activityStreams.splice(i, 1);
+          break;
         }
       }
+    }
 
-      return {
-        addItem: addItem,
-        removeItem: removeItem,
-        updateUnread: updateUnread,
-        subscribeToStreamNotification: subscribeToStreamNotification,
-        unsubscribeFromStreamNotification: unsubscribeFromStreamNotification,
-        removeAllListeners: removeAllListeners,
-        getUnreadUpdate: getUnreadUpdate,
-        streams: self.activityStreams,
-        streamNotificationHasSubscribers: streamNotificationHasSubscribers
-      };
+    return {
+      addItem: addItem,
+      removeItem: removeItem,
+      updateUnread: updateUnread,
+      subscribeToStreamNotification: subscribeToStreamNotification,
+      unsubscribeFromStreamNotification: unsubscribeFromStreamNotification,
+      removeAllListeners: removeAllListeners,
+      getUnreadUpdate: getUnreadUpdate,
+      streams: self.activityStreams,
+      streamNotificationHasSubscribers: streamNotificationHasSubscribers
+    };
   })
   .factory('ASTrackerSubscriptionService', function($log, objectTypeAdapter, ASTrackerNotificationService) {
     var handlers = {};

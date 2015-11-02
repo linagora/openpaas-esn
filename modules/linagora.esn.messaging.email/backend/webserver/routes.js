@@ -1,6 +1,5 @@
 'use strict';
 
-
 function routes(app, lib, dependencies) {
 
   var mw = require('./middleware')(dependencies, lib);

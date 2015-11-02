@@ -4,7 +4,6 @@
 // 1 : datastore error
 // 2 : image manipulation error
 
-
 var defaultAvatarSize = 128;
 var logger = require('..').logger;
 var PassThrough = require('stream').PassThrough;
@@ -53,7 +52,6 @@ function checkImageSquare(readable, callback) {
     return callback(null, size, gmInstance);
   });
 }
-
 
 function recordAvatar(id, contentType, opts, readable, callback) {
   var streams = getDuplicates(readable);

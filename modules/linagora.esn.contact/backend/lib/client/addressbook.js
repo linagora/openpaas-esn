@@ -23,7 +23,6 @@ module.exports = function(dependencies, options) {
       });
     }
 
-
     function getBookUrl(callback) {
       davServerUtils.getDavEndpoint(function(davServerUrl) {
         callback([davServerUrl, PATH, bookId, 'contacts.json'].join('/'));
@@ -125,7 +124,6 @@ module.exports = function(dependencies, options) {
         return deferred.promise;
       }
 
-
       /**
        * Update a contact
        * @param  {Object} contact The contact vcard to be updated
@@ -158,7 +156,6 @@ module.exports = function(dependencies, options) {
 
         return deferred.promise;
       }
-
 
       /**
        * Delete a contact
@@ -202,6 +199,5 @@ module.exports = function(dependencies, options) {
       contacts: contacts
     };
   };
-
 
 };

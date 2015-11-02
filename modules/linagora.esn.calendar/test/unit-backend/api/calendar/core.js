@@ -706,61 +706,61 @@ describe('The calendar core module', function() {
       });
 
       it('should be a function', function() {
-        this.getFilter({},function(err, filter) {
+        this.getFilter({}, function(err, filter) {
           expect(filter).is.a.function;
         });
       });
 
       it('should return map-marker.png when location is specified', function() {
-        this.getFilter({location: 'aLocation'},function(err, filter) {
+        this.getFilter({location: 'aLocation'}, function(err, filter) {
           expect(filter[0]('map-marker.png')).to.be.true;
         });
       });
 
       it('should not return map-marker.png when location is not specified', function() {
-        this.getFilter({},function(err, filter) {
+        this.getFilter({}, function(err, filter) {
           expect(filter[0]('map-marker.png')).to.be.false;
         });
       });
 
       it('should return format-align-justify.png when description is specified', function() {
-        this.getFilter({description: 'aDescription'},function(err, filter) {
+        this.getFilter({description: 'aDescription'}, function(err, filter) {
           expect(filter[0]('format-align-justify.png')).to.be.true;
         });
       });
 
       it('should not return format-align-justify.png when description is not specified', function() {
-        this.getFilter({},function(err, filter) {
+        this.getFilter({}, function(err, filter) {
           expect(filter[0]('format-align-justify.png')).to.be.false;
         });
       });
 
       it('should return folder-download.png when files is specified', function() {
-        this.getFilter({files: 'someFiles'},function(err, filter) {
+        this.getFilter({files: 'someFiles'}, function(err, filter) {
           expect(filter[0]('folder-download.png')).to.be.true;
         });
       });
 
       it('should not return folder-download.png when files is not specified', function() {
-        this.getFilter({},function(err, filter) {
+        this.getFilter({}, function(err, filter) {
           expect(filter[0]('folder-download.png')).to.be.false;
         });
       });
 
       it('should return check.png for a timed event', function() {
-        this.getFilter({allDay: false},function(err, filter) {
+        this.getFilter({allDay: false}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.true;
         });
       });
 
       it('should return check.png for a multi-allday event', function() {
-        this.getFilter({allDay: true, durationInDays: 2},function(err, filter) {
+        this.getFilter({allDay: true, durationInDays: 2}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.true;
         });
       });
 
       it('should not return check.png for an allday event that lasts for one day', function() {
-        this.getFilter({allDay: true, durationInDays: 1},function(err, filter) {
+        this.getFilter({allDay: true, durationInDays: 1}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.false;
         });
       });

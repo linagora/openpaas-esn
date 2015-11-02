@@ -30,7 +30,7 @@ angular.module('linagora.esn.graceperiod')
           $log.debug('All error handlers called for graceperiod task', data.id);
         }, function(err) {
           $log.error('Error while calling grace period error handler', err);
-        }).finally (function() {
+        }).finally(function() {
           unregisterListeners(data.id);
         });
       }
@@ -51,7 +51,7 @@ angular.module('linagora.esn.graceperiod')
           $log.debug('All done handlers called for graceperiod task', data.id);
         }, function(err) {
           $log.error('Error while calling grace period done handler', err);
-        }).finally (function() {
+        }).finally(function() {
           unregisterListeners(data.id);
         });
       }
@@ -215,7 +215,6 @@ angular.module('linagora.esn.graceperiod')
 
     return function(text, linkText, delay) {
       var deferred = $q.defer();
-
 
       var notification = $.notify({
         message: appendCancelLink(text, linkText)

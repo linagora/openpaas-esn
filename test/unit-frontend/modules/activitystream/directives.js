@@ -210,7 +210,6 @@ describe('The esn.activitystream Angular module', function() {
     });
   });
 
-
   describe('activitystream directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
@@ -261,7 +260,6 @@ describe('The esn.activitystream Angular module', function() {
         this.$rootScope.$emit('message:posted', {activitystreamUuid: 'anotherASId'});
         done();
       });
-
 
       it('should do nothing if a rest call is already active for the message activityStreamUuid', function(done) {
         var uuid = '0987654321';
@@ -401,7 +399,6 @@ describe('The esn.activitystream Angular module', function() {
       });
     });
   });
-
 
   describe('activityStreamFilter directive', function() {
 

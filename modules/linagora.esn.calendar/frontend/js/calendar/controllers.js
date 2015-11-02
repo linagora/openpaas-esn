@@ -147,7 +147,7 @@ angular.module('esn.calendar')
               };
               uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
             })
-            .catch ($scope.displayCalendarError);
+            .catch($scope.displayCalendarError);
         });
       }),
       $rootScope.$on('calendars-list:removed', function(event, calendars) {

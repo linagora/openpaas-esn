@@ -28,7 +28,9 @@ describe('The websockets usernotification module', function() {
     var messageWarn = '';
 
     var loggerMocked = {
-      warn: function(message) { messageWarn = message; return; }
+      warn: function(message) {
+        messageWarn = message; return;
+      }
     };
 
     mockery.registerMock('../../core/logger', loggerMocked);

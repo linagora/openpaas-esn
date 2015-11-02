@@ -196,53 +196,52 @@ angular.module('esn.activitystream')
 'activitystreamAggregator',
 function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginDecorator, activitystreamAPI) {
 
-    function apiWrapper(id) {
-      function api(options) {
-        return activitystreamAPI.get(id, options);
-      }
-      return api;
+  function apiWrapper(id) {
+    function api(options) {
+      return activitystreamAPI.get(id, options);
     }
-
-    function getRestcursor(id, limit) {
-      var restcursorOptions = {
-        apiArgs: {limit: limit},
-        updateApiArgs: function(cursor, items, apiArgs) {
-          if (items.length > 0) {
-            apiArgs.before = items[(items.length - 1)]._id;
-          }
-        }
-      };
-      return restcursor(apiWrapper(id), limit, restcursorOptions);
-    }
-
-    function activitystreamAggregator(activitystream, streamOrigin, streams, limit) {
-      var id = activitystream.activity_stream.uuid;
-
-      var restcursorlimit = limit * 3;
-      var restcursorinstance = getRestcursor(id, restcursorlimit);
-
-      var filter = activitystreamFilter();
-
-      var filteredcursorOptions = { filter: filter.filter };
-      var filteredcursorInstance = filteredcursor(restcursorinstance, limit, filteredcursorOptions);
-
-      function loadMoreElements(callback) {
-        filteredcursorInstance.nextItems(activitystreamOriginDecorator(streamOrigin, streams, callback));
-      }
-
-      var aggregator = {
-        filter: filter,
-        cursor: filteredcursorInstance,
-        loadMoreElements: loadMoreElements
-      };
-      aggregator.__defineGetter__('endOfStream', function() { return filteredcursorInstance.endOfStream; });
-
-      return aggregator;
-    }
-
-    return activitystreamAggregator;
+    return api;
   }
-).factory('activitystreamsAggregator', function($q, $log) {
+
+  function getRestcursor(id, limit) {
+    var restcursorOptions = {
+      apiArgs: {limit: limit},
+      updateApiArgs: function(cursor, items, apiArgs) {
+        if (items.length > 0) {
+          apiArgs.before = items[(items.length - 1)]._id;
+        }
+      }
+    };
+    return restcursor(apiWrapper(id), limit, restcursorOptions);
+  }
+
+  function activitystreamAggregator(activitystream, streamOrigin, streams, limit) {
+    var id = activitystream.activity_stream.uuid;
+
+    var restcursorlimit = limit * 3;
+    var restcursorinstance = getRestcursor(id, restcursorlimit);
+
+    var filter = activitystreamFilter();
+
+    var filteredcursorOptions = { filter: filter.filter };
+    var filteredcursorInstance = filteredcursor(restcursorinstance, limit, filteredcursorOptions);
+
+    function loadMoreElements(callback) {
+      filteredcursorInstance.nextItems(activitystreamOriginDecorator(streamOrigin, streams, callback));
+    }
+
+    var aggregator = {
+      filter: filter,
+      cursor: filteredcursorInstance,
+      loadMoreElements: loadMoreElements
+    };
+    aggregator.__defineGetter__('endOfStream', function() { return filteredcursorInstance.endOfStream; });
+
+    return aggregator;
+  }
+
+  return activitystreamAggregator;
+}).factory('activitystreamsAggregator', function($q, $log) {
 
   function activitystreamsAggregator(aggs, rpp) {
     var aggregators = aggs.map(function(agg) {
@@ -392,17 +391,17 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
     }
 
     return activitystreamMessageDecorator(function(err, items) {
-        if (items) {
-          items = items.map(function(item) {
-            item.object.streamOrigins = getStreamOrigins(item);
-            item.object.isOrigin = isOriginMessage(item);
-            item.object.mainActivityStream = getMainActivityStream(item);
-            return item;
-          });
-        }
-        return callback(err, items);
-      });
-    };
+      if (items) {
+        items = items.map(function(item) {
+          item.object.streamOrigins = getStreamOrigins(item);
+          item.object.isOrigin = isOriginMessage(item);
+          item.object.mainActivityStream = getMainActivityStream(item);
+          return item;
+        });
+      }
+      return callback(err, items);
+    });
+  };
 })
 .factory('activitystreamHelper', function() {
 

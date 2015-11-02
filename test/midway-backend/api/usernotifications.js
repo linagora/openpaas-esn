@@ -274,7 +274,6 @@ describe('The user notification API', function() {
       });
   });
 
-
   it('should get HTTP 200 with defined limit/offset user notifications', function(done) {
 
     var self = this;

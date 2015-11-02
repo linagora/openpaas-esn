@@ -10,18 +10,18 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
       '/project/views/project-creation-wizard-2',
       '/project/views/project-creation-wizard-3'
       ]);
-      selectionService.clear();
+    selectionService.clear();
 
-      $rootScope.$on('modal.show', function() {
+    $rootScope.$on('modal.show', function() {
         element.find('#title').focus();
       });
 
-      $scope.project = {
+    $scope.project = {
         domain_ids: [$scope.domain._id],
         type: 'open'
       };
 
-      $scope.createProject = function() {
+    $scope.createProject = function() {
         $scope.wizard.nextStep();
         $scope.project.avatar = {
           exists: function() { return selectionService.getImage() ? true : false; },
@@ -32,7 +32,7 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
         .then(onSuccess, onFailure, onNotification);
       };
 
-      $scope.displayError = function(err, parentErr) {
+    $scope.displayError = function(err, parentErr) {
         $timeout(function() {
           $scope.alert = $alert({
             content: err + ' (' + parentErr + ')',
@@ -41,10 +41,10 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
             position: 'bottom',
             container: element.find('p.error')
           });
-        },100);
+        }, 100);
       };
 
-      function onSuccess(id) {
+    function onSuccess(id) {
         selectionService.clear();
         if (!$scope.uploadFailed) {
           $scope.create = { step: 'redirect', percent: 100 };
@@ -58,7 +58,7 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
         }, 1000);
       }
 
-      function onNotification(notif) {
+    function onNotification(notif) {
         if (notif.uploadFailed) {
           $scope.uploadFailed = true;
         } else {
@@ -66,12 +66,12 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
         }
       }
 
-      function onFailure(err) {
+    function onFailure(err) {
         return $scope.displayError('Error while creating the project', err);
       }
-    }
+  }
 
-    return {
+  return {
       restrict: 'E',
       templateUrl: '/project/views/project-create.html',
       scope: {

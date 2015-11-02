@@ -61,5 +61,3 @@ function userIsDomainMember(user, domain, callback) {
   });
 }
 module.exports.userIsDomainMember = userIsDomainMember;
-
-

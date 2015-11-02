@@ -50,7 +50,7 @@ describe('The project module', function() {
       var communities = [{_id: 1}, {_id: 2}];
       var options = {member: true, domainid: 1, name: 'My name'};
       var user = 'userA';
-      var query = {'$elemMatch': { 'member.objectType': 'user', 'member.id': user}};
+      var query = {$elemMatch: { 'member.objectType': 'user', 'member.id': user}};
 
       deps.community.getUserCommunities = function(user, options, callback) {
         expect(options.member).to.equal(options.member);

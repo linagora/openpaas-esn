@@ -33,7 +33,7 @@ var getOrCreateGoogleAddressBook = function(user, callback) {
   });
 };
 
-var createOrUpdateContact = function(entry, user , addressbook, cb) {
+var createOrUpdateContact = function(entry, user, addressbook, cb) {
   var contactQuery = {
     emails: entry['gd:email'][0].$.address,
     owner: user._id,
@@ -63,8 +63,7 @@ var createOrUpdateContact = function(entry, user , addressbook, cb) {
       entry['gd:name'][0]['gd:familyName'] &&
       entry['gd:name'][0]['gd:familyName'].length > 0) {
       contactJson.given_name = entry['gd:name'][0]['gd:givenName'][0] + ' ' + entry['gd:name'][0]['gd:familyName'][0];
-    }
-    else if (entry['gd:name'][0]['gd:fullName']) {
+    } else if (entry['gd:name'][0]['gd:fullName']) {
       contactJson.given_name = entry['gd:name'][0]['gd:fullName'][0];
     }
   }
@@ -98,7 +97,7 @@ function saveGoogleContacts(contactsXml, user, callback) {
         return callback(err);
       }
 
-     if (!addressbook) {
+      if (!addressbook) {
         return callback(new Error('Can not retrieve address book'));
       }
 
@@ -156,7 +155,7 @@ module.exports.fetchAndSaveGoogleContacts = function(baseUrl, user, code, callba
         path: '/m8/feeds/contacts/default/full',
         headers: {
           'GData-Version': '3.0',
-          'Authorization': 'Bearer ' + oauth2Client.credentials.access_token
+          Authorization: 'Bearer ' + oauth2Client.credentials.access_token
         }
       };
 

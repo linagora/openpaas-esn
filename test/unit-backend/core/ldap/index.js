@@ -216,7 +216,6 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-
       var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.not.exist;
@@ -241,7 +240,6 @@ describe('The ldap core module', function() {
         };
       };
       mockery.registerMock('ldapauth-fork', ldapmock);
-
 
       var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', 'secret', {}, function(err, user) {

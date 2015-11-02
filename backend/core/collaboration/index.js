@@ -60,7 +60,7 @@ function isManager(objectType, collaboration, user, callback) {
     return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
   }
 
-  Model.findOne({_id: id, 'creator': user_id}, function(err, result) {
+  Model.findOne({_id: id, creator: user_id}, function(err, result) {
     return callback(err, !!result);
   });
 }
@@ -154,8 +154,8 @@ function getMembers(collaboration, objectType, query, callback) {
         return callback(null, m);
       });
     }, function(err, members) {
-        members.total_count = total_count;
-        callback(err, members);
+      members.total_count = total_count;
+      callback(err, members);
     });
   });
 }
@@ -376,7 +376,7 @@ function registerCollaborationLib(name, lib) {
 
 function addObjectType(objectType, collaborations) {
   return collaborations.map(function(collaboration) {
-    if (typeof(collaboration.toObject) === 'function') {
+    if (typeof collaboration.toObject === 'function') {
       collaboration = collaboration.toObject();
     }
     collaboration.objectType = objectType;
@@ -581,7 +581,6 @@ module.exports.cleanMembershipRequest = function(collaboration, user, callback) 
 
   var userId = user._id || user;
 
-
   var otherUserRequests = collaboration.membershipRequests.filter(function(request) {
     var requestUserId = request.user._id || request.user;
     return !requestUserId.equals(userId);
@@ -649,7 +648,7 @@ function userToMember(document) {
     return result;
   }
 
-  if (typeof(document.member.toObject) === 'function') {
+  if (typeof document.member.toObject === 'function') {
     result.user = document.member.toObject();
   } else {
     result.user = document.member;

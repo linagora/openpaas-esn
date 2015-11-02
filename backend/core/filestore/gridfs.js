@@ -1,6 +1,5 @@
 'use strict';
 
-
 var Grid = require('gridfs-stream');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;

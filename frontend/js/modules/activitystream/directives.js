@@ -115,7 +115,7 @@ angular.module('esn.activitystream')
             if (thread) {
               thread.responses = message.responses;
             }
-          }).finally (function() {
+          }).finally(function() {
             message.shares.forEach(function(share) {
               if (share.objectType === 'activitystream' && scope.streams.indexOf(share.id) !== -1) {
                 scope.restActive[share.id] = false;
@@ -142,7 +142,7 @@ angular.module('esn.activitystream')
               activitystreamUuid: stream.activity_stream.uuid
             });
           });
-        },0);
+        }, 0);
 
         var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
         var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
@@ -205,7 +205,7 @@ angular.module('esn.activitystream')
       $scope.clearStreamSelection = function() {
         storage.removeItem(getKeyName()).then(function() {
           $log.debug('Filter removed form local storage');
-        }).finally (function() {
+        }).finally(function() {
           $scope.selectedStream = null;
         });
       };

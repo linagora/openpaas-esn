@@ -84,5 +84,3 @@ module.exports.timelineToActivity = function(entry) {
 
   return timelineentry;
 };
-
-

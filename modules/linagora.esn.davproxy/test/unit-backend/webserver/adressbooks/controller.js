@@ -233,7 +233,6 @@ describe('The addressbooks module', function() {
 
   });
 
-
   describe('The getContact function', function() {
 
     var req;

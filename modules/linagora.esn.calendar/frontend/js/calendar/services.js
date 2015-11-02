@@ -76,7 +76,7 @@ angular.module('esn.calendar')
           });
           return vcalendars;
         })
-        .catch ($q.reject);
+        .catch($q.reject);
     }
 
     /**
@@ -90,7 +90,7 @@ angular.module('esn.calendar')
         .then(function(response) {
           return response;
         })
-        .catch ($q.reject);
+        .catch($q.reject);
     }
 
     /**
@@ -114,7 +114,7 @@ angular.module('esn.calendar')
             return shells;
           }, []);
         })
-        .catch ($q.reject);
+        .catch($q.reject);
     }
 
     /**
@@ -156,7 +156,7 @@ angular.module('esn.calendar')
         .then(function(response) {
           return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
         })
-        .catch ($q.reject);
+        .catch($q.reject);
     }
 
     /**
@@ -216,10 +216,10 @@ angular.module('esn.calendar')
                   });
                 }
               })
-              .catch ($q.reject);
+              .catch($q.reject);
           }
         })
-        .catch ($q.reject);
+        .catch($q.reject);
     }
 
     /**
@@ -284,7 +284,7 @@ angular.module('esn.calendar')
           return $q.when(true);
         }
       })
-      .catch ($q.reject);
+      .catch($q.reject);
     }
 
     /**
@@ -357,7 +357,7 @@ angular.module('esn.calendar')
           });
         }
       })
-      .catch ($q.reject);
+      .catch($q.reject);
     }
 
     function _applyPartstatToSpecifiedAttendees(event, emails, status) {
@@ -412,7 +412,7 @@ angular.module('esn.calendar')
             });
           }
         })
-        .catch (function(response) {
+        .catch(function(response) {
           if (response.status === 412) {
             return getEvent(eventPath).then(function(shell) {
               // A conflict occurred. We've requested the event data in the

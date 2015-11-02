@@ -175,6 +175,5 @@ angular.module('esn.calendar')
       return new CalendarShell(new ICAL.Component(ical), extendedProperties);
     };
 
-
     return CalendarShell;
   });

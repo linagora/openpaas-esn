@@ -19,8 +19,7 @@ var areAddressBookIdsValid = function(address_book_ids) {
   var idArray;
   if (address_book_ids instanceof Array) {
     idArray = address_book_ids;
-  }
-  else {
+  } else {
     idArray = [address_book_ids];
   }
   var valid = true;
@@ -63,7 +62,7 @@ function getContacts(req, res) {
     return res.json(400, { error: { status: 400, message: 'Server error', details: 'Bad request : address book id is not a valid id'}});
   }
 
-contactModule.list(query, function(err, response) {
+  contactModule.list(query, function(err, response) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Contacts list failed', details: err}});
     }
@@ -120,7 +119,6 @@ function sendInvitation(req, res) {
     });
   };
 
-
   domainModule.load(domain_id, function(err, domain) {
     if (err || !domain) {
       logger.error('Invitation error');
@@ -171,7 +169,7 @@ function getInvitations(req, res) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing ids in query'});
   }
 
-  Invitation.find({type: 'addmember', 'data.contact_id': {'$in': req.query.ids}}).exec(function(err, result) {
+  Invitation.find({type: 'addmember', 'data.contact_id': {$in: req.query.ids}}).exec(function(err, result) {
     if (err) {
       return res.json(500, {error: 500, message: 'Server Error', details: err.message});
     }

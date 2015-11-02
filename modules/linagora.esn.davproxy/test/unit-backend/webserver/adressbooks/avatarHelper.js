@@ -32,7 +32,6 @@ describe('The avatarHelper module', function() {
     return require('../../../../backend/webserver/addressbooks/avatarHelper')(deps);
   }
 
-
   describe('The injectTextAvatar function', function() {
 
     it('should inject text avatar url to vcard using DEFAULT_BASE_URL', function(done) {
@@ -123,7 +122,6 @@ describe('The avatarHelper module', function() {
     });
 
   });
-
 
   describe('The removeTextAvatar function', function() {
 

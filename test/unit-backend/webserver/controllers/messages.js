@@ -15,14 +15,14 @@ describe('The messages controller', function() {
           _id: 123
         },
         body: {
-          'object': {
-            'objectType': 'whatsup',
-            'description': 'whatsup message content'
+          object: {
+            objectType: 'whatsup',
+            description: 'whatsup message content'
           },
-          'targets': [
+          targets: [
             {
-              'objectType': 'activitystream',
-              'id': 'urn:linagora:esn:activitystream:<activitystream uuid>'
+              objectType: 'activitystream',
+              id: 'urn:linagora:esn:activitystream:<activitystream uuid>'
             }
           ]
         }
@@ -240,13 +240,13 @@ describe('The messages controller', function() {
           _id: 123
         },
         body: {
-          'object': {
-            'objectType': 'whatsup',
-            'description': 'whatsup message content'
+          object: {
+            objectType: 'whatsup',
+            description: 'whatsup message content'
           },
           inReplyTo: {
-            'objectType': 'whatsup',
-            '_id': 'commentUuid'
+            objectType: 'whatsup',
+            _id: 'commentUuid'
           }
         }
       };
@@ -390,7 +390,7 @@ describe('The messages controller', function() {
           emails: ['aEmail']
         },
         query: {
-          'ids': ['1', '2']
+          ids: ['1', '2']
         }
       };
     });

@@ -94,7 +94,7 @@ function projectLib(dependencies) {
 
     var params = {};
     if (options.member) {
-      params.members = {'$elemMatch': { 'member.objectType': 'user', 'member.id': userId}};
+      params.members = {$elemMatch: { 'member.objectType': 'user', 'member.id': userId}};
     }
 
     var communityOptions = {};
@@ -111,7 +111,7 @@ function projectLib(dependencies) {
         var or = [];
         communityTuples.forEach(function(communityTuple) {
           or.push({
-            members: { '$elemMatch': communityTuple }
+            members: { $elemMatch: communityTuple }
           });
         });
         or.push(params);

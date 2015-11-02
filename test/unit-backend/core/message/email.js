@@ -100,10 +100,10 @@ describe('The email message module', function() {
       var author = 123;
       var mail = {
         headers: {
-          'Received': ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
-          'From': 'AwesomeGuy <awesomeguy@linagora.com',
-          'To': 'anotherone@linagora.com',
-          'Subject': 'a subject'
+          Received: ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
+          From: 'AwesomeGuy <awesomeguy@linagora.com',
+          To: 'anotherone@linagora.com',
+          Subject: 'a subject'
         },
         text: 'The text part of email body',
         html: 'The html part of email body',
@@ -115,15 +115,15 @@ describe('The email message module', function() {
       };
 
       function EmailMessageModel() {
-      return {
-        save: function() {
-          expect(this.author).to.equal(author);
-          expect(this.headers).to.deep.equal([
-            ['Received', 'from locahost (localhost [127.0.0.1])'],
-            ['Received', 'from linagora (linagora [10.75.9.2])'],
-            ['From', 'AwesomeGuy <awesomeguy@linagora.com'],
-            ['To', 'anotherone@linagora.com'],
-            ['Subject', 'a subject']
+        return {
+          save: function() {
+            expect(this.author).to.equal(author);
+            expect(this.headers).to.deep.equal([
+              ['Received', 'from locahost (localhost [127.0.0.1])'],
+              ['Received', 'from linagora (linagora [10.75.9.2])'],
+              ['From', 'AwesomeGuy <awesomeguy@linagora.com'],
+              ['To', 'anotherone@linagora.com'],
+              ['Subject', 'a subject']
             ]);
             expect(this.body.text).to.equal(mail.text);
             expect(this.body.html).to.equal(mail.html);
@@ -160,15 +160,14 @@ describe('The email message module', function() {
       });
     });
 
-
     it('should call attachmentModule#storeAttachment for each of the parsed attachments', function(done) {
       var author = 123;
       var mail = {
         headers: {
-          'Received': ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
-          'From': 'AwesomeGuy <awesomeguy@linagora.com',
-          'To': 'anotherone@linagora.com',
-          'Subject': 'a subject'
+          Received: ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
+          From: 'AwesomeGuy <awesomeguy@linagora.com',
+          To: 'anotherone@linagora.com',
+          Subject: 'a subject'
         },
         text: 'The text part of email body',
         html: 'The html part of email body'
@@ -192,12 +191,10 @@ describe('The email message module', function() {
           if (metaData.name === attachment1.fileName) {
             expect(metaData.contentType).to.equal(attachment1.contentType);
             callback(null, {});
-          }
-          else if (metaData.name === attachment2.fileName) {
+          } else if (metaData.name === attachment2.fileName) {
             expect(metaData.contentType).to.equal(attachment2.contentType);
             callback(null, {});
-          }
-          else {
+          } else {
             done(new Error('Unexpected call'));
           }
         }
@@ -262,10 +259,10 @@ describe('The email message module', function() {
       var author = {_id: 123};
       var mail = {
         headers: {
-          'Received': ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
-          'From': 'AwesomeGuy <awesomeguy@linagora.com',
-          'To': 'anotherone@linagora.com',
-          'Subject': 'a subject'
+          Received: ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
+          From: 'AwesomeGuy <awesomeguy@linagora.com',
+          To: 'anotherone@linagora.com',
+          Subject: 'a subject'
         },
         text: 'The text part of email body',
         html: 'The html part of email body'
@@ -293,12 +290,10 @@ describe('The email message module', function() {
           if (metaData.name === attachment1.fileName) {
             expect(metaData.contentType).to.equal(attachment1.contentType);
             callback(null, {});
-          }
-          else if (metaData.name === attachment2.fileName) {
+          } else if (metaData.name === attachment2.fileName) {
             expect(metaData.contentType).to.equal(attachment2.contentType);
             callback(null, {});
-          }
-          else {
+          } else {
             done(new Error('Unexpected call'));
           }
         }
@@ -359,7 +354,6 @@ describe('The email message module', function() {
         done();
       });
     });
-
 
     it('should throw an error if attachmentModule#storeAttachment fails', function(done) {
       var author = 123;

@@ -69,7 +69,6 @@ describe('The profile API', function() {
     this.mongoose.disconnect(done);
   });
 
-
   describe('GET /api/users/:userId/profile route', function() {
 
     it('should return 401 if not authenticated', function(done) {
@@ -251,8 +250,8 @@ describe('The profile API', function() {
     it('should return 200 with the stream of the user avatar', function(done) {
       var imageModule = this.helpers.requireBackend('core/image');
       var readable = require('fs').createReadStream(imagePath);
-
-      var avatarId = new require('mongoose').Types.ObjectId();
+      var ObjectId = require('mongoose').Types.ObjectId;
+      var avatarId = new ObjectId();
       var opts = {
         creator: {objectType: 'user', id: foouser._id}
       };
@@ -335,7 +334,7 @@ describe('The profile API', function() {
           return done(err);
         }
         var req = loggedInAsUser(request(app).post('/api/user/profile/avatar'));
-        req.query({ 'size': 123, 'mimetype': 'image/png'})
+        req.query({size: 123, mimetype: 'image/png'})
           .set('Content-Type', 'image/png')
           .send(fileContent).expect(412).end(self.helpers.callbacks.error(done));
       });
@@ -366,8 +365,8 @@ describe('The profile API', function() {
     it('should return 200 with the stream of the user avatar', function(done) {
       var imageModule = this.helpers.requireBackend('core/image');
       var readable = require('fs').createReadStream(imagePath);
-
-      var avatarId = new require('mongoose').Types.ObjectId();
+      var ObjectId = require('mongoose').Types.ObjectId;
+      var avatarId = new ObjectId();
       var opts = {
         creator: {objectType: 'user', id: foouser._id}
       };
@@ -400,4 +399,3 @@ describe('The profile API', function() {
   });
 
 });
-

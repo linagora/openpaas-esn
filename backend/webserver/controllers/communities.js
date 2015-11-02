@@ -16,7 +16,7 @@ function transform(community, user, callback) {
 
   var membershipRequest = communityModule.getMembershipRequest(community, user);
 
-  if (typeof(community.toObject) === 'function') {
+  if (typeof community.toObject === 'function') {
     community = community.toObject();
   }
 
@@ -409,8 +409,7 @@ module.exports.join = function(req, res) {
           return res.send(204);
         });
       });
-    }
-    else {
+    } else {
       communityModule.join(community, user, targetUserId, 'user', function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
@@ -492,7 +491,7 @@ module.exports.removeMembershipRequest = function(req, res) {
     return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
   }
 
-  if (!req.community.membershipRequests || ! ('filter' in req.community.membershipRequests)) {
+  if (!req.community.membershipRequests || !('filter' in req.community.membershipRequests)) {
     return res.send(204);
   }
 

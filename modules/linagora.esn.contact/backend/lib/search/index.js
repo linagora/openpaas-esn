@@ -47,7 +47,7 @@ module.exports = function(dependencies) {
     if (query.userId) {
       filters.push({
         term: {
-          'userId': query.userId
+          userId: query.userId
         }
       });
     }
@@ -55,7 +55,7 @@ module.exports = function(dependencies) {
     if (query.bookId) {
       filters.push({
         term: {
-          'bookId': query.bookId
+          bookId: query.bookId
         }
       });
     }
@@ -111,7 +111,7 @@ module.exports = function(dependencies) {
       from: offset,
       size: limit,
       body: elasticsearchQuery
-    },function(err, result) {
+    }, function(err, result) {
       if (err) {
         return callback(err);
       }

@@ -209,7 +209,6 @@ describe('The files controller', function() {
         }
       });
 
-
       var res = {
         json: function() {
           return done(new Error());
@@ -232,10 +231,10 @@ describe('The files controller', function() {
       var req = { params: { id: '123' } };
       var res = {
         json: function(code, detail) {
-            expect(code).to.equal(503);
-            expect(detail).to.be.an('object');
-            expect(detail.error).to.equal(503);
-            done();
+          expect(code).to.equal(503);
+          expect(detail).to.be.an('object');
+          expect(detail.error).to.equal(503);
+          done();
         }
       };
       var files = this.helpers.requireBackend('webserver/controllers/files');
@@ -246,10 +245,10 @@ describe('The files controller', function() {
       var req = { params: {} };
       var res = {
         json: function(code, detail) {
-            expect(code).to.equal(400);
-            expect(detail).to.be.an('object');
-            expect(detail.error).to.equal(400);
-            done();
+          expect(code).to.equal(400);
+          expect(detail).to.be.an('object');
+          expect(detail.error).to.equal(400);
+          done();
         }
       };
       var files = this.helpers.requireBackend('webserver/controllers/files');
@@ -267,11 +266,11 @@ describe('The files controller', function() {
       var req = { params: { id: '123' }, accepts: function() {return false;} };
       var res = {
         json: function(code, detail) {
-            expect(code).to.equal(404);
-            expect(detail).to.be.an('object');
-            expect(detail.error).to.equal(404);
-            expect(detail.message).to.equal('Not Found');
-            done();
+          expect(code).to.equal(404);
+          expect(detail).to.be.an('object');
+          expect(detail.error).to.equal(404);
+          expect(detail.message).to.equal('Not Found');
+          done();
         }
       };
       var files = this.helpers.requireBackend('webserver/controllers/files');
@@ -354,8 +353,8 @@ describe('The files controller', function() {
       var req = {
         params: { id: '123' },
         get: function(hdr) {
-            expect(hdr).to.equal('If-Modified-Since');
-            return null;
+          expect(hdr).to.equal('If-Modified-Since');
+          return null;
         }
       };
       var res = {
@@ -391,17 +390,17 @@ describe('The files controller', function() {
       var req = {
         params: { id: '123' },
         get: function(hdr) {
-            expect(hdr).to.equal('If-Modified-Since');
-            return modified.toString();
+          expect(hdr).to.equal('If-Modified-Since');
+          return modified.toString();
         }
       };
       var res = {
         type: function(ctype) {
-            expect(ctype).to.equal('text/plain');
+          expect(ctype).to.equal('text/plain');
         },
         send: function(code) {
-            expect(code).to.equal(304);
-            done();
+          expect(code).to.equal(304);
+          done();
         }
       };
       var files = this.helpers.requireBackend('webserver/controllers/files');

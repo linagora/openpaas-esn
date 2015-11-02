@@ -82,14 +82,14 @@ var ELASTICSEARCH_SETTINGS = {
 };
 
 var ELASTICSEARCH_CONTACTS_SETTINGS = {
-  'settings': {
-    'analysis': {
-      'filter': {
-        'nGram_filter': {
-          'type': 'nGram',
-          'min_gram': 1,
-          'max_gram': 20,
-          'token_chars': [
+  settings: {
+    analysis: {
+      filter: {
+        nGram_filter: {
+          type: 'nGram',
+          min_gram: 1,
+          max_gram: 20,
+          token_chars: [
             'letter',
             'digit',
             'punctuation',
@@ -97,20 +97,20 @@ var ELASTICSEARCH_CONTACTS_SETTINGS = {
           ]
         }
       },
-      'analyzer': {
-        'nGram_analyzer': {
-          'type': 'custom',
-          'tokenizer': 'whitespace',
-          'filter': [
+      analyzer: {
+        nGram_analyzer: {
+          type: 'custom',
+          tokenizer: 'whitespace',
+          filter: [
             'lowercase',
             'asciifolding',
             'nGram_filter'
           ]
         },
-        'whitespace_analyzer': {
-          'type': 'custom',
-          'tokenizer': 'whitespace',
-          'filter': [
+        whitespace_analyzer: {
+          type: 'custom',
+          tokenizer: 'whitespace',
+          filter: [
             'lowercase',
             'asciifolding'
           ]
@@ -118,102 +118,102 @@ var ELASTICSEARCH_CONTACTS_SETTINGS = {
       }
     }
   },
-  'mappings': {
-    'contacts': {
-      'properties' : {
-        'fn' : {
-          'type': 'string',
-          'index_analyzer': 'nGram_analyzer',
-          'search_analyzer': 'whitespace_analyzer',
-          'fields': {
-            'sort': {
-              'type': 'string',
-              'index': 'not_analyzed'
+  mappings: {
+    contacts: {
+      properties: {
+        fn: {
+          type: 'string',
+          index_analyzer: 'nGram_analyzer',
+          search_analyzer: 'whitespace_analyzer',
+          fields: {
+            sort: {
+              type: 'string',
+              index: 'not_analyzed'
             }
           }
         },
-        'name': {
-          'type': 'string',
-          'index_analyzer': 'nGram_analyzer',
-          'search_analyzer': 'whitespace_analyzer'
+        name: {
+          type: 'string',
+          index_analyzer: 'nGram_analyzer',
+          search_analyzer: 'whitespace_analyzer'
         },
-        'firstName' : {
-          'type': 'string',
-          'index_analyzer': 'nGram_analyzer',
-          'search_analyzer': 'whitespace_analyzer'
+        firstName: {
+          type: 'string',
+          index_analyzer: 'nGram_analyzer',
+          search_analyzer: 'whitespace_analyzer'
         },
-        'lastName' : {
-          'type': 'string',
-          'index_analyzer': 'nGram_analyzer',
-          'search_analyzer': 'whitespace_analyzer'
+        lastName: {
+          type: 'string',
+          index_analyzer: 'nGram_analyzer',
+          search_analyzer: 'whitespace_analyzer'
         },
-        'emails' : {
-          'properties': {
-            'type': {'type': 'string', 'index': 'no'},
-            'value': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+        emails: {
+          properties: {
+            type: {type: 'string', index: 'no'},
+            value: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             }
           }
         },
-        'org' : {
-          'type': 'string',
-          'index_analyzer': 'nGram_analyzer',
-          'search_analyzer': 'whitespace_analyzer'
+        org: {
+          type: 'string',
+          index_analyzer: 'nGram_analyzer',
+          search_analyzer: 'whitespace_analyzer'
         },
-        'urls' : {
-          'properties': {
-            'type': {'type': 'string', 'index': 'no'},
-            'value': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+        urls: {
+          properties: {
+            type: {type: 'string', index: 'no'},
+            value: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             }
           }
         },
-        'socialprofiles' : {
-          'properties': {
-            'type': {'type': 'string', 'index': 'no'},
-            'value': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+        socialprofiles: {
+          properties: {
+            type: {type: 'string', index: 'no'},
+            value: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             }
           }
         },
-        'nickname' : {
-          'type': 'string',
-          'index_analyzer': 'nGram_analyzer',
-          'search_analyzer': 'whitespace_analyzer'
+        nickname: {
+          type: 'string',
+          index_analyzer: 'nGram_analyzer',
+          search_analyzer: 'whitespace_analyzer'
         },
-        'addresses' : {
-          'properties': {
-            'full': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+        addresses: {
+          properties: {
+            full: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             },
-            'type': {'type': 'string', 'index': 'no'},
-            'street': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+            type: {type: 'string', index: 'no'},
+            street: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             },
-            'city': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+            city: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             },
-            'zip': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+            zip: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             },
-            'country': {
-              'type': 'string',
-              'index_analyzer': 'nGram_analyzer',
-              'search_analyzer': 'whitespace_analyzer'
+            country: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
             }
           }
         }
@@ -224,15 +224,15 @@ var ELASTICSEARCH_CONTACTS_SETTINGS = {
 
 var RIVER_SETTINGS = function(servers, collection) {
   return {
-    'type': 'mongodb',
-    'mongodb': {
-      'servers': [{host: servers.mongodb.ip, port: servers.mongodb.port}],
-      'db': servers.mongodb.dbname,
-      'collection': collection
+    type: 'mongodb',
+    mongodb: {
+      servers: [{host: servers.mongodb.ip, port: servers.mongodb.port}],
+      db: servers.mongodb.dbname,
+      collection: collection
     },
-    'index': {
-      'name': collection + '.idx',
-      'type': collection
+    index: {
+      name: collection + '.idx',
+      type: collection
     }
   };
 };
@@ -500,8 +500,7 @@ GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
               done(true);
             });
 
-          }
-          else {
+          } else {
             grunt.log.writeln('MongoDB - rs.initiate() done but there are problems : ' + response);
             done(false);
           }

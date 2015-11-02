@@ -93,7 +93,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
         function(err) {
           $scope.displayError(err);
         }
-      ).finally (function() {
+      ).finally(function() {
         $scope.contactsRestActive = false;
         usSpinnerService.stop(contactsSpinnerKey);
       });
@@ -128,7 +128,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
         function(err) {
           $scope.displayError(err);
         }
-      ).finally (function() {
+      ).finally(function() {
         $scope.restActive = false;
         usSpinnerService.stop(spinnerKey);
       });
@@ -198,7 +198,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
       },
       getInvitations: function(options) {
         return Restangular.all('contacts/invitations').getList(options);
-      } ,
+      },
       sendInvitation: function(contact, domain) {
         var id = contact._id || contact;
         var body = {

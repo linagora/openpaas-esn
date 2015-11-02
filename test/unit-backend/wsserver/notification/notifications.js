@@ -23,8 +23,12 @@ describe('The WebSockets notification module', function() {
       var called = 0;
 
       var io = {
-        of: function() { return this; },
-        on: function() { called++; return; }
+        of: function() {
+          return this;
+        },
+        on: function() {
+          called++; return;
+        }
       };
 
       this.helpers.mock.pubsub('../../core/pubsub', {}, {});
@@ -162,7 +166,6 @@ describe('The WebSockets notification module', function() {
       expect(call).to.equal(2);
     });
 
-
     it('should emit the proper notification on the retrieved sockets', function() {
       var localstub = {};
       var globalstub = {};
@@ -187,8 +190,7 @@ describe('The WebSockets notification module', function() {
               }
             };
             return [socket1, socket2];
-          }
-          else if (user === 'user2') {
+          } else if (user === 'user2') {
             var socket3 = {
               emit: function(event, payload) {
                 expect(event).to.equal('notification');
@@ -251,8 +253,7 @@ describe('The WebSockets notification module', function() {
               }
             };
             return [socket1];
-          }
-          else if (user === 'user2') {
+          } else if (user === 'user2') {
             var socket2 = {
               emit: function(event, payload) {
                 expect(event).to.equal('notification');
@@ -314,8 +315,7 @@ describe('The WebSockets notification module', function() {
               }
             };
             return [socket1];
-          }
-          else if (user === 'user2') {
+          } else if (user === 'user2') {
             var socket2 = {
               emit: function(event, payload) {
                 expect(event).to.equal('notification');

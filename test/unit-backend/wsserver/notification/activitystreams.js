@@ -14,8 +14,12 @@ describe('The WebSockets Event module', function() {
 
     var io = {
       use: function() {},
-      of: function() { return this; },
-      on: function() { called++; return; }
+      of: function() {
+        return this;
+      },
+      on: function() {
+        called++; return;
+      }
     };
 
     this.helpers.mock.pubsub('../../core/pubsub', {}, {});

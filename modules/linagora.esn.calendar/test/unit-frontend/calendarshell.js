@@ -88,7 +88,7 @@ describe('CalendarShell factory', function() {
               [
               'organizer',
               {
-                'cn': 'organizer@open-paas.org'
+                cn: 'organizer@open-paas.org'
               },
               'cal-address',
               'mailto:organizer@open-paas.org'
@@ -96,7 +96,7 @@ describe('CalendarShell factory', function() {
               [
                 'dtstart',
                 {
-                  'tzid': 'Europe\/Paris'
+                  tzid: 'Europe\/Paris'
                 },
                 'date',
                 '2014-12-29'
@@ -104,7 +104,7 @@ describe('CalendarShell factory', function() {
               [
                 'dtend',
                 {
-                  'tzid': 'Europe\/Paris'
+                  tzid: 'Europe\/Paris'
                 },
                 'date',
                 '2014-12-30'
@@ -130,10 +130,10 @@ describe('CalendarShell factory', function() {
               [
                 'attendee',
                 {
-                  'partstat': 'NEEDS-ACTION',
-                  'rsvp': 'TRUE',
-                  'role': 'REQ-PARTICIPANT',
-                  'cn': 'User One'
+                  partstat: 'NEEDS-ACTION',
+                  rsvp: 'TRUE',
+                  role: 'REQ-PARTICIPANT',
+                  cn: 'User One'
                 },
                 'cal-address',
                 'mailto:user1@open-paas.org'
@@ -141,9 +141,9 @@ describe('CalendarShell factory', function() {
               [
                 'attendee',
                 {
-                  'partstat': 'NEEDS-ACTION',
-                  'rsvp': 'TRUE',
-                  'role': 'REQ-PARTICIPANT'
+                  partstat: 'NEEDS-ACTION',
+                  rsvp: 'TRUE',
+                  role: 'REQ-PARTICIPANT'
                 },
                 'cal-address',
                 'mailto:user2@open-paas.org'
@@ -186,7 +186,7 @@ describe('CalendarShell factory', function() {
               [
                 'dtstart',
                 {
-                  'tzid': 'Europe\/Paris'
+                  tzid: 'Europe\/Paris'
                 },
                 'date-time',
                 '2014-12-29T18:00:00'
@@ -194,7 +194,7 @@ describe('CalendarShell factory', function() {
               [
                 'dtend',
                 {
-                  'tzid': 'Europe\/Paris'
+                  tzid: 'Europe\/Paris'
                 },
                 'date-time',
                 '2014-12-29T19:00:00'
@@ -241,7 +241,7 @@ describe('CalendarShell factory', function() {
               [
                 'dtstart',
                 {
-                  'tzid': 'Europe\/Paris'
+                  tzid: 'Europe\/Paris'
                 },
                 'date-time',
                 '2014-12-29T18:00:00'
@@ -249,7 +249,7 @@ describe('CalendarShell factory', function() {
               [
                 'dtend',
                 {
-                  'tzid': 'Europe\/Paris'
+                  tzid: 'Europe\/Paris'
                 },
                 'date-time',
                 '2014-12-29T19:00:00'

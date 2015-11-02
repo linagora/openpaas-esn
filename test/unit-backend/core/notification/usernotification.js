@@ -154,7 +154,7 @@ describe('The core user notifications module', function() {
 
     it('should findById then exec callback', function(done) {
       var models = {
-        'Usernotification': {
+        Usernotification: {
           findById: function() {
             return {
               exec: function(callback) {
@@ -184,7 +184,7 @@ describe('The core user notifications module', function() {
 
     it('should find then exec callback', function(done) {
       var models = {
-        'Usernotification': {
+        Usernotification: {
           find: function() {
             return {
               exec: function(callback) {

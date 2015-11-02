@@ -37,7 +37,7 @@ angular.module('esn.appstore')
     return {
       restrict: 'A',
       require: 'ngModel',
-      link: function(scope, elem , attrs, ngModel) {
+      link: function(scope, elem, attrs, ngModel) {
         ngModel.$asyncValidators.unique = function(title) {
           return appstoreAPI.list({title: title}).then(
             function(response) {
@@ -113,7 +113,7 @@ angular.module('esn.appstore')
           scope.loading = true;
           var steps = scope.domainDeployment ? deployAndInstall : deploy;
           steps()
-            .finally (function() {
+            .finally(function() {
             scope.loading = false;
             $log.debug('Done.');
           });
@@ -128,7 +128,7 @@ angular.module('esn.appstore')
             }, function(error) {
               $log.debug('Application undeployment failed.', error);
               notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.undeployment(scope.application.title, error.data.error.details));
-            }).finally (function() {
+            }).finally(function() {
             scope.loading = false;
             $log.debug('Done.');
           });
@@ -181,7 +181,7 @@ angular.module('esn.appstore')
             }, function(error) {
               $log.debug('Application install failed.', error);
               notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.install(scope.application.title, error.data.error.details));
-            }).finally (function() {
+            }).finally(function() {
             scope.loading = false;
             $log.debug('Done.');
           });
@@ -196,7 +196,7 @@ angular.module('esn.appstore')
             }, function(error) {
               $log.debug('Application uninstall failed.', error);
               notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.uninstall(scope.application.title, error.data.error.details));
-            }).finally (function() {
+            }).finally(function() {
             scope.loading = false;
             $log.debug('Done.');
           });
@@ -288,7 +288,7 @@ angular.module('esn.appstore')
             function(err) {
               $log.error('Application update error', err.data);
             }
-          ).finally (function() {
+          ).finally(function() {
               $scope.load = false;
             }
           );
@@ -304,7 +304,7 @@ angular.module('esn.appstore')
             function(err) {
               $log.error('Application uninstall error', err.data);
             }
-          ).finally (function() {
+          ).finally(function() {
               $scope.load = false;
             }
           );
@@ -320,7 +320,7 @@ angular.module('esn.appstore')
             function(err) {
               $log.error('Application install error', err.data);
             }
-          ).finally (function() {
+          ).finally(function() {
               $scope.load = false;
             }
           );

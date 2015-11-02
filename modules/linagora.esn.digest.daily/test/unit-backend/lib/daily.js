@@ -220,7 +220,7 @@ describe('The daily digest core module', function() {
                   return q({});
                 }
               };
-          });
+            });
 
           mockery.registerMock('./mail',
             function() {
@@ -432,7 +432,7 @@ describe('The daily digest core module', function() {
       });
 
       it('should call buildMessageContext as many times as there are threads', function() {
-        var threads = {'1': {}, '2': {}, '3': {}};
+        var threads = {1: {}, 2: {}, 3: {}};
         var call = 0;
 
         var tracker = {
@@ -459,7 +459,7 @@ describe('The daily digest core module', function() {
       });
 
       it('should return only message which have the involved field set to false', function() {
-        var threads = {'1': {}, '2': {}, '3': {}};
+        var threads = {1: {}, 2: {}, 3: {}};
         var call = 0;
 
         var tracker = {
@@ -493,7 +493,7 @@ describe('The daily digest core module', function() {
       });
 
       it('should not return undefined, empty message or message with involved field set to undefined', function() {
-        var threads = {'1': {}, '2': {}, '3': {}, '4': {}};
+        var threads = {1: {}, 2: {}, 3: {}, 4: {}};
         var call = 0;
 
         var tracker = {

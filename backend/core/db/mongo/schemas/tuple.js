@@ -16,8 +16,8 @@ module.exports.Tuple = Tuple;
 
 function validateTuple(tuple) {
   if (!tuple) { return true; }
-  if (! ('objectType' in tuple)) { return false; }
-  if (! ('id' in tuple)) { return false; }
+  if (!('objectType' in tuple)) { return false; }
+  if (!('id' in tuple)) { return false; }
   if (typeof tuple.objectType !== 'string') { return false; }
   return true;
 }

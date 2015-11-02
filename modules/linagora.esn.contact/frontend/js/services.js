@@ -283,7 +283,7 @@ angular.module('linagora.esn.contact')
               } else {
                 gracePeriodService.remove(taskId);
               }
-          });
+            });
         }, function(err) {
           notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
           return $q.reject(err);
@@ -523,7 +523,7 @@ angular.module('linagora.esn.contact')
     function getCard(bookId, cardId) {
       var path = contactUrl(bookId, cardId),
           headers = {
-            'Accept': 'application/vcard+json'
+            Accept: 'application/vcard+json'
           };
 
       return request('get', path, headers).then(function(response) {
@@ -588,7 +588,7 @@ angular.module('linagora.esn.contact')
             $rootScope.$emit(CONTACT_EVENTS.CREATED, contact);
             return response;
           })
-          .finally (function() {
+          .finally(function() {
             return response;
           });
 
@@ -602,7 +602,7 @@ angular.module('linagora.esn.contact')
 
       var headers = {
         'Content-Type': 'application/vcard+json',
-        'Prefer': 'return-representation'
+        Prefer: 'return-representation'
       };
 
       return request('put',
@@ -717,7 +717,7 @@ angular.module('linagora.esn.contact')
 
       $scope.calling = true;
 
-      return sendRequest().finally (function() {
+      return sendRequest().finally(function() {
         $scope.calling = false;
       });
     };

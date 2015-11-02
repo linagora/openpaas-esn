@@ -160,7 +160,6 @@ describe('The esn.message Angular module', function() {
 
   });
 
-
   describe('messagesTemplatesDisplayer directive', function() {
 
     beforeEach(module('jadeTemplates'));
@@ -427,7 +426,6 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-
   describe('messageDateLink directive', function() {
 
     beforeEach(module('jadeTemplates'));
@@ -479,7 +477,6 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-
   describe('messageBottomLinks directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.message'));
@@ -527,7 +524,6 @@ describe('The esn.message Angular module', function() {
 
   });
 
-
   describe('messageComments directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
@@ -548,7 +544,6 @@ describe('The esn.message Angular module', function() {
       expect(element.length).to.equal(1);
     });
   });
-
 
   describe('messageController', function() {
 
@@ -1014,14 +1009,14 @@ describe('The esn.message Angular module', function() {
 
       it('should send a POST request to /messages', function() {
         var message = {
-          'object': {
-            'objectType': 'whatsup',
-            'description': 'whatsup message content'
+          object: {
+            objectType: 'whatsup',
+            description: 'whatsup message content'
           },
-          'targets': [
+          targets: [
             {
-              'objectType': 'wall',
-              'id': 'urn:linagora:esn:wall:<wall uuid>'
+              objectType: 'wall',
+              id: 'urn:linagora:esn:wall:<wall uuid>'
             }
           ]
         };
@@ -1039,8 +1034,8 @@ describe('The esn.message Angular module', function() {
         };
         var targets = [
           {
-            'objectType': 'wall',
-            'id': 'urn:linagora:esn:wall:<wall uuid>'
+            objectType: 'wall',
+            id: 'urn:linagora:esn:wall:<wall uuid>'
           }
         ];
 
@@ -1063,8 +1058,8 @@ describe('The esn.message Angular module', function() {
         };
         var targets = [
           {
-            'objectType': 'wall',
-            'id': 'urn:linagora:esn:wall:<wall uuid>'
+            objectType: 'wall',
+            id: 'urn:linagora:esn:wall:<wall uuid>'
           }
         ];
 
@@ -1083,14 +1078,14 @@ describe('The esn.message Angular module', function() {
 
       it('should send a POST request to /messages', function() {
         var message = {
-          'object': {
-            'objectType': 'whatsup',
-            'description': 'whatsup response content'
+          object: {
+            objectType: 'whatsup',
+            description: 'whatsup response content'
           },
-          'inReplyTo': [
+          inReplyTo: [
             {
-              'objectType': 'whatsup',
-              'id': 'urn:linagora:esn:whatsup:<message uuid>'
+              objectType: 'whatsup',
+              id: 'urn:linagora:esn:whatsup:<message uuid>'
             }
           ]
         };
@@ -1108,8 +1103,8 @@ describe('The esn.message Angular module', function() {
         };
         var inReplyTo = [
           {
-            'objectType': 'wall',
-            'id': 'urn:linagora:esn:wall:<message uuid>'
+            objectType: 'wall',
+            id: 'urn:linagora:esn:wall:<message uuid>'
           }
         ];
 
@@ -1133,8 +1128,8 @@ describe('The esn.message Angular module', function() {
       };
       var inReplyTo = [
         {
-          'objectType': 'wall',
-          'id': 'urn:linagora:esn:wall:<message uuid>'
+          objectType: 'wall',
+          id: 'urn:linagora:esn:wall:<message uuid>'
         }
       ];
 

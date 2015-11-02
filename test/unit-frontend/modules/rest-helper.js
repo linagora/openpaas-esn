@@ -90,9 +90,6 @@ describe('The esn.rest.helper Angular module', function() {
 
       });
     });
-
-
-
   });
   describe('restcursor service', function() {
     beforeEach(function() {
@@ -272,6 +269,5 @@ describe('The esn.rest.helper Angular module', function() {
     });
 
   });
-
 
 });

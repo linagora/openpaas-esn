@@ -236,11 +236,11 @@ describe('The notification API', function() {
           req.expect(200)
             .end(function(err, res) {
               expect(err).to.not.exist;
-                expect(res.body).to.exist;
-                expect(res.body._id).to.equal('' + _n._id);
-                done();
-              });
+              expect(res.body).to.exist;
+              expect(res.body._id).to.equal('' + _n._id);
+              done();
             });
+        });
     });
   });
 

@@ -66,7 +66,6 @@ describe('The contact Angular module directives', function() {
 
   });
 
-
   describe('The relaxedDate directive', function() {
 
     var $compile, $rootScope, element, $scope, CONTACT_DATE_FORMAT;
@@ -298,7 +297,6 @@ describe('The contact Angular module directives', function() {
       $scope.$emit('$locationChangeStart');
     });
   });
-
 
   describe('The contactDisplay directive', function() {
     var $compile, $rootScope, element, $scope;

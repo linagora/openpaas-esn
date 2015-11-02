@@ -19,7 +19,7 @@ function getUserStreams(user, options, callback) {
     return callback(new Error('User is required'));
   }
 
-  if (typeof(options) === 'function') {
+  if (typeof options === 'function') {
     callback = options;
     options = null;
   }

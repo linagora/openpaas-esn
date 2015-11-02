@@ -186,22 +186,22 @@ describe('The Webserver module', function() {
 
       expect(serverMock.webserver.getInjections()).to.deep.equal(
         {
-          'myModule': {
-            'esn': {
-              'js': ['myModule.js'],
-              'css': ['myModule.css']
+          myModule: {
+            esn: {
+              js: ['myModule.js'],
+              css: ['myModule.css']
             }
           },
-          'myModule2': {
-            'esn': {
-              'js': ['myModule2.js'],
-              'css': ['myModule2.css'],
-              'angular': ['esn.plugin.myModule2']
+          myModule2: {
+            esn: {
+              js: ['myModule2.js'],
+              css: ['myModule2.css'],
+              angular: ['esn.plugin.myModule2']
             },
-            'welcome': {
-              'js': ['myModule2.js'],
-              'css': ['myModule2.css'],
-              'angular': ['esn.plugin.myModule2']
+            welcome: {
+              js: ['myModule2.js'],
+              css: ['myModule2.css'],
+              angular: ['esn.plugin.myModule2']
             }
           }
         }

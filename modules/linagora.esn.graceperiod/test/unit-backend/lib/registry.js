@@ -80,7 +80,6 @@ describe('The Grace Registry Module', function() {
       });
     });
 
-
     it('should remove the task when it exists', function(done) {
       var module = getModule();
       var task = {_id: 123456};

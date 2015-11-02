@@ -17,7 +17,7 @@ var topics = [
 function notify(io, uuids, msg) {
   uuids.forEach(function(uuid) {
     io.of(NAMESPACE)
-      . in (uuid)
+      .in(uuid)
       .emit(NOTIFICATION_EVENT, {room: uuid, data: msg});
   });
 }

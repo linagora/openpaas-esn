@@ -30,7 +30,7 @@ describe('The calendar module controllers', function() {
       createEvent: function() {
         return $q.when({});
       },
-      modifyEvent: function(path , e) {
+      modifyEvent: function(path, e) {
         event = e;
         return $q.when();
       },
@@ -122,10 +122,10 @@ describe('The calendar module controllers', function() {
   describe('The userCalendarController controller', function() {
     it('should inject both header and subheader', function() {
       this.headerServiceMock.mainHeader = {
-          addInjection: sinon.spy()
+        addInjection: sinon.spy()
       };
       this.headerServiceMock.subHeader = {
-          addInjection: sinon.spy()
+        addInjection: sinon.spy()
       };
       this.controller('userCalendarController', {$scope: this.scope});
       expect(this.headerServiceMock.mainHeader.addInjection).to.have.been.calledOnce;
@@ -134,10 +134,10 @@ describe('The calendar module controllers', function() {
 
     it('should resetInjection on scope destroy', function() {
       this.headerServiceMock.mainHeader = {
-          addInjection: function() {}
+        addInjection: function() {}
       };
       this.headerServiceMock.subHeader = {
-          addInjection: function() {}
+        addInjection: function() {}
       };
       this.headerServiceMock.resetAllInjections = sinon.spy();
       this.controller('userCalendarController', {$scope: this.scope});

@@ -1,6 +1,5 @@
 'use strict';
 
-
 var ICAL = require('ical.js');
 var q = require('q');
 var DEFAULT_BASE_URL = 'http://localhost:8080';
@@ -9,7 +8,6 @@ module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var esnconfig = dependencies('esn-config');
-
 
   /**
    * Get base_url configuration from esnconfig. DEFAULT_BASE_URL will be used
@@ -36,7 +34,6 @@ module.exports = function(dependencies) {
 
     return deferred.promise;
   }
-
 
   function buildTextAvatarUrl(baseUrl, addressBookId, contactId) {
     return [

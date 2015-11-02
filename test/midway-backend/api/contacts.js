@@ -319,8 +319,6 @@ describe('The contacts controller', function() {
       });
     });
 
-
-
     it('should return a 400 result if addressbook parameters is not an ObjectId as a String', function(done) {
       var self = this;
       request(webserver.application)
@@ -601,6 +599,6 @@ describe('The contacts controller', function() {
               });
             });
         });
-      });
+    });
   });
 });

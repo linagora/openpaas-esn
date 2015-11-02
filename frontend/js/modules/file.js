@@ -91,7 +91,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
           .progress(function(evt) {
             task.progress = parseInt(100.0 * evt.loaded / evt.total);
           })
-          .finally (function() {
+          .finally(function() {
           $timeout(function() {
             task.uploading = false;
           }, 1500);

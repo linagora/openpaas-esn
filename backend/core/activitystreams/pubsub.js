@@ -16,7 +16,7 @@ var initialized = false;
 function processActivity(data, callback) {
   callback = callback || function(err, saved) {
     if (err) {
-      logger.warn('Error processing message:activity: ', + err.message);
+      logger.warn('Error processing message:activity: ', +err.message);
     }
   };
 
@@ -42,7 +42,7 @@ function updateTimelineEntriesTracker(data, callback) {
 
   callback = callback || function(err, saved) {
     if (err) {
-      logger.warn('Error while adding timeline entry tracker : ', + err.message);
+      logger.warn('Error while adding timeline entry tracker : ', +err.message);
     } else {
       if (saved) {
         logger.debug('Timeline entries tracker has been created / updated into database : ' + saved._id);
@@ -66,7 +66,7 @@ function updateTimelineEntriesTracker(data, callback) {
       if (err) {
         return callback(err);
       }
-      if (! results || results.length === 0) {
+      if (!results || results.length === 0) {
         return callback(null, null);
       }
 

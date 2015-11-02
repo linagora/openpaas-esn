@@ -73,7 +73,7 @@ module.exports = function(config) {
     ],
 
     proxies: {
-       '/images/': 'http://localhost:9876/images/'
+      '/images/': 'http://localhost:9876/images/'
     },
 
     frameworks: ['mocha'],

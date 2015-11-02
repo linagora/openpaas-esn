@@ -152,7 +152,6 @@ describe('The Angular core module', function() {
     });
   });
 
-
   describe('The prefixLink filter', function() {
     var prefixLink;
 
@@ -217,7 +216,6 @@ describe('The Angular core module', function() {
     });
 
   });
-
 
   describe('The urlencode filter', function() {
     var urlencode;

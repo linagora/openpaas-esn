@@ -50,7 +50,7 @@ describe('The files API', function() {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
         var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+        req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
            .set('Content-Type', 'text/plain')
            .send('hello world')
            .expect(201)
@@ -78,7 +78,7 @@ describe('The files API', function() {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
         var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({ 'size': 11, 'mimetype': 'text/plain' })
+        req.query({size: 11, mimetype: 'text/plain' })
            .set('Content-Type', 'text/plain')
            .send('hello world')
            .expect(201)
@@ -106,7 +106,7 @@ describe('The files API', function() {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
         var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({ 'mimetype': 'text/plain' })
+        req.query({mimetype: 'text/plain' })
            .set('Content-Type', 'text/plain')
            .send('hello world')
            .expect(400)
@@ -123,7 +123,7 @@ describe('The files API', function() {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
         var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({ 'size': 11 })
+        req.query({size: 11 })
            .set('Content-Type', 'text/plain')
            .send('hello world')
            .expect(400)
@@ -140,7 +140,7 @@ describe('The files API', function() {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
         var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({ 'size': 15, 'mimetype': 'text/plain', 'name': 'creator'})
+        req.query({size: 15, mimetype: 'text/plain', name: 'creator'})
           .set('Content-Type', 'text/plain')
           .send('testing creator')
           .expect(201)
@@ -168,13 +168,13 @@ describe('The files API', function() {
     describe('When posting form-data', function() {
 
       it('should save the file and send back 201', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+        var self = this;
+        this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+          req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
           .attach('file', self.testEnv.fixtures + '/hello.txt')
           .send()
           .expect(201)
@@ -200,16 +200,16 @@ describe('The files API', function() {
       });
 
       it('should send 400 when the form does not contain attachment', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
-        req.query({'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
-          .field('username', 'Awesome')
-          .send()
-          .expect(400)
-          .end(done);
+        this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+          req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
+            .field('username', 'Awesome')
+            .send()
+            .expect(400)
+            .end(done);
         });
       });
     });
@@ -225,7 +225,7 @@ describe('The files API', function() {
 
     it('should roundtrip the file', function(done) {
       function createFile(req, callback) {
-        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+        req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
            .set('Content-Type', 'text/plain')
            .send('hello world')
            .expect(201)
@@ -260,7 +260,7 @@ describe('The files API', function() {
 
     it('should return 304 if not modified', function(done) {
       function createFile(req, callback) {
-        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+        req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
            .set('Content-Type', 'text/plain')
            .send('hello world')
            .expect(201)
@@ -306,7 +306,7 @@ describe('The files API', function() {
     it('should 204 when deleted', function(done) {
 
       function createFile(req, callback) {
-        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+        req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
           .set('Content-Type', 'text/plain')
           .send('hello world')
           .expect(201)
@@ -356,7 +356,7 @@ describe('The files API', function() {
     it('should 403 when current user is not the file owner', function(done) {
 
       function createFile(req, callback) {
-        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+        req.query({size: 11, mimetype: 'text/plain', name: 'fname'})
           .set('Content-Type', 'text/plain')
           .send('hello world')
           .expect(201)

@@ -3,5 +3,5 @@
 angular.module('esn.twitter', [])
 
   .factory('twitterWidgetService', function($window) {
-      return $window.twttr;
+    return $window.twttr;
   });

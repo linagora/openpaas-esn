@@ -92,10 +92,10 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.createEvent(path, vcalendar, { graceperiod: true })
-        .catch (function(err) {
+        .catch(function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
-        .finally (function() {
+        .finally(function() {
           $scope.restActive = false;
         });
     };
@@ -107,10 +107,10 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
-        .catch (function(err) {
+        .catch(function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
-        .finally (function() {
+        .finally(function() {
           $scope.restActive = false;
         });
     };
@@ -138,7 +138,7 @@ angular.module('esn.calendar')
         _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
       }, function(err) {
         _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
-      }).finally (function() {
+      }).finally(function() {
         $scope.restActive = false;
       });
     }
@@ -169,10 +169,10 @@ angular.module('esn.calendar')
       _hideModal();
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.isMajorModification($scope.editedEvent, $scope.event))
-        .catch (function(err) {
+        .catch(function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
-        .finally (function() {
+        .finally(function() {
           $scope.restActive = false;
         });
     }

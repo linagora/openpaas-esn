@@ -66,137 +66,136 @@ angular.module('esnApp', [
   'esn.back-detector'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
-    $routeProvider.when('/domains/:id/members/invite', {
-      templateUrl: '/views/esn/partials/domains/invite',
-      controller: 'inviteMembers',
-      resolve: { domain: routeResolver.api('domainAPI') }
-    });
+  $routeProvider.when('/domains/:id/members/invite', {
+    templateUrl: '/views/esn/partials/domains/invite',
+    controller: 'inviteMembers',
+    resolve: { domain: routeResolver.api('domainAPI') }
+  });
 
-    $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
-      templateUrl: '/views/esn/partials/message',
-      controller: 'singleMessageDisplayController',
-      resolve: {
-        message: routeResolver.api('messageAPI'),
-        activitystream: function($route, $location, activitystreamAPI, objectTypeResolver) {
-          return activitystreamAPI.getResource($route.current.params.asuuid).then(function(response) {
-            var objectType = response.data.objectType;
-            var id = response.data.object._id;
-            return objectTypeResolver.resolve(objectType, id).then(function(collaboration) {
-              return collaboration.data;
-            }, function() {
-              $location.path('/');
-            });
-
-          }, function(err) {
-            $location.path('/');
-          });
-        }
-      }
-    });
-
-    $routeProvider.when('/profile', {
-      templateUrl: '/views/esn/partials/profile',
-      controller: 'profileViewController',
-      resolve: {
-        user: function($location, userAPI) {
-          return userAPI.currentUser().then(function(response) {
-            return response.data;
+  $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
+    templateUrl: '/views/esn/partials/message',
+    controller: 'singleMessageDisplayController',
+    resolve: {
+      message: routeResolver.api('messageAPI'),
+      activitystream: function($route, $location, activitystreamAPI, objectTypeResolver) {
+        return activitystreamAPI.getResource($route.current.params.asuuid).then(function(response) {
+          var objectType = response.data.objectType;
+          var id = response.data.object._id;
+          return objectTypeResolver.resolve(objectType, id).then(function(collaboration) {
+            return collaboration.data;
           }, function() {
             $location.path('/');
           });
-        }
+
+        }, function(err) {
+          $location.path('/');
+        });
       }
-    });
+    }
+  });
 
-    $routeProvider.when('/profile/:user_id', {
-      templateUrl: '/views/esn/partials/profile',
-      controller: 'profileViewController',
-      resolve: {
-        user: function($route, $location, userAPI) {
-          return userAPI.user($route.current.params.user_id).then(function(response) {
-            return response.data;
-          }, function() {
-            $location.path('/');
-          });
-        }
+  $routeProvider.when('/profile', {
+    templateUrl: '/views/esn/partials/profile',
+    controller: 'profileViewController',
+    resolve: {
+      user: function($location, userAPI) {
+        return userAPI.currentUser().then(function(response) {
+          return response.data;
+        }, function() {
+          $location.path('/');
+        });
       }
-    });
+    }
+  });
 
-    $routeProvider.when('/domains/:domain_id/members', {
-      templateUrl: '/views/esn/partials/members',
-      controller: 'memberscontroller'
-    });
-
-    $routeProvider.when('/applications', {
-      templateUrl: '/views/modules/application/applications',
-      controller: 'applicationController',
-      resolve: {
-        applications: routeResolver.api('applicationAPI', 'created', 'undefined')
+  $routeProvider.when('/profile/:user_id', {
+    templateUrl: '/views/esn/partials/profile',
+    controller: 'profileViewController',
+    resolve: {
+      user: function($route, $location, userAPI) {
+        return userAPI.user($route.current.params.user_id).then(function(response) {
+          return response.data;
+        }, function() {
+          $location.path('/');
+        });
       }
-    });
+    }
+  });
 
-    $routeProvider.when('/applications/:application_id', {
-      templateUrl: '/views/modules/application/application-details',
-      controller: 'applicationDetailsController',
-      resolve: {
-        application: routeResolver.api('applicationAPI', 'get', 'application_id', '/applications')
+  $routeProvider.when('/domains/:domain_id/members', {
+    templateUrl: '/views/esn/partials/members',
+    controller: 'memberscontroller'
+  });
+
+  $routeProvider.when('/applications', {
+    templateUrl: '/views/modules/application/applications',
+    controller: 'applicationController',
+    resolve: {
+      applications: routeResolver.api('applicationAPI', 'created', 'undefined')
+    }
+  });
+
+  $routeProvider.when('/applications/:application_id', {
+    templateUrl: '/views/modules/application/application-details',
+    controller: 'applicationDetailsController',
+    resolve: {
+      application: routeResolver.api('applicationAPI', 'get', 'application_id', '/applications')
+    }
+  });
+
+  $routeProvider.when('/communities', {
+    templateUrl: '/views/esn/partials/communities',
+    controller: 'communitiesController',
+    resolve: {
+      domain: routeResolver.session('domain'),
+      user: routeResolver.session('user')
+    }
+  });
+
+  $routeProvider.when('/communities/:community_id', {
+    templateUrl: '/views/esn/partials/community',
+    controller: 'communityController',
+    resolve: {
+      community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
+      memberOf: function(collaborationAPI, $q, $route, $location) {
+        return collaborationAPI.getWhereMember({
+          objectType: 'community',
+          id: $route.current.params.community_id
+        }).then(function(response) {
+          return response.data;
+        }, function() {
+          $location.path('/communities');
+        });
       }
-    });
+    }
+  });
 
-    $routeProvider.when('/communities', {
-      templateUrl: '/views/esn/partials/communities',
-      controller: 'communitiesController',
-      resolve: {
-        domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
+  $routeProvider.when('/collaborations/community/:community_id/members', {
+    templateUrl: '/views/modules/community/community-members',
+    controller: 'communityController',
+    resolve: {
+      community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
+      memberOf: function() {
+        return [];
       }
-    });
+    }
+  });
 
-    $routeProvider.when('/communities/:community_id', {
-      templateUrl: '/views/esn/partials/community',
-      controller: 'communityController',
-      resolve: {
-        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
-        memberOf: function(collaborationAPI, $q, $route, $location) {
-          return collaborationAPI.getWhereMember({
-            objectType: 'community',
-            id: $route.current.params.community_id
-          }).then(function(response) {
-            return response.data;
-          }, function() {
-            $location.path('/communities');
-          });
-        }
+  $routeProvider.otherwise({
+    redirectTo: function(params, path, search) {
+      if (search && search.continue) {
+        return search.continue;
       }
-    });
+      return '/communities';
+    }
+  });
 
-    $routeProvider.when('/collaborations/community/:community_id/members', {
-      templateUrl: '/views/modules/community/community-members',
-      controller: 'communityController',
-      resolve: {
-        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
-        memberOf: function() {
-          return [];
-        }
-      }
-    });
-
-    $routeProvider.otherwise({
-      redirectTo: function(params, path, search) {
-        if (search && search.continue) {
-          return search.continue;
-        }
-        return '/communities';
-      }
-    });
-
-    RestangularProvider.setBaseUrl('/api');
-    RestangularProvider.setFullResponse(true);
-  })
-
+  RestangularProvider.setBaseUrl('/api');
+  RestangularProvider.setFullResponse(true);
+})
 .run(function(session, ioConnectionManager, editableOptions) {
-    editableOptions.theme = 'bs3';
-    session.ready.then(function() {
+  editableOptions.theme = 'bs3';
+  session.ready.then(function() {
     ioConnectionManager.connect();
   });
 });

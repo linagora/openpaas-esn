@@ -98,7 +98,7 @@ describe('The contact denormalize module', function() {
   });
 
   it('should set the tags', function() {
-    expect(denormalize().tags).to.deep.equal([{'text': 'Die Hard'}, {'text': 'Bald'}, {'text': 'Armaggedon'}, {'text': 'America savior'}]);
+    expect(denormalize().tags).to.deep.equal([{text: 'Die Hard'}, {text: 'Bald'}, {text: 'Armaggedon'}, {text: 'America savior'}]);
   });
 
   it('should set the socialprofiles', function() {

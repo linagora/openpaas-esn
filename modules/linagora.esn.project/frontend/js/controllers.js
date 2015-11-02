@@ -20,14 +20,14 @@ angular.module('esn.project')
       $scope.writable = $scope.canWrite();
     })
   .controller('projectsController', function($scope, $log, $location, projectAPI, domain, user) {
-      $scope.projects = [];
-      $scope.error = false;
-      $scope.loading = false;
-      $scope.user = user;
-      $scope.domain = domain;
-      $scope.selected = '';
+    $scope.projects = [];
+    $scope.error = false;
+    $scope.loading = false;
+    $scope.user = user;
+    $scope.domain = domain;
+    $scope.selected = '';
 
-      $scope.getAll = function() {
+    $scope.getAll = function() {
         $scope.selected = 'all';
         $scope.loading = true;
         projectAPI.list(domain._id).then(
@@ -39,31 +39,31 @@ angular.module('esn.project')
             $scope.error = true;
             $scope.projects = [];
           }
-        ).finally (
+        ).finally(
           function() {
             $scope.loading = false;
           }
         );
       };
 
-      $scope.getMembership = function() {
+    $scope.getMembership = function() {
         $scope.selected = 'membership';
         return $scope.getAll();
       };
 
-      $scope.getModerator = function() {
+    $scope.getModerator = function() {
         $scope.selected = 'moderator';
         return $scope.getAll();
       };
 
-      $scope.getAll();
+    $scope.getAll();
   })
   .controller('projectsAStrackerController', function($rootScope, $scope, $log, AStrackerHelpers, ASTrackerNotificationService, projectAPI) {
-      $scope.activityStreams = ASTrackerNotificationService.streams;
-      $scope.show = false;
-      $scope.load = true;
+    $scope.activityStreams = ASTrackerNotificationService.streams;
+    $scope.show = false;
+    $scope.load = true;
 
-      AStrackerHelpers.getActivityStreamsWithUnreadCount('project', function(err, result) {
+    AStrackerHelpers.getActivityStreamsWithUnreadCount('project', function(err, result) {
         if (err) {
           $scope.error = 'Error while getting unread message: ' + err;
           return;
@@ -123,7 +123,7 @@ angular.module('esn.project')
           }));
         }, function() {
           $scope.error = true;
-        }).finally (function() {
+        }).finally(function() {
           $scope.restActive = false;
           usSpinnerService.stop($scope.spinnerKey);
         });

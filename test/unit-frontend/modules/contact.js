@@ -191,7 +191,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('currentFocus() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,
@@ -218,7 +218,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('isChecked() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,
@@ -239,7 +239,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('isContactSelected() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,
@@ -260,7 +260,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('loadAddressBook() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,
@@ -280,7 +280,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('selectAddressBook() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,
@@ -297,7 +297,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('selectContact() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,
@@ -314,7 +314,7 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('refreshContacts() method', function() {
-     beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
         this.$controller('contactsController', {
           $scope: this.scope,
           $alert: this.alert,

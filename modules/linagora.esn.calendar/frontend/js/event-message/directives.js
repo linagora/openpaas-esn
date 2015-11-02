@@ -10,10 +10,10 @@ angular.module('esn.calendar')
         function updateAttendeeStats() {
           var partstatMap = scope.attendeesPerPartstat = {
             'NEEDS-ACTION': 0,
-            'ACCEPTED': 0,
-            'TENTATIVE': 0,
-            'DECLINED': 0,
-            'OTHER': 0
+            ACCEPTED: 0,
+            TENTATIVE: 0,
+            DECLINED: 0,
+            OTHER: 0
           };
 
           scope.hasAttendees = !!scope.event.attendees;
@@ -137,10 +137,10 @@ angular.module('esn.calendar')
             _resetEvent();
             scope.$parent.show('whatsup');
           })
-          .catch (function(err) {
+          .catch(function(err) {
             notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
           })
-          .finally (function() {
+          .finally(function() {
             scope.restActive = false;
           });
       };

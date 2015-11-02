@@ -65,7 +65,7 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
       .error(function(data, err) {
         onError(data, err, 'test');
       })
-      .finally (function() {
+      .finally(function() {
         $scope.test.running = false;
         $scope.testButton.label = $scope.testButton.notRunning;
       });
@@ -84,7 +84,7 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
       .error(function(data, err) {
         onError(data, err, 'record');
       })
-      .finally (function() {
+      .finally(function() {
         $scope.record.running = false;
         $scope.recordButton.label = $scope.recordButton.notRunning;
       });
@@ -92,7 +92,7 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
 
 }).service('setupAPI', function($http) {
 
-    function testConnection(settings) {
+  function testConnection(settings) {
       var url = '/api/document-store/connection/' +
                 encodeURIComponent(settings.hostname) + '/' +
                 encodeURIComponent(settings.port) + '/' +
@@ -105,12 +105,12 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
       return $http.put(url, body);
     }
 
-    function recordSettings(settings) {
+  function recordSettings(settings) {
       return $http.put('/api/document-store/connection', settings);
     }
 
-    return {
+  return {
       testConnection: testConnection,
       recordSettings: recordSettings
     };
-  });
+});

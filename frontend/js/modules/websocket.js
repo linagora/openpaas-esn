@@ -400,7 +400,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
 
       return {
         on: function(event, callback) {
-          if (! room) {
+          if (!room) {
             client.on(event, callback);
             $log.debug(namespace + ' : subscribed');
             return this;
@@ -433,12 +433,12 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
           return this;
         },
         removeListener: function(event, callback) {
-          if (! room) {
+          if (!room) {
             client.removeListener(event, callback);
             $log.debug(namespace + ' : unsubscribed');
             return this;
           }
-          if (! subscriptions[event]) {
+          if (!subscriptions[event]) {
             return this;
           }
           subscriptions[event].callbacks = subscriptions[event].callbacks.filter(function(element) {
@@ -481,9 +481,9 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
      * livenotification(namespace).removeListener(event, callback);
      */
     return function(namespace, room) {
-      if (! socketCache[namespace + '/' + room]) {
+      if (!socketCache[namespace + '/' + room]) {
         socketCache[namespace + '/' + room] = socketIORoom(namespace, room, socket(namespace));
       }
       return socketCache[namespace + '/' + room];
     };
-});
+  });

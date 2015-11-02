@@ -21,7 +21,7 @@ module.exports.find = function(domains, query, callback) {
     var elasticsearchOrFilters = domains.map(function(domain) {
       return {
         term: {
-          'domain_ids': domain._id
+          domain_ids: domain._id
         }
       };
     });
@@ -31,7 +31,7 @@ module.exports.find = function(domains, query, callback) {
 
     var elasticsearchQuery = {
       sort: [
-        {'title': 'asc'}
+        {title: 'asc'}
       ],
       query: {
         filtered: {

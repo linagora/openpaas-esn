@@ -144,8 +144,5 @@ describe('The esn.api-notification Angular module', function() {
         done();
       }, 100);
     });
-
-
   });
 });
-

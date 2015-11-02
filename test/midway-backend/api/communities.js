@@ -262,7 +262,6 @@ describe('The communities API', function() {
         });
       });
 
-
       it('should return the membershipRequest date', function(done) {
 
         var self = this;

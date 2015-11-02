@@ -18,7 +18,6 @@ function logmein(req, res) {
 }
 module.exports.logmein = logmein;
 
-
 /**
  * Logout the current user
  *

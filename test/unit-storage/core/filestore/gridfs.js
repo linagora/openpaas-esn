@@ -213,7 +213,6 @@ describe('The filestore gridfs module', function() {
     });
   });
 
-
   it('should return null when trying to get metadata from unknown file', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
     var filestore = this.helpers.requireBackend('core/filestore/gridfs');

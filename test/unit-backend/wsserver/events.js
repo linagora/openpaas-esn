@@ -5,7 +5,7 @@ var mockery = require('mockery');
 describe('The WebSockets Event module', function() {
 
   var io = {
-      on: function() {}
+    on: function() {}
   };
 
   var initMock = function(callback) {
@@ -23,7 +23,6 @@ describe('The WebSockets Event module', function() {
 
     this.helpers.requireBackend('wsserver/events')(io);
   });
-
 
   it('should initialize the notifications event', function(done) {
     mockery.registerMock('./notification/activitystreams', initMock());

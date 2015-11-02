@@ -59,7 +59,7 @@ describe('The esn.activitystream Angular module', function() {
           return {
             loadMoreElements: function(callback) {
               self.loadCount++;
-              callback(null, [{thread1: {}},{thread2: {}},{thread3: {}}]);
+              callback(null, [{thread1: {}}, {thread2: {}}, {thread3: {}}]);
             },
             endOfStream: false
           };
@@ -239,7 +239,7 @@ describe('The esn.activitystream Angular module', function() {
             return {
               then: function() {
                 return {
-                  'finally': function(callback) {
+                  finally: function(callback) {
                     callback();
                     expect(self.scope.restActive['123']).to.be.false;
                     done();

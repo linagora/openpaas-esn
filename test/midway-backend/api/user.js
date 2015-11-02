@@ -8,7 +8,6 @@ describe('User API', function() {
 
   var webserver;
 
-
   beforeEach(function(done) {
     var self = this;
     this.mongoose = require('mongoose');

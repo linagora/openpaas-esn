@@ -32,7 +32,6 @@ describe('The avatars controller', function() {
         avatars.get(req, res);
       });
 
-
       it('should send back 500 when avatarModule.getAvatarFromEmail sends an error', function(done) {
         var email = 'user@domain';
 

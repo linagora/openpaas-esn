@@ -14,7 +14,6 @@ var TOPIC_UPDATED = 'usernotification:updated';
 var NOTIFICATION_EVENT_CREATED = 'usernotification:created';
 var NOTIFICATION_EVENT_UPDATED = 'usernotification:updated';
 
-
 function notify(io, user, event, usernotification) {
   var clientSockets = helper.getUserSocketsFromNamespace(user, io.of(NAMESPACE).sockets);
   if (!clientSockets) {

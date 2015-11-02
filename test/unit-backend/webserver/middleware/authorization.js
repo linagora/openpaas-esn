@@ -213,7 +213,7 @@ describe('The authorization middleware', function() {
         _id: 111,
         administrator: {
           equals: function(id) {
-            return 124 === id;
+            return id === 124;
           }
         }
       }
@@ -229,7 +229,6 @@ describe('The authorization middleware', function() {
     middleware(req, res, next);
   });
 
-
   it('should call next if req.user is the domain administrator', function(done) {
     mockery.registerMock('../../core/community', {});
     var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
@@ -242,7 +241,7 @@ describe('The authorization middleware', function() {
         _id: 111,
         administrator: {
           equals: function(id) {
-            return 123 === id;
+            return id === 123;
           }
         }
       }

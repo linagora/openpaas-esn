@@ -59,7 +59,6 @@ describe('The webserver setup-route middleware', function() {
     expect(registered['/api/document-store/connection/:hostname/:port/:dbname']).to.be.a.function;
   });
 
-
   describe('GET / callback', function() {
 
     it('should call res.render if the system is not yet configured', function(done) {
@@ -74,7 +73,7 @@ describe('The webserver setup-route middleware', function() {
         put: function() {},
         get: function(path, callback) {
           if (path === '/') {
-            callback({},responseMock, null);
+            callback({}, responseMock, null);
           }
         }
       };
@@ -91,7 +90,7 @@ describe('The webserver setup-route middleware', function() {
         put: function() {},
         get: function(path, callback) {
           if (path === '/') {
-            callback({},{},nextMock);
+            callback({}, {}, nextMock);
           }
         }
       };
@@ -110,7 +109,7 @@ describe('The webserver setup-route middleware', function() {
       var appMock = {
         get: function() {},
         put: function(path, callback) {
-          callback({},{},nextMock);
+          callback({}, {}, nextMock);
         }
       };
 
@@ -129,7 +128,7 @@ describe('The webserver setup-route middleware', function() {
       var appMock = {
         get: function() {},
         put: function(path, callback) {
-          callback({},responseMock, null);
+          callback({}, responseMock, null);
         }
       };
 
@@ -149,15 +148,13 @@ describe('The webserver setup-route middleware', function() {
         put: function() {},
         get: function(path, callback) {
           if (path === '/api/document-store/connection/:hostname/:port/:dbname') {
-            callback({},{},nextMock);
+            callback({}, {}, nextMock);
           }
         }
       };
 
       this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
-
-
 
     it('should call res.json(400) if the system is configured', function(done) {
       this.configured = true;
@@ -172,15 +169,13 @@ describe('The webserver setup-route middleware', function() {
         put: function() {},
         get: function(path, callback) {
           if (path === '/api/document-store/connection/:hostname/:port/:dbname') {
-            callback({},responseMock, null);
+            callback({}, responseMock, null);
           }
         }
       };
 
       this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
-
   });
-
 
 });

@@ -20,8 +20,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   beforeEach(module(function($provide) {
     $provide.constant('MAILBOX_ROLE_ICONS_MAPPING', {
-      'testrole': 'testclass',
-      'default': 'defaultclass'
+      testrole: 'testclass',
+      default: 'defaultclass'
     });
     $provide.value('jmapClient', jmapClient = {});
     $provide.value('session', {
@@ -134,7 +134,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
   });
-
 
   describe('The composer directive', function() {
 
@@ -286,7 +285,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
   });
-
 
   describe('The inboxFab directive', function() {
 

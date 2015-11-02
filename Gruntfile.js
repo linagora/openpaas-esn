@@ -48,21 +48,13 @@ module.exports = function(grunt) {
         src: []
       }
     },
-    gjslint: {
+    jscs: {
       options: {
-        flags: [
-          '--disable 0110',
-          '--nojsdoc',
-          '-e test/frontend/karma-include,modules/linagora.esn.calendar/frontend/js/thirdparty',
-          '-x frontend/js/modules/modernizr.js'
-        ],
-        reporter: {
-          name: CI ? 'gjslint_xml' : 'console',
-          dest: CI ? 'gjslint.xml' : undefined
-        }
+        config: '.jscsrc'
       },
       all: {
-        src: ['<%= jshint.all.src %>']
+
+        src: ['<%= jshint.all.src %>', '!test/frontend/karma-include/*', '!frontend/js/modules/modernizr.js', '!modules/**/thirdparty/*.js']
       },
       quick: {
         src: ['<%= jshint.quick.src %>']
@@ -103,27 +95,27 @@ module.exports = function(grunt) {
       redis: container.newContainer(
         servers.redis.container.image,
         servers.redis.container.name,
-        { PortBindings: { '6379/tcp': [{ 'HostPort': servers.redis.port + '' }] } },
+        { PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] } },
         null,
         /on port/, 'Redis server is started.'),
       mongo: container.newContainer(
         servers.mongodb.container.image,
         servers.mongodb.container.name,
-        { PortBindings: { '27017/tcp': [{ 'HostPort': servers.mongodb.port + '' }] } },
+        { PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] } },
         ['mongod', '--nojournal'],
         new RegExp('connections on port 27017'), 'MongoDB server is started.'),
       mongo_replSet: container.newContainer(
         servers.mongodb.container.image,
         servers.mongodb.container.name,
-        { PortBindings: { '27017/tcp': [{ 'HostPort': servers.mongodb.port + '' }] },
+        { PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
           ExtraHosts: ['mongo:127.0.0.1']},
         util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' '),
         new RegExp('connections on port 27017'), 'MongoDB server is started.'),
       elasticsearch: container.newContainer(
         servers.elasticsearch.container.image,
         servers.elasticsearch.container.name,
-        { PortBindings: { '9200/tcp': [{ 'HostPort': servers.elasticsearch.port + '' }] },
-          Links: [servers.mongodb.container.name + ':mongo'] } ,
+        { PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
+          Links: [servers.mongodb.container.name + ':mongo'] },
         ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false'],
         /started/, 'Elasticsearch server is started.')
     },
@@ -181,7 +173,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-shell-spawn');
@@ -190,6 +181,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-inspector');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
+  grunt.loadNpmTasks('grunt-jscs');
 
   grunt.loadTasks('tasks');
 
@@ -223,14 +215,14 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern']);
+  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'jscs:all', 'lint_pattern']);
 
   /**
    * Usage:
    *   grunt linters-dev              # Run linters against files changed in git
    *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
    */
-  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick', 'lint_pattern:quick']);
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'jscs:quick', 'lint_pattern:quick']);
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {

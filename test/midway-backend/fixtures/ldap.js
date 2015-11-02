@@ -14,7 +14,7 @@ var SUFFIX = 'ou=passport-ldapauth';
 var server = null;
 
 var db = {
-  'ldapuser': {
+  ldapuser: {
     dn: 'uid=ldapuser,ou=passport-ldapauth',
     attributes: {
       uid: 'ldapuser',

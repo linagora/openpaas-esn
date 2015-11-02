@@ -25,6 +25,5 @@ function alterViewsFolder(req, res, next) {
   });
 }
 
-
 module.exports.alterViewsFolder = alterViewsFolder;
 module.exports.alterTemplatePath = alterTemplatePath;

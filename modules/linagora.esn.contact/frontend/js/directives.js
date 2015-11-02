@@ -12,9 +12,9 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       scope: {
-        'contact': '=',
-        'formattedBirthday': '=',
-        'defaultAvatar': '='
+        contact: '=',
+        formattedBirthday: '=',
+        defaultAvatar: '='
       },
       templateUrl: '/contact/views/partials/contact-display.html',
       link: function($scope) {
@@ -43,7 +43,7 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       scope: {
-        'contact': '='
+        contact: '='
       },
       templateUrl: '/contact/views/partials/contact-edition-form.html',
       link: function($scope) {

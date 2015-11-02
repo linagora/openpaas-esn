@@ -6,7 +6,6 @@ var async = require('async');
 var sendMail = require('../../email/system/addMember');
 var invitationValidityDays = 7;
 
-
 module.exports.isStillValid = function(invitation, done) {
   var limitDate = new Date(invitation.timestamps.created.getTime());
   limitDate.setDate(limitDate.getDate() + invitationValidityDays);
@@ -65,7 +64,6 @@ module.exports.process = function(invitation, data, done) {
   }
   return done(new Error('Can not find any valid invitation'));
 };
-
 
 /**
  * Create the user resources.

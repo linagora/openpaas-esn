@@ -293,7 +293,6 @@ describe('The esn.user-notification Angular module', function() {
           }});
         };
 
-
         this.scope.initPager(10);
         this.scope.$digest();
 

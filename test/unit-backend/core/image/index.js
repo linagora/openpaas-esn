@@ -73,7 +73,7 @@ describe('The core image module', function() {
           readableStream.pipe(ws);
           return callback(null, { length: 42 });
         },
-        'delete': function(id, callback) {
+        delete: function(id, callback) {
           return callback(null);
         },
         getAsFileStoreMeta: function(file) {
@@ -103,7 +103,7 @@ describe('The core image module', function() {
           called++;
           return callback(null, { length: 42 });
         },
-        'delete': function(id, callback) {
+        delete: function(id, callback) {
           expect(id).to.equal('666');
           called++;
           expect(called).to.equal(2);
@@ -131,7 +131,7 @@ describe('The core image module', function() {
           readableStream.pipe(ws);
           return callback(null, { length: 42 });
         },
-        'delete': function(id, callback) {
+        delete: function(id, callback) {
           return callback(null);
         },
         getAsFileStoreMeta: function(file) {
@@ -162,7 +162,7 @@ describe('The core image module', function() {
           called++;
           return callback(null, { length: 42 });
         },
-        'delete': function(id, callback) {
+        delete: function(id, callback) {
           expect(id).to.equal('666');
           called++;
           expect(called).to.equal(2);
@@ -214,8 +214,7 @@ describe('The core image module', function() {
       image.recordAvatar(avatarId, 'image/jpeg', {}, is, function(err, size) {
         if (err) {
           done(err);
-        }
-        else {
+        } else {
           expect(size).to.equal(42);
           expect(fileStore2Calls).to.equal(1);
           done();

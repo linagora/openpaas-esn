@@ -15,7 +15,6 @@ describe('The Contacts Angular module', function() {
     module('linagora.esn.contact');
   });
 
-
   describe('The liveRefreshContactService service', function() {
     var liveNotificationMock, onFn, removeListenerFn;
     var $rootScope, liveRefreshContactService, CONTACT_SIO_EVENTS;
@@ -119,7 +118,6 @@ describe('The Contacts Angular module', function() {
 
   });
 
-
   describe('The contactsService service', function() {
     var ICAL, CONTACT_EVENTS, contact, contactWithChangedETag, contactAsJCard;
 
@@ -192,14 +190,14 @@ describe('The Contacts Angular module', function() {
             }
           },
           'dav:syncToken': 6,
-          '_embedded': {
+          _embedded: {
             'dav:item': [
               {
-                '_links': {
-                  'self': '/addressbooks/5375de4bd684db7f6fbd4f97/contacts/myuid.vcf'
+                _links: {
+                  self: '/addressbooks/5375de4bd684db7f6fbd4f97/contacts/myuid.vcf'
                 },
-                'etag': '\'6464fc058586fff85e3522de255c3e9f\'',
-                'data': [
+                etag: '\'6464fc058586fff85e3522de255c3e9f\'',
+                data: [
                   'vcard',
                   [
                     ['version', {}, 'text', '4.0'],
@@ -223,7 +221,7 @@ describe('The Contacts Angular module', function() {
           expect(cards[0].id).to.equal(uid);
           expect(cards[0].vcard).to.be.an('object');
           expect(cards[0].etag).to.be.empty;
-        }.bind(this)).finally (done);
+        }.bind(this)).finally(done);
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -297,7 +295,7 @@ describe('The Contacts Angular module', function() {
             ['photo', {}, 'text', 'data:image/png;base64,iVBOR=']
           ], []],
           // headers:
-          { 'ETag': 'testing-tag' }
+          { ETag: 'testing-tag' }
         );
 
         this.contactsService.getCard(1, 2).then(function(contact) {
@@ -324,7 +322,7 @@ describe('The Contacts Angular module', function() {
           expect(contact.nickname).to.equal('nick');
           expect(contact.notes).to.equal('notes');
           expect(contact.photo).to.equal('data:image/png;base64,iVBOR=');
-        }.bind(this)).finally (done);
+        }.bind(this)).finally(done);
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -340,7 +338,7 @@ describe('The Contacts Angular module', function() {
 
         this.contactsService.getCard(1, 2).then(function(contact) {
           expect(contact.photo).to.not.exist;
-        }.bind(this)).finally (done);
+        }.bind(this)).finally(done);
 
         this.$httpBackend.flush();
       });
@@ -368,12 +366,12 @@ describe('The Contacts Angular module', function() {
           ['vcard', [
             ['bday', {}, 'text', 'a text birthday']
           ], []],
-          { 'ETag': 'testing-tag' }
+          { ETag: 'testing-tag' }
         );
 
         this.contactsService.getCard(1, 2).then(function(contact) {
           expect(contact.birthday).to.equal('a text birthday');
-        }.bind(this)).finally (done);
+        }.bind(this)).finally(done);
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -508,9 +506,9 @@ describe('The Contacts Angular module', function() {
       it('should send etag as If-Match header', function(done) {
         var requestHeaders = {
           'Content-Type': 'application/vcard+json',
-          'Prefer': 'return-representation',
+          Prefer: 'return-representation',
           'If-Match': 'etag',
-          'Accept': 'application/json, text/plain, */*'
+          Accept: 'application/json, text/plain, */*'
         };
 
         this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=8000'), function() { return true; }, requestHeaders).respond(202);
@@ -668,7 +666,6 @@ describe('The Contacts Angular module', function() {
 
     });
 
-
     describe('The remove fn', function() {
 
       it('should pass the graceperiod as a query parameter if defined', function(done) {
@@ -737,7 +734,7 @@ describe('The Contacts Angular module', function() {
       it('should send etag as If-Match header', function(done) {
         var requestHeaders = {
           'If-Match': 'etag',
-          'Accept': 'application/json, text/plain, */*'
+          Accept: 'application/json, text/plain, */*'
         };
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf'), requestHeaders).respond(204);
@@ -779,7 +776,6 @@ describe('The Contacts Angular module', function() {
 
     });
 
-
     describe('The deleteContact fn', function() {
 
       beforeEach(function() {
@@ -799,7 +795,7 @@ describe('The Contacts Angular module', function() {
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
           .respond(function(method, url, data, headers) {
-            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
           });
         contact.displayName = 'Foo Bar';
         this.contactsService.deleteContact('1', contact);
@@ -832,7 +828,7 @@ describe('The Contacts Angular module', function() {
       it('should grace the request using the default delay on success', function(done) {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
           .respond(function(method, url, data, headers) {
-            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
           });
 
         this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
@@ -848,7 +844,7 @@ describe('The Contacts Angular module', function() {
       it('should register grace live notification on success', function(done) {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
           .respond(function(method, url, data, headers) {
-            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
           });
 
         this.notificationFactory.strongError = sinon.spy();
@@ -886,7 +882,7 @@ describe('The Contacts Angular module', function() {
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
           .respond(function(method, url, data, headers) {
-            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
           });
 
         this.contactsService.deleteContact('1', contact);
@@ -911,7 +907,7 @@ describe('The Contacts Angular module', function() {
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
           .respond(function(method, url, data, headers) {
-            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
           });
 
         this.contactsService.deleteContact('1', contact);
@@ -933,7 +929,7 @@ describe('The Contacts Angular module', function() {
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
           .respond(function(method, url, data, headers) {
-            return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
           });
 
         this.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(evt, data) {
@@ -950,7 +946,6 @@ describe('The Contacts Angular module', function() {
     });
 
   });
-
 
   describe('The ContactsHelper service', function() {
 
@@ -1417,7 +1412,7 @@ describe('The Contacts Angular module', function() {
 
         var eventCallback = function() {};
         var scope = {
-          '$on': function(event, callback) {
+          $on: function(event, callback) {
             expect(CONTACT_LIST_DISPLAY_EVENTS.toggle).to.equal(event);
             expect(callback).to.equal(eventCallback);
             done();

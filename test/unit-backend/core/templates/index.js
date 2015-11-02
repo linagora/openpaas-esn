@@ -107,7 +107,5 @@ describe('The template module', function() {
         });
       });
     });
-
-
   });
 });

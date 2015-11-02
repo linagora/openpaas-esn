@@ -110,7 +110,6 @@ describe('The communities permission module', function() {
     });
   });
 
-
   describe('The supportsMemberShipRequests fn', function() {
 
     it('should return false if community is undefined', function() {

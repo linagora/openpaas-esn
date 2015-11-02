@@ -3,7 +3,6 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-
 describe('getMembers fn', function() {
 
   beforeEach(function() {
@@ -104,9 +103,9 @@ describe('getMembers fn', function() {
     mockery.registerMock('../../core/collaboration/index', {
       getMembers: function(com, objectType, query, callback) {
         var members = [
-          { id: 1, member: { 'objectType': 'user' } },
-          { id: 2, member: { 'objectType': 'user' } },
-          { id: 3, member: { 'objectType': 'user' } }
+          { id: 1, member: {objectType: 'user' } },
+          { id: 2, member: {objectType: 'user' } },
+          { id: 3, member: {objectType: 'user' } }
         ];
         members.total_count = members.length;
         return callback(null, members);
@@ -144,7 +143,7 @@ describe('getMembers fn', function() {
     mockery.registerMock('../../core/collaboration/index', {
       getMembers: function(com, objectType, query, callback) {
         var members = [
-          { id: 2, member: { 'objectType': 'user' } }
+          { id: 2, member: {objectType: 'user' } }
         ];
         members.total_count = 1;
         return callback(null, members);
@@ -190,9 +189,9 @@ describe('getMembers fn', function() {
         expect(query.offset).to.equal(offset);
 
         var members = [
-          { id: 1, member: { 'objectType': 'user' } },
-          { id: 2, member: { 'objectType': 'user' } },
-          { id: 3, member: { 'objectType': 'user' } }
+          { id: 1, member: {objectType: 'user' } },
+          { id: 2, member: {objectType: 'user' } },
+          { id: 3, member: {objectType: 'user' } }
         ];
         members.total_count = members.length;
         return callback(null, members);
@@ -435,7 +434,7 @@ describe('The leave fn', function() {
       user: {},
       collaboration: {},
       params: {
-      objectType: 'community'
+        objectType: 'community'
       }
     };
 

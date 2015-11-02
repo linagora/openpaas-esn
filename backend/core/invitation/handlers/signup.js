@@ -15,7 +15,6 @@ module.exports.isStillValid = function(invitation, done) {
   return done(null, true);
 };
 
-
 /**
  * Validate the input data: required properties are firstname, lastname and email.
  */

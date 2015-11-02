@@ -29,7 +29,6 @@ describe('The Daily Digest Module', function() {
     return deps[name];
   };
 
-
   describe('The init function', function() {
 
     beforeEach(function() {

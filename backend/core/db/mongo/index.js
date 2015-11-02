@@ -62,7 +62,7 @@ function insertDocument(db, collectionName, document, callback) {
 function dropCollection(db, collectionName, callback) {
   db.dropCollection(collectionName, function(err, data) {
     db.close(function(err, data) {
-        //ignore error
+      //ignore error
     });
     return callback(err);
   });
@@ -234,7 +234,6 @@ function init() {
   }
   return mongooseConnect(reinit);
 }
-
 
 module.exports.init = init;
 

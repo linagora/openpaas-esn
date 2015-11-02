@@ -58,5 +58,3 @@ module.exports.setAsRead = function(notification, callback) {
   notification.read = true;
   notification.save(callback);
 };
-
-

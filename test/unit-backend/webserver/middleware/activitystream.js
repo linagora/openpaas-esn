@@ -5,7 +5,6 @@ var mockery = require('mockery');
 
 describe('The activitystream middleware', function() {
 
-
   describe.skip('The filterWritableTargets fn', function() {
   });
 

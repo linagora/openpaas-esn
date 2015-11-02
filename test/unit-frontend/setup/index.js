@@ -7,8 +7,6 @@ var expect = chai.expect;
 describe('The Setup Angular module', function() {
   beforeEach(angular.mock.module('setupApp'));
 
-
-
   describe('wizardController', function() {
     beforeEach(inject(function($rootScope, $controller) {
       this.setupAPImock = {};
@@ -125,8 +123,6 @@ describe('The Setup Angular module', function() {
       });
 
     });
-
-
   });
 
   describe('setupAPI service', function() {
@@ -150,7 +146,7 @@ describe('The Setup Angular module', function() {
         promise.then(function(response) {
           expect(response.data).to.deep.equal(responseData);
           done();
-        },function() {done();});
+        }, function() {done();});
 
         this.$httpBackend.flush();
       });
@@ -172,7 +168,7 @@ describe('The Setup Angular module', function() {
         promise.then(function(response) {
           expect(response.data).to.deep.equal(responseData);
           done();
-        },function() {done();});
+        }, function() {done();});
 
         this.$httpBackend.flush();
       });
@@ -200,12 +196,11 @@ describe('The Setup Angular module', function() {
         promise.then(function(response) {
           expect(response.data).to.deep.equal(responseData);
           done();
-        },function() {done();});
+        }, function() {done();});
 
         this.$httpBackend.flush();
       });
     });
-
 
   });
 

@@ -78,7 +78,6 @@ describe('The contact WS events module', function() {
       done();
     });
 
-
     it('should register pubsub subscriber for contacts:contact:add', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
       mod.init(this.moduleHelpers.dependencies);
@@ -143,7 +142,6 @@ describe('The contact WS events module', function() {
       });
     });
 
-
     describe('contacts:contact:delete subscriber', function() {
 
       it('should send delete event with contact info in websockets when receiving contacts:contact:delete event from the pubsub', function(done) {
@@ -173,7 +171,6 @@ describe('The contact WS events module', function() {
         this.pubsub.local.topic(CONTACT_DELETED).publish(pubsubData);
       });
     });
-
 
     describe('contacts:contact:update subscriber', function() {
 

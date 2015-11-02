@@ -17,10 +17,10 @@ angular.module('esn.calendar')
         function updateAttendeeStats() {
           var partstatMap = scope.attendeesPerPartstat = {
             'NEEDS-ACTION': 0,
-            'ACCEPTED': 0,
-            'TENTATIVE': 0,
-            'DECLINED': 0,
-            'OTHER': 0
+            ACCEPTED: 0,
+            TENTATIVE: 0,
+            DECLINED: 0,
+            OTHER: 0
           };
 
           if (!!scope.attendees) {

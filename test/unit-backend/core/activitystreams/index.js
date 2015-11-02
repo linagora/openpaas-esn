@@ -129,7 +129,7 @@ describe('The activity streams core module', function() {
       };
 
       this.helpers.mock.models({
-        'TimelineEntry': {
+        TimelineEntry: {
           findOne: function(query) {
             expect(query).to.deep.equal(expected);
             done();
