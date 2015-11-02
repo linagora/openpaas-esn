@@ -216,7 +216,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
     });
 
-
     it('should successfully notify when a valid email is sent', function() {
       $scope.sendViaJMAP = function() {
         var defer = $q.defer();
@@ -269,7 +268,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(notificationTitle).to.equal('Success');
       expect(notificationText).to.equal('Your email has been sent');
     });
-
 
     it('should notify immediately about sending email for slow connection. The final notification is shown once the email is sent', function() {
       $scope.sendViaJMAP = function() {
