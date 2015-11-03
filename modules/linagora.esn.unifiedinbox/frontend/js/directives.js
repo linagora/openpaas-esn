@@ -137,7 +137,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($q, $timeout, notificationFactory) {
+  .directive('composer', function($q, $timeout, notificationFactory, draftService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -166,7 +166,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.send = function send() {
           disableSend();
-          if (scope.validateEmailSending(scope.rcpt)) {
+          if (scope.validateEmailSending(scope.email.rcpt)) {
 
             scope.$hide();
 
@@ -188,14 +188,16 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.isCollapsed = true;
 
+        var draft = draftService.startDraft(scope.email);
         scope.$on('$destroy', function() {
-          notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+          draft.save(scope.email);
         });
+
       }
     };
   })
 
-  .directive('recipientsAutoComplete', function() {
+  .directive('recipientsAutoComplete', function(emailSendingService) {
     return {
       restrict: 'E',
       require: '^composer',
@@ -205,11 +207,12 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/composer/recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
+        $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;
       }
     };
   })
 
-  .directive('fullscreenRecipientsAutoComplete', function() {
+  .directive('fullscreenRecipientsAutoComplete', function(emailSendingService) {
     return {
       restrict: 'E',
       require: '^composer',
@@ -219,6 +222,7 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/composer/fullscreen-recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
+        $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;
       }
     };
   });

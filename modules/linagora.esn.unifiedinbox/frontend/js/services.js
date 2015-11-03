@@ -84,6 +84,24 @@ angular.module('linagora.esn.unifiedinbox')
   .factory('emailSendingService', function(emailService) {
 
     /**
+     * Set the recipient.email and recipient.name fields to
+     * recipient.displayName if they are undefined.
+     * @param {recipient object} recipient
+     */
+    function ensureEmailAndNameFields(recipient) {
+      if (!recipient.displayName) {
+        return recipient;
+      }
+      if (!recipient.email) {
+        recipient.email = recipient.displayName;
+      }
+      if (!recipient.name) {
+        recipient.name = recipient.displayName;
+      }
+      return recipient;
+    }
+
+    /**
      * Add the following logic when sending an email:
      * Check for an invalid email used as a recipient
      * @param {recipient object} rcpt
@@ -163,8 +181,98 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
+      ensureEmailAndNameFields: ensureEmailAndNameFields,
       emailsAreValid: emailsAreValid,
       removeDuplicateRecipients: removeDuplicateRecipients,
       noRecipient: noRecipient
+    };
+  })
+
+  .service('draftService', function($log, jmap, jmapClient, session, notificationFactory) {
+
+    function saveDraftSuccess() {
+      notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+    }
+
+    function saveDraftFailed(err) {
+      notificationFactory.weakError('Error', 'Your email has not been saved');
+      $log.error('A draft has not been saved', err);
+    }
+
+    function haveDifferentRecipients(left, right) {
+
+      function recipientToEmail(recipient) {
+        return recipient.email;
+      }
+
+      function containsAll(from, to) {
+        return from.every(function(email) {
+          return to.indexOf(email) !== -1;
+        });
+      }
+
+      var leftEmails = left.map(recipientToEmail);
+      var rightEmails = right.map(recipientToEmail);
+
+      return !containsAll(leftEmails, rightEmails) ||
+             !containsAll(rightEmails, leftEmails);
+    }
+
+    function mapToNameEmailTuple(recipients) {
+      return (recipients || []).map(function(recipient) {
+        return {
+          name: recipient.name,
+          email: recipient.email
+        };
+      });
+    }
+
+    function Draft(originalEmailState) {
+      this.originalEmailState = angular.copy(originalEmailState);
+    }
+
+    Draft.prototype.needToBeSaved = function(newEmailState) {
+      var original = this.originalEmailState || {};
+      original.rcpt = original.rcpt || {};
+      original.subject = (original.subject || '').trim();
+      original.htmlBody = (original.htmlBody || '').trim();
+
+      var newest = newEmailState || {};
+      newest.rcpt = newest.rcpt || {};
+      newest.subject = (newest.subject || '').trim();
+      newest.htmlBody = (newest.htmlBody || '').trim();
+
+      return (
+        original.subject !== newest.subject ||
+        original.htmlBody !== newest.htmlBody ||
+        haveDifferentRecipients(original.rcpt.to || [], newest.rcpt.to || []) ||
+        haveDifferentRecipients(original.rcpt.cc || [], newest.rcpt.cc || []) ||
+        haveDifferentRecipients(original.rcpt.bcc || [], newest.rcpt.bcc || [])
+      );
+    };
+
+    Draft.prototype.save = function(newEmailState) {
+      if (!this.needToBeSaved(newEmailState)) {
+        return;
+      }
+      jmapClient
+        .saveAsDraft(new jmap.OutboundMessage(jmapClient, {
+          from: new jmap.EMailer({
+            email: session.user.preferredEmail,
+            name: session.user.name
+          }),
+          subject: newEmailState.subject,
+          htmlBody: newEmailState.htmlBody,
+          to: mapToNameEmailTuple(newEmailState.rcpt.to),
+          cc: mapToNameEmailTuple(newEmailState.rcpt.cc),
+          bcc: mapToNameEmailTuple(newEmailState.rcpt.bcc)
+        }))
+        .then(saveDraftSuccess, saveDraftFailed);
+    };
+
+    return {
+      startDraft: function(originalEmailState) {
+        return new Draft(originalEmailState);
+      }
     };
   });

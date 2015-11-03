@@ -139,10 +139,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   describe('The composer directive', function() {
+
     var closeNotificationSpy = sinon.spy();
     var hideScopeSpy = sinon.spy();
     var notificationTitle = '', notificationText = '';
-    beforeEach(function() {
+    var draftService;
+
+    beforeEach(inject(function(_draftService_) {
+      draftService = _draftService_;
       Offline.state = 'up';
 
       $scope.$hide = hideScopeSpy;
@@ -164,13 +168,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
           close: closeNotificationSpy
         };
       };
-    });
+    }));
 
     it('should not send an email with no recipient', function() {
-      $scope.rcpt = {
-        to: [],
-        cc: [],
-        bcc: []
+      $scope.email = {
+        rcpt: {
+          to: [],
+          cc: [],
+          bcc: []
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -183,10 +189,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should not send if an invalid email is used as a recipient', function() {
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}],
-        cc: [{displayName: 'me', email: 'myemailATlinagoraPOINTcom'}],
-        bcc: []
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: 'me', email: 'myemailATlinagoraPOINTcom'}],
+          bcc: []
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -201,10 +209,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     it('should not send an email during offline state', function() {
       Offline.state = 'down';
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}],
-        cc: [],
-        bcc: []
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [],
+          bcc: []
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -223,10 +233,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-        cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
-        bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
+          bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
+        }
       };
 
       var expectedRcpt = {
@@ -239,7 +251,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.send();
       $scope.$digest();
       expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-      expect($scope.rcpt).to.shallowDeepEqual(expectedRcpt);
+      expect($scope.email.rcpt).to.shallowDeepEqual(expectedRcpt);
       expect(hideScopeSpy).to.be.called;
       expect(closeNotificationSpy).to.be.called;
       expect(notificationTitle).to.equal('Success');
@@ -253,10 +265,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [],
-        cc: [],
-        bcc: [{displayName: '1', email: '1@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [],
+          cc: [],
+          bcc: [{displayName: '1', email: '1@linagora.com'}]
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -278,8 +292,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}]
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -304,8 +320,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return defer.promise;
       };
 
-      $scope.rcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}]
+      $scope.email = {
+        rcpt: {
+          to: [{displayName: '1', email: '1@linagora.com'}]
+        }
       };
 
       var element = compileDirective('<composer/>');
@@ -321,15 +339,25 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(hideScopeSpy).to.be.called;
     });
 
-    it('should notify and save draft when the composer is destroyed', function() {
-      notificationFactory.weakInfo = function(callTitle, callText) {
-        notificationTitle = callTitle;
-        notificationText = callText;
+    it('should save draft when the composer is destroyed', function() {
+      var originalEmailState, newEmailState;
+      draftService.startDraft = function(originalEmail) {
+        originalEmailState = originalEmail;
+        return {
+          save: function(newEmail) {
+            newEmailState = newEmail;
+          }
+        };
       };
+
+      $scope.email = {originalState: 'yo', rcpt: {to: [], cc: [], bcc: []}};
       compileDirective('<composer />');
+
+      $scope.email = {newState: 'lo', rcpt: {to: ['to@domain'], cc: [], bcc: []}};
       $scope.$emit('$destroy');
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Your email has been saved as draft');
+
+      expect(originalEmailState).to.deep.equal({originalState: 'yo', rcpt: {to: [], cc: [], bcc: []}});
+      expect(newEmailState).to.deep.equal({newState: 'lo', rcpt: {to: ['to@domain'], cc: [], bcc: []}});
     });
 
     it('should expose a search function through its controller', function() {
@@ -548,6 +576,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       element.find('recipients-auto-complete').isolateScope().search();
     });
 
+    it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>', {
+        $composerController: {}
+      });
+
+      var scope = element.find('recipients-auto-complete').isolateScope();
+      expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
+        .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
+    });
   });
 
   describe('The fullscreenRecipientsAutoComplete directive', function() {
@@ -560,6 +597,16 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       element.find('fullscreen-recipients-auto-complete').isolateScope().search();
+    });
+
+    it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
+      compileDirective('<div fullscreen-edit-form-container><fullscreen-recipients-auto-complete ng-model="model"></fullscreen-recipients-auto-complete></div>', {
+        $composerController: {}
+      });
+
+      var scope = element.find('fullscreen-recipients-auto-complete').isolateScope();
+      expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
+        .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
     });
 
   });

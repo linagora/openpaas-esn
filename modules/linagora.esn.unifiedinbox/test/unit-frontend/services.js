@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global moment: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -328,6 +329,33 @@ describe('The Unified Inbox Angular module services', function() {
       });
     });
 
+    describe('the ensureEmailAndNameField function', function() {
+      it('should do nothing if name and email are already defined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({name: 'user', email: 'user@domain', displayName: 'disp'}))
+          .to.deep.equal({name: 'user', email: 'user@domain', displayName: 'disp'});
+      });
+      it('should do nothing if displayName is undefined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({}))
+          .to.deep.equal({});
+      });
+      it('should assign name only if email is already defined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({email: 'user@domain', displayName: 'disp'}))
+          .to.deep.equal({name: 'disp', email: 'user@domain', displayName: 'disp'});
+      });
+      it('should assign email only if name is already defined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({name: 'user', displayName: 'disp'}))
+          .to.deep.equal({name: 'user', email: 'disp', displayName: 'disp'});
+      });
+      it('should assign name and email if both are undefined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({displayName: 'disp'}))
+          .to.deep.equal({name: 'disp', email: 'disp', displayName: 'disp'});
+      });
+      it('should assign name and email if both are empty', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({name: '', email: '', displayName: 'disp'}))
+          .to.deep.equal({name: 'disp', email: 'disp', displayName: 'disp'});
+      });
+    });
+
     describe('the emailsAreValid function', function() {
       it('should return false when some recipients emails are not valid', function() {
         rcpt = {
@@ -394,6 +422,383 @@ describe('The Unified Inbox Angular module services', function() {
         expect(expectedRcpt).to.shallowDeepEqual(rcpt);
       });
     });
+  });
+
+  describe('The draftService service', function() {
+
+    var draftService, jmapClient, session, notificationFactory, $log, $rootScope;
+
+    beforeEach(inject(function(_draftService_, _jmapClient_, _session_, _notificationFactory_, _$log_, _$rootScope_) {
+      draftService = _draftService_;
+      jmapClient = _jmapClient_;
+      session = _session_;
+      notificationFactory = _notificationFactory_;
+      $log = _$log_;
+      $rootScope = _$rootScope_;
+    }));
+
+    describe('The needToBeSaved method', function() {
+
+      it('should return false if original and new are both undefined object', function() {
+        var draft = draftService.startDraft(undefined);
+        expect(draft.needToBeSaved(undefined)).to.equal(false);
+      });
+
+      it('should return false if original and new are both empty object', function() {
+        var draft = draftService.startDraft({});
+        expect(draft.needToBeSaved({})).to.equal(false);
+      });
+
+      it('should look for differences after having copying original', function() {
+        var content = {subject: 'yo'};
+
+        var draft = draftService.startDraft(content);
+        content.subject = 'lo';
+
+        expect(draft.needToBeSaved(content)).to.equal(true);
+      });
+
+      it('should return false if original and new are equal', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to@domain'}],
+            cc: [{email: 'cc@domain'}],
+            bcc: [{email: 'bcc@domain'}]
+          }
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to@domain'}],
+            cc: [{email: 'cc@domain'}],
+            bcc: [{email: 'bcc@domain'}]
+          }
+        })).to.equal(false);
+      });
+
+      it('should return false if only order changes', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to1@domain'}, {email: 'to2@domain'}],
+            cc: [{email: 'cc1@domain'}, {email: 'cc2@domain'}],
+            bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
+          }
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to2@domain'}, {email: 'to1@domain'}],
+            cc: [{email: 'cc2@domain'}, {email: 'cc1@domain'}],
+            bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
+          }
+        })).to.equal(false);
+      });
+
+      it('should return false if only name has changed', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to@domain', name:'before'}]
+          }
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to@domain', name:'after'}]
+          }
+        })).to.equal(false);
+      });
+
+      it('should return true if original has one more field', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo'
+        })).to.equal(true);
+      });
+
+      it('should return true if new state has one more field', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text'
+        })).to.equal(true);
+      });
+
+      it('should return true if original has difference into rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: []}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: [{email: 'second@domain'}]}
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into to rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: [{email: 'first@domain'}]}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: [{email: 'second@domain'}]}
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into cc rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {cc: [{email: 'first@domain'}]}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {cc: [{email: 'second@domain'}]}
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into bcc rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {bcc: [{email: 'first@domain'}]}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {bcc: [{email: 'second@domain'}]}
+        })).to.equal(true);
+      });
+
+      it('should return false if one has empty subject and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: '',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: undefined,
+          htmlBody: 'text'
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: undefined,
+          htmlBody: 'text'
+        });
+        expect(draft2.needToBeSaved({
+          subject: '',
+          htmlBody: 'text'
+        })).to.equal(false);
+      });
+
+      it('should return false if one has space only subject and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: ' ',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: undefined,
+          htmlBody: 'text'
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: undefined,
+          htmlBody: 'text'
+        });
+        expect(draft2.needToBeSaved({
+          subject: ' ',
+          htmlBody: 'text'
+        })).to.equal(false);
+      });
+
+      it('should return false if one has empty body and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: undefined
+        });
+        expect(draft.needToBeSaved({
+          subject: 'subject',
+          htmlBody: ''
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: ''
+        });
+        expect(draft2.needToBeSaved({
+          subject: 'subject',
+          htmlBody: undefined
+        })).to.equal(false);
+      });
+
+      it('should return false if one has space only body and other one has undefined', function() {
+        var draft = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: undefined
+        });
+        expect(draft.needToBeSaved({
+          subject: 'subject',
+          htmlBody: ' '
+        })).to.equal(false);
+
+        var draft2 = draftService.startDraft({
+          subject: 'subject',
+          htmlBody: ' '
+        });
+        expect(draft2.needToBeSaved({
+          subject: 'subject',
+          htmlBody: undefined
+        })).to.equal(false);
+      });
+
+      it('should return false if original has empty rcpt property', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: []}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text'
+        })).to.equal(false);
+      });
+
+      it('should return false if new has empty rcpt property', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {to: []}
+        })).to.equal(false);
+      });
+
+    });
+
+    describe('The save method', function() {
+
+      it('should do nothing if needToBeSaved returns false', function() {
+        jmapClient.saveAsDraft = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return false;};
+        draft.save({});
+
+        expect(jmapClient.saveAsDraft).to.not.have.been.called;
+      });
+
+      it('should call saveAsDraft if needToBeSaved returns true', function() {
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({rcpt: {}});
+
+        expect(jmapClient.saveAsDraft).to.have.been.called;
+      });
+
+      it('should call saveAsDraft with OutboundMessage filled with properties', function() {
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
+        session.user = {preferredEmail: 'yo@lo', name: 'me'};
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({
+          subject: 'expected subject',
+          htmlBody: 'expected htmlBody',
+          rcpt: {
+            to: [{email: 'to@domain', name: 'to'}],
+            cc: [{email: 'cc@domain', name: 'cc'}],
+            bcc: [{email: 'bcc@domain', name: 'bcc'}]
+          }
+        });
+
+        expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
+          sinon.match({
+            from: {email: 'yo@lo', name: 'me'},
+            subject: 'expected subject',
+            htmlBody: 'expected htmlBody',
+            to: [{email: 'to@domain', name: 'to'}],
+            cc: [{email: 'cc@domain', name: 'cc'}],
+            bcc: [{email: 'bcc@domain', name: 'bcc'}]
+          }));
+      });
+
+      it('should map all recipients to name-email tuple', function() {
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
+        session.user = {preferredEmail: 'yo@lo', name: 'me'};
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({
+          subject: 'expected subject',
+          htmlBody: 'expected htmlBody',
+          rcpt: {
+            to: [{email: 'to@domain', name: 'to', other: 'value'}],
+            cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', other: 'value', name: 'cc2'}]
+          }
+        });
+
+        expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
+          sinon.match({
+            from: {email: 'yo@lo', name: 'me'},
+            subject: 'expected subject',
+            htmlBody: 'expected htmlBody',
+            to: [{email: 'to@domain', name: 'to'}],
+            cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', name: 'cc2'}]
+          }));
+      });
+
+      it('should notify when has saved successfully', function() {
+        jmapClient.saveAsDraft = function() {return $q.when({});};
+        notificationFactory.weakInfo = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({rcpt: {}});
+
+        $rootScope.$digest();
+        expect(notificationFactory.weakInfo).to.have.been.called;
+        expect(notificationFactory.weakInfo).to.have.been.calledWithExactly('Note', 'Your email has been saved as draft');
+      });
+
+      it('should notify when has not saved successfully', function() {
+        var err = {message: 'rejected with err'};
+        jmapClient.saveAsDraft = function() {return $q.reject(err);};
+        notificationFactory.weakError = sinon.spy();
+        $log.error = sinon.spy();
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({rcpt: {}});
+
+        $rootScope.$digest();
+        expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
+        expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
+      });
+
+    });
+
   });
 
 });
