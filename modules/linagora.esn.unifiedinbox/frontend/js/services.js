@@ -218,6 +218,15 @@ angular.module('linagora.esn.unifiedinbox')
              !containsAll(rightEmails, leftEmails);
     }
 
+    function mapToNameEmailTuple(recipients) {
+      return (recipients || []).map(function(recipient) {
+        return {
+          name: recipient.name,
+          email: recipient.email
+        };
+      });
+    }
+
     function Draft(originalEmailState) {
       this.originalEmailState = angular.copy(originalEmailState);
     }
@@ -254,9 +263,9 @@ angular.module('linagora.esn.unifiedinbox')
           }),
           subject: newEmailState.subject,
           htmlBody: newEmailState.htmlBody,
-          to: newEmailState.rcpt.to,
-          cc: newEmailState.rcpt.cc,
-          bcc: newEmailState.rcpt.bcc
+          to: mapToNameEmailTuple(newEmailState.rcpt.to),
+          cc: mapToNameEmailTuple(newEmailState.rcpt.cc),
+          bcc: mapToNameEmailTuple(newEmailState.rcpt.bcc)
         }))
         .then(saveDraftSuccess, saveDraftFailed);
     };

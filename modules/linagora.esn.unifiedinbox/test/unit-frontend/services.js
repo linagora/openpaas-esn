@@ -517,7 +517,6 @@ describe('The Unified Inbox Angular module services', function() {
         })).to.equal(false);
       });
 
-
       it('should return true if original has one more field', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
@@ -742,6 +741,31 @@ describe('The Unified Inbox Angular module services', function() {
             to: [{email: 'to@domain', name: 'to'}],
             cc: [{email: 'cc@domain', name: 'cc'}],
             bcc: [{email: 'bcc@domain', name: 'bcc'}]
+          }));
+      });
+
+      it('should map all recipients to name-email tuple', function() {
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
+        session.user = {preferredEmail: 'yo@lo', name: 'me'};
+
+        var draft = draftService.startDraft({});
+        draft.needToBeSaved = function() {return true;};
+        draft.save({
+          subject: 'expected subject',
+          htmlBody: 'expected htmlBody',
+          rcpt: {
+            to: [{email: 'to@domain', name: 'to', other: 'value'}],
+            cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', other: 'value', name: 'cc2'}]
+          }
+        });
+
+        expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
+          sinon.match({
+            from: {email: 'yo@lo', name: 'me'},
+            subject: 'expected subject',
+            htmlBody: 'expected htmlBody',
+            to: [{email: 'to@domain', name: 'to'}],
+            cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', name: 'cc2'}]
           }));
       });
 
