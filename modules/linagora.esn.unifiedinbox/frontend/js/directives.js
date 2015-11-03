@@ -197,7 +197,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('recipientsAutoComplete', function() {
+  .directive('recipientsAutoComplete', function(emailSendingService) {
     return {
       restrict: 'E',
       require: '^composer',
@@ -207,11 +207,12 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/composer/recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
+        $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;
       }
     };
   })
 
-  .directive('fullscreenRecipientsAutoComplete', function() {
+  .directive('fullscreenRecipientsAutoComplete', function(emailSendingService) {
     return {
       restrict: 'E',
       require: '^composer',
@@ -221,6 +222,7 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/composer/fullscreen-recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
+        $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;
       }
     };
   });

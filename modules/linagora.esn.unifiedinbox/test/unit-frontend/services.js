@@ -329,6 +329,33 @@ describe('The Unified Inbox Angular module services', function() {
       });
     });
 
+    describe('the ensureEmailAndNameField function', function() {
+      it('should do nothing if name and email are already defined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({name: 'user', email: 'user@domain', displayName: 'disp'}))
+          .to.deep.equal({name: 'user', email: 'user@domain', displayName: 'disp'});
+      });
+      it('should do nothing if displayName is undefined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({}))
+          .to.deep.equal({});
+      });
+      it('should assign name only if email is already defined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({email: 'user@domain', displayName: 'disp'}))
+          .to.deep.equal({name: 'disp', email: 'user@domain', displayName: 'disp'});
+      });
+      it('should assign email only if name is already defined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({name: 'user', displayName: 'disp'}))
+          .to.deep.equal({name: 'user', email: 'disp', displayName: 'disp'});
+      });
+      it('should assign name and email if both are undefined', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({displayName: 'disp'}))
+          .to.deep.equal({name: 'disp', email: 'disp', displayName: 'disp'});
+      });
+      it('should assign name and email if both are empty', function() {
+        expect(emailSendingService.ensureEmailAndNameFields({name: '', email: '', displayName: 'disp'}))
+          .to.deep.equal({name: 'disp', email: 'disp', displayName: 'disp'});
+      });
+    });
+
     describe('the emailsAreValid function', function() {
       it('should return false when some recipients emails are not valid', function() {
         rcpt = {

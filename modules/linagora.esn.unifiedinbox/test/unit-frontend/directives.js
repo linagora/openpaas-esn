@@ -576,6 +576,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       element.find('recipients-auto-complete').isolateScope().search();
     });
 
+    it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>', {
+        $composerController: {}
+      });
+
+      var scope = element.find('recipients-auto-complete').isolateScope();
+      expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
+        .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
+    });
   });
 
   describe('The fullscreenRecipientsAutoComplete directive', function() {
@@ -588,6 +597,16 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       element.find('fullscreen-recipients-auto-complete').isolateScope().search();
+    });
+
+    it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
+      compileDirective('<div fullscreen-edit-form-container><fullscreen-recipients-auto-complete ng-model="model"></fullscreen-recipients-auto-complete></div>', {
+        $composerController: {}
+      });
+
+      var scope = element.find('fullscreen-recipients-auto-complete').isolateScope();
+      expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
+        .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
     });
 
   });

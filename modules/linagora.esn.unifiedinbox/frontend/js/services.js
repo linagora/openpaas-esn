@@ -84,6 +84,24 @@ angular.module('linagora.esn.unifiedinbox')
   .factory('emailSendingService', function(emailService) {
 
     /**
+     * Set the recipient.email and recipient.name fields to
+     * recipient.displayName if they are undefined.
+     * @param {recipient object} recipient
+     */
+    function ensureEmailAndNameFields(recipient) {
+      if (!recipient.displayName) {
+        return recipient;
+      }
+      if (!recipient.email) {
+        recipient.email = recipient.displayName;
+      }
+      if (!recipient.name) {
+        recipient.name = recipient.displayName;
+      }
+      return recipient;
+    }
+
+    /**
      * Add the following logic when sending an email:
      * Check for an invalid email used as a recipient
      * @param {recipient object} rcpt
@@ -163,6 +181,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
+      ensureEmailAndNameFields: ensureEmailAndNameFields,
       emailsAreValid: emailsAreValid,
       removeDuplicateRecipients: removeDuplicateRecipients,
       noRecipient: noRecipient
