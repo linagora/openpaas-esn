@@ -463,21 +463,60 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'yo',
           htmlBody: 'text',
           rcpt: {
-            to: ['to@domain'],
-            cc: ['cc@domain'],
-            bcc: ['bcc@domain']
+            to: [{email: 'to@domain'}],
+            cc: [{email: 'cc@domain'}],
+            bcc: [{email: 'bcc@domain'}]
           }
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
           rcpt: {
-            to: ['to@domain'],
-            cc: ['cc@domain'],
-            bcc: ['bcc@domain']
+            to: [{email: 'to@domain'}],
+            cc: [{email: 'cc@domain'}],
+            bcc: [{email: 'bcc@domain'}]
           }
         })).to.equal(false);
       });
+
+      it('should return false if only order changes', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to1@domain'}, {email: 'to2@domain'}],
+            cc: [{email: 'cc1@domain'}, {email: 'cc2@domain'}],
+            bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
+          }
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to2@domain'}, {email: 'to1@domain'}],
+            cc: [{email: 'cc2@domain'}, {email: 'cc1@domain'}],
+            bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
+          }
+        })).to.equal(false);
+      });
+
+      it('should return false if only name has changed', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to@domain', name:'before'}]
+          }
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {
+            to: [{email: 'to@domain', name:'after'}]
+          }
+        })).to.equal(false);
+      });
+
 
       it('should return true if original has one more field', function() {
         var draft = draftService.startDraft({
@@ -508,20 +547,46 @@ describe('The Unified Inbox Angular module services', function() {
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: ['second@domain']}
+          rcpt: {to: [{email: 'second@domain'}]}
         })).to.equal(true);
       });
 
-      it('should return true if new has difference into rcpt only', function() {
+      it('should return true if new has difference into to rcpt only', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: ['first@domain']}
+          rcpt: {to: [{email: 'first@domain'}]}
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: ['second@domain']}
+          rcpt: {to: [{email: 'second@domain'}]}
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into cc rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {cc: [{email: 'first@domain'}]}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {cc: [{email: 'second@domain'}]}
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into bcc rcpt only', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {bcc: [{email: 'first@domain'}]}
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          rcpt: {bcc: [{email: 'second@domain'}]}
         })).to.equal(true);
       });
 

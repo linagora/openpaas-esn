@@ -199,6 +199,25 @@ angular.module('linagora.esn.unifiedinbox')
       $log.error('A draft has not been saved', err);
     }
 
+    function haveDifferentRecipients(left, right) {
+
+      function recipientToEmail(recipient) {
+        return recipient.email;
+      }
+
+      function containsAll(from, to) {
+        return from.every(function(email) {
+          return to.indexOf(email) !== -1;
+        });
+      }
+
+      var leftEmails = left.map(recipientToEmail);
+      var rightEmails = right.map(recipientToEmail);
+
+      return !containsAll(leftEmails, rightEmails) ||
+             !containsAll(rightEmails, leftEmails);
+    }
+
     function Draft(originalEmailState) {
       this.originalEmailState = angular.copy(originalEmailState);
     }
@@ -217,9 +236,9 @@ angular.module('linagora.esn.unifiedinbox')
       return (
         original.subject !== newest.subject ||
         original.htmlBody !== newest.htmlBody ||
-        JSON.stringify(original.rcpt.to || []) !== JSON.stringify(newest.rcpt.to || []) ||
-        JSON.stringify(original.rcpt.cc || []) !== JSON.stringify(newest.rcpt.cc || []) ||
-        JSON.stringify(original.rcpt.bcc || []) !== JSON.stringify(newest.rcpt.bcc || [])
+        haveDifferentRecipients(original.rcpt.to || [], newest.rcpt.to || []) ||
+        haveDifferentRecipients(original.rcpt.cc || [], newest.rcpt.cc || []) ||
+        haveDifferentRecipients(original.rcpt.bcc || [], newest.rcpt.bcc || [])
       );
     };
 
