@@ -221,7 +221,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -239,8 +239,17 @@ angular.module('linagora.esn.contact')
     $scope.searchMode = false;
 
     headerService.subHeader.addInjection('contact-list-subheader', $scope);
-    $scope.$on('$routeChangeStart', function() {
+    $scope.$on('$routeChangeStart', function(evt, next) {
       headerService.subHeader.resetInjections();
+
+      // store the search query so the search list can be restored when the user
+      // switches back to contacts list
+      if (next.originalPath === '/contact/show/:bookId/:cardId' ||
+          next.originalPath === '/contact/edit/:bookId/:cardId') {
+        sharedContactDataService.searchQuery = $scope.searchInput;
+      } else {
+        sharedContactDataService.searchQuery = null;
+      }
     });
 
     function fillRequiredContactInformation(contact) {
@@ -442,6 +451,8 @@ angular.module('linagora.esn.contact')
     if ($location.search().q) {
       $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
       $scope.search();
+    } else if (sharedContactDataService.searchQuery) {
+      $location.search('q', sharedContactDataService.searchQuery.replace(/ /g, '+'));
     } else {
       $scope.searchInput = null;
       $scope.loadContacts();
