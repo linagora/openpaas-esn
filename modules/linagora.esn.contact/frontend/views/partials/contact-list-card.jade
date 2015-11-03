@@ -1,16 +1,16 @@
-.card.contact-list-card
+.card.contact-list-card.clickable(ng-click='displayContact()')
   .card-body
     .flex-start
       .p-10.flex-noshrink
-        .card-image.clickable(ng-click='displayContact()')
+        .card-image
           img(ng-src='{{contact.photo || defaultAvatar}}')
       .p-t-10.p-r-10.contact-info
         div
           strong {{contact.displayName}}
         div.p-t-5(ng-show='emails[0].value')
-          a(ng-href="mailto:{{emails[0].value}}") {{emails[0].value}}
+          a(ng-href="mailto:{{emails[0].value}}", ng-click="$event.stopPropagation()") {{emails[0].value}}
         .p-t-5(ng-if='phones[0].value')
-          a(ng-href="tel:{{phones[0].value}}") {{phones[0].value}}
+          a(ng-href="tel:{{phones[0].value}}", ng-click="$event.stopPropagation()") {{phones[0].value}}
         .p-t-5
           span {{contact.orgRole}}
           span(ng-if='contact.orgRole && contact.orgName') &nbsp;#{__('at')}&nbsp;

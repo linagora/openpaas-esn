@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -420,6 +421,41 @@ describe('The contact Angular module directives', function() {
       var element = initDirective();
       expect(element).to.contain(email);
     });
+
+    it('should allow to click anywhere to view contact', function() {
+      var element = initDirective();
+
+      var isoScope = element.isolateScope();
+      isoScope.displayContact = sinon.spy();
+
+      element.find('.contact-list-card').first().click();
+      expect(isoScope.displayContact.callCount).to.equal(1);
+
+      element.find('.card-image').first().click();
+      expect(isoScope.displayContact.callCount).to.equal(2);
+    });
+
+    it('should not display contact when click on email', function() {
+      $scope.contact.emails = [{ type: 'home', value: 'me@home' }];
+      var element = initDirective();
+
+      var isoScope = element.isolateScope();
+      isoScope.displayContact = sinon.spy();
+
+      element.find('a[ng-href="mailto:me@home"]').click();
+      expect(isoScope.displayContact.called).to.be.false;
+    });
+
+    it('should not display contact when click on phone', function() {
+      $scope.contact.tel = [{ type: 'home', value: '123' }];
+      var element = initDirective();
+
+      var isoScope = element.isolateScope();
+      isoScope.displayContact = sinon.spy();
+
+      element.find('a[ng-href="tel:123"]').click();
+      expect(isoScope.displayContact.called).to.be.false;
+    });
   });
 
   describe('The contactListItem directive', function() {
@@ -469,6 +505,41 @@ describe('The contact Angular module directives', function() {
       $scope.contact.emails = [{type: 'home', value: 'm@home.com'}, {type: 'work', value: email}];
       var element = initDirective();
       expect(element).to.contain(email);
+    });
+
+    it('should allow to click anywhere to view contact', function() {
+      var element = initDirective();
+
+      var isoScope = element.isolateScope();
+      isoScope.displayContact = sinon.spy();
+
+      element.find('.contact-list-item').first().click();
+      expect(isoScope.displayContact.callCount).to.equal(1);
+
+      element.find('contact-photo').first().click();
+      expect(isoScope.displayContact.callCount).to.equal(2);
+    });
+
+    it('should not display contact when click on email', function() {
+      $scope.contact.emails = [{ type: 'home', value: 'me@home' }];
+      var element = initDirective();
+
+      var isoScope = element.isolateScope();
+      isoScope.displayContact = sinon.spy();
+
+      element.find('a[ng-href="mailto:me@home"]').click();
+      expect(isoScope.displayContact.called).to.be.false;
+    });
+
+    it('should not display contact when click on phone', function() {
+      $scope.contact.tel = [{ type: 'home', value: '123' }];
+      var element = initDirective();
+
+      var isoScope = element.isolateScope();
+      isoScope.displayContact = sinon.spy();
+
+      element.find('a[ng-href="tel:123"]').click();
+      expect(isoScope.displayContact.called).to.be.false;
     });
 
   });
