@@ -695,7 +695,8 @@ angular.module('linagora.esn.contact')
   })
   .factory('sharedContactDataService', function() {
     return {
-      contact: {}
+      contact: {},
+      searchQuery: null
     };
   })
   .factory('contactUpdateDataService', function() {

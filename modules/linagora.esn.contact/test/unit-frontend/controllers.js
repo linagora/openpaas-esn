@@ -1017,6 +1017,54 @@ describe('The Contacts Angular module', function() {
       });
     });
 
+    it('should reset header injection on $routeChangeStart', function(done) {
+      headerService.subHeader.resetInjections = done;
+      $controller('contactsListController', {
+        $scope: scope,
+        headerService: headerService,
+        user: { _id: '123' }
+      });
+      scope.$emit('$routeChangeStart');
+    });
+
+    it('should store the search query when user switches to contact view', function() {
+      scope.searchInput = 'some query';
+      sharedContactDataService.searchQuery = null;
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' }
+      });
+      scope.$emit('$routeChangeStart', {
+        originalPath: '/contact/show/:bookId/:cardId'
+      });
+      expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
+    });
+
+    it('should store the search query when user switches to contact edition view', function() {
+      scope.searchInput = 'some query';
+      sharedContactDataService.searchQuery = null;
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' }
+      });
+      scope.$emit('$routeChangeStart', {
+        originalPath: '/contact/edit/:bookId/:cardId'
+      });
+      expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
+    });
+
+    it('should clear the search query when user switches to a view that is not contact view nor contact edition view', function() {
+      sharedContactDataService.searchQuery = '';
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' }
+      });
+      scope.$emit('$routeChangeStart', {
+        originalPath: '/this/is/not/contact/show/or/edit/:bookId/:cardId'
+      });
+      expect(sharedContactDataService.searchQuery).to.be.null;
+    });
+
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
       gracePeriodService.flushAllTasks = sinon.spy();
       $controller('contactsListController', {
@@ -1324,6 +1372,32 @@ describe('The Contacts Angular module', function() {
       };
       $controller('contactsListController', {
         $location: locationMock,
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+    });
+
+    it('should update the search when a query is stored in sharedContactDataService', function(done) {
+      var query = 'Chuck Norris';
+      var locationMock = {
+        search: function(s, value) {
+          if (s) {
+            expect(s).to.equal('q');
+            expect(value).to.equal('Chuck+Norris');
+            done();
+          } else {
+            return { q: null };
+          }
+        }
+      };
+      contactsService.list = function() {
+        return done(new Error('This test should not call contactsService.list'));
+      };
+      $controller('contactsListController', {
+        $location: locationMock,
+        sharedContactDataService: { searchQuery: query },
         $scope: scope,
         user: {
           _id: '123'
@@ -2134,6 +2208,7 @@ describe('The Contacts Angular module', function() {
         },
         cancel: function() {}
       };
+      this.$location = {};
     });
 
     beforeEach(angular.mock.inject(function($rootScope, _CONTACT_EVENTS_, _GRACE_DELAY_) {
@@ -2179,6 +2254,20 @@ describe('The Contacts Angular module', function() {
         done(new Error());
       });
 
+    });
+
+    describe('The displayContact fn', function() {
+      it('should call $location.url to change path to show contact', function(done) {
+        var self = this;
+        this.initController();
+        this.scope.bookId = '123';
+        this.scope.contact = { id: '456' };
+        this.$location.url = function(url) {
+          expect(url).to.equal('/contact/show/' + self.scope.bookId + '/' + self.scope.contact.id);
+          done();
+        };
+        this.scope.displayContact();
+      });
     });
 
   });
