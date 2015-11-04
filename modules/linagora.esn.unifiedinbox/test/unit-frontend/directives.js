@@ -140,16 +140,18 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var closeNotificationSpy = sinon.spy();
-    var hideScopeSpy = sinon.spy();
-    var notificationTitle = '', notificationText = '';
+    var closeNotificationSpy, hideScopeSpy;
+    var notificationTitle, notificationText;
     var draftService;
 
     beforeEach(inject(function(_draftService_) {
       draftService = _draftService_;
       Offline.state = 'up';
+      notificationTitle = '';
+      notificationText = '';
 
-      $scope.$hide = hideScopeSpy;
+      closeNotificationSpy = sinon.spy();
+      $scope.$hide = hideScopeSpy = sinon.spy();
 
       notificationFactory.weakSuccess = function(callTitle, callText) {
         notificationTitle = callTitle;
@@ -184,24 +186,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.$digest();
       expect(notificationTitle).to.equal('Note');
       expect(notificationText).to.equal('Your email should have at least one recipient');
-      expect(hideScopeSpy).to.not.be.called;
-      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
-    });
-
-    it('should not send if an invalid email is used as a recipient', function() {
-      $scope.email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}],
-          cc: [{displayName: 'me', email: 'myemailATlinagoraPOINTcom'}],
-          bcc: []
-        }
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Some recipient emails are not valid');
       expect(hideScopeSpy).to.not.be.called;
       expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
     });
