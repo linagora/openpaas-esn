@@ -566,8 +566,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The recipientsAutoComplete directive', function() {
 
+    it('should trigger an error if no template is given', function() {
+      expect(function() {
+        compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>');
+      }).to.throw(Error, 'This directive requires a template attribute');
+    });
+
     it('should define $scope.search from the composer directive controller', function(done) {
-      compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>', {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
         $composerController: {
           search: done
         }
@@ -577,7 +583,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
-      compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>', {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
         $composerController: {}
       });
 
@@ -585,30 +591,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
         .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
     });
-  });
-
-  describe('The fullscreenRecipientsAutoComplete directive', function() {
-
-    it('should define $scope.search from the composer directive controller', function(done) {
-      compileDirective('<div fullscreen-edit-form-container><fullscreen-recipients-auto-complete ng-model="model"></fullscreen-recipients-auto-complete></div>', {
-        $composerController: {
-          search: done
-        }
-      });
-
-      element.find('fullscreen-recipients-auto-complete').isolateScope().search();
-    });
-
-    it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
-      compileDirective('<div fullscreen-edit-form-container><fullscreen-recipients-auto-complete ng-model="model"></fullscreen-recipients-auto-complete></div>', {
-        $composerController: {}
-      });
-
-      var scope = element.find('fullscreen-recipients-auto-complete').isolateScope();
-      expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
-        .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
-    });
-
   });
 
 });
