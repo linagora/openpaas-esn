@@ -129,6 +129,26 @@ describe('The fullscreen-edit-form Angular module', function() {
       expect(element.find('.fullscreen-edit-form').parent().hasClass('focused')).to.equal(false);
     });
 
+    it('should broadcast event when fullscreen form is focused', function() {
+      var eventSpy = sinon.spy();
+      $scope.$on('fullscreenEditForm:show', eventSpy);
+      compile('<div fullscreen-edit-form-container fullscreen-edit><input id="default-input"/></div>');
+
+      element.find('input').focus();
+
+      expect(eventSpy).to.be.called;
+    });
+
+    it('should broadcast event when fullscreen form is closed', function() {
+      var eventSpy = sinon.spy();
+      $scope.$on('fullscreenEditForm:close', eventSpy);
+      compile('<div fullscreen-edit-form-container fullscreen-edit><input id="default-input"/></div>');
+
+      $scope.close();
+
+      expect(eventSpy).to.be.called;
+    });
+
     it('should define $scope.dynamicPlaceholder to the "empty" placeholder when there is no tags', function() {
       compile('<div fullscreen-edit-form-container fullscreen-edit empty-placeholder="Empty"></div>');
 

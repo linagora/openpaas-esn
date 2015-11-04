@@ -137,12 +137,25 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($q, $timeout, session, notificationFactory, draftService, emailSendingService) {
+  .directive('composer', function($q, $timeout, session, notificationFactory, draftService, emailSendingService, headerService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope, element) {
+
+        function showMobileHeader() {
+          headerService.subHeader.addInjection('composer-subheader', scope);
+        }
+
+        function hideMobileHeader() {
+          headerService.subHeader.resetInjections();
+        }
+
+        scope.$on('$locationChangeSuccess', hideMobileHeader);
+        scope.$on('fullscreenEditForm:show', hideMobileHeader);
+        scope.$on('fullscreenEditForm:close', showMobileHeader);
+        showMobileHeader();
 
         function disableSend() {
           var sendButton = element.find('.btn-primary');
@@ -159,6 +172,7 @@ angular.module('linagora.esn.unifiedinbox')
           if (scope.validateEmailSending(scope.email.rcpt)) {
 
             scope.$hide();
+            hideMobileHeader();
             scope.email.from = session.user;
 
             var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
@@ -181,6 +195,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         var draft = draftService.startDraft(scope.email);
         scope.$on('$destroy', function() {
+          hideMobileHeader();
           draft.save(scope.email);
         });
 
@@ -221,5 +236,12 @@ angular.module('linagora.esn.unifiedinbox')
           $rootScope.$broadcast('unifiedinbox:tags_added');
         };
       }
+    };
+  })
+
+  .directive('composerSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/composer/composer-subheader.html'
     };
   });

@@ -12,11 +12,12 @@ angular.module('esn.fullscreen-edit-form', ['esn.scroll'])
     };
   })
 
-  .directive('fullscreenEdit', function($compile, $parse, $timeout) {
+  .directive('fullscreenEdit', function($compile, $parse, $timeout, $rootScope) {
     return {
       restrict: 'A',
       require: '^fullscreenEditFormContainer',
       link: function($scope, element, attrs, fullscreenEditFormContainer) {
+
         function bindAttributes() {
           $scope.templateUrl = attrs.fullscreenEdit;
         }
@@ -49,6 +50,7 @@ angular.module('esn.fullscreen-edit-form', ['esn.scroll'])
 
         element.find('input').focus(function() {
           fullscreenForm.addClass('focused');
+          $rootScope.$broadcast('fullscreenEditForm:show');
 
           $timeout(function() {
             fullscreenForm.find('input').focus();
@@ -57,6 +59,7 @@ angular.module('esn.fullscreen-edit-form', ['esn.scroll'])
 
         $scope.close = function() {
           fullscreenForm.removeClass('focused');
+          $rootScope.$broadcast('fullscreenEditForm:close');
           updatePlaceholderAndShownTags();
         };
 

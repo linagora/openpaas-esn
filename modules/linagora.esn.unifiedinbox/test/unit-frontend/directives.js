@@ -180,6 +180,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         rcpt: {
           to: [],
           cc: [],
+
           bcc: []
         }
       };
@@ -373,6 +374,68 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         .then(done, done);
 
       $rootScope.$digest();
+    });
+
+    describe('The mobile header', function() {
+
+      var headerService;
+
+      beforeEach(inject(function(_headerService_) {
+        headerService = _headerService_;
+        headerService.subHeader.addInjection = sinon.spy();
+        headerService.subHeader.resetInjections = sinon.spy();
+      }));
+
+      it('should be shown when directive is linked', function() {
+        compileDirective('<composer/>');
+
+        expect(headerService.subHeader.addInjection).to.be.called;
+      });
+
+      it('should be shown when the fullscreen edit form is closed', function() {
+        compileDirective('<composer/>');
+
+        $rootScope.$broadcast('fullscreenEditForm:close');
+
+        expect(headerService.subHeader.addInjection).to.be.calledTwice;
+      });
+
+      it('should be hidden when location has successfully changed', function() {
+        compileDirective('<composer/>');
+
+        $rootScope.$broadcast('$locationChangeSuccess');
+
+        expect(headerService.subHeader.resetInjections).to.be.called;
+      });
+
+      it('should be hidden when scope is destroyed', function() {
+        compileDirective('<composer/>');
+
+        $scope.$destroy();
+
+        expect(headerService.subHeader.resetInjections).to.be.called;
+      });
+
+      it('should be hidden when the email is sent', function() {
+        compileDirective('<composer/>');
+        $scope.email = {
+          rcpt: {
+            to: [{displayName: '1', email: '1@linagora.com'}]
+          }
+        };
+
+        $scope.send();
+
+        expect(headerService.subHeader.resetInjections).to.be.called;
+      });
+
+      it('should be hidden when the fullscreen edit form is shown', function() {
+        compileDirective('<composer/>');
+
+        $rootScope.$broadcast('fullscreenEditForm:show');
+
+        expect(headerService.subHeader.resetInjections).to.be.called;
+      });
     });
 
   });
