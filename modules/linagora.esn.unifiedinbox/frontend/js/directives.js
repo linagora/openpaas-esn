@@ -204,22 +204,12 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         tags: '=ngModel'
       },
-      templateUrl: '/unifiedinbox/views/composer/recipients-auto-complete.html',
-      link: function($scope, element, attrs, composer) {
-        $scope.search = composer.search;
-        $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;
-      }
-    };
-  })
-
-  .directive('fullscreenRecipientsAutoComplete', function(emailSendingService) {
-    return {
-      restrict: 'E',
-      require: '^composer',
-      scope: {
-        tags: '=ngModel'
+      templateUrl: function(elem, attr) {
+        if (!attr.template) {
+          throw new Error('This directive requires a template attribute');
+        }
+        return '/unifiedinbox/views/composer/' + attr.template + '.html';
       },
-      templateUrl: '/unifiedinbox/views/composer/fullscreen-recipients-auto-complete.html',
       link: function($scope, element, attrs, composer) {
         $scope.search = composer.search;
         $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;

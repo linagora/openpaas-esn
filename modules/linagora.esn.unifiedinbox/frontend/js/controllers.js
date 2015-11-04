@@ -48,11 +48,6 @@ angular.module('linagora.esn.unifiedinbox')
         return false;
       }
 
-      if (!emailSendingService.emailsAreValid(rcpt)) {
-        notificationFactory.weakError('Note', 'Some recipient emails are not valid');
-        return false;
-      }
-
       if (!Offline.state || Offline.state === 'down') {
         notificationFactory.weakError('Note', 'Your device loses its Internet connection. Try later!');
         return false;
