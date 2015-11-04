@@ -238,7 +238,7 @@ var RIVER_SETTINGS = function(servers, collection) {
 };
 
 function _args(grunt) {
-  var opts = ['test', 'chunk'];
+  var opts = ['test', 'chunk', 'ci', 'reporter'];
   var args = {};
   opts.forEach(function(optName) {
     var opt = grunt.option(optName);
