@@ -19,11 +19,15 @@ describe('The esn.summernote Angular module', function() {
     $scope = $rootScope.$new();
   }));
 
-  afterEach(function() {
-    if (element) {
-      element.remove();
-    }
-  });
+  /**
+   * destroying method in summernote does not behave correctly.
+   * Bug reported: https://github.com/summernote/summernote/issues/821
+   */
+  //afterEach(function() {
+  //  if (element) {
+  //    element.remove();
+  //  }
+  //});
 
   function compileDirective(html) {
     element = $compile(html)($scope);
@@ -32,8 +36,15 @@ describe('The esn.summernote Angular module', function() {
     return element;
   }
 
-  describe('the fullscreen plugin', function() {
+  describe('the summernote editor', function() {
+    it('should not have an empty editor', function() {
+      var element = compileDirective('<div><summernote/></div>');
+      var editor = element.find('.note-editable');
+      expect(editor.code()).to.equal('<p><br></p>');
+    });
+  });
 
+  describe('the fullscreen plugin', function() {
     it('should broadcast a hide/show in alternance while toggling the icon every time the fullscreen button of summernote toolbar is clicked', function() {
       var hide = sinon.spy(), show = sinon.spy();
       $scope.$on('header:hide', function() {
@@ -55,4 +66,26 @@ describe('The esn.summernote Angular module', function() {
       expect(icon.hasClass('fa-expand')).to.be.true;
     });
   });
+
+  describe('the MobileFirefoxNewline plugin', function() {
+    var MobileFirefoxNewlinePlugin;
+    beforeEach(function() {
+      angular.mock.inject(function(_MobileFirefoxNewlinePlugin_) {
+        MobileFirefoxNewlinePlugin = _MobileFirefoxNewlinePlugin_;
+      });
+    });
+
+    it('should insert a <br> tag at the current cursor position', function() {
+      var preventDefaultSpy = sinon.spy();
+      var event = {
+        preventDefault: preventDefaultSpy
+      };
+      var contentEditable = compileDirective('<div contenteditable="true">Hello world!</div>');
+      contentEditable.focus();
+      MobileFirefoxNewlinePlugin.events.insertParagraph(event);
+      expect(preventDefaultSpy).to.be.called;
+      expect(contentEditable.code()).to.equal('<br>Hello world!');
+    });
+  });
+
 });

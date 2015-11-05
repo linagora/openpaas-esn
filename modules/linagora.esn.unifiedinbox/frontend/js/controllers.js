@@ -28,9 +28,22 @@ angular.module('linagora.esn.unifiedinbox')
       return toolbarConfiguration;
     }
 
+    /**
+     * This code is to prevent the strange behavior of FF on mobile devices with empty content-editable
+     * FYI: this is a temporary solution to allow summernote to be used on FF mobile. It is
+     * going to be replaced by a plugin "INBOX-20 + INBOX-26".
+     * Bug description: https://github.com/summernote/summernote/pull/313
+     */
+    if (!$scope.email) {
+      $scope.email = {
+        htmlBody: '<p><br/></p>'
+      };
+    }
+
     $scope.summernoteOptions = {
       focus: true,
       airMode: false,
+      height: 180,
       toolbar: getToolbarConfiguration()
     };
 
