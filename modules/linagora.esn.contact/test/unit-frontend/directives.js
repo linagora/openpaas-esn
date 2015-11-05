@@ -472,4 +472,36 @@ describe('The contact Angular module directives', function() {
     });
 
   });
+
+  describe('The contactListItems directive', function() {
+    var $compile, $rootScope, $scope;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    function initDirective() {
+      var element = $compile('<contact-list-items></contact-list-items>')($scope);
+      $scope.$digest();
+      return element;
+    }
+
+    it('should remove scroll listener when scope is destroyed', function(done) {
+      initDirective();
+      var angularElement = angular.element;
+      angular.element = function() {
+        return {
+          off: function() {
+            done();
+          }
+        };
+      };
+
+      $scope.$destroy();
+      angular.element = angularElement;
+    });
+
+  });
 });

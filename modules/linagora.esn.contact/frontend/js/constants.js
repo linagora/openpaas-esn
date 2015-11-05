@@ -19,6 +19,7 @@ angular.module('linagora.esn.contact')
   })
   .constant('CONTACT_DEFAULT_AVATAR', '/contact/images/default_avatar.png')
   .constant('CONTACT_LIST_DEFAULT_SORT', 'fn')
+  .constant('CONTACT_CATEGORY_DEFAULT_LETTER', '#')
   .constant('CONTACT_LIST_PAGE_SIZE', 20)
   .constant('DAV_PATH', '/dav/api')
   .constant('CONTACT_EVENTS', {
@@ -26,7 +27,8 @@ angular.module('linagora.esn.contact')
     UPDATED: 'contact:updated',
     DELETED: 'contact:deleted',
     CANCEL_UPDATE: 'contact:cancel:update',
-    CANCEL_DELETE: 'contact:cancel:delete'
+    CANCEL_DELETE: 'contact:cancel:delete',
+    SCROLL_UPDATE: 'contact:scroll:update'
   })
   .constant('CONTACT_SIO_EVENTS', {
     CREATED: 'contact:created',
