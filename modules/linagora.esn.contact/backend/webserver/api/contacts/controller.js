@@ -1,35 +1,16 @@
 'use strict';
 
-var ical = require('ical.js');
+var ICAL = require('ical.js');
 var charAPI = require('charAPI');
-var PATH = 'addressbooks';
 
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var avatarGenerationModule = dependencies('image').avatarGenerationModule;
-  var davClient = require('../../../lib/dav-client');
-
-  function buildContactUrl(options) {
-    return [
-      options.davserver,
-      PATH,
-      options.addressBookId,
-      'contacts',
-      options.contactId + '.vcf'
-    ].join('/');
-  }
-
-  function getContactFromDav(contactUrl, esnToken) {
-    var options = {
-      url: contactUrl,
-      headers: { ESNToken: esnToken }
-    };
-    return davClient.get(options);
-  }
+  var contactClient = require('../../../lib/client')(dependencies);
 
   function _getContactAvatar(contact, size) {
-    var vcard = new ical.Component(contact);
+    var vcard = new ICAL.Component(contact);
     var formattedName = vcard.getFirstPropertyValue('fn');
     var contactId = vcard.getFirstPropertyValue('uid');
     var photo = vcard.getFirstPropertyValue('photo');
@@ -81,15 +62,12 @@ module.exports = function(dependencies) {
     var esnToken = req.token && req.token.token ? req.token.token : '';
     var avatarSize = req.query.size ? req.query.size : 128;
 
-    var contactUrl = buildContactUrl({
-      davserver: req.davserver,
-      addressBookId: addressBookId,
-      contactId: contactId
-    });
-
-    getContactFromDav(contactUrl, esnToken)
-    .then(function(contact) {
-      var avatar = _getContactAvatar(contact, avatarSize);
+    contactClient({ ESNToken: esnToken })
+    .addressbook(addressBookId)
+    .contacts(contactId)
+    .get()
+    .then(function(data) {
+      var avatar = _getContactAvatar(data.body, avatarSize);
       if (typeof avatar === 'string') {
         res.redirect(avatar);
       } else {

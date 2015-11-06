@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var q = require('q');
 
 describe('The contacts api controller', function() {
-  var imageModuleMock, pubsubMock, loggerMock, davClientMock;
+  var imageModuleMock, pubsubMock, loggerMock, contactClientMock;
   var controller;
 
   beforeEach(function() {
@@ -36,14 +36,16 @@ describe('The contacts api controller', function() {
       warn: function() {}
     };
 
-    davClientMock = {
-      get: function() {}
-    };
+    contactClientMock = {};
 
     this.moduleHelpers.addDep('image', imageModuleMock);
     this.moduleHelpers.addDep('pubsub', pubsubMock);
     this.moduleHelpers.addDep('logger', loggerMock);
-    mockery.registerMock('../../../lib/dav-client', davClientMock);
+    mockery.registerMock('../../../lib/client', function() {
+      return function() {
+        return contactClientMock;
+      };
+    });
 
     this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.contact/backend';
     controller = require(this.moduleHelpers.backendPath +
@@ -210,7 +212,24 @@ describe('The contacts api controller', function() {
 
   describe('The getAvatar fn', function() {
 
-    it('should have 404 response when davClient.get rejects', function(done) {
+    function createAddressbookMock(data) {
+      return function() {
+        return {
+          contacts: function() {
+            return {
+              get: function() {
+                if (data) {
+                  return q.resolve({ body: data });
+                }
+                return q.reject();
+              }
+            };
+          }
+        };
+      };
+    }
+
+    it('should have 404 response when cannot get contact', function(done) {
       var req = {
         params: {},
         query: {}
@@ -226,9 +245,7 @@ describe('The contacts api controller', function() {
           };
         }
       };
-      davClientMock.get = function() {
-        return q.reject();
-      };
+      contactClientMock.addressbook = createAddressbookMock();
       controller.getAvatar(req, res);
     });
 
@@ -243,9 +260,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      davClientMock.get = function() {
-        return q.resolve(contact);
-      };
+      contactClientMock.addressbook = createAddressbookMock(contact);
 
       var req = {
         params: {},
@@ -272,9 +287,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      davClientMock.get = function() {
-        return q.resolve(contact);
-      };
+      contactClientMock.addressbook = createAddressbookMock(contact);
 
       var req = {
         params: {},
@@ -303,9 +316,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      davClientMock.get = function() {
-        return q.resolve(contact);
-      };
+      contactClientMock.addressbook = createAddressbookMock(contact);
 
       var req = {
         params: {},
