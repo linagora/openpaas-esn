@@ -8,11 +8,11 @@
       li.hidden-xs(ng-show='emails[0].value')
         span
           i.mdi.mdi-email-outline
-          a(ng-href="mailto:{{emails[0].value}}") {{emails[0].value}}
+          a(ng-href="mailto:{{emails[0].value}}", ng-click="$event.stopPropagation()") {{emails[0].value}}
       li.hidden-xs(ng-show='phones[0].value')
         span
           i.mdi.mdi-phone
-          | {{phones[0].value}}
+          a(ng-href="tel:{{phones[0].value}}", ng-click="$event.stopPropagation()") {{phones[0].value}}
 
 .lv-actions.actions
   li.dropdown
