@@ -1,6 +1,12 @@
 'use strict';
 
 module.exports = function(grunt) {
+  var CI = grunt.option('ci');
+
+  var KARMA_REPORTERS = (grunt.option('reporter') || '').split(',').filter(Boolean);
+  if (!KARMA_REPORTERS.length) {
+    KARMA_REPORTERS = CI ? ['spec', 'coverage'] : ['dots'];
+  }
 
   grunt.initConfig({
     concat: {
@@ -93,19 +99,23 @@ module.exports = function(grunt) {
     karma: {
       unit: {
         configFile: './test/config/karma.conf.js',
-        browsers: ['PhantomJS']
+        browsers: ['PhantomJS'],
+        reporters: KARMA_REPORTERS
       },
       modulesUnit: {
         configFile: './test/config/karma.modules.conf.js',
-        browsers: ['PhantomJS']
+        browsers: ['PhantomJS'],
+        reporters: KARMA_REPORTERS
       },
       all: {
         configFile: './test/config/karma.conf.js',
-        browsers: ['PhantomJS', 'Firefox', 'Chrome']
+        browsers: ['PhantomJS', 'Firefox', 'Chrome'],
+        reporters: KARMA_REPORTERS
       },
       modulesAll: {
         configFile: './test/config/karma.modules.conf.js',
-        browsers: ['PhantomJS', 'Firefox', 'Chrome']
+        browsers: ['PhantomJS', 'Firefox', 'Chrome'],
+        reporters: KARMA_REPORTERS
       }
     }
   });
