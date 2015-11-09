@@ -1435,4 +1435,123 @@ describe('The Contacts Angular module', function() {
 
   });
 
+  describe('The addScrollingBehavior service', function() {
+    var $rootScope, $window, event, $scope;
+    var addScrollingBehavior, sharedContactDataService, unregisterScrollingBehavior;
+    var angularFind;
+    var letterOffset = 0,
+      contactHeaderOffset = 0,
+      contactControlOffset = 0;
+
+    var angularFindResult = {
+      h2: {
+        getBoundingClientRect: function() {
+          return {
+            bottom: letterOffset
+          };
+        }
+      },
+      blockHeader: {
+        textContent: 'A',
+        getElementsByTagName: function() {
+          return [angularFindResult.h2];
+        }
+      },
+      contactControl: {
+        getBoundingClientRect: function() {
+          return {
+            bottom: contactHeaderOffset
+          };
+        }
+      },
+      contactHeader: {
+        getBoundingClientRect: function() {
+          return {
+            bottom: contactControlOffset
+          };
+        }
+      }
+    };
+
+    var element = {
+      find: function() {
+        return $([angularFindResult.blockHeader]);
+      }
+    };
+
+    beforeEach(function() {
+      // Simulate angular.element.find and restore after
+      angularFind = angular.element.find;
+      angular.element.find = function(value) {
+        switch (value) {
+          case '.contact-controls':
+            return [angularFindResult.contactControl];
+          case '.contacts-header':
+            return [angularFindResult.contactHeader];
+        }
+      };
+
+      inject(function(_$rootScope_, _$window_, _addScrollingBehavior_, _CONTACT_EVENTS_, _sharedContactDataService_) {
+        $rootScope = _$rootScope_;
+        $scope = $rootScope.$new();
+        $window = _$window_;
+        addScrollingBehavior = _addScrollingBehavior_;
+        sharedContactDataService = _sharedContactDataService_;
+        event = _CONTACT_EVENTS_.SCROLL_UPDATE;
+      });
+
+      unregisterScrollingBehavior = addScrollingBehavior(element);
+      sharedContactDataService.categoryLetter = '#';
+    });
+
+    afterEach(function() {
+      angular.element.find = angularFind;
+      angular.element($window).off('scroll');
+    });
+
+    it('should not broadcast the letter when it is not hidden', function(done) {
+      letterOffset = 100;
+      contactHeaderOffset = 0;
+      $scope.$on(event, function() {
+        done('Error');
+      });
+      angular.element($window).triggerHandler('scroll');
+      done();
+    });
+
+    it('should not broadcast the letter when it is not changed', function(done) {
+      letterOffset = 100;
+      contactHeaderOffset = 200;
+      sharedContactDataService.categoryLetter = 'A';
+      $scope.$on(event, function() {
+        done('Error');
+      });
+      angular.element($window).triggerHandler('scroll');
+      done();
+    });
+
+    it('should broadcast the letter when it is changed', function() {
+      letterOffset = 100;
+      contactHeaderOffset = 200;
+      $scope.$on(event, function(evt, data) {
+        expect(data).to.deep.equal('A');
+      });
+      angular.element($window).triggerHandler('scroll');
+    });
+
+    it('should return the function to remove scroll listener', function(done) {
+      var angularElement = angular.element;
+      angular.element = function() {
+        return {
+          off: function() {
+            done();
+          }
+        };
+      };
+
+      unregisterScrollingBehavior();
+      angular.element = angularElement;
+    });
+  });
+
 });

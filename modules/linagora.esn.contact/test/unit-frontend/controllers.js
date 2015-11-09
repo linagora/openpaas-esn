@@ -2272,4 +2272,31 @@ describe('The Contacts Angular module', function() {
 
   });
 
+  describe('The contactHeaderController controller', function() {
+
+    beforeEach(angular.mock.inject(function($rootScope, _CONTACT_EVENTS_, $browser) {
+      this.$rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+      this.event = _CONTACT_EVENTS_.SCROLL_UPDATE;
+      this.browser = $browser;
+
+      this.initController = function() {
+        $controller('contactHeaderController', {
+          $scope: this.scope,
+          CONTACT_EVENTS: _CONTACT_EVENTS_
+        });
+      };
+    }));
+
+    it('should update categoryLetter value', function() {
+      this.scope.categoryLetter = 'B';
+      this.initController();
+      this.scope.$digest();
+      this.$rootScope.$broadcast(this.event, 'A');
+      this.browser.defer.flush();
+      expect(this.scope.categoryLetter).to.deep.equal('A');
+    });
+
+  });
+
 });

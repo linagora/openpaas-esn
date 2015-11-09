@@ -5,6 +5,8 @@ header
         .flex-space-between.flex-vertical-centered.flex-wrap
           .contacts-header-title
             h2
+              .contact-categories-letter
+                contact-category-letter
               span #{__('Contacts')}
               small(ng-switch="searchResult.count" ng-if="!!searchInput")
                 span(ng-switch-when='0') #{__('No contacts found')}

@@ -98,10 +98,14 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListItems', function() {
+  .directive('contactListItems', function(addScrollingBehavior) {
     return {
       restrict: 'E',
-      templateUrl: '/contact/views/partials/contact-list-items.html'
+      templateUrl: '/contact/views/partials/contact-list-items.html',
+      link: function(scope, element) {
+        var unregisterScrollingBehavior = addScrollingBehavior(element);
+        scope.$on('$destroy', unregisterScrollingBehavior);
+      }
     };
   })
 
@@ -109,6 +113,14 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-cards.html'
+    };
+  })
+
+  .directive('contactCategoryLetter', function() {
+    return {
+      restrict: 'E',
+      template: '{{categoryLetter}}',
+      controller: 'contactHeaderController'
     };
   })
 

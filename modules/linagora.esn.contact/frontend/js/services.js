@@ -689,14 +689,14 @@ angular.module('linagora.esn.contact')
       if (contact) {
         sharedContactDataService.contact = contact;
       }
-
       $location.url('/contact/new/' + bookId);
     };
   })
   .factory('sharedContactDataService', function() {
     return {
       contact: {},
-      searchQuery: null
+      searchQuery: null,
+      categoryLetter: ''
     };
   })
   .factory('contactUpdateDataService', function() {
@@ -705,6 +705,40 @@ angular.module('linagora.esn.contact')
       contact: null
     };
   })
+
+  .factory('addScrollingBehavior', function(CONTACT_EVENTS, CONTACT_CATEGORY_DEFAULT_LETTER, $rootScope, $window, sharedContactDataService) {
+    return function(element) {
+
+      function updateCategoryLetter(offset) {
+        var categories = element.find('.block-header') || [];
+        var letter = CONTACT_CATEGORY_DEFAULT_LETTER;
+
+        categories.each(function(index, element) {
+          var letterPosition = element.getElementsByTagName('h2')[0].getBoundingClientRect().bottom;
+          letter = (letterPosition < offset) ? element.textContent : letter;
+        });
+
+        if (sharedContactDataService.categoryLetter !== letter) {
+          sharedContactDataService.categoryLetter = letter;
+          $rootScope.$broadcast(CONTACT_EVENTS.SCROLL_UPDATE, letter);
+        }
+      }
+
+      function onScroll() {
+        var contactControlOffset = angular.element.find('.contact-controls')[0].getBoundingClientRect().bottom;
+        var contactHeaderOffset = angular.element.find('.contacts-header')[0].getBoundingClientRect().bottom;
+        var offset = Math.max(contactControlOffset, contactHeaderOffset);
+        updateCategoryLetter(offset);
+      }
+
+      angular.element($window).scroll(onScroll);
+
+      return function() {
+        angular.element($window).off('scroll', onScroll);
+      };
+    };
+  })
+
   .factory('sendContactToBackend', function($location, ContactsHelper, $q) {
     return function($scope, sendRequest) {
       if ($scope.calling) {

@@ -489,6 +489,15 @@ angular.module('linagora.esn.contact')
     };
   })
 
+  .controller('contactHeaderController', function($scope, CONTACT_EVENTS, CONTACT_CATEGORY_DEFAULT_LETTER) {
+    $scope.categoryLetter = CONTACT_CATEGORY_DEFAULT_LETTER;
+    $scope.$on(CONTACT_EVENTS.SCROLL_UPDATE, function(event, data) {
+      $scope.$applyAsync(function() {
+        $scope.categoryLetter = data;
+      });
+    });
+  })
+
   .controller('contactItemController', function($scope, $rootScope, $location, contactsService, ContactsHelper) {
 
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
