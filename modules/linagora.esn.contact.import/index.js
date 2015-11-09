@@ -9,21 +9,30 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact', 'contact'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
+      var importer = require('./backend/webserver/api/')(dependencies);
       var lib = {
+        api: {
+          importer: importer
+        },
         lib: libModule
       };
       return callback(null, lib);
     },
 
     deploy: function(dependencies, callback) {
+      var app = require('./backend/webserver/application')();
+      app.use('/api', this.api.importer);
+
       var webserverWrapper = dependencies('webserver-wrapper');
-      var app = require('./backend/webserver/application')(dependencies);
-      webserverWrapper.addApp('importContact', app);
+      webserverWrapper.injectAngularModules('import', ['app.js', 'services.js'], 'linagora.esn.contact.import', ['esn']);
+      webserverWrapper.addApp('import', app);
       return callback();
     },
 
