@@ -35,7 +35,7 @@ aside#sidebar(collaborations-event-listener)
           i.mdi.mdi-account-remove
           | #{__('Logout')}
 
-    ul.main-menu.app-menu(ng-controller='ASTrackerController')
+    ul.main-menu.app-menu(ng-controller='ASTrackerController' dynamic-directive="esn-sidebar-app-menu")
       li: a(href='/#/' close-sidebar-on-click)
         i.mdi.mdi-home
         | #{__('Home')}
@@ -48,4 +48,3 @@ aside#sidebar(collaborations-event-listener)
 
       list-community-activity-streams
       list-project-activity-streams
-      inbox-menu

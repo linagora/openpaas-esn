@@ -10,9 +10,10 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.profile',
   'esn.summernote-wrapper',
   'esn.attendee',
-  'esn.fullscreen-edit-form'
+  'esn.fullscreen-edit-form',
+  'op.dynamicDirective'
   ])
-  .config(function($routeProvider) {
+  .config(function($routeProvider, dynamicDirectiveServiceProvider) {
     $routeProvider.when('/unifiedinbox', {
       templateUrl: '/unifiedinbox/views/unifiedinbox'
     });
@@ -24,4 +25,7 @@ angular.module('linagora.esn.unifiedinbox', [
       templateUrl: '/unifiedinbox/views/viewEmail',
       controller: 'viewEmailController'
     });
+
+    var sidebarDirective = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'inbox-menu');
+    dynamicDirectiveServiceProvider.addInjection('esn-sidebar-app-menu', sidebarDirective);
   });
