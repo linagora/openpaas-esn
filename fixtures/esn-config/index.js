@@ -10,7 +10,7 @@ var dataPath = path.resolve(__dirname + '/data');
 var dbPath = path.resolve(__dirname + '/../config/data/db.json');
 
 function _injectConf(key, conf) {
-  return q.nfcall(esnconfig(key).store, conf);
+  return q.ninvoke(esnconfig(key), 'store', conf);
 }
 
 function _injectAllConf(files) {
@@ -21,7 +21,7 @@ function _injectAllConf(files) {
       var key = filename.slice(filename.lastIndexOf('/') + 1, filename.lastIndexOf('.'));
       var conf = fs.readJsonSync(file);
       console.log('[INFO] Inject conf', key);
-      console.log(JSON.stringify(conf, null, 2));;
+      console.log(JSON.stringify(conf, null, 2));
       promises.push(_injectConf(key, conf));
     }
   });
