@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
-  var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService, headerService,
+  var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService, headerService, ContactShell,
       notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS;
 
   beforeEach(function() {
@@ -21,9 +21,10 @@ describe('The Contacts Angular module', function() {
       },
       getCard: function() {
         return $q.when(scope.contact);
-      },
-      ContactsShell: function() {}
-    };
+      }
+    },
+    ContactShell =  function() {
+    },
     liveRefreshContactService = {
       startListen: function() {},
       stopListen: function() {}
@@ -106,6 +107,7 @@ describe('The Contacts Angular module', function() {
       $provide.value('usSpinnerService', usSpinnerService);
       $provide.value('$window', $window);
       $provide.value('headerService', headerService);
+      $provide.value('ContactShell', ContactShell);
     });
   });
 

@@ -202,12 +202,12 @@ angular.module('linagora.esn.contact')
       fillScopeContactData: fillScopeContactData
     };
   })
-  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
+  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ContactShell, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
     var sio = null;
     var listening = false;
 
     function liveNotificationHandlerOnCreate(data) {
-      var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
+      var contact = new ContactShell(new ICAL.Component(data.vcard));
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     }
 
@@ -255,7 +255,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, $log, CONTACT_EVENTS, gracePeriodLiveNotification, CONTACT_LIST_DEFAULT_SORT, CONTACT_LIST_PAGE_SIZE) {
+  .factory('contactsService', function(ContactsHelper, ContactShell, notificationFactory, gracePeriodService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, $log, CONTACT_EVENTS, gracePeriodLiveNotification, CONTACT_LIST_DEFAULT_SORT, CONTACT_LIST_PAGE_SIZE) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY)
@@ -288,85 +288,6 @@ angular.module('linagora.esn.contact')
           notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
           return $q.reject(err);
         });
-    }
-
-    function ContactsShell(vcard, etag) {
-      function getMultiValue(propName) {
-        var props = vcard.getAllProperties(propName);
-        return props.map(function(prop) {
-          var data = {
-            value: prop.getFirstValue()
-          };
-          var type = prop.getParameter('type');
-          if (type) {
-            data.type = type;
-          }
-          return data;
-        });
-      }
-      function getMultiAddress(propName) {
-        var props = vcard.getAllProperties(propName);
-        return props.map(function(prop) {
-          var propVal = prop.getFirstValue();
-          return {
-            type: prop.getParameter('type'),
-            street: propVal[2],
-            city: propVal[3],
-            zip: propVal[5],
-            country: propVal[6]
-          };
-        });
-      }
-
-      this.id = vcard.getFirstPropertyValue('uid');
-      this.displayName = vcard.getFirstPropertyValue('fn');
-
-      var name = vcard.getFirstPropertyValue('n');
-      this.firstName = name ? name[1] : '';
-      this.lastName = name ? name[0] : '';
-
-      this.org = vcard.getFirstPropertyValue('org');
-      this.orgName = this.org ? this.org[0] : '';
-      this.orgRole = vcard.getFirstPropertyValue('role');
-
-      this.emails = getMultiValue('email').map(function(mail) {
-        mail.value = mail.value.replace(/^mailto:/i, '');
-        return mail;
-      });
-
-      this.tel = getMultiValue('tel').map(function(tel) {
-        tel.value = tel.value.replace(/^tel:/i, '');
-        return tel;
-      });
-
-      this.addresses = getMultiAddress('adr');
-      this.social = getMultiValue('socialprofile');
-      this.urls = getMultiValue('url');
-
-      var catprop = vcard.getFirstProperty('categories');
-      var cats = catprop && catprop.getValues().concat([]);
-      var starredIndex = cats ? cats.indexOf('starred') : -1;
-      this.starred = starredIndex > -1;
-      if (this.starred) {
-        cats.splice(starredIndex, 1);
-      }
-      this.tags = cats ? cats.map(function(cat) { return { text: cat }; }) : [];
-
-      var bday = vcard.getFirstProperty('bday');
-
-      if (bday) {
-        var type = bday.type,
-            value = bday.getFirstValue();
-
-        this.birthday = type !== 'text' ? value.toJSDate() : value;
-      }
-
-      this.nickname = vcard.getFirstPropertyValue('nickname');
-      this.notes = vcard.getFirstPropertyValue('note');
-
-      this.vcard = vcard;
-      this.etag = etag;
-      this.photo = vcard.getFirstPropertyValue('photo');
     }
 
     function configureRequest(method, path, headers, body, params) {
@@ -527,16 +448,16 @@ angular.module('linagora.esn.contact')
           };
 
       return request('get', path, headers).then(function(response) {
-        var contact = new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
+        var contact = new ContactShell(new ICAL.Component(response.data), response.headers('ETag'));
         ContactsHelper.forceReloadDefaultAvatar(contact);
         return contact;
       });
     }
 
-    function responseAsContactsShell(response) {
+    function responseAsContactShell(response) {
       if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
         return response.data._embedded['dav:item'].map(function(vcarddata) {
-          return new ContactsShell(new ICAL.Component(vcarddata.data));
+          return new ContactShell(new ICAL.Component(vcarddata.data));
         });
       }
       return [];
@@ -560,7 +481,7 @@ angular.module('linagora.esn.contact')
 
       return request('get', bookUrl(bookId), null, null, query).then(function(response) {
         var result = {
-          contacts: responseAsContactsShell(response),
+          contacts: responseAsContactShell(response),
           current_page: currentPage,
           last_page: !response.data._links.next
         };
@@ -644,7 +565,7 @@ angular.module('linagora.esn.contact')
         return {
           current_page: response.data._current_page,
           total_hits: response.data._total_hits,
-          hits_list: responseAsContactsShell(response)
+          hits_list: responseAsContactShell(response)
         };
       });
     }
@@ -663,7 +584,6 @@ angular.module('linagora.esn.contact')
       searchAllAddressBooks: searchAllAddressBooks,
       deleteContact: deleteContact,
       shellToVCARD: shellToVCARD,
-      ContactsShell: ContactsShell
     };
   })
   .factory('displayContactError', function($alert) {

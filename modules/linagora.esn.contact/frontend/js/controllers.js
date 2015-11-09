@@ -137,7 +137,7 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, CONTACT_DEFAULT_AVATAR, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, ContactShell, CONTACT_DEFAULT_AVATAR, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService) {
     $scope.loaded = false;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
@@ -187,7 +187,7 @@ angular.module('linagora.esn.contact')
           gracePeriodLiveNotification.registerListeners(
             taskId, function() {
               notificationFactory.strongError('', 'Failed to update contact, please try again later');
-              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new contactsService.ContactsShell($scope.contact.vcard, $scope.contact.etag));
+              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new ContactShell($scope.contact.vcard, $scope.contact.etag));
             }
           );
 
@@ -198,7 +198,7 @@ angular.module('linagora.esn.contact')
               if (data.cancelled) {
                 return gracePeriodService.cancel(taskId).then(function() {
                   data.success();
-                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new contactsService.ContactsShell($scope.contact.vcard, $scope.contact.etag));
+                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new ContactShell($scope.contact.vcard, $scope.contact.etag));
                 }, function(err) {
                   data.error('Cannot cancel contact update');
                 });
