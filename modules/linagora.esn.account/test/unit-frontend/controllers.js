@@ -10,6 +10,7 @@ describe('The Account Angular Controllers', function() {
 
   beforeEach(function() {
     angular.mock.module('ngRoute');
+    angular.mock.module('esn.notification');
     angular.mock.module('linagora.esn.account');
   });
 
@@ -82,6 +83,71 @@ describe('The Account Angular Controllers', function() {
       var accounts = [];
       createController(accounts);
       $rootScope.$digest();
+    });
+  });
+
+  describe('The accountController controller', function() {
+
+    var notificationFactory = {};
+    var importContact = function() {};
+    var ContactImportRegistry = {
+      get: function() {
+        return {
+          import: importContact
+        };
+      }
+    };
+
+    describe('The importContact fn', function() {
+      function createAccountController($scope) {
+        $controller('accountController', {
+          $scope: $scope,
+          ContactImportRegistry: ContactImportRegistry,
+          notificationFactory: notificationFactory
+        });
+      }
+      it('should notify when importing without error', function(done) {
+        notificationFactory = {
+          notify: function(type) {
+            if (type === 'info') {
+              done();
+            }
+          }
+        };
+
+        importContact = function() {
+          return $q.when({status: 202});
+        };
+
+        $scope.account = {
+          provider: 'twitter'
+        };
+        createAccountController($scope);
+        $scope.importContact();
+        $rootScope.$digest();
+      });
+
+      it('should notify when import error', function(done) {
+        notificationFactory = {
+          notify: function(type) {
+            if (type === 'danger') {
+              done();
+            }
+          }
+        };
+
+        importContact = function() {
+          return $q.reject({data: 'err'});
+        };
+
+        $scope.account = {
+          provider: 'twitter'
+        };
+
+        createAccountController($scope);
+        $scope.importContact();
+        $rootScope.$digest();
+      });
     });
   });
 });
