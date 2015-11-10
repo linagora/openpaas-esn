@@ -16,6 +16,10 @@ See also [Ubuntu-specific installation instructions](https://ci.open-paas.org/st
 
 First install ElasticSearch 1.3.5, then MongoDB 2.6.5.
 
+Ensure that multicast discovery is disabled by uncommenting the following line in /etc/elasticsearch/elasticsearch.yml:
+
+    discovery.zen.ping.multicast.enabled: false
+
 Retrieve source code of rse-scripts:
 
     git clone https://ci.open-paas.org/stash/scm/or/rse-scripts.git
@@ -30,6 +34,7 @@ Then run the scripts (curl and java are needed) in the correct order:
 
     1_elasticsearch_river_install.sh
     2_config_elasticsearch_analyser.sh
+    contacts/init.sh
 
 Before running step 3, you must configure MongoDB cluster in replica set. Open `/etc/mongod.conf` and modify replSet
 

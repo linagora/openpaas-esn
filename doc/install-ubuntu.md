@@ -32,6 +32,10 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
         sudo ln -s /usr/share/elasticsearch/bin/elasticsearch /usr/bin/elasticsearch
 
+Ensure that multicast discovery is disabled by uncommenting the following line in /etc/elasticsearch/elasticsearch.yml:
+
+    discovery.zen.ping.multicast.enabled: false
+
  **Only the elasticsearch user should be able to install plugins**
 Elasticsearch plugin dir may have not been created during the installation, or may have been given ownership to root. [This was a bug](https://github.com/elastic/elasticsearch/issues/8419)
 
@@ -92,6 +96,7 @@ Elasticsearch plugin dir may have not been created during the installation, or m
  Wait until elasticsearch is up
 
         ./2_config_elasticsearch_analyser.sh
+        contacts/init.sh
 
  Before running step 3, you must configure MongoDB cluster in replica set. Open `/etc/mongod.conf` and modify replSet
 
@@ -164,6 +169,10 @@ Elasticsearch plugin dir may have not been created during the installation, or m
 
 If you have any problem relating to `node-canvas` during the dependencies installation,
 make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
+
+11. Install Sabre/dav
+
+Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/esn-sabre/browse/README.md).
 
 Testing
 -------
