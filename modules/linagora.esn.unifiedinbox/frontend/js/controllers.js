@@ -31,6 +31,7 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.summernoteOptions = {
       focus: true,
       airMode: false,
+      height: 180,
       toolbar: getToolbarConfiguration()
     };
 
