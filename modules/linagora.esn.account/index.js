@@ -27,9 +27,21 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this, dependencies);
       app.use('/api', this.api.accounts);
+      var libJS = [
+        'app.js',
+        'constants.js',
+        'controllers.js',
+        'directives.js',
+        'services.js',
+        'providers/twitter/twitter.js',
+        'providers/twitter/constants.js',
+        'providers/twitter/controllers.js',
+        'providers/twitter/directives.js',
+        'providers/twitter/services.js'
+      ];
 
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('account', ['app.js', 'constants.js', 'controllers.js', 'directives.js', 'services.js', 'providers/twitter.js'], 'linagora.esn.account', ['esn']);
+      webserverWrapper.injectAngularModules('account', libJS, 'linagora.esn.account', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
       webserverWrapper.injectLess('account', [lessFile], 'esn');
       webserverWrapper.addApp('account', app);

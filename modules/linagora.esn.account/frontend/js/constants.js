@@ -16,5 +16,6 @@ angular.module('linagora.esn.account')
     default: 'info'
   })
   .constant('OAUTH_UNKNOWN_MESSAGE', 'Unknown OAuth message')
+  .constant('IMPORT_URI', 'import')
   .constant('SUPPORTED_ACCOUNTS', ['oauth']);
 
