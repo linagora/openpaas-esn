@@ -8,6 +8,7 @@ var VCARD_JSON = 'application/vcard+json';
 module.exports = function(dependencies, options) {
   var logger = dependencies('logger');
   var davServerUtils = dependencies('davserver').utils;
+  var searchClient = require('../search')(dependencies);
   var ESNToken = options.ESNToken;
 
   /**
@@ -66,14 +67,14 @@ module.exports = function(dependencies, options) {
        * Get a contact from DAV server
        * @return {Promise}
        */
-      function get() {
+      function get(id) {
         var deferred = q.defer();
         var headers = {
           ESNToken: ESNToken,
           accept: VCARD_JSON
         };
 
-        getContactUrl(contactId, function(url) {
+        getContactUrl(id || contactId, function(url) {
           davClient({
             headers: headers,
             url: url,
@@ -186,8 +187,68 @@ module.exports = function(dependencies, options) {
         return deferred.promise;
       }
 
+      /**
+       * Search contact
+       * @param  {Object} options Contains search, userId, limit and page
+       * @return {promise}         Resolve an object with:
+       *                                   - total_count:
+       *                                   - current_page:
+       *                                   - results: an array of objects with:
+       *                                   		+ contactId: the ID of found contact
+       *                                   		+ response: HTTP response from DAV
+       *                                   		+ body: vcard data if statusCode is 2xx
+       *                                   		+ err: error object failed to fetch contact
+       */
+      function search(options) {
+        var deferred = q.defer();
+
+        var searchOptions = {
+          bookId: bookId,
+          search: options.search,
+          userId: options.userId,
+          limit: options.limit,
+          page: options.page
+        };
+
+        searchClient.searchContacts(searchOptions, function(err, result) {
+          if (err) {
+            return deferred.reject(err);
+          }
+          var output = {
+            total_count: result.total_count,
+            current_page: result.current_page,
+            results: []
+          };
+
+          if (!result.list || result.list.length === 0) {
+            return deferred.resolve(output);
+          }
+
+          // this promise allways resolve
+          q.all(result.list.map(function(contact) {
+            return get(contact._id).then(function(data) {
+              output.results.push({
+                contactId: contact._id,
+                response: data.response,
+                body: data.body
+              });
+            }, function(err) {
+              output.results.push({
+                contactId: contact._id,
+                err: err
+              });
+            });
+          })).then(function() {
+            deferred.resolve(output);
+          });
+        });
+
+        return deferred.promise;
+      }
+
       return {
         list: list,
+        search: search,
         get: get,
         create: create,
         update: update,
