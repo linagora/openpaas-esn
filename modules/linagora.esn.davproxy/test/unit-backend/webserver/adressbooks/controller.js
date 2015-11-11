@@ -716,7 +716,23 @@ describe('The addressbooks module', function() {
   });
 
   describe('The searchContacts function', function() {
-    it('should call contact.searchContacts', function(done) {
+
+    function createContactClientMock(searchFn) {
+      return function() {
+        return {
+          addressbook: function(bookId) {
+            expect(bookId).to.equal('456');
+            return {
+              contacts: function() {
+                return { search: searchFn };
+              }
+            };
+          }
+        };
+      };
+    }
+
+    it('should call contact client with the right parameters', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
       var bookId = '456';
@@ -725,214 +741,172 @@ describe('The addressbooks module', function() {
 
       dependencies.contact = {
         lib: {
-          search: {
-            searchContacts: function(options) {
-              expect(options).to.deep.equal({search: search, userId: user._id, bookId: bookId, page: page, limit: limit});
-              done();
-            }
-          },
-          davClient: {
-            get: function() {}
-          }
+          client: createContactClientMock(function(options) {
+            expect(options).to.deep.equal({
+              search: search,
+              userId: user._id,
+              page: page,
+              limit: limit
+            });
+            done();
+            return q.reject();
+          })
         }
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search, page: page, limit: limit}, user: user, params: {bookId: bookId}});
+      controller.searchContacts({
+        query: {
+          search: search,
+          page: page,
+          limit: limit
+        },
+        user: user,
+        params: { bookId: bookId }
+      });
     });
 
-    it('should send back HTTP 500 when contact.searchContacts fails', function(done) {
+    it('should send back HTTP 500 when contact client search rejects', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
       var bookId = '456';
 
       dependencies.contact = {
         lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              return callback(new Error());
-            }
-          }
+          client: createContactClientMock(function() {
+            return q.reject();
+          })
         }
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
-        json: function(code) {
+      controller.searchContacts({
+        query: { search: search },
+        user: user,
+        params: { bookId: bookId }
+      }, {
+        status: function(code) {
           expect(code).to.equal(500);
           done();
         }
       });
     });
 
-    it('should send back HTTP 200 when contact.searchContacts returns empty object', function(done) {
+    it('should have header with total count on success', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
       var bookId = '456';
 
       dependencies.contact = {
         lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              return callback(null, {});
-            }
-          }
+          client: createContactClientMock(function() {
+            return q.resolve({
+              total_count: 999,
+              results: []
+            });
+          })
         }
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
-        header: function(name, value) {
-          expect(value).to.equal(0);
-        },
-        json: function(code, data) {
-          expect(code).to.equal(200);
-          expect(data._embedded['dav:item']).to.deep.equal([]);
+      controller.searchContacts({
+        query: { search: search },
+        user: user,
+        params: { bookId: bookId }
+      }, {
+        header: function(key, value) {
+          expect(key).to.equal('X-ESN-Items-Count');
+          expect(value).to.equal(999);
           done();
         }
       });
     });
 
-    it('should send back HTTP 200 when contact.searchContacts returns empty list', function(done) {
+    it('should send back HTTP 200 JSON response when contact client resolves', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
       var bookId = '456';
 
       dependencies.contact = {
         lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              return callback(null, {list: []});
-            }
-          }
+          client: createContactClientMock(function() {
+            return q.resolve({
+              results: []
+            });
+          })
         }
       };
 
       var controller = getController();
       controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
-        header: function(name, value) {
-          expect(value).to.equal(0);
-
-        },
-        json: function(code, data) {
+        header: function() {},
+        status: function(code) {
           expect(code).to.equal(200);
-          expect(data._embedded['dav:item']).to.deep.equal([]);
-          done();
-        }
-      });
-    });
-    it('should build the response by calling the dav server for each contact found', function(done) {
-      var search = 'Bruce';
-      var user = {_id: '123'};
-      var bookId = '456';
-      var called = 0;
-      var cards = [{_id: 'A'}, {_id: 'B'}, {_id: 'C'}];
-
-      dependencies.contact = {
-        lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              return callback(null, {list: [{_id: '1'}, {_id: '2'}, {_id: '3'}], total_count: cards.length});
+          return {
+            json: function() {
+              done();
             }
-          },
-          davClient: {
-            get: function() {
-              called++;
-              return q(cards[called - 1]);
-            }
-          }
-        }
-      };
-
-      var controller = getController();
-      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
-        header: function(name, value) {
-          expect(value).to.equal(3);
-        },
-        json: function(code, data) {
-          expect(code).to.equal(200);
-          expect(data._embedded['dav:item'].length).to.equal(3);
-          done();
+          };
         }
       });
     });
 
-    it('should not fail when can not get some contact details after successful search', function(done) {
-      var search = 'Bruce';
-      var user = {_id: '123'};
-      var bookId = '456';
-      var call = 0;
-      var result = [{_id: '1'}, {_id: '2'}, {_id: '3'}];
-
-      dependencies.contact = {
-        lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              return callback(null, {list: result, total_count: result.length});
-            }
-          },
-          davClient: {
-            get: function() {
-              call++;
-              if (call === 3) {
-                return q.reject(new Error());
-              }
-
-              return q(result[call]);
-            }
-          }
-        }
-      };
-
-      var controller = getController();
-      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
-        header: function(name, value) {
-          expect(value).to.equal(result.length);
-        },
-        json: function(code, data) {
-          expect(code).to.equal(200);
-          expect(data._embedded['dav:item'].length).to.equal(2);
-          done();
-        }
-      });
-    });
     it('should send the total numbers of hits in the response', function(done) {
       var search = 'Bruce';
       var user = {_id: '123'};
       var bookId = '456';
-      var call = 0;
-      var result = [{_id: '1'}, {_id: '2'}, {_id: '3'}, {_id: '4'}, {_id: '5'}];
 
       dependencies.contact = {
         lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              return callback(null, {list: result, total_count: result.length});
-            }
-          },
-          davClient: {
-            get: function() {
-              call++;
-              if (call === 3) {
-                return q.reject(new Error());
-              }
-
-              return q(result[call]);
-            }
-          }
+          client: createContactClientMock(function() {
+            return q.resolve({
+              total_count: 999,
+              results: []
+            });
+          })
         }
       };
 
       var controller = getController();
       controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
-        header: function(name, value) {
-          expect(value).to.equal(result.length);
-        },
-        json: function(code, data) {
-          expect(code).to.equal(200);
-          expect(data._embedded['dav:item'].length).to.equal(4);
-          expect(data._total_hits).to.equal(5);
-          done();
+        header: function() {},
+        status: function() {
+          return {
+            json: function(data) {
+              expect(data._total_hits).to.equal(999);
+              done();
+            }
+          };
+        }
+      });
+    });
+
+    it('should send the current page in the response', function(done) {
+      var search = 'Bruce';
+      var user = {_id: '123'};
+      var bookId = '456';
+
+      dependencies.contact = {
+        lib: {
+          client: createContactClientMock(function() {
+            return q.resolve({
+              current_page: 555,
+              results: []
+            });
+          })
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
+        header: function() {},
+        status: function() {
+          return {
+            json: function(data) {
+              expect(data._current_page).to.equal(555);
+              done();
+            }
+          };
         }
       });
     });
@@ -941,43 +915,79 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: '123'};
       var bookId = '456';
-      var call = 0;
-      var result = [{_id: '1'}, {_id: '2'}, {_id: '3'}, {_id: '4'}, {_id: '5'}];
       var limit = 2;
       var page = 3;
 
+      var successContact1 = { contactId: 1, response: { statusCode: 200 }, body: 'success1' };
+      var notFoundContact = { contactId: 2, response: { statusCode: 404 }, body: 'not found' };
+      var notIncludedFoundContact = { contactId: 3, response: { statusCode: 199 }, body: 'not included' };
+      var errorContact = { contactId: 4, err: 'some error' };
+      var successContact2 = { contactId: 5, response: { statusCode: 200 }, body: 'success2' };
+
       dependencies.contact = {
         lib: {
-          search: {
-            searchContacts: function(options, callback) {
-              var total = result.length;
-              result = result.splice(options.limit * (options.page - 1), options.limit);
-              return callback(null, {list: result, total_count: total});
-            }
-          },
-          davClient: {
-            get: function() {
-              call++;
-              if (call === 3) {
-                return q.reject(new Error());
-              }
-
-              return q(result[call]);
-            }
-          }
+          client: createContactClientMock(function() {
+            return q.resolve({
+              total_count: 999,
+              current_page: 555,
+              results: [successContact1, notFoundContact, notIncludedFoundContact, errorContact, successContact2]
+            });
+          })
         }
       };
 
+      mockery.registerMock('./avatarHelper', function() {
+        return {
+          injectTextAvatar: function(bookId, vcard) {
+            return q.resolve(vcard);
+          }
+        };
+      });
+
       var controller = getController();
-      controller.searchContacts({params: {bookId: bookId}, query: {search: search, page: page, limit: limit}, user: user}, {
-        header: function(name, value) {
+      var req = {
+        params: { bookId: bookId },
+        query: {
+          search: search,
+          page: page,
+          limit: limit
         },
-        json: function(code, data) {
-          expect(code).to.equal(200);
-          expect(data._embedded['dav:item'].length).to.equal(1);
-          expect(data._total_hits).to.equal(5);
-          done();
+        user: user,
+        originalUrl: 'http://abc.com',
+        davserver: 'http://davserver.com'
+      };
+      controller.searchContacts(req, {
+        header: function() {},
+        status: function() {
+          return {
+            json: function(data) {
+              expect(data).to.eql({
+                _links: {
+                  self: {
+                    href: req.originalUrl
+                  }
+                },
+                _total_hits: 999,
+                _current_page: 555,
+                _embedded: {
+                  'dav:item': [{
+                    _links: {
+                      self: [req.davserver, 'addressbooks', bookId, 'contacts', successContact1.contactId + '.vcf'].join('/')
+                    },
+                    data: successContact1.body
+                  }, {
+                    _links: {
+                      self: [req.davserver, 'addressbooks', bookId, 'contacts', successContact2.contactId + '.vcf'].join('/')
+                    },
+                    data: successContact2.body
+                  }]
+                }
+              });
+              done();
+            }
+          };
         }
+
       });
     });
   });

@@ -153,80 +153,63 @@ module.exports = function(dependencies) {
   }
 
   function searchContacts(req, res) {
-
-    function fetchContact(contact) {
-      var options = {
-        headers: {
-          ESNToken: req.token && req.token.token ? req.token.token : ''
-        },
-        url: getContactUrl(req, req.params.bookId, contact._id)
-      };
-      return contactModule.lib.davClient.get(options).then(function(data) {
-        return data;
-      }, function(err) {
-        logger.warn('Error while getting contact', err);
-        return false;
-      });
-    }
+    var ESNToken = req.token && req.token.token ? req.token.token : '';
 
     var options = {
       userId: req.user._id,
       search: req.query.search,
-      bookId: req.params.bookId,
       limit: req.query.limit,
       page: req.query.page
     };
-    contactModule.lib.search.searchContacts(options, function(err, result) {
-      if (err) {
-        logger.error('Error while searching contacts', err);
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while searching contacts'}});
-      }
+    contactModule.lib.client({ ESNToken: ESNToken })
+    .addressbook(req.params.bookId)
+    .contacts()
+    .search(options)
+    .then(function(data) {
       var json = {
         _links: {
           self: {
             href: req.originalUrl
           }
         },
-        _total_hits: result.total_count,
-        _current_page: result.current_page,
+        _total_hits: data.total_count,
+        _current_page: data.current_page,
         _embedded: {
           'dav:item': []
         }
       };
+      res.header('X-ESN-Items-Count', data.total_count);
 
-      if (!result || !result.list || result.list.length === 0) {
-        res.header('X-ESN-Items-Count', 0);
-        return res.json(200, json);
-      }
-
-      q.all(result.list.map(fetchContact)).then(function(vcards) {
-        var count = result.list.length;
-        vcards.forEach(function(vcard) {
-          if (vcard === false) {
-            count--;
-            if (count === 0) {
-              res.header('X-ESN-Items-Count', result.total_count);
-              return res.json(200, json);
-            }
-          } else {
-            avatarHelper.injectTextAvatar(req.params.bookId, vcard).then(function(newVcard) {
-              json._embedded['dav:item'].push({
-                _links: {
-                  self: getContactUrl(req, req.params.bookId, result.list._id)
-                },
-                data: newVcard
-              });
-              count--;
-              if (count === 0) {
-                res.header('X-ESN-Items-Count', result.total_count);
-                return res.json(200, json);
-              }
-            });
-          }
+      q.all(data.results.map(function(result) {
+        if (result.err) {
+          logger.error('The search cannot fetch contact', result.contactId, result.err);
+          return;
+        }
+        var statusCode = result.response.statusCode;
+        if (statusCode < 200 || statusCode > 299) {
+          logger.warn('The search cannot fetch contact', result.contactId, 'status code', statusCode);
+          return;
+        }
+        return avatarHelper.injectTextAvatar(req.params.bookId, result.body)
+        .then(function(newVcard) {
+          json._embedded['dav:item'].push({
+            _links: {
+              self: getContactUrl(req, req.params.bookId, result.contactId)
+            },
+            data: newVcard
+          });
         });
-      }, function(err) {
-        logger.error('Error while getting contact details', err);
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact details'}});
+      })).then(function() {
+        return res.status(200).json(json);
+      });
+    }, function(err) {
+      logger.error('Error while searching contacts', err);
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: 'Error while searching contacts'
+        }
       });
     });
   }
