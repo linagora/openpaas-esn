@@ -11,6 +11,7 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.summernote-wrapper',
   'esn.attendee',
   'esn.fullscreen-edit-form',
+  'esn.scroll',
   'op.dynamicDirective'
   ])
   .config(function($routeProvider, dynamicDirectiveServiceProvider) {

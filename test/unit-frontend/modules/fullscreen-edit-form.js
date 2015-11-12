@@ -1,18 +1,23 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The fullscreen-edit-form Angular module', function() {
 
-  var $compile, $rootScope, $scope, $httpBackend, element;
+  var $compile, $rootScope, $scope, $httpBackend, element, elementScrollDownService = {};
 
   beforeEach(module('jadeTemplates'));
 
   beforeEach(function() {
     angular.mock.module('esn.fullscreen-edit-form');
   });
+
+  beforeEach(angular.mock.module(function($provide) {
+    $provide.value('elementScrollDownService', elementScrollDownService);
+  }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_) {
     $compile = _$compile_;
@@ -45,6 +50,22 @@ describe('The fullscreen-edit-form Angular module', function() {
           .container[0]
           .id
       ).to.equal('id');
+    });
+
+  });
+
+  describe('The autoScrollDownNgtagsinput directive', function() {
+    var autoScrollDownSpy;
+
+    beforeEach(function() {
+      autoScrollDownSpy = sinon.spy();
+      elementScrollDownService.autoScrollDown = autoScrollDownSpy;
+    });
+
+    it('should call the autoScrollDown method when an unifiedinbox:tags_added event is received', function() {
+      compile('<div auto-scroll-down-ngtagsinput></div>');
+      $scope.$broadcast('unifiedinbox:tags_added');
+      expect(autoScrollDownSpy).to.be.called;
     });
 
   });

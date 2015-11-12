@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -98,5 +99,52 @@ describe('The Scroll Angular module', function() {
       $timeout.flush();
     });
 
+  });
+
+  describe('The elementScrollDownService factory', function() {
+
+    var $timeout, elementScrollDownService;
+
+    beforeEach(inject(function(_$timeout_, _elementScrollDownService_) {
+      $timeout = _$timeout_;
+      elementScrollDownService = _elementScrollDownService_;
+    }));
+
+    describe('the autoScrollDown method with an element that has a scrollHeight attribute', function() {
+      var element, scrollHeight, scrollTopSpy;
+      beforeEach(function() {
+        scrollTopSpy = sinon.spy();
+        element = [{scrollHeight: scrollHeight}];
+        element.scrollTop = scrollTopSpy;
+      });
+
+      it('should call the autoScrollDown method of the element passed as an argument', function() {
+        elementScrollDownService.autoScrollDown(element);
+        $timeout.flush(1);
+        expect(scrollTopSpy).to.be.called;
+      });
+
+      it('should not call the autoScrollDown method when no element is passed as an argument', function() {
+        elementScrollDownService.autoScrollDown();
+        $timeout.flush(1);
+        expect(scrollTopSpy).to.not.be.called;
+      });
+    });
+
+    describe('the autoScrollDown method with an element that does not have a scrollHeight attribute', function() {
+      var element, scrollTopSpy;
+      beforeEach(function() {
+        scrollTopSpy = sinon.spy();
+        element = {
+          scrollTop: scrollTopSpy
+        };
+      });
+
+      it('should not call the autoScrollDown method', function() {
+        elementScrollDownService.autoScrollDown(element);
+        $timeout.flush(1);
+        expect(scrollTopSpy).to.not.be.called;
+      });
+    });
   });
 });
