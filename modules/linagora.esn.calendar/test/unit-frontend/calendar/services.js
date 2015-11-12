@@ -1087,7 +1087,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modify('/path/to/uid.ics', this.event, this.event, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
           function(shell) {
             // The returned item must be the master item, not the instance
             expect(shell.isInstance).to.be.false;
