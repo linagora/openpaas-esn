@@ -10,17 +10,20 @@
             button.btn.btn-default(type='button', ng-click='close()')
               i.mdi.mdi-reply
               | #{__(' Back')}
-            a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+            a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}' ng-if="displayShell.isWritable()")
               button.btn.btn-primary(ng-disabled='calling || !loaded', type='button')
                 i.mdi.mdi-pencil
                 | #{__(' Edit')}
     .card-body.contact-body
       .contact-error-container
       contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
+      div.alert.alert-warning.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
+        strong #{__("This contact can not be edited")}
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
     .contact-avatar
       img(ng-src='{{contact.photo || defaultAvatar}}')
+    i.mdi.i-contact-mobile(ng-class="displayShell.getOverlayIcon()")
     .contact-error-container
       div.contact-fn
         | {{contact.displayName}}
@@ -103,3 +106,5 @@
           .contact-item-data(ng-if='contact.notes')
             p {{contact.notes}}
             p.type #{__('Comments')}
+    div.alert.alert-warning.text-center(ng-if= '!displayShell.isWritable()')
+      strong #{__("This contact can not be edited")}

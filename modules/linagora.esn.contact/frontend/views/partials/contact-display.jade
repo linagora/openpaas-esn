@@ -3,14 +3,15 @@
     .pmo-pic
       .p-relative
         a
-          img(ng-src="{{contact.photo || defaultAvatar}}")
+          img(ng-src="{{contact.photo || contact.getDefaultAvatar()}}" fallback-src="{{displayShell.getDefaultAvatar()}}")
+        i.mdi.i-contact-show(ng-class="displayShell.getOverlayIcon()")
       .pmo-stat
         h2.m-0.c-white
           |{{contact.displayName}}
         |{{contact.job_title}}
       .pmo-block(ng-if='contact.tags.length!==0')
         i.mdi.mdi-tag-multiple
-        |Tags
+        | #{__('Tags')}
         ul.tag-list
           li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
   .pm-body.clearfix

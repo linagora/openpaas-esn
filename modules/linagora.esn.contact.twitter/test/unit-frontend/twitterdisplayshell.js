@@ -21,11 +21,13 @@ describe('TwitterDisplayShell service', function() {
 
   function checkTwitterDisplayShell(displayShell, originalShell) {
     var twitterId = originalShell.social[0].value;
-    var twitterLink = 'https://twitter.com/' + originalShell.displayName;
+    var twitterLink = 'https://twitter.com/' + twitterId;
     var displayName = originalShell.displayName;
+
+    expect(displayShell.getDefaultAvatar()).to.equal('https://abs.twimg.com/sticky/default_profile_images/default_profile_5.png');
     expect(displayShell.getDisplayName()).to.equal(displayName);
     expect(displayShell.isWritable()).to.equal(false);
-    expect(displayShell.getOverlayIcon()).to.deep.equal({iconClasses: 'mdi-twitter twitter-color'});
+    expect(displayShell.getOverlayIcon()).to.deep.equal('mdi-twitter twitter-color');
 
     expect(displayShell.getInformationsToDisplay()).to.deep.equal([
       {

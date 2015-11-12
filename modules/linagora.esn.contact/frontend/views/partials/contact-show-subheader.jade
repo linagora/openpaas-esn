@@ -5,5 +5,5 @@
         i.mdi.mdi-arrow-left.m-l-5.m-r-5
         | #{__('Back')}
       .col-xs-6.right-action
-        a.p-l-5.p-r-10(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+        a.p-l-5.p-r-10(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}' ng-if="displayShell.isWritable()")
           i.mdi.mdi-pencil

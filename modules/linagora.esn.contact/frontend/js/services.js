@@ -583,7 +583,7 @@ angular.module('linagora.esn.contact')
       search: search,
       searchAllAddressBooks: searchAllAddressBooks,
       deleteContact: deleteContact,
-      shellToVCARD: shellToVCARD,
+      shellToVCARD: shellToVCARD
     };
   })
   .factory('displayContactError', function($alert) {
