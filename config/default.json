@@ -57,6 +57,7 @@
     "linagora.esn.project",
     "linagora.esn.contact",
     "linagora.esn.contact.import",
+    "linagora.esn.contact.twitter",
     "linagora.esn.messaging.email",
     "linagora.esn.cron",
     "linagora.esn.digest.daily",
