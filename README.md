@@ -1,6 +1,8 @@
 OpenPaas
 =======
 
+[![Code Climate](https://codeclimate.com/github/linagora/openpaas-esn/badges/gpa.svg)](https://codeclimate.com/github/linagora/openpaas-esn)
+
 This is a social network for enterprises & organizations.
 
 Installation
