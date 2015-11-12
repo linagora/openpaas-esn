@@ -32,19 +32,20 @@ describe('ContactDisplayShell', function() {
         objectType: 'email',
         id: originalShell.emails[0].value,
         icon: 'mdi-email-outline',
-        actions: 'mailto:' + originalShell.emails[0].value
+        action: 'mailto:' + originalShell.emails[0].value
       },
       {
         objectType: 'phone',
         id: originalShell.tel[0].value,
         icon: 'mdi-phone',
-        actions: 'tel:' + originalShell.tel[0].value
+        action: 'tel:' + originalShell.tel[0].value
       }]);
     expect(displayShell.getDropDownMenu()).to.equal('default-menu-items');
   }
 
   it('should provide contact default contact informations for the template to display', function() {
     var shell = {
+      displayName: 'Contact OpenPaas',
       emails: [
         {value: 'perso@linagora.com'}
       ],
