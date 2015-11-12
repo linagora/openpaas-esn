@@ -13,7 +13,7 @@ angular.module('linagora.esn.contact')
             objectType: 'email',
             id: this.shell.emails[0].value,
             icon: 'mdi-email-outline',
-            actions: 'mailto:' + this.shell.emails[0].value
+            action: 'mailto:' + this.shell.emails[0].value
           });
         }
         if (this.shell.tel && this.shell.tel.length) {
@@ -21,7 +21,7 @@ angular.module('linagora.esn.contact')
             objectType: 'phone',
             id: this.shell.tel[0].value,
             icon: 'mdi-phone',
-            actions: 'tel:' + this.shell.tel[0].value
+            action: 'tel:' + this.shell.tel[0].value
           });
         }
         this.dropDownMenuDirective = 'default-menu-items';
