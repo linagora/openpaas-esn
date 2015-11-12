@@ -15,43 +15,60 @@ angular.module('linagora.esn.contact', [
   'esn.attendee',
   'esn.header',
   'esn.form.helper',
-  'esn.sidebar'
+  'esn.sidebar',
+  'op.dynamicDirective'
 ])
   .config(function($routeProvider, routeResolver) {
-  $routeProvider.when('/contact', {
-    templateUrl: '/contact/views/contacts',
-    controller: 'contactsListController',
-    resolve: {
-      domain: routeResolver.session('domain'),
-      user: routeResolver.session('user')
-    },
-    reloadOnSearch: false
-  });
-  $routeProvider.when('/contact/new/:bookId', {
-    templateUrl: '/contact/views/contact-new',
-    controller: 'newContactController',
-    resolve: {
-      domain: routeResolver.session('domain'),
-      user: routeResolver.session('user')
+    $routeProvider.when('/contact', {
+      templateUrl: '/contact/views/contacts',
+      controller: 'contactsListController',
+      resolve: {
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
+      },
+      reloadOnSearch: false
+    });
+    $routeProvider.when('/contact/new/:bookId', {
+      templateUrl: '/contact/views/contact-new',
+      controller: 'newContactController',
+      resolve: {
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
+      }
+    });
+    $routeProvider.when('/contact/show/:bookId/:cardId', {
+      templateUrl: '/contact/views/contact-show',
+      controller: 'showContactController',
+      resolve: {
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
+      }
+    });
+    $routeProvider.when('/contact/edit/:bookId/:cardId', {
+      templateUrl: '/contact/views/contact-edit',
+      controller: 'editContactController',
+      resolve: {
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
+      }
+    });
+  })
+
+  .config(function(dynamicDirectiveServiceProvider) {
+
+    function isContactWritable(scope) {
+      return scope.displayShell.isWritable();
     }
-  });
-  $routeProvider.when('/contact/show/:bookId/:cardId', {
-    templateUrl: '/contact/views/contact-show',
-    controller: 'showContactController',
-    resolve: {
-      domain: routeResolver.session('domain'),
-      user: routeResolver.session('user')
+
+    function injectDynamicDirective(condition, directive, destination) {
+      var dynamicDirective = new dynamicDirectiveServiceProvider.DynamicDirective(condition, directive);
+      dynamicDirectiveServiceProvider.addInjection(destination, dynamicDirective);
     }
-  });
-  $routeProvider.when('/contact/edit/:bookId/:cardId', {
-    templateUrl: '/contact/views/contact-edit',
-    controller: 'editContactController',
-    resolve: {
-      domain: routeResolver.session('domain'),
-      user: routeResolver.session('user')
-    }
-  });
-})
+
+    injectDynamicDirective(isContactWritable, 'contact-edit-action-item', 'contact-list-menu-items');
+    injectDynamicDirective(isContactWritable, 'contact-delete-action-item', 'contact-list-menu-items');
+  })
+
   .run(function($q, $log, attendeeService, contactsService, session) {
     var contactProvider = {
       searchAttendee: function(query) {
