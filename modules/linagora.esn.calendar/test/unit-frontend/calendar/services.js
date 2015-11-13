@@ -1090,7 +1090,10 @@ describe('The calendar module services', function() {
         vcalendar.addSubcomponent(vevent);
         this.vcalendar = vcalendar;
         this.vevent = vevent;
-        this.event = new this.CalendarShell(this.vcalendar);
+
+        this.event = new this.CalendarShell(this.vcalendar, {
+          path: '/path/to/uid.ics'
+        });
       });
 
       it('should fail if status is not 202', function(done) {

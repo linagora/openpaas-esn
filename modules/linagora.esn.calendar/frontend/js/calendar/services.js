@@ -295,27 +295,6 @@ angular.module('esn.calendar')
         event.changeParticipation('NEEDS-ACTION');
       }
 
-      var prepareEvent;
-      if (event.isInstance()) {
-        prepareEvent = getEvent(path).then(function(shell) {
-          var mastervcal = shell.vcalendar;
-          var mastervevents = mastervcal.getAllSubcomponents('vevent');
-
-          for (var i = 0, len = mastervevents.length; i < len; i++) {
-            var vevent = mastervevents[i];
-            var recId = vevent.getFirstPropertyValue('recurrence-id');
-            if (recId && event.recurrenceId.isSame(recId.toJSDate())) {
-              event.vcalendar.removeSubcomponent(vevent);
-              break;
-            }
-          }
-          mastervcal.addSubcomponent(event.vcalendar.getFirstSubcomponent('vevent'));
-          return mastervcal;
-        });
-      } else {
-        prepareEvent = $q.when(event.vcalendar);
-      }notifyService
-
       if (!etag) {
         // This is a create event because the event is not created yet in sabre/dav,
         // we then should only cancel the first creation task.
@@ -325,14 +304,15 @@ angular.module('esn.calendar')
 
       var taskId = null;
 
-      return eventAPI.modify(path, event.vcalendar, etag).then(function(id) {
+      return event.getModifiedMaster().then(function(mastershell) {
+        event = mastershell;
+        return eventAPI.modify(path, event.vcalendar, etag);
+      }).then(function(id) {
         taskId = id;
         calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
-      })
-      .then(function() {
+      }).then(function() {
         return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
-      })
-      .then(function(data) {
+      }).then(function(data) {
         var task = data;
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {

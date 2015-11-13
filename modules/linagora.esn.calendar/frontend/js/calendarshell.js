@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarShell', function(ICAL, fcMoment, uuid4, jstz, calendarUtils, RRuleShell, ICAL_PROPERTIES) {
+  .factory('CalendarShell', function(ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, RRuleShell, ICAL_PROPERTIES) {
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -29,6 +29,11 @@ angular.module('esn.calendar')
       } else if (vcomponent.name === 'vevent') {
         vevent = vcomponent;
         vcalendar = vevent.parent;
+      }
+
+      if (!vcalendar && vevent) {
+        vcalendar = new ICAL.Component('vcalendar');
+        vcalendar.addSubcomponent(vevent);
       }
 
       this.vcalendar = vcalendar;
@@ -240,6 +245,68 @@ angular.module('esn.calendar')
           etag: this.etag,
           gracePeriodTaskId: this.gracePeriodTaskId
         });
+      },
+
+      /**
+       * Find or retrieve the modified master event for this shell. If the
+       * shell is already a master event, return a promise with this. Otherwise
+       * either find it in the vcalendar parent, or retrieve it from the
+       * server.
+       *
+       * @return {Promise}      Promise resolving with the master shell.
+       */
+      getModifiedMaster: function() {
+        if (!this.isInstance()) {
+          return $q.when(this);
+        }
+
+        var vevents = this.vcalendar.getAllSubcomponents('vevent');
+        for (var i = 0, len = vevents.length; len > 1 && i < len; i++) {
+          if (!vevents[i].hasProperty('recurrence-id')) {
+            var mastershell = new CalendarShell(vevents[i], {
+              path: this.path,
+              etag: this.etag,
+              gracePeriodTaskId: this.gracePeriodTaskId
+            });
+            return $q.when(mastershell);
+          }
+        }
+
+        // Not found, we need to retrieve the event
+        return eventAPI.get(this.path).then(function(response) {
+          var mastershell = new CalendarShell(new ICAL.Component(response.data), {
+            path: this.path,
+            etag: this.etag,
+            gracePeriodTaskId: this.gracePeriodTaskId
+          });
+
+          mastershell.modifyOccurrence(this);
+          return mastershell;
+        }.bind(this));
+      },
+
+      /**
+       * For a master shell, modifies a specific instance so it appears as a
+       * modified occurrence in the vcalendar. Can not be called on instances.
+       *
+       * @param {CalendarShell} instance        The instance to add as modified.
+       */
+      modifyOccurrence: function(instance) {
+        if (this.isInstance()) {
+          throw new Error('Cannot modify occurrence on an instance');
+        }
+        var vevents = this.vcalendar.getAllSubcomponents('vevent');
+
+        for (var i = 0, len = vevents.length; i < len; i++) {
+          var vevent = vevents[i];
+          var recId = vevent.getFirstPropertyValue('recurrence-id');
+          if (recId && instance.recurrenceId.isSame(recId.toJSDate())) {
+            this.vcalendar.removeSubcomponent(vevent);
+            break;
+          }
+        }
+
+        this.vcalendar.addSubcomponent(instance.clone().vevent);
       }
     };
 
