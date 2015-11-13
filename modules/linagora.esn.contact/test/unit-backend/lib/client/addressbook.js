@@ -21,7 +21,8 @@ describe('The contact client APIs', function() {
             callback('/dav/api');
           }
         }
-      }
+      },
+      pubsub: {}
     };
   });
 
@@ -139,6 +140,16 @@ describe('The contact client APIs', function() {
             expect(err).to.equal('a error');
             done();
           });
+        });
+
+        it('should prefer specified contact ID in parameter', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options) {
+              expect(options.url).to.equal('/dav/api/addressbooks/123/contacts/use_this_id.vcf');
+              done();
+            }
+          });
+          addressbook().contacts('456').get('use_this_id');
         });
 
       });
@@ -281,6 +292,104 @@ describe('The contact client APIs', function() {
             done();
           });
         });
+      });
+
+      describe('The search fn', function() {
+
+        function createSearchClientMock(mock) {
+          return function() {
+            return {
+              searchContacts: mock
+            };
+          };
+        }
+
+        it('should call searchClient.searchContacts with the rith parameters', function(done) {
+          var searchOptions = {
+            search: 'alex',
+            userId: 'userId',
+            limit: 10,
+            page: 1
+          };
+          mockery.registerMock('../search', createSearchClientMock(function(options) {
+            expect(options).to.eql({
+              bookId: '123',
+              search: searchOptions.search,
+              userId: searchOptions.userId,
+              limit: searchOptions.limit,
+              page: searchOptions.page
+            });
+            done();
+          }));
+          addressbook().contacts().search(searchOptions);
+        });
+
+        it('should reject error occur while searching contact', function(done) {
+          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+            callback('some error');
+          }));
+          addressbook().contacts().search({}).then(null, function(err) {
+            expect(err).to.equal('some error');
+            done();
+          });
+        });
+
+        it('should resolve empty results when the search list is undefined', function(done) {
+          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+            callback(null, {});
+          }));
+          addressbook().contacts().search({}).then(function(data) {
+            expect(data.results).to.eql([]);
+            done();
+          });
+        });
+
+        it('should resolve total_count and current_page returned from search', function(done) {
+          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+            callback(null, {
+              total_count: 100,
+              current_page: 2
+            });
+          }));
+          addressbook().contacts().search({}).then(function(data) {
+            expect(data.total_count).to.equal(100);
+            expect(data.current_page).to.equal(2);
+            done();
+          });
+        });
+
+        it('should resolve contacts fetched from DAV', function(done) {
+          var counter = 0;
+          var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              expect(options.url).to.equal('/dav/api/addressbooks/123/contacts/' + hitLists[counter]._id + '.vcf');
+              counter++;
+              if (counter === 3) {
+                callback('some error');
+              } else {
+                callback(null, 'response' + counter, 'body' + counter);
+              }
+            }
+          });
+
+          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+            callback(null, {
+              list: hitLists
+            });
+          }));
+
+          addressbook().contacts().search({}).then(function(data) {
+            expect(data.results).to.eql([
+              { contactId: 1, response: 'response1', body: 'body1' },
+              { contactId: 2, response: 'response2', body: 'body2' },
+              { contactId: 3, err: 'some error' }
+            ]);
+            done();
+          });
+
+        });
+
       });
 
     });
