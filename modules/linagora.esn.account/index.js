@@ -35,7 +35,6 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
         'services.js',
         'providers/twitter/twitter.js',
         'providers/twitter/constants.js',
-        'providers/twitter/controllers.js',
         'providers/twitter/directives.js',
         'providers/twitter/services.js'
       ];
