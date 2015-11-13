@@ -32,7 +32,8 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
         sudo ln -s /usr/share/elasticsearch/bin/elasticsearch /usr/bin/elasticsearch
 
-Ensure that multicast discovery is disabled by uncommenting the following line in /etc/elasticsearch/elasticsearch.yml:
+ If you have other ElasticSearch instance in the same sub-network running with the same cluster name than yours (default configuration), you may need to disable multicast discovery otherwise it will break the mongo river.
+ For that uncomment the following line in /etc/ElasticSearch/elasticsearch.yml: 
 
     discovery.zen.ping.multicast.enabled: false
 
