@@ -47,14 +47,14 @@ angular.module('esn.calendar')
         }
       },
       websocket: {
-        emitCreatedEvent: function(vcalendar) {
-          websocket.emit('event:created', vcalendar);
+        emitCreatedEvent: function(shell) {
+          websocket.emit('event:created', shell);
         },
-        emitRemovedEvent: function(vcalendar) {
-          websocket.emit('event:deleted', vcalendar);
+        emitRemovedEvent: function(shell) {
+          websocket.emit('event:deleted', shell);
         },
-        emitUpdatedEvent: function(vcalendar) {
-          websocket.emit('event:updated', vcalendar);
+        emitUpdatedEvent: function(shell) {
+          websocket.emit('event:updated', shell);
         }
       }
     };
@@ -197,7 +197,7 @@ angular.module('esn.calendar')
                   return getEvent(eventPath).then(function(shell) {
                     gracePeriodService.remove(taskId);
                     calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                    calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
+                    calendarEventEmitter.websocket.emitCreatedEvent(shell);
                     return shell;
                   }, function(response) {
                     if (response.status === 404) {
@@ -271,7 +271,7 @@ angular.module('esn.calendar')
         } else {
           if (gracePeriodService.hasTask(taskId)) {
             gracePeriodService.remove(taskId);
-            calendarEventEmitter.websocket.emitRemovedEvent(event.vcalendar);
+            calendarEventEmitter.websocket.emitRemovedEvent(event);
           }
           return $q.when(true);
         }
@@ -352,7 +352,7 @@ angular.module('esn.calendar')
           return getEvent(path).then(function(shell) {
             gracePeriodService.remove(taskId);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-            calendarEventEmitter.websocket.emitUpdatedEvent(shell.vcalendar);
+            calendarEventEmitter.websocket.emitUpdatedEvent(shell);
             return shell;
           }, function(response) {
             if (response.status === 404) {
@@ -398,7 +398,7 @@ angular.module('esn.calendar')
 
               if (emitEvents) {
                 calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                calendarEventEmitter.websocket.emitUpdatedEvent(shell.vcalendar);
+                calendarEventEmitter.websocket.emitUpdatedEvent(shell);
               }
               return shell;
             });

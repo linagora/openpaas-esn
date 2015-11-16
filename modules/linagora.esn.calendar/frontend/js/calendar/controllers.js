@@ -170,15 +170,15 @@ angular.module('esn.calendar')
     ];
 
     function liveNotificationHandlerOnCreate(msg) {
-      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', CalendarShell.from(msg));
+      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', CalendarShell.fromJSON(msg));
     }
 
     function liveNotificationHandlerOnUpdate(msg) {
-      _modifiedCalendarItem(CalendarShell.from(msg));
+      _modifiedCalendarItem(CalendarShell.fromJSON(msg));
     }
 
     function liveNotificationHandlerOnDelete(msg) {
-      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('removeEvents', CalendarShell.from(msg).id);
+      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('removeEvents', CalendarShell.fromJSON(msg).id);
     }
 
     var sio = livenotification('/calendars');

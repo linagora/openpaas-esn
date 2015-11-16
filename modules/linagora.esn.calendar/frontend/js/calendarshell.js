@@ -257,6 +257,10 @@ angular.module('esn.calendar')
       return new CalendarShell(new ICAL.Component(ical), extendedProperties);
     };
 
+    CalendarShell.fromJSON = function(json) {
+      return new CalendarShell(new ICAL.Component(json.vcalendar), {path: json.path, etag: json.etag, gracePeriodTaskId: json.gracePeriodTaskId});
+    };
+
     /**
      * Build a CalendarShell from the plain object. The plain object's keys
      * must be settable properties in the CalendarShell object, usually

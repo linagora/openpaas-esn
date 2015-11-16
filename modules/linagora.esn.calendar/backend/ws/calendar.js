@@ -45,7 +45,7 @@ function init(dependencies) {
         socket.leave(uuid);
       });
 
-      function _notify(email, jcal, websocketEvent) {
+      function _notify(email, calendarShell, websocketEvent) {
         userModule.findByEmail(email, function(err, user) {
           if (err || !user) {
             logger.error('Could not notify event update for : ', email);
@@ -53,22 +53,22 @@ function init(dependencies) {
           }
           var msg = {
             target: user,
-            event: jcal,
+            event: calendarShell,
             websocketEvent: websocketEvent
           };
           pubsub.local.topic('calendar:event:updated').forward(pubsub.global, msg);
         });
       }
 
-      function _notifyAttendees(jcal, websocketEvent) {
-        var attendeesEmails = jcalHelper.getAttendeesEmails(jcal);
+      function _notifyAttendees(calendarShell, websocketEvent) {
+        var attendeesEmails = jcalHelper.getAttendeesEmails(calendarShell.vcalendar);
         attendeesEmails.forEach(function(email) {
-          _notify(email, jcal, websocketEvent);
+          _notify(email, calendarShell, websocketEvent);
         });
       }
 
-      function _notifyOrganizer(jcal, websocketEvent) {
-        _notify(jcalHelper.getOrganizerEmail(jcal), jcal, websocketEvent);
+      function _notifyOrganizer(calendarShell, websocketEvent) {
+        _notify(jcalHelper.getOrganizerEmail(calendarShell.vcalendar), calendarShell, websocketEvent);
       }
 
       socket.on('event:created', function(data) {
