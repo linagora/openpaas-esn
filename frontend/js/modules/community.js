@@ -14,13 +14,17 @@ angular.module('esn.community', [
   'esn.object-type',
   'ngTagsInput',
   'esn.widget.helper',
-  'esn.collaboration'
+  'esn.collaboration',
+  'op.dynamicDirective'
 ])
-  .config(function(tagsInputConfigProvider) {
+  .config(function(tagsInputConfigProvider, dynamicDirectiveServiceProvider) {
     tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
       placeholder: true,
       displayProperty: true
     });
+
+    var sidebarDirective = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'list-community-activity-streams', {priority: -50});
+    dynamicDirectiveServiceProvider.addInjection('esn-sidebar-app-menu', sidebarDirective);
   })
   .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);

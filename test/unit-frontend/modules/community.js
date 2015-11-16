@@ -2061,4 +2061,20 @@ describe('The Community Angular module', function() {
       expect(this.scope.activityStreams[1].uuid).to.deep.equal(this.activityStreamUuid2);
     });
   });
+
+  describe('config() method', function() {
+    var dynamicDirectiveService;
+    beforeEach(function() {
+      angular.mock.module('op.dynamicDirective');
+      inject(function(_dynamicDirectiveService_) {
+        dynamicDirectiveService = _dynamicDirectiveService_;
+      });
+    });
+
+    it('should inject the sidebar dynamic directive', function() {
+      var injections = dynamicDirectiveService.getInjections('esn-sidebar-app-menu', {});
+      var menuInjections = injections.filter(function(injection) { return injection.name === 'list-community-activity-streams'; });
+      expect(menuInjections).to.have.length.above(1);
+    });
+  });
 });
