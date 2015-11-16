@@ -4,140 +4,8 @@
 
 var expect = chai.expect;
 
-describe.skip('The Community Angular module', function() {
+describe('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
-
-  function httpPromise(promise, config) {
-    config = config || {};
-
-    promise.success = function(fn) {
-      promise.then(function(response) {
-        fn(response.data, response.status, response.headers, config);
-      });
-      return promise;
-    };
-
-    promise.error = function(fn) {
-      promise.then(null, function(response) {
-        fn(response.data, response.status, response.headers, config);
-      });
-      return promise;
-    };
-
-    promise.progress = function(fn) {
-      promise.then(null, null, function(update) {
-        fn(update);
-      });
-      return promise;
-    };
-
-    return promise;
-  }
-
-  describe('The communityMembersController controller', function() {
-
-    beforeEach(angular.mock.inject(function($controller, $rootScope) {
-      var self = this;
-      this.collaborationAPI = {};
-      this.defer = $q.defer();
-      this.collaborationAPI.getMembers = function(id, opts) {
-        return self.defer.promise;
-      };
-      this.usSpinnerService = {};
-      this.usSpinnerService.spin = function(id) {};
-      this.usSpinnerService.stop = function(id) {};
-      this.$controller = $controller;
-      this.scope = $rootScope.$new();
-      this.scope.community = {_id: 123};
-      this.scope.restActive = true;
-
-      $controller('communityMembersController', {
-        $scope: this.scope,
-        collaborationAPI: this.collaborationAPI,
-        $routeParams: this.$routeParams,
-        usSpinnerService: this.usSpinnerService
-      });
-
-    }));
-
-    describe('init function', function() {
-
-      beforeEach(function() {
-        this.scope.restActive = false;
-      });
-
-      it('should call the api and update the members array', function(done) {
-        var u1 = { user: { _id: 1, emails: ['a@example.com'] } };
-        var u2 = { user: { _id: 2, emails: ['b@example.com'] } };
-        var u3 = { user: { _id: 3, emails: ['c@example.com'] } };
-        this.defer.resolve({data: [u1, u2, u3], headers: function() { return 10;}});
-        this.scope.$digest();
-        expect(Object.keys(this.scope.internalMembers).length).to.equal(3);
-        expect(this.scope.total).to.equal(10);
-        done();
-      });
-
-      it('should set error when the api call fails', function(done) {
-        this.defer.reject({data: [1, 2, 3], headers: function() { return 10;}});
-        this.scope.$digest();
-        expect(this.scope.error).to.be.true;
-        done();
-      });
-
-      describe('when request running', function() {
-        beforeEach(function() {
-          this.scope.restActive = true;
-        });
-
-        it('should not call the community API', function(done) {
-          this.collaborationAPI.getMembers = function() {
-            return done(new Error());
-          };
-          this.scope.init();
-          done();
-        });
-      });
-    });
-
-    describe('loadMoreElements function', function() {
-      beforeEach(function() {
-        this.scope.restActive = true;
-      });
-
-      it('should call the API when scope.offset is 0', function(done) {
-        this.scope.restActive = false;
-        this.scope.offset = 0;
-        this.collaborationAPI.getMembers = function() {
-          return done();
-        };
-        this.scope.$digest();
-        this.scope.loadMoreElements();
-      });
-
-      it('should call the API when not all members are loaded', function(done) {
-        this.scope.total = 10;
-        this.scope.offset = 2;
-        this.scope.restActive = false;
-        this.collaborationAPI.getMembers = function() {
-          return done();
-        };
-        this.scope.$digest();
-        this.scope.loadMoreElements();
-      });
-
-      it('should call the API with valid offset', function(done) {
-        this.scope.total = 10;
-        this.scope.offset = 2;
-        this.scope.restActive = false;
-        this.collaborationAPI.getMembers = function(id, options) {
-          expect(options.offset).to.equal(2);
-          return done();
-        };
-        this.scope.$digest();
-        this.scope.loadMoreElements();
-      });
-    });
-  });
 
   describe('communityAPI service', function() {
 
@@ -237,33 +105,6 @@ describe.skip('The Community Angular module', function() {
       });
     });
 
-    describe('getMembers() function', function() {
-
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
-        this.communityId = '123';
-        Restangular.setFullResponse(true);
-      }));
-
-      it('should send a GET request to /communities/:id/members', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/members').respond(200, []);
-        this.communityAPI.getMembers(this.communityId);
-        this.$httpBackend.flush();
-      });
-
-      it('should send a GET request to /communities/:id/members?limit=X&offset=Y', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/members?limit=10&offset=2').respond(200, []);
-        this.communityAPI.getMembers(this.communityId, {limit: 10, offset: 2});
-        this.$httpBackend.flush();
-      });
-
-      it('should return a promise', function() {
-        var promise = this.communityAPI.getMembers(123);
-        expect(promise.then).to.be.a.function;
-      });
-    });
-
     describe('getMember() function', function() {
 
       beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
@@ -284,491 +125,6 @@ describe.skip('The Community Angular module', function() {
         var promise = this.communityAPI.getMember(123, 456);
         expect(promise.then).to.be.a.function;
       });
-    });
-
-    describe('join() function', function() {
-
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
-        this.communityId = '123';
-        this.userId = '456';
-        Restangular.setFullResponse(true);
-      }));
-
-      it('should send a PUT request to /communities/:id/members/:user', function() {
-        this.$httpBackend.expectPUT('/communities/' + this.communityId + '/members/' + this.userId).respond(204);
-        this.communityAPI.join(this.communityId, this.userId);
-        this.$httpBackend.flush();
-      });
-
-      it('should return a promise', function() {
-        var promise = this.communityAPI.join(123, 456);
-        expect(promise.then).to.be.a.function;
-      });
-    });
-
-    describe('leave() function', function() {
-
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
-        this.communityId = '123';
-        this.userId = '456';
-        Restangular.setFullResponse(true);
-      }));
-
-      it('should send a DELETE request to /communities/:id/members/:user', function() {
-        this.$httpBackend.expectDELETE('/communities/' + this.communityId + '/members/' + this.userId).respond(204);
-        this.communityAPI.leave(this.communityId, this.userId);
-        this.$httpBackend.flush();
-      });
-
-      it('should return a promise', function() {
-        var promise = this.communityAPI.leave(123, 456);
-        expect(promise.then).to.be.a.function;
-      });
-    });
-
-    describe('getRequestMemberships() function', function() {
-
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
-        this.communityId = '123';
-        Restangular.setFullResponse(true);
-      }));
-
-      it('should send a GET request to /communities/:id/membership', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/membership').respond(200, []);
-        this.communityAPI.getRequestMemberships(this.communityId);
-        this.$httpBackend.flush();
-      });
-
-      it('should send a GET request to /communities/:id/membership?limit=X&offset=Y', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/membership?limit=10&offset=2').respond(200, []);
-        this.communityAPI.getRequestMemberships(this.communityId, {limit: 10, offset: 2});
-        this.$httpBackend.flush();
-      });
-
-      it('should return a promise', function() {
-        var promise = this.communityAPI.getRequestMemberships(123);
-        expect(promise.then).to.be.a.function;
-      });
-    });
-
-    describe('getInvitablePeople() function', function() {
-
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
-        this.communityId = '123';
-        Restangular.setFullResponse(true);
-      }));
-
-      it('should send a GET request to /communities/:id/invitablepeople', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/invitablepeople').respond(200, []);
-        this.communityAPI.getInvitablePeople(this.communityId);
-        this.$httpBackend.flush();
-      });
-
-      it('should send a GET request to /communities/:id/membership?limit=X&offset=Y', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/invitablepeople?limit=5&search=query').respond(200, []);
-        this.communityAPI.getInvitablePeople(this.communityId, {limit: 5, search: 'query'});
-        this.$httpBackend.flush();
-      });
-
-      it('should return a promise', function() {
-        var promise = this.communityAPI.getInvitablePeople(123);
-        expect(promise.then).to.be.a.function;
-      });
-    });
-  });
-
-  describe('communityCreateController controller', function() {
-
-    var create;
-
-    beforeEach(inject(['$document', '$rootScope', '$controller', '$compile', 'selectionService', function($document, $rootScope, $controller, $compile, selectionService) {
-      this.communityAPI = {};
-      this.location = {};
-      this.log = {
-        error: function() {
-        }
-      };
-      this.modal = function() {};
-      this.alert = function() {};
-      this.session = {domain: {_id: 123}};
-      this.scope = $rootScope.$new();
-      this.scope.createStatus = {};
-      this.$upload = {};
-      this.selectionService = selectionService;
-      this.$compile = $compile;
-      this.$rootScope = $rootScope;
-      this.$timeout = function(cb) {return cb();};
-
-      create = document.createElement;
-
-      $controller('communityCreateController', {
-        $rootScope: this.$rootScope,
-        $scope: this.scope,
-        $location: this.location,
-        $timeout: this.$timeout,
-        $log: this.log,
-        $modal: this.modal,
-        $alert: this.alert,
-        session: this.session,
-        communityAPI: this.communityAPI,
-        $upload: this.$upload,
-        selectionService: this.selectionService
-      });
-    }]));
-
-    afterEach(function() {
-      document.createElement = create;
-    });
-
-    it('should call the communityAPI#create function when $scope.create is called', function(done) {
-      this.communityAPI.create = function() {
-        done();
-      };
-      this.scope.create({title: 'Node.js', domain_ids: ['1234']});
-    });
-
-    it('should not call the communityAPI#create function when $scope.create is called without community title', function(done) {
-      this.scope.displayError = function() {
-        return done();
-      };
-      this.communityAPI.create = function() {
-        done(new Error());
-      };
-      this.scope.create({domain_ids: ['1234']});
-    });
-
-    it('should not call the communityAPI#create function when $scope.create is called without domain_ids', function(done) {
-      this.scope.displayError = function() {
-        return done();
-      };
-      this.communityAPI.create = function() {
-        done(new Error());
-      };
-      this.scope.create({title: 'Node.js'});
-    });
-
-    it('should not call the communityAPI#create function when $scope.create is called with empty domain_ids', function(done) {
-      this.scope.displayError = function() {
-        return done();
-      };
-      this.communityAPI.create = function() {
-        done(new Error());
-      };
-      this.scope.create({title: 'Node.js', domain_ids: []});
-    });
-
-    it('should change $location.path when call to the communityAPI#create is successful', function(done) {
-      this.location.path = function(path) {
-        expect(path).to.equal('/communities/123');
-        return done();
-      };
-      this.communityAPI.create = function() {
-        return $q.when({data: {_id: 123, title: 'Node.js'}});
-      };
-      this.scope.create({title: 'Node.js', domain_ids: ['123']});
-      this.scope.$digest();
-    });
-
-    it('should display error when call to the communityAPI#create is not successful', function(done) {
-      this.scope.displayError = function() {
-        return done();
-      };
-      this.location.path = function(path) {
-        return done(new Error());
-      };
-      this.communityAPI.create = function() {
-        return $q.reject({error: 500});
-      };
-      this.scope.create({title: 'Node.js', domain_ids: ['123']});
-      this.scope.$digest();
-    });
-
-    describe('isTitleEmpty method', function() {
-      it('should return true for undefined title', function(done) {
-        this.scope.community = {};
-        expect(this.scope.isTitleEmpty()).to.be.true;
-        done();
-      });
-
-      it('should return true for empty title', function(done) {
-        this.scope.community = {title: ''};
-        expect(this.scope.isTitleEmpty()).to.be.true;
-        done();
-      });
-
-      it('should return false for a non empty title', function(done) {
-        this.scope.community = {title: 'node.js'};
-        expect(this.scope.isTitleEmpty()).to.be.false;
-        done();
-      });
-    });
-
-    describe('isTitleInvalid method', function() {
-      it('should return false if there is no error', function(done) {
-        this.scope.validationError = {
-          unique: false
-        };
-        this.scope.communityForm = {
-          title: {
-            $error: {
-              unique: false
-            }
-          }
-        };
-        expect(this.scope.isTitleInvalid()).to.be.false;
-        done();
-      });
-
-      it('should return true is there is an error from sync check', function(done) {
-        this.scope.validationError = {
-          unique: true
-        };
-        this.scope.communityForm = {
-          title: {
-            $error: {
-              unique: false
-            }
-          }
-        };
-        expect(this.scope.isTitleInvalid()).to.be.true;
-        done();
-      });
-
-      it('should return true if there is an error from live check', function(done) {
-        this.scope.validationError = {
-          unique: false
-        };
-        this.scope.communityForm = {
-          title: {
-            $error: {
-              unique: true
-            }
-          }
-        };
-        expect(this.scope.isTitleInvalid()).to.be.true;
-        done();
-      });
-    });
-
-    describe('validateStep0 method', function() {
-      it('should not call communityAPI if $scope.titleValidationRunning is true', function() {
-        this.communityAPI.list = function() {
-          expect(false).to.be.true;
-        };
-        this.scope.titleValidationRunning = true;
-        this.scope.validateStep0();
-      });
-
-      it('should call communityAPI if $scope.titleValidationRunning is false', function(done) {
-        this.scope.community = {title: 'node.js'};
-        var self = this;
-        this.communityAPI.list = function(domainId, options) {
-          expect(domainId).to.equal(self.session.domain._id);
-          expect(options).to.exist;
-          expect(options.title).to.exist;
-          expect(options.title).to.equal(self.scope.community.title);
-          done();
-        };
-        this.scope.titleValidationRunning = false;
-        this.scope.validateStep0();
-      });
-
-      it('should set an error if communityAPI.list call fails', function() {
-        this.scope.community = {title: 'node.js'};
-        this.scope.validationError = {};
-        this.communityAPI.list = function() {
-          return {
-            then: function(responseCallback, errorCallback) {
-              errorCallback('error');
-            }
-          };
-        };
-        this.scope.titleValidationRunning = false;
-        this.scope.validateStep0();
-        expect(this.scope.validationError.ajax).to.exist;
-        expect(this.scope.validationError.unique).to.not.exist;
-      });
-
-      it('should display an error if communityAPI.list return non empty result', function() {
-        this.scope.community = {title: 'node.js'};
-        this.scope.validationError = {};
-        this.communityAPI.list = function() {
-          return {
-            then: function(responseCallback) {
-              var response = {
-                data: [{_id: 'community1'}, {_id: 'community2'}]
-              };
-              responseCallback(response);
-            }
-          };
-        };
-        this.scope.titleValidationRunning = false;
-        this.scope.validateStep0();
-        expect(this.scope.validationError.ajax).to.not.exist;
-        expect(this.scope.validationError.unique).to.exist;
-      });
-
-      it('should move to wizard step 1 if communityAPI.list return an empty result', function() {
-        this.scope.community = {title: 'node.js'};
-        this.communityAPI.list = function() {
-          return {
-            then: function(responseCallback) {
-              var response = {
-                data: []
-              };
-              responseCallback(response);
-            }
-          };
-        };
-        this.scope.titleValidationRunning = false;
-        this.scope.validateStep0();
-        expect(this.scope.step).to.equal(1);
-      });
-
-    });
-
-    it('should transform the image to blob', function(done) {
-      var img = {img: 'test'};
-      this.selectionService.setImage(img);
-      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
-
-      var element = this.$compile('<canvas>')(this.scope);
-      var document = element[0].ownerDocument;
-
-      document.createElement = function() {
-        return {
-          getContext: function() {
-            return {
-              drawImage: function() {return;}
-            };
-          },
-          toBlob: function() {
-            return done();
-          }
-        };
-      };
-
-      this.communityAPI.create = function() {
-        return $q.when({data: {_id: 123, title: 'Node.js'}});
-      };
-      this.scope.create({title: 'Node.js', domain_ids: ['123']});
-      this.scope.$digest();
-    });
-
-    it('should upload the blob when community is created', function(done) {
-      var img = {img: 'test'};
-      this.selectionService.setImage(img);
-      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
-
-      var element = this.$compile('<canvas>')(this.scope);
-      var document = element[0].ownerDocument;
-
-      document.createElement = function() {
-        return {
-          getContext: function() {
-            return {
-              drawImage: function() {return;}
-            };
-          },
-          toBlob: function(callback) {
-            var blob = 'ImageBlob';
-            return callback(blob);
-          }
-        };
-      };
-
-      this.communityAPI.create = function() {
-        return $q.when({data: {_id: 123, title: 'Node.js'}});
-      };
-      this.communityAPI.uploadAvatar = function() {
-        return done();
-      };
-      this.scope.create({title: 'Node.js', domain_ids: ['123']});
-      this.scope.$digest();
-    });
-
-    it('should redirect to community when the avatar is uploaded', function(done) {
-      var img = {img: 'test'};
-      this.selectionService.setImage(img);
-      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
-
-      var element = this.$compile('<canvas>')(this.scope);
-      var document = element[0].ownerDocument;
-
-      document.createElement = function() {
-        return {
-          getContext: function() {
-            return {
-              drawImage: function() {return;}
-            };
-          },
-          toBlob: function(callback) {
-            var blob = 'ImageBlob';
-            return callback(blob);
-          }
-        };
-      };
-
-      this.communityAPI.create = function() {
-        return $q.when({data: {_id: 123, title: 'Node.js'}});
-      };
-
-      this.communityAPI.uploadAvatar = function() {
-        return httpPromise($q.when({data: {_id: 456}}));
-      };
-
-      this.location.path = function() {
-        return done();
-      };
-
-      this.scope.create({title: 'Node.js', domain_ids: ['123']});
-      this.scope.$digest();
-    });
-
-    it('should redirect to community when the avatar upload fails', function(done) {
-      var img = {img: 'test'};
-      this.selectionService.setImage(img);
-      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
-
-      var element = this.$compile('<canvas>')(this.scope);
-      var document = element[0].ownerDocument;
-
-      document.createElement = function() {
-        return {
-          getContext: function() {
-            return {
-              drawImage: function() {return;}
-            };
-          },
-          toBlob: function(callback) {
-            var blob = 'ImageBlob';
-            return callback(blob);
-          }
-        };
-      };
-
-      this.communityAPI.create = function() {
-        return $q.when({data: {_id: 123, title: 'Node.js'}});
-      };
-
-      this.communityAPI.uploadAvatar = function() {
-        return httpPromise($q.reject({data: {_id: 456}}));
-      };
-
-      this.location.path = function() {
-        return done();
-      };
-
-      this.scope.create({title: 'Node.js', domain_ids: ['123']});
-      this.scope.$digest();
     });
   });
 
@@ -936,52 +292,6 @@ describe.skip('The Community Angular module', function() {
         done();
       });
     });
-
-    describe('joinSuccess() method', function() {
-      it('should redirect to the /communities/:id URI', function(done) {
-        this.location.path = function(uri) {
-          expect(uri).to.equal('/communities/community1');
-          done();
-        };
-        this.scope.joinSuccess({_id: 'community1'});
-      });
-    });
-
-    describe('leaveSuccess() method', function() {
-      it('should call communityAPI.get(:id)', function(done) {
-        this.communityAPI.get = function(id) {
-          expect(id).to.equal('community1');
-          done();
-          return $q.defer().promise;
-        };
-        this.scope.leaveSuccess({_id: 'community1'});
-      });
-
-      describe('communityAPI.get(:id) handler', function() {
-        it('should update scope.communities with the new version of community', function() {
-          this.scope.communities.push({_id: 'community5'});
-          this.scope.communities.push({_id: 'community4'});
-          this.scope.communities.push({_id: 'community3'});
-          this.scope.communities.push({_id: 'community2'});
-          this.scope.communities.push({_id: 'community1'});
-
-          this.communityAPI.get = function(id) {
-            return $q.when({ data: { _id: 'community3', updated: true } });
-          };
-
-          this.scope.leaveSuccess({_id: 'community3'});
-          this.scope.$digest();
-          expect(this.scope.communities).to.have.length(5);
-          expect(this.scope.communities[0]).to.deep.equal({_id: 'community5'});
-          expect(this.scope.communities[1]).to.deep.equal({_id: 'community4'});
-          expect(this.scope.communities[2]).to.deep.equal({_id: 'community3', updated: true });
-          expect(this.scope.communities[3]).to.deep.equal({_id: 'community2'});
-          expect(this.scope.communities[4]).to.deep.equal({_id: 'community1'});
-        });
-      });
-
-    });
-
   });
 
   describe('communityController controller', function() {
@@ -1233,8 +543,8 @@ describe.skip('The Community Angular module', function() {
   });
 
   describe('communityService service', function() {
-    beforeEach(angular.mock.inject(function(communityService, communityAPI, $rootScope) {
-      this.communityAPI = communityAPI;
+    beforeEach(angular.mock.inject(function(communityService, collaborationAPI, $rootScope) {
+      this.collaborationAPI = collaborationAPI;
       this.communityService = communityService;
       this.$rootScope = $rootScope;
     }));
@@ -1278,9 +588,10 @@ describe.skip('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call communityAPI.join(:communityid, :userid) if the user is not a member', function(done) {
+      it('should call collaborationAPI.join(\'community\', :communityid, :userid) if the user is not a member', function(done) {
         this.community.member_status = '???';
-        this.communityAPI.join = function(cid, uid) {
+        this.collaborationAPI.join = function(collaborationType, cid, uid) {
+          expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
           done();
@@ -1307,9 +618,10 @@ describe.skip('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call communityAPI.leave(:communityid, :userid) if the user is a member', function(done) {
+      it('should call communityAPI.leave(\'community\', :communityid, :userid) if the user is a member', function(done) {
         this.community.member_status = 'member';
-        this.communityAPI.leave = function(cid, uid) {
+        this.collaborationAPI.leave = function(collaborationType, cid, uid) {
+          expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user2');
           done();
@@ -1493,9 +805,10 @@ describe.skip('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call communityAPI.requestMembership(:communityid, :userid) if the user is not a member', function(done) {
+      it('should call collaborationAPI.requestMembership(\'community\', :communityid, :userid) if the user is not a member', function(done) {
         this.community.member_status = '???';
-        this.communityAPI.requestMembership = function(cid, uid) {
+        this.collaborationAPI.requestMembership = function(collaborationType, cid, uid) {
+          expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
           done();
@@ -1511,8 +824,9 @@ describe.skip('The Community Angular module', function() {
         };
       });
 
-      it('should call communityAPI.cancelRequestMembership(:communityid, :userid)', function(done) {
-        this.communityAPI.cancelRequestMembership = function(cid, uid) {
+      it('should call collaborationAPI.cancelRequestMembership(\'community\', :communityid, :userid)', function(done) {
+        this.collaborationAPI.cancelRequestMembership = function(collaborationType, cid, uid) {
+          expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
           done();
@@ -2055,12 +1369,12 @@ describe.skip('The Community Angular module', function() {
   describe('The communityMembershipRequestsWidget directive', function() {
     beforeEach(function() {
       var self = this;
-      this.communityAPI = {
+      this.collaborationAPI = {
         get: function() {},
         getRequestMemberships: function() {}
       };
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', self.communityAPI);
+        $provide.value('collaborationAPI', self.collaborationAPI);
       });
       module('jadeTemplates');
       module('esn.core');
@@ -2085,8 +1399,8 @@ describe.skip('The Community Angular module', function() {
       this.html = '<community-membership-requests-widget community="community"/>';
     }));
 
-    it('should call communityAPI#getRequestMemberships', function(done) {
-      this.communityAPI.getRequestMemberships = function() {
+    it('should call collaborationAPI#getRequestMemberships', function(done) {
+      this.collaborationAPI.getRequestMemberships = function() {
         return done();
       };
       this.$compile(this.html)(this.scope);
@@ -2094,7 +1408,7 @@ describe.skip('The Community Angular module', function() {
     });
 
     it('should set error when call the API fails', function(done) {
-      this.communityAPI.getRequestMemberships = function() {
+      this.collaborationAPI.getRequestMemberships = function() {
         return $q.reject();
       };
 
@@ -2109,7 +1423,7 @@ describe.skip('The Community Angular module', function() {
 
     it('should set requests in the scope when API call succeeds', function(done) {
       var result = [{user: {_id: 1, emails: ['foo@bar.com']}}, {user: {_id: 2, emails: ['baz@bar.com']}}];
-      this.communityAPI.getRequestMemberships = function() {
+      this.collaborationAPI.getRequestMemberships = function() {
         return $q.when({ data: result });
       };
 
@@ -2194,7 +1508,7 @@ describe.skip('The Community Angular module', function() {
 
   describe('The communityMembershipRequestsActions directive', function() {
     beforeEach(function() {
-      var communityAPI = {
+      var collaborationAPI = {
         get: function() {},
         join: function() {}
       };
@@ -2206,17 +1520,17 @@ describe.skip('The Community Angular module', function() {
       angular.mock.module('esn.community');
       angular.mock.module('esn.user');
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', communityAPI);
+        $provide.value('collaborationAPI', collaborationAPI);
         $provide.value('userAPI', userAPI);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, communityAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.communityAPI = communityAPI;
+      this.collaborationAPI = collaborationAPI;
       this.scope.community = {
         _id: '123'
       };
@@ -2228,9 +1542,10 @@ describe.skip('The Community Angular module', function() {
 
     describe('The directive controller', function() {
       describe('The accept function', function() {
-        it('should call communityAPI#join', function(done) {
+        it('should call collaborationAPI#join', function(done) {
           var self = this;
-          this.communityAPI.join = function(community, user) {
+          this.collaborationAPI.join = function(collaborationType, community, user) {
+            expect(collaborationType).to.equal('community');
             expect(community).to.equal(self.scope.community._id);
             expect(user).to.equal(self.scope.user._id);
             return done();
@@ -2241,8 +1556,8 @@ describe.skip('The Community Angular module', function() {
           iscope.accept();
         });
 
-        it('should set $scope.done on communityAPI#join success', function() {
-          this.communityAPI.join = function() {
+        it('should set $scope.done on collaborationAPI#join success', function() {
+          this.collaborationAPI.join = function() {
             return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2253,8 +1568,8 @@ describe.skip('The Community Angular module', function() {
           expect(iscope.done).to.be.true;
         });
 
-        it('should set $scope.error on communityAPI#join failure', function() {
-          this.communityAPI.join = function() {
+        it('should set $scope.error on collaborationAPI#join failure', function() {
+          this.collaborationAPI.join = function() {
             return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2267,9 +1582,10 @@ describe.skip('The Community Angular module', function() {
       });
 
       describe('The decline function', function() {
-        it('should call communityAPI#cancelRequestMembership', function(done) {
+        it('should call collaborationAPI#cancelRequestMembership', function(done) {
           var self = this;
-          this.communityAPI.cancelRequestMembership = function(community, user) {
+          this.collaborationAPI.cancelRequestMembership = function(collaborationType, community, user) {
+            expect(collaborationType).to.equal('community');
             expect(community).to.equal(self.scope.community._id);
             expect(user).to.equal(self.scope.user._id);
             return done();
@@ -2280,8 +1596,8 @@ describe.skip('The Community Angular module', function() {
           iscope.decline();
         });
 
-        it('should set $scope.error on communityAPI#cancelRequestMembership failure', function() {
-          this.communityAPI.cancelRequestMembership = function() {
+        it('should set $scope.error on collaborationAPI#cancelRequestMembership failure', function() {
+          this.collaborationAPI.cancelRequestMembership = function() {
             return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2292,8 +1608,8 @@ describe.skip('The Community Angular module', function() {
           expect(iscope.error).to.be.true;
         });
 
-        it('should set $scope.done on communityAPI#cancelRequestMembership success', function() {
-          this.communityAPI.cancelRequestMembership = function() {
+        it('should set $scope.done on collaborationAPI#cancelRequestMembership success', function() {
+          this.collaborationAPI.cancelRequestMembership = function() {
             return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2311,12 +1627,12 @@ describe.skip('The Community Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.communityAPI = {
+      this.collaborationAPI = {
         cancelRequestMembership: function() {},
         get: function() {}
       };
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', self.communityAPI);
+        $provide.value('collaborationAPI', self.collaborationAPI);
       });
       module('jadeTemplates');
     });
@@ -2333,20 +1649,20 @@ describe.skip('The Community Angular module', function() {
       this.html = '<community-pending-invitation-list community="community"></community-pending-invitation-list>';
     }));
 
-    it('should call communityAPI.getRequestMemberships', function(done) {
+    it('should call collaborationAPI.getRequestMemberships', function(done) {
 
-      this.communityAPI.getRequestMemberships = function() {
+      this.collaborationAPI.getRequestMemberships = function() {
         return done();
       };
       this.$compile(this.html)(this.scope);
       this.scope.$digest();
     });
 
-    it('should set the communityAPI.getRequestMemberships result in the scope', function(done) {
+    it('should set the collaborationAPI.getRequestMemberships result in the scope', function(done) {
       this.$compile(this.html)(this.scope);
 
       var result = [1, 2, 3];
-      this.communityAPI.getRequestMemberships = function() {
+      this.collaborationAPI.getRequestMemberships = function() {
         return $q.when({ data: result });
       };
       this.scope.$digest();
@@ -2354,9 +1670,9 @@ describe.skip('The Community Angular module', function() {
       done();
     });
 
-    it('should display error when communityAPI.getRequestMemberships fails', function(done) {
+    it('should display error when collaborationAPI.getRequestMemberships fails', function(done) {
       var element = this.$compile(this.html)(this.scope);
-      this.communityAPI.getRequestMemberships = function() {
+      this.collaborationAPI.getRequestMemberships = function() {
         return $q.reject();
       };
       this.scope.$digest();
@@ -2370,14 +1686,14 @@ describe.skip('The Community Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.communityAPI = {
+      this.collaborationAPI = {
         cancelRequestMembership: function() {
         },
         get: function() {
         }
       };
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', self.communityAPI);
+        $provide.value('collaborationAPI', self.collaborationAPI);
       });
       module('jadeTemplates');
     });
@@ -2403,7 +1719,7 @@ describe.skip('The Community Angular module', function() {
     describe('The cancel button', function() {
       describe('on click', function() {
         it('should call the cancelRequestMembership', function(done) {
-          this.communityAPI.cancelRequestMembership = function() {
+          this.collaborationAPI.cancelRequestMembership = function() {
             done();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2412,7 +1728,7 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should hide the button on success', function() {
-          this.communityAPI.cancelRequestMembership = function() {
+          this.collaborationAPI.cancelRequestMembership = function() {
             return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2424,7 +1740,7 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should enable the button on failure', function() {
-          this.communityAPI.cancelRequestMembership = function() {
+          this.collaborationAPI.cancelRequestMembership = function() {
             return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2440,7 +1756,7 @@ describe.skip('The Community Angular module', function() {
 
   describe('The communityInviteUsers directive', function() {
     beforeEach(function() {
-      var communityAPI = {
+      var collaborationAPI = {
         get: function() {
         },
         join: function() {
@@ -2455,17 +1771,17 @@ describe.skip('The Community Angular module', function() {
 
       angular.mock.module('esn.community');
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', communityAPI);
+        $provide.value('collaborationAPI', collaborationAPI);
         $provide.value('communityService', communityService);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, communityAPI, communityService) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, communityService) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.communityAPI = communityAPI;
+      this.collaborationAPI = collaborationAPI;
       this.communityService = communityService;
       this.scope.community = {
         _id: '123'
@@ -2492,10 +1808,11 @@ describe.skip('The Community Angular module', function() {
 
     describe('The directive controller', function() {
       describe('The getInvitablePeople function', function() {
-        it('should call communityAPI#getInvitablePeople', function(done) {
+        it('should call collaborationAPI#getInvitablePeople', function(done) {
           var query = 'testquery';
           var self = this;
-          this.communityAPI.getInvitablePeople = function(communityId, options) {
+          this.collaborationAPI.getInvitablePeople = function(collaborationType, communityId, options) {
+            expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(options.search).to.equal(query);
             expect(options.limit).to.equal(5);
@@ -2507,14 +1824,14 @@ describe.skip('The Community Angular module', function() {
           iscope.getInvitablePeople(query);
         });
 
-        it('should set displaynames on users if communityAPI#getInvitablePeople works', function() {
+        it('should set displaynames on users if collaborationAPI#getInvitablePeople works', function() {
           var query = 'testquery';
           var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
           var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
           var res = {
             data: [user1, user2]
           };
-          this.communityAPI.getInvitablePeople = function() {
+          this.collaborationAPI.getInvitablePeople = function() {
             return {
               then: function(successfunction) {
                 successfunction(res);
@@ -2533,13 +1850,14 @@ describe.skip('The Community Angular module', function() {
       });
 
       describe('The inviteUsers function', function() {
-        it('should call communityAPI#requestMembership for each user in the scope', function() {
+        it('should call collaborationAPI#requestMembership for each user in the scope', function() {
           var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
           var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
           var users = [user1, user2];
           var self = this;
           var call = 0;
-          this.communityAPI.requestMembership = function(communityId, userId) {
+          this.collaborationAPI.requestMembership = function(collaborationType, communityId, userId) {
+            expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(userId).to.exist;
             expect(userId).to.equal(users[call]._id);
@@ -2563,8 +1881,8 @@ describe.skip('The Community Angular module', function() {
           $q.all = oldQAll;
         });
 
-        it('should not call communityAPI#requestMembership if there are no user in the scope', function(done) {
-          this.communityAPI.requestMembership = function(communityId, userId) {
+        it('should not call collaborationAPI#requestMembership if there are no user in the scope', function(done) {
+          this.collaborationAPI.requestMembership = function() {
             done(new Error('unexpected call'));
           };
 
@@ -2576,8 +1894,8 @@ describe.skip('The Community Angular module', function() {
           done();
         });
 
-        it('should not call communityAPI#requestMembership if there already is a running call', function(done) {
-          this.communityAPI.requestMembership = function(communityId, userId) {
+        it('should not call collaborationAPI#requestMembership if there already is a running call', function(done) {
+          this.collaborationAPI.requestMembership = function() {
             done(new Error('unexpected call'));
           };
 
@@ -2596,7 +1914,8 @@ describe.skip('The Community Angular module', function() {
           var users = [user1, user2];
           var self = this;
           var call = 0;
-          this.communityAPI.requestMembership = function(communityId, userId) {
+          this.collaborationAPI.requestMembership = function(collaborationType, communityId, userId) {
+            expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(userId).to.exist;
             expect(userId).to.equal(users[call]._id);
@@ -2636,7 +1955,8 @@ describe.skip('The Community Angular module', function() {
           var users = [user1, user2];
           var self = this;
           var call = 0;
-          this.communityAPI.requestMembership = function(communityId, userId) {
+          this.collaborationAPI.requestMembership = function(collaborationType, communityId, userId) {
+            expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(userId).to.exist;
             expect(userId).to.equal(users[call]._id);
