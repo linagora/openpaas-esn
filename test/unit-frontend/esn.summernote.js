@@ -54,6 +54,30 @@ describe('The esn.summernote Angular module', function() {
     });
   });
 
+  describe('the SupportPlaceholder plugin', function() {
+    beforeEach(function() {
+      angular.mock.module('esn.summernote-wrapper');
+      angular.mock.inject(function(_$compile_, _$rootScope_) {
+        $compile = _$compile_;
+        $rootScope = _$rootScope_;
+        $scope = $rootScope.$new();
+      });
+    });
+
+    it('should leverage the content of the summernote editor to toggle empty class on the contenteditable element', function() {
+      var element = compileDirective('<summernote/>');
+      element.summernote('focus');
+      var contentEditable = angular.element('[contenteditable="true"]');
+      expect(contentEditable.hasClass('empty')).to.be.true;
+
+      element.summernote('insertText', 'Hello world!');
+      expect(contentEditable.hasClass('empty')).to.be.false;
+
+      element.summernote('undo');
+      expect(contentEditable.hasClass('empty')).to.be.true;
+    });
+  });
+
   describe('the MobileFirefoxNewline plugin', function() {
     var $window, MobileFirefoxNewlinePlugin, preventDefaultSpy, event;
 
@@ -194,10 +218,11 @@ describe('The esn.summernote Angular module', function() {
   });
 
   describe('the PreventEmptyAreaFirefox plugin with a non-firefox browser', function() {
-    var PreventEmptyAreaFirefoxPlugin;
+    var PreventEmptyAreaFirefoxPlugin, SupportPlaceholderPlugin;
 
     beforeEach(function() {
       PreventEmptyAreaFirefoxPlugin = sinon.spy();
+      SupportPlaceholderPlugin = sinon.spy();
 
       angular.mock.module('esn.summernote-wrapper', function($provide) {
         $provide.value('deviceDetector', {
@@ -210,6 +235,7 @@ describe('The esn.summernote Angular module', function() {
           }
         });
         $provide.value('PreventEmptyAreaFirefoxPlugin', PreventEmptyAreaFirefoxPlugin);
+        $provide.value('SupportPlaceholderPlugin', SupportPlaceholderPlugin);
         $provide.value('FullscreenPlugin', function() {});
       });
 
