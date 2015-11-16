@@ -1,9 +1,9 @@
 header
   .contacts-header-inner
-    .all-centered
+    .row.all-centered
       .col-xs-12.col-md-8
-        .row
-          .contacts-header-title.col-xs-4.col-md-3.col-md-offset-1
+        .flex-space-between.flex-vertical-centered.flex-wrap
+          .contacts-header-title
             h2
               .contact-categories-letter
                 contact-category-letter
@@ -15,7 +15,7 @@ header
                   span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')}&nbsp;
                   span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
 
-          .contacts-list-toolbar.col-xs-8.col-md-8
+          .contacts-list-toolbar
             .contacts-search
               contact-search-form
             .contacts-toggle

@@ -179,8 +179,7 @@ ul.dropdown {
     right: 0;
     background: @m-white;
     box-shadow: 0 0 1px 1px @m-white;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding: 20px 10px;
 
     .contacts-header-inner {
       padding: 0;
@@ -429,5 +428,13 @@ contact-photo {
 @media(min-width: @screen-sm-min) {
   .card-contact {
     margin-top: 25px;
+  }
+}
+
+@media (min-width: @screen-lg-min) {
+  .contacts-list {
+    .contacts-header {
+      padding-left: @sidebar-left-width;
+    }
   }
 }
