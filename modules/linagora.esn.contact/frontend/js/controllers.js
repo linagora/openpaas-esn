@@ -509,8 +509,10 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.actionClick = function(event, action) {
-      if (action.indexOf('http') === 0) {
+      if (/^(http|https):/.test(action)) {
         $window.open(action);
+      } else if (/^(tel|mailto):/.test(action)) {
+        $window.open(action, '_self');
       }
       event.stopPropagation();
     };
