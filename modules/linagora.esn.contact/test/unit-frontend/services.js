@@ -1486,7 +1486,7 @@ describe('The Contacts Angular module', function() {
         switch (value) {
           case '.contact-controls':
             return [angularFindResult.contactControl];
-          case '.contacts-header':
+          case '.contacts-list-header':
             return [angularFindResult.contactHeader];
         }
       };
