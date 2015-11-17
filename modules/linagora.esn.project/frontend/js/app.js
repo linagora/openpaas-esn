@@ -11,9 +11,10 @@ angular.module('esn.project', [
   'mgcrea.ngStrap.tooltip',
   'mgcrea.ngStrap.helpers.dimensions',
   'mgcrea.ngStrap.helpers.dateParser',
-  'mgcrea.ngStrap.datepicker'
+  'mgcrea.ngStrap.datepicker',
+  'op.dynamicDirective'
 ])
-  .config(function($routeProvider, routeResolver) {
+  .config(function($routeProvider, routeResolver, dynamicDirectiveServiceProvider) {
 
     $routeProvider.when('/project/:project_id', {
       templateUrl: '/project/views/partials/project',
@@ -39,6 +40,9 @@ angular.module('esn.project', [
         project: routeResolver.api('projectAPI', 'get', 'project_id', '/project')
       }
     });
+
+    var sidebarDirective = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'list-project-activity-streams', {priority: -100});
+    dynamicDirectiveServiceProvider.addInjection('esn-sidebar-app-menu', sidebarDirective);
   })
   .run(function(projectAdapterService, objectTypeAdapter, ASTrackerSubscriptionService, projectAPI) {
     objectTypeAdapter.register('project', projectAdapterService);
