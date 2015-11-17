@@ -24,7 +24,7 @@ describe('TwitterDisplayShell service', function() {
     var twitterLink = 'https://twitter.com/' + twitterId;
     var displayName = originalShell.displayName;
 
-    expect(displayShell.getDefaultAvatar()).to.equal('https://abs.twimg.com/sticky/default_profile_images/default_profile_5.png');
+    expect(displayShell.getDefaultAvatar()).to.equal('/contact.twitter/images/default_twitter_avatar.png');
     expect(displayShell.getDisplayName()).to.equal(displayName);
     expect(displayShell.isWritable()).to.equal(false);
     expect(displayShell.getOverlayIcon()).to.deep.equal('mdi-twitter twitter-color');
