@@ -9,6 +9,7 @@ module.exports = function() {
   this.login = function(username, password) {
     this.username.sendKeys(username);
     this.password.sendKeys(password);
+
     return this.submit.click();
   };
 };
