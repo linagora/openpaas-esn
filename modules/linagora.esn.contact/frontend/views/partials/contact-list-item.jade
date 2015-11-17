@@ -3,26 +3,19 @@
     contact-photo.media-object(contact='contact', list-view='true')
   .media-body.p-l-15
     .lv-title
-      | {{contact.displayName}}
+      | {{displayShell.getDisplayName()}}
     ul.lv-attrs
-      li.hidden-xs(ng-show='emails[0].value')
+      li.hidden-xs(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
         span
-          i.mdi.mdi-email-outline
-          a(ng-href="mailto:{{emails[0].value}}", ng-click="$event.stopPropagation()") {{emails[0].value}}
-      li.hidden-xs(ng-show='phones[0].value')
-        span
-          i.mdi.mdi-phone
-          a(ng-href="tel:{{phones[0].value}}", ng-click="$event.stopPropagation()") {{phones[0].value}}
+          i.mdi(ng-class="attrs.icon")
+          a(ng-click="actionClick($event, attrs.action)") {{attrs.id}}
 
 .lv-actions.actions
   li.dropdown
     a(href='', data-toggle='dropdown', aria-expanded='true')
       i.mdi.mdi-dots-vertical
     ul.dropdown-menu.dropdown-menu-right
-      li
-        a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') #{__('Edit')}
-      li
-        a(ng-click="deleteContact()") #{__('Delete')}
+      li(dynamic-directive='contact-list-menu-items')
 
 .contact-list-item.p-10.visible-xs(ng-click='displayContact()')
   .pull-left.touch-zone

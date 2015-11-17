@@ -43,7 +43,7 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService) {
     $scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
@@ -66,6 +66,7 @@ angular.module('linagora.esn.contact')
 
     $scope.fillContactData = function(contact) {
       ContactsHelper.fillScopeContactData($scope, contact);
+      $scope.displayShell  = DisplayShellProvider.convertToDisplayShell(contact);
     };
 
     $scope.getAddress = function(type) {
@@ -498,13 +499,20 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, contactsService, ContactsHelper) {
+  .controller('contactItemController', function($scope, $rootScope, $location, $window, contactsService, ContactsHelper) {
 
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
     $scope.displayContact = function() {
       // use url instead of path to remove search and hash from URL
       $location.url('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+    };
+
+    $scope.actionClick = function(event, action) {
+      if (action.indexOf('http') === 0) {
+        $window.open(action);
+      }
+      event.stopPropagation();
     };
 
     $scope.deleteContact = function() {

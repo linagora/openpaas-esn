@@ -1,5 +1,6 @@
 a
-  img(ng-class="{'lv-img-sm': listView, 'clickable': editable}" ng-src='{{contact.photo || defaultAvatar}}')
+  img(ng-class="{'lv-img-sm': listView, 'clickable': editable}" ng-src='{{contact.photo || defaultAvatar}}' fallback-src="{{displayShell.getDefaultAvatar()}}")
+i.mdi.i-contact-list(ng-class="displayShell.getOverlayIcon()")
 a.edit-hint(ng-if='editable')
   i.mdi.mdi-camera
   span

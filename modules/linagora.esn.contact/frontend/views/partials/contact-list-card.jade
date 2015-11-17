@@ -4,13 +4,12 @@
       .p-10.flex-noshrink
         .card-image
           img(ng-src='{{contact.photo || defaultAvatar}}')
+          i.mdi.i-contact-card(ng-class="displayShell.getOverlayIcon()")
       .p-t-10.p-r-10.contact-info
         div
           strong {{contact.displayName}}
-        div.p-t-5(ng-show='emails[0].value')
-          a(ng-href="mailto:{{emails[0].value}}", ng-click="$event.stopPropagation()") {{emails[0].value}}
-        .p-t-5(ng-if='phones[0].value')
-          a(ng-href="tel:{{phones[0].value}}", ng-click="$event.stopPropagation()") {{phones[0].value}}
+        div.p-t-5(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
+          a(ng-href="{{::attrs.action}}", ng-click="$event.stopPropagation()") {{attrs.id}}
         .p-t-5
           span {{contact.orgRole}}
           span(ng-if='contact.orgRole && contact.orgName') &nbsp;#{__('at')}&nbsp;

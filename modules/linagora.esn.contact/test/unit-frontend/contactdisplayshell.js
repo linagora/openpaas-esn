@@ -24,9 +24,10 @@ describe('ContactDisplayShell', function() {
   function checkContactDisplayShell(displayShell, originalShell) {
     var displayName = originalShell.displayName;
 
+    expect(displayShell.getDefaultAvatar()).to.equal('/contact/images/default_avatar.png');
     expect(displayShell.getDisplayName()).to.equal(displayName);
     expect(displayShell.isWritable()).to.equal(true);
-    expect(displayShell.getOverlayIcon()).to.deep.equal({iconClasses: 'ng-hide'});
+    expect(displayShell.getOverlayIcon()).to.deep.equal('ng-hide');
     expect(displayShell.getInformationsToDisplay()).to.deep.equal([
       {
         objectType: 'email',
@@ -47,15 +48,63 @@ describe('ContactDisplayShell', function() {
     var shell = {
       displayName: 'Contact OpenPaas',
       emails: [
-        {value: 'perso@linagora.com'}
+        {
+          type: 'work',
+          value: 'perso@linagora.com'
+        }
       ],
       tel: [
-        {value: '01.02.03.04.05'}
+        {
+          type: 'work',
+          value: '01.02.03.04.05'
+        }
       ]
     };
 
     var displayShell = new this.ContactDisplayShell(shell);
 
     checkContactDisplayShell(displayShell, shell);
+  });
+
+  it('should provide email and telephone number from work', function() {
+    var shell = {
+      displayName: 'Contact OpenPaas',
+      emails: [
+        {
+          type: 'home',
+          value: 'perso@home.com'
+        },
+        {
+          type: 'work',
+          value: 'perso@linagora.com'
+        }
+      ],
+      tel: [
+        {
+          type: 'home',
+          value: '06.07.08.09.10'
+        },
+        {
+          type: 'work',
+          value: '01.02.03.04.05'
+        }
+      ]
+    };
+
+    var displayShell = new this.ContactDisplayShell(shell);
+
+    expect(displayShell.getInformationsToDisplay()).to.deep.equal([
+      {
+        objectType: 'email',
+        id: 'perso@linagora.com',
+        icon: 'mdi-email-outline',
+        action: 'mailto:' + 'perso@linagora.com'
+      },
+      {
+        objectType: 'phone',
+        id: '01.02.03.04.05',
+        icon: 'mdi-phone',
+        action: 'tel:' + '01.02.03.04.05'
+      }]);
   });
 });

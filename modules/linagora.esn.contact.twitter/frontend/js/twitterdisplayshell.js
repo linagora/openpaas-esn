@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact.twitter')
-  .factory('TwitterDisplayShell', function(ContactDisplayShell) {
+  .factory('TwitterDisplayShell', function(ContactDisplayShell, TWITTER_DEFAULT_AVATAR) {
 
     var TwitterDisplayShell = function(shell) {
       if (shell) {
@@ -9,6 +9,7 @@ angular.module('linagora.esn.contact.twitter')
         this.writable = false;
         this.overlayIcon = {iconClasses: 'mdi-twitter twitter-color'};
         this.dropDownMenuDirective = 'twitter-menu-items';
+        this.fallbackAvatar = TWITTER_DEFAULT_AVATAR;
 
         this.informationsToDisplay = [];
         if (this.shell.social && this.shell.social.length) {
@@ -16,7 +17,7 @@ angular.module('linagora.esn.contact.twitter')
             objectType: 'twitter',
             id: this.shell.social[0].value,
             icon: 'mdi-twitter twitter-color',
-            action: 'https://twitter.com/' + this.shell.displayName
+            action: 'https://twitter.com/' + this.shell.social[0].value
           });
         }
       }

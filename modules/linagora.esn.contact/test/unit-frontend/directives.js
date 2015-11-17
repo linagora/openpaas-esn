@@ -31,6 +31,7 @@ describe('The contact Angular module directives', function() {
     }));
 
     beforeEach(function() {
+      this.$scope.contact = {};
       element = this.$compile('<contact-photo contact="contact"></contact-photo>')(this.$scope);
     });
 
@@ -542,6 +543,11 @@ describe('The contact Angular module directives', function() {
       expect(isoScope.displayContact.called).to.be.false;
     });
 
+    it('should translate the contactShell to displayShell', function() {
+      var element = initDirective();
+      var isoScope = element.isolateScope();
+      expect(isoScope.displayShell.shell).to.deep.equal($scope.contact);
+    });
   });
 
   describe('The contactListItems directive', function() {
