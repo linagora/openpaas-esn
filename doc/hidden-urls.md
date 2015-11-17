@@ -6,6 +6,12 @@ but still present in the system and can be displayed if typed directly in the br
 
 All links in the following list are relative to the OpenPaas base URL: https://openpaas.host/#/.
 
+## Core
+
+### Job Queue UI, to manage or consult the jobs
+
+    /jobqueue/ui
+
 ## Inbox
 
 ### List messages (not threads) of a folder
