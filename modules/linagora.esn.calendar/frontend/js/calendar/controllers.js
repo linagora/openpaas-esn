@@ -119,6 +119,8 @@ angular.module('esn.calendar')
         return;
       }
       angular.extend(event, newEvent);
+      event.start = newEvent.start.clone();
+      event.end = newEvent.end.clone();
       // See weird Fullcalendar behavior fullcalendar.js:1858 and fullcalendar.js:1600
       // Fullcalendar does not care about event._allDay or event.allDay and forces a new
       // value for event.allDay depending on if event.start || event.end has a *time* part.
