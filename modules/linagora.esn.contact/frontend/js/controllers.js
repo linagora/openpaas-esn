@@ -490,9 +490,10 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactHeaderController', function($scope, CONTACT_EVENTS, CONTACT_CATEGORY_DEFAULT_LETTER) {
-    $scope.categoryLetter = CONTACT_CATEGORY_DEFAULT_LETTER;
+  .controller('contactHeaderController', function($scope, CONTACT_EVENTS) {
+    $scope.categoryLetter = '';
     $scope.$on(CONTACT_EVENTS.SCROLL_UPDATE, function(event, data) {
+      $scope.isLetterExist = (data === '') ? false : true;
       $scope.$applyAsync(function() {
         $scope.categoryLetter = data;
       });

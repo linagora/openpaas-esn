@@ -2297,6 +2297,7 @@ describe('The Contacts Angular module', function() {
       this.$rootScope.$broadcast(this.event, 'A');
       this.browser.defer.flush();
       expect(this.scope.categoryLetter).to.deep.equal('A');
+      expect(this.scope.isLetterExist).is.true;
     });
 
   });

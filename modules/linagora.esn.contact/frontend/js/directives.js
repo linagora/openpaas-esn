@@ -105,13 +105,24 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListItems', function(addScrollingBehavior) {
+  .directive('contactListItems', function(addScrollingBehavior, CONTACT_EVENTS, $timeout) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-items.html',
       link: function(scope, element) {
-        var unregisterScrollingBehavior = addScrollingBehavior(element);
-        scope.$on('$destroy', unregisterScrollingBehavior);
+        scope.isLetterExist = false;
+        var scrollingBehavior = addScrollingBehavior(element);
+        function updateLetter() {
+          //We need to wait the contact list updated
+          $timeout(scrollingBehavior.onScroll, 500);
+        }
+        scope.$on(CONTACT_EVENTS.CREATED, updateLetter);
+        scope.$on(CONTACT_EVENTS.UPDATED, updateLetter);
+        scope.$on(CONTACT_EVENTS.DELETED, updateLetter);
+        scope.$on(CONTACT_EVENTS.CANCEL_UPDATE, updateLetter);
+        scope.$on(CONTACT_EVENTS.CANCEL_DELETE, updateLetter);
+
+        scope.$on('$destroy', scrollingBehavior.unregister);
       }
     };
   })

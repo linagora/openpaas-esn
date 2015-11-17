@@ -1437,7 +1437,7 @@ describe('The Contacts Angular module', function() {
 
   describe('The addScrollingBehavior service', function() {
     var $rootScope, $window, event, $scope;
-    var addScrollingBehavior, sharedContactDataService, unregisterScrollingBehavior;
+    var addScrollingBehavior, sharedContactDataService, scrollingBehavior;
     var angularFind;
     var letterOffset = 0,
       contactHeaderOffset = 0,
@@ -1500,7 +1500,7 @@ describe('The Contacts Angular module', function() {
         event = _CONTACT_EVENTS_.SCROLL_UPDATE;
       });
 
-      unregisterScrollingBehavior = addScrollingBehavior(element);
+      scrollingBehavior = addScrollingBehavior(element);
       sharedContactDataService.categoryLetter = '#';
     });
 
@@ -1512,6 +1512,7 @@ describe('The Contacts Angular module', function() {
     it('should not broadcast the letter when it is not hidden', function(done) {
       letterOffset = 100;
       contactHeaderOffset = 0;
+      sharedContactDataService.categoryLetter = '';
       $scope.$on(event, function() {
         done('Error');
       });
@@ -1549,7 +1550,7 @@ describe('The Contacts Angular module', function() {
         };
       };
 
-      unregisterScrollingBehavior();
+      scrollingBehavior.unregister();
       angular.element = angularElement;
     });
   });
