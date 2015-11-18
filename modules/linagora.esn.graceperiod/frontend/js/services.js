@@ -241,10 +241,15 @@ angular.module('linagora.esn.graceperiod')
               notification.close();
             },
             error: function(errorMessage) {
-              notification.update({
+              $.notify({
+                message: errorMessage
+              }, {
                 type: 'danger',
-                message: errorMessage,
-                delay: ERROR_DELAY
+                delay: ERROR_DELAY,
+                placement: {
+                  from: 'bottom',
+                  align: 'center'
+                }
               });
             }
           });
