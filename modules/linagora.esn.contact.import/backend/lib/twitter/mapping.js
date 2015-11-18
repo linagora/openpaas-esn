@@ -24,21 +24,28 @@ module.exports = function() {
 
     vcard.addPropertyWithValue('photo', json.profile_image_url_https.replace('_normal.', '.'));
 
-    vcard.addPropertyWithValue('note', json.description);
+    if (json.description) {
+      vcard.addPropertyWithValue('note', json.description);
+    }
 
-    var val = ['', '', '', '', '', '', json.location];
-    prop = vcard.addPropertyWithValue('adr', val);
-    prop.setParameter('type', 'Other');
+    var street = json.location || '';
+    var country = json.withheld_in_countries || '';
+    if (street || country) {
+      prop = vcard.addPropertyWithValue('adr', ['', '', street, '', '', '', country]);
+      prop.setParameter('type', 'Other');
+    }
 
     prop = vcard.addPropertyWithValue('socialprofile', '@' + json.screen_name);
     prop.setParameter('type', 'Twitter');
 
-    vcard.addPropertyWithValue('url', json.url || '');
+    if (json.url) {
+      vcard.addPropertyWithValue('url', json.url);
+    }
 
     prop = new ICAL.Property('categories');
     prop.setValues(['Twitter']);
-
     vcard.addProperty(prop);
+
     return vcard;
   }
 
