@@ -77,7 +77,8 @@ module.exports = function(config) {
       'modules/**/unit-frontend/fixtures/**'
     ],
     proxies: {
-      '/images/': 'frontend/images/'
+      '/images/': 'frontend/images/',
+      '/contact/images/': 'modules/linagora.esn.contact/frontend/images/'
     },
 
     frameworks: ['mocha'],
