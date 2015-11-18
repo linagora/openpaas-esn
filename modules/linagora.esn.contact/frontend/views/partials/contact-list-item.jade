@@ -7,7 +7,7 @@
     ul.lv-attrs.contact-list-item-attrs
       li.hidden-xs(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
         a(ng-click="actionClick($event, attrs.action)")
-          i.mdi(ng-class="attrs.icon")
+          i.mdi.contact-attr-icon(ng-class="attrs.icon")
           |  {{attrs.id}}
 .lv-actions.actions
   li.dropdown

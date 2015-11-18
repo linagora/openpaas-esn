@@ -10,7 +10,7 @@
           strong {{contact.displayName}}
         .p-t-5(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
           a(ng-click="actionClick($event, attrs.action)") 
-            i.mdi(ng-class="attrs.icon")
+            i.mdi.contact-attr-icon(ng-class="attrs.icon")
             |  {{attrs.id}}
         .p-t-5
           span {{contact.orgRole}}
