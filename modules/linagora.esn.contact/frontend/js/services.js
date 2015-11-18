@@ -626,7 +626,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .factory('addScrollingBehavior', function(CONTACT_EVENTS, $rootScope, $window, sharedContactDataService) {
+  .factory('addScrollingBehavior', function(CONTACT_SCROLL_EVENTS, $rootScope, $window, sharedContactDataService) {
     return function(element) {
 
       function updateCategoryLetter(offset) {
@@ -640,7 +640,7 @@ angular.module('linagora.esn.contact')
 
         if (sharedContactDataService.categoryLetter !== letter) {
           sharedContactDataService.categoryLetter = letter;
-          $rootScope.$broadcast(CONTACT_EVENTS.SCROLL_UPDATE, letter);
+          $rootScope.$broadcast(CONTACT_SCROLL_EVENTS, letter);
         }
       }
 

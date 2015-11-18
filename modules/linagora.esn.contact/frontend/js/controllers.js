@@ -490,12 +490,14 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactHeaderController', function($scope, CONTACT_EVENTS) {
-    $scope.categoryLetter = '';
-    $scope.$on(CONTACT_EVENTS.SCROLL_UPDATE, function(event, data) {
-      $scope.isLetterExist = (data === '') ? false : true;
+  .controller('contactHeaderController', function($scope, CONTACT_SCROLL_EVENTS) {
+    $scope.headerDisplay = {
+      categoryLetter: ''
+    };
+    $scope.$on(CONTACT_SCROLL_EVENTS, function(event, data) {
+      $scope.headerDisplay.letterExists = data !== '';
       $scope.$applyAsync(function() {
-        $scope.categoryLetter = data;
+        $scope.headerDisplay.categoryLetter = data;
       });
     });
   })

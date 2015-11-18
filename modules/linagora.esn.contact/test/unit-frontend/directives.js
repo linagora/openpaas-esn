@@ -574,6 +574,10 @@ describe('The contact Angular module directives', function() {
         $timeout = _$timeout_;
       });
 
+      $scope.headerDisplay = {
+        letterExists: true
+      };
+
     });
 
     function initDirective() {
@@ -585,19 +589,20 @@ describe('The contact Angular module directives', function() {
     it('should remove scroll listener when scope is destroyed', function(done) {
       unregister = done();
       initDirective();
-      expect($scope.isScrolling).is.false;
-
       $scope.$destroy();
+    });
+
+    it('should init the headerDisplay letterExists to false', function() {
+      initDirective();
+      expect($scope.headerDisplay.letterExists).is.false;
     });
 
     it('should listen all contact event to update letter', function() {
       onScroll = sinon.spy();
       initDirective();
-      $rootScope.$broadcast(CONTACT_EVENTS.CREATED);
-      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED);
-      $rootScope.$broadcast(CONTACT_EVENTS.DELETED);
-      $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE);
-      $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE);
+      for (var event in CONTACT_EVENTS) {
+        $rootScope.$broadcast(CONTACT_EVENTS[event]);
+      }
       $timeout.flush();
       expect(onScroll.callCount).to.be.equal(5);
     });

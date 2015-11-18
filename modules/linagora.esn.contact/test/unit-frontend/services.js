@@ -1491,13 +1491,13 @@ describe('The Contacts Angular module', function() {
         }
       };
 
-      inject(function(_$rootScope_, _$window_, _addScrollingBehavior_, _CONTACT_EVENTS_, _sharedContactDataService_) {
+      inject(function(_$rootScope_, _$window_, _addScrollingBehavior_, _CONTACT_SCROLL_EVENTS_, _sharedContactDataService_) {
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $window = _$window_;
         addScrollingBehavior = _addScrollingBehavior_;
         sharedContactDataService = _sharedContactDataService_;
-        event = _CONTACT_EVENTS_.SCROLL_UPDATE;
+        event = _CONTACT_SCROLL_EVENTS_;
       });
 
       scrollingBehavior = addScrollingBehavior(element);

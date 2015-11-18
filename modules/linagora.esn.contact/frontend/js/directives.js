@@ -110,18 +110,19 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-items.html',
       link: function(scope, element) {
-        scope.isLetterExist = false;
+        scope.headerDisplay = {
+          letterExists: false
+        };
         var scrollingBehavior = addScrollingBehavior(element);
+
         function updateLetter() {
           //We need to wait the contact list updated
           $timeout(scrollingBehavior.onScroll, 500);
         }
-        scope.$on(CONTACT_EVENTS.CREATED, updateLetter);
-        scope.$on(CONTACT_EVENTS.UPDATED, updateLetter);
-        scope.$on(CONTACT_EVENTS.DELETED, updateLetter);
-        scope.$on(CONTACT_EVENTS.CANCEL_UPDATE, updateLetter);
-        scope.$on(CONTACT_EVENTS.CANCEL_DELETE, updateLetter);
 
+        for (var event in CONTACT_EVENTS) {
+          scope.$on(CONTACT_EVENTS[event], updateLetter);
+        }
         scope.$on('$destroy', scrollingBehavior.unregister);
       }
     };
@@ -137,7 +138,7 @@ angular.module('linagora.esn.contact')
   .directive('contactCategoryLetter', function() {
     return {
       restrict: 'E',
-      template: '{{categoryLetter}}',
+      template: '{{headerDisplay.categoryLetter}}',
       controller: 'contactHeaderController'
     };
   })
