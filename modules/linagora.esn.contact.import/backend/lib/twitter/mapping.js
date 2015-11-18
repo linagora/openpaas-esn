@@ -2,6 +2,7 @@
 
 var ICAL = require('ical.js');
 var uuid = require('node-uuid');
+var trim = require('trim');
 
 module.exports = function() {
 
@@ -12,22 +13,32 @@ module.exports = function() {
 
     vcard.addPropertyWithValue('version', '4.0');
     vcard.addPropertyWithValue('uid', uuid.v4());
-    vcard.addPropertyWithValue('fn', json.name);
-    var firstName = json.name.split(' ').slice(0, 1);
-    var lastName = json.name.replace(firstName + ' ', '');
+
+    var name = trim(json.name).replace(/\s+/g, ' ');
+    vcard.addPropertyWithValue('fn', name);
+
+    var words = name.split(' ');
+    var firstName = words[0];
+    var lastName = words.slice(1).join(' ');
     vcard.addPropertyWithValue('n', [lastName, firstName]);
+
     vcard.addPropertyWithValue('photo', json.profile_image_url_https.replace('_normal.', '.'));
+
     vcard.addPropertyWithValue('note', json.description);
+
     var val = ['', '', '', '', '', '', json.location];
     prop = vcard.addPropertyWithValue('adr', val);
     prop.setParameter('type', 'Other');
+
     prop = vcard.addPropertyWithValue('socialprofile', '@' + json.screen_name);
     prop.setParameter('type', 'Twitter');
+
     vcard.addPropertyWithValue('url', json.url || '');
+
     prop = new ICAL.Property('categories');
     prop.setValues(['Twitter']);
-    vcard.addProperty(prop);
 
+    vcard.addProperty(prop);
     return vcard;
   }
 

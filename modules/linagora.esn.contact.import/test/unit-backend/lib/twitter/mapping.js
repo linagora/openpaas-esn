@@ -40,5 +40,55 @@ describe('The mapping function', function() {
 
       compareShell(following, ical);
     });
+
+    it('should trim white spaces from Twitter profile name when create card', function() {
+      var following = {
+        name: ' first    last ',
+        tags: [{ text: 'a' }, { text: 'b'}],
+        location: 'France',
+        screen_name: 'AwesomePaaS',
+        url: 'http://mywebsite.com',
+        description: 'description',
+        profile_image_url_https: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+      };
+      var ical = {
+        version: 'VERSION:4.0',
+        fn: 'FN:first last',
+        n: 'N:last;first',
+        adr: 'ADR;TYPE=Other:;;;;;;France',
+        url: 'URL:http://mywebsite.com',
+        socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
+        categories: 'CATEGORIES:Twitter',
+        note: 'NOTE:description',
+        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+      };
+
+      compareShell(following, ical);
+    });
+
+    it('should correctly create card when Twitter profile name has no spaces', function() {
+      var following = {
+        name: 'Alone',
+        tags: [{ text: 'a' }, { text: 'b'}],
+        location: 'France',
+        screen_name: 'AwesomePaaS',
+        url: 'http://mywebsite.com',
+        description: 'description',
+        profile_image_url_https: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+      };
+      var ical = {
+        version: 'VERSION:4.0',
+        fn: 'FN:Alone',
+        n: 'N:;Alone',
+        adr: 'ADR;TYPE=Other:;;;;;;France',
+        url: 'URL:http://mywebsite.com',
+        socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
+        categories: 'CATEGORIES:Twitter',
+        note: 'NOTE:description',
+        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+      };
+
+      compareShell(following, ical);
+    });
   });
 });
