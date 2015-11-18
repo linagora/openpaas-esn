@@ -10,15 +10,15 @@ This manual will guide you through the system-wide installation process of elast
 
 See also [General installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/README.md)
 
-1. Open a terminal and install git
+1.Open a terminal and install git
 
         sudo apt-get install git
 
-2. clone the repository
+2.clone the repository
 
         git clone https://ci.open-paas.org/stash/scm/or/rse.git
 
-3. Install ElasticSearch 1.3.5
+3.Install ElasticSearch 1.3.5
  Download and install ElasticSearch 1.3.5 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-5) from elastic website
 
         wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.3.5.deb
@@ -35,7 +35,7 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
  If you have other ElasticSearch instance in the same sub-network running with the same cluster name than yours (default configuration), you may need to disable multicast discovery otherwise it will break the mongo river.
  For that uncomment the following line in /etc/ElasticSearch/elasticsearch.yml: 
 
-    discovery.zen.ping.multicast.enabled: false
+        discovery.zen.ping.multicast.enabled: false
 
  **Only the elasticsearch user should be able to install plugins**
 Elasticsearch plugin dir may have not been created during the installation, or may have been given ownership to root. [This was a bug](https://github.com/elastic/elasticsearch/issues/8419)
@@ -48,7 +48,7 @@ Elasticsearch plugin dir may have not been created during the installation, or m
 
         sudo ln -s /etc/elasticsearch /usr/share/elasticsearch/config
 
-4. Install MongoDB 2.6.5 from the mongoDB repositories [instructions](http://docs.mongodb.org/v2.6/tutorial/install-mongodb-on-ubuntu/)
+4.Install MongoDB 2.6.5 from the mongoDB repositories [instructions](http://docs.mongodb.org/v2.6/tutorial/install-mongodb-on-ubuntu/)
 
   Import GPG key
 
@@ -74,7 +74,7 @@ Elasticsearch plugin dir may have not been created during the installation, or m
         echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
         echo "mongodb-org-tools hold" | sudo dpkg --set-selections
 
-5. Retrieve rse-scripts
+5.Retrieve rse-scripts
         git clone https://ci.open-paas.org/stash/scm/or/rse-scripts.git
 
  Run the scripts (java and curl are needed)
@@ -129,7 +129,7 @@ Elasticsearch plugin dir may have not been created during the installation, or m
 
  If you missed something during the previous steps, a script `delete_elasticsearch_mongodb_river.sh` is available. After using it, please go back to step 2 again.
 
-6. Install node.js
+6.Install node.js
 
  Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
 
@@ -147,21 +147,21 @@ Elasticsearch plugin dir may have not been created during the installation, or m
 
         n=$(which node);n=${n%/bin/node}; chmod -R 755 $n/bin/*; sudo cp -r $n/{bin,lib,share} /usr/local
 
-7. You may need some additional packages.
+7.You may need some additional packages.
 
         sudo apt-get install build-essential redis-server python-setuptools graphicsmagick graphicsmagick-imagemagick-compat libcairo2-dev libpango1.0-dev libgif-dev
 
-8. Install the npm dependencies
+8.Install the npm dependencies
 
         sudo npm install -g mocha grunt-cli bower karma-cli #node-gyp
     
-9. Install the gjslint dependency
+9.Install the gjslint dependency
 
         sudo easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
 
     more informations [can be found here](https://developers.google.com/closure/utilities/docs/linter_howto)
-    
-10. Go into the project directory and install project dependencies (not as an administrator)
+   
+10.Go into the project directory and install project dependencies (not as an administrator)
 
         cd rse
         npm install
@@ -171,7 +171,7 @@ Elasticsearch plugin dir may have not been created during the installation, or m
 If you have any problem relating to `node-canvas` during the dependencies installation,
 make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
 
-11. Install Sabre/dav
+11.Install Sabre/dav
 
 Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/esn-sabre/browse/README.md).
 
