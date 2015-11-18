@@ -197,6 +197,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('editorPlaceholder', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attr) {
+        if (!!attr.editorPlaceholder) {
+          element.find('.note-editable[contenteditable="true"]').attr('placeholder', attr.editorPlaceholder);
+        }
+      }
+    };
+  })
+
   .directive('recipientsAutoComplete', function(emailSendingService) {
     return {
       restrict: 'E',

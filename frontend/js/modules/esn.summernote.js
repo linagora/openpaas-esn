@@ -87,6 +87,30 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
   })
 
   /**
+   * This plugin toggles an "empty" class on the contenteditor element of summernote. This class is
+   * to be used instead of the pseudo class ":empty" to support placeholder. By doing so,
+   * the placeholder could be displayed in two different cases:
+   *  A. the editor is really empty "=== :empty"
+   *  B. the editor contains some html tags to prevent it from being empty "see PreventEmptyAreaFirefoxPlugin"
+   */
+  .factory('SupportPlaceholderPlugin', function() {
+    function isContentEditableEmpty(contentEditableCode) {
+      return contentEditableCode === '' || contentEditableCode === '<p><br></p>';
+    }
+    return {
+      name: 'SupportPlaceholder',
+      init: function(layoutInfo) {
+        var contentEditable = layoutInfo.editor().find('[contenteditable="true"]');
+        contentEditable.toggleClass('empty', isContentEditableEmpty(layoutInfo.editable().code()));
+
+        layoutInfo.holder().on('summernote.change', function() {
+          contentEditable.toggleClass('empty', isContentEditableEmpty(layoutInfo.editable().code()));
+        });
+      }
+    };
+  })
+
+  /**
    * Fullscreen button with a custom behavior that can be added
    * to the toolbar of summernote using summernote.addPlugin() method
    */
@@ -121,8 +145,9 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
     };
   })
 
-  .run(function(summernote, FullscreenPlugin, MobileFirefoxNewlinePlugin, PreventEmptyAreaFirefoxPlugin, deviceDetector) {
+  .run(function(summernote, FullscreenPlugin, MobileFirefoxNewlinePlugin, PreventEmptyAreaFirefoxPlugin, SupportPlaceholderPlugin, deviceDetector) {
     summernote.addPlugin(FullscreenPlugin);
+    summernote.addPlugin(SupportPlaceholderPlugin);
 
     if (deviceDetector.browser === 'firefox') {
       summernote.addPlugin(PreventEmptyAreaFirefoxPlugin);

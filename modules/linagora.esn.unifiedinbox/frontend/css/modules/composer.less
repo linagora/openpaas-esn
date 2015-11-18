@@ -146,8 +146,15 @@ composer {
 
     .note-editor {
       .flex-shorthand(1);
+      border: 0;
 
       .note-editing-area .note-editable {
+        &.empty:not(:focus):before{
+          content: attr(placeholder);
+          color: @m-gray;
+          font-style:italic;
+        }
+        max-height: 180px;
         p {
           margin-bottom: 0;
         }
