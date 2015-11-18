@@ -188,7 +188,7 @@ angular.module('esn.calendar')
                     scope.event = event;
                     scope.modal = $modal({scope: scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
                   }, function(err) {
-                    task.error(err.statusText);
+                    task.error(err.statusText || 'Unexpected error. Cannot cancel the event creation');
                   });
                 } else {
                   // Unfortunately, sabredav doesn't support Prefer:
@@ -265,7 +265,7 @@ angular.module('esn.calendar')
             task.success();
             return $q.when(false);
           }, function(err) {
-            task.error(err.statusText);
+            task.error(err.statusText  || 'Unexpected error. Cannot cancel the event deletion');
             return $q.when(false);
           });
         } else {
@@ -345,7 +345,7 @@ angular.module('esn.calendar')
             task.success();
             return $q.when(false);
           }, function(err) {
-            task.error(err.statusText);
+            task.error(err.statusText || 'Unexpected error. Cannot cancel the event modification');
             return $q.when(false);
           });
         } else {
