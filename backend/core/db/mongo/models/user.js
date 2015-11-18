@@ -40,7 +40,7 @@ var UserAccountSchema = new mongoose.Schema({
   _id: false,
   type: { type: String, enum: ['email', 'oauth'] },
   hosted: { type: Boolean, default: false },
-  emails: { type: [String], unique: true, validate: validateEmails },
+  emails: { type: [String], unique: true, sparse: true, validate: validateEmails },
   preferredEmailIndex: { type: Number, default: 0 },
   timestamps: {
     creation: {type: Date, default: Date.now}
