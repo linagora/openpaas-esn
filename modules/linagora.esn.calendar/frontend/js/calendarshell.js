@@ -67,48 +67,52 @@ angular.module('esn.calendar')
       set status(value) { this.vevent.updatePropertyWithValue('status', value); },
 
       get start() {
-        if (!this._start) {
-          this._start = fcMoment(this.vevent.getFirstPropertyValue('dtstart'));
+        if (!this.__start) {
+          this.__start = fcMoment(this.vevent.getFirstPropertyValue('dtstart'));
         }
-        return this._start;
+        return this.__start;
       },
       set start(value) {
-        this._start = undefined;
-        var dtstart = ICAL.Time.fromJSDate(value.toDate());
-        dtstart.zone = null;
-        dtstart.isDate = !value.hasTime();
-        var startprop = this.vevent.updatePropertyWithValue('dtstart', dtstart);
-        startprop.setParameter('tzid', timezoneLocal);
+        this.__start = undefined;
+        if (value) {
+          var dtstart = ICAL.Time.fromJSDate(value.toDate());
+          dtstart.zone = null;
+          dtstart.isDate = !value.hasTime();
+          var startprop = this.vevent.updatePropertyWithValue('dtstart', dtstart);
+          startprop.setParameter('tzid', timezoneLocal);
+        }
       },
 
       get end() {
-        if (!this._end) {
-          this._end = fcMoment(this.vevent.getFirstPropertyValue('dtend'));
+        if (!this.__end) {
+          this.__end = fcMoment(this.vevent.getFirstPropertyValue('dtend'));
         }
-        return this._end;
+        return this.__end;
       },
       set end(value) {
-        this._end = undefined;
-        var dtend = ICAL.Time.fromJSDate(value.toDate());
-        dtend.zone = null;
-        dtend.isDate = !value.hasTime();
-        var endprop = this.vevent.updatePropertyWithValue('dtend', dtend);
-        endprop.setParameter('tzid', timezoneLocal);
+        this.__end = undefined;
+        if (value) {
+          var dtend = ICAL.Time.fromJSDate(value.toDate());
+          dtend.zone = null;
+          dtend.isDate = !value.hasTime();
+          var endprop = this.vevent.updatePropertyWithValue('dtend', dtend);
+          endprop.setParameter('tzid', timezoneLocal);
+        }
       },
 
       get allDay() { return this.vevent.getFirstProperty('dtstart').type === 'date'; },
 
       get recurrenceId() {
-        if (!this._recurrenceId) {
+        if (!this.__recurrenceId) {
           var recurrenceId = this.vevent.getFirstPropertyValue('recurrence-id');
           if (recurrenceId) {
-            this._recurrenceId = fcMoment(recurrenceId);
+            this.__recurrenceId = fcMoment(recurrenceId);
           }
         }
-        return this._recurrenceId;
+        return this.__recurrenceId;
       },
       set recurrenceId(value) {
-        this._recurrenceId = undefined;
+        this.__recurrenceId = undefined;
         if (value) {
           var recid = ICAL.Time.fromJSDate(value.toDate());
           recid.zone = ICAL.Timezone.localTimezone;
@@ -120,14 +124,14 @@ angular.module('esn.calendar')
 
       get rrule() {
         var rrule = this.vevent.getFirstPropertyValue('rrule');
-        if (rrule && !this._rrule) {
-          this._rrule = new RRuleShell(rrule, this.vevent);
+        if (rrule && !this.__rrule) {
+          this.__rrule = new RRuleShell(rrule, this.vevent);
         }
-        return this._rrule;
+        return this.__rrule;
       },
 
       set rrule(value) {
-        this._rrule = undefined;
+        this.__rrule = undefined;
         if (value.until) {
           value.until = ICAL.Time.fromJSDate(value.until);
         }
@@ -136,12 +140,12 @@ angular.module('esn.calendar')
       },
 
       get organizer() {
-        if (!this._organizer) {
+        if (!this.__organizer) {
           var organizer = this.vevent.getFirstProperty('organizer');
           if (organizer) {
             var mail = calendarUtils.removeMailto(organizer.getFirstValue());
             var cn = organizer.getParameter('cn');
-            this._organizer = {
+            this.__organizer = {
               fullmail: calendarUtils.fullmailOf(cn, mail),
               email: mail,
               name: cn || mail,
@@ -149,10 +153,10 @@ angular.module('esn.calendar')
             };
           }
         }
-        return this._organizer;
+        return this.__organizer;
       },
       set organizer(value) {
-        this._organizer = undefined;
+        this.__organizer = undefined;
         var organizerValue = calendarUtils.prependMailto(value.email || value.emails[0]);
         var organizerCN = value.displayName || calendarUtils.displayNameOf(value.firstname, value.lastname);
         var organizer = this.vevent.updatePropertyWithValue('organizer', organizerValue);
@@ -160,8 +164,8 @@ angular.module('esn.calendar')
       },
 
       get attendees() {
-        if (this._attendees) {
-          return this._attendees;
+        if (this.__attendees) {
+          return this.__attendees;
         }
         var attendees = [];
         this.vevent.getAllProperties('attendee').forEach(function(attendee) {
@@ -180,14 +184,14 @@ angular.module('esn.calendar')
             displayName: cn || mail
           });
         });
-        this._attendees = attendees;
-        return this._attendees;
+        this.__attendees = attendees;
+        return this.__attendees;
       },
       set attendees(values) {
         if (!angular.isArray(values)) {
           return;
         }
-        this._attendees = undefined;
+        this.__attendees = undefined;
         var self = this;
         values.forEach(function(attendee) {
           var mail = attendee.email || attendee.emails[0];
@@ -209,7 +213,7 @@ angular.module('esn.calendar')
        * @return {Boolean} true or false depending of if an attendee has been modified or not
        */
       changeParticipation: function(status, emails) {
-        this._attendees = undefined;
+        this.__attendees = undefined;
         var needsModify = false;
         this.vevent.getAllProperties('attendee').forEach(function(attendee) {
           if (!emails) {
@@ -383,12 +387,12 @@ angular.module('esn.calendar')
       },
 
       get interval() {
-        this._interval = this._interval || this.rrule ? (this.rrule.interval ? parseInt(this.rrule.interval, 10) : 1) : null;
-        return this._interval;
+        this.__interval = this.__interval || this.rrule ? (this.rrule.interval ? parseInt(this.rrule.interval, 10) : 1) : null;
+        return this.__interval;
       },
       set interval(value) {
         if (angular.isNumber(value)) {
-          this._interval = undefined;
+          this.__interval = undefined;
           this.rrule.interval = [value];
           this.updateParentEvent();
         }
@@ -398,11 +402,11 @@ angular.module('esn.calendar')
         if (!this.rrule || !this.rrule.until) {
           return null;
         }
-        this._until = this._until || fcMoment(this.rrule.until.toJSDate());
-        return this._until;
+        this.__until = this.__until || fcMoment(this.rrule.until.toJSDate());
+        return this.__until;
       },
       set until(value) {
-        this._until = undefined;
+        this.__until = undefined;
         this.rrule.until = value ? ICAL.Time.fromJSDate(value, true) : undefined;
         this.updateParentEvent();
       },
@@ -411,23 +415,23 @@ angular.module('esn.calendar')
         if (!this.rrule || !this.rrule.count) {
           return null;
         }
-        this._count = this._count || parseInt(this.rrule.count, 10);
-        return this._count;
+        this.__count = this.__count || parseInt(this.rrule.count, 10);
+        return this.__count;
       },
       set count(value) {
-        this._count = undefined;
+        this.__count = undefined;
         this.rrule.count = angular.isNumber(value) ? [value] : undefined;
         this.updateParentEvent();
       },
 
       get byday() {
-        if (!this._byday) {
-          this._byday = this.rrule && this.rrule.byday ? this.rrule.byday : [];
+        if (!this.__byday) {
+          this.__byday = this.rrule && this.rrule.byday ? this.rrule.byday : [];
         }
-        return this._byday;
+        return this.__byday;
       },
       set byday(value) {
-        this._byday = undefined;
+        this.__byday = undefined;
         this.rrule.byday = value;
         this.updateParentEvent();
       }

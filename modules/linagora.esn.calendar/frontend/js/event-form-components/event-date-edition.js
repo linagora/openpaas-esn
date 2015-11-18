@@ -24,8 +24,8 @@ angular.module('esn.calendar')
       };
 
       scope.setEventDates = function() {
-        var start = fcMoment(scope.event.start);
-        var end = fcMoment(scope.event.end);
+        var start = scope.event.start.clone();
+        var end = scope.event.end.clone();
         if (scope.allDay) {
           start.stripTime();
           end.stripTime();
@@ -80,7 +80,7 @@ angular.module('esn.calendar')
     function link(scope, element, attrs, ngModel) {
       function subtractOneDayToView(value) {
         var valueToMoment = fcMoment(new Date(value));
-        if (scope.event.allDay && !valueToMoment.isSame(scope.event.start, 'day')) {
+        if (value && scope.event.allDay) {
           var valueToDisplay = valueToMoment.subtract(1, 'days').format('YYYY/MM/DD');
           ngModel.$setViewValue(valueToDisplay);
           ngModel.$render();
@@ -90,10 +90,11 @@ angular.module('esn.calendar')
       }
 
       function addOneDayToModel(value) {
-        if (scope.event.allDay) {
-          return fcMoment(value).add(1, 'days');
+        var valueToMoment = fcMoment(value);
+        if (valueToMoment && scope.event.allDay) {
+          valueToMoment.add(1, 'days');
         }
-        return fcMoment(value);
+        return valueToMoment;
       }
 
       /**
@@ -110,15 +111,19 @@ angular.module('esn.calendar')
       ngModel.$parsers.push(addOneDayToModel);
 
       scope.$on('event-date-edition:allday:changed', function() {
-        var end = fcMoment(scope.event.end);
+        var end = scope.event.end.clone();
         if (!scope.event.allDay) {
-          end.subtract(1, 'days');
+          if (!scope.event.start.isSame(end, 'day')) {
+            end.subtract(1, 'days');
+          }
           // We get back default 1 hour event
           if (scope.event.start.isSame(end, 'day')) {
             end.add(1, 'hours');
           }
         } else {
-          end.add(1, 'days');
+          if (!scope.event.start.isSame(end, 'day')) {
+            end.add(1, 'days');
+          }
         }
         // Recalculate diff because end have changed outside the scope of
         // onEndDateChange, we also update scope.event.end

@@ -128,9 +128,12 @@ angular.module('esn.calendar')
       if (!event) {
         return;
       }
+
       angular.extend(event, newEvent);
       event.start = newEvent.start.clone();
       event.end = newEvent.end.clone();
+      event.allDay = newEvent.allDay;
+
       // See weird Fullcalendar behavior fullcalendar.js:1858 and fullcalendar.js:1600
       // Fullcalendar does not care about event._allDay or event.allDay and forces a new
       // value for event.allDay depending on if event.start || event.end has a *time* part.
@@ -140,6 +143,12 @@ angular.module('esn.calendar')
         event.start = event.start.format('YYYY-MM-DD');
         event.end = event.end ? event.end.format('YYYY-MM-DD') : undefined;
       }
+
+      // We also fake the _allDay property to fix the case when switching from
+      // allday to non-allday, as otherwise the end date is cleared and then
+      // set to the wrong date by fullcalendar.
+      event._allDay = newEvent.allDay;
+
       getCalendar().fullCalendar('updateEvent', event);
     }
 

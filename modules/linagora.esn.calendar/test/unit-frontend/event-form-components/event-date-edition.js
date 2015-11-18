@@ -204,20 +204,10 @@ describe('The event-date-edition component', function() {
       expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
     });
 
-    it('should have a first formatters that do nothing if event is allday and event.start is same day than event.end', function() {
-      this.$scope.event = {
-        allDay: true,
-        start: this.fcMoment('2015-07-03'),
-        end: this.fcMoment('2015-07-03')
-      };
-      var element = this.initDirective(this.$scope);
-      var formatter = element.controller('ngModel').$formatters[0];
-      expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
-    });
-
     it('should have a last parsers that add 1 day if event is allday', function() {
       this.$scope.event = {
-        allDay: true
+        allDay: true,
+        end: this.fcMoment('2015-07-03')
       };
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
@@ -237,24 +227,24 @@ describe('The event-date-edition component', function() {
       this.$scope.event = {
         allDay: true,
         start: this.fcMoment('2015-07-03'),
-        end: this.fcMoment('2015-07-03')
+        end: this.fcMoment('2015-07-04')
       };
       this.initDirective(this.$scope);
       this.$rootScope.$broadcast('event-date-edition:allday:changed');
       this.$rootScope.$digest();
-      expect(this.$scope.event.end.isSame(this.fcMoment('2015-07-04'), 'day')).to.be.true;
+      expect(this.$scope.event.end.isSame(this.fcMoment('2015-07-05'), 'day')).to.be.true;
     });
 
     it('should add 1 days to end if event is allday on event-date-edition:allday:changed', function() {
       this.$scope.event = {
         allDay: false,
         start: this.fcMoment('2015-07-03'),
-        end: this.fcMoment('2015-07-03')
+        end: this.fcMoment('2015-07-04')
       };
       this.initDirective(this.$scope);
       this.$rootScope.$broadcast('event-date-edition:allday:changed');
       this.$rootScope.$digest();
-      expect(this.$scope.event.end.isSame(this.fcMoment('2015-07-02'), 'day')).to.be.true;
+      expect(this.$scope.event.end.isSame(this.fcMoment('2015-07-03'), 'day')).to.be.true;
     });
 
     it('should add 1 hour to end if event is not allday and start is same than end', function() {

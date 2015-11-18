@@ -12,7 +12,10 @@
 angular.module('esn.fcmoment', [])
   .factory('fcMoment', function($window, ICAL) {
     return function(time) {
-      if (time instanceof ICAL.Time) {
+      if (time && (time instanceof ICAL.Time)) {
+        if (!time.zone) {
+          time.zone = ICAL.Timezone.localTimezone;
+        }
         var m = $window.$.fullCalendar.moment(time.toJSDate());
         m.zone(arguments[0].zone.tzid);
         return m;

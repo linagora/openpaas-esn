@@ -55,6 +55,7 @@ describe('fcMoment factory', function() {
 
   it('call fullCalendar.moment with the provided ICAL.Time date and timezone', function(done) {
     var icalTime = this.ICAL.Time.fromJSDate(new Date());
+    icalTime.zone = null; // Setting this to null tests code to avoid an exception in ICAL.js
     this.window.$.fullCalendar.moment = function() {
       expect(arguments[0]).to.deep.equal(icalTime.toJSDate());
       return {
@@ -66,5 +67,4 @@ describe('fcMoment factory', function() {
     };
     this.fcMoment(icalTime);
   });
-
 });
