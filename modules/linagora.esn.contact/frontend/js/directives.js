@@ -105,13 +105,25 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListItems', function(addScrollingBehavior) {
+  .directive('contactListItems', function(addScrollingBehavior, CONTACT_EVENTS, $timeout) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-items.html',
       link: function(scope, element) {
-        var unregisterScrollingBehavior = addScrollingBehavior(element);
-        scope.$on('$destroy', unregisterScrollingBehavior);
+        scope.headerDisplay = {
+          letterExists: false
+        };
+        var scrollingBehavior = addScrollingBehavior(element);
+
+        function updateLetter() {
+          //We need to wait the contact list updated
+          $timeout(scrollingBehavior.onScroll, 500);
+        }
+
+        for (var event in CONTACT_EVENTS) {
+          scope.$on(CONTACT_EVENTS[event], updateLetter);
+        }
+        scope.$on('$destroy', scrollingBehavior.unregister);
       }
     };
   })
@@ -126,7 +138,7 @@ angular.module('linagora.esn.contact')
   .directive('contactCategoryLetter', function() {
     return {
       restrict: 'E',
-      template: '{{categoryLetter}}',
+      template: '{{headerDisplay.categoryLetter}}',
       controller: 'contactHeaderController'
     };
   })

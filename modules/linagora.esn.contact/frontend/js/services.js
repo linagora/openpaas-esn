@@ -626,12 +626,12 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .factory('addScrollingBehavior', function(CONTACT_EVENTS, CONTACT_CATEGORY_DEFAULT_LETTER, $rootScope, $window, sharedContactDataService) {
+  .factory('addScrollingBehavior', function(CONTACT_SCROLL_EVENTS, $rootScope, $window, sharedContactDataService) {
     return function(element) {
 
       function updateCategoryLetter(offset) {
         var categories = element.find('.block-header') || [];
-        var letter = CONTACT_CATEGORY_DEFAULT_LETTER;
+        var letter = '';
 
         categories.each(function(index, element) {
           var letterPosition = element.getElementsByTagName('h2')[0].getBoundingClientRect().bottom;
@@ -640,7 +640,7 @@ angular.module('linagora.esn.contact')
 
         if (sharedContactDataService.categoryLetter !== letter) {
           sharedContactDataService.categoryLetter = letter;
-          $rootScope.$broadcast(CONTACT_EVENTS.SCROLL_UPDATE, letter);
+          $rootScope.$broadcast(CONTACT_SCROLL_EVENTS, letter);
         }
       }
 
@@ -653,8 +653,11 @@ angular.module('linagora.esn.contact')
 
       angular.element($window).scroll(onScroll);
 
-      return function() {
-        angular.element($window).off('scroll', onScroll);
+      return {
+        unregister: function() {
+          angular.element($window).off('scroll', onScroll);
+        },
+        onScroll: onScroll
       };
     };
   })

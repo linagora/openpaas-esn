@@ -5,16 +5,15 @@ header
         .flex-space-between.flex-vertical-centered.flex-wrap
           .contacts-list-header-title
             h2
-              .contact-categories-letter
+              .contact-categories-letter(ng-if="!searchInput")
                 contact-category-letter
-              span #{__('Contacts')}
+              span(ng-if="!headerDisplay.letterExists") #{__('Contacts')}
               small(ng-switch="searchResult.count" ng-if="!!searchInput")
                 span(ng-switch-when='0') #{__('No contacts found')}
                 span(ng-switch-when='1') #{__('1 contact found')}
                 span(ng-switch-default)
                   span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')}&nbsp;
                   span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
-
           .contacts-list-toolbar
             .contacts-search
               contact-search-form

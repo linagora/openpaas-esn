@@ -551,13 +551,34 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactListItems directive', function() {
-    var $compile, $rootScope, $scope;
+    var $compile, $rootScope, $scope, CONTACT_EVENTS, $timeout;
+    var addScrollingBehaviorMock, onScroll, unregister;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
-      $compile = _$compile_;
-      $rootScope = _$rootScope_;
-      $scope = $rootScope.$new();
-    }));
+    beforeEach(function() {
+      addScrollingBehaviorMock = function() {
+        return {
+          onScroll: onScroll,
+          unregister: unregister
+        };
+      };
+
+      module(function($provide) {
+        $provide.value('addScrollingBehavior', addScrollingBehaviorMock);
+      });
+
+      inject(function(_$compile_, _$rootScope_, _CONTACT_EVENTS_, _$timeout_) {
+        $compile = _$compile_;
+        $rootScope = _$rootScope_;
+        $scope = $rootScope.$new();
+        CONTACT_EVENTS = _CONTACT_EVENTS_;
+        $timeout = _$timeout_;
+      });
+
+      $scope.headerDisplay = {
+        letterExists: true
+      };
+
+    });
 
     function initDirective() {
       var element = $compile('<contact-list-items></contact-list-items>')($scope);
@@ -566,18 +587,24 @@ describe('The contact Angular module directives', function() {
     }
 
     it('should remove scroll listener when scope is destroyed', function(done) {
+      unregister = done();
       initDirective();
-      var angularElement = angular.element;
-      angular.element = function() {
-        return {
-          off: function() {
-            done();
-          }
-        };
-      };
-
       $scope.$destroy();
-      angular.element = angularElement;
+    });
+
+    it('should init the headerDisplay letterExists to false', function() {
+      initDirective();
+      expect($scope.headerDisplay.letterExists).is.false;
+    });
+
+    it('should listen all contact event to update letter', function() {
+      onScroll = sinon.spy();
+      initDirective();
+      for (var event in CONTACT_EVENTS) {
+        $rootScope.$broadcast(CONTACT_EVENTS[event]);
+      }
+      $timeout.flush();
+      expect(onScroll.callCount).to.be.equal(5);
     });
 
   });
