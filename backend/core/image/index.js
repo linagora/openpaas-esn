@@ -4,7 +4,7 @@
 // 1 : datastore error
 // 2 : image manipulation error
 
-var defaultAvatarSize = 128;
+var defaultAvatarSize = 256;
 var logger = require('..').logger;
 var PassThrough = require('stream').PassThrough;
 var gm = require('gm').subClass({ imageMagick: true });
