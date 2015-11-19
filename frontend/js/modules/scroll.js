@@ -68,4 +68,22 @@ angular.module('esn.scroll', [])
       },
       link: link
     };
+  })
+
+  .factory('elementScrollDownService', function($timeout) {
+    /**
+     * Auto-scroll to the end of the given element
+     * @param element
+     */
+    function autoScrollDown(element) {
+      if (!!element && !!element[0]) {
+        $timeout(function() {
+          element.scrollTop(element[0].scrollHeight);
+        }, 0);
+      }
+    }
+
+    return {
+      autoScrollDown: autoScrollDown
+    };
   });

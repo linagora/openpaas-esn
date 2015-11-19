@@ -208,7 +208,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('recipientsAutoComplete', function(emailSendingService) {
+  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService) {
     return {
       restrict: 'E',
       require: '^composer',
@@ -221,9 +221,14 @@ angular.module('linagora.esn.unifiedinbox')
         }
         return '/unifiedinbox/views/composer/' + attr.template + '.html';
       },
-      link: function($scope, element, attrs, composer) {
-        $scope.search = composer.search;
-        $scope.ensureEmailAndNameFields = emailSendingService.ensureEmailAndNameFields;
+      link: function(scope, element, attrs, composer) {
+        scope.search = composer.search;
+        scope.onTagAdded = function(tag) {
+          emailSendingService.ensureEmailAndNameFields(tag);
+          elementScrollDownService.autoScrollDown(element.find('div.tags'));
+          // Scroll down element on full-screen form
+          $rootScope.$broadcast('unifiedinbox:tags_added');
+        };
       }
     };
   });

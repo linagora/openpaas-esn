@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.fullscreen-edit-form', [])
+angular.module('esn.fullscreen-edit-form', ['esn.scroll'])
 
   .directive('fullscreenEditFormContainer', function() {
     return {
@@ -65,6 +65,17 @@ angular.module('esn.fullscreen-edit-form', [])
         bindAttributes();
         appendOverlay();
         updatePlaceholderAndShownTags();
+      }
+    };
+  })
+
+  .directive('autoScrollDownNgtagsinput', function(elementScrollDownService) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        scope.$on('unifiedinbox:tags_added', function() {
+          elementScrollDownService.autoScrollDown(element.find('div.tags'));
+        });
       }
     };
   })

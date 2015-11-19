@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, Offline = {}, notificationFactory, iFrameResize = function() {};
+  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, Offline = {}, notificationFactory, iFrameResize = function() {}, elementScrollDownService;
   var attendeeService;
 
   beforeEach(function() {
@@ -40,6 +40,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       addProvider: function() {}
     });
     $provide.value('Offline', Offline);
+    $provide.value('elementScrollDownService', elementScrollDownService = {});
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_) {
@@ -561,6 +562,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   describe('The recipientsAutoComplete directive', function() {
+    var autoScrollDownSpy, unifiedinboxTagsAddedSpy;
+
+    beforeEach(function() {
+      autoScrollDownSpy = sinon.spy();
+      unifiedinboxTagsAddedSpy = sinon.spy();
+      elementScrollDownService.autoScrollDown = autoScrollDownSpy;
+    });
 
     it('should trigger an error if no template is given', function() {
       expect(function() {
@@ -578,14 +586,28 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       element.find('recipients-auto-complete').isolateScope().search();
     });
 
-    it('should define $scope.ensureEmailAndNameField from the emailSendingService service', function() {
+    it('should scrolldown element when a tag is added and broadcast an event to inform the fullscreen-edit-form to scrolldown', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
         $composerController: {}
       });
 
       var scope = element.find('recipients-auto-complete').isolateScope();
-      expect(scope.ensureEmailAndNameFields({displayName: 'user@domain'}))
-        .to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
+      var recipient = {displayName: 'user@domain'};
+      $scope.$on('unifiedinbox:tags_added', unifiedinboxTagsAddedSpy);
+      scope.onTagAdded(recipient);
+      expect(autoScrollDownSpy).to.be.called;
+      expect(unifiedinboxTagsAddedSpy).to.be.called;
+    });
+
+    it('should leverage the recipient object to create a corresponding jmap json object', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
+        $composerController: {}
+      });
+
+      var scope = element.find('recipients-auto-complete').isolateScope();
+      var recipient = {displayName: 'user@domain'};
+      scope.onTagAdded(recipient);
+      expect(recipient).to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
     });
   });
 
