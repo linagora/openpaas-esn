@@ -78,8 +78,41 @@ describe('The esn.summernote Angular module', function() {
     });
   });
 
+  describe('the MoveCursorContentEditable factory', function() {
+    var MoveCursorContentEditable, MobileFirefoxNewlinePlugin, event;
+
+    beforeEach(function() {
+      event = {
+        preventDefault: sinon.spy()
+      };
+      angular.mock.module('esn.summernote-wrapper');
+      angular.mock.inject(function(_$compile_, _$rootScope_, _MoveCursorContentEditable_, _MobileFirefoxNewlinePlugin_) {
+        $compile = _$compile_;
+        $rootScope = _$rootScope_;
+        $scope = $rootScope.$new();
+        MoveCursorContentEditable = _MoveCursorContentEditable_;
+        MobileFirefoxNewlinePlugin = _MobileFirefoxNewlinePlugin_;
+      });
+    });
+
+    describe('the moveCursorFocusedSelection method', function() {
+      it('should move the cursor to the corresponding location', function() {
+        var contentEditable = compileDirective('<div contenteditable="true">First Second Third</div>');
+        contentEditable.focus();
+
+        MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[0], 12);
+        MobileFirefoxNewlinePlugin.events.insertParagraph(event);
+        expect(contentEditable.code()).to.equal('First Second<br> Third');
+
+        MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[0], 5);
+        MobileFirefoxNewlinePlugin.events.insertParagraph(event);
+        expect(contentEditable.code()).to.equal('First<br> Second<br> Third');
+      });
+    });
+  });
+
   describe('the MobileFirefoxNewline plugin', function() {
-    var $window, MobileFirefoxNewlinePlugin, preventDefaultSpy, event;
+    var $window, MobileFirefoxNewlinePlugin, preventDefaultSpy, event, MoveCursorContentEditable;
 
     beforeEach(function() {
       preventDefaultSpy = sinon.spy();
@@ -88,23 +121,15 @@ describe('The esn.summernote Angular module', function() {
       };
 
       angular.mock.module('esn.summernote-wrapper');
-      angular.mock.inject(function(_$compile_, _$window_, _$rootScope_, _MobileFirefoxNewlinePlugin_) {
+      angular.mock.inject(function(_$compile_, _$window_, _$rootScope_, _MobileFirefoxNewlinePlugin_, _MoveCursorContentEditable_) {
         $compile = _$compile_;
         $window = _$window_;
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         MobileFirefoxNewlinePlugin = _MobileFirefoxNewlinePlugin_;
+        MoveCursorContentEditable = _MoveCursorContentEditable_;
       });
     });
-
-    function moveCursorInFocesedSelection(node, position) {
-      var selection = $window.getSelection();
-      var range = $window.document.createRange();
-      range.setStart(node, position);
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
 
     it('should insert a <br> tag', function() {
       var contentEditable = compileDirective('<div contenteditable="true">Hello world!</div>');
@@ -118,7 +143,7 @@ describe('The esn.summernote Angular module', function() {
       var contentEditable = compileDirective('<div contenteditable="true">The first line The second line</div>');
       contentEditable.focus();
       // move the cursor to be after "The first line"
-      moveCursorInFocesedSelection(contentEditable[0].childNodes[0], 14);
+      MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[0], 14);
 
       MobileFirefoxNewlinePlugin.events.insertParagraph(event);
       expect(preventDefaultSpy).to.be.called;
@@ -129,7 +154,7 @@ describe('The esn.summernote Angular module', function() {
       var contentEditable = compileDirective('<div contenteditable="true"><pr>The first line</pr><p>The second line</p></div>');
       contentEditable.focus();
       // move the cursor to the end of the second paragraph
-      moveCursorInFocesedSelection(contentEditable[0].childNodes[1], 1);
+      MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[1], 1);
 
       MobileFirefoxNewlinePlugin.events.insertParagraph(event);
       expect(preventDefaultSpy).to.be.called;
@@ -140,7 +165,7 @@ describe('The esn.summernote Angular module', function() {
       var contentEditable = compileDirective('<div contenteditable="true"><pr>The first line</pr><p>The second lineThe third line</p></div>');
       contentEditable.focus();
       // set the cursor between "The second line" and "The third line"
-      moveCursorInFocesedSelection(contentEditable[0].childNodes[1].childNodes[0], 15);
+      MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[1].childNodes[0], 15);
 
       MobileFirefoxNewlinePlugin.events.insertParagraph(event);
       expect(preventDefaultSpy).to.be.called;
@@ -187,7 +212,7 @@ describe('The esn.summernote Angular module', function() {
     });
   });
 
-  describe('the PreventEmptyAreaFirefox plugin with firefox browser', function() {
+  describe('the PreventEmptyArea plugin', function() {
     beforeEach(function() {
       angular.mock.module('esn.summernote-wrapper', function($provide) {
         $provide.value('deviceDetector', {
@@ -214,40 +239,6 @@ describe('The esn.summernote Angular module', function() {
 
       element.summernote('insertText', 'Hello world!');
       expect(editor.code()).to.equal('<p>Hello world!<br></p>');
-    });
-  });
-
-  describe('the PreventEmptyAreaFirefox plugin with a non-firefox browser', function() {
-    var PreventEmptyAreaFirefoxPlugin, SupportPlaceholderPlugin;
-
-    beforeEach(function() {
-      PreventEmptyAreaFirefoxPlugin = sinon.spy();
-      SupportPlaceholderPlugin = sinon.spy();
-
-      angular.mock.module('esn.summernote-wrapper', function($provide) {
-        $provide.value('deviceDetector', {
-          browser: 'chrome',
-          isMobile: function() { return false; }
-        });
-        $provide.value('summernote', {
-          addPlugin: function(plugin) {
-            plugin();
-          }
-        });
-        $provide.value('PreventEmptyAreaFirefoxPlugin', PreventEmptyAreaFirefoxPlugin);
-        $provide.value('SupportPlaceholderPlugin', SupportPlaceholderPlugin);
-        $provide.value('FullscreenPlugin', function() {});
-      });
-
-      angular.mock.inject(function(_$compile_, _$rootScope_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-      });
-    });
-
-    it('should not be added with a non-firefox browser', function() {
-      expect(PreventEmptyAreaFirefoxPlugin).to.not.be.called;
     });
   });
 });
