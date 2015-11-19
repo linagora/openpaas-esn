@@ -47,6 +47,8 @@ angular.module('esn.calendar')
 
   .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
+  .constant('LEFT_PANEL_BOTTOM_MARGIN', 15)
+
   .constant('EVENT_FORM', {
     title: {
       // TODO: i18n
