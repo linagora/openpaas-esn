@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.header', [])
+angular.module('esn.header', ['esn.sidebar'])
 
   .constant('MAIN_HEADER', 'main-header-middle-content')
 
@@ -73,7 +73,6 @@ angular.module('esn.header', [])
       replace: true,
       templateUrl: '/views/modules/header/header.html',
       link: function(scope, element, attrs) {
-
         function open() {
           if (sideBarService.isLeftSideBarOpen()) {
             return;

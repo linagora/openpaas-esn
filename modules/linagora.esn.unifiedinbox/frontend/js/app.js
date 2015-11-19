@@ -13,7 +13,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.fullscreen-edit-form',
   'esn.scroll',
   'op.dynamicDirective',
-  'esn.header'
+  'esn.header',
+  'esn.offline-wrapper'
   ])
   .config(function($routeProvider, dynamicDirectiveServiceProvider) {
     $routeProvider.when('/unifiedinbox', {

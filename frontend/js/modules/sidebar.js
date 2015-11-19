@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.sidebar', [])
+angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
 
   .constant('CONTEXTUAL_SIDEBAR', {
     animation: 'am-fade-and-slide-right',
