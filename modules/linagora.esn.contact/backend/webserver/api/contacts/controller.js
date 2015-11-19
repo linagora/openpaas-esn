@@ -2,6 +2,7 @@
 
 var ICAL = require('ical.js');
 var charAPI = require('charAPI');
+var DEFAULT_AVATAR_SIZE = 256;
 
 module.exports = function(dependencies) {
 
@@ -53,14 +54,14 @@ module.exports = function(dependencies) {
    * be used.
    * See more about letter avatar in core/image/avatar module
    * @param  {Request} req Request object that has query data:
-   *                       - size: size of avatar, default value is 128
+   *                       - size: size of avatar, default value is DEFAULT_AVATAR_SIZE
    * @param  {response} res Response object
    */
   function getAvatar(req, res) {
     var addressBookId = req.params.addressBookId;
     var contactId = req.params.contactId;
     var esnToken = req.token && req.token.token ? req.token.token : '';
-    var avatarSize = req.query.size ? req.query.size : 128;
+    var avatarSize = req.query.size ? req.query.size : DEFAULT_AVATAR_SIZE;
 
     contactClient({ ESNToken: esnToken })
     .addressbook(addressBookId)

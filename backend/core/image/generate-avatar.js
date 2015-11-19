@@ -2,7 +2,7 @@
 
 var Canvas = require('canvas');
 
-var DEFAULT_AVATAR_SIZE = 128;
+var DEFAULT_AVATAR_SIZE = 256;
 
 // color spec from:
 // https://www.google.com/design/spec/style/color.html#color-color-palette

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
-  .constant('AVATAR_MIN_SIZE_PX', 128)
+  .constant('AVATAR_MIN_SIZE_PX', 256)
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
@@ -204,7 +204,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       replace: true,
       link: function($scope, element) {
         var canvas = element[0];
-        canvas.width = canvas.height = AVATAR_MIN_SIZE_PX;
+        canvas.width = canvas.height = AVATAR_MIN_SIZE_PX / 2;
         var ctx = canvas.getContext('2d');
         $scope.$on('crop:reset', function() {
           canvas.width = canvas.width;

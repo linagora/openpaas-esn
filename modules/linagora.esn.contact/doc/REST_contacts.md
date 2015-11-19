@@ -16,7 +16,7 @@ Get avatar of a contact:
 
 **Request query:**
 
-- `size` (optional): size of avatar in pixel, default value is 128.
+- `size` (optional): size of avatar in pixel, default value is 256.
 
 **Response Headers:**
 
