@@ -211,6 +211,19 @@ composer, composer-desktop {
 
     .compose {
 
+      .tags .tag-list .tag-item {
+        line-height: 1.8em;
+
+        // Hide the remove-button (X) of ngTagsInput for mobile devices in display mode
+        .remove-button {
+          display: none;
+        }
+      }
+
+      .focused .tags .tag-list .tag-item .remove-button {
+        display: inline;
+      }
+
       .note-editor {
 
         .btn-sm, .btn-group > .btn {
