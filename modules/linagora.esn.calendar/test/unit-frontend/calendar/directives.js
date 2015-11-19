@@ -11,6 +11,8 @@ describe('The calendar module directives', function() {
   });
 
   describe('calendarLeftPane directive', function() {
+    var LEFT_PANEL_BOTTOM_MARGIN;
+
     beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
       this.$compile = _$compile_;
       this.$rootScope = _$rootScope_;
@@ -22,12 +24,17 @@ describe('The calendar module directives', function() {
         scope.$digest();
         return element;
       };
+
+      angular.mock.inject(function(_LEFT_PANEL_BOTTOM_MARGIN_) {
+        LEFT_PANEL_BOTTOM_MARGIN = _LEFT_PANEL_BOTTOM_MARGIN_;
+      });
+
     }));
 
     it('change element height on calendar:height', function() {
       var element = this.initDirective(this.$scope);
       this.$rootScope.$broadcast('calendar:height', 1200);
-      expect(element.height()).to.equal(1200);
+      expect(element.height()).to.equal(1200 - LEFT_PANEL_BOTTOM_MARGIN);
     });
   });
 

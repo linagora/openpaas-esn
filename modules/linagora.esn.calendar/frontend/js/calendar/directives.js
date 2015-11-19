@@ -58,10 +58,10 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('calendarLeftPane', function() {
+  .directive('calendarLeftPane', function(LEFT_PANEL_BOTTOM_MARGIN) {
     function link(scope, element) {
       scope.$on('calendar:height', function(event, height) {
-        element.height(height);
+        element.height(height - LEFT_PANEL_BOTTOM_MARGIN);
       });
     }
 
