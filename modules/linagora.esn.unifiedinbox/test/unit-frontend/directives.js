@@ -28,7 +28,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('jmapClient', jmapClient = {});
     $provide.value('session', {
       user: {
-        preferredEmail: 'user@open-paas.org'
+        preferredEmail: 'user@open-paas.org',
+        emails: ['user@open-paas.org']
       }
     });
     $provide.provider('iFrameResize', {
@@ -42,6 +43,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
     $provide.value('Offline', Offline);
     $provide.value('elementScrollDownService', elementScrollDownService = {});
+    $provide.value('Fullscreen', {});
+    $provide.value('ASTrackerController', {});
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _emailSendingService_) {
@@ -376,7 +379,36 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $rootScope.$digest();
     });
 
-    describe('The mobile header', function() {
+    describe('The mobile header buttons', function() {
+
+      var headerService;
+
+      beforeEach(inject(function(_headerService_) {
+        headerService = _headerService_;
+      }));
+
+      it('should bind the send button to the scope method', function() {
+        var mainH = compileDirective('<main-header/>');
+        compileDirective('<composer/>');
+        $scope.send = sinon.spy();
+
+        mainH.find('.composer-subheader .send-button').click();
+
+        expect($scope.send).to.be.called;
+      });
+
+      it('should bind the close button to the scope method', function() {
+        var mainH = compileDirective('<main-header/>');
+        compileDirective('<composer/>');
+        $scope.$close = sinon.spy();
+
+        mainH.find('.composer-subheader .close-button').click();
+
+        expect($scope.$close).to.be.called;
+      });
+    });
+
+    describe('The mobile header display', function() {
 
       var headerService;
 

@@ -1,8 +1,8 @@
 .composer-subheader
   .row
     .col-xs-6
-      a.close-button.p-l-5.p-r-10(href='')
+      a.close-button.p-l-5.p-r-10(href='', ng-click='close()')
         i.mdi.mdi-close
-    a.send-button.right-action.col-xs-6(href='')
+    a.send-button.right-action.col-xs-6(href='', ng-click='send()')
       | #{__('Send')}
       i.mdi.mdi-send.m-l-5.m-r-5
