@@ -5,9 +5,9 @@ header
         .flex-space-between.flex-vertical-centered.flex-wrap
           .contacts-list-header-title
             h2
-              .contact-categories-letter(ng-if="!searchInput")
+              .contact-categories-letter(ng-show="!searchInput && displayAs === 'list'")
                 contact-category-letter
-              span(ng-if="!headerDisplay.letterExists") #{__('Contacts')}
+              span(ng-show="!headerDisplay.letterExists || displayAs === 'cards'") #{__('Contacts')}
               small(ng-switch="searchResult.count" ng-if="!!searchInput")
                 span(ng-switch-when='0') #{__('No contacts found')}
                 span(ng-switch-when='1') #{__('1 contact found')}
