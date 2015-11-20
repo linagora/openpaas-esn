@@ -279,3 +279,29 @@ composer {
   }
 
 }
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) {
+
+  composer {
+
+    .compose {
+
+      .note-editor {
+
+        .btn-group:not(.dropdown-menu) .btn-default {
+
+          &:hover {
+            background-color: lighten(@primaryColor, 10%);
+            color: @primaryColor;
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
