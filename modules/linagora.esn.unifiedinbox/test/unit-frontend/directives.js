@@ -6,9 +6,8 @@
 var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, Offline = {}, notificationFactory,
-    iFrameResize = function() {}, elementScrollDownService, emailSendingService;
-  var attendeeService;
+
+  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, iFrameResize = function() {}, elementScrollDownService;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -37,22 +36,16 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return iFrameResize;
       }
     });
-    $provide.value('notificationFactory', notificationFactory = {});
-    $provide.value('attendeeService', attendeeService = {
-      addProvider: function() {}
-    });
-    $provide.value('Offline', Offline);
     $provide.value('elementScrollDownService', elementScrollDownService = {});
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _emailSendingService_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
-    emailSendingService = _emailSendingService_;
   }));
 
   beforeEach(function() {
@@ -146,237 +139,42 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var closeNotificationSpy, hideScopeSpy;
-    var notificationTitle, notificationText;
-    var draftService;
+    var draftService, $window;
 
-    beforeEach(inject(function(_draftService_) {
+    beforeEach(inject(function(_$window_, _draftService_) {
+      $window = _$window_;
       draftService = _draftService_;
-      Offline.state = 'up';
-      notificationTitle = '';
-      notificationText = '';
-
-      closeNotificationSpy = sinon.spy();
-      $scope.$hide = hideScopeSpy = sinon.spy();
-
-      notificationFactory.weakSuccess = function(callTitle, callText) {
-        notificationTitle = callTitle;
-        notificationText = callText;
-      };
-
-      notificationFactory.weakError = function(callTitle, callText) {
-        notificationTitle = callTitle;
-        notificationText = callText;
-      };
-
-      notificationFactory.notify = function() {
-        notificationTitle = 'Info';
-        notificationText = 'Sending';
-        return {
-          close: closeNotificationSpy
-        };
-      };
     }));
 
-    it('should not send an email with no recipient', function() {
-      $scope.email = {
-        rcpt: {
-          to: [],
-          cc: [],
-
-          bcc: []
-        }
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Your email should have at least one recipient');
-      expect(hideScopeSpy).to.not.be.called;
-      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
-    });
-
-    it('should not send an email during offline state', function() {
-      Offline.state = 'down';
-
-      $scope.email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}],
-          cc: [],
-          bcc: []
-        }
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Your device loses its Internet connection. Try later!');
-      expect(hideScopeSpy).to.not.be.called;
-      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
-    });
-
-    it('should successfully notify when a valid email is sent', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
-      $scope.email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-          cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
-          bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
-        }
-      };
-
-      var expectedRcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-        cc: [{displayName: '3', email: '3@linagora.com'}],
-        bcc: [{displayName: '4', email: '4@linagora.com'}]
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-      expect($scope.email.rcpt).to.shallowDeepEqual(expectedRcpt);
-      expect(hideScopeSpy).to.be.called;
-      expect(closeNotificationSpy).to.be.called;
-      expect(emailSendingService.sendEmail).to.be.called;
-      expect(notificationTitle).to.equal('Success');
-      expect(notificationText).to.equal('Your email has been sent');
-    });
-
-    it('should successfully send an email even if only bcc is used', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
-      $scope.email = {
-        rcpt: {
-          to: [],
-          cc: [],
-          bcc: [{displayName: '1', email: '1@linagora.com'}]
-        }
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-      expect(hideScopeSpy).to.be.called;
-      expect(closeNotificationSpy).to.be.called;
-      expect(emailSendingService.sendEmail).to.be.called;
-      expect(notificationTitle).to.equal('Success');
-      expect(notificationText).to.equal('Your email has been sent');
-    });
-
-    it('should notify immediately about sending email for slow connection. The final notification is shown once the email is sent', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
-        return $q.when();
-      }, 200));
-
-      $scope.email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}]
-        }
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-      expect(notificationTitle).to.equal('Info');
-      expect(notificationText).to.equal('Sending');
-      $timeout.flush(201);
-      expect(closeNotificationSpy).to.be.called;
-      expect(emailSendingService.sendEmail).to.be.called;
-      expect(notificationTitle).to.equal('Success');
-      expect(notificationText).to.equal('Your email has been sent');
-      expect(hideScopeSpy).to.be.called;
-    });
-
-    it('should notify immediately about sending email for slow connection. this notification is then replaced by an error one in the case of failure', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
-        return $q.reject();
-      }, 200));
-
-      $scope.email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}]
-        }
-      };
-
-      var element = compileDirective('<composer/>');
-      $scope.send();
-      $scope.$digest();
-      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-      expect(notificationTitle).to.equal('Info');
-      expect(notificationText).to.equal('Sending');
-      $timeout.flush(201);
-      expect(closeNotificationSpy).to.be.called;
-      expect(emailSendingService.sendEmail).to.be.called;
-      expect(notificationTitle).to.equal('Error');
-      expect(notificationText).to.equal('An error has occurred while sending email');
-      expect(hideScopeSpy).to.be.called;
-    });
-
-    it('should save draft when the composer is destroyed', function() {
-      var originalEmailState, newEmailState;
-      draftService.startDraft = function(originalEmail) {
-        originalEmailState = originalEmail;
-        return {
-          save: function(newEmail) {
-            newEmailState = newEmail;
-          }
-        };
-      };
-
-      $scope.email = {originalState: 'yo', rcpt: {to: [], cc: [], bcc: []}};
+    it('should save draft when the composer is closed', function() {
       compileDirective('<composer />');
+      $scope.saveDraft = sinon.spy();
 
-      $scope.email = {newState: 'lo', rcpt: {to: ['to@domain'], cc: [], bcc: []}};
-      $scope.$emit('$destroy');
+      $scope.close();
 
-      expect(originalEmailState).to.deep.equal({originalState: 'yo', rcpt: {to: [], cc: [], bcc: []}});
-      expect(newEmailState).to.deep.equal({newState: 'lo', rcpt: {to: ['to@domain'], cc: [], bcc: []}});
+      expect($scope.saveDraft).to.be.called;
+    });
+
+    it('should trigger a history back when the composer is closed', function() {
+      compileDirective('<composer />');
+      $window.history.back = sinon.spy();
+
+      $scope.close();
+
+      expect($window.history.back).to.be.called;
+    });
+
+    it('should trigger a history back when the composer is hidden', function() {
+      compileDirective('<composer />');
+      $window.history.back = sinon.spy();
+
+      $scope.hide();
+
+      expect($window.history.back).to.be.called;
     });
 
     it('should expose a search function through its controller', function() {
       expect(compileDirective('<composer />').controller('composer').search).to.be.a('function');
-    });
-
-    it('should delegate searching to attendeeService', function(done) {
-      attendeeService.getAttendeeCandidates = function(query, limit) {
-        expect(query).to.equal('open-paas.org');
-
-        done();
-      };
-
-      compileDirective('<composer />').controller('composer').search('open-paas.org');
-    });
-
-    it('should exclude search results with no email', function(done) {
-      attendeeService.getAttendeeCandidates = function(query, limit) {
-        expect(query).to.equal('open-paas.org');
-
-        return $q.when([{
-          displayName: 'user1',
-          email: 'user1@open-paas.org'
-        }, {
-          displayName: 'user2'
-        }]);
-      };
-
-      compileDirective('<composer />')
-        .controller('composer')
-        .search('open-paas.org')
-        .then(function(results) {
-          expect(results).to.deep.equal([{
-            displayName: 'user1',
-            email: 'user1@open-paas.org'
-          }]);
-        })
-        .then(done, done);
-
-      $rootScope.$digest();
     });
 
     describe('The mobile header buttons', function() {
@@ -400,11 +198,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       it('should bind the close button to the scope method', function() {
         var mainH = compileDirective('<main-header/>');
         compileDirective('<composer/>');
-        $scope.$close = sinon.spy();
+        $scope.close = sinon.spy();
 
         mainH.find('.composer-subheader .close-button').click();
 
-        expect($scope.$close).to.be.called;
+        expect($scope.close).to.be.called;
       });
     });
 
@@ -440,14 +238,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(headerService.subHeader.resetInjections).to.be.called;
       });
 
-      it('should be hidden when scope is destroyed', function() {
-        compileDirective('<composer/>');
-
-        $scope.$destroy();
-
-        expect(headerService.subHeader.resetInjections).to.be.called;
-      });
-
       it('should be hidden when the email is sent', function() {
         compileDirective('<composer/>');
         $scope.email = {
@@ -468,6 +258,70 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
         expect(headerService.subHeader.resetInjections).to.be.called;
       });
+
+      it('should be hidden when disableSendButton fn is called', function() {
+        compileDirective('<composer/>');
+
+        $scope.disableSendButton();
+
+        expect(headerService.subHeader.resetInjections).to.be.called;
+      });
+
+      it('should be shown when enableSendButton fn is called', function() {
+        compileDirective('<composer/>');
+
+        $scope.enableSendButton();
+
+        expect(headerService.subHeader.addInjection).to.be.calledTwice;
+      });
+    });
+
+  });
+
+  describe('The composer-desktop directive', function() {
+
+    var draftService;
+
+    beforeEach(inject(function(_draftService_) {
+      draftService = _draftService_;
+    }));
+
+    it('should save draft when the composer is destroyed', function() {
+      compileDirective('<composer-desktop />');
+      $scope.saveDraft = sinon.spy();
+
+      $scope.$emit('$destroy');
+
+      expect($scope.saveDraft).to.be.called;
+    });
+
+    it('should delegate the hide fn to the box\'s $hide fn', function() {
+      $scope.$hide = sinon.spy();
+      compileDirective('<composer-desktop />');
+
+      $scope.hide();
+
+      expect($scope.$hide).to.be.called;
+    });
+
+    it('should expose a search function through its controller', function() {
+      expect(compileDirective('<composer-desktop />').controller('composerDesktop').search).to.be.a('function');
+    });
+
+    it('should disable button when disableSendButton fn is called', function() {
+      var element = compileDirective('<composer-desktop/>');
+
+      $scope.disableSendButton();
+
+      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
+    });
+
+    it('should enable button when enableSendButton fn is called', function() {
+      var element = compileDirective('<composer-desktop/>');
+
+      $scope.enableSendButton();
+
+      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
     });
 
   });
@@ -546,10 +400,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The inboxFab directive', function() {
 
-    var boxOverlayService;
+    var boxOverlayService, $location;
 
-    beforeEach(inject(function(_boxOverlayService_) {
+    beforeEach(inject(function(_boxOverlayService_, _$location_) {
       boxOverlayService = _boxOverlayService_;
+      $location = _$location_;
     }));
 
     function findInnerFabButton(fab) {
@@ -607,6 +462,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.$emit('box-overlay:space-left-on-screen');
 
       expectFabToBeEnabled(button);
+    });
+
+    it('should change location when the compose fn is called', function() {
+      $location.path = sinon.spy();
+      compileFabDirective();
+
+      $scope.compose();
+
+      expect($location.path).to.be.calledWith('/unifiedinbox/compose');
     });
   });
 
@@ -671,9 +535,30 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       element.find('recipients-auto-complete').isolateScope().search();
     });
 
+    it('should define $scope.search from the composerDesktop directive controller', function(done) {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
+        $composerDesktopController: {
+          search: done
+        }
+      });
+
+      element.find('recipients-auto-complete').isolateScope().search();
+    });
+
+    it('should trigger an error if no controller have the search fn', function() {
+      expect(function() {
+        compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
+          $composerController: {},
+          $composerDesktopController: {}
+        });
+      }).to.throw(Error, 'Search function not found');
+    });
+
     it('should scrolldown element when a tag is added and broadcast an event to inform the fullscreen-edit-form to scrolldown', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {}
+        $composerController: {
+          search: {}
+        }
       });
 
       var scope = element.find('recipients-auto-complete').isolateScope();
@@ -686,7 +571,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     it('should leverage the recipient object to create a corresponding jmap json object', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {}
+        $composerController: {
+          search: {}
+        }
       });
 
       var scope = element.find('recipients-auto-complete').isolateScope();

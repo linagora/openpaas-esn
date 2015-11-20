@@ -17,7 +17,8 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('composerController', function($scope, notificationFactory, emailSendingService, Offline, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
+  .controller('composerController', function($scope, $q, $timeout, session, notificationFactory, emailSendingService, Offline, attendeeService, INBOX_AUTOCOMPLETE_LIMIT, draftService) {
+
     function getToolbarConfiguration() {
       var toolbarConfiguration = [
         ['style', ['bold', 'italic', 'underline', 'strikethrough']],
@@ -28,10 +29,16 @@ angular.module('linagora.esn.unifiedinbox')
       return toolbarConfiguration;
     }
 
+    $scope.isCollapsed = true;
     $scope.summernoteOptions = {
       focus: true,
       airMode: false,
       toolbar: getToolbarConfiguration()
+    };
+
+    var draft = draftService.startDraft($scope.email);
+    $scope.saveDraft = function() {
+      draft.save($scope.email);
     };
 
     this.search = function(query) {
@@ -42,7 +49,7 @@ angular.module('linagora.esn.unifiedinbox')
       });
     };
 
-    $scope.validateEmailSending = function(rcpt) {
+    function validateEmailSending(rcpt) {
       if (emailSendingService.noRecipient(rcpt)) {
         notificationFactory.weakError('Note', 'Your email should have at least one recipient');
         return false;
@@ -56,7 +63,41 @@ angular.module('linagora.esn.unifiedinbox')
       emailSendingService.removeDuplicateRecipients(rcpt);
 
       return true;
+    }
+
+    $scope.send = function() {
+      $scope.disableSendButton();
+      if (validateEmailSending($scope.email.rcpt)) {
+
+        $scope.hide();
+        $scope.email.from = session.user;
+
+        var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
+        emailSendingService.sendEmail($scope.email).then(
+          function() {
+            notify.close();
+            notificationFactory.weakSuccess('Success', 'Your email has been sent');
+          },
+          function() {
+            notify.close();
+            notificationFactory.weakError('Error', 'An error has occurred while sending email');
+          }
+        );
+      } else {
+        $scope.enableSendButton();
+      }
     };
+
+    // for test purposes: the send function which is supposed to be called to send messages via JMAP client
+    if (!$scope.sendViaJMAP) {
+      $scope.sendViaJMAP = function() {
+        var defer = $q.defer();
+        $timeout(function() {
+          return defer.resolve();
+        }, 3000);
+        return defer.promise;
+      };
+    }
   })
 
   .controller('viewEmailController', function($scope, $route, $location, jmapClient, jmap, notificationFactory) {

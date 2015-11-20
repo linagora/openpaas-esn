@@ -20,6 +20,9 @@ angular.module('linagora.esn.unifiedinbox', [
     $routeProvider.when('/unifiedinbox', {
       templateUrl: '/unifiedinbox/views/unifiedinbox'
     });
+    $routeProvider.when('/unifiedinbox/compose', {
+      template: '<composer/>'
+    });
     $routeProvider.when('/unifiedinbox/:mailbox', {
       templateUrl: '/unifiedinbox/views/listEmails',
       controller: 'listEmailsController'

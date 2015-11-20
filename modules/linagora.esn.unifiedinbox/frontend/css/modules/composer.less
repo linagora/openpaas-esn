@@ -2,9 +2,10 @@
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
-composer {
+composer, composer-desktop {
   .flex-column;
   .flex-shorthand(1);
+  padding-top: 50px;
 
   .compose {
     .flex-column;
@@ -12,7 +13,6 @@ composer {
 
     .compose-header {
       background-color: @body-bg;
-      padding-top: 10px;
 
       .row {
         margin: 0;
@@ -242,12 +242,12 @@ composer {
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
 
-  composer {
+  composer, composer-desktop {
+    padding-top: 0;
 
     .compose {
 
       .compose-header {
-        padding-top: 0;
 
         .tags {
           display: block;
@@ -270,11 +270,9 @@ composer {
     }
 
     .note-editor .note-toolbar {
-
       .note-fullscreen {
         display: none;
       }
-
     }
 
   }
