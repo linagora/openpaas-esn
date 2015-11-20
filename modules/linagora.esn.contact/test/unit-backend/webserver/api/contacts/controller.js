@@ -336,6 +336,28 @@ describe('The contacts api controller', function() {
       controller.getAvatar(req, res);
     });
 
+    it('should get avatar with default avatar size', function(done) {
+      var contact = ['vcard', [
+        ['version', {}, 'text', '4.0'],
+        ['uid', {}, 'text', '31b8e2b0-e776-4c66-8089-c7802f6c1dbc'],
+        ['fn', {}, 'text', 'ABC']
+      ],
+        []
+      ];
+
+      contactClientMock.addressbook = createAddressbookMock(contact);
+
+      var req = {
+        params: {},
+        query: {}
+      };
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
+        expect(options.size).to.equal(256);
+        done();
+      };
+      controller.getAvatar(req);
+    });
+
   });
 
 });

@@ -62,9 +62,11 @@ describe('The Avatar Angular module', function() {
   });
 
   describe('selectionService service', function() {
+    var AVATAR_MIN_SIZE;
 
-    beforeEach(angular.mock.inject(function(selectionService, $rootScope) {
+    beforeEach(angular.mock.inject(function(selectionService, $rootScope, _AVATAR_MIN_SIZE_PX_) {
       this.selectionService = selectionService;
+      AVATAR_MIN_SIZE = _AVATAR_MIN_SIZE_PX_;
       this.$rootScope = $rootScope;
     }));
 
@@ -132,7 +134,7 @@ describe('The Avatar Angular module', function() {
       };
     });
 
-    it('should return 128x128 image when calling getBlob and no selection', function(done) {
+    it('should return AVATAR_MIN_SIZE * AVATAR_MIN_SIZE image when calling getBlob and no selection', function(done) {
       this.selectionService.broadcastSelection({cords: {w: 0, h: 0}});
       var originalImage = new Image();
       originalImage.src = picture130x130;
@@ -144,8 +146,8 @@ describe('The Avatar Angular module', function() {
           var img = new Image();
           img.src = e.target.result;
           img.onload = function() {
-            expect(img.width).to.equal(128);
-            expect(img.height).to.equal(128);
+            expect(img.width).to.equal(AVATAR_MIN_SIZE);
+            expect(img.height).to.equal(AVATAR_MIN_SIZE);
             done();
           };
         };
@@ -153,7 +155,7 @@ describe('The Avatar Angular module', function() {
       });
     });
 
-    it('should return 128x128 image when calling getBlob and selection', function(done) {
+    it('should return AVATAR_MIN_SIZE * AVATAR_MIN_SIZE image when calling getBlob and selection', function(done) {
       this.selectionService.broadcastSelection({cords: {w: 1, h: 1}});
       var originalImage = new Image();
       originalImage.src = picture130x130;
@@ -165,8 +167,8 @@ describe('The Avatar Angular module', function() {
           var img = new Image();
           img.src = e.target.result;
           img.onload = function() {
-            expect(img.width).to.equal(128);
-            expect(img.height).to.equal(128);
+            expect(img.width).to.equal(AVATAR_MIN_SIZE);
+            expect(img.height).to.equal(AVATAR_MIN_SIZE);
             done();
           };
         };
