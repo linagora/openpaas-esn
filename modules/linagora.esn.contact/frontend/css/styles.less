@@ -13,6 +13,7 @@
 @contact-mobile-title-color: lighten(@text-color, 50%);
 @contact-mobile-title-font-size: @contact-mobile-font-size + 1;
 @contact-search-form-bg-color: @body-bg;
+@avatar-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.20);
 
 @import './header';
 @import './search';
@@ -366,6 +367,7 @@ contact-photo {
 .contact-list-item {
   img {
     border-radius: 2px;
+    box-shadow: @avatar-shadow;
   }
 }
 
@@ -379,6 +381,7 @@ contact-photo {
     height: @contact-card-display-image-size;
     max-width: @contact-card-display-image-size;
     border-radius: 3px;
+    box-shadow: @avatar-shadow;
   }
 
   .contact-info {
