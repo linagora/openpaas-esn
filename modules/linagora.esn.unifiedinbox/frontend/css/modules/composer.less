@@ -164,15 +164,15 @@ composer {
       }
       .btn-group:not(.dropdown-menu) .btn-default {
         color: @textPrimaryColor;
-        background-color: transparent;
+        background-color: @primaryColor;
         border: 0;
         border-radius: 0;
         .caret {
           border-top-color:  @textPrimaryColor;
         }
-        &.active, &:hover {
+        &.active {
           background-color: lighten(@primaryColor, 10%);
-          color: @textPrimaryColor;
+          color: @primaryColor;
         }
       }
       .open > .dropdown-toggle {
