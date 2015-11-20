@@ -162,56 +162,61 @@ module.exports = function(dependencies) {
       page: req.query.page
     };
     contactModule.lib.client({ ESNToken: ESNToken })
-    .addressbook(req.params.bookId)
-    .contacts()
-    .search(options)
-    .then(function(data) {
-      var json = {
-        _links: {
-          self: {
-            href: req.originalUrl
+      .addressbook(req.params.bookId)
+      .contacts()
+      .search(options)
+      .then(function(data) {
+        var json = {
+          _links: {
+            self: {
+              href: req.originalUrl
+            }
+          },
+          _total_hits: data.total_count,
+          _current_page: data.current_page,
+          _embedded: {
+            'dav:item': []
           }
-        },
-        _total_hits: data.total_count,
-        _current_page: data.current_page,
-        _embedded: {
-          'dav:item': []
-        }
-      };
-      res.header('X-ESN-Items-Count', data.total_count);
+        };
+        res.header('X-ESN-Items-Count', data.total_count);
 
-      q.all(data.results.map(function(result) {
-        if (result.err) {
-          logger.error('The search cannot fetch contact', result.contactId, result.err);
-          return;
-        }
-        var statusCode = result.response.statusCode;
-        if (statusCode < 200 || statusCode > 299) {
-          logger.warn('The search cannot fetch contact', result.contactId, 'status code', statusCode);
-          return;
-        }
-        return avatarHelper.injectTextAvatar(req.params.bookId, result.body)
-        .then(function(newVcard) {
-          json._embedded['dav:item'].push({
-            _links: {
-              self: getContactUrl(req, req.params.bookId, result.contactId)
-            },
-            data: newVcard
-          });
+        var dataCleanResult = [];
+        data.results.map(function(result) {
+          if (result.err) {
+            logger.error('The search cannot fetch contact', result.contactId, result.err);
+            return;
+          }
+          var statusCode = result.response.statusCode;
+          if (statusCode < 200 || statusCode > 299) {
+            logger.warn('The search cannot fetch contact', result.contactId, 'status code', statusCode);
+            return;
+          }
+          dataCleanResult.push(result);
         });
-      })).then(function() {
-        return res.status(200).json(json);
+
+        q.all(dataCleanResult.map(function(result, index) {
+          return avatarHelper.injectTextAvatar(req.params.bookId, result.body)
+            .then(function(newVcard) {
+              json._embedded['dav:item'][index] = {
+                _links: {
+                  self: getContactUrl(req, req.params.bookId, result.contactId)
+                },
+                data: newVcard
+              };
+            });
+        })).then(function() {
+          return res.status(200).json(json);
+        });
+      }, function(err) {
+        logger.error('Error while searching contacts', err);
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while searching contacts'
+          }
+        });
       });
-    }, function(err) {
-      logger.error('Error while searching contacts', err);
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: 'Error while searching contacts'
-        }
-      });
-    });
   }
 
   function getContacts(req, res) {
