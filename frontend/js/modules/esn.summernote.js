@@ -58,21 +58,42 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
   })
 
   /**
-   * In firefox, the caret is invisible/placed at wrong place in an empty content
-   * -editable node. This plugin prevent the content-editable node from being empty.
+   * Move the cursor inside a content editable div
+   */
+  .factory('MoveCursorContentEditable', function($window) {
+    function moveCursorFocusedSelection(node, position) {
+      var selection = $window.getSelection();
+      var range = $window.document.createRange();
+      range.setStart(node, position);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    return {
+      moveCursorFocusedSelection: moveCursorFocusedSelection
+    };
+  })
+
+  /**
+   * The caret is invisible/placed at wrong place in an empty content-editable node
+   * This plugin prevent the content-editable node from being empty.
    * FYI: the minimum content for a content-editable node in summernote to be
    * non-empty is equals to = <p><br></p>, which is called the emptyPara
    * Bug description: https://github.com/summernote/summernote/pull/313
    */
-  .factory('PreventEmptyAreaFirefoxPlugin', function($timeout) {
+  .factory('PreventEmptyAreaPlugin', function($timeout, MoveCursorContentEditable) {
+    function moveCursorBeginningSelectedEditableDiv(layoutInfo) {
+      MoveCursorContentEditable.moveCursorFocusedSelection(layoutInfo.editable()[0].childNodes[0], 0);
+    }
     return {
-      name: 'PreventEmptyAreaFirefox',
+      name: 'PreventEmptyArea',
       init: function(layoutInfo) {
-
         // the timeout is used to invoke the function after the ng-model is linked to the DOM
         $timeout(function() {
           if (layoutInfo.editable().code() === '') {
             layoutInfo.editable().append('<p><br/></p>');
+            moveCursorBeginningSelectedEditableDiv(layoutInfo);
           }
         }, 0);
 
@@ -80,6 +101,7 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
           if (node.indexOf('<br>') === 0 || node === '') {
             layoutInfo.editable().empty();
             layoutInfo.editable().append('<p><br/></p>');
+            moveCursorBeginningSelectedEditableDiv(layoutInfo);
           }
         });
       }
@@ -91,7 +113,7 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
    * to be used instead of the pseudo class ":empty" to support placeholder. By doing so,
    * the placeholder could be displayed in two different cases:
    *  A. the editor is really empty "=== :empty"
-   *  B. the editor contains some html tags to prevent it from being empty "see PreventEmptyAreaFirefoxPlugin"
+   *  B. the editor contains some html tags to prevent it from being empty "see PreventEmptyAreaPlugin"
    */
   .factory('SupportPlaceholderPlugin', function() {
     function isContentEditableEmpty(contentEditableCode) {
@@ -145,15 +167,12 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
     };
   })
 
-  .run(function(summernote, FullscreenPlugin, MobileFirefoxNewlinePlugin, PreventEmptyAreaFirefoxPlugin, SupportPlaceholderPlugin, deviceDetector) {
+  .run(function(summernote, FullscreenPlugin, MobileFirefoxNewlinePlugin, PreventEmptyAreaPlugin, SupportPlaceholderPlugin, deviceDetector, BROWSERS) {
     summernote.addPlugin(FullscreenPlugin);
     summernote.addPlugin(SupportPlaceholderPlugin);
+    summernote.addPlugin(PreventEmptyAreaPlugin);
 
-    if (deviceDetector.browser === 'firefox') {
-      summernote.addPlugin(PreventEmptyAreaFirefoxPlugin);
-
-      if (deviceDetector.isMobile()) {
-        summernote.addPlugin(MobileFirefoxNewlinePlugin);
-      }
+    if (deviceDetector.browser === BROWSERS.FIREFOX && deviceDetector.isMobile()) {
+      summernote.addPlugin(MobileFirefoxNewlinePlugin);
     }
   });
