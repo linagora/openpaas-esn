@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarShell', function(ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, RRuleShell, ICAL_PROPERTIES) {
+  .factory('CalendarShell', function($q, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, RRuleShell, ICAL_PROPERTIES) {
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
