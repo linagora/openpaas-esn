@@ -387,6 +387,39 @@ describe('The contact client APIs', function() {
             ]);
             done();
           });
+        });
+
+        it('should return the contacts in the correct order', function(done) {
+          var counter = 0;
+          var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              expect(options.url).to.equal('/dav/api/addressbooks/123/contacts/' + hitLists[counter]._id + '.vcf');
+              counter++;
+              if (counter === 1) {
+                setTimeout(function() {
+                  callback(null, 'retard response', 'body');
+                }, 200);
+              } else {
+                callback(null, 'response' + counter, 'body' + counter);
+              }
+            }
+          });
+
+          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+            callback(null, {
+              list: hitLists
+            });
+          }));
+
+          addressbook().contacts().search({}).then(function(data) {
+            expect(data.results).to.eql([
+              { contactId: 1, response: 'retard response', body: 'body' },
+              { contactId: 2, response: 'response2', body: 'body2' },
+              { contactId: 3, response: 'response3', body: 'body3' }
+            ]);
+            done();
+          });
 
         });
 

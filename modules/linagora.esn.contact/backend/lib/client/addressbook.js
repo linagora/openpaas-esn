@@ -223,15 +223,14 @@ module.exports = function(dependencies, options) {
           if (!result.list || result.list.length === 0) {
             return deferred.resolve(output);
           }
-
           // this promise allways resolve
-          q.all(result.list.map(function(contact) {
+          q.all(result.list.map(function(contact, index) {
             return get(contact._id).then(function(data) {
-              output.results.push({
+              output.results[index] = {
                 contactId: contact._id,
                 response: data.response,
                 body: data.body
-              });
+              };
             }, function(err) {
               output.results.push({
                 contactId: contact._id,

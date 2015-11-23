@@ -911,7 +911,7 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should send the correct response page', function(done) {
+    it('should send the response page in the correct order', function(done) {
       var search = 'Bruce';
       var user = {_id: '123'};
       var bookId = '456';
@@ -939,7 +939,15 @@ describe('The addressbooks module', function() {
       mockery.registerMock('./avatarHelper', function() {
         return {
           injectTextAvatar: function(bookId, vcard) {
-            return q.resolve(vcard);
+            var deferred = q.defer();
+            if (vcard === 'success1') {
+              setTimeout(function() {
+                deferred.resolve(vcard);
+              }, 1);
+            } else {
+              deferred.resolve(vcard);
+            }
+            return deferred.promise;
           }
         };
       });
@@ -987,7 +995,6 @@ describe('The addressbooks module', function() {
             }
           };
         }
-
       });
     });
   });
