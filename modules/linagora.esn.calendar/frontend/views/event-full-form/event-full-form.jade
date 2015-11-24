@@ -2,7 +2,8 @@
   .card-header
     .row(ng-if='isOrganizer')
       .col-xs-8
-        h1 #{__('Create a new event')}
+        h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
+        h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
       .col-xs-4
           button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
             span(ng-if='isNew(editedEvent)') #{__('Create')}

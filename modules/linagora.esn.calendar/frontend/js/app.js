@@ -41,6 +41,20 @@ angular.module('esn.calendar', [
       controller: 'eventFullFormController'
     });
 
+    $routeProvider.when('/calendar/:calendar_id/:event_id', {
+      templateUrl: '/calendar/views/event-full-form/event-full-form-view',
+      resolve: {
+        event: function($route, $location, pathBuilder, calendarService, notificationFactory) {
+          var eventPath = pathBuilder.forEventId($route.current.params.calendar_id, $route.current.params.event_id);
+          return calendarService.getEvent(eventPath).catch(function(error) {
+            notificationFactory.weakError('Cannot display this event.', error.statusText);
+            $location.path('/calendar');
+          });
+        }
+      },
+      controller: 'eventFullFormController'
+    });
+
     $routeProvider.when('/calendar', {
       templateUrl: '/calendar/views/calendar/user-calendar',
       controller: 'userCalendarController',
