@@ -81,7 +81,7 @@ module.exports = function(dependencies) {
                 'urls.value',
                 'addresses.full'],
               operator: 'and',
-              tie_breaker: 0.1
+              tie_breaker: 0.5
             }
           }
         }
