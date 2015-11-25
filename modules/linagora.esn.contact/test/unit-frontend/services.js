@@ -1278,6 +1278,20 @@ describe('The Contacts Angular module', function() {
 
     });
 
+    describe('The isTextAvatar fn', function() {
+
+      it('should return true if URL is in form of text avatar', function() {
+        var url = 'http://abc.com/contact/api/contacts/123/456/avatar';
+        expect(this.contactHelper.isTextAvatar(url)).to.be.true;
+      });
+
+      it('should return false if URL is not in form of text avatar', function() {
+        var url = 'http://abc.com/contact/api/contacts/123/456/not_text_avatar';
+        expect(this.contactHelper.isTextAvatar(url)).to.be.false;
+      });
+
+    });
+
   });
 
   describe('The toggleContactDisplayService', function() {

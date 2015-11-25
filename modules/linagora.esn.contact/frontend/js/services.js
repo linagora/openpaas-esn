@@ -166,8 +166,7 @@ angular.module('linagora.esn.contact')
     }
 
     function forceReloadDefaultAvatar(contact) {
-      if (contact && contact.photo &&
-          /\/contact\/api\/contacts\/.*?\/avatar/.test(contact.photo)) {
+      if (contact && contact.photo && isTextAvatar(contact.photo)) {
         var timestampParameter = 't=' + Date.now();
         if (/t=[0-9]+/.test(contact.photo)) { // check existing timestampParameter
           contact.photo = contact.photo.replace(/t=[0-9]+/, timestampParameter);
@@ -181,6 +180,10 @@ angular.module('linagora.esn.contact')
         }
 
       }
+    }
+
+    function isTextAvatar(avatarUrl) {
+      return /\/contact\/api\/contacts\/.*?\/avatar/.test(avatarUrl);
     }
 
     function fillScopeContactData($scope, contact) {
@@ -199,7 +202,8 @@ angular.module('linagora.esn.contact')
       getFormattedAddress: getFormattedAddress,
       forceReloadDefaultAvatar: forceReloadDefaultAvatar,
       getOrderedValues: getOrderedValues,
-      fillScopeContactData: fillScopeContactData
+      fillScopeContactData: fillScopeContactData,
+      isTextAvatar: isTextAvatar
     };
   })
   .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ContactShell, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
