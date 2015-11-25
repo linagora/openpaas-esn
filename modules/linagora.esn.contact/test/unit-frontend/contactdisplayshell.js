@@ -5,21 +5,23 @@ var expect = chai.expect;
 
 describe('ContactDisplayShell', function() {
   var notificationFactory;
+  var ContactDisplayShell;
 
   beforeEach(function() {
 
     notificationFactory = {};
+    ContactDisplayShell = null;
 
     module('linagora.esn.contact', function($provide) {
       $provide.value('notificationFactory', notificationFactory);
     });
   });
 
-  beforeEach(function() {
-    angular.mock.inject(function(ContactDisplayShell) {
-      this.ContactDisplayShell = ContactDisplayShell;
+  function injectServices() {
+    angular.mock.inject(function(_ContactDisplayShell_) {
+      ContactDisplayShell = _ContactDisplayShell_;
     });
-  });
+  }
 
   function checkContactDisplayShell(displayShell, originalShell) {
     var displayName = originalShell.displayName;
@@ -45,6 +47,7 @@ describe('ContactDisplayShell', function() {
   }
 
   it('should provide contact default contact informations for the template to display', function() {
+    injectServices();
     var shell = {
       displayName: 'Contact OpenPaas',
       emails: [
@@ -61,12 +64,13 @@ describe('ContactDisplayShell', function() {
       ]
     };
 
-    var displayShell = new this.ContactDisplayShell(shell);
+    var displayShell = new ContactDisplayShell(shell);
 
     checkContactDisplayShell(displayShell, shell);
   });
 
   it('should provide email and telephone number from work', function() {
+    injectServices();
     var shell = {
       displayName: 'Contact OpenPaas',
       emails: [
@@ -91,7 +95,7 @@ describe('ContactDisplayShell', function() {
       ]
     };
 
-    var displayShell = new this.ContactDisplayShell(shell);
+    var displayShell = new ContactDisplayShell(shell);
 
     expect(displayShell.getInformationsToDisplay()).to.deep.equal([
       {
@@ -106,5 +110,75 @@ describe('ContactDisplayShell', function() {
         icon: 'mdi-phone',
         action: 'tel:' + '01.02.03.04.05'
       }]);
+  });
+
+  describe('The getAvatar fn', function() {
+    var ContactsHelper = {};
+    var urlUtils = {};
+
+    beforeEach(function() {
+      angular.mock.module(function($provide) {
+        $provide.value('ContactsHelper', ContactsHelper);
+        $provide.value('urlUtils', urlUtils);
+      });
+    });
+
+    it('should return approximate text avatar based on input size', function(done) {
+      ContactsHelper.isTextAvatar = function() { return true; };
+
+      var shell = {
+        displayName: 'Contact OpenPaas',
+        photo: 'http://linagora.com/user/text_avatar.png'
+      };
+
+      urlUtils.updateUrlParameter = function(url, key, value) {
+        expect(url).to.equal(shell.photo);
+        expect(key).to.equal('size');
+        expect(value).to.equal(256);
+        done();
+      };
+
+      injectServices();
+
+      var displayShell = new ContactDisplayShell(shell);
+      displayShell.getAvatar(256);
+    });
+
+    it('should return original avatar if it is not text avatar', function(done) {
+      ContactsHelper.isTextAvatar = function() { return false; };
+
+      var shell = {
+        displayName: 'Contact OpenPaas',
+        photo: 'http://linagora.com/user/avatar.png'
+      };
+
+      urlUtils.updateUrlParameter = function() {
+        done(new Error('should not call this function'));
+      };
+
+      injectServices();
+
+      var displayShell = new ContactDisplayShell(shell);
+      expect(displayShell.getAvatar(256)).to.equal(shell.photo);
+      done();
+    });
+
+    it('should return default avatar if contact has no avatar', function() {
+      var CONTACT_DEFAULT_AVATAR = 'http://linagora.com/user/default_avatar.png';
+      ContactsHelper.isTextAvatar = function() { return false; };
+      angular.mock.module(function($provide) {
+        $provide.constant('CONTACT_DEFAULT_AVATAR', CONTACT_DEFAULT_AVATAR);
+      });
+
+      var shell = {
+        displayName: 'Contact OpenPaas'
+      };
+
+      injectServices();
+
+      var displayShell = new ContactDisplayShell(shell);
+      expect(displayShell.getAvatar(256)).to.equal(CONTACT_DEFAULT_AVATAR);
+    });
+
   });
 });

@@ -3,7 +3,7 @@
     .pmo-pic
       .p-relative
         a
-          img(ng-src="{{contact.photo || contact.getDefaultAvatar()}}" fallback-src="{{displayShell.getDefaultAvatar()}}")
+          img(ng-src="{{displayShell.getAvatar(avatarSize)}}" fallback-src="{{displayShell.getDefaultAvatar()}}")
         i.mdi.i-contact-show(ng-class="displayShell.getOverlayIcon()")
       .pmo-stat
         h2.m-0.c-white

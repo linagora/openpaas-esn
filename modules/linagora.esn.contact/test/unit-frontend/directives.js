@@ -301,11 +301,12 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactDisplay directive', function() {
-    var $compile, $rootScope, element, $scope;
+    var $compile, $rootScope, element, $scope, CONTACT_AVATAR_SIZE;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
+      CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
       $scope = $rootScope.$new();
       $scope.contact = {
         emails: [],
@@ -317,6 +318,10 @@ describe('The contact Angular module directives', function() {
       element = $compile('<contact-display contact="contact"></contact-display>')($scope);
       $scope.$digest();
     }));
+
+    it('should have bigger size for contact avatar', function() {
+      expect(element.isolateScope().avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
+    });
 
     describe('The hasContactInformation fn', function() {
 
@@ -373,12 +378,38 @@ describe('The contact Angular module directives', function() {
 
   });
 
-  describe('The contactListCard directive', function() {
-    var $compile, $rootScope, $scope;
+  describe('The contactEditionForm directive', function() {
+    var $compile, $rootScope, $scope, CONTACT_AVATAR_SIZE, element;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
+      CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
+      $scope = $rootScope.$new();
+      $scope.contact = {
+        emails: [],
+        tel: [],
+        addresses: [],
+        social: [],
+        urls: []
+      };
+      element = $compile('<contact-edition-form contact="contact"></contact-edition-form>')($scope);
+      $scope.$digest();
+    }));
+
+    it('should have bigger size for contact avatar', function() {
+      expect(element.isolateScope().avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
+    });
+
+  });
+
+  describe('The contactListCard directive', function() {
+    var $compile, $rootScope, $scope, CONTACT_AVATAR_SIZE;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
       $scope = $rootScope.$new();
       $scope.contact = {
         emails: [],
@@ -394,6 +425,10 @@ describe('The contact Angular module directives', function() {
       $scope.$digest();
       return element;
     }
+
+    it('should have cards size for contact avatar', function() {
+      expect(initDirective().isolateScope().avatarSize).to.equal(CONTACT_AVATAR_SIZE.cards);
+    });
 
     it('should display phone', function() {
       var phone = '+33333333';
@@ -460,11 +495,12 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactListItem directive', function() {
-    var $compile, $rootScope, $scope;
+    var $compile, $rootScope, $scope, CONTACT_AVATAR_SIZE;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
+      CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
       $scope = $rootScope.$new();
       $scope.contact = {
         emails: [],
@@ -480,6 +516,11 @@ describe('The contact Angular module directives', function() {
       $scope.$digest();
       return element;
     }
+
+    it('should have list size for contact avatar', function() {
+      expect(initDirective().isolateScope().avatarSize).to.equal(CONTACT_AVATAR_SIZE.list);
+    });
+
     it('should display phone', function() {
       var phone = '+33333333';
       $scope.contact.tel = [{type: 'work', value: phone}];

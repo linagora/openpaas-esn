@@ -8,18 +8,18 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
-  .directive('contactDisplay', function(ContactsHelper, DisplayShellProvider) {
+  .directive('contactDisplay', function(ContactsHelper, DisplayShellProvider, CONTACT_AVATAR_SIZE) {
     return {
       restrict: 'E',
       scope: {
         contact: '=',
-        formattedBirthday: '=',
-        defaultAvatar: '='
+        formattedBirthday: '='
       },
       templateUrl: '/contact/views/partials/contact-display.html',
       link: function($scope) {
 
         $scope.displayShell  = DisplayShellProvider.convertToDisplayShell($scope.contact);
+        $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
         ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
         $scope.hasContactInformation = function() {
@@ -40,7 +40,7 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactEditionForm', function(CONTACT_ATTRIBUTES_ORDER) {
+  .directive('contactEditionForm', function(CONTACT_ATTRIBUTES_ORDER, CONTACT_AVATAR_SIZE) {
     return {
       restrict: 'E',
       scope: {
@@ -49,10 +49,11 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-edition-form.html',
       link: function($scope) {
         $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
+        $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
       }
     };
   })
-  .directive('contactListItem', function(DisplayShellProvider) {
+  .directive('contactListItem', function(CONTACT_AVATAR_SIZE, DisplayShellProvider) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -65,12 +66,13 @@ angular.module('linagora.esn.contact')
         // We do translation in pre-link to exercute it before the dynamic directive injection
         pre: function(scope) {
           scope.displayShell  = DisplayShellProvider.convertToDisplayShell(scope.contact);
+          scope.avatarSize = CONTACT_AVATAR_SIZE.list;
         }
       }
     };
   })
 
-  .directive('contactListCard', function(CONTACT_DEFAULT_AVATAR, DisplayShellProvider) {
+  .directive('contactListCard', function(CONTACT_AVATAR_SIZE, DisplayShellProvider) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-card.html',
@@ -81,6 +83,7 @@ angular.module('linagora.esn.contact')
       controller: 'contactItemController',
       link: function(scope) {
         scope.displayShell  = DisplayShellProvider.convertToDisplayShell(scope.contact);
+        scope.avatarSize = CONTACT_AVATAR_SIZE.cards;
       }
     };
   })
@@ -150,7 +153,8 @@ angular.module('linagora.esn.contact')
       scope: {
         contact: '=',
         editable: '@',
-        listView: '@'
+        listView: '@',
+        avatarSize: '@'
       },
       link: function(scope) {
         scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
