@@ -25,5 +25,25 @@ angular.module('linagora.esn.contact.twitter')
 
     TwitterDisplayShell.prototype = new ContactDisplayShell();
 
+    /**
+     * Return approximate Twitter profile picture based on input size:
+     * https://dev.twitter.com/overview/general/user-profile-images-and-banners
+     * Note that Twitter contact always has avatar and it is in original size.
+     * @param  {Number} size input avatar size
+     * @return {String}      URL of approximate profile picture
+     */
+    TwitterDisplayShell.prototype.getAvatar = function(size) {
+      var replaceStr = null;
+      if (size <= 50) {
+        replaceStr = '_normal.$1';
+      } else if (size <= 100) {
+        replaceStr = '_bigger.$1';
+      }
+      if (replaceStr) {
+        return this.shell.photo.replace(/\.(png|jpg|jpeg)$/, replaceStr);
+      }
+      return this.shell.photo;
+    };
+
     return TwitterDisplayShell;
   });
