@@ -145,12 +145,14 @@ composer, composer-desktop {
       border: 0;
 
       .note-editing-area .note-editable {
+        min-height: 50px;
+        
         &.empty:not(:focus):before{
           content: attr(placeholder);
           color: @m-gray;
           font-style:italic;
         }
-        max-height: 180px;
+
         p {
           margin-bottom: 0;
         }
@@ -278,9 +280,14 @@ composer, composer-desktop {
       }
     }
 
-    .note-editor .note-toolbar {
-      .note-fullscreen {
-        display: none;
+    .note-editor {
+      .note-editing-area .note-editable {
+        max-height: 150px;
+      }
+      .note-toolbar {
+        .note-fullscreen {
+          display: none;
+        }
       }
     }
 
