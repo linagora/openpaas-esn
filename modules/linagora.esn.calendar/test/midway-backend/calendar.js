@@ -164,4 +164,29 @@ describe('The calendars API', function() {
       }.bind(this)]);
     });
   });
+
+  describe('PUT /api/calendars/events', function() {
+    beforeEach(function() {
+      var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
+      expressApp.use('/', this.helpers.modules.current.lib.api.calendar);
+      this.app = this.helpers.modules.getWebServer(expressApp);
+    });
+
+    it('should fail if no jwt is provided', function(done) {
+      var req = request(this.app).put('/api/calendars/events');
+      req.expect(401, done);
+    });
+
+    it('should succeed', function(done) {
+      var jwtCoreModule = this.helpers.requireBackend('core/auth/jwt');
+      var self = this;
+      jwtCoreModule.generateWebToken({login: 'me'}, function(err, token) {
+        if (err) {
+          return done(err);
+        }
+        var req = request(self.app).put('/api/calendars/events?jwt=' + token);
+        req.expect(200).end(done);
+      });
+    });
+  });
 });

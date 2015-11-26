@@ -23,6 +23,7 @@ passport.deserializeUser(function(username, done) {
 try {
   passport.use('basic', require('./auth/basic').strategy);
   passport.use('oauth2-client-password', require('./auth/oauth2-client-password').strategy);
+  require('./auth/jwt').useStrategy();
 } catch (err) {
   logger.error('Can not load the client strategies', err.message);
 }
