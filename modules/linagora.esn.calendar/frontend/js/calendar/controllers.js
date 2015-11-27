@@ -42,7 +42,7 @@ angular.module('esn.calendar')
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 
-    $scope.eventDropAndResize = function(event, delta, revertFunc) {
+    $scope.eventDropAndResize = function(event, delta, _revertFunc) {
       var path = event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       $scope.event = new CalendarShell(event.vcalendar, {
         etag: event.etag,
@@ -51,6 +51,12 @@ angular.module('esn.calendar')
       });
       $scope.event.start = event.start;
       $scope.event.end = event.end;
+
+      function revertFunc() {
+        _revertFunc();
+        $rootScope.$broadcast('revertedCalendarItemModification', event);
+      }
+
       calendarService.modifyEvent(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc)
         .then(function(response) {
           if (response) {
@@ -73,9 +79,12 @@ angular.module('esn.calendar')
      * early and the calendar offset is wrong so wait with a timeout.
      */
     $scope.uiConfig.calendar.eventAfterAllRender = $scope.resizeCalendarHeight;
-    $scope.uiConfig.calendar.viewRender = function() {
+
+    $scope.uiConfig.calendar.viewRender = function(view) {
       $timeout($scope.resizeCalendarHeight, 1000);
+      $rootScope.$broadcast('HOME_CALENDAR_VIEW_CHANGE', view);
     };
+
     $scope.uiConfig.calendar.eventClick = $scope.eventClick;
     $scope.uiConfig.calendar.eventResize = $scope.eventDropAndResize;
     $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize;
@@ -169,6 +178,12 @@ angular.module('esn.calendar')
       $rootScope.$on('calendars-list:removed', function(event, calendars) {
         // TODO not implemented yet
         $log.debug('Calendars to remove', calendars);
+      }),
+      $rootScope.$on('MINI_CALENDAR_DATE_CHANGE', function(event, newDate) {
+        var view = getCalendar().fullCalendar('getView');
+        if (newDate && !newDate.isBetween(view.start, view.end)) {
+          getCalendar().fullCalendar('gotoDate', newDate);
+        }
       })
     ];
 
