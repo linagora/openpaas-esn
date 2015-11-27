@@ -149,6 +149,19 @@ describe('The calendar module controllers', function() {
       this.scope.$destroy();
       expect(this.headerServiceMock.resetAllInjections).to.have.been.calledOnce;
     });
+
+    it('should not modify constant UI_USER_CONFIG but clone it before modifying it', function() {
+      this.headerServiceMock.mainHeader = {
+        addInjection: function() {}
+      };
+      this.headerServiceMock.subHeader = {
+        addInjection: function() {}
+      };
+      this.headerServiceMock.resetAllInjections = sinon.spy();
+      this.controller('userCalendarController', {$scope: this.scope});
+      expect(this.scope.uiConfig).to.be.defined;
+      expect(this.scope.uiConfig).to.not.equals(this.USER_UI_CONFIG);
+    });
   });
 
   describe('The calendarController controller', function() {

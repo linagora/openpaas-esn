@@ -9,7 +9,7 @@ angular.module('esn.calendar')
 
   .controller('userCalendarController', function($scope, user, headerService, USER_UI_CONFIG) {
     $scope.calendarHomeId = user._id;
-    $scope.uiConfig = USER_UI_CONFIG;
+    $scope.uiConfig = angular.copy(USER_UI_CONFIG);
 
     headerService.mainHeader.addInjection('calendar-header-content');
     headerService.subHeader.addInjection('calendar-header-mobile', $scope);
