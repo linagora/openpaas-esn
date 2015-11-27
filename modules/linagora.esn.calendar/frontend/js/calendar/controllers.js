@@ -22,11 +22,14 @@ angular.module('esn.calendar')
 
     var windowJQuery = angular.element($window);
 
+    function getCalendar() {
+      return uiCalendarConfig.calendars[$scope.calendarHomeId];
+    }
+
     $scope.resizeCalendarHeight = function() {
-      var calendar = uiCalendarConfig.calendars[$scope.calendarHomeId];
-      var height = windowJQuery.height() - calendar.offset().top;
+      var height = windowJQuery.height() - getCalendar().offset().top;
       height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
-      calendar.fullCalendar('option', 'height', height);
+      getCalendar().fullCalendar('option', 'height', height);
       $rootScope.$broadcast('calendar:height', height);
     };
 
@@ -107,14 +110,12 @@ angular.module('esn.calendar')
             events: calendarEventSource(calendar.getHref(), $scope.displayCalendarError),
             color: calendar.getColor()
           };
-          uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
+          getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
         });
       });
 
     function _modifiedCalendarItem(newEvent) {
-      var calendar = uiCalendarConfig.calendars[$scope.calendarHomeId];
-
-      var event = calendar.fullCalendar('clientEvents', newEvent.id)[0];
+      var event = getCalendar().fullCalendar('clientEvents', newEvent.id)[0];
       if (!event) {
         return;
       }
@@ -130,7 +131,7 @@ angular.module('esn.calendar')
         event.start = event.start.format('YYYY-MM-DD');
         event.end = event.end ? event.end.format('YYYY-MM-DD') : undefined;
       }
-      calendar.fullCalendar('updateEvent', event);
+      getCalendar().fullCalendar('updateEvent', event);
     }
 
     var unregisterFunctions = [
@@ -138,29 +139,29 @@ angular.module('esn.calendar')
         _modifiedCalendarItem(data);
       }),
       $rootScope.$on('removedCalendarItem', function(event, data) {
-        uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('removeEvents', data);
+        getCalendar().fullCalendar('removeEvents', data);
       }),
       $rootScope.$on('addedCalendarItem', function(event, data) {
-        uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', data);
+        getCalendar().fullCalendar('renderEvent', data);
       }),
       $rootScope.$on('calendars-list:toggleView', function(event, calendar) {
         if (calendar.toggled) {
-          uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+          getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
         } else {
-          uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
+          getCalendar().fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
         }
       }),
       $rootScope.$on('calendars-list:added', function(event, calendars) {
-        calendars.forEach(function(calendar) {
-          calendarService.createCalendar($scope.calendarHomeId, calendar)
+        calendars.forEach(function(cal) {
+          calendarService.createCalendar($scope.calendarHomeId, cal)
             .then(function() {
-              $log.debug('Successfully added a new calendar', calendar);
+              $log.debug('Successfully added a new calendar', cal);
               // Updating eventSources of fullcalendar
-              $scope.eventSourcesMap[calendar.getHref()] = {
-                events: calendarEventSource(calendar.getHref(), $scope.displayCalendarError),
-                color: calendar.getColor()
+              $scope.eventSourcesMap[cal.getHref()] = {
+                events: calendarEventSource(cal.getHref(), $scope.displayCalendarError),
+                color: cal.getColor()
               };
-              uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
+              getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[cal.getHref()]);
             })
             .catch($scope.displayCalendarError);
         });
