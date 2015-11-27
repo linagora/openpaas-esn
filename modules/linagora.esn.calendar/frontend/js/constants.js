@@ -42,6 +42,16 @@ angular.module('esn.calendar')
         day: 'day'
       },
       handleWindowResize: false
+    },
+    miniCalendar: {
+      defaultView: 'month',
+      height: 250,
+      timezone: 'local',
+      header: {
+        left: 'prev',
+        center: 'title',
+        right: 'next'
+      }
     }
   })
 
