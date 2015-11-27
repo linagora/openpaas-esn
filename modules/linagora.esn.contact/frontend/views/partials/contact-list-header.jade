@@ -19,3 +19,10 @@ header
               contact-search-form
             .contacts-toggle
               contact-list-toggle
+            ul.actions
+              li.dropdown
+                a(href='', data-toggle='dropdown', aria-expanded='true')
+                  i.mdi.mdi-dots-horizontal
+                ul.dropdown-menu.dropdown-menu-right
+                  li
+                    a(href='/#/accounts') #{__('Import')}
