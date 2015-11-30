@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .factory('ContactDisplayShell', function(ContactsHelper, CONTACT_ATTRIBUTES_ORDER, CONTACT_DEFAULT_AVATAR) {
+  .factory('ContactDisplayShell', function(ContactsHelper, urlUtils, CONTACT_ATTRIBUTES_ORDER, CONTACT_DEFAULT_AVATAR) {
     var ContactDisplayShell = function(shell) {
       if (shell) {
         this.shell = shell;
@@ -34,6 +34,15 @@ angular.module('linagora.esn.contact')
 
     ContactDisplayShell.prototype.isWritable = function() {
       return this.writable;
+    };
+
+    ContactDisplayShell.prototype.getAvatar = function(size) {
+      if (size) {
+        if (ContactsHelper.isTextAvatar(this.shell.photo)) {
+          return urlUtils.updateUrlParameter(this.shell.photo, 'size', size);
+        }
+      }
+      return this.shell.photo || this.getDefaultAvatar();
     };
 
     ContactDisplayShell.prototype.getDefaultAvatar = function() {

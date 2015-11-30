@@ -16,13 +16,13 @@
                 | #{__(' Edit')}
     .card-body.contact-body
       .contact-error-container
-      contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
+      contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday')
       div.alert.alert-warning.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
         strong #{__("This contact can not be edited")}
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
     .contact-avatar
-      img(ng-src='{{contact.photo || defaultAvatar}}')
+      img(ng-src='{{displayShell.getAvatar(avatarSize)}}')
     i.mdi.i-contact-mobile(ng-class="displayShell.getOverlayIcon()")
     .contact-error-container
       div.contact-fn

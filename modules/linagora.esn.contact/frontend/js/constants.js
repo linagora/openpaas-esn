@@ -9,6 +9,11 @@ angular.module('linagora.esn.contact')
     list: 'list',
     cards: 'cards'
   })
+  .constant('CONTACT_AVATAR_SIZE', {
+    list: 35,
+    cards: 96,
+    bigger: 259
+  })
   .constant('CONTACT_LIST_DISPLAY_EVENTS', {
     toggle: 'contactlist:toggle'
   })

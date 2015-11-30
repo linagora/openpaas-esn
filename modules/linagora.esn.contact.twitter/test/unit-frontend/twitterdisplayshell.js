@@ -52,4 +52,40 @@ describe('TwitterDisplayShell service', function() {
     checkTwitterDisplayShell(displayShell, shell);
   });
 
+  describe('The getAvatar fn', function() {
+    var displayShell, shell, NORMAL_AVATAR, BIGGER_AVATAR;
+
+    beforeEach(function() {
+      shell = {
+        displayName: 'Contact Twitter',
+        social: [
+          {value: '@linagora'}
+        ],
+        photo: 'http://twitter.com/user/avatar.png'
+      };
+      NORMAL_AVATAR = 'http://twitter.com/user/avatar_normal.png';
+      BIGGER_AVATAR = 'http://twitter.com/user/avatar_bigger.png';
+
+      displayShell = new this.TwitterDisplayShell(shell);
+    });
+
+    it('should return normal size when input size is less than or equal 50', function() {
+      expect(displayShell.getAvatar(49)).to.equal(NORMAL_AVATAR);
+      expect(displayShell.getAvatar(50)).to.equal(NORMAL_AVATAR);
+      expect(displayShell.getAvatar(51)).to.not.equal(NORMAL_AVATAR);
+    });
+
+    it('should return bigger size when input size is between 50 and 100', function() {
+      expect(displayShell.getAvatar(51)).to.equal(BIGGER_AVATAR);
+      expect(displayShell.getAvatar(96)).to.equal(BIGGER_AVATAR);
+      expect(displayShell.getAvatar(100)).to.equal(BIGGER_AVATAR);
+    });
+
+    it('should return original size when input size is greater than 100', function() {
+      expect(displayShell.getAvatar(101)).to.equal(shell.photo);
+      expect(displayShell.getAvatar(256)).to.equal(shell.photo);
+    });
+
+  });
+
 });

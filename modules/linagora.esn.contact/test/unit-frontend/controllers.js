@@ -438,9 +438,18 @@ describe('The Contacts Angular module', function() {
   });
 
   describe('The showContactController', function() {
+    var CONTACT_AVATAR_SIZE;
 
     beforeEach(function() {
       this.initController = $controller.bind(null, 'showContactController', { $scope: scope});
+      angular.mock.inject(function(_CONTACT_AVATAR_SIZE_) {
+        CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
+      });
+    });
+
+    it('should have bigger size for contact avatar', function() {
+      this.initController();
+      expect(scope.avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
     });
 
     it('should inject show header', function(done) {
