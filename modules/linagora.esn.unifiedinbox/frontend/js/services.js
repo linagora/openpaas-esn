@@ -81,7 +81,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function(emailService) {
+  .factory('emailSendingService', function($q, $http, emailService) {
 
     /**
      * Set the recipient.email and recipient.name fields to
@@ -180,11 +180,28 @@ angular.module('linagora.esn.unifiedinbox')
       return false;
     }
 
+    /**
+     * This method MUST be modified in the future to leverage a send function provided by JMAPClient
+     * The code here MUST not be clean so as to be changed in the future
+     */
+    function sendEmail(email) {
+      var defer = $q.defer();
+      $http.post('/unifiedinbox/api/inbox/sendemail', email)
+        .success(function(data) {
+          defer.resolve(data);
+        })
+        .error(function(reason) {
+          defer.reject(reason);
+        });
+      return defer.promise;
+    }
+
     return {
       ensureEmailAndNameFields: ensureEmailAndNameFields,
       emailsAreValid: emailsAreValid,
       removeDuplicateRecipients: removeDuplicateRecipients,
-      noRecipient: noRecipient
+      noRecipient: noRecipient,
+      sendEmail: sendEmail
     };
   })
 
