@@ -141,7 +141,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($window, headerService) {
+  .directive('composer', function($location, headerService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -156,23 +156,36 @@ angular.module('linagora.esn.unifiedinbox')
           headerService.subHeader.resetInjections();
         }
 
-        function leaveComposer() {
-          $window.history.back();
+        function returnToMainLocation() {
+          $location.path('/unifiedinbox');
         }
 
-        scope.$on('$locationChangeSuccess', hideMobileHeader);
+        function quitAsSendEmail() {
+          disableOnBackAutoSave();
+          hideMobileHeader();
+          returnToMainLocation();
+        }
+
+        function quitAsSaveDraft() {
+          scope.saveDraft();
+          disableOnBackAutoSave();
+          hideMobileHeader();
+        }
+
+        scope.close = function() {
+          quitAsSaveDraft();
+          returnToMainLocation();
+        };
+
+        var disableOnBackAutoSave = scope.$on('$locationChangeSuccess', quitAsSaveDraft);
+        scope.hide = quitAsSendEmail;
+
         scope.$on('fullscreenEditForm:show', hideMobileHeader);
         scope.$on('fullscreenEditForm:close', showMobileHeader);
         scope.disableSendButton = hideMobileHeader;
         scope.enableSendButton = showMobileHeader;
         showMobileHeader();
 
-        scope.hide = leaveComposer;
-
-        scope.close = function() {
-          scope.saveDraft();
-          leaveComposer();
-        };
       }
     };
   })

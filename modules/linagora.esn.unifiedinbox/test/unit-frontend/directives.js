@@ -139,12 +139,31 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $window;
+    var draftService, $location;
 
-    beforeEach(inject(function(_$window_, _draftService_) {
-      $window = _$window_;
+    beforeEach(inject(function(_$location_, _draftService_) {
+      $location = _$location_;
       draftService = _draftService_;
     }));
+
+    it('should save draft when location has successfully changed', function() {
+      compileDirective('<composer />');
+      $scope.saveDraft = sinon.spy();
+
+      $rootScope.$broadcast('$locationChangeSuccess');
+
+      expect($scope.saveDraft).to.be.calledOnce;
+    });
+
+    it('should save draft only once when close is called, then location has successfully changed', function() {
+      compileDirective('<composer />');
+      $scope.saveDraft = sinon.spy();
+
+      $scope.close();
+      $rootScope.$broadcast('$locationChangeSuccess');
+
+      expect($scope.saveDraft).to.be.calledOnce;
+    });
 
     it('should save draft when the composer is closed', function() {
       compileDirective('<composer />');
@@ -152,25 +171,35 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       $scope.close();
 
-      expect($scope.saveDraft).to.be.called;
+      expect($scope.saveDraft).to.be.calledOnce;
     });
 
-    it('should trigger a history back when the composer is closed', function() {
+    it('should change location when the composer is closed', function() {
       compileDirective('<composer />');
-      $window.history.back = sinon.spy();
+      $location.path = sinon.spy();
 
       $scope.close();
 
-      expect($window.history.back).to.be.called;
+      expect($location.path).to.be.calledWith('/unifiedinbox');
     });
 
-    it('should trigger a history back when the composer is hidden', function() {
+    it('should not save a draft when the composer is hidden', function() {
       compileDirective('<composer />');
-      $window.history.back = sinon.spy();
+      $scope.saveDraft = sinon.spy();
+
+      $scope.hide();
+      $rootScope.$digest();
+
+      expect($scope.saveDraft).to.not.be.called;
+    });
+
+    it('should change location when the composer is hidden', function() {
+      compileDirective('<composer />');
+      $location.path = sinon.spy();
 
       $scope.hide();
 
-      expect($window.history.back).to.be.called;
+      expect($location.path).to.be.calledWith('/unifiedinbox');
     });
 
     it('should expose a search function through its controller', function() {
