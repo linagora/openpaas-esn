@@ -12,11 +12,16 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.attendee',
   'esn.fullscreen-edit-form',
   'esn.scroll',
-  'op.dynamicDirective'
+  'op.dynamicDirective',
+  'esn.header',
+  'esn.offline-wrapper'
   ])
   .config(function($routeProvider, dynamicDirectiveServiceProvider) {
     $routeProvider.when('/unifiedinbox', {
       templateUrl: '/unifiedinbox/views/unifiedinbox'
+    });
+    $routeProvider.when('/unifiedinbox/compose', {
+      template: '<composer/>'
     });
     $routeProvider.when('/unifiedinbox/:mailbox', {
       templateUrl: '/unifiedinbox/views/listEmails',

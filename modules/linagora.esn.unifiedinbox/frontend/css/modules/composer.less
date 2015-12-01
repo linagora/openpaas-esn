@@ -2,9 +2,10 @@
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
-composer {
+composer, composer-desktop {
   .flex-column;
   .flex-shorthand(1);
+  padding-top: 50px;
 
   .compose {
     .flex-column;
@@ -12,7 +13,6 @@ composer {
 
     .compose-header {
       background-color: @body-bg;
-      padding-top: 10px;
 
       .row {
         margin: 0;
@@ -82,7 +82,7 @@ composer {
           .flex;
           .flex-shorthand(1);
 
-          width: 70%;
+          width: 0;
           overflow: hidden;
         }
       }
@@ -135,10 +135,6 @@ composer {
       border-bottom: 0;
     }
 
-    .compose-buttons {
-      .align-self(flex-end);
-    }
-
     .panel-heading.note-toolbar .note-alignment .dropdown-menu {
       min-width: 190px;
       background-color: @primaryColor;
@@ -149,12 +145,14 @@ composer {
       border: 0;
 
       .note-editing-area .note-editable {
+        min-height: 50px;
+        
         &.empty:not(:focus):before{
           content: attr(placeholder);
           color: @m-gray;
           font-style:italic;
         }
-        max-height: 180px;
+
         p {
           margin-bottom: 0;
         }
@@ -215,6 +213,19 @@ composer {
 
     .compose {
 
+      .tags .tag-list .tag-item {
+        line-height: 1.8em;
+
+        // Hide the remove-button (X) of ngTagsInput for mobile devices in display mode
+        .remove-button {
+          display: none;
+        }
+      }
+
+      .focused .tags .tag-list .tag-item .remove-button {
+        display: inline;
+      }
+
       .note-editor {
 
         .btn-sm, .btn-group > .btn {
@@ -242,12 +253,12 @@ composer {
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
 
-  composer {
+  composer, composer-desktop {
+    padding-top: 0;
 
     .compose {
 
       .compose-header {
-        padding-top: 0;
 
         .tags {
           display: block;
@@ -265,16 +276,19 @@ composer {
       }
 
       .compose-buttons {
-        bottom: 0;
+        .align-self(flex-end);
       }
     }
 
-    .note-editor .note-toolbar {
-
-      .note-fullscreen {
-        display: none;
+    .note-editor {
+      .note-editing-area .note-editable {
+        max-height: 150px;
       }
-
+      .note-toolbar {
+        .note-fullscreen {
+          display: none;
+        }
+      }
     }
 
   }
