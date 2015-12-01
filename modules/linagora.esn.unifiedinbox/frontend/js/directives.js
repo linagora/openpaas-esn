@@ -137,22 +137,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($q, $timeout, notificationFactory, draftService) {
+  .directive('composer', function($q, $timeout, session, notificationFactory, draftService, emailSendingService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope, element) {
-        // for test purposes: the send function which is supposed to be called to send messages via JMAP client
-        if (!scope.sendViaJMAP) {
-          scope.sendViaJMAP = function() {
-            var defer = $q.defer();
-            $timeout(function() {
-              return defer.resolve();
-            }, 3000);
-            return defer.promise;
-          };
-        }
 
         function disableSend() {
           var sendButton = element.find('.btn-primary');
@@ -169,9 +159,10 @@ angular.module('linagora.esn.unifiedinbox')
           if (scope.validateEmailSending(scope.email.rcpt)) {
 
             scope.$hide();
+            scope.email.from = session.user;
 
             var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
-            scope.sendViaJMAP().then(
+            emailSendingService.sendEmail(scope.email).then(
               function() {
                 notify.close();
                 notificationFactory.weakSuccess('Success', 'Your email has been sent');

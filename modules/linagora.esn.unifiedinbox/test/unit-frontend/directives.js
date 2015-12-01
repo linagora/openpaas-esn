@@ -6,7 +6,8 @@
 var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, Offline = {}, notificationFactory, iFrameResize = function() {}, elementScrollDownService;
+  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, Offline = {}, notificationFactory,
+    iFrameResize = function() {}, elementScrollDownService, emailSendingService;
   var attendeeService;
 
   beforeEach(function() {
@@ -43,11 +44,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('elementScrollDownService', elementScrollDownService = {});
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _emailSendingService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
+    emailSendingService = _emailSendingService_;
   }));
 
   beforeEach(function() {
@@ -212,11 +214,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should successfully notify when a valid email is sent', function() {
-      $scope.sendViaJMAP = function() {
-        var defer = $q.defer();
-        defer.resolve();
-        return defer.promise;
-      };
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
       $scope.email = {
         rcpt: {
@@ -239,16 +237,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect($scope.email.rcpt).to.shallowDeepEqual(expectedRcpt);
       expect(hideScopeSpy).to.be.called;
       expect(closeNotificationSpy).to.be.called;
+      expect(emailSendingService.sendEmail).to.be.called;
       expect(notificationTitle).to.equal('Success');
       expect(notificationText).to.equal('Your email has been sent');
     });
 
     it('should successfully send an email even if only bcc is used', function() {
-      $scope.sendViaJMAP = function() {
-        var defer = $q.defer();
-        defer.resolve();
-        return defer.promise;
-      };
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
       $scope.email = {
         rcpt: {
@@ -264,18 +259,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
       expect(hideScopeSpy).to.be.called;
       expect(closeNotificationSpy).to.be.called;
+      expect(emailSendingService.sendEmail).to.be.called;
       expect(notificationTitle).to.equal('Success');
       expect(notificationText).to.equal('Your email has been sent');
     });
 
     it('should notify immediately about sending email for slow connection. The final notification is shown once the email is sent', function() {
-      $scope.sendViaJMAP = function() {
-        var defer = $q.defer();
-        $timeout(function() {
-          return defer.resolve();
-        }, 200);
-        return defer.promise;
-      };
+      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
+        return $q.when();
+      }, 200));
 
       $scope.email = {
         rcpt: {
@@ -291,19 +283,16 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(notificationText).to.equal('Sending');
       $timeout.flush(201);
       expect(closeNotificationSpy).to.be.called;
+      expect(emailSendingService.sendEmail).to.be.called;
       expect(notificationTitle).to.equal('Success');
       expect(notificationText).to.equal('Your email has been sent');
       expect(hideScopeSpy).to.be.called;
     });
 
     it('should notify immediately about sending email for slow connection. this notification is then replaced by an error one in the case of failure', function() {
-      $scope.sendViaJMAP = function() {
-        var defer = $q.defer();
-        $timeout(function() {
-          return defer.reject();
-        }, 200);
-        return defer.promise;
-      };
+      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
+        return $q.reject();
+      }, 200));
 
       $scope.email = {
         rcpt: {
@@ -319,6 +308,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(notificationText).to.equal('Sending');
       $timeout.flush(201);
       expect(closeNotificationSpy).to.be.called;
+      expect(emailSendingService.sendEmail).to.be.called;
       expect(notificationTitle).to.equal('Error');
       expect(notificationText).to.equal('An error has occurred while sending email');
       expect(hideScopeSpy).to.be.called;

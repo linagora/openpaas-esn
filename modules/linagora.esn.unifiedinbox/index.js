@@ -7,15 +7,24 @@ var path = require('path');
 var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.io.mailer', 'mailer'),
   ],
   states: {
     lib: function(dependencies, callback) {
-      return callback(null, {});
+      var inbox = require('./backend/webserver/api/inbox/router')(dependencies);
+
+      var lib = {
+        api: {
+          inbox: inbox
+        }
+      };
+      return callback(null, lib);
     },
 
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this, dependencies);
+      app.use('/', this.api.inbox);
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('unifiedinbox', [
