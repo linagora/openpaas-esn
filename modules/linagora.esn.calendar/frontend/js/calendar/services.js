@@ -601,4 +601,36 @@ angular.module('esn.calendar')
     return {
       getAttendeeCandidates: getAttendeeCandidates
     };
+  })
+
+  .factory('calendarCurrentView', function($location, fcMoment) {
+    function save(view) {
+      var firstDayOfView = view.name === 'month' ? fcMoment(view.start).add(7, 'days').startOf('month') : view.start;
+      $location.search({
+        viewMode: view.name,
+        start: firstDayOfView.format('YYYY-MM-DD')
+      });
+    }
+
+    function get() {
+      var view = {};
+      var getParam = $location.search();
+
+      var possibleMode = ['agendaWeek', 'agendaDay', 'month'];
+      if (possibleMode.indexOf(getParam.viewMode) !== -1) {
+        view.name = getParam.viewMode;
+      }
+
+      var day = fcMoment(getParam.start);
+      if (getParam.start && day.isValid()) {
+        view.start = day;
+      }
+
+      return view;
+    }
+
+    return {
+      get: get,
+      save: save
+    };
   });

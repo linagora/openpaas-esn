@@ -60,7 +60,8 @@ angular.module('esn.calendar', [
       controller: 'userCalendarController',
       resolve: {
         user: routeResolver.session('user')
-      }
+      },
+      reloadOnSearch: false
     });
 
   });
