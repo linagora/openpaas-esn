@@ -49,6 +49,11 @@ describe('The calendar module controllers', function() {
       }
     };
 
+    this.calendarCurrentViewMock = {
+      save: angular.noop,
+      get: angular.identity.bind(null, {})
+    };
+
     var liveNotificationMock = function(namespace) {
       if (liveNotification) {
         return liveNotification(namespace);
@@ -90,6 +95,7 @@ describe('The calendar module controllers', function() {
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('headerService', self.headerServiceMock);
       $provide.value('user', self.userMock);
+      $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -384,6 +390,41 @@ describe('The calendar module controllers', function() {
         $rootScope: this.rootScope,
         $scope: this.scope
       });
+    });
+
+    it('should restore view from calendarCurrentView during initialization', function() {
+      var date = this.fcMoment('1953-03-16');
+      this.calendarCurrentViewMock.get = sinon.spy(function() {
+        return {
+          name: 'agendaDay',
+          start: date
+        };
+      });
+
+      this.controller('calendarController', {
+        $rootScope: this.rootScope,
+        $scope: this.scope
+      });
+
+      expect(this.calendarCurrentViewMock.get).to.have.been.calledOnce;
+      expect(this.scope.uiConfig.calendar.defaultView).to.equals('agendaDay');
+      expect(this.scope.uiConfig.calendar.defaultDate).to.equals(date);
+    });
+
+    it('should save view with calendarCurrentView when view change', function() {
+      var view = {};
+      this.calendarCurrentViewMock.save = sinon.spy(function(_view) {
+        expect(_view).to.equals(view);
+      });
+
+      this.controller('calendarController', {
+        $rootScope: this.rootScope,
+        $scope: this.scope
+      });
+
+      this.scope.uiConfig.calendar.viewRender(view);
+
+      expect(this.calendarCurrentViewMock.save).to.have.been.calledOnce;
     });
 
     describe('the eventDropAndResize listener', function() {

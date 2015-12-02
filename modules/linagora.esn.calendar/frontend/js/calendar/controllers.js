@@ -18,7 +18,7 @@ angular.module('esn.calendar')
     });
   })
 
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
 
     var windowJQuery = angular.element($window);
 
@@ -70,6 +70,11 @@ angular.module('esn.calendar')
     calendarService.calendarHomeId = $scope.calendarHomeId;
 
     $scope.eventRender = eventUtils.render;
+
+    var currentView = calendarCurrentView.get();
+    $scope.uiConfig.calendar.defaultDate = currentView.start || $scope.uiConfig.calendar.defaultDate;
+    $scope.uiConfig.calendar.defaultView = currentView.name || $scope.uiConfig.calendar.defaultView;
+
     $scope.uiConfig.calendar.eventRender = $scope.eventRender;
 
     /*
@@ -82,6 +87,7 @@ angular.module('esn.calendar')
 
     $scope.uiConfig.calendar.viewRender = function(view) {
       $timeout($scope.resizeCalendarHeight, 1000);
+      calendarCurrentView.save(view);
       $rootScope.$broadcast('HOME_CALENDAR_VIEW_CHANGE', view);
     };
 
