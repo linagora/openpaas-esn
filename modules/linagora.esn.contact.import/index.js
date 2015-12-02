@@ -30,8 +30,15 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
       var app = require('./backend/webserver/application')();
       app.use('/api', this.api.importer);
 
+      var frontendModules = [
+        'app.js',
+        'constants.js',
+        'services.js',
+        'providers/twitter.js'
+      ];
+
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('import', ['app.js', 'services.js'], 'linagora.esn.contact.import', ['esn']);
+      webserverWrapper.injectAngularModules('import', frontendModules, 'linagora.esn.contact.import', ['esn']);
       webserverWrapper.addApp('import', app);
       return callback();
     },

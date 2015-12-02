@@ -1,8 +1,8 @@
 'use strict';
 
-describe('The Twitter Angular Services', function() {
+describe('The Contact Import Twitter provider', function() {
 
-  describe('The contactImporter service', function() {
+  describe('The TwitterContactImporter service', function() {
 
     beforeEach(function() {
       module('ngRoute');
@@ -10,16 +10,16 @@ describe('The Twitter Angular Services', function() {
       module('esn.core');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, contactImporterService) {
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactImporterService) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.$scope = $rootScope.$new();
-      this.contactImporterService = contactImporterService;
+      this.ContactImporterService = ContactImporterService;
     }));
 
     it('should send POST request to /import/api/twitter', function() {
       this.$httpBackend.expectPOST('/import/api/twitter').respond([]);
-      this.contactImporterService.importContact('twitter');
+      this.ContactImporterService.importContact('twitter');
       this.$rootScope.$apply();
       this.$httpBackend.flush();
     });

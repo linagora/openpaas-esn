@@ -44,36 +44,6 @@ angular.module('linagora.esn.account')
     };
   })
 
-  .factory('contactImporterService', function(contactImportAPI) {
-
-    function importContact(type) {
-      return contactImportAPI.all(type).post();
-    }
-
-    return {
-      importContact: importContact
-    };
-
-  })
-
-  .factory('ContactImportRegistry', function() {
-
-    var cache = {};
-
-    function register(type, provider) {
-      cache[type] = provider;
-    }
-
-    function get(type) {
-      return cache[type];
-    }
-
-    return {
-      register: register,
-      get: get
-    };
-  })
-
   .factory('displayAccountMessageLevel', function(OAUTH_MESSAGE_LEVELS) {
     return function(status) {
       return OAUTH_MESSAGE_LEVELS[status] || OAUTH_MESSAGE_LEVELS.default;

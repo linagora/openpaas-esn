@@ -17,5 +17,7 @@ angular.module('linagora.esn.account')
   })
   .constant('OAUTH_UNKNOWN_MESSAGE', 'Unknown OAuth message')
   .constant('IMPORT_URI', 'import')
-  .constant('SUPPORTED_ACCOUNTS', ['oauth']);
-
+  .constant('SUPPORTED_ACCOUNTS', ['oauth'])
+  .constant('ACCOUNT_TYPES', {
+    twitter: 'twitter'
+  });
