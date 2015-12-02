@@ -4,7 +4,7 @@
 
 angular.module('esn.calendar')
   .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG,
-    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarLogic, notificationFactory) {
+    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarLogic, notificationFactory, calendarCurrentView) {
 
     var calendar;
     var userId = session.user._id;
@@ -13,7 +13,9 @@ angular.module('esn.calendar')
       USER_UI_CONFIG.miniCalendar);
     $scope.miniCalendarId = userId + 'MiniCalendar';
     $scope.events = [];
-    $scope.homeCalendarViewMode = USER_UI_CONFIG.calendar.defaultView;
+
+    var currentView = calendarCurrentView.get();
+    $scope.homeCalendarViewMode = currentView.name || USER_UI_CONFIG.calendar.defaultView;
 
     function selectPeriod(day) {
       day = fcMoment(day).stripTime();
@@ -63,7 +65,7 @@ angular.module('esn.calendar')
       var eventSources = [];
       if (!calendar) {
         calendar = uiCalendarConfig.calendars[$scope.miniCalendarId];
-        selectPeriod(fcMoment());
+        selectPeriod(currentView.start || fcMoment());
 
         calendarService.listCalendars(userId).then(function(calendars) {
           calendars.forEach(function(cal) {

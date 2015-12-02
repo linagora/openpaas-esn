@@ -6,7 +6,7 @@ var expect = chai.expect;
 describe('The mini-calendar controller', function() {
 
   var $scope, fcMoment, $rootScope, $controller, initController, $q, $timeout, fcMethodMock, calendarServiceMock,
-    sessionMock, miniCalendarLogicMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock;
+    sessionMock, miniCalendarLogicMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock, calendarCurrentViewMock;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
@@ -40,6 +40,11 @@ describe('The mini-calendar controller', function() {
     };
 
     calendarEventSourceMock = {};
+
+    calendarCurrentViewMock = {
+      save: angular.noop,
+      get: angular.identity.bind(null, {})
+    };
 
     fcMethodMock = {
       select: angular.noop,
@@ -75,6 +80,7 @@ describe('The mini-calendar controller', function() {
       $provide.value('calendarEventSource', calendarEventSourceMock);
       $provide.value('uiCalendarConfig', uiCalendarConfigMock);
       $provide.value('miniCalendarLogic', miniCalendarLogicMock);
+      $provide.value('calendarCurrentView', calendarCurrentViewMock);
       $provide.constant('USER_UI_CONFIG', USER_UI_CONFIG_MOCK);
     });
 
@@ -106,18 +112,31 @@ describe('The mini-calendar controller', function() {
       initController();
     });
 
-    it('should select and go to the current day when initializing the mini calendar', function() {
+    it('should select and go to the current view when initializing the mini calendar', function() {
+      var day = fcMoment('1940-03-10');
+
       fcMethodMock = {
-        gotoDate: sinon.spy(function(date) {
-          expect(date.isSame(fcMoment(), 'day')).to.be.true;
+        gotoDate: sinon.spy(function(_day) {
+          expect(_day.isSame(day, 'day')).to.be.true;
         }),
         select: sinon.spy()
       };
+
+      calendarCurrentViewMock.get = sinon.spy(function() {
+        return {
+          name: 'agendaDay',
+          start: day
+        };
+      });
+
+      initController();
 
       $scope.miniCalendarConfig.viewRender();
 
       expect(fcMethodMock.gotoDate).to.have.been.called;
       expect(fcMethodMock.select).to.have.been.called;
+      expect(calendarCurrentViewMock.get).to.have.been.called;
+      expect($scope.homeCalendarViewMode).to.equals('agendaDay');
     });
 
     it('should broadcast MINI_CALENDAR_DATE_CHANGE when a day is selected', function(done) {
