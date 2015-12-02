@@ -2,10 +2,10 @@
 
 angular.module('linagora.esn.account')
 
-  .directive('twitterAccountMenuItem', function(oauthStrategyRegistry, ACCOUNT_TYPE) {
+  .directive('twitterAccountMenuItem', function(oauthStrategyRegistry, ACCOUNT_TYPES) {
     function link(scope) {
       scope.openTwitter = function() {
-        oauthStrategyRegistry.get(ACCOUNT_TYPE.twitter)();
+        oauthStrategyRegistry.get(ACCOUNT_TYPES.twitter)();
       };
     }
     return {
