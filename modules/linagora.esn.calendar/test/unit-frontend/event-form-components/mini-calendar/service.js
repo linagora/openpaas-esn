@@ -136,10 +136,12 @@ describe('The mini-calendar service', function() {
           expect(fakeEvent['2015-01-01']).to.equals(3);
           expect(fakeEvent['2015-01-02']).to.equals(1);
           expect(numFakeEvent).to.equals(2);
-
+          expect(fcMethodMock.removeEvents).to.have.been.called;
           done();
         });
       };
+
+      fcMethodMock.removeEvents = sinon.spy(angular.noop);
 
       initWrapper();
       $rootScope.$digest();

@@ -97,9 +97,8 @@ angular.module('esn.calendar')
         });
 
         $q.all(eventsPromise).then(function(listOfEvents) {
-          originalEvents = {};
-          fakeEvents = {};
           _.flatten(listOfEvents).forEach(addOrDeleteEvent.bind(null, true));
+          calendar.fullCalendar('removeEvents');
           callback(_.values(fakeEvents));
         });
       }
