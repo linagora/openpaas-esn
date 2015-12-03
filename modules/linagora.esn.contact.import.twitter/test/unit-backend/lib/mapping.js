@@ -2,9 +2,9 @@
 
 var expect = require('chai').expect;
 
-describe('The mapping function', function() {
+describe('The twitter contact importer mapping function', function() {
   function getModule() {
-    return require('../../../../backend/lib/twitter/mapping')();
+    return require('../../../backend/lib/mapping')();
   }
   describe('The toVcard function', function() {
     function compareShell(shell, ical) {

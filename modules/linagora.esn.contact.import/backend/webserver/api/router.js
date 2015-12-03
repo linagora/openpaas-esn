@@ -2,11 +2,16 @@
 
 var express = require('express');
 
-module.exports = function(dependencies) {
+module.exports = function(dependencies, lib) {
 
   var router = express.Router();
 
-  require('./twitter')(router, dependencies);
+  var authorizationMW = dependencies('authorizationMW');
+  var controller = require('./controller')();
+  var tokenMiddleware = dependencies('tokenMW');
+  var importerMiddleware = require('./middleware')(dependencies, lib);
+
+  router.post('/:type', authorizationMW.requiresAPILogin, tokenMiddleware.generateNewToken(), importerMiddleware.getImporter, controller.importContacts);
 
   return router;
 };

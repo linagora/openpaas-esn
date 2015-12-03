@@ -2,9 +2,9 @@
 
 angular.module('linagora.esn.contact.import')
 
-  .factory('contactImportAPI', function(Restangular) {
+  .factory('contactImportAPI', function(Restangular, CONTACT_IMPORT_URL) {
     return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl('/import/api');
+      RestangularConfigurer.setBaseUrl(CONTACT_IMPORT_URL);
       RestangularConfigurer.setFullResponse(true);
     });
   })

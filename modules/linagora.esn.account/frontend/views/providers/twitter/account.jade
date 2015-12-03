@@ -15,5 +15,4 @@
         ul.dropdown-menu.dropdown-menu-right
           li
             a(ng-href='#') #{__('Delete')}
-          li
-            a(ng-click="importContact()") #{__('Import Twitter followings')}
+          li(dynamic-directive='account-options-items')

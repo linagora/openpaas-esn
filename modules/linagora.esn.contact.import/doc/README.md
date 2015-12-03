@@ -2,7 +2,6 @@
 
 This modules provides APIs to import contact from external accounts into OpenPaaS ESN.
 
-
 # /import/api/:type
 
 ## POST /import/api/twitter

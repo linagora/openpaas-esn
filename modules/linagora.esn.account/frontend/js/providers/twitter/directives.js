@@ -23,7 +23,6 @@ angular.module('linagora.esn.account')
       scope: {
         account: '='
       },
-      controller: 'accountController',
       templateUrl: '/account/views/providers/twitter/account.html'
     };
   });

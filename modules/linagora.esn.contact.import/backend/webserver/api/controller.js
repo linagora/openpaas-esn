@@ -1,15 +1,14 @@
 'use strict';
 
-module.exports = function(dependencies) {
+module.exports = function() {
 
-  var twitterLib = require('../../../lib/twitter')(dependencies);
-
-  function importTwitterFollowing(req, res) {
+  function importContacts(req, res) {
     var options = {
       esnToken: req.token && req.token.token ? req.token.token : '',
       user: req.user
     };
-    twitterLib.importer.importContact(options)
+
+    req.importer.importContact(options)
       .then(function() {
         return res.status(202).json();
       }, function(err) {
@@ -18,7 +17,7 @@ module.exports = function(dependencies) {
   }
 
   return {
-    importTwitterFollowing: importTwitterFollowing
+    importContacts: importContacts
   };
 
 };
