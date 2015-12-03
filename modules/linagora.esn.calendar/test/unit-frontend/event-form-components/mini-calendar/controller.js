@@ -1,6 +1,5 @@
 'use strict';
 /* global chai: false */ /* global sinon: false */
-
 var expect = chai.expect;
 
 describe('The mini-calendar controller', function() {
@@ -36,7 +35,8 @@ describe('The mini-calendar controller', function() {
     miniCalendarLogicMock = {
       getWeekAroundDay: function() {
         return {firstWeekDay: null, nextFirstWeekDay: null};
-      }
+      },
+      miniCalendarWrapper: angular.identity
     };
 
     calendarEventSourceMock = {};
@@ -132,6 +132,7 @@ describe('The mini-calendar controller', function() {
       initController();
 
       $scope.miniCalendarConfig.viewRender();
+      $scope.$digest();
 
       expect(fcMethodMock.gotoDate).to.have.been.called;
       expect(fcMethodMock.select).to.have.been.called;
@@ -169,6 +170,7 @@ describe('The mini-calendar controller', function() {
     it('should select the good period on HOME_CALENDAR_VIEW_CHANGE event with day as viewMode', function(done) {
       var day = fcMoment();
       $scope.miniCalendarConfig.viewRender();
+      $scope.$digest();
 
       fcMethodMock.select = function(start, end) {
         expect(day.isSame(start, 'days')).to.be.true;
@@ -178,10 +180,12 @@ describe('The mini-calendar controller', function() {
       };
 
       $rootScope.$broadcast('HOME_CALENDAR_VIEW_CHANGE', {name: 'agendaDay', start: day});
+      $scope.$digest();
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in day view', function() {
       $scope.miniCalendarConfig.viewRender();
+      $scope.$digest();
       var day = fcMoment();
 
       $scope.homeCalendarViewMode = 'agendaDay';
@@ -193,13 +197,14 @@ describe('The mini-calendar controller', function() {
       });
 
       $scope.miniCalendarConfig.select(day, null, true, null);
-
+      $scope.$digest();
       expect(fcMethodMock.select).to.have.been.called;
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in week view', function() {
       $scope.homeCalendarViewMode = 'agendaWeek';
       $scope.miniCalendarConfig.viewRender();
+      $scope.$digest();
 
       fcMethodMock.select = sinon.spy(function(start, end) {
         expect(start.isSame(firstWeekDay, 'day')).to.be.true;
@@ -213,12 +218,14 @@ describe('The mini-calendar controller', function() {
       });
 
       $scope.miniCalendarConfig.select(dayInWeek, null, true, null);
+      $scope.$digest();
       expect(fcMethodMock.select).to.have.been.called;
       expect(miniCalendarLogicMock.getWeekAroundDay).to.have.been.called;
     });
 
     it('should select the good period on HOME_CALENDAR_VIEW_CHANGE with week as view mode', function(done) {
       $scope.miniCalendarConfig.viewRender();
+      $scope.$digest();
 
       fcMethodMock.select = sinon.spy(function(start, end) {
         expect(start.isSame(firstWeekDay, 'day')).to.be.true;
@@ -235,6 +242,7 @@ describe('The mini-calendar controller', function() {
       });
 
       $rootScope.$broadcast('HOME_CALENDAR_VIEW_CHANGE', {name: 'agendaWeek', start: dayInWeek});
+      $scope.$digest();
     });
 
     it('should unselect on HOME_CALENDAR_VIEW_CHANGE with month as view mode', function(done) {
@@ -245,6 +253,7 @@ describe('The mini-calendar controller', function() {
       };
 
       $rootScope.$broadcast('HOME_CALENDAR_VIEW_CHANGE', {name: 'month', start: null});
+      $scope.$digest();
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in month view', function() {
@@ -255,6 +264,7 @@ describe('The mini-calendar controller', function() {
       fcMethodMock.unselect = sinon.spy();
 
       $scope.miniCalendarConfig.select(day, null, true, null);
+      $scope.$digest();
 
       expect(fcMethodMock.unselect).to.have.been.called;
     });
@@ -274,14 +284,13 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should  wrap the calendar inside a miniCalendarWrapper', function(done) {
-      $scope.miniCalendarConfig.viewRender();
-
       miniCalendarLogicMock.miniCalendarWrapper = sinon.spy(function(_calendar, eventSources) {
         expect(eventSources).to.deep.equals(['anEventSource']);
         expect(_calendar).to.equals(calendar);
         done();
       });
 
+      $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
     });
 
@@ -293,8 +302,8 @@ describe('The mini-calendar controller', function() {
       };
 
       $scope.miniCalendarConfig.viewRender();
-      $scope.$digest();
       $rootScope.$broadcast('addedCalendarItem', event);
+      $scope.$digest();
     });
 
     it('should call calWrapper.deleteEvent on removedCalendarItem', function(done) {
@@ -306,8 +315,8 @@ describe('The mini-calendar controller', function() {
       };
 
       $scope.miniCalendarConfig.viewRender();
-      $scope.$digest();
       $rootScope.$broadcast('removedCalendarItem', id);
+      $scope.$digest();
     });
 
     function testModifyEvent(nameOfEvent) {
@@ -320,8 +329,8 @@ describe('The mini-calendar controller', function() {
         };
 
         $scope.miniCalendarConfig.viewRender();
-        $scope.$digest();
         $rootScope.$broadcast(nameOfEvent, event);
+        $scope.$digest();
       };
     }
 

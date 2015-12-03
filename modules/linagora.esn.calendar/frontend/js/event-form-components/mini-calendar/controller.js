@@ -6,7 +6,8 @@ angular.module('esn.calendar')
   .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG,
     uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarLogic, notificationFactory, calendarCurrentView) {
 
-    var calendar;
+    var calendarDeffered = $q.defer();
+    var calendarPromise = calendarDeffered.promise;
     var userId = session.user._id;
 
     $scope.miniCalendarConfig = angular.extend({}, USER_UI_CONFIG.calendar,
@@ -17,7 +18,7 @@ angular.module('esn.calendar')
     var currentView = calendarCurrentView.get();
     $scope.homeCalendarViewMode = currentView.name || USER_UI_CONFIG.calendar.defaultView;
 
-    function selectPeriod(day) {
+    function selectPeriod(day, calendar) {
       day = fcMoment(day).stripTime();
       calendar.fullCalendar('gotoDate', day);
       switch ($scope.homeCalendarViewMode) {
@@ -37,9 +38,11 @@ angular.module('esn.calendar')
       }
     }
 
+    calendarPromise.then(selectPeriod.bind(null, currentView.start || fcMoment()));
+
     $scope.miniCalendarConfig.select = function(start, end, jsEvent, view) {
       if (jsEvent) {
-        selectPeriod(start);
+        calendarPromise.then(selectPeriod.bind(null, start));
         $rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', start);
       }
     };
@@ -59,29 +62,13 @@ angular.module('esn.calendar')
       windowJQuery.off('resize.miniCalendarResize');
     }
 
-    var calendarWrapper;
-
+    var calendarResolved = false;
     $scope.miniCalendarConfig.viewRender = function() {
-      var eventSources = [];
-      if (!calendar) {
-        calendar = uiCalendarConfig.calendars[$scope.miniCalendarId];
-        selectPeriod(currentView.start || fcMoment());
-
-        calendarService.listCalendars(userId).then(function(calendars) {
-          calendars.forEach(function(cal) {
-            eventSources.push(calendarEventSource(cal.getHref(), function(error) {
-              notificationFactory.weakError('Could not retrieve event sources', error.message);
-              $log.error('Could not retrieve event sources', error);
-            }));
-          }, function(error) {
-            notificationFactory.weakError('Could not retrieve user calendars', error.message);
-            $log.error('Could not retrieve user calendars', error);
-          });
-
-          calendarWrapper = miniCalendarLogic.miniCalendarWrapper(calendar, _.flatten(eventSources));
-        });
+      if (!calendarResolved) {
+        calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.miniCalendarId]);
 
         unregisterWindowResize();
+        calendarResolved = true;
       }
     };
 
@@ -89,26 +76,42 @@ angular.module('esn.calendar')
       $rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', event.start);
     };
 
+    var calendarWrapperPromise = $q.all({
+      calendar: calendarPromise,
+      calendars: calendarService.listCalendars(userId)
+    }).then(function(resolved) {
+      var eventSources = resolved.calendars.map(function(cal) {
+        return calendarEventSource(cal.getHref(), function(error) {
+          notificationFactory.weakError('Could not retrieve event sources', error.message);
+          $log.error('Could not retrieve event sources', error);
+        });
+      });
+
+      return miniCalendarLogic.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));
+
+    }, function(error) {
+      notificationFactory.weakError('Could not retrive user calendars', error.message);
+      $log.error('Could not retrieve user calendars', error);
+    });
+
+    function bindEventToCalWrapperMethod(angularEventName, calWrapperMethod) {
+      return $rootScope.$on(angularEventName, function(angularEvent, data) {
+        calendarWrapperPromise.then(function(calendarWrapper) {
+          calendarWrapper[calWrapperMethod](data);
+        });
+      });
+    }
+
     var unregisterFunctions = [
-      $rootScope.$on('addedCalendarItem', function(angularEvent, event) {
-        calendarWrapper.addEvent(event);
-      }),
-
-      $rootScope.$on('removedCalendarItem', function(angularEvent, eventId) {
-        calendarWrapper.removeEvent(eventId);
-      }),
-
-      $rootScope.$on('modifiedCalendarItem', function(angularEvent, event) {
-        calendarWrapper.modifyEvent(event);
-      }),
-
-      $rootScope.$on('revertedCalendarItemModification', function(angularEvent, event) {
-        calendarWrapper.modifyEvent(event);
-      }),
+      bindEventToCalWrapperMethod('addedCalendarItem', 'addEvent'),
+      bindEventToCalWrapperMethod('removedCalendarItem', 'removeEvent'),
+      bindEventToCalWrapperMethod('modifiedCalendarItem', 'modifyEvent'),
+      bindEventToCalWrapperMethod('revertedCalendarItemModification', 'modifyEvent'),
 
       $rootScope.$on('HOME_CALENDAR_VIEW_CHANGE', function(event, view) {
         $scope.homeCalendarViewMode = view.name;
-        selectPeriod(view.name === 'month' ? fcMoment(view.start).add(15, 'days') : view.start);
+        var start = view.name === 'month' ? fcMoment(view.start).add(15, 'days') : view.start;
+        calendarPromise.then(selectPeriod.bind(null, start));
       })
     ];
 
