@@ -27,7 +27,7 @@ describe('TwitterDisplayShell service', function() {
     expect(displayShell.getDefaultAvatar()).to.equal('/contact.twitter/images/default_twitter_avatar.png');
     expect(displayShell.getDisplayName()).to.equal(displayName);
     expect(displayShell.isWritable()).to.equal(false);
-    expect(displayShell.getOverlayIcon()).to.deep.equal('mdi-twitter twitter-color');
+    expect(displayShell.getOverlayIcon()).to.equal('mdi-twitter twitter-color i-contact-twitter');
 
     expect(displayShell.getInformationsToDisplay()).to.deep.equal([
       {
