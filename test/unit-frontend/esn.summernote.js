@@ -78,6 +78,40 @@ describe('The esn.summernote Angular module', function() {
     });
   });
 
+  describe('the ScrollOnEnter plugin', function() {
+    var ScrollOnEnterPlugin, autoScrollDownSpy;
+
+    beforeEach(function() {
+      autoScrollDownSpy = sinon.spy();
+
+      angular.mock.module('esn.summernote-wrapper', function($provide) {
+        $provide.value('elementScrollDownService', {
+          autoScrollDown: autoScrollDownSpy
+        });
+      });
+
+      angular.mock.inject(function(_$compile_, _$rootScope_, _ScrollOnEnterPlugin_) {
+        $compile = _$compile_;
+        $rootScope = _$rootScope_;
+        $scope = $rootScope.$new();
+        ScrollOnEnterPlugin = _ScrollOnEnterPlugin_;
+      });
+    });
+
+    it('should call the auto scroll down method when a new paragraph is inserted', function() {
+      var editorStub = sinon.stub().returns({
+        find: angular.noop
+      });
+      var layoutInfo = {
+        editor: editorStub
+      };
+
+      ScrollOnEnterPlugin.events.insertParagraph(null, null, layoutInfo);
+      expect(editorStub).to.be.called;
+      expect(autoScrollDownSpy).to.be.called;
+    });
+  });
+
   describe('the MoveCursorContentEditable factory', function() {
     var MoveCursorContentEditable, MobileFirefoxNewlinePlugin, event;
 

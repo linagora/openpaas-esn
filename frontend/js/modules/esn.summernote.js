@@ -5,7 +5,7 @@
  *  $.summernote <== frontend/components/summernote/dist/summernote.js
  *  summernote <== frontend/components/angular-summernote/dist/angular-summernote.js
  */
-angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
+angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector', 'esn.scroll'])
   .factory('summernote', function() {
     return $.summernote;
   })
@@ -133,6 +133,29 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
   })
 
   /**
+   * Auto scroll down the content-editable element when Enter is pressed
+   */
+  .factory('ScrollOnEnterPlugin', function(elementScrollDownService) {
+    var contentEditable;
+
+    function getContentEditable(layoutInfo) {
+      if (!contentEditable) {
+        contentEditable = layoutInfo.editor().find('.note-editable[contenteditable="true"]');
+      }
+      return contentEditable;
+    }
+
+    return {
+      name: 'ScrollOnEnter',
+      events: {
+        insertParagraph: function(event, editor, layoutInfo)  {
+          elementScrollDownService.autoScrollDown(getContentEditable(layoutInfo));
+        }
+      }
+    };
+  })
+
+  /**
    * Fullscreen button with a custom behavior that can be added
    * to the toolbar of summernote using summernote.addPlugin() method
    */
@@ -167,10 +190,11 @@ angular.module('esn.summernote-wrapper', ['summernote', 'ng.deviceDetector'])
     };
   })
 
-  .run(function(summernote, FullscreenPlugin, MobileFirefoxNewlinePlugin, PreventEmptyAreaPlugin, SupportPlaceholderPlugin, deviceDetector, BROWSERS) {
+  .run(function(summernote, FullscreenPlugin, MobileFirefoxNewlinePlugin, PreventEmptyAreaPlugin, SupportPlaceholderPlugin, ScrollOnEnterPlugin, deviceDetector, BROWSERS) {
     summernote.addPlugin(FullscreenPlugin);
     summernote.addPlugin(SupportPlaceholderPlugin);
     summernote.addPlugin(PreventEmptyAreaPlugin);
+    summernote.addPlugin(ScrollOnEnterPlugin);
 
     if (deviceDetector.browser === BROWSERS.FIREFOX && deviceDetector.isMobile()) {
       summernote.addPlugin(MobileFirefoxNewlinePlugin);
