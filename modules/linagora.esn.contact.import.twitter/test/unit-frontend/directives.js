@@ -1,5 +1,8 @@
 'use strict';
 
+/* global chai: false */
+var expect = chai.expect;
+
 describe('The Contact Import Twitter directives', function() {
 
   beforeEach(function() {
@@ -39,6 +42,7 @@ describe('The Contact Import Twitter directives', function() {
 
       it('should notify when importing without error', function(done) {
         $scope.account = {
+          _id: 123,
           provider: 'twitter',
           data: {
             username: 'awesomepaas'
@@ -52,7 +56,8 @@ describe('The Contact Import Twitter directives', function() {
           done(new Error());
         };
 
-        TwitterContactImporterMock.import = function() {
+        TwitterContactImporterMock.import = function(account) {
+          expect(account).to.deep.equal($scope.account);
           return $q.when({status: 202});
         };
 
@@ -76,7 +81,8 @@ describe('The Contact Import Twitter directives', function() {
           done(new Error());
         };
 
-        TwitterContactImporterMock.import = function() {
+        TwitterContactImporterMock.import = function(account) {
+          expect(account).to.deep.equal($scope.account);
           return $q.reject();
         };
 

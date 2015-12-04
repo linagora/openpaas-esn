@@ -9,13 +9,32 @@ describe('The Contact Import Angular Services', function() {
   beforeEach(function() {
     module('ngRoute');
     module('esn.core');
+    module('linagora.esn.contact.import');
+  });
+
+  describe('The ContactImporterService service', function() {
+
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactImporterService) {
+      this.$httpBackend = $httpBackend;
+      this.$rootScope = $rootScope;
+      this.$scope = $rootScope.$new();
+      this.ContactImporterService = ContactImporterService;
+    }));
+
+    it('should send POST request to /import/api/:type', function() {
+      var type = 'twitter';
+      var account = {
+        _id: 123
+      };
+
+      this.$httpBackend.expectPOST('/import/api/' + type, {account_id: account._id}).respond([]);
+      this.ContactImporterService.importContact(type, account);
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+    });
   });
 
   describe('The ContactImportRegistry service', function() {
-
-    beforeEach(function() {
-      module('linagora.esn.contact.import');
-    });
 
     beforeEach(angular.mock.inject(function(ContactImportRegistry, $rootScope) {
       this.$rootScope = $rootScope;

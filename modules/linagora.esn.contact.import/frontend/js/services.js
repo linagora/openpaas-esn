@@ -11,8 +11,8 @@ angular.module('linagora.esn.contact.import')
 
   .factory('ContactImporterService', function(contactImportAPI) {
 
-    function importContact(type) {
-      return contactImportAPI.all(type).post();
+    function importContact(type, account) {
+      return contactImportAPI.all(type).post({account_id: account._id});
     }
 
     return {

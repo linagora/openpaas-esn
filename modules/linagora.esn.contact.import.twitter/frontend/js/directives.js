@@ -10,7 +10,7 @@ angular.module('linagora.esn.contact.import.twitter')
     link: function(scope) {
 
       scope.importContacts = function() {
-        TwitterContactImporter.import()
+        TwitterContactImporter.import(scope.account)
           .then(function(response) {
             if (response.status === 202) {
               notificationFactory.notify(
