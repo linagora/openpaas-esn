@@ -28,7 +28,7 @@ describe('The Contact Import Angular Services', function() {
       };
 
       this.$httpBackend.expectPOST('/import/api/' + type, {account_id: account._id}).respond([]);
-      this.ContactImporterService.importContact(type, account);
+      this.ContactImporterService.import(type, account);
       this.$rootScope.$apply();
       this.$httpBackend.flush();
     });

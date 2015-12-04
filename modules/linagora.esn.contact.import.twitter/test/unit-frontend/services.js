@@ -31,12 +31,12 @@ describe('The Contact Import Twitter Services', function() {
     });
 
     it('should call the ContactImporter', function() {
-      var importContact = sinon.spy();
-      ContactImporterMock.importContact = importContact;
+      var importContacts = sinon.spy();
+      ContactImporterMock.import = importContacts;
       var account = {_id: 929292};
       this.TwitterContactImporter.import(account);
       this.$rootScope.$apply();
-      expect(importContact).to.have.been.calledWith('twitter', account);
+      expect(importContacts).to.have.been.calledWith('twitter', account);
     });
   });
 });
