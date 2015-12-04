@@ -11,7 +11,7 @@ module.exports = function(dependencies, lib) {
   var tokenMiddleware = dependencies('tokenMW');
   var importerMiddleware = require('./middleware')(dependencies, lib);
 
-  router.post('/:type', authorizationMW.requiresAPILogin, tokenMiddleware.generateNewToken(), importerMiddleware.getImporter, controller.importContacts);
+  router.post('/:type', authorizationMW.requiresAPILogin, tokenMiddleware.generateNewToken(), importerMiddleware.checkRequiredBody, importerMiddleware.getImporter, controller.importContacts);
 
   return router;
 };

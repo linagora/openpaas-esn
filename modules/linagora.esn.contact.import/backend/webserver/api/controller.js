@@ -4,6 +4,7 @@ module.exports = function() {
 
   function importContacts(req, res) {
     var options = {
+      accountId: req.body.account_id,
       esnToken: req.token && req.token.token ? req.token.token : '',
       user: req.user
     };

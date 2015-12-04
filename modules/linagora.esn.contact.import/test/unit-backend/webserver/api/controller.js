@@ -11,6 +11,9 @@ describe('The contact import controller', function() {
     var req;
     beforeEach(function() {
       req = {
+        body: {
+          account_id: '321'
+        },
         token: {
           token: '123'
         },
@@ -29,6 +32,7 @@ describe('The contact import controller', function() {
         importContact: function(options) {
           expect(options.esnToken).to.equal(req.token.token);
           expect(options.user).to.deep.equal(req.user);
+          expect(options.accountId).to.deep.equal(req.body.account_id);
           return q.reject(new Error('Import failure'));
         }
       };
@@ -50,6 +54,7 @@ describe('The contact import controller', function() {
         importContact: function(options) {
           expect(options.esnToken).to.equal(req.token.token);
           expect(options.user).to.deep.equal(req.user);
+          expect(options.accountId).to.deep.equal(req.body.account_id);
           return q.when({});
         }
       };
