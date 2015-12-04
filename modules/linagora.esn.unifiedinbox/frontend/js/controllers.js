@@ -1,20 +1,44 @@
 'use strict';
 
 angular.module('linagora.esn.unifiedinbox')
-  .controller('listEmailsController', function($scope, $stateParams, jmapClient, EmailGroupingTool) {
+  .controller('listEmailsController', function($scope, $stateParams, $location, jmap, jmapClient, EmailGroupingTool, newComposerService) {
+
+    function searchForMessages() {
+      jmapClient.getMessageList({
+        filter: {
+          inMailboxes: [$scope.mailbox]
+        },
+        collapseThreads: true,
+        fetchMessages: true,
+        position: 0,
+        limit: 100
+      }).then(function(data) {
+        $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
+      });
+    }
+
+    function isDraftMailbox() {
+      return $scope.mailboxRole === jmap.MailboxRole.DRAFTS;
+    }
+
     $scope.mailbox = $stateParams.mailbox;
 
-    jmapClient.getMessageList({
-      filter: {
-        inMailboxes: [$scope.mailbox]
-      },
-      collapseThreads: true,
-      fetchMessages: true,
-      position: 0,
-      limit: 100
-    }).then(function(data) {
-      $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
-    });
+    $scope.openEmail = function(email) {
+      if (isDraftMailbox()) {
+        newComposerService.openDraft(email);
+      } else {
+        $location.path('/unifiedinbox/' + $scope.mailbox + '/' + email.id);
+      }
+    };
+
+    jmapClient.getMailboxes({
+      ids: [$scope.mailbox],
+      properties: ['name', 'role']
+    }).then(function(mailboxes) {
+      $scope.mailboxRole = mailboxes[0].role; // We expect a single mailbox here
+      $scope.mailboxName = mailboxes[0].name;
+    }).then(searchForMessages);
+
   })
 
   .controller('composerController', function($scope, Composition, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {

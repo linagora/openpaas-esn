@@ -824,9 +824,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should update the location if screenSize returns true', function() {
-        screenSize.is = function() {
-          return true;
-        };
+        screenSize.is = sinon.stub().returns(true);
         $location.path = sinon.spy();
 
         newComposerService.open();
@@ -836,9 +834,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
-        screenSize.is = function() {
-          return false;
-        };
+        screenSize.is = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
         newComposerService.open();
@@ -850,6 +846,42 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
     });
+
+    describe('the "openDraft" method', function() {
+
+      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+        screenSize.is = function(size) {
+          expect(size).to.equal('xs');
+          done();
+        };
+        newComposerService.openDraft({id: 'value'});
+      });
+
+      it('should update the location with the email id if screenSize returns true', function() {
+        screenSize.is = sinon.stub().returns(true);
+        $location.path = sinon.spy();
+
+        newComposerService.openDraft({id: 'expected'});
+        $timeout.flush();
+
+        expect($location.path).to.have.been.calledWith('/unifiedinbox/compose/expected');
+      });
+
+      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
+        screenSize.is = sinon.stub().returns(false);
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.openDraft({email: 'object'});
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          title: 'Continue your draft',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+          email: {email: 'object'}
+        });
+      });
+
+    });
+
   });
 
   describe('The Composition factory', function() {

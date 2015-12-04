@@ -296,9 +296,13 @@ angular.module('linagora.esn.unifiedinbox')
 
   .service('newComposerService', function($location, $timeout, screenSize, boxOverlayOpener) {
 
-    function newMobileComposer() {
+    function choseByScreenSize(xs, others) {
+      screenSize.is('xs') ? xs.apply() : others.apply();
+    }
+
+    function newMobileComposer(emailId) {
       $timeout(function() {
-        $location.path('/unifiedinbox/compose');
+        $location.path('/unifiedinbox/compose' + (emailId ? '/' + emailId : ''));
       });
     }
 
@@ -309,13 +313,23 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function newBoxedDraftComposer(email) {
+      boxOverlayOpener.open({
+        title: 'Continue your draft',
+        templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+        email: email
+      });
+    }
+
     return {
       open: function() {
-        if (screenSize.is('xs')) {
-          newMobileComposer();
-        } else {
-          newBoxedComposer();
-        }
+        choseByScreenSize(newMobileComposer, newBoxedComposer);
+      },
+      openDraft: function(email) {
+        choseByScreenSize(
+          newMobileComposer.bind(this, email.id),
+          newBoxedDraftComposer.bind(this, email)
+        );
       }
     };
   })

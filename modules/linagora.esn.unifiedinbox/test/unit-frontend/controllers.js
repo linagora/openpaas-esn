@@ -156,12 +156,50 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The listEmailsController', function() {
 
-    it('should set $scope.mailbox from the \'mailbox\' route parameter', function() {
-      jmapClient.getMessageList = function() { return $q.when(); };
+    beforeEach(function() {
+      jmapClient.getMailboxes = function() {
+        return $q.when([{role: jmap.MailboxRole.UNKNOWN, name: 'a name'}]);
+      };
+      jmapClient.getMessageList = function() {
+        return $q.when([[], [{ email: 1 }]]);
+      };
+    });
 
+    it('should set $scope.mailbox from the \'mailbox\' route parameter', function() {
       initController('listEmailsController');
 
       expect(scope.mailbox).to.equal('chosenMailbox');
+    });
+
+    it('should call jmapClient.getMailboxes with the expected mailbox id and properties', function(done) {
+      jmapClient.getMailboxes = function(options) {
+        expect(options).to.deep.equal({ids: ['chosenMailbox'], properties: ['name', 'role']});
+        done();
+      };
+
+      initController('listEmailsController');
+    });
+
+    it('should call jmapClient.getMailboxes then find the mailbox role and name', function() {
+      jmapClient.getMailboxes = function() {
+        return $q.when([{role: 'expected role', name: 'expected name'}]);
+      };
+
+      initController('listEmailsController');
+      $timeout.flush();
+
+      expect(scope.mailboxRole).to.equal('expected role');
+      expect(scope.mailboxName).to.equal('expected name');
+    });
+
+    it('should call jmapClient.getMailboxes then jmapClient.getMessageList', function(done) {
+      jmapClient.getMailboxes = sinon.stub().returns($q.when([{}]));
+      jmapClient.getMessageList = function() {
+        done();
+      };
+
+      initController('listEmailsController');
+      $timeout.flush();
     });
 
     it('should call jmapClient.getMessageList with correct arguments', function(done) {
@@ -180,6 +218,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       initController('listEmailsController');
+      $timeout.flush();
     });
 
     it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
@@ -195,6 +234,44 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         done();
       });
       $rootScope.$digest();
+    });
+
+    describe('openEmail fn', function() {
+
+      var newComposerService;
+
+      beforeEach(angular.mock.inject(function(_newComposerService_) {
+        newComposerService = _newComposerService_;
+      }));
+
+      it('should call newComposerService.openDraft if mailbox has the draft role', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([{role: jmap.MailboxRole.DRAFTS, name: 'my drafts'}]);
+        };
+        newComposerService.openDraft = sinon.spy();
+
+        initController('listEmailsController');
+        $timeout.flush();
+
+        scope.openEmail({email: 'object'});
+
+        expect(newComposerService.openDraft).to.have.been.calledWith({email: 'object'});
+      });
+
+      it('should change location path if mailbox has not the draft role', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([{role: jmap.MailboxRole.INBOX, name: 'my box'}]);
+        };
+        $location.path = sinon.spy();
+
+        initController('listEmailsController');
+        $timeout.flush();
+
+        scope.openEmail({id: 'expectedId'});
+
+        expect($location.path).to.have.been.calledWith('/unifiedinbox/chosenMailbox/expectedId');
+      });
+
     });
 
   });
