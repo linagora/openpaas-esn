@@ -1,7 +1,7 @@
 .col-xs-12.col-md-10
   .block-header
     h2 #{__('Projects')}
-
+  project-create-button
   .card
     .listview.lv-bordered.lv-lg
       .lv-header-alt
@@ -21,9 +21,8 @@
         p #{__('Error while loading projects !')}
       .lv-item(ng-show="!loading && !error && projects.length === 0 && selected === 'all'", role="alert")
         p #{__('There is no projects yet. Create a new one with the following link:')}
-          project-create-button
+
       .lv-item(ng-show="!loading && !error && projects.length === 0 && selected === 'membership'", role="alert")
         p #{__('You are not member of any project. Please join one first.')}
       .lv-item(ng-show="!loading && !error && projects.length === 0 && selected === 'moderator'", role="alert")
         p #{__('You are not moderator of any project yet. Create a new one with the following link:')}
-          project-create-button
