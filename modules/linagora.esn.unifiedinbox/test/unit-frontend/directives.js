@@ -413,15 +413,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     it('should enable iFrame resizer on the iFrame', function(done) {
       iFrameResize = function(options) {
-        expect(options).to.deep.equal({
+        expect(options).to.shallowDeepEqual({
           checkOrigin: false,
           scrolling: true,
-          inPageLinks: true
+          inPageLinks: true,
+          resizedCallback: function() {}
         });
 
         done();
       };
-
       compileDirective('<html-email-body email="email" />');
     });
 

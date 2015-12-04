@@ -69,6 +69,16 @@ angular.module('esn.scroll', [])
       link: link
     };
   })
+  .directive('resizeScrollbar', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        scope.$on('nicescroll:resize', function() {
+          element.getNiceScroll().resize();
+        });
+      }
+    };
+  })
 
   .factory('elementScrollDownService', function($timeout) {
     /**
