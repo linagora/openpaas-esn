@@ -7,6 +7,7 @@ describe('The contact importers module', function() {
 
   var deps = {
     logger: {
+      debug: console.log,
       info: console.log,
       error: console.log
     }
