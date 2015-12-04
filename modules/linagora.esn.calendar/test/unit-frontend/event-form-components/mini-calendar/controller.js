@@ -4,7 +4,7 @@ var expect = chai.expect;
 
 describe('The mini-calendar controller', function() {
 
-  var $scope, fcMoment, $rootScope, $controller, initController, $q, $timeout, fcMethodMock, calendarServiceMock,
+  var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
     sessionMock, miniCalendarLogicMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock, calendarCurrentViewMock;
 
   beforeEach(function() {
@@ -86,13 +86,14 @@ describe('The mini-calendar controller', function() {
 
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _fcMoment_, _$q_, _$timeout_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _fcMoment_, _$q_, _$timeout_, _$window_) {
     $rootScope = _$rootScope_;
     $scope = $rootScope.$new();
     $controller = _$controller_;
     fcMoment = _fcMoment_;
     $q = _$q_;
     $timeout = _$timeout_;
+    $window = _$window_;
     initController = function() {
       $controller('miniCalendarController', {$scope: $scope});
     };
@@ -100,6 +101,15 @@ describe('The mini-calendar controller', function() {
 
   afterEach(function() {
     $rootScope.$destroy();
+  });
+
+  it('should call render on window resize if viewRender was never called', function() {
+    fcMethodMock.render = sinon.stub();
+    initController();
+    angular.element($window).resize();
+    $scope.miniCalendarConfig.viewRender();
+    angular.element($window).resize();
+    expect(fcMethodMock.render).to.have.been.calledOnce;
   });
 
   describe('The selection of period in the mini calendar', function() {

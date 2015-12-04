@@ -48,7 +48,7 @@ angular.module('esn.calendar')
     };
 
     function windowResize() {
-      uiCalendarConfig.calendars[$scope.calendarLeftId].fullCalendar('render');
+      uiCalendarConfig.calendars[$scope.miniCalendarId].fullCalendar('render');
     }
 
     var windowJQuery = angular.element($window);
@@ -66,7 +66,6 @@ angular.module('esn.calendar')
     $scope.miniCalendarConfig.viewRender = function() {
       if (!calendarResolved) {
         calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.miniCalendarId]);
-
         unregisterWindowResize();
         calendarResolved = true;
       }
