@@ -7,7 +7,7 @@ angular.module('linagora.esn.contact.twitter')
       if (shell) {
         this.shell = shell;
         this.writable = false;
-        this.overlayIcon = {iconClasses: 'mdi-twitter twitter-color'};
+        this.overlayIcon = {iconClasses: 'mdi-twitter twitter-color i-contact-twitter'};
         this.dropDownMenuDirective = 'twitter-menu-items';
         this.fallbackAvatar = TWITTER_DEFAULT_AVATAR;
 
