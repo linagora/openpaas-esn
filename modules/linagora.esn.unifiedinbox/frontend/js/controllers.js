@@ -43,7 +43,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('composerController', function($scope, Composition, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
 
-    var composition = new Composition($scope.email);
+    var self = this;
 
     this.search = function(query) {
       return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
@@ -53,7 +53,14 @@ angular.module('linagora.esn.unifiedinbox')
       });
     };
 
-    this.saveDraft = composition.saveDraft;
+    this.initCtrl = function(email) {
+      self.composition = new Composition(email);
+      $scope.email = self.composition.getEmail();
+    };
+
+    this.saveDraft = function() {
+      self.composition.saveDraft();
+    };
 
     $scope.isCollapsed = true;
     $scope.summernoteOptions = {
@@ -71,9 +78,9 @@ angular.module('linagora.esn.unifiedinbox')
 
       $scope.disableSendButton();
 
-      if (composition.canBeSentOrNotify()) {
+      if (self.composition.canBeSentOrNotify()) {
         $scope.hide();
-        composition.send();
+        self.composition.send();
       } else {
         $scope.enableSendButton();
       }

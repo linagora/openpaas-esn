@@ -926,12 +926,45 @@ describe('The Unified Inbox Angular module services', function() {
       };
     }));
 
+    it('should set the displayName from the name to recipients when instantiated', function() {
+      var email = {
+        to: [{name: 'name1', email: '1@linagora.com'}],
+        cc: [{name: 'name2', email: '2@linagora.com'}],
+        bcc: [{name: 'name3', email: '3@linagora.com'}]
+      };
+
+      var result = new Composition(email).getEmail();
+
+      expect(result.rcpt).to.deep.equal({
+        to: [{name: 'name1', email: '1@linagora.com', displayName: 'name1'}],
+        cc: [{name: 'name2', email: '2@linagora.com', displayName: 'name2'}],
+        bcc: [{name: 'name3', email: '3@linagora.com', displayName: 'name3'}]
+      });
+    });
+
+    it('should set the displayName from the email to recipients when instantiated, when no name', function() {
+      var email = {
+        to: [{email: '1@linagora.com'}],
+        cc: [{email: '2@linagora.com'}],
+        bcc: [{email: '3@linagora.com'}]
+      };
+
+      var result = new Composition(email).getEmail();
+
+      expect(result.rcpt).to.deep.equal({
+        to: [{name: undefined, email: '1@linagora.com', displayName: '1@linagora.com'}],
+        cc: [{name: undefined, email: '2@linagora.com', displayName: '2@linagora.com'}],
+        bcc: [{name: undefined, email: '3@linagora.com', displayName: '3@linagora.com'}]
+      });
+    });
+
     it('should start a draft when instantiated', function() {
       draftService.startDraft = sinon.spy();
 
       new Composition({obj: 'expected'});
 
-      expect(draftService.startDraft).to.have.been.calledWith({obj: 'expected'});
+      expect(draftService.startDraft).to.have.been
+        .calledWith({obj: 'expected', rcpt: { bcc: [], cc: [], to: [] } });
     });
 
     it('should save the draft when saveDraft is called', function() {
@@ -942,12 +975,12 @@ describe('The Unified Inbox Angular module services', function() {
         };
       };
 
-      var email = {obj: 'expected'};
-      var composition = new Composition(email);
-      email.test = 'tested';
+      var composition = new Composition({obj: 'expected'});
+      composition.getEmail().test = 'tested';
       composition.saveDraft();
 
-      expect(saveSpy).to.have.been.calledWith({obj: 'expected', test: 'tested'});
+      expect(saveSpy).to.have.been
+        .calledWith({obj: 'expected', test: 'tested', rcpt: { bcc: [], cc: [], to: [] }});
     });
 
     it('"canBeSentOrNotify" fn should returns false when the email has no recipient', function() {
@@ -969,11 +1002,9 @@ describe('The Unified Inbox Angular module services', function() {
     it('"canBeSentOrNotify" fn should returns false when the network connection is down', function() {
       Offline.state = 'down';
       var email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}],
-          cc: [],
-          bcc: []
-        }
+        to: [{email: '1@linagora.com'}],
+        cc: [],
+        bcc: []
       };
 
       var result = new Composition(email).canBeSentOrNotify();
@@ -987,23 +1018,22 @@ describe('The Unified Inbox Angular module services', function() {
       emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
       var email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-          cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3@linagora.com'}],
-          bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
-        }
+        to: [{email: '1@linagora.com'}, {email: '2@linagora.com'}],
+        cc: [{email: '1@linagora.com'}, {email: '3@linagora.com'}],
+        bcc: [{email: '1@linagora.com'}, {email: '2@linagora.com'}, {email: '4@linagora.com'}]
       };
 
       var expectedRcpt = {
-        to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-        cc: [{displayName: '3', email: '3@linagora.com'}],
-        bcc: [{displayName: '4', email: '4@linagora.com'}]
+        to: [{displayName: '1@linagora.com', email: '1@linagora.com'}, {displayName: '2@linagora.com', email: '2@linagora.com'}],
+        cc: [{displayName: '3@linagora.com', email: '3@linagora.com'}],
+        bcc: [{displayName: '4@linagora.com', email: '4@linagora.com'}]
       };
 
-      new Composition(email).send();
+      var composition = new Composition(email);
+      composition.send();
       $timeout.flush();
 
-      expect(email.rcpt).to.shallowDeepEqual(expectedRcpt);
+      expect(composition.getEmail().rcpt).to.shallowDeepEqual(expectedRcpt);
       expect(closeNotificationSpy).to.have.been.calledOnce;
       expect(emailSendingService.sendEmail).to.have.been.calledOnce;
       expect(notificationTitle).to.equal('Success');
@@ -1014,11 +1044,9 @@ describe('The Unified Inbox Angular module services', function() {
       emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
       var email = {
-        rcpt: {
-          to: [],
-          cc: [],
-          bcc: [{displayName: '1', email: '1@linagora.com'}]
-        }
+        to: [],
+        cc: [],
+        bcc: [{displayName: '1', email: '1@linagora.com'}]
       };
 
       new Composition(email).send();
@@ -1036,9 +1064,7 @@ describe('The Unified Inbox Angular module services', function() {
       }, 200));
 
       var email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}]
-        }
+        to: [{displayName: '1', email: '1@linagora.com'}]
       };
 
       new Composition(email).send();
@@ -1058,9 +1084,7 @@ describe('The Unified Inbox Angular module services', function() {
       }, 200));
 
       var email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}]
-        }
+        to: [{displayName: '1', email: '1@linagora.com'}]
       };
 
       new Composition(email).send();
@@ -1079,9 +1103,7 @@ describe('The Unified Inbox Angular module services', function() {
       session.user = 'yolo';
 
       var email = {
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}]
-        }
+        to: [{name: '1', email: '1@linagora.com'}]
       };
 
       new Composition(email).send();
@@ -1089,8 +1111,9 @@ describe('The Unified Inbox Angular module services', function() {
 
       expect(emailSendingService.sendEmail).to.have.been.calledWith({
         from: 'yolo',
+        to: [{name: '1', email: '1@linagora.com'}],
         rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}],
+          to: [{name: '1', displayName: '1', email: '1@linagora.com'}],
           cc: [],
           bcc: []
         }

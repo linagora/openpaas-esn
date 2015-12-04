@@ -27,6 +27,10 @@ angular.module('linagora.esn.unifiedinbox', [
       url: '/unifiedinbox/compose',
       template: '<composer/>'
     })
+    .state('/unifiedinbox/compose/:emailId', {
+      url: '/unifiedinbox/compose/:emailId',
+      template: '<composer/>'
+    })
     .state('/unifiedinbox/:mailbox', {
       url: '/unifiedinbox/:mailbox',
       templateUrl: '/unifiedinbox/views/listEmails',

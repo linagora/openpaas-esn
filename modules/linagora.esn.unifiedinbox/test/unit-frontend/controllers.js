@@ -65,31 +65,34 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.email = {rcpt: []};
     }));
 
+    function initCtrl(email) {
+      var ctrl = initController('composerController');
+      ctrl.initCtrl(email);
+      return ctrl;
+    }
+
     it('should start the draft at init time', function() {
-      scope.email = {obj: 'expected'};
-      initController('composerController');
-      expect(draftService.startDraft).to.have.been.calledWith({obj: 'expected'});
+      initCtrl({obj: 'expected'});
+      expect(draftService.startDraft).to.have.been.calledOnce;
     });
 
     it('should save the draft when saveDraft is called', function() {
       Composition.prototype.saveDraft = sinon.spy();
-      scope.email = {obj: 'expected'};
 
-      initController('composerController').saveDraft();
+      initCtrl({obj: 'expected'}).saveDraft();
 
       expect(Composition.prototype.saveDraft).to.have.been.calledOnce;
     });
 
     it('should not send an email when canBeSentOrNotify returns false', function() {
       Composition.prototype.canBeSentOrNotify = sinon.stub().returns(false);
-      scope.email = {
+      initCtrl({
         rcpt: {
           to: [],
           cc: [],
           bcc: []
         }
-      };
-      initController('composerController');
+      });
 
       scope.send();
 
@@ -101,14 +104,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should send an email when canBeSentOrNotify returns true', function() {
       Composition.prototype.canBeSentOrNotify = sinon.stub().returns(true);
       Composition.prototype.send = sinon.spy();
-      scope.email = {
+      initCtrl({
         rcpt: {
           to: [{displayName: '1', email: '1@linagora.com'}],
           cc: [],
           bcc: []
         }
-      };
-      initController('composerController');
+      });
 
       scope.send();
 
@@ -118,7 +120,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should delegate searching to attendeeService', function(done) {
-      var ctrl = initController('composerController');
+      var ctrl = initCtrl();
       attendeeService.getAttendeeCandidates = function(query, limit) {
         expect(query).to.equal('open-paas.org');
 
@@ -129,7 +131,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should exclude search results with no email', function(done) {
-      var ctrl = initController('composerController');
+      var ctrl = initCtrl();
       attendeeService.getAttendeeCandidates = function(query, limit) {
         expect(query).to.equal('open-paas.org');
 

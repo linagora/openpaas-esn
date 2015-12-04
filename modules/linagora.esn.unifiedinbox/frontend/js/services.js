@@ -336,13 +336,37 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline) {
 
+    function addDisplayNameToRecipients(recipients) {
+      return (recipients || []).map(function(recipient) {
+        return {
+          name: recipient.name,
+          email: recipient.email,
+          displayName: recipient.name || recipient.email
+        };
+      });
+    }
+
+    function prepareEmail(email) {
+      var preparingEmail = angular.copy(email || {});
+      preparingEmail.rcpt = {
+        to: addDisplayNameToRecipients(preparingEmail.to),
+        cc: addDisplayNameToRecipients(preparingEmail.cc),
+        bcc: addDisplayNameToRecipients(preparingEmail.bcc)
+      };
+      return preparingEmail;
+    }
+
     function Composition(email) {
-      this.email = email;
-      this.draft = draftService.startDraft(email);
+      this.email = prepareEmail(email);
+      this.draft = draftService.startDraft(this.email);
     }
 
     Composition.prototype.saveDraft = function() {
       this.draft.save(this.email);
+    };
+
+    Composition.prototype.getEmail = function() {
+      return this.email;
     };
 
     Composition.prototype.canBeSentOrNotify = function() {

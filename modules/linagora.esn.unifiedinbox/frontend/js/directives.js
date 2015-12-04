@@ -153,7 +153,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($location, headerService) {
+  .directive('composer', function($location, $stateParams, headerService, jmapClient) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -198,6 +198,16 @@ angular.module('linagora.esn.unifiedinbox')
         scope.enableSendButton = showMobileHeader;
         showMobileHeader();
 
+        if ($stateParams.emailId) {
+          jmapClient.getMessages({
+            ids: [$stateParams.emailId]
+          }).then(function(messages) {
+            controller.initCtrl(messages[0]);
+          });
+        } else {
+          controller.initCtrl();
+        }
+
       }
     };
   })
@@ -221,6 +231,8 @@ angular.module('linagora.esn.unifiedinbox')
         scope.$on('$destroy', function() {
           controller.saveDraft();
         });
+
+        controller.initCtrl(scope.email);
       }
     };
   })
