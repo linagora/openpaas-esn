@@ -2,32 +2,45 @@
 
 This modules provides APIs to import contact from external accounts into OpenPaaS ESN.
 
-# /import/api/:type
+## Adding an importer
 
-## POST /import/api/twitter
+Each importer must register itself into the import module.
+Once registered, the importer can be called and import contacts into the user addressbooks.
 
-Import Twitter followings into OpenPaaS ESN.
+The importer object to register is defined as:
 
-**Request Headers**
+```javascript
 
-- Accept: application/json
+// the frontend angular modules
+var frontendModules = ['app.js', 'constants.js', 'services.js', 'directives.js'];
 
-**Response Headers:**
+var lib = {
+  importer: function(dependencies) {
+    return function importContact() {
+      // ...
+    }
+  },
+  mapping: {
+    toVcard: function(json) {
+      //...
+      return vcard;
+    }
+  }
+};
 
-- Content-Length: Document size
-- Content-Type: application/json
+var importer = {
+  ns: 'contact.import.twitter',
+  name: 'twitter',
+  lib: lib,
+  frontend: {
+    // where to get frontend assets (less, templates, js)
+    staticPath: path.normalize(__dirname + '/frontend'),
+    modules: frontendModules,
+    // angular module name
+    moduleName: 'linagora.esn.contact.import.twitter'
+  }
+};
 
-**Status Codes:**
-
-- 202 Valid request. the import is processing
-- 500 Internal server error.
-
-**Request:**
-
-    POST /import/api/twitter
-    Accept: application/json
-    Host: localhost:8080
-
-**Response:**
-
-    HTTP/1.1 202 Accepted
+// add the importer to the contact-import module
+dependencies('contact-import').lib.importers.add(importer);
+```
