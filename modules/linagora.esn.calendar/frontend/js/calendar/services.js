@@ -553,15 +553,6 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Return true if start is the same day than end
-     * @param {Date} start
-     * @param {Date} end
-     */
-    function isSameDay(start, end) {
-      return start.isSame(end, 'day');
-    }
-
-    /**
      * When selecting a single cell, ensure that the end date is 1 hours more than the start date at least.
      * @param {Date} start
      * @param {Date} end
@@ -583,7 +574,6 @@ angular.module('esn.calendar')
       displayNameOf: displayNameOf,
       getNewStartDate: getNewStartDate,
       getNewEndDate: getNewEndDate,
-      isSameDay: isSameDay,
       getDateOnCalendarSelect: getDateOnCalendarSelect
     };
   })

@@ -37,7 +37,7 @@ describe('The event-date-edition component', function() {
     });
 
     describe('scope.setEventDates', function() {
-      it('should stripTime scope.event.allDay is true', function() {
+      it('should stripTime scope.event.allDay is true and add a day', function() {
         this.$scope.event = {
           start: this.fcMoment('2013-02-08 09:30'),
           end: this.fcMoment('2013-02-08 10:30'),
@@ -45,7 +45,11 @@ describe('The event-date-edition component', function() {
         };
         this.initDirective(this.$scope);
         this.eleScope.setEventDates();
+
+        expect(this.$scope.event.start.format('YYYY-MM-DD')).to.equal('2013-02-08');
         expect(this.$scope.event.start.hasTime()).to.be.false;
+
+        expect(this.$scope.event.end.format('YYYY-MM-DD')).to.equal('2013-02-09');
         expect(this.$scope.event.end.hasTime()).to.be.false;
       });
 
@@ -57,16 +61,17 @@ describe('The event-date-edition component', function() {
         };
         this.initDirective(this.$scope);
         this.eleScope.setEventDates();
-        var nextHour = this.fcMoment().endOf('hour').add(1, 'seconds');
 
         expect(this.$scope.event.start.hasTime()).to.be.true;
         expect(this.$scope.event.end.hasTime()).to.be.true;
         expect(this.$scope.event.start._isUTC).to.be.false;
         expect(this.$scope.event.end._isUTC).to.be.false;
-        expect(this.$scope.event.start.time().seconds())
-          .to.deep.equal(nextHour.time().seconds());
-        expect(this.$scope.event.end.time().seconds())
-          .to.deep.equal(nextHour.time().seconds());
+
+        var nextHour = this.fcMoment().startOf('hour').add(1, 'hour');
+        var nextHourEnd = nextHour.clone().add(1, 'hour');
+        var fmt = 'HH:mm:ss.SSS';
+        expect(this.$scope.event.start.format(fmt)).to.equal(nextHour.format(fmt));
+        expect(this.$scope.event.end.format(fmt)).to.equal(nextHourEnd.format(fmt));
       });
 
       it('should set the time of start to next hour and end to next hour+1 if same day', function() {
@@ -221,43 +226,6 @@ describe('The event-date-edition component', function() {
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
       expect(parser(this.fcMoment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment('2015/07/03').format('YYYY/MM/DD'));
-    });
-
-    it('should subtract 1 days to end if event is not allday on event-date-edition:allday:changed', function() {
-      this.$scope.event = {
-        allDay: true,
-        start: this.fcMoment('2015-07-03'),
-        end: this.fcMoment('2015-07-04')
-      };
-      this.initDirective(this.$scope);
-      this.$rootScope.$broadcast('event-date-edition:allday:changed');
-      this.$rootScope.$digest();
-      expect(this.$scope.event.end.isSame(this.fcMoment('2015-07-05'), 'day')).to.be.true;
-    });
-
-    it('should add 1 days to end if event is allday on event-date-edition:allday:changed', function() {
-      this.$scope.event = {
-        allDay: false,
-        start: this.fcMoment('2015-07-03'),
-        end: this.fcMoment('2015-07-04')
-      };
-      this.initDirective(this.$scope);
-      this.$rootScope.$broadcast('event-date-edition:allday:changed');
-      this.$rootScope.$digest();
-      expect(this.$scope.event.end.isSame(this.fcMoment('2015-07-03'), 'day')).to.be.true;
-    });
-
-    it('should add 1 hour to end if event is not allday and start is same than end', function() {
-      this.$scope.event = {
-        allDay: false,
-        start: this.fcMoment('2015-07-03 10:00'),
-        end: this.fcMoment('2015-07-04 11:00')
-      };
-      this.initDirective(this.$scope);
-      this.$rootScope.$broadcast('event-date-edition:allday:changed');
-      this.$rootScope.$digest();
-      var expectedDate = this.fcMoment('2015-07-04 11:00').subtract(1, 'days').add(1, 'hour');
-      expect(this.$scope.event.end.format()).to.equal(expectedDate.format());
     });
   });
 

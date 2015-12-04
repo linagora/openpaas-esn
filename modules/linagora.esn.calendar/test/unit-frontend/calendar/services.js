@@ -674,7 +674,7 @@ describe('The calendar module services', function() {
           expect(events.length).to.equal(2);
           expect(events[0].uid).to.equal('myuid');
           expect(events[0].isInstance()).to.be.true;
-          expect(events[0].id).to.equal('myuid_2014-01-01T01:03:04+00:00');
+          expect(events[0].id).to.equal('myuid_2014-01-01T02:03:04+01:00');
           expect(events[0].start.toDate()).to.equalDate(moment('2014-01-01 02:03:04').toDate());
           expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
           expect(events[0].vcalendar).to.be.an('object');
@@ -684,7 +684,7 @@ describe('The calendar module services', function() {
 
           expect(events[1].uid).to.equal('myuid');
           expect(events[1].isInstance()).to.be.true;
-          expect(events[1].id).to.equal('myuid_2014-01-02T01:03:04+00:00');
+          expect(events[1].id).to.equal('myuid_2014-01-02T02:03:04+01:00');
           expect(events[1].start.toDate()).to.equalDate(moment('2014-01-02 02:03:04').toDate());
           expect(events[1].end.toDate()).to.equalDate(moment('2014-01-02 03:03:04').toDate());
           expect(events[1].vcalendar).to.be.an('object');

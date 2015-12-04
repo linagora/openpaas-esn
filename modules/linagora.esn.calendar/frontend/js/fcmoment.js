@@ -17,7 +17,13 @@ angular.module('esn.fcmoment', [])
           time.zone = ICAL.Timezone.localTimezone;
         }
         var m = $window.$.fullCalendar.moment(time.toJSDate());
-        m.zone(arguments[0].zone.tzid);
+
+        if (time.zone !== ICAL.Timezone.localTimezone) {
+          m.utcOffset(time.utcOffset());
+        }
+        if (time.isDate) {
+          m.stripTime();
+        }
         return m;
       }
       return $window.$.fullCalendar.moment.apply(this, arguments);

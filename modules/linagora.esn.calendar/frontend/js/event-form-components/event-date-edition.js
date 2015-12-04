@@ -28,17 +28,17 @@ angular.module('esn.calendar')
         var end = scope.event.end.clone();
         if (scope.allDay) {
           start.stripTime();
-          end.stripTime();
+          end.stripTime().add(1, 'days');
         } else {
-          var nextHour = fcMoment().endOf('hour').add(1, 'seconds');
+          var nextHour = fcMoment().startOf('hour').add(1, 'hour');
           // We need to set back the utc flag to false here.
           // See Ambiguously-timed Moments http://fullcalendar.io/docs/utilities/Moment/
-          start.time(nextHour.time()).local();
-          end.time(nextHour.time()).local();
+          start = start.local().startOf('day').hour(nextHour.hour());
+          end = end.local().startOf('day').subtract(1, 'day').hour(nextHour.hour()).add(1, 'hours');
         }
-        scope.event.start = start.clone();
-        scope.event.end = end.clone();
-        scope.$broadcast('event-date-edition:allday:changed');
+        scope.event.start = start;
+        scope.event.end = end;
+        scope.event.diff = scope.event.end.diff(scope.event.start);
       };
 
       scope.onStartDateChange = function() {
@@ -78,64 +78,47 @@ angular.module('esn.calendar')
 
   .directive('friendlifyEndDate', function(fcMoment) {
     function link(scope, element, attrs, ngModel) {
-      function subtractOneDayToView(value) {
-        var valueToMoment = fcMoment(new Date(value));
-        if (value && scope.event.allDay) {
-          var valueToDisplay = valueToMoment.subtract(1, 'days').format('YYYY/MM/DD');
-          ngModel.$setViewValue(valueToDisplay);
-          ngModel.$render();
-          return valueToDisplay;
-        }
-        return value;
-      }
-
-      function addOneDayToModel(value) {
-        var valueToMoment = fcMoment(value);
-        if (valueToMoment && scope.event.allDay) {
-          valueToMoment.add(1, 'days');
-        }
-        return valueToMoment;
-      }
-
       /**
        * Ensure that the view has a userfriendly end date output by removing 1 day to the event.end
        * if it is an allDay. We must do it because fullCalendar uses exclusive date/time end date.
        * Also it is not necessary to do it if the end date is same day than the start date.
        */
-      ngModel.$formatters.unshift(subtractOneDayToView);
+      ngModel.$formatters.push(function subtractOneDayToView(value) {
+        if (value && scope.event.allDay) {
+          var valueToMoment = fcMoment(new Date(value));
+          value = valueToMoment.subtract(1, 'days').format('YYYY/MM/DD');
+        }
+        return value;
+      });
 
       /**
        * Ensure that if editedEvent is allDay, we had 1 days to event.end because fullCalendar and
        * caldav has exclusive date/time end date.
        */
-      ngModel.$parsers.push(addOneDayToModel);
-
-      scope.$on('event-date-edition:allday:changed', function() {
-        var end = scope.event.end.clone();
-        if (!scope.event.allDay) {
-          if (!scope.event.start.isSame(end, 'day')) {
-            end.subtract(1, 'days');
-          }
-          // We get back default 1 hour event
-          if (scope.event.start.isSame(end, 'day')) {
-            end.add(1, 'hours');
-          }
-        } else {
-          if (!scope.event.start.isSame(end, 'day')) {
-            end.add(1, 'days');
-          }
+      ngModel.$parsers.push(function addOneDayToModel(value) {
+        if (value && scope.event.allDay) {
+          value = value.clone().add(1, 'days');
         }
-        // Recalculate diff because end have changed outside the scope of
-        // onEndDateChange, we also update scope.event.end
-        scope.event.end = end.clone();
-        scope.event.diff = scope.event.end.diff(scope.event.start);
+        return value;
       });
+
+      /**
+       * bsDatepicker sets the element value directly from the internal
+       * $dateValue, but we want the above formatters to run, so we use the view
+       * value instead. We also use this opportunity to update the internal
+       * $dateValue.
+       */
+      ngModel.$render = function(value) {
+        ngModel.$dateValue = new Date(ngModel.$viewValue);
+        element.val(ngModel.$viewValue);
+      };
     }
 
     return {
       restrict: 'A',
       require: 'ngModel',
-      link: link
+      link: link,
+      priority: 20
     };
   })
 
