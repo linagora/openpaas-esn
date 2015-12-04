@@ -461,7 +461,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventUtils', function(session, ICAL, $q, calendarService) {
+  .service('eventUtils', function(session, ICAL, $q, calendarService, $sanitize) {
     var originalEvent = {};
     var editedEvent = {};
 
@@ -473,12 +473,12 @@ angular.module('esn.calendar')
       if (event.location) {
         var title = element.find('.fc-title');
         title.addClass('ellipsis');
-        var contentHtml = title.html() + ' (' + event.location + ')';
+        var contentHtml = title.html() + ' (' + $sanitize(event.location) + ')';
         title.html(contentHtml);
       }
 
       if (event.description) {
-        element.attr('title', event.description);
+        element.attr('title', $sanitize(event.description));
       }
 
       var invitedAttendee = null;
