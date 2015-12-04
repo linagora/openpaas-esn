@@ -5,7 +5,7 @@ var expect = chai.expect;
 var mockery = require('mockery');
 var q = require('q');
 
-describe('The twitter importer', function() {
+describe('The twitter contact importer', function() {
 
   var deps, dependencies;
   var twitterClient = {
@@ -72,7 +72,7 @@ describe('The twitter importer', function() {
   });
 
   var getImporter = function() {
-    return require('../../../../backend/lib/twitter/importer')(deps);
+    return require('../../../backend/lib/importer')(deps);
   };
 
   describe('The importContact function', function() {

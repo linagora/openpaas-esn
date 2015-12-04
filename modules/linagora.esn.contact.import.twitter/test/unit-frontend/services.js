@@ -1,12 +1,12 @@
 'use strict';
 
-describe('The Contact Import Twitter provider', function() {
+describe('The Contact Import Twitter Services', function() {
 
   describe('The TwitterContactImporter service', function() {
 
     beforeEach(function() {
       module('ngRoute');
-      module('linagora.esn.account');
+      module('linagora.esn.contact.import.twitter');
       module('esn.core');
     });
 
@@ -17,7 +17,7 @@ describe('The Contact Import Twitter provider', function() {
       this.ContactImporterService = ContactImporterService;
     }));
 
-    it('should send POST request to /import/api/twitter', function() {
+    it('should send POST request to /import/api/:type', function() {
       this.$httpBackend.expectPOST('/import/api/twitter').respond([]);
       this.ContactImporterService.importContact('twitter');
       this.$rootScope.$apply();
