@@ -36,4 +36,38 @@ angular.module('linagora.esn.contact.import')
       register: register,
       get: get
     };
+  })
+
+  .factory('ContactImporter', function($log, $q, ContactImportRegistry, notificationFactory) {
+
+    function importContacts(type, account) {
+
+      var importer = ContactImportRegistry.get(type);
+      if (!importer) {
+        return $log.error('Can not find importer ' + type);
+      }
+
+      return importer.import(account)
+        .then(function(response) {
+          if (response.status === 202) {
+            notificationFactory.notify(
+              'info',
+              '',
+              'Importing ' + account.provider + ' contacts for @' + account.data.username,
+              {from: 'bottom', align: 'center'},
+              3000);
+          }
+        }, function(err) {
+          notificationFactory.notify(
+            'danger',
+            '',
+            'Error while importing' + account.provider + ' contacts for @ ' + account.data.username + ':' + err,
+            {from: 'bottom', align: 'center'},
+            3000);
+        });
+    }
+
+    return {
+      import: importContacts
+    };
   });

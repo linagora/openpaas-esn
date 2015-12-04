@@ -14,15 +14,13 @@ describe('The Contact Import Twitter directives', function() {
 
   describe('The twitterContactImportMenuItem directive', function() {
 
-    var TwitterContactImporterMock, notificationFactory, $scope, $rootScope, $compile;
+    var ContactImporterMock, $scope, $rootScope, $compile;
 
     beforeEach(function() {
-      notificationFactory = {};
-      TwitterContactImporterMock = {};
+      ContactImporterMock = {};
 
       module(function($provide) {
-        $provide.value('TwitterContactImporter', TwitterContactImporterMock);
-        $provide.value('notificationFactory', notificationFactory);
+        $provide.value('ContactImporter', ContactImporterMock);
       });
 
       inject(function(_$compile_, _$rootScope_) {
@@ -40,7 +38,7 @@ describe('The Contact Import Twitter directives', function() {
 
     describe('The importContacts fn', function() {
 
-      it('should notify when importing without error', function(done) {
+      it('should call the ContactImporter import function', function(done) {
         $scope.account = {
           _id: 123,
           provider: 'twitter',
@@ -49,41 +47,9 @@ describe('The Contact Import Twitter directives', function() {
           }
         };
 
-        notificationFactory.notify = function(type) {
-          if (type === 'info') {
-            return done();
-          }
-          done(new Error());
-        };
-
-        TwitterContactImporterMock.import = function(account) {
+        ContactImporterMock.import = function(type, account) {
           expect(account).to.deep.equal($scope.account);
-          return $q.when({status: 202});
-        };
-
-        var element = initDirective();
-        element.click();
-        this.$rootScope.$digest();
-      });
-
-      it('should notify when import error', function(done) {
-        $scope.account = {
-          provider: 'twitter',
-          data: {
-            username: 'awesomepaas'
-          }
-        };
-
-        notificationFactory.notify = function(type) {
-          if (type === 'danger') {
-            return done();
-          }
-          done(new Error());
-        };
-
-        TwitterContactImporterMock.import = function(account) {
-          expect(account).to.deep.equal($scope.account);
-          return $q.reject();
+          done();
         };
 
         var element = initDirective();
