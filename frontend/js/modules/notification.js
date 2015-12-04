@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.notification', ['angularMoment'])
+angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
 
   .factory('notifyService', function($window, $sanitize) {
     function sanitizeFlatObject(val) {

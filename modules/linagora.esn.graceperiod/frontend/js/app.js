@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('linagora.esn.graceperiod', ['restangular', 'esn.websocket']);
+angular.module('linagora.esn.graceperiod', ['restangular', 'esn.websocket', 'esn.notification']);

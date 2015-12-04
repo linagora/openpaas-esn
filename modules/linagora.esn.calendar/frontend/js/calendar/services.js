@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
 
     /**
      * List all calendars in the calendar home.
@@ -251,7 +251,7 @@ angular.module('esn.calendar')
       .then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
           gracePeriodService.remove(taskId);
-          $.notify({
+          notifyService({
             message: 'Could not find the event to delete. Please refresh your calendar.'
           }, {
             type: 'danger',
