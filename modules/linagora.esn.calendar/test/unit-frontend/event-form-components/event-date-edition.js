@@ -88,6 +88,41 @@ describe('The event-date-edition component', function() {
         expect(this.$scope.event.end.time().seconds())
           .to.deep.equal(nextHour.add(1, 'hour').time().seconds());
       });
+
+      it('should remember the time when switching to and from allday', function() {
+        var origStart = this.fcMoment('2013-02-08 09:30');
+        var origEnd = this.fcMoment('2013-02-08 10:30');
+        this.$scope.event = {
+          start: origStart.clone(),
+          end: origEnd.clone(),
+          allDay: false
+        };
+        this.initDirective(this.$scope);
+        this.$scope.$digest();
+
+        expect(this.$scope.event.start.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 09:30:00');
+        expect(this.$scope.event.start.hasTime()).to.be.true;
+        expect(this.$scope.event.end.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 10:30:00');
+        expect(this.$scope.event.end.hasTime()).to.be.true;
+
+        this.eleScope.allDay = true;
+        this.$scope.$digest();
+        this.eleScope.setEventDates();
+
+        expect(this.$scope.event.start.format('YYYY-MM-DD')).to.equal('2013-02-08');
+        expect(this.$scope.event.start.hasTime()).to.be.false;
+        expect(this.$scope.event.end.format('YYYY-MM-DD')).to.equal('2013-02-09');
+        expect(this.$scope.event.end.hasTime()).to.be.false;
+
+        this.eleScope.allDay = false;
+        this.$scope.$digest();
+        this.eleScope.setEventDates();
+
+        expect(this.$scope.event.start.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 09:30:00');
+        expect(this.$scope.event.start.hasTime()).to.be.true;
+        expect(this.$scope.event.end.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 10:30:00');
+        expect(this.$scope.event.end.hasTime()).to.be.true;
+      });
     });
 
     describe('scope.getMinDate', function() {

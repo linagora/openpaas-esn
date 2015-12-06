@@ -24,17 +24,22 @@ angular.module('esn.calendar')
       };
 
       scope.setEventDates = function() {
-        var start = scope.event.start.clone();
-        var end = scope.event.end.clone();
+        var start, end;
         if (scope.allDay) {
-          start.stripTime();
-          end.stripTime().add(1, 'days');
+          scope.previousStart = scope.event.start.clone();
+          scope.previousEnd = scope.event.end.clone();
+
+          start = scope.event.start.stripTime();
+          end = scope.event.end.stripTime().add(1, 'days');
+        } else if (scope.previousStart && scope.previousEnd) {
+          start = scope.previousStart;
+          end = scope.previousEnd;
         } else {
-          var nextHour = fcMoment().startOf('hour').add(1, 'hour');
+          var nextHour = fcMoment().startOf('hour').add(1, 'hour').hour();
           // We need to set back the utc flag to false here.
           // See Ambiguously-timed Moments http://fullcalendar.io/docs/utilities/Moment/
-          start = start.local().startOf('day').hour(nextHour.hour());
-          end = end.local().startOf('day').subtract(1, 'day').hour(nextHour.hour()).add(1, 'hours');
+          start = scope.event.start.local().startOf('day').hour(nextHour);
+          end = scope.event.end.local().startOf('day').subtract(1, 'day').hour(nextHour).add(1, 'hours');
         }
         scope.event.start = start;
         scope.event.end = end;
