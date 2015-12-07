@@ -147,4 +147,47 @@ describe('The Scroll Angular module', function() {
       });
     });
   });
+
+  describe('the resizeScrollbar directive', function() {
+    var $rootScope, $scope, $compile, element, resize;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    beforeEach(function() {
+      resize = sinon.spy();
+      jQuery.fn.getNiceScroll = function() {
+        return {
+          resize: resize
+        };
+      };
+      compileDirective('<div resize-scrollbar/>');
+    });
+
+    afterEach(function() {
+      if (element) {
+        element.remove();
+      }
+    });
+
+    function compileDirective(html) {
+      element = angular.element(html);
+      element.appendTo(document.body);
+      $compile(element)($scope);
+      $scope.$digest();
+      return element;
+    }
+
+    it('should resize the scrollbar when a nicescroll:resize event is received', function() {
+      $scope.$broadcast('nicescroll:resize');
+      expect(resize).to.have.been.called;
+    });
+
+    it('should not resize the scrollbar when no event is received', function() {
+      expect(resize).to.have.not.been.called;
+    });
+  });
 });

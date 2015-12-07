@@ -123,7 +123,10 @@ angular.module('linagora.esn.unifiedinbox')
           iFrameResize({
             checkOrigin: false,
             scrolling: true,
-            inPageLinks: true
+            inPageLinks: true,
+            resizedCallback: function() {
+              scope.$emit('nicescroll:resize');
+            }
           }, iFrame);
         });
       }
