@@ -205,15 +205,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($log, jmap, jmapClient, session, notificationFactory) {
+  .service('draftService', function($q, $log, jmap, jmapClient, session, notificationFactory) {
 
     function saveDraftSuccess() {
       notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+      return $q.when();
     }
 
     function saveDraftFailed(err) {
       notificationFactory.weakError('Error', 'Your email has not been saved');
       $log.error('A draft has not been saved', err);
+      return $q.reject(err);
     }
 
     function haveDifferentRecipients(left, right) {
@@ -270,9 +272,9 @@ angular.module('linagora.esn.unifiedinbox')
 
     Draft.prototype.save = function(newEmailState) {
       if (!this.needToBeSaved(newEmailState)) {
-        return;
+        return $q.reject();
       }
-      jmapClient
+      return jmapClient
         .saveAsDraft(new jmap.OutboundMessage(jmapClient, {
           from: new jmap.EMailer({
             email: session.user.preferredEmail,
@@ -356,13 +358,14 @@ angular.module('linagora.esn.unifiedinbox')
       return preparingEmail;
     }
 
-    function Composition(email) {
-      this.email = prepareEmail(email);
+    function Composition(message) {
+      this.originalMessage = message;
+      this.email = prepareEmail(message);
       this.draft = draftService.startDraft(this.email);
     }
 
     Composition.prototype.saveDraft = function() {
-      this.draft.save(this.email);
+      this.draft.save(this.email).then(this.deleteOriginalDraft.bind(this));
     };
 
     Composition.prototype.getEmail = function() {
@@ -402,6 +405,12 @@ angular.module('linagora.esn.unifiedinbox')
           notificationFactory.weakError('Error', 'An error has occurred while sending email');
         }
       );
+    };
+
+    Composition.prototype.deleteOriginalDraft = function() {
+      if (this.originalMessage) {
+        this.originalMessage.destroy();
+      }
     };
 
     return Composition;

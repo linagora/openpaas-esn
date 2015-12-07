@@ -697,24 +697,26 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The save method', function() {
 
-      it('should do nothing if needToBeSaved returns false', function() {
+      it('should do nothing and return rejected promise if needToBeSaved returns false', function() {
         jmapClient.saveAsDraft = sinon.spy();
-
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return false;};
-        draft.save({});
+
+        var result = draft.save({});
 
         expect(jmapClient.saveAsDraft).to.not.have.been.called;
+        expect(result).to.be.rejected;
       });
 
       it('should call saveAsDraft if needToBeSaved returns true', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
-        draft.save({rcpt: {}});
+
+        var result = draft.save({rcpt: {}});
 
         expect(jmapClient.saveAsDraft).to.have.been.called;
+        expect(result).to.be.fulfilled;
       });
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
@@ -790,11 +792,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
-        draft.save({rcpt: {}});
+
+        var result = draft.save({rcpt: {}});
 
         $rootScope.$digest();
         expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
         expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
+        expect(result).to.be.rejected;
       });
 
     });
@@ -968,7 +972,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should save the draft when saveDraft is called', function() {
-      var saveSpy = sinon.spy();
+      var saveSpy = sinon.stub().returns($q.when({}));
       draftService.startDraft = function() {
         return {
           save: saveSpy
@@ -981,6 +985,21 @@ describe('The Unified Inbox Angular module services', function() {
 
       expect(saveSpy).to.have.been
         .calledWith({obj: 'expected', test: 'tested', rcpt: { bcc: [], cc: [], to: [] }});
+    });
+
+    it('should destroy the original draft when saveDraft is called', function() {
+      draftService.startDraft = function() {
+        return {
+          save: sinon.stub().returns($q.when({}))
+        };
+      };
+
+      var message = { destroy: sinon.spy() };
+
+      new Composition(message).saveDraft();
+      $timeout.flush();
+
+      expect(message.destroy).to.have.been.calledOnce;
     });
 
     it('"canBeSentOrNotify" fn should returns false when the email has no recipient', function() {
