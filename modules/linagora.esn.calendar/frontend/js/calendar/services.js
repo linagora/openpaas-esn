@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY) {
+  .factory('calendarService', function($q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
 
     /**
      * List all calendars in the calendar home.
@@ -251,7 +251,7 @@ angular.module('esn.calendar')
       .then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
           gracePeriodService.remove(taskId);
-          $.notify({
+          notifyService({
             message: 'Could not find the event to delete. Please refresh your calendar.'
           }, {
             type: 'danger',
@@ -461,7 +461,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventUtils', function(session, ICAL, $q, calendarService) {
+  .service('eventUtils', function(session, ICAL, $q, calendarService, $sanitize) {
     var originalEvent = {};
     var editedEvent = {};
 
@@ -473,12 +473,12 @@ angular.module('esn.calendar')
       if (event.location) {
         var title = element.find('.fc-title');
         title.addClass('ellipsis');
-        var contentHtml = title.html() + ' (' + event.location + ')';
+        var contentHtml = title.html() + ' (' + $sanitize(event.location) + ')';
         title.html(contentHtml);
       }
 
       if (event.description) {
-        element.attr('title', event.description);
+        element.attr('title', $sanitize(event.description));
       }
 
       var invitedAttendee = null;

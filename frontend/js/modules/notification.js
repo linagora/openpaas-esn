@@ -1,9 +1,30 @@
 'use strict';
 
-angular.module('esn.notification', ['angularMoment'])
+angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
 
-  .factory('notifyService', function() {
-    return $.notify;
+  .factory('notifyService', function($window, $sanitize) {
+    function sanitizeFlatObject(val) {
+      var result = {};
+
+      angular.forEach(val, function(value, key) {
+        result[key] = angular.isString(value) ? $sanitize(value) : value;
+      });
+
+      return result;
+    }
+
+    return function(data, options) {
+      var notification = $window.$.notify(sanitizeFlatObject(data), options);
+      var update = notification.update;
+
+      notification.update = function(strOrObj, value) {
+        return angular.isString(strOrObj) ?
+          update.call(this, strOrObj, $sanitize(value)) :
+          update.call(this, sanitizeFlatObject(strOrObj));
+      };
+
+      return notification;
+    };
   })
 
   .factory('notificationFactory', function(notifyService) {

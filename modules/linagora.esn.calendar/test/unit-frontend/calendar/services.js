@@ -218,7 +218,7 @@ describe('The calendar module services', function() {
   });
 
   describe('The eventUtils service', function() {
-    var element, fcTitle, fcContent, event, calendarService;
+    var element, fcTitle, fcContent, event, calendarService, sanitizeMock;
 
     function Element() {
       this.innerElements = {};
@@ -262,14 +262,19 @@ describe('The calendar module services', function() {
       };
       calendarService = {};
 
+      sanitizeMock = sinon.spy(angular.identity);
+
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
+      angular.mock.module('ngSanitize');
       angular.mock.module(function($provide) {
         $provide.value('session', asSession);
         $provide.value('calendarService', calendarService);
+        $provide.value('$sanitize', sanitizeMock);
       });
 
       var vcalendar = {};
+
       vcalendar.hasOwnProperty = null; // jshint ignore:line
       event = {
         title: 'myTitle',
@@ -302,6 +307,12 @@ describe('The calendar module services', function() {
         this.eventUtils.render(event, element);
         expect(fcTitle.class).to.deep.equal(['ellipsis']);
         expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
+      });
+
+      it('should sanitize event location and event description', function() {
+        this.eventUtils.render(event, element);
+        expect(sanitizeMock).to.have.been.calledWith(event.description);
+        expect(sanitizeMock).to.have.been.calledWith(event.location);
       });
 
       it('should add a title attribute if description is defined', function() {
