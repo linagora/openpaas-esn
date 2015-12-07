@@ -1,5 +1,7 @@
 'use strict';
 
+var q = require('q');
+
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
