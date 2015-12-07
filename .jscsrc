@@ -2,6 +2,7 @@
         "preset": "airbnb",
         "requirePaddingNewLinesAfterBlocks": null,
         "requireTrailingComma": null,
+        "disallowTrailingComma": true,
         "disallowMultipleVarDecl": null,
         "requirePaddingNewLinesBeforeLineComments": null,
         "safeContextKeyword": ["self"],
