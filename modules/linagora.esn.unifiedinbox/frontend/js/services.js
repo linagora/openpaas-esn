@@ -365,7 +365,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     Composition.prototype.saveDraft = function() {
-      this.draft.save(this.email).then(this.deleteOriginalDraft.bind(this));
+      this.draft.save(this.email).then(this.destroyOriginalDraft.bind(this));
     };
 
     Composition.prototype.getEmail = function() {
@@ -393,12 +393,15 @@ angular.module('linagora.esn.unifiedinbox')
         return;
       }
 
+      var self = this;
       this.email.from = session.user;
+
       var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
       emailSendingService.sendEmail(this.email).then(
         function() {
           notify.close();
           notificationFactory.weakSuccess('Success', 'Your email has been sent');
+          self.destroyOriginalDraft();
         },
         function() {
           notify.close();
@@ -407,7 +410,7 @@ angular.module('linagora.esn.unifiedinbox')
       );
     };
 
-    Composition.prototype.deleteOriginalDraft = function() {
+    Composition.prototype.destroyOriginalDraft = function() {
       if (this.originalMessage) {
         this.originalMessage.destroy();
       }

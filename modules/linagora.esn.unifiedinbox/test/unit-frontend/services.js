@@ -1037,6 +1037,7 @@ describe('The Unified Inbox Angular module services', function() {
       emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
       var email = {
+        destroy: angular.noop,
         to: [{email: '1@linagora.com'}, {email: '2@linagora.com'}],
         cc: [{email: '1@linagora.com'}, {email: '3@linagora.com'}],
         bcc: [{email: '1@linagora.com'}, {email: '2@linagora.com'}, {email: '4@linagora.com'}]
@@ -1063,6 +1064,7 @@ describe('The Unified Inbox Angular module services', function() {
       emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
       var email = {
+        destroy: angular.noop,
         to: [],
         cc: [],
         bcc: [{displayName: '1', email: '1@linagora.com'}]
@@ -1083,6 +1085,7 @@ describe('The Unified Inbox Angular module services', function() {
       }, 200));
 
       var email = {
+        destroy: angular.noop,
         to: [{displayName: '1', email: '1@linagora.com'}]
       };
 
@@ -1103,6 +1106,7 @@ describe('The Unified Inbox Angular module services', function() {
       }, 200));
 
       var email = {
+        destroy: angular.noop,
         to: [{displayName: '1', email: '1@linagora.com'}]
       };
 
@@ -1122,6 +1126,7 @@ describe('The Unified Inbox Angular module services', function() {
       session.user = 'yolo';
 
       var email = {
+        destroy: angular.noop,
         to: [{name: '1', email: '1@linagora.com'}]
       };
 
@@ -1130,6 +1135,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       expect(emailSendingService.sendEmail).to.have.been.calledWith({
         from: 'yolo',
+        destroy: angular.noop,
         to: [{name: '1', email: '1@linagora.com'}],
         rcpt: {
           to: [{name: '1', displayName: '1', email: '1@linagora.com'}],
@@ -1137,6 +1143,20 @@ describe('The Unified Inbox Angular module services', function() {
           bcc: []
         }
       });
+    });
+
+    it('"send" fn should destroy the original draft if one', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      var message = {
+        destroy: sinon.spy(),
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      new Composition(message).send();
+      $timeout.flush();
+
+      expect(message.destroy).to.have.been.calledOnce;
     });
 
   });
