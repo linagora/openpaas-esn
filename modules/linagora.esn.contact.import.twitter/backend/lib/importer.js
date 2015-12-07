@@ -112,10 +112,7 @@ module.exports = function(dependencies) {
   function importContact(options) {
     var defer = q.defer();
 
-    var accounts = options.user.accounts.filter(function(account) {
-      return (account.type.toLowerCase() === OAUTH_CONFIG_KEY && account.data.provider === TWITTER);
-    });
-
+    var account = options.account;
     var followingIdsList = [];
 
     config(OAUTH_CONFIG_KEY).get(function(err, oauth) {
@@ -127,8 +124,8 @@ module.exports = function(dependencies) {
       var twitterConfig = {
         consumerKey: oauth.twitter.consumer_key,
         consumerSecret: oauth.twitter.consumer_secret,
-        accessToken: accounts[0].data.token,
-        accessTokenSecret: accounts[0].data.token_secret,
+        accessToken: account.data.token,
+        accessTokenSecret: account.data.token_secret,
         callBackUrl: ''
       };
       var twitterClient = new Twitter(twitterConfig);
