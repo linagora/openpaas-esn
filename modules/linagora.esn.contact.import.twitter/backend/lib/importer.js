@@ -1,7 +1,6 @@
 'use strict';
 
 var OAUTH_CONFIG_KEY = 'oauth';
-var TWITTER = 'twitter';
 var q = require('q');
 var Twitter = require('twitter-node-client').Twitter;
 var TWITTER_LIMIT_ID_REQUEST = 18000;

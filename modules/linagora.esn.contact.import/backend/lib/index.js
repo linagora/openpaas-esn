@@ -27,10 +27,9 @@ module.exports = function(dependencies) {
     var type = options.type;
     var user = options.user;
 
-    var accounts = user.accounts.filter(function (account) {
+    var accounts = user.accounts.filter(function(account) {
       return (account.data && account.data.provider === type && account.data.id === accountId);
     });
-
 
     if (!accounts || !accounts.length) {
       return q.reject(new Error('No valid account found'));

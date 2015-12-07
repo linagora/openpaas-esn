@@ -23,11 +23,14 @@ describe('The Contact Import Angular Services', function() {
 
     it('should send POST request to /import/api/:type', function() {
       var type = 'twitter';
+      var id = 123;
       var account = {
-        _id: 123
+        data: {
+          id: id
+        }
       };
 
-      this.$httpBackend.expectPOST('/import/api/' + type, {account_id: account._id}).respond([]);
+      this.$httpBackend.expectPOST('/import/api/' + type, {account_id: id}).respond([]);
       this.ContactImporterService.import(type, account);
       this.$rootScope.$apply();
       this.$httpBackend.flush();
@@ -84,10 +87,10 @@ describe('The Contact Import Angular Services', function() {
 
       it('should notify when importing without error', function(done) {
         var account = {
-          _id: 123,
           provider: 'twitter',
           data: {
-            username: 'awesomepaas'
+            username: 'awesomepaas',
+            id: 123
           }
         };
 
@@ -115,7 +118,8 @@ describe('The Contact Import Angular Services', function() {
         var account = {
           provider: 'twitter',
           data: {
-            username: 'awesomepaas'
+            username: 'awesomepaas',
+            id: 123
           }
         };
 
