@@ -90,7 +90,7 @@ angular.module('esn.calendar')
       calendarService.createEvent(path, $scope.editedEvent, { graceperiod: true })
         .then(function(response) {
           if (response) {
-            notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been created.');
+            notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');
           }
         })
         .catch(function(err) {
