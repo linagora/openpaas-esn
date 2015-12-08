@@ -51,6 +51,12 @@
                   .fg-line
                     input.form-control.fg-input(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
+          .row.visible-xs
+            attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+
+          .row.visible-xs
+            attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
+
           event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 
           .row
@@ -76,10 +82,10 @@
                       option(value="privacyB") privacyB
 
         .col-xs-12.col-sm-6
-          .row
+          .row.hidden-xs
             attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
-          .row
+          .row.hidden-xs
             attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
           .row
