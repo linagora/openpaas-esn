@@ -116,32 +116,6 @@ angular.module('esn.core', [])
       }
     };
   })
-  .directive('esnMainNavbar', function($location) {
-
-    function firstPathSegment() {
-      return $location.path().replace(/^\//, '').split('/').shift();
-    }
-
-    function link(scope, element, attrs) {
-      function activateTabItem(segment) {
-        element.find('.esn-item[data-esn-path]').removeClass('active');
-        if (segment) {
-          element.find('.esn-item[data-esn-path="' + segment + '"]').addClass('active');
-        }
-      }
-
-      scope.$on('$routeChangeSuccess', function() {
-        activateTabItem(firstPathSegment());
-      });
-      activateTabItem(firstPathSegment());
-    }
-
-    return {
-      restruct: 'E',
-      templateUrl: '/views/modules/core/esn-main-navbar.html',
-      link: link
-    };
-  })
 
   .directive('onFinishRender', function($timeout) {
     return {
