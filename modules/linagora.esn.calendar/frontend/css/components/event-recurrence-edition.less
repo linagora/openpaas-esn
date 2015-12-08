@@ -18,45 +18,60 @@
       margin-bottom: 10px;
     }
 
-    .interval {
-      .col-xs-10 {
-        display: flex;
-        justify-content: space-start;
-        span {
-          margin-left: 10px;
+    .interval > .col-xs-9 {
+      display: flex;
+      justify-content: space-start;
+      span {
+        margin-left: 10px;
+      }
+      .col-xs-9 > div {
+        display: inline-block;
+      }
+    }
+
+    .on-days > .labels {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      .checkbox {
+        width: 40px;
+        margin-right: 5px;
+        margin-left: 0;
+      }
+    }
+
+    .end > .radios {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .radio-inline {
+        margin-left: 0;
+      }
+
+      .radio input[type="number"], .radio input[type="text"] {
+        opacity: 1;
+        cursor: text;
+        text-align: center;
+      }
+
+      label {
+        margin-bottom: 12px;
+      }
+
+      label:nth-child(2) {
+        .input-group-addon:first-child {
+          padding-right: 8px;
+        }
+        .fg-line {
+          min-width: 30px;
+          padding: 0;
+        }
+        .input-group-addon:last-child {
+          padding-left: 5px;
         }
       }
     }
 
-    .on-days {
-      .labels {
-        justify-content: space-between;
-        .checkbox {
-          margin-left: 5px;
-        }
-      }
-    }
-
-    .end {
-      .radios {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        .radio-inline {
-          margin-left: 0;
-        }
-
-        .radio input[type="number"], .radio input[type="text"] {
-          opacity: 1;
-          cursor: text;
-          text-align: center;
-        }
-
-        label {
-          margin-bottom: 12px;
-        }
-      }
-    }
   }
 }
 
