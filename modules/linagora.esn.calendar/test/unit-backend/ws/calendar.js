@@ -114,7 +114,10 @@ describe('The calendar WS events module', function() {
 
     describe('websocket listeners', function() {
 
-      var inputData = 'jcal';
+      var calendarShell = {
+        vcalendar: 'jcal',
+        etag: '12345'
+      };
       var organizerEmail = 'organizer@lost.com';
       var organizer = {_id: 'organizer'};
       var emails = ['johndoe@lost.com', 'janedoe@lost.com'];
@@ -123,11 +126,11 @@ describe('The calendar WS events module', function() {
       beforeEach(function() {
         mockery.registerMock('../lib/jcal/jcalHelper', {
           getAttendeesEmails: function(jcal) {
-            expect(jcal).to.deep.equal(inputData);
+            expect(jcal).to.deep.equal(calendarShell.vcalendar);
             return emails;
           },
           getOrganizerEmail: function(jcal) {
-            expect(jcal).to.deep.equal(inputData);
+            expect(jcal).to.deep.equal(calendarShell.vcalendar);
             return organizerEmail;
           }
         });
@@ -157,7 +160,7 @@ describe('The calendar WS events module', function() {
                   if (sentToGlobal === 0) {
                     expect(data).to.deep.equal({
                       target: johnDoe,
-                      event: inputData,
+                      event: calendarShell,
                       websocketEvent: 'event:updated'
                     });
 
@@ -165,7 +168,7 @@ describe('The calendar WS events module', function() {
                   } else if (sentToGlobal === 1) {
                     expect(data).to.deep.equal({
                       target: organizer,
-                      event: inputData,
+                      event: calendarShell,
                       websocketEvent: 'event:updated'
                     });
                     done();
@@ -177,7 +180,7 @@ describe('The calendar WS events module', function() {
 
           var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
           mod.init(this.moduleHelpers.dependencies);
-          this.socketListeners['event:updated'](inputData);
+          this.socketListeners['event:updated'](calendarShell);
         });
 
       });
@@ -194,7 +197,7 @@ describe('The calendar WS events module', function() {
                   if (sentToGlobal === 0) {
                     expect(data).to.deep.equal({
                       target: johnDoe,
-                      event: inputData,
+                      event: calendarShell,
                       websocketEvent: 'event:deleted'
                     });
 
@@ -202,7 +205,7 @@ describe('The calendar WS events module', function() {
                   } else if (sentToGlobal === 1) {
                     expect(data).to.deep.equal({
                       target: organizer,
-                      event: inputData,
+                      event: calendarShell,
                       websocketEvent: 'event:deleted'
                     });
                     done();
@@ -214,7 +217,7 @@ describe('The calendar WS events module', function() {
 
           var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
           mod.init(this.moduleHelpers.dependencies);
-          this.socketListeners['event:deleted'](inputData);
+          this.socketListeners['event:deleted'](calendarShell);
         });
 
       });

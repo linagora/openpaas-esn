@@ -24,16 +24,12 @@ describe('The event-recurrence-edition component', function() {
     };
   }]));
 
-  it('should initialize scope.event.recur', function() {
+  it('should initialize scope.event.rrule', function() {
     this.$scope.event = {};
     this.initDirective(this.$scope);
     expect(this.$scope.event).to.deep.equal({
-      recur: {
-        freq: undefined,
-        until: undefined,
-        byday: [],
-        interval: 1,
-        count: undefined
+      rrule: {
+        freq: undefined
       }
     });
   });
@@ -42,24 +38,24 @@ describe('The event-recurrence-edition component', function() {
     it('should splice the weekday and sort the array', function() {
       this.$scope.event = {};
       this.initDirective(this.$scope);
-      this.$scope.event.recur.byday = ['SU', 'WE', 'TU', 'MO'];
+      this.$scope.event.rrule.byday = ['SU', 'WE', 'TU', 'MO'];
       this.eleScope.toggleWeekdays('W');
-      expect(this.$scope.event.recur.byday).to.deep.equal(['MO', 'TU', 'SU']);
+      expect(this.$scope.event.rrule.byday).to.deep.equal(['MO', 'TU', 'SU']);
     });
 
     it('should push the weekday and sort the array', function() {
       this.$scope.event = {};
       this.initDirective(this.$scope);
-      this.$scope.event.recur.byday = ['SU', 'WE', 'TU', 'MO'];
+      this.$scope.event.rrule.byday = ['SU', 'WE', 'TU', 'MO'];
       this.eleScope.toggleWeekdays('F');
-      expect(this.$scope.event.recur.byday).to.deep.equal(['MO', 'TU', 'WE', 'FR', 'SU']);
+      expect(this.$scope.event.rrule.byday).to.deep.equal(['MO', 'TU', 'WE', 'FR', 'SU']);
     });
   });
 
   describe('scope.selectEndRadioButton', function() {
     it('should set the correct radio button to checked', function() {
       this.$scope.event = {
-        recur: {
+        rrule: {
           freq: 'WEEKLY'
         }
       };
@@ -71,26 +67,26 @@ describe('The event-recurrence-edition component', function() {
 
     it('should set until to undefined if index is 1', function() {
       this.$scope.event = {
-        recur: {
+        rrule: {
           freq: 'WEEKLY',
           until: 'UNTIL'
         }
       };
       this.initDirective(this.$scope);
       this.eleScope.selectEndRadioButton(1);
-      expect(this.$scope.event.recur.until).to.be.undefined;
+      expect(this.$scope.event.rrule.until).to.be.undefined;
     });
 
     it('should set count to undefined if index is 2', function() {
       this.$scope.event = {
-        recur: {
+        rrule: {
           freq: 'WEEKLY',
           count: 10
         }
       };
       this.initDirective(this.$scope);
       this.eleScope.selectEndRadioButton(2);
-      expect(this.$scope.event.recur.count).to.be.undefined;
+      expect(this.$scope.event.rrule.count).to.be.undefined;
     });
   });
 

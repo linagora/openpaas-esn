@@ -49,6 +49,11 @@ describe('The calendar module controllers', function() {
       }
     };
 
+    this.calendarCurrentViewMock = {
+      save: angular.noop,
+      get: angular.identity.bind(null, {})
+    };
+
     var liveNotificationMock = function(namespace) {
       if (liveNotification) {
         return liveNotification(namespace);
@@ -90,6 +95,7 @@ describe('The calendar module controllers', function() {
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('headerService', self.headerServiceMock);
       $provide.value('user', self.userMock);
+      $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -108,7 +114,7 @@ describe('The calendar module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, CalendarShell, fcMoment) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -117,7 +123,13 @@ describe('The calendar module controllers', function() {
     this.$window = $window;
     this.USER_UI_CONFIG = USER_UI_CONFIG;
     this.moment = moment;
+    this.CalendarShell = CalendarShell;
+    this.fcMoment = fcMoment;
   }));
+
+  afterEach(function() {
+    liveNotification = null;
+  });
 
   describe('The userCalendarController controller', function() {
     it('should inject both header and subheader', function() {
@@ -144,6 +156,19 @@ describe('The calendar module controllers', function() {
       this.scope.$destroy();
       expect(this.headerServiceMock.resetAllInjections).to.have.been.calledOnce;
     });
+
+    it('should not modify constant UI_USER_CONFIG but clone it before modifying it', function() {
+      this.headerServiceMock.mainHeader = {
+        addInjection: function() {}
+      };
+      this.headerServiceMock.subHeader = {
+        addInjection: function() {}
+      };
+      this.headerServiceMock.resetAllInjections = sinon.spy();
+      this.controller('userCalendarController', {$scope: this.scope});
+      expect(this.scope.uiConfig).to.be.defined;
+      expect(this.scope.uiConfig).to.not.equals(this.USER_UI_CONFIG);
+    });
   });
 
   describe('The calendarController controller', function() {
@@ -151,6 +176,11 @@ describe('The calendar module controllers', function() {
     beforeEach(function() {
       this.scope.uiConfig = this.USER_UI_CONFIG;
       this.scope.calendarHomeId = 'calendarId';
+    });
+
+    afterEach(function() {
+      this.gracePeriodService.flushAllTasks = function() {};
+      this.scope.$destroy();
     });
 
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
@@ -362,6 +392,144 @@ describe('The calendar module controllers', function() {
       });
     });
 
+    it('should restore view from calendarCurrentView during initialization', function() {
+      var date = this.fcMoment('1953-03-16');
+      this.calendarCurrentViewMock.get = sinon.spy(function() {
+        return {
+          name: 'agendaDay',
+          start: date
+        };
+      });
+
+      this.controller('calendarController', {
+        $rootScope: this.rootScope,
+        $scope: this.scope
+      });
+
+      expect(this.calendarCurrentViewMock.get).to.have.been.calledOnce;
+      expect(this.scope.uiConfig.calendar.defaultView).to.equals('agendaDay');
+      expect(this.scope.uiConfig.calendar.defaultDate).to.equals(date);
+    });
+
+    it('should save view with calendarCurrentView when view change', function() {
+      var view = {};
+      this.calendarCurrentViewMock.save = sinon.spy(function(_view) {
+        expect(_view).to.equals(view);
+      });
+
+      this.controller('calendarController', {
+        $rootScope: this.rootScope,
+        $scope: this.scope
+      });
+
+      this.scope.uiConfig.calendar.viewRender(view);
+
+      expect(this.calendarCurrentViewMock.save).to.have.been.calledOnce;
+    });
+
+    describe('the eventDropAndResize listener', function() {
+      it('should call calendarService.modifyEvent with scope.event.path if it exists', function(done) {
+        var event = this.CalendarShell.fromIncompleteShell({
+          path: 'aPath',
+          etag: 'anEtag'
+        });
+        this.scope.event = event;
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
+          expect(path).to.equal(event.path);
+          expect(oldEvent).to.be.null;
+          expect(etag).to.equal(event.etag);
+          done();
+        };
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(event, {});
+      });
+
+      it('should send a revertedCalendarItemModification with the event before the drap and drop if reverted ', function(done) {
+        var event = this.CalendarShell.fromIncompleteShell({
+          path: 'aPath',
+          etag: 'anEtag'
+        });
+        this.scope.event = event;
+
+        var revertFunc = sinon.spy();
+
+        this.rootScope.$on('revertedCalendarItemModification', function(angularEvent, _event) {
+          expect(_event).to.equals(event);
+          expect(revertFunc).to.have.been.called;
+          done();
+        });
+
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, delta, revertFunc) {
+          revertFunc();
+        };
+
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(event, {}, revertFunc);
+
+      });
+
+      it('should call calendarService.modifyEvent with a built path if scope.event.path does not exist', function(done) {
+        var event = this.CalendarShell.fromIncompleteShell({
+          etag: 'anEtag'
+        });
+        var calendarHomeId = 'calendarHomeId';
+        this.scope.calendarHomeId = calendarHomeId;
+        this.scope.event = event;
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
+          expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
+          expect(oldEvent).to.be.null;
+          expect(etag).to.equal(event.etag);
+          done();
+        };
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(event, {});
+      });
+
+      it('should broadcast HOME_CALENDAR_VIEW_CHANGE when the view change', function(done) {
+        this.controller('calendarController', {$scope: this.scope});
+
+        var event = this.CalendarShell.fromIncompleteShell({
+          etag: 'anEtag'
+        });
+
+        this.rootScope.$on('HOME_CALENDAR_VIEW_CHANGE', function(angularEvent, _event) {
+          expect(_event).to.equals(event);
+          done();
+        });
+
+        this.scope.uiConfig.calendar.viewRender(event);
+
+      });
+
+      it('should receive MINI_CALENDAR_DATE_CHANGE and change view if needed', function(done) {
+        this.controller('calendarController', {$scope: this.scope});
+        var date = this.fcMoment('2015-01-13');
+
+        var first = true;
+        var self = this;
+        var spy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy(function(name, newDate) {
+          if (name === 'getView') {
+            if (first) {
+              first = false;
+              self.rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', date);
+            }
+            return {
+              start: self.fcMoment('2015-01-01'),
+              end: self.fcMoment('2015-01-10')
+            };
+          }
+          if (name === 'gotoDate') {
+            expect(newDate.isSame(date, 'day')).to.be.true;
+            expect(spy).to.be.calledThrice;
+            done();
+          }
+        });
+
+        this.rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', this.fcMoment('2015-01-13'));
+      });
+
+    });
+
     describe.skip('the ws event listener', function() {
 
       var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener;
@@ -488,6 +656,7 @@ describe('The calendar module controllers', function() {
         };
         wsEventDeleteListener(event);
       });
+
     });
   });
 });

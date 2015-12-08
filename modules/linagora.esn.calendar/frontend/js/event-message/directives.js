@@ -129,9 +129,8 @@ angular.module('esn.calendar')
 
         var event = scope.event;
         var path = '/calendars/' + scope.calendarHomeId + '/events';
-        var vcalendar = CalendarShell.toICAL(event);
         scope.restActive = true;
-        calendarService.createEvent(path, vcalendar, { graceperiod: false })
+        calendarService.createEvent(path, event.vcalendar, { graceperiod: false })
           .then(function(response) {
             _emitPostedMessage(response);
             _resetEvent();

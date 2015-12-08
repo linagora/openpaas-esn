@@ -10,4 +10,22 @@
  * returned as UTC. See {https://github.com/fullcalendar/fullcalendar/issues/2477}
  */
 angular.module('esn.fcmoment', [])
-  .constant('FCMoment', $.fullCalendar.moment);
+  .factory('fcMoment', function($window, ICAL) {
+    return function(time) {
+      if (time && (time instanceof ICAL.Time)) {
+        if (!time.zone) {
+          time.zone = ICAL.Timezone.localTimezone;
+        }
+        var m = $window.$.fullCalendar.moment(time.toJSDate());
+
+        if (time.zone !== ICAL.Timezone.localTimezone) {
+          m.utcOffset(time.utcOffset());
+        }
+        if (time.isDate) {
+          m.stripTime();
+        }
+        return m;
+      }
+      return $window.$.fullCalendar.moment.apply(this, arguments);
+    };
+  });

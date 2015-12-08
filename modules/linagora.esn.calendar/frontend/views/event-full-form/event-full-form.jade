@@ -2,7 +2,8 @@
   .card-header
     .row(ng-if='isOrganizer')
       .col-xs-8
-        h1 #{__('Create a new event')}
+        h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
+        h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
       .col-xs-4
           button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
             span(ng-if='isNew(editedEvent)') #{__('Create')}
@@ -26,7 +27,7 @@
             .col-xs-12
               .form-group
                 .fg-line
-                  input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+                  input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
 
           .row
             .col-xs-12
@@ -48,7 +49,7 @@
                   span.input-group-addon
                     i.mdi.mdi-map-marker
                   .fg-line
-                    input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                    input.input.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
           event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 

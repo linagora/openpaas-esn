@@ -12,6 +12,17 @@ describe('The calendar module directives', function() {
 
   describe('calendarLeftPane directive', function() {
     var LEFT_PANEL_BOTTOM_MARGIN;
+    var calendarServiceMock;
+
+    beforeEach(function() {
+      calendarServiceMock = {
+        listCalendars: angular.identity.bind(null, [])
+      };
+
+      angular.mock.module('ui.calendar', function($provide) {
+        $provide.constant('calendarService', calendarServiceMock);
+      });
+    });
 
     beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
       this.$compile = _$compile_;

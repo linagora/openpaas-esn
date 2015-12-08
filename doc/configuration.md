@@ -183,3 +183,12 @@ Defines the general Web settings for the ESN deployment.
 - base_url: Defines the baseURL of the application. This parameter is optional and is used to define the public URL of the application.
 
 ***base_url* may be used when the ESN is deployed behind a proxy/load balancer. This setting helps to build several URLs in the application.
+
+## JWT
+
+Defines the secret phrase that will be used to encode/decode json web tokens in the ESN instances.
+
+    {
+      "_id": "jwtSecret",
+      "secret": "This is the super secret secret"
+    }

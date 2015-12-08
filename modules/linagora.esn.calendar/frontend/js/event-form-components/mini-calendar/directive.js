@@ -3,9 +3,6 @@
 angular.module('esn.calendar')
 
   .directive('miniCalendar', function() {
-    function link(scope) {
-    }
-
     return {
       restrict: 'E',
       replace: true,
@@ -13,6 +10,6 @@ angular.module('esn.calendar')
       scope: {
         calendarId: '='
       },
-      link: link
+      controller: 'miniCalendarController'
     };
   });

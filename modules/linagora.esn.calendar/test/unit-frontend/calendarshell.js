@@ -1,9 +1,11 @@
 'use strict';
 
 /* global chai: false */
+
 var expect = chai.expect;
 
 describe('CalendarShell factory', function() {
+  var CalendarShell, fcMoment, ICAL, $rootScope;
 
   beforeEach(function() {
     this.uuid4 = {
@@ -23,196 +25,25 @@ describe('CalendarShell factory', function() {
       }
     };
 
+    this.eventApiMock = {
+
+    };
+
     var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('jstz', self.jstz);
       $provide.value('uuid4', self.uuid4);
+      $provide.value('eventAPI', self.eventApiMock);
     });
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(CalendarShell, moment) {
-      this.CalendarShell = CalendarShell;
-      this.moment = moment;
-    });
-  });
-
-  describe('The toICAL fn', function() {
-
-    it('should correctly create an allday event', function() {
-      var shell = {
-        start: this.moment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: this.moment(new Date(2014, 11, 30, 19, 0, 0)),
-        allDay: true,
-        title: 'allday event',
-        location: 'location',
-        description: 'description',
-        attendees: [{
-          emails: [
-            'user1@open-paas.org'
-          ],
-          displayName: 'User One'
-        }, {
-          emails: [
-            'user2@open-paas.org'
-         ],
-          displayName: 'user2@open-paas.org'
-        }],
-        organizer: {
-          emails: [
-            'organizer@open-paas.org'
-          ],
-          displayName: 'organizer@open-paas.org'
-        }
-      };
-      var ical = [
-        'vcalendar',
-        [],
-        [
-          [
-            'vevent',
-            [
-              [
-                'uid',
-                {},
-                'text',
-                '00000000-0000-4000-a000-000000000000'
-             ],
-              [
-                'summary',
-                {},
-                'text',
-                'allday event'
-             ],
-              [
-              'organizer',
-              {
-                cn: 'organizer@open-paas.org'
-              },
-              'cal-address',
-              'mailto:organizer@open-paas.org'
-             ],
-              [
-                'dtstart',
-                {
-                  tzid: 'Europe\/Paris'
-                },
-                'date',
-                '2014-12-29'
-             ],
-              [
-                'dtend',
-                {
-                  tzid: 'Europe\/Paris'
-                },
-                'date',
-                '2014-12-30'
-             ],
-              [
-                'transp',
-                {},
-                'text',
-                'TRANSPARENT'
-             ],
-              [
-                'location',
-                {},
-                'text',
-                'location'
-             ],
-              [
-                'description',
-                {},
-                'text',
-                'description'
-             ],
-              [
-                'attendee',
-                {
-                  partstat: 'NEEDS-ACTION',
-                  rsvp: 'TRUE',
-                  role: 'REQ-PARTICIPANT',
-                  cn: 'User One'
-                },
-                'cal-address',
-                'mailto:user1@open-paas.org'
-             ],
-              [
-                'attendee',
-                {
-                  partstat: 'NEEDS-ACTION',
-                  rsvp: 'TRUE',
-                  role: 'REQ-PARTICIPANT'
-                },
-                'cal-address',
-                'mailto:user2@open-paas.org'
-             ]
-           ],
-          []
-         ]
-       ]
-     ];
-      var vcalendar = this.CalendarShell.toICAL(shell);
-      expect(vcalendar.toJSON()).to.deep.equal(ical);
-    });
-
-    it('should correctly create a non-allday event', function() {
-      var shell = {
-        start: this.moment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: this.moment(new Date(2014, 11, 29, 19, 0, 0)),
-        allDay: false,
-        title: 'non-allday event'
-      };
-      var ical = [
-        'vcalendar',
-        [],
-        [
-          [
-            'vevent',
-            [
-              [
-                'uid',
-                {},
-                'text',
-                '00000000-0000-4000-a000-000000000000'
-             ],
-              [
-                'summary',
-                {},
-                'text',
-                'non-allday event'
-             ],
-              [
-                'dtstart',
-                {
-                  tzid: 'Europe\/Paris'
-                },
-                'date-time',
-                '2014-12-29T18:00:00'
-             ],
-              [
-                'dtend',
-                {
-                  tzid: 'Europe\/Paris'
-                },
-                'date-time',
-                '2014-12-29T19:00:00'
-             ],
-              [
-                'transp',
-                {},
-                'text',
-                'OPAQUE'
-             ]
-           ],
-            []
-         ]
-       ]
-    ];
-
-      var vcalendar = this.CalendarShell.toICAL(shell);
-      expect(vcalendar.toJSON()).to.deep.equal(ical);
+    angular.mock.inject(function(_CalendarShell_, _fcMoment_, _ICAL_, _$rootScope_) {
+      CalendarShell = _CalendarShell_;
+      fcMoment = _fcMoment_;
+      ICAL = _ICAL_;
+      $rootScope = _$rootScope_;
     });
   });
 
@@ -233,10 +64,10 @@ describe('CalendarShell factory', function() {
                 '00000000-0000-4000-a000-000000000000'
               ],
               [
-                'summary',
+                'transp',
                 {},
                 'text',
-                'non-allday event'
+                'OPAQUE'
               ],
               [
                 'dtstart',
@@ -255,10 +86,10 @@ describe('CalendarShell factory', function() {
                 '2014-12-29T19:00:00'
               ],
               [
-                'transp',
+                'summary',
                 {},
                 'text',
-                'OPAQUE'
+                'non-allday event'
               ],
               rrule
             ],
@@ -270,11 +101,10 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event : daily + interval + count', function() {
       var shell = {
-        start: this.moment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: this.moment(new Date(2014, 11, 29, 19, 0, 0)),
-        allDay: false,
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
         title: 'non-allday event',
-        recur: {
+        rrule: {
           freq: 'DAILY',
           interval: 2,
           count: 3
@@ -286,22 +116,21 @@ describe('CalendarShell factory', function() {
         'recur',
         {
           freq: 'DAILY',
-          count: [3],
-          interval: [2]
+          count: 3,
+          interval: 2
         }
       ];
 
-      var vcalendar = this.CalendarShell.toICAL(shell);
-      expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
     });
 
-    it('should correctly create a recurrent event : weekly + byday', function() {
+    it('should correctly create a recurrent event: weekly + byday', function() {
       var shell = {
-        start: this.moment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: this.moment(new Date(2014, 11, 29, 19, 0, 0)),
-        allDay: false,
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
         title: 'non-allday event',
-        recur: {
+        rrule: {
           freq: 'WEEKLY',
           byday: ['MO', 'WE', 'FR']
         }
@@ -317,17 +146,16 @@ describe('CalendarShell factory', function() {
         }
       ];
 
-      var vcalendar = this.CalendarShell.toICAL(shell);
-      expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
     });
 
-    it('should correctly create a recurrent event : monthly', function() {
+    it('should correctly create a recurrent event: monthly', function() {
       var shell = {
-        start: this.moment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: this.moment(new Date(2014, 11, 29, 19, 0, 0)),
-        allDay: false,
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
         title: 'non-allday event',
-        recur: {
+        rrule: {
           freq: 'MONTHLY'
         }
       };
@@ -341,17 +169,16 @@ describe('CalendarShell factory', function() {
         }
       ];
 
-      var vcalendar = this.CalendarShell.toICAL(shell);
-      expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
     });
 
-    it('should correctly create a recurrent event : yearly + until', function() {
+    it('should correctly create a recurrent event: yearly + until', function() {
       var shell = {
-        start: this.moment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: this.moment(new Date(2014, 11, 29, 19, 0, 0)),
-        allDay: false,
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
         title: 'non-allday event',
-        recur: {
+        rrule: {
           freq: 'YEARLY',
           until: new Date(2024, 11, 29, 0, 0, 0)
         }
@@ -367,9 +194,153 @@ describe('CalendarShell factory', function() {
         }
       ];
 
-      var vcalendar = this.CalendarShell.toICAL(shell);
-      expect(vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
     });
+  });
+
+  describe('getModifiedMaster method', function() {
+
+    it('should return itself if the shell is a master', function(done) {
+      var shell = CalendarShell.fromIncompleteShell({});
+
+      shell.getModifiedMaster().then(function(masterShell) {
+        expect(masterShell).to.equal(shell);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should return the master if present in the parent vcalendar', function(done) {
+      var shell = CalendarShell.fromIncompleteShell({
+        recurrenceId: fcMoment()
+      });
+
+      var masterVevent = CalendarShell.fromIncompleteShell({}).vevent;
+
+      shell.vcalendar.addSubcomponent(masterVevent);
+
+      shell.getModifiedMaster().then(function(masterShell) {
+        expect(masterShell.vevent).to.equal(masterVevent);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should fetch the master on the server if not already present in the parent vcalendar', function(done) {
+      var path = 'this is a path';
+      var vcalendar = CalendarShell.fromIncompleteShell({}).vcalendar;
+      var gracePeriodTaskId = 'gracePeriodID';
+      var etag = 'eta';
+
+      var shell = CalendarShell.fromIncompleteShell({
+        recurrenceId: fcMoment(),
+        path: path,
+        etag: etag,
+        gracePeriodTaskId: gracePeriodTaskId
+      });
+
+      this.eventApiMock.get = function(_path) {
+        expect(_path).to.equal(path);
+        return $q.when({data: vcalendar.toJSON()});
+      };
+
+      shell.getModifiedMaster().then(function(masterShell) {
+        expect(masterShell.vcalendar.toJSON()).to.deep.equal(vcalendar.toJSON());
+        expect(masterShell.etag).to.equal(etag);
+        expect(masterShell.gracePeriodTaskId).to.equal(gracePeriodTaskId);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should fail if fetching the master on the server has failed', function(done) {
+
+      var error = {};
+
+      this.eventApiMock.get = function() {
+        return $q.reject(error);
+      };
+
+      CalendarShell.fromIncompleteShell({
+        recurrenceId: fcMoment()
+      }).getModifiedMaster().then(
+        done.bind(this, 'this promess should have failed'),
+      function(_error) {
+        expect(_error).to.equal(error);
+        done();
+      });
+
+      $rootScope.$apply();
+    });
+
+  });
+
+  describe('modifyOccurence method', function() {
+
+    it('should failed if called on a non master event', function(done) {
+      var nonMasterEvent = CalendarShell.fromIncompleteShell({
+        recurrenceId: fcMoment()
+      });
+
+      try {
+        nonMasterEvent.modifyOccurrence();
+        done('should have thrown an error');
+      } catch (e) {
+        done();
+      }
+    });
+
+    it('should add the modified occurence in the vcalendar of the master shell if not already there', function() {
+      var nonMasterEvent = CalendarShell.fromIncompleteShell({
+        recurrenceId: fcMoment()
+      });
+
+      var masterEvent = CalendarShell.fromIncompleteShell({});
+      masterEvent.modifyOccurrence(nonMasterEvent);
+
+      var vevents = masterEvent.vcalendar.getAllSubcomponents('vevent');
+      expect(vevents.length).to.equal(2);
+
+      var numSame = 0;
+      vevents.forEach(function(vevent) {
+        numSame += angular.equals(vevent.toJSON(), nonMasterEvent.vevent.toJSON()) ? 1 : 0;
+      });
+      expect(numSame).to.equal(1);
+    });
+
+    it('should replace the modified occurence in the vcalendar of the master shell if already there', function() {
+      var recurrenceId = fcMoment();
+
+      var nonMasterEvent = CalendarShell.fromIncompleteShell({
+        recurrenceId: recurrenceId
+      });
+
+      var nonMasterEventModified = CalendarShell.fromIncompleteShell({
+        recurrenceId: recurrenceId,
+        start: fcMoment()
+      });
+
+      var masterEvent = CalendarShell.fromIncompleteShell({});
+
+      masterEvent.modifyOccurrence(nonMasterEvent);
+
+      masterEvent.modifyOccurrence(nonMasterEventModified);
+
+      var vevents = masterEvent.vcalendar.getAllSubcomponents('vevent');
+      expect(vevents.length).to.equal(2);
+      var numSame = 0;
+
+      vevents.forEach(function(vevent) {
+        numSame += angular.equals(vevent.toJSON(), nonMasterEventModified.vevent.toJSON()) ? 1 : 0;
+      });
+
+      expect(numSame).to.equal(1);
+    });
+
   });
 
 });

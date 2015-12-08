@@ -96,3 +96,7 @@ exports.requiresCommunityCreator = function(req, res, next) {
   }
   next();
 };
+
+exports.requiresJWT = function(req, res, next) {
+  return passport.authenticate('jwt', {session: false})(req, res, next);
+};
