@@ -41,6 +41,7 @@ module.exports = function(dependencies) {
       defer.reject(new Error('Can not find importer'));
     } else {
       importer.lib.importer.importContact({
+        esnToken: options.esnToken,
         type: options.type,
         account: accounts[0],
         user: user
