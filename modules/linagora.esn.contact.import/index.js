@@ -40,7 +40,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     },
 
     start: function(dependencies, callback) {
-      this.lib.start(callback);
+      callback();
     }
   }
 });

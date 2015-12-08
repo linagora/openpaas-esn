@@ -26,7 +26,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import.twitter
         'directives.js'
       ];
 
-      dependencies('contact-import').lib.importers.add({
+      dependencies('contact-import').lib.addImporter({
         ns: 'contact.import.twitter',
         name: 'twitter',
         lib: this.lib,
