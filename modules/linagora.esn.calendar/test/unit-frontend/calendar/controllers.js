@@ -515,7 +515,7 @@ describe('The calendar module controllers', function() {
             }
             return {
               start: self.fcMoment('2015-01-01'),
-              end: self.fcMoment('2015-01-10'),
+              end: self.fcMoment('2015-01-10')
             };
           }
           if (name === 'gotoDate') {

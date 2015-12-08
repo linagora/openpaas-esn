@@ -239,7 +239,7 @@ describe('CalendarShell factory', function() {
         recurrenceId: fcMoment(),
         path: path,
         etag: etag,
-        gracePeriodTaskId: gracePeriodTaskId,
+        gracePeriodTaskId: gracePeriodTaskId
       });
 
       this.eventApiMock.get = function(_path) {
