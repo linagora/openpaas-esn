@@ -12,7 +12,6 @@ describe('The OAuth Angular Services', function() {
     $window = {
       location: {}
     };
-    module('ngRoute');
     module('esn.core');
     module('linagora.esn.oauth', function($provide) {
       $provide.value('$window', $window);

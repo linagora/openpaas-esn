@@ -9,12 +9,11 @@ describe('The Sidebar Angular module', function() {
 
   beforeEach(function() {
     module('jadeTemplates');
-    module('ngRoute');
     module('esn.core');
     module('esn.sidebar');
   });
 
-  describe('The contextualSidebar directive', function() {
+  describe('contextualSidebar directive', function() {
     var toggle;
     var destroy;
     var options;

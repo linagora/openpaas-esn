@@ -5,7 +5,6 @@ describe('The Contact Import Twitter Services', function() {
   describe('The TwitterContactImporter service', function() {
 
     beforeEach(function() {
-      module('ngRoute');
       module('linagora.esn.contact.import.twitter');
       module('esn.core');
     });

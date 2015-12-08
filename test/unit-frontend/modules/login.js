@@ -156,7 +156,7 @@ describe('The Login Angular module', function() {
       var error = { error: {code: 404, message: 'this is an error message', details: 'these are details'}};
       this.loginErrorService.set(credentials, error);
       this.$location.path('/');
-      this.$rootScope.$emit('$routeChangeSuccess');
+      this.$rootScope.$emit('$stateChangeSuccess');
       expect(this.loginErrorService.getData()).to.deep.equal({});
       done();
     });
@@ -166,7 +166,7 @@ describe('The Login Angular module', function() {
       var error = { error: {code: 404, message: 'this is an error message', details: 'these are details'}};
       this.loginErrorService.set(credentials, error);
       this.$location.path('/another');
-      this.$rootScope.$emit('$routeChangeSuccess');
+      this.$rootScope.$emit('$stateChangeSuccess');
       expect(this.loginErrorService.getData()).to.not.deep.equal({});
       expect(this.loginErrorService.getData().credentials).to.deep.equal(credentials);
       expect(this.loginErrorService.getData().error).to.deep.equal(error);

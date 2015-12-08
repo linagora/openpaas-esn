@@ -166,8 +166,8 @@ angular.module('esn.core', [])
     },
 
     api: function(api, method, paramName, target) {
-      return [api, '$route', '$location', function(api, $route, $location) {
-        var routeId = $route.current.params[paramName || 'id'] || undefined;
+      return [api, '$stateParams', '$location', function(api, $stateParams, $location) {
+        var routeId = $stateParams[paramName || 'id'] || undefined;
         return api[method || 'get'](routeId).then(function(response) {
           return response.data;
         }, function(err) {

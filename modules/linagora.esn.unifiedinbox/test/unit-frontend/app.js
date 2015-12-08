@@ -8,7 +8,6 @@ describe('The linagora.esn.unifiedinbox module', function() {
   var dynamicDirectiveService;
 
   beforeEach(function() {
-    angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
     angular.mock.module('esn.notification');
     angular.mock.module('op.dynamicDirective');

@@ -7,7 +7,6 @@ var expect = chai.expect;
 describe('The Contact Import Angular Services', function() {
 
   beforeEach(function() {
-    module('ngRoute');
     module('esn.core');
   });
 

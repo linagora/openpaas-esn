@@ -8,7 +8,6 @@ var expect = chai.expect;
 describe('The contact Angular module directives', function() {
 
   beforeEach(function() {
-    angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
     angular.mock.module('esn.websocket');
     angular.mock.module('esn.api-notification');

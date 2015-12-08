@@ -3,7 +3,6 @@
 describe('The Contact Import Twitter directives', function() {
 
   beforeEach(function() {
-    module('ngRoute');
     module('linagora.esn.contact.import.twitter');
     module('esn.core');
     module('jadeTemplates');

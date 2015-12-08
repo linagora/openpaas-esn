@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .run(function($rootScope, liveRefreshContactService) {
-    $rootScope.$on('$routeChangeSuccess', function(evt, current, previous) {
-      if (current && current.originalPath &&
-         (current.originalPath === '/contact' || current.originalPath.substring(0, 9) === '/contact/')) {
-        var bookId = current.locals.user._id;
+  .run(function($rootScope, liveRefreshContactService, session) {
+    $rootScope.$on('$stateChangeSuccess', function(evt, current, currentParams, previous) {
+      if (current && current.name &&
+         (current.name === '/contact' || current.name.substring(0, 9) === '/contact/')) {
+        var bookId = session.user._id;
         liveRefreshContactService.startListen(bookId);
       } else {
         liveRefreshContactService.stopListen();

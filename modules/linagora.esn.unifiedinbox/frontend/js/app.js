@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.unifiedinbox', [
+  'ui.router',
   'esn.jmap-client-wrapper',
   'angularMoment',
   'esn.notification',
@@ -16,18 +17,22 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.header',
   'esn.offline-wrapper'
   ])
-  .config(function($routeProvider, dynamicDirectiveServiceProvider) {
-    $routeProvider.when('/unifiedinbox', {
+  .config(function($stateProvider, dynamicDirectiveServiceProvider) {
+    $stateProvider.state('/unifiedinbox', {
+      url: '/unifiedinbox',
       templateUrl: '/unifiedinbox/views/unifiedinbox'
-    });
-    $routeProvider.when('/unifiedinbox/compose', {
+    })
+    .state('/unifiedinbox/compose', {
+      url: '/unifiedinbox/compose',
       template: '<composer/>'
-    });
-    $routeProvider.when('/unifiedinbox/:mailbox', {
+    })
+    .state('/unifiedinbox/:mailbox', {
+      url: '/unifiedinbox/:mailbox',
       templateUrl: '/unifiedinbox/views/listEmails',
       controller: 'listEmailsController'
-    });
-    $routeProvider.when('/unifiedinbox/:mailbox/:emailId', {
+    })
+    .state('/unifiedinbox/:mailbox/:emailId', {
+      url: '/unifiedinbox/:mailbox/:emailId',
       templateUrl: '/unifiedinbox/views/viewEmail',
       controller: 'viewEmailController'
     });

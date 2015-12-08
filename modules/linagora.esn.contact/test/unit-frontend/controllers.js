@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService, headerService, ContactShell,
-      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS;
+      notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS;
 
   beforeEach(function() {
     usSpinnerService = {
@@ -45,12 +45,8 @@ describe('The Contacts Angular module', function() {
         };
       }
     };
-    $route = {
-      current: {
-        params: {
-          bookId: bookId
-        }
-      }
+    $stateParams = {
+      bookId: bookId
     };
     selectionService = {
       clear: function() {}
@@ -90,7 +86,6 @@ describe('The Contacts Angular module', function() {
       }
     };
 
-    angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
 
     module('linagora.esn.contact', function($provide) {
@@ -99,7 +94,7 @@ describe('The Contacts Angular module', function() {
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('$location', $location);
       $provide.value('selectionService', selectionService);
-      $provide.value('$route', $route);
+      $provide.value('$stateParams', $stateParams);
       $provide.value('$alert', function(options) { $alert.alert(options); });
       $provide.value('gracePeriodService', gracePeriodService);
       $provide.value('gracePeriodLiveNotification', gracePeriodLiveNotification);
@@ -463,7 +458,7 @@ describe('The Contacts Angular module', function() {
     it('should call headerService to reset injections in the subheader on route change', function(done) {
       headerService.subHeader.resetInjections = done;
       this.initController();
-      scope.$emit('$routeChangeStart', {});
+      scope.$emit('$stateChangeStart', {});
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
@@ -633,8 +628,8 @@ describe('The Contacts Angular module', function() {
         contactUpdateDataService.contact = { id: 'myId' };
         this.initController();
 
-        scope.$emit('$routeChangeStart', {
-          originalPath: '/some/path/other/than/contact/edit'
+        scope.$emit('$stateChangeStart', {
+          name: '/some/path/other/than/contact/edit'
         });
 
         scope.$digest();
@@ -649,12 +644,12 @@ describe('The Contacts Angular module', function() {
         scope.bookId = '123';
         scope.cardId = '456';
 
-        scope.$emit('$routeChangeStart', {
-          originalPath: '/contact/edit/:bookId/:cardId',
-          params: {
-            bookId: '123',
-            cardId: '456'
-          }
+        scope.$emit('$stateChangeStart', {
+          name: '/contact/edit/:bookId/:cardId'
+        },
+        {
+          bookId: '123',
+          cardId: '456'
         });
 
         scope.$digest();
@@ -672,8 +667,8 @@ describe('The Contacts Angular module', function() {
 
         this.initController();
 
-        scope.$emit('$routeChangeStart', {
-          originalPath: '/some/path/other/than/contact/edit'
+        scope.$emit('$stateChangeStart', {
+          name: '/some/path/other/than/contact/edit'
         });
 
         scope.$digest();
@@ -815,7 +810,7 @@ describe('The Contacts Angular module', function() {
     it('should call headerService to reset injections in the subheader on route change', function(done) {
       headerService.subHeader.resetInjections = done;
       this.initController();
-      scope.$emit('$routeChangeStart', {});
+      scope.$emit('$stateChangeStart', {});
     });
 
     it('should take contact from contactUpdateDataService if there was a graceperiod', function() {
@@ -1028,14 +1023,14 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    it('should reset header injection on $routeChangeStart', function(done) {
+    it('should reset header injection on $stateChangeStart', function(done) {
       headerService.subHeader.resetInjections = done;
       $controller('contactsListController', {
         $scope: scope,
         headerService: headerService,
         user: { _id: '123' }
       });
-      scope.$emit('$routeChangeStart');
+      scope.$emit('$stateChangeStart');
     });
 
     it('should store the search query when user switches to contact view', function() {
@@ -1045,8 +1040,8 @@ describe('The Contacts Angular module', function() {
         $scope: scope,
         user: { _id: '123' }
       });
-      scope.$emit('$routeChangeStart', {
-        originalPath: '/contact/show/:bookId/:cardId'
+      scope.$emit('$stateChangeStart', {
+        name: '/contact/show/:bookId/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
     });
@@ -1058,8 +1053,8 @@ describe('The Contacts Angular module', function() {
         $scope: scope,
         user: { _id: '123' }
       });
-      scope.$emit('$routeChangeStart', {
-        originalPath: '/contact/edit/:bookId/:cardId'
+      scope.$emit('$stateChangeStart', {
+        name: '/contact/edit/:bookId/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
     });
@@ -1070,8 +1065,8 @@ describe('The Contacts Angular module', function() {
         $scope: scope,
         user: { _id: '123' }
       });
-      scope.$emit('$routeChangeStart', {
-        originalPath: '/this/is/not/contact/show/or/edit/:bookId/:cardId'
+      scope.$emit('$stateChangeStart', {
+        name: '/this/is/not/contact/show/or/edit/:bookId/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.be.null;
     });
@@ -1443,7 +1438,7 @@ describe('The Contacts Angular module', function() {
       });
       scope.searchInput = 'QueryB';
       scope.$digest();
-      $rootScope.$broadcast('$routeUpdate');
+      $rootScope.$broadcast('$stateChangeStart', {name: '/some/other/place'});
       expect(scope.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledTwice;
       done();
@@ -1472,7 +1467,7 @@ describe('The Contacts Angular module', function() {
         }
       });
       scope.searchInput = 'QueryA';
-      $rootScope.$broadcast('$routeUpdate');
+      $rootScope.$broadcast('$stateChangeStart', {});
       expect(scope.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledOnce;
       done();

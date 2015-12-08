@@ -7,31 +7,26 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module controllers', function() {
 
-  var $route, $rootScope, $location, scope, $controller, $timeout,
+  var $stateParams, $rootScope, $location, scope, $controller, $timeout,
     jmapClient, jmap, notificationFactory, attendeeService, draftService, Offline = {},
     emailSendingService;
 
   beforeEach(function() {
-    $route = {
-      current: {
-        params: {
-          mailbox: 'chosenMailbox',
-          emailId: '4'
-        }
-      }
+    $stateParams = {
+      mailbox: 'chosenMailbox',
+      emailId: '4'
     };
     notificationFactory = {
       weakSuccess: function() {},
       weakError: function() {}
     };
 
-    angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
     angular.mock.module('esn.notification');
 
     module('linagora.esn.unifiedinbox', function($provide) {
       $provide.value('jmapClient', jmapClient = {});
-      $provide.value('$route', $route);
+      $provide.value('$stateParams', $stateParams);
       $provide.value('$location', $location = {});
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('Offline', Offline);
