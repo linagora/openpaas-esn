@@ -5,11 +5,35 @@ var davClient = require('../dav-client').rawClient;
 var PATH = 'addressbooks';
 var VCARD_JSON = 'application/vcard+json';
 
+var VALID_HTTP_STATUS = {
+  GET: [200],
+  PUT: [200, 201],
+  DELETE: [204]
+};
+
 module.exports = function(dependencies, options) {
   var logger = dependencies('logger');
   var davServerUtils = dependencies('davserver').utils;
   var searchClient = require('../search')(dependencies);
   var ESNToken = options.ESNToken;
+
+  function checkResponse(deferred, method, errMsg) {
+
+    var status = VALID_HTTP_STATUS[method];
+    return function(err, response, body) {
+      if (err) {
+        logger.error(errMsg, err);
+        return deferred.reject(err);
+      }
+
+      if (status && status.indexOf(response.statusCode) < 0) {
+        logger.error('Bad HTTP status', response.statusCode);
+        return deferred.reject(new Error('Bad response from DAV API'));
+      }
+
+      deferred.resolve({ response: response, body: body });
+    };
+  }
 
   /**
    * The addressbook APIs
@@ -51,12 +75,7 @@ module.exports = function(dependencies, options) {
             json: true,
             query: query || {}
           }, function(err, response, body) {
-            if (err) {
-              logger.error('Error while getting contacts from DAV', err);
-              deferred.reject(err);
-            } else {
-              deferred.resolve({ response: response, body: body });
-            }
+            checkResponse(deferred, 'GET', 'Error while getting contacts from DAV')(err, response, body);
           });
         });
 
@@ -80,12 +99,7 @@ module.exports = function(dependencies, options) {
             url: url,
             json: true
           }, function(err, response, body) {
-            if (err) {
-              logger.error('Error while getting contact from DAV', err);
-              deferred.reject(err);
-            } else {
-              deferred.resolve({ response: response, body: body });
-            }
+            checkResponse(deferred, 'GET', 'Error while getting contact from DAV')(err, response, body);
           });
         });
 
@@ -113,12 +127,7 @@ module.exports = function(dependencies, options) {
             json: true,
             body: contact
           }, function(err, response, body) {
-            if (err) {
-              logger.error('Error while creating contact on DAV', err);
-              deferred.reject(err);
-            } else {
-              deferred.resolve({ response: response, body: body });
-            }
+            checkResponse(deferred, 'PUT', 'Error while creating contact in DAV')(err, response, body);
           });
         });
 
@@ -146,12 +155,7 @@ module.exports = function(dependencies, options) {
             json: true,
             body: contact
           }, function(err, response, body) {
-            if (err) {
-              logger.error('Error while updating contact on DAV', err);
-              deferred.reject(err);
-            } else {
-              deferred.resolve({ response: response, body: body });
-            }
+            checkResponse(deferred, 'PUT', 'Error while updating contact on DAV')(err, response, body);
           });
         });
 
@@ -175,12 +179,7 @@ module.exports = function(dependencies, options) {
             url: url,
             json: true
           }, function(err, response, body) {
-            if (err) {
-              logger.error('Error while deleting contact on DAV', err);
-              deferred.reject(err);
-            } else {
-              deferred.resolve({ response: response, body: body });
-            }
+            checkResponse(deferred, 'DELETE', 'Error while deleting contact on DAV')(err, response, body);
           });
         });
 

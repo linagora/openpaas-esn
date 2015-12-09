@@ -72,15 +72,22 @@ describe('The contact client APIs', function() {
         });
 
         it('should resolve with response and body', function(done) {
+          var response = {
+            statusCode: 200
+          };
+          var body = {
+            _id: 123
+          };
+
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
-              callback(null, 'response', 'body');
+              callback(null, response, body);
             }
           });
 
           addressbook().contacts().list().then(function(data) {
-            expect(data.response).to.equal('response');
-            expect(data.body).to.equal('body');
+            expect(data.response).to.deep.equal(response);
+            expect(data.body).to.deep.equal(body);
             done();
           });
         });
@@ -116,15 +123,22 @@ describe('The contact client APIs', function() {
         });
 
         it('should resolve with response and body', function(done) {
+          var response = {
+            statusCode: 200
+          };
+          var body = {
+            _id: 123
+          };
+
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
-              callback(null, 'response', 'body');
+              callback(null, response, body);
             }
           });
 
           addressbook().contacts('456').get().then(function(data) {
-            expect(data.response).to.equal('response');
-            expect(data.body).to.equal('body');
+            expect(data.response).to.deep.equal(response);
+            expect(data.body).to.deep.equal(body);
             done();
           });
         });
@@ -174,20 +188,27 @@ describe('The contact client APIs', function() {
         });
 
         it('should resolve with response and body', function(done) {
+          var response = {
+            statusCode: 200
+          };
+          var body = {
+            _id: 123
+          };
+
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
-              callback(null, 'response', 'body');
+              callback(null, response, body);
             }
           });
 
           addressbook().contacts('456').create({}).then(function(data) {
-            expect(data.response).to.equal('response');
-            expect(data.body).to.equal('body');
+            expect(data.response).to.deep.equal(response);
+            expect(data.body).to.deep.equal(body);
             done();
           });
         });
 
-        it('should reject with error', function(done) {
+        it('should reject with error when client returns error', function(done) {
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
               callback('a error');
@@ -196,6 +217,19 @@ describe('The contact client APIs', function() {
 
           addressbook().contacts('456').create({}).then(null, function(err) {
             expect(err).to.equal('a error');
+            done();
+          });
+        });
+
+        it('should reject when HTTP status is not 201', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, {statusCode: 199});
+            }
+          });
+
+          addressbook().contacts('456').create({}).then(null, function(err) {
+            expect(err).to.exist;
             done();
           });
         });
@@ -222,15 +256,22 @@ describe('The contact client APIs', function() {
         });
 
         it('should resolve with response and body', function(done) {
+          var response = {
+            statusCode: 200
+          };
+          var body = {
+            _id: 123
+          };
+
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
-              callback(null, 'response', 'body');
+              callback(null, response, body);
             }
           });
 
           addressbook().contacts('456').update({}).then(function(data) {
-            expect(data.response).to.equal('response');
-            expect(data.body).to.equal('body');
+            expect(data.response).to.deep.equal(response);
+            expect(data.body).to.deep.equal(body);
             done();
           });
         });
@@ -247,6 +288,20 @@ describe('The contact client APIs', function() {
             done();
           });
         });
+
+        it('should reject when HTTP status is not 200', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, {statusCode: 199});
+            }
+          });
+
+          addressbook().contacts('456').update({}).then(null, function(err) {
+            expect(err).to.exist;
+            done();
+          });
+        });
+
       });
 
       describe('The deleteContact fn', function() {
@@ -267,15 +322,22 @@ describe('The contact client APIs', function() {
         });
 
         it('should resolve with response and body', function(done) {
+          var response = {
+            statusCode: 204
+          };
+          var body = {
+            _id: 123
+          };
+
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
-              callback(null, 'response', 'body');
+              callback(null, response, body);
             }
           });
 
           addressbook().contacts('456').del().then(function(data) {
-            expect(data.response).to.equal('response');
-            expect(data.body).to.equal('body');
+            expect(data.response).to.deep.equal(response);
+            expect(data.body).to.deep.equal(body);
             done();
           });
         });
@@ -292,6 +354,20 @@ describe('The contact client APIs', function() {
             done();
           });
         });
+
+        it('should reject when HTTP status is not 204', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, {statusCode: 203});
+            }
+          });
+
+          addressbook().contacts('456').del().then(null, function(err) {
+            expect(err).to.exist;
+            done();
+          });
+        });
+
       });
 
       describe('The search fn', function() {
@@ -368,7 +444,7 @@ describe('The contact client APIs', function() {
               if (counter === 3) {
                 callback('some error');
               } else {
-                callback(null, 'response' + counter, 'body' + counter);
+                callback(null, {statusCode: 200}, {counter: counter});
               }
             }
           });
@@ -381,8 +457,8 @@ describe('The contact client APIs', function() {
 
           addressbook().contacts().search({}).then(function(data) {
             expect(data.results).to.eql([
-              { contactId: 1, response: 'response1', body: 'body1' },
-              { contactId: 2, response: 'response2', body: 'body2' },
+              { contactId: 1, response: {statusCode: 200}, body: {counter: 1}},
+              { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
               { contactId: 3, err: 'some error' }
             ]);
             done();
@@ -398,10 +474,10 @@ describe('The contact client APIs', function() {
               counter++;
               if (counter === 1) {
                 setTimeout(function() {
-                  callback(null, 'retard response', 'body');
+                  callback(null, {statusCode: 200}, {delay: 1});
                 }, 200);
               } else {
-                callback(null, 'response' + counter, 'body' + counter);
+                callback(null, {statusCode: 200}, {counter: counter});
               }
             }
           });
@@ -414,9 +490,9 @@ describe('The contact client APIs', function() {
 
           addressbook().contacts().search({}).then(function(data) {
             expect(data.results).to.eql([
-              { contactId: 1, response: 'retard response', body: 'body' },
-              { contactId: 2, response: 'response2', body: 'body2' },
-              { contactId: 3, response: 'response3', body: 'body3' }
+              { contactId: 1, response: {statusCode: 200}, body: {delay: 1}},
+              { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
+              { contactId: 3, response: {statusCode: 200}, body: {counter: 3}}
             ]);
             done();
           });
