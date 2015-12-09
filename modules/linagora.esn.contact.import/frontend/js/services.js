@@ -44,7 +44,8 @@ angular.module('linagora.esn.contact.import')
 
       var importer = ContactImportRegistry.get(type);
       if (!importer) {
-        return $log.error('Can not find importer ' + type);
+        $log.error('Can not find importer ' + type);
+        return;
       }
 
       return importer.import(account)
@@ -56,6 +57,8 @@ angular.module('linagora.esn.contact.import')
               'Importing ' + account.provider + ' contacts for @' + account.data.username,
               {from: 'bottom', align: 'center'},
               3000);
+          } else {
+            $log.debug('Unknown status code (%s) while importing contacts', response.status);
           }
         }, function(err) {
           notificationFactory.notify(

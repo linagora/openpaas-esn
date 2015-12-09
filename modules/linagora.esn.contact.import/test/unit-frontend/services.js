@@ -112,6 +112,33 @@ describe('The Contact Import Angular Services', function() {
         this.$rootScope.$digest();
       });
 
+      it('should not notify when response status code is invalid', function(done) {
+        var account = {
+          provider: 'twitter',
+          data: {
+            username: 'awesomepaas',
+            id: 123
+          }
+        };
+
+        notificationFactory.notify = function() {
+          done(new Error());
+        };
+
+        ContactImportRegistryMock.get = function() {
+          return {
+            import: function(account) {
+              expect(account).to.deep.equal(account);
+              return $q.when({status: 200});
+            }
+          };
+        };
+
+        this.ContactImporter.import('twitter', account);
+        this.$rootScope.$digest();
+        done();
+      });
+
       it('should notify when import error', function(done) {
         var account = {
           provider: 'twitter',
