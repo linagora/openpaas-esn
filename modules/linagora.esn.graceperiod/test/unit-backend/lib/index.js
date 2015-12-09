@@ -30,6 +30,14 @@ describe('The Grace Period Module', function() {
     return deps[name];
   };
 
+  var clock;
+  afterEach(function() {
+    if (clock) {
+      clock.restore();
+      clock = null;
+    }
+  });
+
   describe('The create function', function() {
 
     it('should fail when job is undefined', function(done) {
@@ -56,7 +64,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function() {
         done();
       };
@@ -69,7 +77,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function() {
         done(new Error());
       };
@@ -85,7 +93,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function(context, cb) {
         cb();
       };
@@ -105,7 +113,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function(context, cb) {
         cb();
       };
@@ -124,7 +132,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function() {
       };
 
@@ -149,7 +157,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var called = 0;
       var job = function(context, cb) {
         called++;
@@ -191,7 +199,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function(cb) {
         cb(null, result);
       };
@@ -231,7 +239,7 @@ describe('The Grace Period Module', function() {
 
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
       var job = function(cb) {
         cb(err);
       };

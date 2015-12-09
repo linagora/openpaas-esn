@@ -47,6 +47,14 @@ describe('The Cron Module', function() {
     return deps[name];
   };
 
+  var clock;
+  afterEach(function() {
+    if (clock) {
+      clock.restore();
+      clock = null;
+    }
+  });
+
   describe('The module', function() {
 
     it('should not run the job if already running', function(done) {
@@ -54,7 +62,7 @@ describe('The Cron Module', function() {
       mockRegistry();
       var module = require('../../../lib/index')(dependencies);
 
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
 
       var called = 0;
       var job = function() {
@@ -92,7 +100,7 @@ describe('The Cron Module', function() {
       });
 
       var module = require('../../../lib/index')(dependencies);
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
 
       var called = 0;
       var job = function(callback) {
@@ -129,7 +137,7 @@ describe('The Cron Module', function() {
       });
 
       var module = require('../../../lib/index')(dependencies);
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
 
       var called = 0;
       var job = function(callback) {
@@ -184,7 +192,7 @@ describe('The Cron Module', function() {
     });
 
     it('should run the job', function(done) {
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
 
       var called = 0;
       var job = function() {
@@ -201,7 +209,7 @@ describe('The Cron Module', function() {
     });
 
     it('should use onStopped as callback if callback is undefined', function(done) {
-      var clock = sinon.useFakeTimers();
+      clock = sinon.useFakeTimers();
 
       var called = false;
       var job = function() {
