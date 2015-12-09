@@ -12,6 +12,10 @@ Import contacts from a specified type into OpenPaaS ESN.
 
 - type: The type of contacts to import.
 
+**JSON Hash:**
+
+- account_id: The ID of the account to import contacts from.
+
 **Response Headers:**
 
 - Content-Length: Document size
@@ -30,6 +34,10 @@ Import contacts from a specified type into OpenPaaS ESN.
     POST /import/api/twitter
     Accept: application/json
     Host: localhost:8080
+
+    {
+      "account_id": "5375de4bd684db7f6fbd4f97"
+    }
 
 **Response:**
 

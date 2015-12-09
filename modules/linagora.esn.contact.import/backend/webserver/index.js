@@ -3,7 +3,7 @@
 var express = require('express');
 var application = require('./application');
 
-module.exports = function(dependencies) {
+module.exports = function(dependencies, lib) {
 
   function getStaticApp(frontend_path) {
     var application = express();

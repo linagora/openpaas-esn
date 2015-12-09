@@ -9,13 +9,35 @@ describe('The Contact Import Angular Services', function() {
   beforeEach(function() {
     module('ngRoute');
     module('esn.core');
+    module('linagora.esn.contact.import');
+  });
+
+  describe('The ContactImporterService service', function() {
+
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactImporterService) {
+      this.$httpBackend = $httpBackend;
+      this.$rootScope = $rootScope;
+      this.$scope = $rootScope.$new();
+      this.ContactImporterService = ContactImporterService;
+    }));
+
+    it('should send POST request to /import/api/:type', function() {
+      var type = 'twitter';
+      var id = 123;
+      var account = {
+        data: {
+          id: id
+        }
+      };
+
+      this.$httpBackend.expectPOST('/import/api/' + type, {account_id: id}).respond([]);
+      this.ContactImporterService.import(type, account);
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+    });
   });
 
   describe('The ContactImportRegistry service', function() {
-
-    beforeEach(function() {
-      module('linagora.esn.contact.import');
-    });
 
     beforeEach(angular.mock.inject(function(ContactImportRegistry, $rootScope) {
       this.$rootScope = $rootScope;
@@ -40,5 +62,109 @@ describe('The Contact Import Angular Services', function() {
       expect(result).to.not.exist;
     });
 
+  });
+
+  describe('The ContactImporter Service', function() {
+
+    var ContactImportRegistryMock, notificationFactory;
+
+    beforeEach(function() {
+      notificationFactory = {};
+      ContactImportRegistryMock = {};
+
+      module(function($provide) {
+        $provide.value('ContactImportRegistry', ContactImportRegistryMock);
+        $provide.value('notificationFactory', notificationFactory);
+      });
+
+      inject(function(_$compile_, _$rootScope_, _ContactImporter_) {
+        this.$rootScope = _$rootScope_;
+        this.ContactImporter = _ContactImporter_;
+      });
+    });
+
+    describe('The import fn', function() {
+
+      it('should notify when importing without error', function(done) {
+        var account = {
+          provider: 'twitter',
+          data: {
+            username: 'awesomepaas',
+            id: 123
+          }
+        };
+
+        notificationFactory.notify = function(type) {
+          expect(type).to.equal('info');
+          done();
+        };
+
+        ContactImportRegistryMock.get = function() {
+          return {
+            import: function(account) {
+              expect(account).to.deep.equal(account);
+              return $q.when({status: 202});
+            }
+          };
+        };
+
+        this.ContactImporter.import('twitter', account);
+        this.$rootScope.$digest();
+      });
+
+      it('should not notify when response status code is invalid', function(done) {
+        var account = {
+          provider: 'twitter',
+          data: {
+            username: 'awesomepaas',
+            id: 123
+          }
+        };
+
+        notificationFactory.notify = function() {
+          done(new Error());
+        };
+
+        ContactImportRegistryMock.get = function() {
+          return {
+            import: function(account) {
+              expect(account).to.deep.equal(account);
+              return $q.when({status: 200});
+            }
+          };
+        };
+
+        this.ContactImporter.import('twitter', account);
+        this.$rootScope.$digest();
+        done();
+      });
+
+      it('should notify when import error', function(done) {
+        var account = {
+          provider: 'twitter',
+          data: {
+            username: 'awesomepaas',
+            id: 123
+          }
+        };
+
+        notificationFactory.notify = function(type) {
+          expect(type).to.equal('danger');
+          done();
+        };
+
+        ContactImportRegistryMock.get = function() {
+          return {
+            import: function(account) {
+              expect(account).to.deep.equal(account);
+              return $q.reject();
+            }
+          };
+        };
+
+        this.ContactImporter.import('twitter', account);
+        this.$rootScope.$digest();
+      });
+    });
   });
 });

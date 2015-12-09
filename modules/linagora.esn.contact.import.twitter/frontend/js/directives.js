@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact.import.twitter')
 
-.directive('twitterContactImportMenuItem', function(TwitterContactImporter, notificationFactory) {
+.directive('twitterContactImportMenuItem', function($log, ContactImporter, TWITTER_CONTACT_IMPORT_TYPE) {
   return {
     restrict: 'E',
     replace: true,
@@ -10,24 +10,11 @@ angular.module('linagora.esn.contact.import.twitter')
     link: function(scope) {
 
       scope.importContacts = function() {
-        TwitterContactImporter.import()
-          .then(function(response) {
-            if (response.status === 202) {
-              notificationFactory.notify(
-                'info',
-                '',
-                'Importing ' + scope.account.provider + ' contacts for @' + scope.account.data.username,
-                {from: 'bottom', align: 'center'},
-                3000);
-            }
-          }, function(err) {
-            notificationFactory.notify(
-              'danger',
-              '',
-              'Error while importing' + scope.account.provider + ' contacts for @ ' + scope.account.data.username + ':' + err,
-              {from: 'bottom', align: 'center'},
-              3000);
-          });
+        ContactImporter.import(TWITTER_CONTACT_IMPORT_TYPE, scope.account).then(function() {
+          $log.debug('Contact import launched');
+        }, function(err) {
+          $log.error('Contact import failure', err);
+        });
       };
     }
   };

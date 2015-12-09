@@ -111,6 +111,14 @@ describe('The twitter contact importer', function() {
           }
         ];
       options = {
+        account: {
+          type: 'oauth',
+          data: {
+            provider: 'twitter',
+            token: 456,
+            token_secret: 'abc'
+          }
+        },
         esnToken: 123,
         user: {
           _id: 'myId',

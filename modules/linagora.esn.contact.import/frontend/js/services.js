@@ -11,12 +11,12 @@ angular.module('linagora.esn.contact.import')
 
   .factory('ContactImporterService', function(contactImportAPI) {
 
-    function importContact(type) {
-      return contactImportAPI.all(type).post();
+    function importContacts(type, account) {
+      return contactImportAPI.all(type).post({account_id: account.data.id});
     }
 
     return {
-      importContact: importContact
+      import: importContacts
     };
   })
 
@@ -35,5 +35,42 @@ angular.module('linagora.esn.contact.import')
     return {
       register: register,
       get: get
+    };
+  })
+
+  .factory('ContactImporter', function($log, $q, ContactImportRegistry, notificationFactory) {
+
+    function importContacts(type, account) {
+
+      var importer = ContactImportRegistry.get(type);
+      if (!importer) {
+        $log.error('Can not find importer ' + type);
+        return;
+      }
+
+      return importer.import(account)
+        .then(function(response) {
+          if (response.status === 202) {
+            notificationFactory.notify(
+              'info',
+              '',
+              'Importing ' + account.provider + ' contacts for @' + account.data.username,
+              {from: 'bottom', align: 'center'},
+              3000);
+          } else {
+            $log.debug('Unknown status code (%s) while importing contacts', response.status);
+          }
+        }, function(err) {
+          notificationFactory.notify(
+            'danger',
+            '',
+            'Error while importing' + account.provider + ' contacts for @ ' + account.data.username + ':' + err,
+            {from: 'bottom', align: 'center'},
+            3000);
+        });
+    }
+
+    return {
+      import: importContacts
     };
   });

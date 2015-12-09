@@ -14,8 +14,16 @@ module.exports = function(dependencies, lib) {
     next();
   }
 
+  function checkRequiredBody(req, res, next) {
+    if (!req.body || !req.body.account_id) {
+      return res.status(400).json({error: {status: 400, message: 'Bad Request', details: 'account_id is required'}});
+    }
+    next();
+  }
+
   return {
-    getImporter: getImporter
+    getImporter: getImporter,
+    checkRequiredBody: checkRequiredBody
   };
 
 };
