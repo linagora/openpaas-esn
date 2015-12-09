@@ -6,6 +6,18 @@ var q = require('q');
 
 describe('The contact import controller', function() {
 
+  var deps = {
+    logger: {
+      debug: console.log,
+      info: console.log,
+      error: console.log
+    }
+  };
+
+  var dependencies = function(name) {
+    return deps[name];
+  };
+
   describe('The importContacts function', function() {
 
     var req;
@@ -27,7 +39,7 @@ describe('The contact import controller', function() {
     });
 
     var getController = function(lib) {
-      return require('../../../../backend/webserver/api/controller')({}, lib);
+      return require('../../../../backend/webserver/api/controller')(dependencies, lib);
     };
 
     it('should send back HTTP 500 when import rejects', function(done) {
@@ -44,7 +56,10 @@ describe('The contact import controller', function() {
         status: function(code) {
           expect(code).to.equal(500);
           return {
-            json: function() {
+            json: function(data) {
+              expect(data.error.status).to.equal(500);
+              expect(data.error.message).to.equal('Server Error');
+              expect(data.error.details).to.equal('Error while importing contacts');
               done();
             }
           };

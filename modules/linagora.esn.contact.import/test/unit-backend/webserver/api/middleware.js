@@ -40,8 +40,7 @@ describe('The contact import middleware', function() {
     });
 
     var getMiddleware = function() {
-      return require('../../../../backend/webserver/api/middleware')(function() {
-      }, lib);
+      return require('../../../../backend/webserver/api/middleware')(function() {}, lib);
     };
 
     it('should send back HTTP 400 when req.body is undefined', function(done) {
