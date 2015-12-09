@@ -66,7 +66,7 @@ describe('The Contact Import Angular Services', function() {
 
   describe('The ContactImporter Service', function() {
 
-    var ContactImporter, ContactImportRegistryMock, notificationFactory, $rootScope;
+    var ContactImportRegistryMock, notificationFactory;
 
     beforeEach(function() {
       notificationFactory = {};
@@ -78,8 +78,8 @@ describe('The Contact Import Angular Services', function() {
       });
 
       inject(function(_$compile_, _$rootScope_, _ContactImporter_) {
-        $rootScope = _$rootScope_;
-        ContactImporter = _ContactImporter_;
+        this.$rootScope = _$rootScope_;
+        this.ContactImporter = _ContactImporter_;
       });
     });
 
@@ -95,10 +95,8 @@ describe('The Contact Import Angular Services', function() {
         };
 
         notificationFactory.notify = function(type) {
-          if (type === 'info') {
-            return done();
-          }
-          done(new Error());
+          expect(type).to.equal('info');
+          done();
         };
 
         ContactImportRegistryMock.get = function() {
@@ -110,8 +108,8 @@ describe('The Contact Import Angular Services', function() {
           };
         };
 
-        ContactImporter.import('twitter', account);
-        $rootScope.$digest();
+        this.ContactImporter.import('twitter', account);
+        this.$rootScope.$digest();
       });
 
       it('should notify when import error', function(done) {
@@ -124,10 +122,8 @@ describe('The Contact Import Angular Services', function() {
         };
 
         notificationFactory.notify = function(type) {
-          if (type === 'danger') {
-            return done();
-          }
-          done(new Error());
+          expect(type).to.equal('danger');
+          done();
         };
 
         ContactImportRegistryMock.get = function() {
@@ -139,8 +135,8 @@ describe('The Contact Import Angular Services', function() {
           };
         };
 
-        ContactImporter.import('twitter', account);
-        $rootScope.$digest();
+        this.ContactImporter.import('twitter', account);
+        this.$rootScope.$digest();
       });
     });
   });
