@@ -165,27 +165,27 @@ describe('The calendars API', function() {
     });
   });
 
-  describe('PUT /api/calendars/events', function() {
+  describe('PUT /api/calendars/event/participation', function() {
+    var jwtCoreModule;
+
     beforeEach(function() {
       var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
       expressApp.use('/', this.helpers.modules.current.lib.api.calendar);
       this.app = this.helpers.modules.getWebServer(expressApp);
+
+      jwtCoreModule = this.helpers.requireBackend('core/auth/jwt');
     });
 
-    it('should fail if no jwt is provided', function(done) {
-      var req = request(this.app).put('/api/calendars/events');
+    it('should return 401 if no jwt is provided', function(done) {
+      var req = request(this.app).put('/api/calendars/event/participation');
       req.expect(401, done);
     });
 
-    it('should succeed', function(done) {
-      var jwtCoreModule = this.helpers.requireBackend('core/auth/jwt');
+    it('should return 400 when the provided jwt does not contain correct information', function(done) {
       var self = this;
-      jwtCoreModule.generateWebToken({login: 'me'}, function(err, token) {
-        if (err) {
-          return done(err);
-        }
-        var req = request(self.app).put('/api/calendars/events?jwt=' + token);
-        req.expect(200).end(done);
+      jwtCoreModule.generateWebToken({test: 'notCompliant'}, function(err, token) {
+        var req = request(self.app).put('/api/calendars/event/participation?jwt=' + token);
+        req.expect(400).end(done);
       });
     });
   });

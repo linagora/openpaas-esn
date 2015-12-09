@@ -103,3 +103,29 @@ Note: It send user notification and email to attendees if notify is set to true.
 **Response:**
 
     HTTP/1.1 200 OK
+
+## PUT /api/calendars/event/participation
+
+Update the attendee participation to an event (used by links in invitation emails).
+
+
+**Request URL Parameters:**
+
+- jwt: a JWT holding the participation change data : event as jcal, organizerEmail, attendeeEmail, calendarId, action
+
+**Status Codes:**
+
+- 200 OK.
+- 400 Bad Request. Invalid request parameters.
+- 401 Unauthorized. The current request does not contains any valid data to be used for authentication.
+- 500 Internal server error.
+
+
+**Request:**
+
+    PUT /api/calendars/event/participation?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaXBvIjpbIjEyMzQ1Njc4OTAiXX0.E6QGuuqelyf0RsEicnsQCDteSAij0KRb7GOQIouFm9A
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
