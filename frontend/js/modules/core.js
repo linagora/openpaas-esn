@@ -116,32 +116,6 @@ angular.module('esn.core', [])
       }
     };
   })
-  .directive('esnMainNavbar', function($location) {
-
-    function firstPathSegment() {
-      return $location.path().replace(/^\//, '').split('/').shift();
-    }
-
-    function link(scope, element, attrs) {
-      function activateTabItem(segment) {
-        element.find('.esn-item[data-esn-path]').removeClass('active');
-        if (segment) {
-          element.find('.esn-item[data-esn-path="' + segment + '"]').addClass('active');
-        }
-      }
-
-      scope.$on('$routeChangeSuccess', function() {
-        activateTabItem(firstPathSegment());
-      });
-      activateTabItem(firstPathSegment());
-    }
-
-    return {
-      restruct: 'E',
-      templateUrl: '/views/modules/core/esn-main-navbar.html',
-      link: link
-    };
-  })
 
   .directive('onFinishRender', function($timeout) {
     return {
@@ -166,8 +140,8 @@ angular.module('esn.core', [])
     },
 
     api: function(api, method, paramName, target) {
-      return [api, '$route', '$location', function(api, $route, $location) {
-        var routeId = $route.current.params[paramName || 'id'] || undefined;
+      return [api, '$stateParams', '$location', function(api, $stateParams, $location) {
+        var routeId = $stateParams[paramName || 'id'] || undefined;
         return api[method || 'get'](routeId).then(function(response) {
           return response.data;
         }, function(err) {

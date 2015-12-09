@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('esn.project', [
+  'ui.router',
   'restangular',
   'esn.avatar',
   'esn.session',
@@ -14,26 +15,27 @@ angular.module('esn.project', [
   'mgcrea.ngStrap.datepicker',
   'op.dynamicDirective'
 ])
-  .config(function($routeProvider, routeResolver, dynamicDirectiveServiceProvider) {
+  .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
 
-    $routeProvider.when('/project/:project_id', {
+    $stateProvider.state('/project/:project_id', {
+      url: '/project/:project_id',
       templateUrl: '/project/views/partials/project',
       controller: 'projectController',
       resolve: {
         project: routeResolver.api('projectAPI', 'get', 'project_id', '/project')
       }
-    });
-
-    $routeProvider.when('/project', {
+    })
+    .state('/project', {
+      url: '/project',
       templateUrl: '/project/views/projects',
       controller: 'projectsController',
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')
       }
-    });
-
-    $routeProvider.when('/collaborations/project/:project_id/members', {
+    })
+    .state('/collaborations/project/:project_id/members', {
+      url: '/collaborations/project/:project_id/members',
       templateUrl: '/project/views/project-members',
       controller: 'projectController',
       resolve: {

@@ -2,12 +2,12 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $route, $location, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService) {
-    $scope.bookId = $route.current.params.bookId;
+  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService) {
+    $scope.bookId = $stateParams.bookId;
     $scope.contact = sharedContactDataService.contact;
 
     headerService.subHeader.addInjection('contact-create-subheader', $scope);
-    $scope.$on('$routeChangeStart', function() {
+    $scope.$on('$stateChangeStart', function() {
       headerService.subHeader.resetInjections();
     });
 
@@ -43,15 +43,15 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService) {
     $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
-    $scope.bookId = $route.current.params.bookId;
-    $scope.cardId = $route.current.params.cardId;
+    $scope.bookId = $stateParams.bookId;
+    $scope.cardId = $stateParams.cardId;
     $scope.contact = {};
     $scope.loaded = false;
 
     headerService.subHeader.addInjection('contact-show-subheader', $scope);
-    $scope.$on('$routeChangeStart', function() {
+    $scope.$on('$stateChangeStart', function() {
       headerService.subHeader.resetInjections();
     });
 
@@ -100,13 +100,13 @@ angular.module('linagora.esn.contact')
 
       $scope.fillContactData(contactUpdateDataService.contact);
 
-      $scope.$on('$routeChangeStart', function(evt, next, current) {
+      $scope.$on('$stateChangeStart', function(evt, next, nextParams) {
         gracePeriodService.flush(contactUpdateDataService.taskId);
         // check if the user edit the contact again
-        if (next && next.originalPath && next.params &&
-            next.originalPath === '/contact/edit/:bookId/:cardId' &&
-            next.params.bookId === $scope.bookId &&
-            next.params.cardId === $scope.cardId) {
+        if (next && next.name && nextParams &&
+            next.name === '/contact/edit/:bookId/:cardId' &&
+            nextParams.bookId === $scope.bookId &&
+            nextParams.cardId === $scope.cardId) {
           // cache the contact to show in editContactController
           contactUpdateDataService.contact = $scope.contact;
         } else {
@@ -138,13 +138,13 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, contactsService, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService) {
     $scope.loaded = false;
-    $scope.bookId = $route.current.params.bookId;
-    $scope.cardId = $route.current.params.cardId;
+    $scope.bookId = $stateParams.bookId;
+    $scope.cardId = $stateParams.cardId;
 
     headerService.subHeader.addInjection('contact-edit-subheader', $scope);
-    $scope.$on('$routeChangeStart', function() {
+    $scope.$on('$stateChangeStart', function() {
       headerService.subHeader.resetInjections();
     });
 
@@ -239,13 +239,13 @@ angular.module('linagora.esn.contact')
     $scope.searchMode = false;
 
     headerService.subHeader.addInjection('contact-list-subheader', $scope);
-    $scope.$on('$routeChangeStart', function(evt, next) {
+    $scope.$on('$stateChangeStart', function(evt, next) {
       headerService.subHeader.resetInjections();
 
       // store the search query so the search list can be restored when the user
       // switches back to contacts list
-      if (next.originalPath === '/contact/show/:bookId/:cardId' ||
-          next.originalPath === '/contact/edit/:bookId/:cardId') {
+      if (next.name === '/contact/show/:bookId/:cardId' ||
+          next.name === '/contact/edit/:bookId/:cardId') {
         sharedContactDataService.searchQuery = $scope.searchInput;
       } else {
         sharedContactDataService.searchQuery = null;
@@ -323,7 +323,7 @@ angular.module('linagora.esn.contact')
       gracePeriodService.flushAllTasks();
     });
 
-    $scope.$on('$routeUpdate', function() {
+    $scope.$on('$stateChangeStart', function() {
       if (!$location.search().q) {
         if (!$scope.searchInput) {return;}
         $scope.searchInput = null;

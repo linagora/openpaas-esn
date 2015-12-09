@@ -12,7 +12,6 @@ describe('The Contact Import Twitter Services', function() {
     var ContactImporterMock;
 
     beforeEach(function() {
-      module('ngRoute');
       module('linagora.esn.contact.import.twitter');
       module('esn.core');
     });

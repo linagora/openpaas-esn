@@ -1,8 +1,9 @@
 'use strict';
 
-angular.module('linagora.esn.account', ['restangular', 'op.dynamicDirective', 'esn.core', 'esn.ui', 'linagora.esn.oauth', 'linagora.esn.contact.import'])
-  .config(function($routeProvider, routeResolver) {
-    $routeProvider.when('/accounts', {
+angular.module('linagora.esn.account', ['ui.router', 'restangular', 'op.dynamicDirective', 'esn.core', 'esn.ui', 'linagora.esn.oauth', 'linagora.esn.contact.import'])
+  .config(function($stateProvider, routeResolver) {
+    $stateProvider.state('/accounts', {
+      url: '/accounts',
       templateUrl: '/account/views/accounts',
       controller: 'accountListController',
       resolve: {

@@ -4,7 +4,7 @@ var angularInjections = angularInjections || [];
 
 angular.module('esnApp', [
   'restangular',
-  'ngRoute',
+  'ui.router',
   'mgcrea.ngStrap.affix',
   'mgcrea.ngStrap.modal',
   'mgcrea.ngStrap.aside',
@@ -65,21 +65,28 @@ angular.module('esnApp', [
   'op.dynamicDirective',
   'esn.back-detector',
   'esn.offline-wrapper'
-].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
+].concat(angularInjections)).config(function(RestangularProvider, routeResolver, $urlRouterProvider, $stateProvider) {
 
-  $routeProvider.when('/domains/:id/members/invite', {
+  // don't remove $injector, otherwise $location is not correctly injected...
+  $urlRouterProvider.otherwise(function($injector, $location) {
+    return $location.search().continue || '/communities';
+  });
+
+  $stateProvider
+  .state('/domains/:id/members/invite', {
+    url: '/domains/:id/members/invite',
     templateUrl: '/views/esn/partials/domains/invite',
     controller: 'inviteMembers',
     resolve: { domain: routeResolver.api('domainAPI') }
-  });
-
-  $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
+  })
+  .state('/messages/:id/activitystreams/:asuuid', {
+    url: '/messages/:id/activitystreams/:asuuid',
     templateUrl: '/views/esn/partials/message',
     controller: 'singleMessageDisplayController',
     resolve: {
       message: routeResolver.api('messageAPI'),
-      activitystream: function($route, $location, activitystreamAPI, objectTypeResolver) {
-        return activitystreamAPI.getResource($route.current.params.asuuid).then(function(response) {
+      activitystream: function($stateParams, $location, activitystreamAPI, objectTypeResolver) {
+        return activitystreamAPI.getResource($stateParams.asuuid).then(function(response) {
           var objectType = response.data.objectType;
           var id = response.data.object._id;
           return objectTypeResolver.resolve(objectType, id).then(function(collaboration) {
@@ -93,9 +100,9 @@ angular.module('esnApp', [
         });
       }
     }
-  });
-
-  $routeProvider.when('/profile', {
+  })
+  .state('/profile', {
+    url: '/profile',
     templateUrl: '/views/esn/partials/profile',
     controller: 'profileViewController',
     resolve: {
@@ -107,61 +114,61 @@ angular.module('esnApp', [
         });
       }
     }
-  });
-
-  $routeProvider.when('/profile/:user_id', {
+  })
+  .state('/profile/:user_id', {
+    url: '/profile/:user_id',
     templateUrl: '/views/esn/partials/profile',
     controller: 'profileViewController',
     resolve: {
-      user: function($route, $location, userAPI) {
-        return userAPI.user($route.current.params.user_id).then(function(response) {
+      user: function($stateParams, $location, userAPI) {
+        return userAPI.user($stateParams.user_id).then(function(response) {
           return response.data;
         }, function() {
           $location.path('/');
         });
       }
     }
-  });
-
-  $routeProvider.when('/domains/:domain_id/members', {
+  })
+  .state('/domains/:domain_id/members', {
+    url: '/domains/:domain_id/members',
     templateUrl: '/views/esn/partials/members',
     controller: 'memberscontroller'
-  });
-
-  $routeProvider.when('/applications', {
+  })
+  .state('/applications', {
+    url: '/applications',
     templateUrl: '/views/modules/application/applications',
     controller: 'applicationController',
     resolve: {
       applications: routeResolver.api('applicationAPI', 'created', 'undefined')
     }
-  });
-
-  $routeProvider.when('/applications/:application_id', {
+  })
+  .state('/applications/:application_id', {
+    url: '/applications/:application_id',
     templateUrl: '/views/modules/application/application-details',
     controller: 'applicationDetailsController',
     resolve: {
       application: routeResolver.api('applicationAPI', 'get', 'application_id', '/applications')
     }
-  });
-
-  $routeProvider.when('/communities', {
+  })
+  .state('/communities', {
+    url: '/communities',
     templateUrl: '/views/esn/partials/communities',
     controller: 'communitiesController',
     resolve: {
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')
     }
-  });
-
-  $routeProvider.when('/communities/:community_id', {
+  })
+  .state('/communities/:community_id', {
+    url: '/communities/:community_id',
     templateUrl: '/views/esn/partials/community',
     controller: 'communityController',
     resolve: {
       community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
-      memberOf: function(collaborationAPI, $q, $route, $location) {
+      memberOf: function(collaborationAPI, $q, $stateParams, $location) {
         return collaborationAPI.getWhereMember({
           objectType: 'community',
-          id: $route.current.params.community_id
+          id: $stateParams.community_id
         }).then(function(response) {
           return response.data;
         }, function() {
@@ -169,9 +176,9 @@ angular.module('esnApp', [
         });
       }
     }
-  });
-
-  $routeProvider.when('/collaborations/community/:community_id/members', {
+  })
+  .state('/collaborations/community/:community_id/members', {
+    url: '/collaborations/community/:community_id/members',
     templateUrl: '/views/modules/community/community-members',
     controller: 'communityController',
     resolve: {
@@ -182,19 +189,11 @@ angular.module('esnApp', [
     }
   });
 
-  $routeProvider.otherwise({
-    redirectTo: function(params, path, search) {
-      if (search && search.continue) {
-        return search.continue;
-      }
-      return '/communities';
-    }
-  });
-
   RestangularProvider.setBaseUrl('/api');
   RestangularProvider.setFullResponse(true);
 })
-.run(function(session, ioConnectionManager, editableOptions) {
+// don't remove $state from here or ui-router won't route...
+.run(function(session, ioConnectionManager, editableOptions, $state) {
   editableOptions.theme = 'bs3';
   session.ready.then(function() {
     ioConnectionManager.connect();

@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
+  'ui.router',
   'restangular',
   'esn.alphalist',
   'mgcrea.ngStrap.datepicker',
@@ -19,8 +20,9 @@ angular.module('linagora.esn.contact', [
   'op.dynamicDirective',
   'esn.url'
 ])
-  .config(function($routeProvider, routeResolver) {
-    $routeProvider.when('/contact', {
+  .config(function($stateProvider, routeResolver) {
+    $stateProvider.state('/contact', {
+      url: '/contact',
       templateUrl: '/contact/views/contacts',
       controller: 'contactsListController',
       resolve: {
@@ -28,24 +30,27 @@ angular.module('linagora.esn.contact', [
         user: routeResolver.session('user')
       },
       reloadOnSearch: false
-    });
-    $routeProvider.when('/contact/new/:bookId', {
+    })
+    .state('/contact/new/:bookId', {
+      url: '/contact/new/:bookId',
       templateUrl: '/contact/views/contact-new',
       controller: 'newContactController',
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')
       }
-    });
-    $routeProvider.when('/contact/show/:bookId/:cardId', {
+    })
+    .state('/contact/show/:bookId/:cardId', {
+      url: '/contact/show/:bookId/:cardId',
       templateUrl: '/contact/views/contact-show',
       controller: 'showContactController',
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')
       }
-    });
-    $routeProvider.when('/contact/edit/:bookId/:cardId', {
+    })
+    .state('/contact/edit/:bookId/:cardId', {
+      url: '/contact/edit/:bookId/:cardId',
       templateUrl: '/contact/views/contact-edit',
       controller: 'editContactController',
       resolve: {

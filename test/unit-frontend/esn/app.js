@@ -7,22 +7,24 @@ var expect = chai.expect;
 describe('The esn app', function() {
   beforeEach(angular.mock.module('esnApp'));
 
-  var location, route, rootScope, httpBackend;
+  var location, state, rootScope, httpBackend, stateParams;
 
-  beforeEach(inject(function($location, $route, $rootScope, $httpBackend) {
+  beforeEach(inject(function($location, $state, $rootScope, $httpBackend, $stateParams) {
     location = $location;
-    route = $route;
+    state = $state;
     rootScope = $rootScope;
     httpBackend = $httpBackend;
+    location = $location;
+    stateParams = $stateParams;
   }));
 
-  describe('route provider', function() {
+  describe('state provider', function() {
     it('should load the communities page when routing to an unknown path and no continue parameter exists', function() {
       httpBackend.expectGET('/views/esn/partials/communities').respond(200);
       location.path('/unknown');
       rootScope.$digest();
-      expect(route.current.originalPath).to.equal('/communities');
-      expect(route.current.params).to.deep.equal({});
+      expect(location.path()).to.equal('/communities');
+      expect(stateParams).to.deep.equal({});
     });
 
     it('should load the page from continue parameter when routing to an unknown path and the continue page exists', function() {
@@ -31,8 +33,8 @@ describe('The esn app', function() {
       location.path('unknown');
       location.search({continue: '/profile'});
       rootScope.$digest();
-      expect(route.current.originalPath).to.equal('/profile');
-      expect(route.current.params).to.deep.equal({});
+      expect(location.path()).to.equal('/profile');
+      expect(stateParams).to.deep.equal({});
     });
 
     it('should load the commuinites page when routing to an unknown path and continue parameter is not an existing page', function() {
@@ -40,8 +42,8 @@ describe('The esn app', function() {
       location.path('/unknown');
       location.search({continue: '/notAPage'});
       rootScope.$digest();
-      expect(route.current.originalPath).to.equal('/communities');
-      expect(route.current.params).to.deep.equal({});
+      expect(location.path()).to.equal('/communities');
+      expect(stateParams).to.deep.equal({});
     });
   });
 });

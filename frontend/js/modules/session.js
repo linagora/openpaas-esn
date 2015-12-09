@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
+angular.module('esn.session', ['esn.user', 'esn.domain'])
 .factory('session', function($q) {
 
   var bootstrapDefer = $q.defer();
@@ -47,7 +47,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   $scope.domain = session.domain;
 })
 
-.controller('sessionInitESNController', function($scope, sessionFactory, $route) {
+.controller('sessionInitESNController', function($scope, sessionFactory) {
 
   $scope.session = {
     template: '/views/commons/loading.html'

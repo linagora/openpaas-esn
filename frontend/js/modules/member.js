@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
+angular.module('esn.member', ['ui.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
   .constant('memberSearchConfiguration', {
     searchLimit: 20
   })
@@ -12,9 +12,9 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       },
       templateUrl: '/views/modules/member/member.html'
     };
-  }).controller('memberscontroller', function($scope, domainAPI, $routeParams, memberSearchConfiguration, usSpinnerService) {
+  }).controller('memberscontroller', function($scope, domainAPI, $stateParams, memberSearchConfiguration, usSpinnerService) {
 
-    var domain_id = $routeParams.domain_id;
+    var domain_id = $stateParams.domain_id;
     $scope.spinnerKey = 'memberSpinner';
     var opts = {
       offset: 0,

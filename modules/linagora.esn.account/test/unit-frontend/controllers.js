@@ -9,7 +9,6 @@ describe('The Account Angular Controllers', function() {
   var $rootScope, $controller, $scope, SUPPORTED_ACCOUNTS;
 
   beforeEach(function() {
-    angular.mock.module('ngRoute');
     angular.mock.module('esn.notification');
     angular.mock.module('linagora.esn.account');
   });

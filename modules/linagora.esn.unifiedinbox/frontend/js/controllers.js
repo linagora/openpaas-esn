@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('linagora.esn.unifiedinbox')
-  .controller('listEmailsController', function($scope, $route, jmapClient, EmailGroupingTool) {
-    $scope.mailbox = $route.current.params.mailbox;
+  .controller('listEmailsController', function($scope, $stateParams, jmapClient, EmailGroupingTool) {
+    $scope.mailbox = $stateParams.mailbox;
 
     jmapClient.getMessageList({
       filter: {
@@ -100,9 +100,9 @@ angular.module('linagora.esn.unifiedinbox')
     }
   })
 
-  .controller('viewEmailController', function($scope, $route, $location, jmapClient, jmap, notificationFactory) {
-    $scope.mailbox = $route.current.params.mailbox;
-    $scope.emailId = $route.current.params.emailId;
+  .controller('viewEmailController', function($scope, $stateParams, $location, jmapClient, jmap, notificationFactory) {
+    $scope.mailbox = $stateParams.mailbox;
+    $scope.emailId = $stateParams.emailId;
 
     $scope.moveToTrash = function() {
       $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH)

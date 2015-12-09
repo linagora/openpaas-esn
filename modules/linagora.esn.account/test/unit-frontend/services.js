@@ -7,7 +7,6 @@ var expect = chai.expect;
 describe('The Account Angular Services', function() {
 
   beforeEach(function() {
-    module('ngRoute');
     module('esn.core');
   });
 

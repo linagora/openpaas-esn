@@ -10,6 +10,7 @@ module.exports = function(config) {
       'frontend/components/angular-mocks/angular-mocks.js',
       'test/frontend/karma-include/*.js',
 
+      'frontend/components/angular-ui-router/release/angular-ui-router.js',
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-animate/angular-animate.js',
       'frontend/components/angular-strap/dist/angular-strap.js',

@@ -88,7 +88,7 @@ angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
     this.data = {};
 
     var self = this;
-    $rootScope.$on('$routeChangeSuccess', function() {
+    $rootScope.$on('$stateChangeSuccess', function() {
       if ($location.path() === '/') {
         self.data = {};
       }

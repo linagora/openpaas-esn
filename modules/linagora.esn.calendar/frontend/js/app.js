@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar', [
+  'ui.router',
   'esn.core',
   'esn.authentication',
   'esn.form.helper',
@@ -21,17 +22,18 @@ angular.module('esn.calendar', [
   'ng.deviceDetector',
   'naturalSort'
 ])
-  .config(function($routeProvider, routeResolver) {
+  .config(function($stateProvider, routeResolver) {
 
-    $routeProvider.when('/calendar/communities/:community_id', {
+    $stateProvider.state('/calendar/communities/:community_id', {
+      url: '/calendar/communities/:community_id',
       templateUrl: '/calendar/views/calendar/community-calendar',
       controller: 'communityCalendarController',
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
       }
-    });
-
-    $routeProvider.when('/calendar/event-full-form', {
+    })
+    .state('/calendar/event-full-form', {
+      url: '/calendar/event-full-form',
       templateUrl: '/calendar/views/event-full-form/event-full-form-view',
       resolve: {
         event: function(eventUtils) {
@@ -39,13 +41,13 @@ angular.module('esn.calendar', [
         }
       },
       controller: 'eventFullFormController'
-    });
-
-    $routeProvider.when('/calendar/:calendar_id/:event_id', {
+    })
+    .state('/calendar/:calendar_id/:event_id', {
+      url: '/calendar/:calendar_id/:event_id',
       templateUrl: '/calendar/views/event-full-form/event-full-form-view',
       resolve: {
-        event: function($route, $location, pathBuilder, calendarService, notificationFactory) {
-          var eventPath = pathBuilder.forEventId($route.current.params.calendar_id, $route.current.params.event_id);
+        event: function($stateParams, $location, pathBuilder, calendarService, notificationFactory) {
+          var eventPath = pathBuilder.forEventId($stateParams.calendar_id, $stateParams.event_id);
           return calendarService.getEvent(eventPath).catch(function(error) {
             notificationFactory.weakError('Cannot display this event.', error.statusText);
             $location.path('/calendar');
@@ -53,9 +55,9 @@ angular.module('esn.calendar', [
         }
       },
       controller: 'eventFullFormController'
-    });
-
-    $routeProvider.when('/calendar', {
+    })
+    .state('/calendar', {
+      url: '/calendar',
       templateUrl: '/calendar/views/calendar/user-calendar',
       controller: 'userCalendarController',
       resolve: {

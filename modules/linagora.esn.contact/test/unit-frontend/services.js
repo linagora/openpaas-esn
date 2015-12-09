@@ -8,7 +8,6 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   beforeEach(function() {
-    module('ngRoute');
     module('esn.core');
     module('esn.websocket');
     module('esn.api-notification');
@@ -19,8 +18,10 @@ describe('The Contacts Angular module', function() {
     var liveNotificationMock, onFn, removeListenerFn;
     var $rootScope, liveRefreshContactService, CONTACT_SIO_EVENTS;
     var namespace = '/contacts';
+    var session = {};
 
     beforeEach(function() {
+      session = {};
       onFn = sinon.spy();
       removeListenerFn = sinon.spy();
       liveNotificationMock = sinon.stub().returns({
@@ -30,6 +31,7 @@ describe('The Contacts Angular module', function() {
 
       module(function($provide) {
         $provide.value('livenotification', liveNotificationMock);
+        $provide.value('session', session);
       });
 
       inject(function(_$rootScope_, _liveRefreshContactService_, _CONTACT_SIO_EVENTS_) {
@@ -43,9 +45,9 @@ describe('The Contacts Angular module', function() {
     describe('The startListen fn', function() {
 
       it('should be called when user switches to contact module', function() {
-        $rootScope.$broadcast('$routeChangeSuccess', {
-          originalPath: '/contact',
-          locals: { user: { _id: 1 } }
+        session.user = {_id: 1};
+        $rootScope.$broadcast('$stateChangeSuccess', {
+          name: '/contact'
         });
         expect(onFn.callCount).to.equal(3);
       });
@@ -83,8 +85,8 @@ describe('The Contacts Angular module', function() {
         var bookId = 'some book id';
         liveRefreshContactService.startListen(bookId);
 
-        $rootScope.$broadcast('$routeChangeSuccess', {
-          originalPath: '/other/module/path'
+        $rootScope.$broadcast('$stateChangeSuccess', {
+          name: '/other/module/path'
         });
 
         expect(removeListenerFn.callCount).to.equal(3);
