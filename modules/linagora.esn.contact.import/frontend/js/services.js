@@ -73,4 +73,88 @@ angular.module('linagora.esn.contact.import')
     return {
       import: importContacts
     };
+  })
+
+  .factory('ContactImportMessageRegistry', function(CONTACT_IMPORT_DEFAULT_MESSAGES, CONTACT_IMPORT_UNKNOWN_MESSAGE) {
+    var cache = {};
+
+    function register(provider, messages) {
+      cache[provider] = messages;
+    }
+
+    function get(provider, type) {
+      if (cache.hasOwnProperty(provider)) {
+        var messages = cache[provider];
+        return messages[type] ? messages[type] : CONTACT_IMPORT_DEFAULT_MESSAGES[type] || CONTACT_IMPORT_UNKNOWN_MESSAGE;
+      }
+
+      return CONTACT_IMPORT_DEFAULT_MESSAGES[type] || CONTACT_IMPORT_UNKNOWN_MESSAGE;
+    }
+
+    return {
+      get: get,
+      register: register
+    };
+  })
+
+  .factory('ContactImportNotificationService', function($log, $interpolate, notificationFactory, livenotification, CONTACT_IMPORT_SIO_EVENTS, CONTACT_IMPORT_SIO_NAMESPACE, ContactImportMessageRegistry) {
+    var sio = null;
+    var listening = false;
+
+    function notify(type, data) {
+      var msg = $interpolate(ContactImportMessageRegistry(data.provide, type))(
+        { account: data.account }
+      );
+      notificationFactory.notify(
+        'danger',
+        '',
+        msg,
+        { from: 'bottom', align: 'center' },
+        3000);
+    }
+
+    function accountErrorHandler(data) {
+      notify('ACCOUNT_ERROR', data);
+    }
+
+    function apiClientErrorHandler(data) {
+      notify('API_CLIENT_ERROR', data);
+    }
+
+    function contactClientErrorHandler(data) {
+      notify('CONTACT_CLIENT_ERROR', data);
+    }
+
+    function startListen(roomId) {
+      if (listening) { return; }
+
+      if (sio === null) {
+        sio = livenotification(CONTACT_IMPORT_SIO_NAMESPACE, roomId);
+      }
+
+      sio.on(CONTACT_IMPORT_SIO_EVENTS.ACCOUNT_ERROR, accountErrorHandler);
+      sio.on(CONTACT_IMPORT_SIO_EVENTS.API_CLIENT_ERROR, apiClientErrorHandler);
+      sio.on(CONTACT_IMPORT_SIO_EVENTS.CONTACT_CLIENT_ERROR, contactClientErrorHandler);
+
+      listening = true;
+      $log.debug('Start listening contact import notification service', roomId);
+    }
+
+    function stopListen() {
+      if (!listening) { return; }
+
+      if (sio) {
+        sio.removeListener(CONTACT_IMPORT_SIO_EVENTS.ACCOUNT_ERROR, accountErrorHandler);
+        sio.removeListener(CONTACT_IMPORT_SIO_EVENTS.API_CLIENT_ERROR, apiClientErrorHandler);
+        sio.removeListener(CONTACT_IMPORT_SIO_EVENTS.CONTACT_CLIENT_ERROR, contactClientErrorHandler);
+      }
+
+      listening = false;
+      $log.debug('Stop listening contact import notification service');
+    }
+
+    return {
+      startListen: startListen,
+      stopListen: stopListen
+    };
   });

@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -166,4 +167,130 @@ describe('The Contact Import Angular Services', function() {
       });
     });
   });
+
+  describe('The ContactImportMessageRegistry service', function() {
+    var ContactImportMessageRegistry, CONTACT_IMPORT_DEFAULT_MESSAGES, CONTACT_IMPORT_UNKNOWN_MESSAGE;
+
+    beforeEach(function() {
+      angular.mock.inject(function(_ContactImportMessageRegistry_, _CONTACT_IMPORT_DEFAULT_MESSAGES_, _CONTACT_IMPORT_UNKNOWN_MESSAGE_) {
+        ContactImportMessageRegistry = _ContactImportMessageRegistry_;
+        CONTACT_IMPORT_DEFAULT_MESSAGES = _CONTACT_IMPORT_DEFAULT_MESSAGES_;
+        CONTACT_IMPORT_UNKNOWN_MESSAGE = _CONTACT_IMPORT_UNKNOWN_MESSAGE_;
+      });
+    });
+
+    it('should send back a registered messages', function() {
+      var provider = 'a provider';
+      var type = 'ACCOUNT_ERROR';
+      var message = 'This is account error detail';
+      var messages = {};
+      messages[type] = message;
+      ContactImportMessageRegistry.register(provider, messages);
+      expect(ContactImportMessageRegistry.get(provider, type)).to.equal(message);
+    });
+
+    it('should send back the default message when provider is not found', function() {
+      var provider = 'a provider';
+      var type = 'ACCOUNT_ERROR';
+      var message = 'This is account error detail';
+      var messages = {};
+      messages[type] = message;
+      ContactImportMessageRegistry.register(provider, messages);
+
+      expect(ContactImportMessageRegistry.get('another provider', type)).to.equal(CONTACT_IMPORT_DEFAULT_MESSAGES[type]);
+    });
+
+    it('should send back the default message when type is not found in provider', function() {
+      var provider = 'a provider';
+      var type = 'ACCOUNT_ERROR';
+      var messages = {};
+      ContactImportMessageRegistry.register(provider, messages);
+
+      expect(ContactImportMessageRegistry.get(provider, type)).to.equal(CONTACT_IMPORT_DEFAULT_MESSAGES[type]);
+    });
+
+    it('should send back the unknown message when type is not found in provider nor defaults', function() {
+      var provider = 'a provider';
+      var type = 'ACCOUNT_ERROR';
+      var message = 'This is account error detail';
+      var messages = {};
+      messages[type] = message;
+      ContactImportMessageRegistry.register(provider, messages);
+
+      expect(ContactImportMessageRegistry.get(provider, 'invalid type')).to.equal(CONTACT_IMPORT_UNKNOWN_MESSAGE);
+    });
+
+  });
+
+  describe('The ContactImportNotificationService', function() {
+    var ContactImportNotificationService, CONTACT_IMPORT_SIO_NAMESPACE;
+
+    function injectService() {
+      angular.mock.inject(function(_ContactImportNotificationService_, _CONTACT_IMPORT_SIO_NAMESPACE_) {
+        ContactImportNotificationService = _ContactImportNotificationService_;
+        CONTACT_IMPORT_SIO_NAMESPACE = _CONTACT_IMPORT_SIO_NAMESPACE_;
+      });
+    }
+
+    beforeEach(function() {
+      ContactImportNotificationService = null;
+    });
+
+    describe('The startListen fn', function() {
+
+      it('should listen to notification with right namespace and room', function(done) {
+        var roomId = 'a room id';
+        angular.mock.module(function($provide) {
+          $provide.value('livenotification', function(namespace, roomId) {
+            expect(namespace).to.equal(CONTACT_IMPORT_SIO_NAMESPACE);
+            expect(roomId).to.equal(roomId);
+            done();
+            return {
+              on: angular.noop
+            };
+          });
+        });
+        injectService();
+        ContactImportNotificationService.startListen(roomId);
+      });
+
+      it('should listen to notification once', function() {
+        var roomId = 'a room id';
+        var onFnSpy = sinon.spy();
+        var spy = sinon.spy(function() {
+          return { on: onFnSpy };
+        });
+        angular.mock.module(function($provide) {
+          $provide.value('livenotification', spy);
+        });
+        injectService();
+        ContactImportNotificationService.startListen(roomId);
+        ContactImportNotificationService.startListen(roomId);
+        expect(spy.callCount).to.equal(1);
+        expect(onFnSpy.callCount).to.equal(3);
+      });
+
+    });
+
+    describe('The stopListen fn', function() {
+
+      it('should remove all listeners', function() {
+        var roomId = 'a room id';
+        var removeListenerFnSpy = sinon.spy();
+        var spy = sinon.spy(function() {
+          return { on: angular.noop, removeListener: removeListenerFnSpy };
+        });
+        angular.mock.module(function($provide) {
+          $provide.value('livenotification', spy);
+        });
+        injectService();
+        ContactImportNotificationService.startListen(roomId);
+        ContactImportNotificationService.stopListen();
+        expect(removeListenerFnSpy.callCount).to.equal(3);
+      });
+
+    });
+
+  });
+
 });
