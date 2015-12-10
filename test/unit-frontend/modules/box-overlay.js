@@ -209,4 +209,45 @@ describe('The box-overlay Angular module', function() {
 
   });
 
+  describe('The boxOverlayOpener service', function() {
+
+    var boxOverlay, boxOverlayReturnValue, boxOverlayOpener;
+
+    beforeEach(angular.mock.module(function($provide) {
+      boxOverlay = function(options) {
+        boxOverlay.receivedOptions = options;
+        return boxOverlayReturnValue;
+      };
+      $provide.value('$boxOverlay', boxOverlay);
+    }));
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _boxOverlayOpener_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+      boxOverlayOpener = _boxOverlayOpener_;
+    }));
+
+    it('delegate to $boxOverlay with the given options', function() {
+      boxOverlayOpener.open({my: 'super options'});
+
+      expect(boxOverlay.receivedOptions).to.deep.equal({my: 'super options'});
+    });
+
+    it('call the show fn if the returned value is defined', function(done) {
+      boxOverlayReturnValue = {
+        show: done
+      };
+
+      boxOverlayOpener.open({});
+    });
+
+    it('not try to call the show fn if the returned value is undefined', function() {
+      boxOverlayReturnValue = undefined;
+
+      boxOverlayOpener.open({});
+    });
+
+  });
+
 });

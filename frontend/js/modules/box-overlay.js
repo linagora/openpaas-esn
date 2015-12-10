@@ -4,6 +4,21 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
 
   .constant('MAX_BOX_COUNT', 2)
 
+  .service('boxOverlayOpener', function($boxOverlay) {
+
+    function open(options) {
+      var overlay = $boxOverlay(options);
+
+      if (angular.isDefined(overlay)) {
+        overlay.show();
+      }
+    }
+
+    return {
+      open: open
+    };
+  })
+
   .service('boxOverlayService', function($rootScope, MAX_BOX_COUNT) {
 
     var boxScopes = [];
@@ -205,25 +220,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
     };
   })
 
-  .directive('boxOverlay', function($boxOverlay) {
-    function buildOptions(scope) {
-      return {
-        title: scope.boxTitle,
-        templateUrl: scope.boxTemplateUrl
-      };
-    }
-
-    function postLink(scope, element) {
-      element.on('click', function() {
-        var overlay = $boxOverlay(buildOptions(scope));
-
-        if (angular.isUndefined(overlay)) {
-          return;
-        }
-
-        overlay.show();
-      });
-    }
+  .directive('boxOverlay', function(boxOverlayOpener) {
 
     return {
       restrict: 'A',
@@ -231,7 +228,15 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         boxTitle: '@',
         boxTemplateUrl: '@'
       },
-      link: postLink
+      link: function(scope, element) {
+
+        element.on('click', function() {
+          boxOverlayOpener.open({
+            title: scope.boxTitle,
+            templateUrl: scope.boxTemplateUrl
+          });
+        });
+      }
     };
   })
 
