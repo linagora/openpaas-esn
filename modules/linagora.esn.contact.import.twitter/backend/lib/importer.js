@@ -5,14 +5,35 @@ var q = require('q');
 var Twitter = require('twitter-node-client').Twitter;
 var TWITTER_LIMIT_ID_REQUEST = 18000;
 var MAX_ID_PER_STACK = 100;
+var TWITTER = 'twitter';
 
 module.exports = function(dependencies) {
 
   var twitterToVcard = require('./mapping')(dependencies);
   var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub').local;
+  var pubsub = dependencies('pubsub').global;
   var contactModule = dependencies('contact');
   var config = dependencies('esn-config');
+  var CONTACT_IMPORT_ERROR = dependencies('contact-import').constants.CONTACT_IMPORT_ERROR;
+
+  var IMPORT_ACCOUNT_ERROR = CONTACT_IMPORT_ERROR.ACCOUNT_ERROR;
+  var IMPORT_API_CLIENT_ERROR = CONTACT_IMPORT_ERROR.API_CLIENT_ERROR;
+  var IMPORT_CONTACT_CLIENT_ERROR = CONTACT_IMPORT_ERROR.CONTACT_CLIENT_ERROR;
+
+  function buildErrorMessage(type, errorObject) {
+    // https://dev.twitter.com/overview/api/response-codes
+    if (type === IMPORT_API_CLIENT_ERROR && errorObject.statusCode) {
+      var statusCode = errorObject.statusCode;
+      if (statusCode === 400 || statusCode === 401 || statusCode === 403) {
+        type = IMPORT_ACCOUNT_ERROR;
+      }
+    }
+
+    return {
+      type: type,
+      errorObject: errorObject
+    };
+  }
 
   function createContact(vcard, options) {
     var contactId = vcard.getFirstPropertyValue('uid');
@@ -23,7 +44,8 @@ module.exports = function(dependencies) {
       .then(function() {
         pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookId: options.user._id, vcard: vcard.toJSON(), user: options.user});
       }, function(err) {
-        logger.error('Error while importing contact', err);
+        logger.error('Error while inserting contact to DAV', err);
+        return q.reject(buildErrorMessage(IMPORT_CONTACT_CLIENT_ERROR, err));
       });
   }
 
@@ -31,7 +53,7 @@ module.exports = function(dependencies) {
     var defer = q.defer();
 
     twitterClient.getCustomApiCall('/users/lookup.json', {user_id: ids}, function(err) {
-      return defer.reject(err);
+      return defer.reject(buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
     }, function(data) {
       var userList = JSON.parse(data);
       q.all(userList.map(function(userJson) {
@@ -66,7 +88,7 @@ module.exports = function(dependencies) {
       }
     });
 
-    q.all(idStack.map(function(ids) {
+    return q.all(idStack.map(function(ids) {
       return sendFollowingToDAV(twitterClient, options, ids);
     }));
   }
@@ -88,7 +110,7 @@ module.exports = function(dependencies) {
     }
 
     twitterClient.getCustomApiCall('/friends/ids.json', {cursor: next_cursor}, function(err) {
-      return defer.reject(err);
+      return defer.reject(buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
     }, function(data) {
       var result = JSON.parse(data);
       Array.prototype.push.apply(followingIdsList, result.ids);
@@ -129,11 +151,19 @@ module.exports = function(dependencies) {
       };
       var twitterClient = new Twitter(twitterConfig);
 
-      getFollowingsIds(followingIdsList, twitterClient, -1).then(function(followingIdsList) {
-        sendFollowingsToDAV(followingIdsList, twitterClient, options);
-      }, function(err) {
-        logger.error('Error while calling twitter API', err);
-      });
+      getFollowingsIds(followingIdsList, twitterClient, -1)
+        .then(function(followingIdsList) {
+          return sendFollowingsToDAV(followingIdsList, twitterClient, options);
+        })
+        .then(null, function(err) {
+          logger.info('Error while importing Twitter followings', err);
+          pubsub.topic(err.type).publish({
+            type: err.type,
+            provider: TWITTER,
+            account: account.data.username,
+            user: options.user
+          });
+        });
       return defer.resolve();
     });
     return defer.promise;

@@ -6,7 +6,7 @@ angular.module('linagora.esn.contact.import', [
   'esn.notification',
   'esn.websocket'
 ])
-.run(function($rootScope, ContactImportNotificationService, session) {
+.run(function(ContactImportNotificationService, session) {
   session.ready.then(function(session) {
     ContactImportNotificationService.startListen(session.user._id);
   });

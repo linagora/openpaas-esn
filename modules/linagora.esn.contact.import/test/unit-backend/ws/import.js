@@ -120,9 +120,13 @@ describe('The import WS event module', function() {
           return {
             emit: function(eventName, data) {
               expect(eventName).to.equal(IMPORT_ACCOUNT_ERROR);
-              expect(data.room).to.equal(roomId);
-              expect(data.data.account).to.equal(account);
-              expect(data.data.provider).to.equal(provider);
+              expect(data).to.eql({
+                room: roomId,
+                data: {
+                  account: account,
+                  provider: provider
+                }
+              });
               done();
             }
           };

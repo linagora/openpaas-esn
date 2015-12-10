@@ -102,7 +102,7 @@ angular.module('linagora.esn.contact.import')
     var listening = false;
 
     function notify(type, data) {
-      var msg = $interpolate(ContactImportMessageRegistry(data.provide, type))(
+      var msg = $interpolate(ContactImportMessageRegistry.get(data.provider, type))(
         { account: data.account }
       );
       notificationFactory.notify(

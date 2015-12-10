@@ -223,11 +223,12 @@ describe('The Contact Import Angular Services', function() {
   });
 
   describe('The ContactImportNotificationService', function() {
-    var ContactImportNotificationService, CONTACT_IMPORT_SIO_NAMESPACE;
+    var ContactImportNotificationService, CONTACT_IMPORT_SIO_EVENTS, CONTACT_IMPORT_SIO_NAMESPACE;
 
     function injectService() {
-      angular.mock.inject(function(_ContactImportNotificationService_, _CONTACT_IMPORT_SIO_NAMESPACE_) {
+      angular.mock.inject(function(_ContactImportNotificationService_, _CONTACT_IMPORT_SIO_EVENTS_, _CONTACT_IMPORT_SIO_NAMESPACE_) {
         ContactImportNotificationService = _ContactImportNotificationService_;
+        CONTACT_IMPORT_SIO_EVENTS = _CONTACT_IMPORT_SIO_EVENTS_;
         CONTACT_IMPORT_SIO_NAMESPACE = _CONTACT_IMPORT_SIO_NAMESPACE_;
       });
     }
@@ -268,6 +269,105 @@ describe('The Contact Import Angular Services', function() {
         ContactImportNotificationService.startListen(roomId);
         expect(spy.callCount).to.equal(1);
         expect(onFnSpy.callCount).to.equal(3);
+      });
+
+      it('should notify notification on ACCOUNT_ERROR event', function(done) {
+        var roomId = 'a room ID';
+        var account = 'linagora';
+        var provider = 'a provider';
+        angular.mock.module(function($provide) {
+          $provide.value('livenotification', function() {
+            return {
+              on: function(eventName, callback) {
+                if (eventName === CONTACT_IMPORT_SIO_EVENTS.ACCOUNT_ERROR) {
+                  callback({
+                    type: eventName,
+                    account: account,
+                    provider: provider
+                  });
+                }
+              }
+            };
+          });
+          $provide.value('ContactImportMessageRegistry', {
+            get: function(_provider, type) {
+              expect(_provider).to.equal(provider);
+              expect(type).to.equal('ACCOUNT_ERROR');
+              return 'error message';
+            }
+          });
+          $provide.value('notificationFactory', {
+            notify: done.bind(null, null)
+          });
+        });
+        injectService();
+        ContactImportNotificationService.startListen(roomId);
+      });
+
+      it('should notify notification on API_CLIENT_ERROR event', function(done) {
+        var roomId = 'a room ID';
+        var account = 'linagora';
+        var provider = 'a provider';
+        angular.mock.module(function($provide) {
+          $provide.value('livenotification', function() {
+            return {
+              on: function(eventName, callback) {
+                if (eventName === CONTACT_IMPORT_SIO_EVENTS.API_CLIENT_ERROR) {
+                  callback({
+                    type: eventName,
+                    account: account,
+                    provider: provider
+                  });
+                }
+              }
+            };
+          });
+          $provide.value('ContactImportMessageRegistry', {
+            get: function(_provider, type) {
+              expect(_provider).to.equal(provider);
+              expect(type).to.equal('API_CLIENT_ERROR');
+              return 'error message';
+            }
+          });
+          $provide.value('notificationFactory', {
+            notify: done.bind(null, null)
+          });
+        });
+        injectService();
+        ContactImportNotificationService.startListen(roomId);
+      });
+
+      it('should notify notification on CONTACT_CLIENT_ERROR event', function(done) {
+        var roomId = 'a room ID';
+        var account = 'linagora';
+        var provider = 'a provider';
+        angular.mock.module(function($provide) {
+          $provide.value('livenotification', function() {
+            return {
+              on: function(eventName, callback) {
+                if (eventName === CONTACT_IMPORT_SIO_EVENTS.CONTACT_CLIENT_ERROR) {
+                  callback({
+                    type: eventName,
+                    account: account,
+                    provider: provider
+                  });
+                }
+              }
+            };
+          });
+          $provide.value('ContactImportMessageRegistry', {
+            get: function(_provider, type) {
+              expect(_provider).to.equal(provider);
+              expect(type).to.equal('CONTACT_CLIENT_ERROR');
+              return 'error message';
+            }
+          });
+          $provide.value('notificationFactory', {
+            notify: done.bind(null, null)
+          });
+        });
+        injectService();
+        ContactImportNotificationService.startListen(roomId);
       });
 
     });

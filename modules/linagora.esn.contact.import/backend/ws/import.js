@@ -29,7 +29,6 @@ function init(dependencies) {
     importNamespace.to(userId).emit(eventName, {
       room: userId,
       data: {
-        type: data.type,
         account: data.account,
         provider: data.provider
       }
