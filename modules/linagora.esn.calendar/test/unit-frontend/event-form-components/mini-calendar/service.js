@@ -62,12 +62,20 @@ describe('The mini-calendar service', function() {
     });
 
     it('should iter on each day where the event is present', function() {
-      event.end = fcMoment('2015-11-32T11:39:00.376Z');
+      event.end = fcMoment('2015-12-02T11:39:00.376Z');
       miniCalenderLogic.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledThrice;
     });
 
     it('should call callback only on start day if no end day', function() {
+      miniCalenderLogic.forEachDayOfEvent(event, spy);
+      expect(spy).to.have.been.calledOnce;
+    });
+    it('should exclude the technical end date for allday events', function() {
+      event.start = fcMoment('2015-11-30');
+      event.end = fcMoment('2015-12-01');
+      event.allDay = true;
+
       miniCalenderLogic.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledOnce;
     });
