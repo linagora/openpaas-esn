@@ -77,20 +77,6 @@ describe('The box-overlay Angular module', function() {
       expect(overlays()).to.have.length(1);
     });
 
-    it('should remove the overlay when the calling element\'s scope is destroyed, if auto-destroy=true', function() {
-      compileAndClickTheButton('<button box-overlay box-auto-destroy="true" />');
-      $scope.$destroy();
-
-      expect(overlays()).to.have.length(0);
-    });
-
-    it('should not remove the overlay when the calling element\'s scope is destroyed, if auto-destroy=false', function() {
-      compileAndClickTheButton('<button box-overlay />');
-      $scope.$destroy();
-
-      expect(overlays()).to.have.length(1);
-    });
-
     it('should correctly fetch a custom template, and add it to the overlay', function() {
       $httpBackend.expectGET('/path/to/the/template').respond('<div class="i-am-the-template">Test</div>');
 

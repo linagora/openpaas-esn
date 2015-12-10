@@ -222,24 +222,12 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         }
 
         overlay.show();
-        if (scope.boxAutoDestroy) {
-          scope.cleanup = function() {
-            if (overlay) {
-              overlay.destroy();
-            }
-
-            overlay = null;
-          };
-
-          scope.$on('$destroy', scope.cleanup);
-        }
       });
     }
 
     return {
       restrict: 'A',
       scope: {
-        boxAutoDestroy: '=',
         boxTitle: '@',
         boxTemplateUrl: '@'
       },
