@@ -1,0 +1,13 @@
+.event-full-form-subheader.col-xs-12
+  div(ng-if='isOrganizer')
+    .buttons
+      button.btn.btn-primary(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
+        i.mdi.mdi-check
+      span.title(ng-if='isNew(editedEvent)') #{__('Create')}
+      span.title(ng-if='!isNew(editedEvent)') #{__('Modify')}
+      button.btn.btn-primary.pull-right(type='button', ng-click="goBack()")
+        i.mdi.mdi-close
+  div(ng-if='!isOrganizer')
+    span.title #{__('Consult')}
+    button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
+      i.mdi.mdi-close

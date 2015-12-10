@@ -4,6 +4,10 @@
     font-size: 3em;
   }
 
+  .btn:not(.btn-link):not(.btn-float):not(.command-edit):not(.command-delete):not(.selectpicker) {
+    box-shadow: none;
+  }
+
   .card-body {
     .row {
       margin: 0;
@@ -29,35 +33,60 @@
     }
   }
 
-  .form-group {
-    margin-bottom: 20px;
-    font-size: 13px;
-    textarea.form-control {
-      z-index: 0;
+  .buttons {
+    button {
+      margin-right: 5px;
     }
     .textarea-icon {
       vertical-align: top;
     }
   }
 
-  .attendees-list {
-    .col-xs-12 {
-      margin-bottom: 20px;
+  .form {
+    margin-top: 40px;
+    font-size: @formFontSize;
+    .form-control {
+      font-size: @formFontSize;
     }
-  }
-}
 
-@media (min-width: @screen-sm-min) {
-  .event-full-form {
-    .attendees-list {
-      .col-sm-1 {
-        .col-xs-2;
+    tags-input .tags .input {
+      font-size: @formFontSize;
+    }
+
+    .input-group-addon {
+      font-size: @formFontSize;
+    }
+
+    .form-group {
+      .FormMargin();
+      textarea.form-control {
+        z-index: 0;
       }
+    }
+
+    .attendees-list {
+      .col-xs-12 {
+        .FormMargin();
+      }
+
       .attendee-avatar {
         .checkbox {
-          bottom: -22px;
-          right: -20px;
+          bottom: -24px;
         }
+        height: 45px;
+        width: 45px;
+      }
+
+      .undecided {
+        margin-top: 25px;
+        font-size: @formFontSize;
+      }
+      .accepted {
+        font-size: @formFontSize;
+      }
+      .declined {
+        margin-top: 25px;
+        font-size: @formFontSize;
       }
     }
   }
@@ -70,7 +99,7 @@
     }
 
     .card-body {
-      padding-top: 10px;
+      padding: 10px 0;
     }
 
     &.readonly {
@@ -83,6 +112,10 @@
         cursor: default;
         background-image: none;
       }
+    }
+
+    .form {
+      margin-top: 60px;
     }
   }
 }

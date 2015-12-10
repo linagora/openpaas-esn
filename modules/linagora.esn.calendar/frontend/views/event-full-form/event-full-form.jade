@@ -1,10 +1,10 @@
 .col-xs-12.col-md-10.nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
-  .card-header
-    .row(ng-if='isOrganizer')
-      .col-xs-8
+  .card-header.hidden-xs
+    .row(ng-if='isOrganizer').flex-vertical-centered
+      .col-xs-12.col-sm-7
         h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
         h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
-      .col-xs-4
+      .col-xs-12.col-sm-5.buttons
           button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
             span(ng-if='isNew(editedEvent)') #{__('Create')}
             span(ng-if='!isNew(editedEvent)') #{__('Modify')}
@@ -13,14 +13,14 @@
           button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
             | #{__('Cancel')}
     .row(ng-if='!isOrganizer')
-      .col-xs-8
+      .col-xs-7
         h1 #{__('Consult')}
-      .col-xs-4
+      .col-xs-5
           button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
             | #{__('Back')}
 
   .card-body.card-padding
-    form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
+    form.form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
       .row
         .col-xs-12.col-sm-6
           .row
@@ -49,7 +49,13 @@
                   span.input-group-addon
                     i.mdi.mdi-map-marker
                   .fg-line
-                    input.input.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                    input.form-control.fg-input(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+
+          .row.visible-xs
+            attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+
+          .row.visible-xs
+            attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
           event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 
@@ -76,10 +82,10 @@
                       option(value="privacyB") privacyB
 
         .col-xs-12.col-sm-6
-          .row
+          .row.hidden-xs
             attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
-          .row
+          .row.hidden-xs
             attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
           .row
