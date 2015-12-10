@@ -448,11 +448,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The inboxFab directive', function() {
 
-    var boxOverlayService, $location;
+    var boxOverlayService, $location, newComposerService;
 
-    beforeEach(inject(function(_boxOverlayService_, _$location_) {
+    beforeEach(inject(function(_boxOverlayService_, _$location_, _newComposerService_) {
       boxOverlayService = _boxOverlayService_;
       $location = _$location_;
+      newComposerService = _newComposerService_;
     }));
 
     function findInnerFabButton(fab) {
@@ -513,12 +514,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should change location when the compose fn is called', function() {
-      $location.path = sinon.spy();
-      compileFabDirective();
+      newComposerService.open = sinon.spy();
+      var fab = compileFabDirective();
 
-      $scope.compose();
+      fab.click();
 
-      expect($location.path).to.be.calledWith('/unifiedinbox/compose');
+      expect(newComposerService.open).to.have.been.calledOnce;
     });
   });
 

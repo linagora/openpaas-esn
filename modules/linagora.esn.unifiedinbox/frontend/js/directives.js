@@ -45,10 +45,6 @@ angular.module('linagora.esn.unifiedinbox')
           enableFab();
         });
 
-        scope.compose = function() {
-          $location.path('/unifiedinbox/compose');
-        };
-
         $timeout(function() {
           if (!boxOverlayService.spaceLeftOnScreen()) {
             disableFab();
