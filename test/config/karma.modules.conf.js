@@ -67,6 +67,7 @@ module.exports = function(config) {
       'frontend/components/angular-summernote/dist/angular-summernote.min.js',
       'frontend/components/autosize/dist/autosize.min.js',
       'frontend/components/offline/offline.min.js',
+      'frontend/components/angular-media-queries/match-media.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',

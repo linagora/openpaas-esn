@@ -15,7 +15,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.scroll',
   'op.dynamicDirective',
   'esn.header',
-  'esn.offline-wrapper'
+  'esn.offline-wrapper',
+  'matchMedia'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider.state('/unifiedinbox', {

@@ -2,6 +2,19 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .directive('newComposer', function($timeout, newComposerService) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+
+        element.click(function() {
+          newComposerService.open();
+        });
+
+      }
+    };
+  })
+
   .directive('inboxFab', function($timeout, $location, boxOverlayService) {
     return {
       restrict: 'E',

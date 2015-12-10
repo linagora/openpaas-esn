@@ -801,4 +801,55 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The newComposerService ', function() {
+
+    var $location, $timeout, newComposerService, screenSize, boxOverlayOpener;
+
+    beforeEach(inject(function(_$location_, _$timeout_, _newComposerService_, _screenSize_, _boxOverlayOpener_) {
+      newComposerService = _newComposerService_;
+      screenSize = _screenSize_;
+      $location = _$location_;
+      $timeout = _$timeout_;
+      boxOverlayOpener = _boxOverlayOpener_;
+    }));
+
+    describe('the "open" method', function() {
+
+      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+        screenSize.is = function(size) {
+          expect(size).to.equal('xs');
+          done();
+        };
+        newComposerService.open();
+      });
+
+      it('should update the location if screenSize returns true', function() {
+        screenSize.is = function() {
+          return true;
+        };
+        $location.path = sinon.spy();
+
+        newComposerService.open();
+        $timeout.flush();
+
+        expect($location.path).to.have.been.calledWith('/unifiedinbox/compose');
+      });
+
+      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
+        screenSize.is = function() {
+          return false;
+        };
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.open();
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          title: 'Compose an email',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html'
+        });
+      });
+
+    });
+  });
+
 });

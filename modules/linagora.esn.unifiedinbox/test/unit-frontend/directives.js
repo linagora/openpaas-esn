@@ -75,6 +75,25 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     return element;
   }
 
+  describe('The newComposer directive', function() {
+
+    var newComposerService;
+
+    beforeEach(inject(function(_newComposerService_) {
+      newComposerService = _newComposerService_;
+    }));
+
+    it('should call the open fn from newComposerService when clicked', function() {
+      var testee = compileDirective('<div new-composer/>');
+      newComposerService.open = sinon.spy();
+
+      testee.click();
+
+      expect(newComposerService.open).to.have.been.calledOnce;
+    });
+
+  });
+
   describe('The inboxMenu directive', function() {
 
     it('should set $scope.email to the logged-in user email', function() {

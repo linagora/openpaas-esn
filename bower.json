@@ -83,7 +83,8 @@
     "angular-summernote": "0.5.1",
     "autosize": "3.0.13",
     "offline": "0.7.14",
-    "angular-ui-router": "0.2.15"
+    "angular-ui-router": "0.2.15",
+    "angular-media-queries": "0.4.1"
   },
   "resolutions": {
     "jquery": "2.1.1",

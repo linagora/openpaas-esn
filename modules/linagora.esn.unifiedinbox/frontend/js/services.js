@@ -292,4 +292,30 @@ angular.module('linagora.esn.unifiedinbox')
         return new Draft(originalEmailState);
       }
     };
+  })
+
+  .service('newComposerService', function($location, $timeout, screenSize, boxOverlayOpener) {
+
+    function newMobileComposer() {
+      $timeout(function() {
+        $location.path('/unifiedinbox/compose');
+      });
+    }
+
+    function newBoxedComposer() {
+      boxOverlayOpener.open({
+        title: 'Compose an email',
+        templateUrl: '/unifiedinbox/views/composer/box-compose.html'
+      });
+    }
+
+    return {
+      open: function() {
+        if (screenSize.is('xs')) {
+          newMobileComposer();
+        } else {
+          newBoxedComposer();
+        }
+      }
+    };
   });
