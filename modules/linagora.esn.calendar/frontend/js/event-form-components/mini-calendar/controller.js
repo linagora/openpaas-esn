@@ -4,7 +4,7 @@
 
 angular.module('esn.calendar')
   .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG,
-    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarLogic, notificationFactory, calendarCurrentView) {
+    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView) {
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
@@ -23,7 +23,7 @@ angular.module('esn.calendar')
       calendar.fullCalendar('gotoDate', day);
       switch ($scope.homeCalendarViewMode) {
         case 'agendaWeek':
-          var week = miniCalendarLogic.getWeekAroundDay($scope.miniCalendarConfig, day);
+          var week = miniCalendarService.getWeekAroundDay($scope.miniCalendarConfig, day);
           calendar.fullCalendar('select', week.firstWeekDay, week.nextFirstWeekDay);
           break;
         case 'agendaDay':
@@ -86,7 +86,7 @@ angular.module('esn.calendar')
         });
       });
 
-      return miniCalendarLogic.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));
+      return miniCalendarService.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));
 
     }, function(error) {
       notificationFactory.weakError('Could not retrive user calendars', error.message);

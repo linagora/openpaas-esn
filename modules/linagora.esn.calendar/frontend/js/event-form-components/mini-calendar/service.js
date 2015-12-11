@@ -3,7 +3,7 @@
 /* global _:false */
 
 angular.module('esn.calendar')
-  .factory('miniCalendarLogic', function($q, fcMoment) {
+  .factory('miniCalendarService', function($q, fcMoment) {
 
     function forEachDayOfEvent(event, callback) {
       var day = fcMoment(event.start);

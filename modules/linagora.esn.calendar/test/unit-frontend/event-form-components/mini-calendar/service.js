@@ -13,9 +13,9 @@ describe('The mini-calendar service', function() {
   });
 
   var fcMoment, miniCalenderLogic, $rootScope;
-  beforeEach(angular.mock.inject(function(_fcMoment_, _miniCalendarLogic_, _$rootScope_) {
+  beforeEach(angular.mock.inject(function(_fcMoment_, _miniCalendarService_, _$rootScope_) {
     fcMoment = _fcMoment_;
-    miniCalenderLogic = _miniCalendarLogic_;
+    miniCalenderLogic = _miniCalendarService_;
     $rootScope = _$rootScope_;
   }));
 
