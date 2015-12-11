@@ -72,7 +72,7 @@ function jcal2content(icalendar, baseUrl) {
       end: vevent.getFirstPropertyValue('dtend') || null,
       duration: vevent.getFirstPropertyValue('duration') || null
     });
-    endDate = moment(moment(period.getEnd().toJSDate()));
+    endDate = moment(period.getEnd().toJSDate());
     if (!!endDate && !!startDate) {
       durationInDays = endDate.diff(startDate, 'days');
     }
@@ -80,11 +80,15 @@ function jcal2content(icalendar, baseUrl) {
     // For end user, we are chosing an inclusive end date
     if (allDay) {
       endDate.subtract(1, 'day');
+      end = {
+        date: endDate.format('L')
+      };
+    } else {
+      end = {
+        date: endDate.format('L'),
+        time: endDate.format('LT')
+      };
     }
-    end = {
-      date: endDate.format('L'),
-      time: endDate.format('LT')
-    };
   }
   var organizer = vevent.getFirstProperty('organizer');
   var cn = organizer.getParameter('cn');
@@ -103,7 +107,7 @@ function jcal2content(icalendar, baseUrl) {
     description: vevent.getFirstPropertyValue('description'),
     start: {
       date: startDate.format('L'),
-      time: startDate.format('LT')
+      time: allDay ? undefined : startDate.format('LT')
     },
     end: end,
     allDay: allDay,
