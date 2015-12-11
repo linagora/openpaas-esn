@@ -33,6 +33,8 @@ angular.module('esn.calendar')
 
   .factory('calendarAPI', function(request, pathBuilder, CALENDAR_ACCEPT_HEADER) {
 
+    var davDateFormat = 'YYYYMMDD[T]HHmmss';
+
     /**
      * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHref The href of the calendar.
@@ -43,8 +45,8 @@ angular.module('esn.calendar')
     function listEvents(calendarHref, start, end) {
       var body = {
         match: {
-          start: start.format('YYYYMMDD[T]HHmmss'),
-          end: end.format('YYYYMMDD[T]HHmmss')
+          start: start.format(davDateFormat),
+          end: end.format(davDateFormat)
         }
       };
       return request('post', calendarHref, null, body)
@@ -70,8 +72,8 @@ angular.module('esn.calendar')
     function listEventsForCalendar(calendarHomeId, calendarId, start, end) {
       var body = {
         match: {
-          start: start.format('YYYYMMDD[T]HHmmss'),
-          end: end.format('YYYYMMDD[T]HHmmss')
+          start: start.format(davDateFormat),
+          end: end.format(davDateFormat)
         }
       };
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
