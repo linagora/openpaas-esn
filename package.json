@@ -48,6 +48,7 @@
     "less": "^2.5.0",
     "less-middleware": "^1.0.3",
     "moment": "^2.10.3",
+    "moment-timezone": "^0.4.1",
     "mongoconfig": "~1.0.0",
     "mongodb": "^1.4.3",
     "mongoose": "3.8.23",
