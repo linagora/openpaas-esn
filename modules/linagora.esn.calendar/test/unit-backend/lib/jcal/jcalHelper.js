@@ -3,11 +3,14 @@
 var expect = require('chai').expect;
 var fs = require('fs-extra');
 var icaljs = require('ical.js');
+var mockery = require('mockery');
+var moment = require('moment-timezone');
 
 describe('jcalHelper', function() {
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
+    mockery.registerMock('moment', function(date) { return moment(date).utc(); });
     this.jcalHelper = require(this.calendarModulePath + '/backend/lib/jcal/jcalHelper');
   });
 
@@ -50,11 +53,11 @@ describe('jcalHelper', function() {
         summary: 'Démo OPENPAAS',
         start: {
           date: '06/12/2015',
-          time: '3:00 PM'
+          time: '1:00 PM'
         },
         end: {
           date: '06/12/2015',
-          time: '3:30 PM'
+          time: '1:30 PM'
         },
         allDay: false,
         durationInDays: 0,
@@ -86,7 +89,7 @@ describe('jcalHelper', function() {
         summary: 'Démo OPENPAAS',
         start: {
           date: '06/12/2015',
-          time: '3:00 PM'
+          time: '1:00 PM'
         },
         end: null,
         allDay: false,
@@ -113,17 +116,15 @@ describe('jcalHelper', function() {
 
     it('should parse jcal formatted allDay event', function() {
       ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
-      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.shallowDeepEqual({
         method: 'REQUEST',
         sequence: 0,
         summary: 'Démo OPENPAAS',
         start: {
-          date: '06/12/2015',
-          time: '12:00 AM'
+          date: '06/11/2015'
         },
         end: {
-          date: '09/11/2015',
-          time: '12:00 AM'
+          date: '09/10/2015'
         },
         allDay: true,
         durationInDays: 92,
