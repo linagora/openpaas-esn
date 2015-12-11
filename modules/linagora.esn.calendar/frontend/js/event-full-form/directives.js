@@ -13,7 +13,6 @@ angular.module('esn.calendar')
       scope.changeParticipation = controller.changeParticipation;
       scope.goBack = function(callback) {
         $location.path('/calendar');
-        headerService.subHeader.resetInjections();
         if (callback) {
           // Timeout the callback so that fullcalendar events are
           // correctly handled after location has changed.
@@ -27,6 +26,7 @@ angular.module('esn.calendar')
       }
 
       element.on('$destroy', _resetStoredEvents);
+      scope.$on('$destroy', headerService.subHeader.resetInjections);
     }
 
     return {

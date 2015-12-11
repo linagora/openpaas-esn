@@ -113,17 +113,17 @@ describe('The event-full-form Angular module directives', function() {
       this.initDirective(this.$scope);
     });
 
+    it('should call headerService to reset injections in the subheader on destroy', function(done) {
+      this.headerService.subHeader.resetInjections = done.bind(null, null);
+      this.initDirective(this.$scope);
+      this.$scope.$destroy();
+    });
+
     describe('scope.goBack', function() {
       it('should $timeout the callback function in argument', function(done) {
         this.initDirective(this.$scope);
         this.$scope.goBack(done);
         this.$timeout.flush();
-      });
-
-      it('should call headerService to reset injections in the subheader', function(done) {
-        this.headerService.subHeader.resetInjections = done;
-        this.initDirective(this.$scope);
-        this.$scope.goBack();
       });
     });
   });

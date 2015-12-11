@@ -36,7 +36,7 @@
                   span.input-group-addon
                     i.mdi.mdi-calendar-multiple
                   .fg-line.select
-                    select.form-control
+                    select.form-control(ng-disabled="!isOrganizer")
                       option(value="calendarA") calendarA
                       option(value="calendarB") calendarB
 
@@ -66,7 +66,7 @@
                   span.input-group-addon
                     i.mdi.mdi-alarm
                   .fg-line.select
-                    select.form-control
+                    select.form-control(ng-disabled="!isOrganizer")
                       option(value="alarmA") alarmA
                       option(value="alarmB") alarmB
 
@@ -77,7 +77,7 @@
                   span.input-group-addon
                     i.mdi.mdi-lock
                   .fg-line.select
-                    select.form-control
+                    select.form-control(ng-disabled="!isOrganizer")
                       option(value="privacyA") privacyA
                       option(value="privacyB") privacyB
 
@@ -95,4 +95,4 @@
                   span.input-group-addon.textarea-icon
                     i.mdi.mdi-format-align-justify
                   .fg-line
-                    textarea.form-control(auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}")
+                    textarea.form-control(auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="!isOrganizer")
