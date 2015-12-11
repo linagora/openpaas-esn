@@ -43,7 +43,7 @@ angular.module('esn.calendar')
         }
         scope.event.start = start;
         scope.event.end = end;
-        scope.event.diff = scope.event.end.diff(scope.event.start);
+        scope.diff = scope.event.end.diff(scope.event.start);
       };
 
       scope.onStartDateChange = function() {

@@ -90,6 +90,7 @@ describe('The event-date-edition component', function() {
       });
 
       it('should remember the time when switching to and from allday', function() {
+        var HOUR = 60 * 60 * 1000;
         var origStart = this.fcMoment('2013-02-08 09:30');
         var origEnd = this.fcMoment('2013-02-08 10:30');
         this.$scope.event = {
@@ -104,6 +105,7 @@ describe('The event-date-edition component', function() {
         expect(this.$scope.event.start.hasTime()).to.be.true;
         expect(this.$scope.event.end.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 10:30:00');
         expect(this.$scope.event.end.hasTime()).to.be.true;
+        expect(this.eleScope.diff).to.equal(1 * HOUR);
 
         this.eleScope.allDay = true;
         this.$scope.$digest();
@@ -113,6 +115,7 @@ describe('The event-date-edition component', function() {
         expect(this.$scope.event.start.hasTime()).to.be.false;
         expect(this.$scope.event.end.format('YYYY-MM-DD')).to.equal('2013-02-09');
         expect(this.$scope.event.end.hasTime()).to.be.false;
+        expect(this.eleScope.diff).to.equal(24 * HOUR);
 
         this.eleScope.allDay = false;
         this.$scope.$digest();
@@ -122,6 +125,7 @@ describe('The event-date-edition component', function() {
         expect(this.$scope.event.start.hasTime()).to.be.true;
         expect(this.$scope.event.end.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 10:30:00');
         expect(this.$scope.event.end.hasTime()).to.be.true;
+        expect(this.eleScope.diff).to.equal(1 * HOUR);
       });
     });
 
