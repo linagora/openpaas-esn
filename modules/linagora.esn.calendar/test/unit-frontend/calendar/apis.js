@@ -381,6 +381,37 @@ describe('The calendar module apis', function() {
       });
     });
 
+    describe('getCalendar request', function() {
+      it('should request the correct path and return a dav:calendar', function(done) {
+        var davCal = {
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
+          }
+        };
+
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId/id.json').respond(davCal);
+
+        this.calendarAPI.getCalendar('homeId', 'id')
+          .then(function(data) {
+            expect(data).to.deep.equal(davCal);
+            done();
+          });
+        this.$httpBackend.flush();
+      });
+
+      it('should return an Error if response.status is not 200', function(done) {
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId/id.json').respond(500, 'Error');
+
+        this.calendarAPI.getCalendar('homeId', 'id')
+          .catch(function(err) {
+            expect(err).to.exist;
+            done();
+          });
+
+        this.$httpBackend.flush();
+      });
+    });
+
     describe('createCalendar request', function(done) {
 
       it('should return the http response if response.status is 201', function(done) {

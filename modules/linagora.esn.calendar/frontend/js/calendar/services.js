@@ -80,6 +80,20 @@ angular.module('esn.calendar')
     }
 
     /**
+     * Get a calendar
+     * @param  {String}     calendarHomeId  The calendar home id
+     * @param  {String}     calendarId      The calendar id
+     * @return {CalendarCollectionShell}  an array of CalendarCollectionShell
+     */
+    function getCalendar(calendarHomeId, calendarId) {
+      return calendarAPI.getCalendar(calendarHomeId, calendarId)
+        .then(function(calendar) {
+          return new CalendarCollectionShell(calendar);
+        })
+        .catch($q.reject);
+    }
+
+    /**
      * Create a new calendar in the calendar home defined by its id.
      * @param  {String}                   calendarHomeId the id of the calendar in which we will create a new calendar
      * @param  {CalendarCollectionShell}  calendar       the calendar to create
@@ -401,6 +415,7 @@ angular.module('esn.calendar')
       listEvents: listEvents,
       listCalendars: listCalendars,
       createEvent: createEvent,
+      getCalendar: getCalendar,
       createCalendar: createCalendar,
       removeEvent: removeEvent,
       modifyEvent: modifyEvent,
