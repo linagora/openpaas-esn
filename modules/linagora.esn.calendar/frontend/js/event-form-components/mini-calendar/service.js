@@ -7,7 +7,10 @@ angular.module('esn.calendar')
 
     function forEachDayOfEvent(event, callback) {
       var day = fcMoment(event.start);
-      var end = fcMoment(event.end || event.start).add(1, 'days');
+      var end = fcMoment(event.end || event.start);
+      if (!event.allDay) {
+        end.add(1, 'days');
+      }
       while (!day.isSame(end, 'day')) {
         callback(fcMoment(day));
         day.add(1, 'days');
