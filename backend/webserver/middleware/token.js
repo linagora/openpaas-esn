@@ -21,3 +21,23 @@ module.exports.generateNewToken = function(ttl) {
     });
   };
 };
+
+function getToken(req, res, next) {
+  if (!req.params.token) {
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Can not retrieve token'}});
+  }
+
+  authToken.getToken(req.params.token, function(err, token) {
+    if (err) {
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not get token'}});
+    }
+
+    if (!token) {
+      return res.status(404).json({error: {code: 404, message: 'Not found', details: 'Token not found or expired'}});
+    }
+
+    req.token = token;
+    next();
+  });
+}
+module.exports.getToken = getToken;

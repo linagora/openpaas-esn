@@ -109,9 +109,10 @@ exports = module.exports = function(application) {
   application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify, loginController.login);
 
   var authentication = require('./controllers/authtoken');
+  var authTokenMiddleware = require('./middleware/token');
   application.get('/api/authenticationtoken', authorize.requiresAPILogin, authentication.getNewToken);
-  application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authentication.getToken);
-  application.get('/api/authenticationtoken/:token/user', authentication.authenticateByToken);
+  application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authTokenMiddleware.getToken, authentication.getToken);
+  application.get('/api/authenticationtoken/:token/user', authTokenMiddleware.getToken, authentication.authenticateByToken);
 
   var contactsController = require('./controllers/contacts');
   var googleImportController = require('./controllers/import/google');
