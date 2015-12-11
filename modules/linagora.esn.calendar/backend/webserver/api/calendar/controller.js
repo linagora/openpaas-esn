@@ -1,5 +1,8 @@
 'use strict';
 
+var request = require('request');
+var urlBuilder = require('url');
+var ICAL = require('ical.js');
 var calendar,
     arrayHelpers,
     logger;
@@ -65,12 +68,38 @@ function inviteAttendees(req, res) {
   });
 }
 
+function changeParticipation(req, res) {
+  var headers = req.headers || {};
+  headers.ESNToken = req.token && req.token.token ? req.token.token : '';
+
+  var vevent = new ICAL.Component(req.eventPayload.event).getFirstSubcomponent('vevent');
+  var hasAttendee = vevent.getAllProperties('attendee').some(function(attendee) {
+    var cn = attendee.getParameter('cn');
+    return cn === req.eventPayload.attendeeEmail;
+  });
+  if (!hasAttendee) {
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Attendee does not exist.'}});
+  }
+  var property = vevent.updatePropertyWithValue('attendee', req.eventPayload.attendeeEmail);
+  property.setParameter('partstat', req.eventPayload.action);
+
+  var url = urlBuilder.resolve(req.davserver, [req.eventPayload.calendarId, vevent.getFirstPropertyValue('uid')].join('/'));
+  request({method: 'PUT', headers: headers, body: vevent.toJSON(), url: url, json: true}, function(err, response) {
+    if (err || response.statusCode < 200 || response.statusCode >= 300) {
+      logger.error('Error while modifying event.', err);
+      return res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err.message}});
+    }
+    return res.status(200).end();
+  });
+}
+
 module.exports = function(dependencies) {
   logger = dependencies('logger');
   calendar = require('./core')(dependencies);
   arrayHelpers = dependencies('helpers').array;
   return {
     dispatchEvent: dispatchEvent,
-    inviteAttendees: inviteAttendees
+    inviteAttendees: inviteAttendees,
+    changeParticipation: changeParticipation
   };
 };

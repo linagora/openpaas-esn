@@ -5,8 +5,11 @@ var express = require('express');
 module.exports = function(dependencies) {
 
   var controller = require('./controller')(dependencies);
+  var calendarMW = require('./middleware')(dependencies);
   var authorizationMW = dependencies('authorizationMW');
   var collaborationMW = dependencies('collaborationMW');
+  var davMiddleware = dependencies('davserver').davMiddleware;
+  var tokenMW = dependencies('tokenMW');
 
   var router = express.Router();
 
@@ -20,9 +23,12 @@ module.exports = function(dependencies) {
     authorizationMW.requiresAPILogin,
     controller.inviteAttendees);
 
-  router.put('/api/calendars/events', authorizationMW.requiresJWT, function(req, res) {
-    res.send(200);
-  });
+  router.put('/api/calendars/event/participation',
+    authorizationMW.requiresJWT,
+    calendarMW.decodeJWT,
+    tokenMW.generateNewToken(),
+    davMiddleware.getDavEndpoint,
+    controller.changeParticipation);
 
   return router;
 };

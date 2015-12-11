@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = {
-  token: require('./token')
+  token: require('./token'),
+  jwt: require('./jwt')
 };

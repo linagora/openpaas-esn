@@ -14,8 +14,8 @@ module.exports.useStrategy = function() {
       secretOrKey: secret,
       tokenQueryParameterName: 'jwt'
     };
-    var strategy = new JwtStrategy(opts, function(jwt_payload, done) {
-      return done(null, {user: jwt_payload.login});
+    var strategy = new JwtStrategy(opts, function(jwtPayload, done) {
+      return done(null, jwtPayload);
     });
     passport.use(strategy);
   });
