@@ -164,12 +164,36 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.select(day, null, true, null);
     });
 
+    it('should broadcast calendar:mini-calendar:toggle when a day is selected', function(done) {
+      var day = fcMoment();
+      $scope.miniCalendarConfig.viewRender();
+
+      var unregister = $rootScope.$on('calendar:mini-calendar:toggle', function() {
+        unregister();
+        done();
+      });
+
+      $scope.miniCalendarConfig.select(day, null, true, null);
+    });
+
     it('should broadcast MINI_CALENDAR_DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = fcMoment();
       $scope.miniCalendarConfig.viewRender();
 
       var unregister = $rootScope.$on('MINI_CALENDAR_DATE_CHANGE', function(_day) {
         expect(day.isSame(_day, 'day')).to.be.true;
+        unregister();
+        done();
+      });
+
+      $scope.miniCalendarConfig.eventClick({start: day});
+    });
+
+    it('should broadcast calendar:mini-calendar:toggle, when a event is clicked', function(done) {
+      var day = fcMoment();
+      $scope.miniCalendarConfig.viewRender();
+
+      var unregister = $rootScope.$on('calendar:mini-calendar:toggle', function() {
         unregister();
         done();
       });

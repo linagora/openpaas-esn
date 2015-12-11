@@ -44,6 +44,7 @@ angular.module('esn.calendar')
       if (jsEvent) {
         calendarPromise.then(selectPeriod.bind(null, start));
         $rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', start);
+        $rootScope.$broadcast('calendar:mini-calendar:toggle');
       }
     };
 
@@ -73,6 +74,7 @@ angular.module('esn.calendar')
 
     $scope.miniCalendarConfig.eventClick = function(event) {
       $rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', event.start);
+      $rootScope.$broadcast('calendar:mini-calendar:toggle');
     };
 
     var calendarWrapperPromise = $q.all({

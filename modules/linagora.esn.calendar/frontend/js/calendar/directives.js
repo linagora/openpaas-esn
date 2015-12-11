@@ -114,13 +114,13 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('toggleSubCalendar', function() {
+  .directive('toggleMiniCalendar', function($rootScope) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.click(function() {
           element.toggleClass('toggled');
-          angular.element('.sub-calendar').stop(true, false).slideToggle(200);
+          $rootScope.$broadcast('calendar:mini-calendar:toggle');
         });
       }
     };

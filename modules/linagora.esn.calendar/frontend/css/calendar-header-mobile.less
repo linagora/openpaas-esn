@@ -6,9 +6,21 @@
     .btn {
       box-shadow: none;
     }
-  }
-}
 
-.sub-calendar {
-  height: 100px;
+    .left {
+      margin-left: 9px;
+    }
+
+    a {
+      i.mdi-menu-down {
+        .transition(all 300ms linear);
+      }
+      &.toggled {
+        i.mdi-menu-down {
+          .rotateZ3d(180deg);
+        }
+      }
+    }
+
+  }
 }

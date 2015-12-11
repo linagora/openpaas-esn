@@ -18,6 +18,19 @@
     height: 1px;
   }
   .mini-calendar {
+    height: auto;
+    .calendar {
+      height: auto;
+    }
+  }
+  .initial-state {
+    .invisible();
+    height: 0;
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .mini-calendar {
     .calendar {
       height: auto;
     }
