@@ -34,11 +34,7 @@ angular.module('esn.calendar')
     };
 
     $scope.eventClick = function(event) {
-      $scope.event = new CalendarShell(event.vcalendar, {
-        etag: event.etag,
-        path: event.path,
-        gracePeriodTaskId: event.gracePeriodTaskId
-      });
+      $scope.event = event.clone();
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 
@@ -135,27 +131,20 @@ angular.module('esn.calendar')
         return;
       }
 
-      angular.extend(event, newEvent);
-      event.start = newEvent.start.clone();
-      event.end = newEvent.end.clone();
-      event.allDay = newEvent.allDay;
-
-      // See weird Fullcalendar behavior fullcalendar.js:1858 and fullcalendar.js:1600
-      // Fullcalendar does not care about event._allDay or event.allDay and forces a new
-      // value for event.allDay depending on if event.start || event.end has a *time* part.
-      // The problem being that when fullcalendar transform a Moment into a FCMoment, it loses
-      // the allDay property.
-      if (newEvent.allDay) {
-        event.start = event.start.format('YYYY-MM-DD');
-        event.end = event.end ? event.end.format('YYYY-MM-DD') : undefined;
-      }
-
-      // We also fake the _allDay property to fix the case when switching from
+      // We fake the _allDay property to fix the case when switching from
       // allday to non-allday, as otherwise the end date is cleared and then
       // set to the wrong date by fullcalendar.
-      event._allDay = newEvent.allDay;
+      newEvent._allDay = newEvent.allDay;
+      newEvent._end = event._end;
+      newEvent._id =  event._id;
+      newEvent._start = event._start;
 
-      getCalendar().fullCalendar('updateEvent', event);
+      /*
+       * OR-1426 removing and create a new event in fullcalendar works much better than
+       * updating it. Otherwise, we are loosing datas and synchronization like vcalendar, allday, attendees, vevent.
+       */
+      getCalendar().fullCalendar('removeEvents', newEvent.id);
+      getCalendar().fullCalendar('renderEvent', newEvent);
     }
 
     var unregisterFunctions = [
