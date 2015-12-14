@@ -1,6 +1,6 @@
 .col-xs-12.col-md-10.nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
   .card-header.hidden-xs
-    .row(ng-if='isOrganizer').flex-vertical-centered
+    .row.flex-vertical-centered(ng-if='isOrganizer')
       .col-xs-12.col-sm-7
         h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
         h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
@@ -12,7 +12,7 @@
             | #{__('Delete')}
           button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
             | #{__('Cancel')}
-    .row(ng-if='!isOrganizer')
+    .row.flex-vertical-centered(ng-if='!isOrganizer')
       .col-xs-7
         h1 #{__('Consult')}
       .col-xs-5
