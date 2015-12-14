@@ -8,10 +8,9 @@ module.exports = function(dependencies, lib) {
 
   var authorizationMW = dependencies('authorizationMW');
   var controller = require('./controller')(dependencies, lib);
-  var tokenMiddleware = dependencies('tokenMW');
   var importerMiddleware = require('./middleware')(dependencies, lib);
 
-  router.post('/:type', authorizationMW.requiresAPILogin, tokenMiddleware.generateNewToken(), importerMiddleware.checkRequiredBody, controller.importContacts);
+  router.post('/:type', authorizationMW.requiresAPILogin, importerMiddleware.checkRequiredBody, importerMiddleware.getAccount, controller.importContacts);
 
   return router;
 };

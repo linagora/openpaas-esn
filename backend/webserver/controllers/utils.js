@@ -18,7 +18,7 @@ function sanitizeUser(u) {
 }
 
 function sanitizeTechnicalUser(u) {
-  return u instanceof TechnicalUser ? u : new TechnicalUser(u).toObject({ virtuals: true });
+  return u instanceof TechnicalUser ? u.toJSON() : u;
 }
 
 module.exports = {
