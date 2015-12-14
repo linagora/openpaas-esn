@@ -14,7 +14,7 @@ angular.module('esn.calendar')
       link: function(scope) {
         scope.attendeeClickedCount = 0;
 
-        function updateAttendeeStats() {
+        function updateAttendeeStats(attendees) {
           var partstatMap = scope.attendeesPerPartstat = {
             'NEEDS-ACTION': 0,
             ACCEPTED: 0,
@@ -23,11 +23,13 @@ angular.module('esn.calendar')
             OTHER: 0
           };
 
-          if (!!scope.attendees) {
-            scope.attendees.forEach(function(attendee) {
-              partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
-            });
+          if (!attendees || !attendees.length) {
+            return;
           }
+
+          attendees.forEach(function(attendee) {
+            partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
+          });
         }
 
         scope.selectAttendee = function(attendee) {
@@ -39,8 +41,10 @@ angular.module('esn.calendar')
           scope.attendees = scope.attendees.filter(function(attendee) { return !attendee.clicked;});
         };
 
-        updateAttendeeStats();
-        scope.$on('event:attendees:updated', updateAttendeeStats);
+        updateAttendeeStats(scope.attendees);
+        scope.$on('event:attendees:updated', function(event, data) {
+          updateAttendeeStats(data);
+        });
       }
     };
   });

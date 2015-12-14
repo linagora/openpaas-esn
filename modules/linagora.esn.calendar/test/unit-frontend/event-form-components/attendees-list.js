@@ -56,7 +56,7 @@ describe('The attendees-list component', function() {
         { email: 'other5@example.com', partstat: 'YOLO' }
       ];
       this.$scope.$digest();
-      this.$scope.$broadcast('event:attendees:updated');
+      this.$scope.$broadcast('event:attendees:updated', this.$scope.attendees);
       expect(this.eleScope.attendeesPerPartstat).to.deep.equal({
         'NEEDS-ACTION': 0,
         ACCEPTED: 2,
