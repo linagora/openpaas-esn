@@ -412,6 +412,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
                 $log.debug('New', event, 'of namespace', namespace, 'in room', room, 'with data', eventWrap.data);
                 element(eventWrap.data);
               });
+            } else {
+              $log.warn('Message received with no valid room', eventWrap);
             }
           }
 

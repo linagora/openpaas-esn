@@ -7,7 +7,9 @@ angular.module('linagora.esn.contact.import.twitter', [
   'linagora.esn.contact.import'
 ])
 
-.run(function(ContactImportRegistry, TwitterContactImporter, dynamicDirectiveService, TWITTER_CONTACT_IMPORT_TYPE) {
+.run(function(ContactImportRegistry, ContactImportMessageRegistry, TwitterContactImporter, dynamicDirectiveService, TWITTER_CONTACT_IMPORT_TYPE, TWITTER_CONTACT_IMPORT_MESSAGES) {
   ContactImportRegistry.register(TWITTER_CONTACT_IMPORT_TYPE, TwitterContactImporter);
+  ContactImportMessageRegistry.register(TWITTER_CONTACT_IMPORT_TYPE, TWITTER_CONTACT_IMPORT_MESSAGES);
+
   dynamicDirectiveService.addInjection('account-options-items', new dynamicDirectiveService.DynamicDirective(true, 'twitter-contact-import-menu-item'));
 });

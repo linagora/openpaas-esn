@@ -78,7 +78,8 @@ describe('The esn.websocket Angular module', function() {
   describe('socketIORoom service', function() {
     beforeEach(function() {
       var asLog = {
-        debug: function() {}
+        debug: function() {},
+        warn: function() {}
       };
 
       angular.mock.module('esn.websocket');

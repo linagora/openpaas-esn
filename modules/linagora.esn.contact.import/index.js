@@ -11,12 +11,17 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
   ],
   states: {
     lib: function(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
-      return callback(null, {lib: libModule});
+      var constantsModule = require('./backend/constants');
+      return callback(null, {
+        lib: libModule,
+        constants: constantsModule
+      });
     },
 
     deploy: function(dependencies, callback) {
@@ -40,6 +45,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     },
 
     start: function(dependencies, callback) {
+      require('./backend/ws/import').init(dependencies);
       callback();
     }
   }
