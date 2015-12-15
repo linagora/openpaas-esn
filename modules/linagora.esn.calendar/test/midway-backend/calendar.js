@@ -189,4 +189,113 @@ describe('The calendars API', function() {
       });
     });
   });
+
+  describe('POST /api/calendars/inviteattendees', function() {
+
+    beforeEach(function() {
+      var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
+      expressApp.use('/', this.helpers.modules.current.lib.api.calendar);
+      this.app = this.helpers.modules.getWebServer(expressApp);
+    });
+
+    it('should send 401 if not logged in', function(done) {
+      this.helpers.api.requireLogin(this.app, 'post', '/api/calendars/inviteattendees', done);
+    });
+
+    var testError400 = function(requestJSON, helpers, app, done) {
+      helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+        var req = requestAsMember(request(app).post('/api/calendars/inviteattendees'));
+        req.send(requestJSON);
+        req.expect(400, done);
+      });
+    };
+
+    it('should send 400 if the request body has no "emails" property', function(done) {
+      testError400({
+        method: 'REQUEST',
+        event: 'ICS',
+        calendarId: 'calId'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body has no "method" property', function(done) {
+      testError400({
+        emails: ['email1@domain1', 'email2@domain1'],
+        event: 'ICS',
+        calendarId: 'calId'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body has no "event" property', function(done) {
+      testError400({
+        emails: ['email1@domain1', 'email2@domain1'],
+        method: 'REQUEST',
+        calendarId: 'calId'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body has no "calendarId" property', function(done) {
+      testError400({
+        emails: ['email1@domain1', 'email2@domain1'],
+        method: 'REQUEST',
+        event: 'ICS'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body "emails" property is invalid', function(done) {
+      testError400({
+        emails: 123,
+        method: 'REQUEST',
+        event: 'ICS',
+        calendarId: 'calId'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body "method" property is invalid', function(done) {
+      testError400({
+        emails: ['email1@domain1', 'email2@domain1'],
+        method: 123,
+        event: 'ICS',
+        calendarId: 'calId'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body "event" property is invalid', function(done) {
+      testError400({
+        emails: ['email1@domain1', 'email2@domain1'],
+        method: 'REQUEST',
+        event: 123,
+        calendarId: 'calId'
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 400 if the request body "calendarId" property is invalid', function(done) {
+      testError400({
+        emails: ['email1@domain1', 'email2@domain1'],
+        method: 'REQUEST',
+        event: 'ICS',
+        calendarId: 123
+      }, this.helpers, this.app, done);
+    });
+
+    it('should send 200 if the request is correct', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+        var req = requestAsMember(request(self.app).post('/api/calendars/inviteattendees'));
+        req.send({
+          emails: ['email1@domain1', 'email2@domain1'],
+          method: 'REQUEST',
+          event: 'ICS',
+          calendarId: 'calId'
+        });
+        req.expect(200, done);
+      });
+    });
+  });
 });

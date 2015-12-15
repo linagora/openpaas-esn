@@ -16,6 +16,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.collaboration', 'collaborationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),

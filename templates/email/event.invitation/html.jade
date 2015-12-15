@@ -24,7 +24,7 @@ html.mail
           tr.table-header
             td.logo(colspan="2")
               div
-                a(href="http://localhost:8080/")
+                a(href="#{content.baseUrl}")
                   img(src="cid:logo", alt="open-paas logo")
             td.organizer(colspan="3")
               h5
@@ -71,7 +71,7 @@ html.mail
                 img(src="cid:map-marker", alt="Location")
               td(colspan="4") #{content.event.location}
               td.indent-right
-                a(href='http://localhost:8080/') Map
+                a(href='https://www.openstreetmap.org/search?query=#{content.event.location}') Map
           tr
             td.indent
               img(src="cid:account-multiple", alt="Attendees")
@@ -95,11 +95,11 @@ html.mail
               td.attend-question(colspan="3")
                 | Will you attend ?
               td(colspan="1")
-                a.green(href="http://localhost:8080/") Yes
+                a.green(href="#{content.yes}") Yes
               td(colspan="1")
-                a.blue(href="http://localhost:8080/") Maybe
+                a.blue(href="#{content.maybe}") Maybe
               td(colspan="1")
-                a.red(href="http://localhost:8080/") No
+                a.red(href="#{content.no}") No
 
       footer
         div.footer

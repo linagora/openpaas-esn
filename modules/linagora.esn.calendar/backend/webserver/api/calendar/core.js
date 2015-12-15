@@ -3,6 +3,8 @@
 var async = require('async');
 var q = require('q');
 var jcal2content = require('../../../lib/jcal/jcalHelper').jcal2content;
+var urlBuilder = require('url');
+var extend = require('extend');
 var eventMessage,
     i18n,
     userModule,
@@ -15,7 +17,8 @@ var eventMessage,
     collaborationPermission,
     contentSender,
     esnconfig,
-    staticConfig;
+    staticConfig,
+    jwt;
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -153,7 +156,42 @@ function dispatch(data, callback) {
 }
 module.exports.dispatch = dispatch;
 
-function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callback) {
+function generateActionLink(baseUrl, jwtPayload, action) {
+  var deferred = q.defer();
+  var payload = {};
+  extend(true, payload, jwtPayload, {action: action});
+  jwt.generateWebToken(payload, function(err, token) {
+    if (err) {
+      return deferred.reject(err);
+    }
+    return deferred.resolve(urlBuilder.resolve(baseUrl, '/api/calendars/event/participation/?jwt=' + token));
+  });
+  return deferred.promise;
+}
+
+/**
+ * Generates action links for the invitation email.
+ * The links will match the following scheme : {baseUrl}/api/calendars/event/participation/?jwt={aToken}
+ * where aToken is built from jwtPayload and the action for the link
+ *
+ * @param {String} baseUrl the baseUrl of the ESN
+ * @param {Object} jwtPayload the payload which to be used to generate the JWT for the link
+ * @returns {Promise} a promise resolving to an object containing the yes, no and maybe links
+ */
+function generateActionLinks(baseUrl, jwtPayload) {
+  var yesPromise = generateActionLink(baseUrl, jwtPayload, 'ACCEPTED');
+  var noPromise = generateActionLink(baseUrl, jwtPayload, 'DECLINED');
+  var maybePromise = generateActionLink(baseUrl, jwtPayload, 'TENTATIVE');
+  return q.all([yesPromise, noPromise, maybePromise]).then(function(links) {
+    return {
+      yes: links[0],
+      no: links[1],
+      maybe: links[2]
+    };
+  });
+}
+
+function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calendarId, callback) {
   if (!notify) {
     return q({}).nodeify(callback);
   }
@@ -172,6 +210,10 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
 
   if (!ics) {
     return q.reject(new Error('The ics is required')).nodeify(callback);
+  }
+
+  if (!calendarId) {
+    return q.reject(new Error('The calendar id is required')).nodeify(callback);
   }
 
   function userDisplayName(user) {
@@ -270,8 +312,20 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
       };
 
       var sendMailToAllAttendees = users.map(function(user) {
-        var to = { objectType: 'email', id: user.email || user.emails[0] };
-        return contentSender.send(from, to, content, options, 'email');
+        var attendeeEmail = user.email || user.emails[0];
+        var to = { objectType: 'email', id: attendeeEmail };
+
+        var jwtPayload = {
+          attendeeMail: attendeeEmail,
+          organizerMail: organizer.preferredEmail,
+          event: ics,
+          calendarId: calendarId
+        };
+        return generateActionLinks(baseUrl, jwtPayload).then(function(links) {
+          var contentWithLinks = {};
+          extend(true, contentWithLinks, content, links);
+          return contentSender.send(from, to, contentWithLinks, options, 'email');
+        });
       });
 
       return q.all(sendMailToAllAttendees);
@@ -293,9 +347,11 @@ module.exports = function(dependencies) {
   contentSender = dependencies('content-sender');
   esnconfig = dependencies('esn-config');
   staticConfig = dependencies('config')('default');
+  jwt = dependencies('auth').jwt;
 
   return {
     dispatch: dispatch,
-    inviteAttendees: inviteAttendees
+    inviteAttendees: inviteAttendees,
+    generateActionLinks: generateActionLinks
   };
 };
