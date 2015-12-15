@@ -50,7 +50,7 @@ angular.module('esn.calendar')
         if (!scope.event.start) {
           return;
         }
-        scope.event.end = fcMoment(scope.event.start).add(scope.event.diff / 1000, 'seconds');
+        scope.event.end = fcMoment(scope.event.start).add(scope.diff / 1000, 'seconds');
       };
 
       scope.onEndDateChange = function() {
