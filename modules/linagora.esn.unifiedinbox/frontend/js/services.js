@@ -318,4 +318,53 @@ angular.module('linagora.esn.unifiedinbox')
         }
       }
     };
+  })
+
+  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline) {
+
+    function Composition(email) {
+      this.email = email;
+      this.draft = draftService.startDraft(email);
+    }
+
+    Composition.prototype.saveDraft = function() {
+      this.draft.save(this.email);
+    };
+
+    Composition.prototype.canBeSentOrNotify = function() {
+      if (emailSendingService.noRecipient(this.email.rcpt)) {
+        notificationFactory.weakError('Note', 'Your email should have at least one recipient');
+        return false;
+      }
+
+      if (!Offline.state || Offline.state === 'down') {
+        notificationFactory.weakError('Note', 'Your device loses its Internet connection. Try later!');
+        return false;
+      }
+
+      emailSendingService.removeDuplicateRecipients(this.email.rcpt);
+
+      return true;
+    };
+
+    Composition.prototype.send = function() {
+      if (!this.canBeSentOrNotify()) {
+        return;
+      }
+
+      this.email.from = session.user;
+      var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
+      emailSendingService.sendEmail(this.email).then(
+        function() {
+          notify.close();
+          notificationFactory.weakSuccess('Success', 'Your email has been sent');
+        },
+        function() {
+          notify.close();
+          notificationFactory.weakError('Error', 'An error has occurred while sending email');
+        }
+      );
+    };
+
+    return Composition;
   });

@@ -158,7 +158,7 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
-      link: function(scope) {
+      link: function(scope, element, attrs, controller) {
 
         function showMobileHeader() {
           headerService.subHeader.addInjection('composer-subheader', scope);
@@ -179,7 +179,7 @@ angular.module('linagora.esn.unifiedinbox')
         }
 
         function quitAsSaveDraft() {
-          scope.saveDraft();
+          controller.saveDraft();
           disableOnBackAutoSave();
           hideMobileHeader();
         }
@@ -207,7 +207,7 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
       controller: 'composerController',
-      link: function(scope, element) {
+      link: function(scope, element, attrs, controller) {
 
         scope.disableSendButton = function() {
           element.find('.btn-primary').attr('disabled', 'disabled');
@@ -219,7 +219,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.hide = scope.$hide;
         scope.$on('$destroy', function() {
-          scope.saveDraft();
+          controller.saveDraft();
         });
       }
     };

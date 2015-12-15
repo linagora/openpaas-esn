@@ -17,29 +17,9 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('composerController', function($scope, $q, $timeout, session, notificationFactory, emailSendingService, Offline, attendeeService, INBOX_AUTOCOMPLETE_LIMIT, draftService) {
+  .controller('composerController', function($scope, Composition, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
 
-    function getToolbarConfiguration() {
-      var toolbarConfiguration = [
-        ['style', ['bold', 'italic', 'underline', 'strikethrough']],
-        ['textsize', ['fontsize']],
-        ['alignment', ['paragraph', 'ul', 'ol']],
-        ['fullscreen', ['fullscreen']]
-      ];
-      return toolbarConfiguration;
-    }
-
-    $scope.isCollapsed = true;
-    $scope.summernoteOptions = {
-      focus: true,
-      airMode: false,
-      toolbar: getToolbarConfiguration()
-    };
-
-    var draft = draftService.startDraft($scope.email);
-    $scope.saveDraft = function() {
-      draft.save($scope.email);
-    };
+    var composition = new Composition($scope.email);
 
     this.search = function(query) {
       return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
@@ -49,55 +29,32 @@ angular.module('linagora.esn.unifiedinbox')
       });
     };
 
-    function validateEmailSending(rcpt) {
-      if (emailSendingService.noRecipient(rcpt)) {
-        notificationFactory.weakError('Note', 'Your email should have at least one recipient');
-        return false;
-      }
+    this.saveDraft = composition.saveDraft;
 
-      if (!Offline.state || Offline.state === 'down') {
-        notificationFactory.weakError('Note', 'Your device loses its Internet connection. Try later!');
-        return false;
-      }
-
-      emailSendingService.removeDuplicateRecipients(rcpt);
-
-      return true;
-    }
+    $scope.isCollapsed = true;
+    $scope.summernoteOptions = {
+      focus: true,
+      airMode: false,
+      toolbar: [
+        ['style', ['bold', 'italic', 'underline', 'strikethrough']],
+        ['textsize', ['fontsize']],
+        ['alignment', ['paragraph', 'ul', 'ol']],
+        ['fullscreen', ['fullscreen']]
+      ]
+    };
 
     $scope.send = function() {
+
       $scope.disableSendButton();
-      if (validateEmailSending($scope.email.rcpt)) {
 
+      if (composition.canBeSentOrNotify()) {
         $scope.hide();
-        $scope.email.from = session.user;
-
-        var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
-        emailSendingService.sendEmail($scope.email).then(
-          function() {
-            notify.close();
-            notificationFactory.weakSuccess('Success', 'Your email has been sent');
-          },
-          function() {
-            notify.close();
-            notificationFactory.weakError('Error', 'An error has occurred while sending email');
-          }
-        );
+        composition.send();
       } else {
         $scope.enableSendButton();
       }
     };
 
-    // for test purposes: the send function which is supposed to be called to send messages via JMAP client
-    if (!$scope.sendViaJMAP) {
-      $scope.sendViaJMAP = function() {
-        var defer = $q.defer();
-        $timeout(function() {
-          return defer.resolve();
-        }, 3000);
-        return defer.promise;
-      };
-    }
   })
 
   .controller('viewEmailController', function($scope, $stateParams, $location, jmapClient, jmap, notificationFactory) {
