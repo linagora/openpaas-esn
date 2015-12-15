@@ -8,6 +8,7 @@ var VCARD_JSON = 'application/vcard+json';
 var VALID_HTTP_STATUS = {
   GET: [200],
   PUT: [200, 201],
+  POST: [200],
   DELETE: [204]
 };
 
@@ -45,6 +46,12 @@ module.exports = function(dependencies, options) {
     function getContactUrl(contactId, callback) {
       davServerUtils.getDavEndpoint(function(davServerUrl) {
         callback([davServerUrl, PATH, bookId, 'contacts', contactId + '.vcf'].join('/'));
+      });
+    }
+
+    function getAddressBookRootUrl(callback) {
+      davServerUtils.getDavEndpoint(function(davServerUrl) {
+        callback([davServerUrl, PATH, bookId + '.json'].join('/'));
       });
     }
 
@@ -254,8 +261,38 @@ module.exports = function(dependencies, options) {
       };
     }
 
+    /**
+     * Create new addressbook
+     * @param  {Object} addressbook The addressbook json to be created
+     *
+     * @return {Promise}
+     */
+
+    function create(book) {
+      var deferred = q.defer();
+      var headers = {
+        ESNToken: ESNToken,
+        accept: VCARD_JSON
+      };
+
+      getAddressBookRootUrl(function(url) {
+        davClient({
+          method: 'POST',
+          headers: headers,
+          url: url,
+          json: true,
+          body: book
+        }, function(err, response, body) {
+          checkResponse(deferred, 'POST', 'Error while creating addressbook in DAV')(err, response, body);
+        });
+      });
+
+      return deferred.promise;
+    }
+
     return {
-      contacts: contacts
+      contacts: contacts,
+      create: create
     };
   };
 
