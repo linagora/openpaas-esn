@@ -2,6 +2,9 @@
 
 var mongoose = require('mongoose');
 var TechnicalUser = mongoose.model('TechnicalUser');
+var TYPE = 'technical';
+
+module.exports.TYPE = TYPE;
 
 function findByType(type, callback) {
   TechnicalUser.find({type: type}, callback);

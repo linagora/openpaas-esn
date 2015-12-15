@@ -9,6 +9,9 @@ var trim = require('trim');
 var User = mongoose.model('User');
 var emailAddresses = require('email-addresses');
 
+var TYPE = 'openpaas';
+module.exports.TYPE = TYPE;
+
 function getUserTemplate(callback) {
   esnConfig('user', 'templates').get(callback);
 }

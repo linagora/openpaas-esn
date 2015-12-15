@@ -88,4 +88,131 @@ describe('The token middleware', function() {
         });
     });
   });
+
+  describe('The getToken function', function() {
+    function setupMocks(auth) {
+      mockery.registerMock('../../core/auth/token', auth || {});
+    }
+
+    function checkResponse(status, json, done) {
+      return function(_status) {
+        expect(_status).to.equal(status);
+        return {
+          json: function(_json) {
+            expect(_json).to.deep.equal(json);
+            done();
+          }
+        };
+      };
+    }
+
+    it('should return HTTP 400 if request does not contains token id', function(done) {
+      setupMocks();
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/token');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        params: {}
+      };
+      var res = {
+        status: checkResponse(400, {
+          error: {
+            code: 400,
+            message: 'Bad request',
+            details: 'Can not retrieve token'
+          }
+        }, done)
+      };
+      middleware.getToken(req, res);
+    });
+
+    it('should return HTTP 500 if auth.getToken sends back error', function(done) {
+
+      var auth = {
+        getToken: function(options, callback) {
+          return callback(new Error());
+        }
+      };
+      setupMocks(auth);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/token');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        params: {
+          token: 456
+        }
+      };
+      var res = {
+        status: checkResponse(500, {error: {code: 500, message: 'Server Error', details: 'Can not get token'}}, done)
+      };
+      middleware.getToken(req, res);
+    });
+
+    it('should return HTTP 404 if auth.getToken does not send back token', function(done) {
+
+      var auth = {
+        getToken: function(options, callback) {
+          return callback();
+        }
+      };
+
+      setupMocks(auth);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/token');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        params: {
+          token: 456
+        }
+      };
+      var res = {
+        status: checkResponse(404, {
+          error: {
+            code: 404,
+            message: 'Not found',
+            details: 'Token not found or expired'
+          }
+        }, done)
+      };
+      middleware.getToken(req, res);
+    });
+
+    it('should set the token in request and call next', function(done) {
+
+      var token = {_id: 123, user: 456};
+
+      var auth = {
+        getToken: function(options, callback) {
+          return callback(null, token);
+        }
+      };
+
+      setupMocks(auth);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/token');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        params: {
+          token: 456
+        }
+      };
+      var res = {
+        status: function() {
+          done(new Error('Should not be called'));
+        }
+      };
+      middleware.getToken(req, res, function() {
+        expect(req.token).to.deep.equal(token);
+        done();
+      });
+    });
+  });
 });

@@ -1,7 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    User = mongoose.model('User');
+    User = mongoose.model('User'),
+    TechnicalUser = mongoose.model('TechnicalUser');
 
 function sanitizeUser(u) {
   var sanitizedUser = {},
@@ -16,6 +17,11 @@ function sanitizeUser(u) {
   return sanitizedUser;
 }
 
+function sanitizeTechnicalUser(u) {
+  return u instanceof TechnicalUser ? u : new TechnicalUser(u).toObject({ virtuals: true });
+}
+
 module.exports = {
-  sanitizeUser: sanitizeUser
+  sanitizeUser: sanitizeUser,
+  sanitizeTechnicalUser: sanitizeTechnicalUser
 };

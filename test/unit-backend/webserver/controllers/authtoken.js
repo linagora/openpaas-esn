@@ -3,547 +3,496 @@
 var expect = require('chai').expect,
   mockery = require('mockery');
 
+function setupMocks(auth, user, technicaluser) {
+  mockery.registerMock('../../core/auth/token', auth || {});
+  mockery.registerMock('../../core/user', user || {});
+  mockery.registerMock('../../core/technical-user', technicaluser || {});
+  mockery.registerMock('./utils', {
+    sanitizeUser: function(user) {
+      return user;
+    },
+    sanitizeTechnicalUser: function(user) {
+      return user;
+    }
+  });
+}
+
 describe('The authtoken controller', function() {
-  it('getNewToken should return HTTP 500 if auth.getNewToken sends back error', function(done) {
 
-    var auth = {
-      getNewToken: function(options, callback) {
-        return callback(new Error());
-      }
-    };
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+  describe('The getNewToken function', function() {
+    it('should return HTTP 500 if auth.getNewToken sends back error', function(done) {
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(500);
-        done();
-      }
-    };
-    controller.getNewToken(req, res);
+      var auth = {
+        getNewToken: function(options, callback) {
+          return callback(new Error());
+        }
+      };
+      setupMocks(auth);
+
+      var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+      var req = {
+        user: {
+          _id: '123'
+        }
+      };
+      var res = {
+        status: function(status) {
+          expect(status).to.equal(500);
+          return {
+            json: function() {
+              done();
+            }
+          };
+        }
+      };
+      controller.getNewToken(req, res);
+    });
+
+    it('should return HTTP 500 if auth.getNewToken sends back empty token', function(done) {
+
+      var auth = {
+        getNewToken: function(options, callback) {
+          return callback();
+        }
+      };
+      setupMocks(auth);
+
+      var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+      var req = {
+        user: {
+          _id: '123'
+        }
+      };
+      var res = {
+        status: function(status) {
+          expect(status).to.equal(500);
+          return {
+            json: function() {
+              done();
+            }
+          };
+        }
+      };
+      controller.getNewToken(req, res);
+    });
+
+    it('should return HTTP 200 if auth.getNewToken sends back token', function(done) {
+
+      var auth = {
+        getNewToken: function(options, callback) {
+          return callback(null, {token: 1});
+        }
+      };
+      setupMocks(auth);
+
+      var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+      var req = {
+        user: {
+          _id: '123'
+        }
+      };
+      var res = {
+        status: function(status) {
+          expect(status).to.equal(200);
+          return {
+            json: function() {
+              done();
+            }
+          };
+        }
+      };
+      controller.getNewToken(req, res);
+    });
   });
 
-  it('getNewToken should return HTTP 500 if auth.getNewToken sends back empty token', function(done) {
+  describe('The getToken function', function() {
 
-    var auth = {
-      getNewToken: function(options, callback) {
-        return callback();
-      }
-    };
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+    it('should return the request token', function(done) {
+      setupMocks();
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(500);
-        done();
-      }
-    };
-    controller.getNewToken(req, res);
+      var token = {
+        _id: 123,
+        user: 456
+      };
+
+      var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        token: token
+      };
+      var res = {
+        status: function(status) {
+          expect(status).to.equal(200);
+          return {
+            json: function(json) {
+              expect(json).to.deep.equal(token);
+              done();
+            }
+          };
+        }
+      };
+      controller.getToken(req, res);
+    });
   });
 
-  it('getNewToken should return HTTP 200 if auth.getNewToken sends back token', function(done) {
+  describe('The isValid function', function() {
 
-    var auth = {
-      getNewToken: function(options, callback) {
-        return callback(null, {token: 1});
-      }
-    };
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+    it('should return HTTP 400 if request does not contains token id', function(done) {
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(200);
-        done();
-      }
-    };
-    controller.getNewToken(req, res);
+      var auth = {
+        getToken: function(options, callback) {
+          return callback(null, {token: 123});
+        }
+      };
+
+      setupMocks(auth);
+
+      var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        params: {}
+      };
+      var res = {
+        status: function(status) {
+          expect(status).to.equal(400);
+          return {
+            json: function() {
+              done();
+            }
+          };
+        }
+      };
+      controller.isValid(req, res);
+    });
+
+    it('should return HTTP 200 if auth.validateToken returns valid state', function(done) {
+
+      var auth = {
+        validateToken: function(token, callback) {
+          return callback(true);
+        }
+      };
+
+      setupMocks(auth);
+
+      var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+      var req = {
+        user: {
+          _id: '123'
+        },
+        params: {
+          token: 123
+        }
+      };
+      var res = {
+        status: function(status) {
+          expect(status).to.equal(200);
+          return {
+            json: function() {
+              done();
+            }
+          };
+        }
+      };
+      controller.isValid(req, res);
+    });
   });
 
-  it('getToken should return HTTP 400 if request does not contains token id', function(done) {
-    mockery.registerMock('../../core/auth/token', {});
-    mockery.registerMock('../../core/user', {});
+  describe('The authenticateByToken function', function() {
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(400);
-        done();
-      }
-    };
-    controller.getToken(req, res);
-  });
+    function checkResponse(status, json, done) {
+      return function(_status) {
+        expect(_status).to.equal(status);
+        return {
+          json: function(_json) {
+            expect(_json).to.deep.equal(json);
+            done();
+          }
+        };
+      };
+    }
 
-  it('getToken should return HTTP 500 if auth.getToken sends back error', function(done) {
+    describe('When req.token.user_type === technicalUser.TYPE', function() {
+      it('should return HTTP 500 if technical user module does sends back error', function(done) {
 
-    var auth = {
-      getToken: function(options, callback) {
-        return callback(new Error());
-      }
-    };
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        var type = 'technical';
+        var technicalUser = {
+          TYPE: type,
+          get: function(id, callback) {
+            return callback(new Error());
+          }
+        };
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 456
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(500);
-        done();
-      }
-    };
-    controller.getToken(req, res);
-  });
+        setupMocks(auth, null, technicalUser);
 
-  it('getToken should return HTTP 404 if auth.getToken does not send back token', function(done) {
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          user: {
+            _id: '123'
+          },
+          token: {
+            user_type: type
+          }
+        };
+        var res = {
+          status: checkResponse(500, {error: {code: 500, message: 'Server Error', details: 'Error while loading technical user'}}, done)
+        };
+        controller.authenticateByToken(req, res);
+      });
 
-    var auth = {
-      getToken: function(options, callback) {
-        return callback();
-      }
-    };
+      it('should return HTTP 404 if technical user module does not sends back user', function(done) {
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 456
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(404);
-        done();
-      }
-    };
-    controller.getToken(req, res);
-  });
+        var type = 'technical';
+        var technicalUser = {
+          TYPE: type,
+          get: function(id, callback) {
+            return callback();
+          }
+        };
 
-  it('getToken should return HTTP 200 if auth.getToken sends back token', function(done) {
+        setupMocks(auth, null, technicalUser);
 
-    var auth = {
-      getToken: function(options, callback) {
-        return callback(null, {token: 123});
-      }
-    };
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          user: {
+            _id: '123'
+          },
+          token: {
+            user_type: type
+          }
+        };
+        var res = {
+          status: checkResponse(404, {error: {code: 404, message: 'Not found', details: 'Technical User not found'}}, done)
+        };
+        controller.authenticateByToken(req, res);
+      });
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+      it('should return HTTP 200 if technical user module sends back user', function(done) {
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 456
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(200);
-        done();
-      }
-    };
-    controller.getToken(req, res);
-  });
+        var u = {_id: 123};
 
-  it('isValid should return HTTP 400 if request does not contains token id', function(done) {
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-    var auth = {
-      getToken: function(options, callback) {
-        return callback(null, {token: 123});
-      }
-    };
+        var type = 'technical';
+        var technicalUser = {
+          TYPE: type,
+          get: function(id, callback) {
+            return callback(null, u);
+          }
+        };
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        setupMocks(auth, null, technicalUser);
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(400);
-        done();
-      }
-    };
-    controller.isValid(req, res);
-  });
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          user: {
+            _id: '123'
+          },
+          token: {
+            user_type: type
+          }
+        };
+        var res = {
+          status: checkResponse(200, {_id: u._id, user_type: type}, done)
+        };
+        controller.authenticateByToken(req, res);
+      });
+    });
 
-  it('isValid should return HTTP 200 if auth.validateToken returns valid state', function(done) {
+    describe('When req.token.user_type is not set', function() {
 
-    var auth = {
-      validateToken: function(token, callback) {
-        return callback(true);
-      }
-    };
+      it('should return HTTP 500 if user module does sends back error', function(done) {
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(200);
-        done();
-      }
-    };
-    controller.isValid(req, res);
-  });
+        var user = {
+          get: function(id, callback) {
+            return callback(new Error());
+          }
+        };
 
-  it('authenticateByToken should return HTTP 400 if token is not defined in request', function(done) {
+        setupMocks(auth, user);
 
-    var auth = {
-      validateToken: function(token, callback) {
-        return callback(true);
-      }
-    };
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          user: {
+            _id: '123'
+          },
+          token: {}
+        };
+        var res = {
+          status: checkResponse(500, {error: {code: 500, message: 'Server Error', details: 'Error while loading user'}}, done)
+        };
+        controller.authenticateByToken(req, res);
+      });
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+      it('should return HTTP 404 if user module does not sends back user', function(done) {
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(400);
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-  it('authenticateByToken should return HTTP 500 if auth.getToken sends back error', function(done) {
+        var user = {
+          get: function(id, callback) {
+            return callback();
+          }
+        };
 
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(new Error());
-      }
-    };
+        setupMocks(auth, user);
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          user: {
+            _id: '123'
+          },
+          token: {}
+        };
+        var res = {
+          status: checkResponse(404, {error: {code: 404, message: 'Not found', details: 'User not found'}}, done)
+        };
+        controller.authenticateByToken(req, res);
+      });
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(500);
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
+      it('should return HTTP 200 if user module sends back user', function(done) {
 
-  it('authenticateByToken should return HTTP 400 if auth.getToken does not send back token', function(done) {
+        var u = {_id: 123, password: 456};
 
-    var auth = {
-      getToken: function(token, callback) {
-        return callback();
-      }
-    };
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        var user = {
+          get: function(id, callback) {
+            return callback(null, u);
+          }
+        };
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(400);
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
+        setupMocks(auth, user);
 
-  it('authenticateByToken should return HTTP 404 if auth.getToken does not send back user in token', function(done) {
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          user: {
+            _id: '123'
+          },
+          token: {}
+        };
+        var res = {
+          status: checkResponse(200, u, done)
+        };
+        controller.authenticateByToken(req, res);
+      });
 
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(null, {});
-      }
-    };
+      it('should log in when no user is set', function(done) {
+        var u = {_id: 123, password: 456};
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', {});
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(404);
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
+        var user = {
+          get: function(id, callback) {
+            return callback(null, u);
+          }
+        };
 
-  it('authenticateByToken should return HTTP 500 if user module does sends back error', function(done) {
+        setupMocks(auth, user);
 
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(null, {user: 1, token: 123});
-      }
-    };
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          _loginCalled: false,
+          token: {},
+          login: function(user, callback) {
+            this._loginCalled = true;
+            callback();
+          }
+        };
+        var res = {
+          status: function(status) {
+            expect(status).to.equal(200);
+            return {
+              json: function(json) {
+                expect(json).to.deep.equal(u);
+                expect(req._loginCalled).to.be.true;
+                done();
+              }
+            };
+          }
+        };
+        controller.authenticateByToken(req, res);
 
-    var user = {
-      get: function(id, callback) {
-        return callback(new Error());
-      }
-    };
+      });
 
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', user);
+      it('should not log in when a user is set', function(done) {
+        var u = {_id: 123, password: 456};
 
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(500);
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
+        var auth = {
+          getToken: function(token, callback) {
+            return callback(null, {user: 1, token: 123});
+          }
+        };
 
-  it('authenticateByToken should return HTTP 404 if user module does not sends back user', function(done) {
+        var user = {
+          get: function(id, callback) {
+            return callback(null, u);
+          }
+        };
 
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(null, {user: 1, token: 123});
-      }
-    };
+        setupMocks(auth, user);
 
-    var user = {
-      get: function(id, callback) {
-        return callback();
-      }
-    };
-
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', user);
-
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status) {
-        expect(status).to.equal(404);
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
-
-  it('authenticateByToken should return HTTP 200 if user module sends back user', function(done) {
-
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(null, {user: 1, token: 123});
-      }
-    };
-
-    var user = {
-      get: function(id, callback) {
-        return callback(null, {_id: 123, password: 456});
-      }
-    };
-
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', user);
-
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      user: {
-        _id: '123'
-      },
-      params: {
-        token: 123
-      }
-    };
-    var res = {
-      json: function(status, json) {
-        expect(status).to.equal(200);
-        expect(json).to.exist;
-        expect(json._id).to.exist;
-        expect(json.password).to.not.exist;
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-  });
-
-  it('authenticateByToken should log in when no user is set', function(done) {
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(null, {user: 1, token: 123});
-      }
-    };
-
-    var user = {
-      get: function(id, callback) {
-        return callback(null, {_id: 123, password: 456});
-      }
-    };
-
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', user);
-
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      _loginCalled: false,
-      params: {
-        token: 123
-      },
-      login: function(user, callback) {
-        this._loginCalled = true;
-        callback();
-      }
-    };
-    var res = {
-      json: function(status, json) {
-        expect(status).to.equal(200);
-        expect(json).to.exist;
-        expect(json._id).to.exist;
-        expect(json.password).to.not.exist;
-        expect(req._loginCalled).to.be.true;
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
-
-  });
-
-  it('authenticateByToken should not log in when a user is set', function(done) {
-    var auth = {
-      getToken: function(token, callback) {
-        return callback(null, {user: 1, token: 123});
-      }
-    };
-
-    var user = {
-      get: function(id, callback) {
-        return callback(null, {_id: 123, password: 456});
-      }
-    };
-
-    mockery.registerMock('../../core/auth/token', auth);
-    mockery.registerMock('../../core/user', user);
-
-    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
-    var req = {
-      _loginCalled: false,
-      user: { _id: 123, password: 456 },
-      params: { token: 123 },
-      login: function(user, callback) {
-        this._loginCalled = true;
-        callback();
-      }
-    };
-    var res = {
-      json: function(status, json) {
-        expect(status).to.equal(200);
-        expect(json).to.exist;
-        expect(json._id).to.exist;
-        expect(json.password).to.not.exist;
-        expect(req._loginCalled).to.be.false;
-        done();
-      }
-    };
-    controller.authenticateByToken(req, res);
+        var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
+        var req = {
+          _loginCalled: false,
+          user: u,
+          token: {},
+          login: function(user, callback) {
+            this._loginCalled = true;
+            callback();
+          }
+        };
+        var res = {
+          status: function(status) {
+            expect(status).to.equal(200);
+            return {
+              json: function(json) {
+                expect(json).to.deep.equal(u);
+                expect(req._loginCalled).to.be.false;
+                done();
+              }
+            };
+          }
+        };
+        controller.authenticateByToken(req, res);
+      });
+    });
   });
 });
