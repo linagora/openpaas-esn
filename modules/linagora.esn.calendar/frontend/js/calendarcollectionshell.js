@@ -10,17 +10,17 @@ angular.module('esn.calendar')
      * @param {Object} extendedProperties  Object of additional properties like:
      */
     function CalendarCollectionShell(calendar) {
-      var name = calendar['dav:name'] || 'Events';
-      var color = calendar['apple:color'] || '#2196f3';
+      this.name = calendar['dav:name'] || 'Events';
+      this.color = calendar['apple:color'] || '#2196f3';
       var description = calendar['caldav:description'] || '';
       var href = calendar._links.self.href;
       var id = href.split('/').pop().split('.').shift();
 
       this.getName = function() {
-        return name;
+        return this.name;
       };
       this.getColor = function() {
-        return color;
+        return this.color;
       };
       this.getDescription = function() {
         return description;
