@@ -42,8 +42,8 @@ angular.module('esn.calendar', [
       },
       controller: 'eventFullFormController'
     })
-    .state('/calendar/:calendar_id/:event_id', {
-      url: '/calendar/:calendar_id/:event_id',
+    .state('calendar.edit.event', {
+      url: '/:calendar_id/:event_id',
       templateUrl: '/calendar/views/event-full-form/event-full-form-view',
       resolve: {
         event: function($stateParams, $location, pathBuilder, calendarService, notificationFactory) {
@@ -64,6 +64,27 @@ angular.module('esn.calendar', [
         user: routeResolver.session('user')
       },
       reloadOnSearch: false
+    })
+    .state('calendaredit', {
+      url: '/calendar/edit/:id',
+      templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
+      controller: 'calendarEditionController',
+      resolve: {
+        calendar: function($stateParams, calendarService, session) {
+          return session.ready.then(function() {
+            return calendarService.getCalendar(session.user._id, $stateParams.id);
+          });
+        }
+      }
+    })
+    .state('calendaradd', {
+      url: '/calendar/add',
+      templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
+      controller: 'calendarEditionController',
+      resolve: {
+        calendar: function() {
+          return null;
+        }
+      }
     });
-
   });
