@@ -91,8 +91,8 @@ describe('The authenticationtoken API', function() {
 
   describe('GET /api/authenticationtoken/:token/user', function() {
 
-    it('should send back 400 if token does not exist', function(done) {
-      request(webserver.application).get('/api/authenticationtoken/123/user').expect(400).end(helpers.callbacks.noError(done));
+    it('should send back 404 if token does not exist', function(done) {
+      request(webserver.application).get('/api/authenticationtoken/123/user').expect(404).end(helpers.callbacks.noError(done));
     });
 
     it('should send back 200 with the user information', function(done) {
