@@ -86,5 +86,17 @@ angular.module('esn.calendar', [
           return null;
         }
       }
+    })
+    .state('calendaredits', {
+      url: '/calendar/calendars-edit',
+      templateUrl: 'calendar/views/calendar-configuration/calendars-edit',
+      controller: 'calendarsEditionController',
+      resolve: {
+        calendars: function(session, calendarService) {
+          return session.ready.then(function() {
+            return calendarService.listCalendars(session.user._id);
+          });
+        }
+      }
     });
   });
