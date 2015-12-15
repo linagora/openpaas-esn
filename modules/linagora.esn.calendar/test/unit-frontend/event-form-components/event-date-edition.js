@@ -182,7 +182,7 @@ describe('The event-date-edition component', function() {
           end: this.fcMoment('2013-02-08 10:30')
         };
         this.initDirective(this.$scope);
-        this.$scope.event.diff = 3600 * 1000 * 2; // 2 hours
+        this.eleScope.diff = 3600 * 1000 * 2; // 2 hours
         this.eleScope.onStartDateChange();
         var isSame = this.fcMoment('2013-02-08 11:30').isSame(this.$scope.event.end);
         expect(isSame).to.be.true;
