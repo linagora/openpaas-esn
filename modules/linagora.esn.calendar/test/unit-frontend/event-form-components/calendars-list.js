@@ -19,12 +19,15 @@ describe('The calendar-lists component', function() {
       calendarHomeId: '12345'
     };
 
+    this.locationMock = {};
+
     var self = this;
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
     angular.mock.module(function($provide) {
       $provide.value('uuid4', self.uuid4);
       $provide.value('calendarService', self.calendarService);
+      $provide.value('$location', self.locationMock);
     });
   });
 
@@ -57,135 +60,47 @@ describe('The calendar-lists component', function() {
       description: 'description2'
     })];
     this.initDirective(this.$scope);
-    expect(this.eleScope.newCalendars).to.shallowDeepEqual([{
-      href: 'href',
-      name: 'name',
-      color: 'color',
-      description: 'description',
-      toggled: true
-    }, {
-      href: 'href2',
-      name: 'name2',
-      color: 'color2',
-      description: 'description2',
-      toggled: true
-    }]);
-    expect(this.eleScope.oldCalendars).to.shallowDeepEqual([{
-      href: 'href',
-      name: 'name',
-      color: 'color',
-      description: 'description',
-      toggled: true
-    }, {
-      href: 'href2',
-      name: 'name2',
-      color: 'color2',
-      description: 'description2',
-      toggled: true
-    }]);
-    expect(this.eleScope.formToggled).to.be.false;
-  });
 
-  describe('scope.toggleForm', function() {
-    it('should toggle scope.formToggled', function() {
-      this.initDirective(this.$scope);
-      this.eleScope.toggleForm();
-      expect(this.eleScope.formToggled).to.be.true;
+    this.eleScope.calendars.forEach(function(calendar) {
+      expect(calendar.toggled).to.be.true;
     });
   });
 
-  describe('scope.submit', function() {
-    it('should emit added and removed calendars, and toggleForm', function() {
-      var addedSpy = sinon.spy();
-      var removedSpy = sinon.spy();
-      this.$rootScope.$on('calendars-list:added', function(event, data) {
-        expect(data[0].getHref()).to.equal('href3');
-        addedSpy();
+  describe('scope.openConfigPanel', function() {
+    it('should move to mobile calendars configuration view', function() {
+      this.locationMock.url = sinon.spy(function(url) {
+        expect(url).to.equal('/calendar/calendars-edit');
       });
-      this.$rootScope.$on('calendars-list:removed', function(event, data) {
-        expect(data[0].getHref()).to.equal('href');
-        removedSpy();
-      });
-      this.$scope.calendars = [this.CalendarCollectionShell.from({
-        href: 'href',
-        name: 'name',
-        color: 'color',
-        description: 'description'
-      }),
-      this.CalendarCollectionShell.from({
-        href: 'href2',
-        name: 'name2',
-        color: 'color2',
-        description: 'description2'
-      })];
       this.initDirective(this.$scope);
-      this.eleScope.newCalendars[0] = {
-        href: 'href3',
-        name: 'name3',
-        color: 'color3',
-        description: 'description3'
-      };
-      this.eleScope.$digest();
-      this.eleScope.submit();
-      expect(addedSpy).to.have.been.calledOnce;
-      expect(removedSpy).to.have.been.calledOnce;
-      expect(this.eleScope.formToggled).to.be.true;
-    });
-  });
-
-  describe('scope.remove', function() {
-    it('should remove calendars', function() {
-      this.$scope.calendars = [this.CalendarCollectionShell.from({
-        href: 'href',
-        name: 'name',
-        color: 'color',
-        description: 'description'
-      }),
-      this.CalendarCollectionShell.from({
-        href: 'href2',
-        name: 'name2',
-        color: 'color2',
-        description: 'description2'
-      })];
-      this.initDirective(this.$scope);
-      this.eleScope.remove({href: 'href'});
-      expect(this.eleScope.newCalendars.length).to.equal(1);
-      expect(this.eleScope.newCalendars[0]).to.shallowDeepEqual({
-        href: 'href2',
-        name: 'name2',
-        color: 'color2',
-        description: 'description2',
-        toggled: true
-      });
+      this.eleScope.openConfigPanel();
+      expect(this.locationMock.url).to.have.been.calledOnce;
     });
   });
 
   describe('scope.add', function() {
-    it('should push a new calendar', function() {
-      this.$scope.calendars = [this.CalendarCollectionShell.from({
-        href: 'href',
-        name: 'name',
-        color: 'color',
-        description: 'description'
-      }),
-      this.CalendarCollectionShell.from({
-        href: 'href2',
-        name: 'name2',
-        color: 'color2',
-        description: 'description2'
-      })];
-      this.initDirective(this.$scope);
-      this.eleScope.newCalendar = {
-        name: 'newCal'
-      };
-      this.eleScope.$digest();
-      this.eleScope.add();
-      expect(this.eleScope.newCalendars.length).to.equal(3);
-      expect(this.eleScope.newCalendars[2]).to.shallowDeepEqual({
-        name: 'newCal',
-        href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
-        toggled: true
+    it('should move to calendar configuration view', function() {
+      this.locationMock.url = sinon.spy(function(url) {
+        expect(url).to.equal('/calendar/add');
       });
+      this.initDirective(this.$scope);
+      this.eleScope.add();
+      expect(this.locationMock.url).to.have.been.calledOnce;
+    });
+  });
+
+  describe('scope.edit', function() {
+    it('should move to calendar configuration view passing the good id', function() {
+      this.locationMock.url = sinon.spy(function(url) {
+        expect(url).to.equal('/calendar/edit/42');
+      });
+
+      var cal = {
+        id: 42
+      };
+
+      this.initDirective(this.$scope);
+      this.eleScope.edit(cal);
+      expect(this.locationMock.url).to.have.been.calledOnce;
     });
   });
 
@@ -209,10 +124,9 @@ describe('The calendar-lists component', function() {
         description: 'description2'
       })];
       this.initDirective(this.$scope);
-      this.eleScope.toggleCalendar(this.eleScope.newCalendars[0]);
-      expect(this.eleScope.newCalendars[0].toggled).to.be.false;
+      this.eleScope.toggleCalendar(this.eleScope.calendars[0]);
+      expect(this.eleScope.calendars[0].toggled).to.be.false;
       expect(toggleSpy).to.have.been.calledOnce;
     });
   });
-
 });

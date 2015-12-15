@@ -1,47 +1,23 @@
 .listview.p-t-5.calendars-list
-  .lv-header.hidden-xs
-    a.pull-right(href="", ng-if="!formToggled", ng-click="toggleForm()")
+  .lv-header
+    a.visible-xs.pull-right(href="", ng-click="openConfigPanel()")
       i.mdi.mdi-settings
-    a.pull-right(href="", ng-if="formToggled", ng-click="submit()")
-      i.mdi.mdi-check
-    .lv-header-title
-      span(ng-if="!formToggled") Calendars
-      span(ng-if="formToggled") Save changes
+    a.hidden-xs.pull-right(href="", ng-click="add()")
+      i.mdi.mdi-plus
+    .lv-header-title Calendars
     .clearfix
   .lv-body
     .p-10
-      a.lv-item(href="", ng-repeat="calendar in newCalendars", ng-click="toggleCalendar(calendar)")
+      a.lv-item(href="", ng-repeat="calendar in calendars")
         .media
-          .pull-left
+          .pull-left(ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-label(ng-style="{'color': calendar.color}")
-          .pull-left(ng-if="!formToggled && calendar.toggled")
+          .pull-left(ng-if="calendar.toggled", ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-checkbox-marked-outline
-          .pull-left(ng-if="!formToggled && !calendar.toggled")
+          .pull-left(ng-if="!calendar.toggled", ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-checkbox-blank-outline
-          .pull-right(ng-if="formToggled", ng-click="remove(calendar)")
-            i.mdi.mdi-delete
-          .media-body
+          .pull-right.hidden-xs(ng-click="edit(calendar)")
+            i.mdi.mdi-settings
+          .media-body(ng-click="toggleCalendar(calendar)")
             .lv-title
-              span(ng-if="!formToggled") {{calendar.name}}
-              .fg-line(ng-if="formToggled")
-                input.input-sm.form-control(type="text", ng-model="calendar.name")
-      a.lv-item(href="", ng-if="formToggled")
-        .media
-          .pull-left
-            i.mdi.mdi-label(ng-style="{'color': 'grey'}")
-          .pull-right(ng-click="add()")
-            i.mdi.mdi-plus
-          .media-body
-            .lv-title
-              .fg-line
-                input.input-sm.form-control(type="text", ng-model="newCalendar.name")
-  .lv-footer.visible-xs
-    .p-10
-      a.lv-item(href="", ng-click="formToggled ? submit() : toggleForm()")
-        .media
-          .pull-left
-            i.mdi.mdi-settings(ng-if="!formToggled")
-            i.mdi.mdi-check(ng-if="formToggled")
-          .media-body.pull-left
-            .lv-title(ng-if="!formToggled") Configuration
-            .lv-title(ng-if="formToggled") Save changes
+              span {{calendar.name}}
