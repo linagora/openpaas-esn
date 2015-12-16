@@ -1,4 +1,5 @@
 @ui-state-hover: rgba(0,0,0,0.2);
+@allday-background: #f7f7f7;
 
 .fc-toolbar {
   background-color: @darkPrimaryColor;
@@ -26,8 +27,8 @@
 
   .ui-button:hover {
     background: inherit;
-    background-color: darken(@darkPrimaryColor, 5%);
-    color: @m-black !important; /* override material-admin value */
+    background-color: @primaryColor;
+    color: @m-white !important; /* override material-admin value */
   }
 
   .fc-today-button {
@@ -49,6 +50,20 @@
   }
 }
 
+.main-calendar {
+  .fc-day-grid {
+    color: @secondaryTextColor;
+    background-color: @allday-background;
+    .fc-week .fc-bg {
+      background-color: @allday-background;
+    }
+  }
+
+  hr.fc-divider {
+    padding: 0;
+  }
+}
+
 .fc {
   margin-bottom: 0;
   th {
@@ -56,18 +71,32 @@
   }
 }
 
+.fc thead td, .fc thead th {
+  border-color: @darkPrimaryColor;
+  border-right: 0;
+  &.fc-axis {
+    text-align: center;
+  }
+}
+
 .fc-toolbar .ui-button>span.ui-icon-circle-triangle-w:before {
   font-family: 'MaterialDesignIcons';
-  content: "\f13f";
+  content: "\f205";
 }
 
 .fc-toolbar .ui-button>span.ui-icon-circle-triangle-e:before {
   font-family: 'MaterialDesignIcons';
-  content: "\f144";
+  content: "\f206";
 }
 
 @media (min-width: @screen-sm-min) {
   .fc th {
-    background: @primaryColor;
+    background-color: @darkPrimaryColor;
+    color: @textPrimaryColor;
+    font-size: 12px;
+  }
+
+  .fc-head-container {
+    background-color: @darkPrimaryColor;
   }
 }
