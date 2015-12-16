@@ -43,7 +43,7 @@ module.exports = function(dependencies) {
       .vcard(contactId)
       .create(vcard.toJSON())
       .then(function() {
-        pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookHome: options.user._id, bookName: options.addressbook.id, bookId: options.addressbook.id, vcard: vcard.toJSON(), user: options.user});
+        pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookHome: options.user._id, bookName: options.addressbook.id, bookId: options.user._id, vcard: vcard.toJSON(), user: options.user});
       }, function(err) {
         logger.error('Error while inserting contact to DAV', err);
         return q.reject(buildErrorMessage(IMPORT_CONTACT_CLIENT_ERROR, err));
