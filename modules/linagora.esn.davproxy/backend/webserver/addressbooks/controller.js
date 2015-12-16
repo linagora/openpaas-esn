@@ -12,7 +12,7 @@ module.exports = function(dependencies) {
   var avatarHelper = require('./avatarHelper')(dependencies);
 
   function getContactUrl(req, bookHome, bookName, contactId) {
-    return [req.davserver, '/', PATH, '/', bookHome, '/', bookName,'/', contactId, '.vcf'].join('');
+    return [req.davserver, '/', PATH, '/', bookHome, '/', bookName, '/', contactId, '.vcf'].join('');
   }
 
   function getContactsFromDAV(req, res) {

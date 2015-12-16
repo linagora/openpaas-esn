@@ -57,7 +57,7 @@ describe('The addressbooks module', function() {
                           },
                           del: function() {
                           }
-                        }
+                        };
                       },
                       list: function() {
                       }
@@ -119,7 +119,7 @@ describe('The addressbooks module', function() {
                   }
                 };
               }
-            }
+            };
           }
         };
       };
@@ -954,7 +954,6 @@ describe('The addressbooks module', function() {
     it('should send the current page in the response', function(done) {
       var search = 'Bruce';
       var user = {_id: '123'};
-      var bookId = '456';
 
       dependencies.contact = {
         lib: {

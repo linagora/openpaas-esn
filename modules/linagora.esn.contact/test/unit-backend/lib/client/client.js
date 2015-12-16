@@ -42,15 +42,15 @@ describe('The contact client APIs', function() {
     var CONTACT_ID = '456';
 
     function expectBookHomeURL(url) {
-      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '.json')
+      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '.json');
     }
 
     function expectBookNameURL(url) {
-      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '.json')
+      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '.json');
     }
 
     function expectVCardURL(url) {
-      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + CONTACT_ID + '.vcf')
+      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + CONTACT_ID + '.vcf');
     }
 
     function getAddressbookHome() {
@@ -132,10 +132,10 @@ describe('The contact client APIs', function() {
           return getAddressbook().vcard(id);
         }
 
-        describe('The get fn', function () {
-          it('should call davClient with right parameters', function (done) {
+        describe('The get fn', function() {
+          it('should call davClient with right parameters', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options) {
+              rawClient: function(options) {
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
                   ESNToken: CLIENT_OPTIONS.ESNToken,
@@ -148,7 +148,7 @@ describe('The contact client APIs', function() {
             getVcard(CONTACT_ID).get();
           });
 
-          it('should resolve with response and body', function (done) {
+          it('should resolve with response and body', function(done) {
             var response = {
               statusCode: 200
             };
@@ -157,37 +157,37 @@ describe('The contact client APIs', function() {
             };
 
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, response, body);
               }
             });
 
-            getVcard(CONTACT_ID).get().then(function (data) {
+            getVcard(CONTACT_ID).get().then(function(data) {
               expect(data.response).to.deep.equal(response);
               expect(data.body).to.deep.equal(body);
               done();
             });
           });
 
-          it('should reject with error', function (done) {
+          it('should reject with error', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback('a error');
               }
             });
 
-            getVcard(CONTACT_ID).get().then(null, function (err) {
+            getVcard(CONTACT_ID).get().then(null, function(err) {
               expect(err).to.equal('a error');
               done();
             });
           });
         });
 
-        describe('The create fn', function () {
-          it('should call davClient with right parameters', function (done) {
+        describe('The create fn', function() {
+          it('should call davClient with right parameters', function(done) {
             var contact = {id: '456'};
             mockery.registerMock('../dav-client', {
-              rawClient: function (options) {
+              rawClient: function(options) {
                 expect(options.method).to.equal('PUT');
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
@@ -202,7 +202,7 @@ describe('The contact client APIs', function() {
             getVcard(CONTACT_ID).create(contact);
           });
 
-          it('should resolve with response and body', function (done) {
+          it('should resolve with response and body', function(done) {
             var response = {
               statusCode: 200
             };
@@ -211,50 +211,50 @@ describe('The contact client APIs', function() {
             };
 
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, response, body);
               }
             });
 
-            getVcard(CONTACT_ID).create({}).then(function (data) {
+            getVcard(CONTACT_ID).create({}).then(function(data) {
               expect(data.response).to.deep.equal(response);
               expect(data.body).to.deep.equal(body);
               done();
             });
           });
 
-          it('should reject with error when client returns error', function (done) {
+          it('should reject with error when client returns error', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback('a error');
               }
             });
 
-            getVcard(CONTACT_ID).create({}).then(null, function (err) {
+            getVcard(CONTACT_ID).create({}).then(null, function(err) {
               expect(err).to.equal('a error');
               done();
             });
           });
 
-          it('should reject when HTTP status is not 201', function (done) {
+          it('should reject when HTTP status is not 201', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, {statusCode: 199});
               }
             });
 
-            getVcard(CONTACT_ID).create({}).then(null, function (err) {
+            getVcard(CONTACT_ID).create({}).then(null, function(err) {
               expect(err).to.exist;
               done();
             });
           });
         });
 
-        describe('The update fn', function () {
-          it('should call davClient with right parameters', function (done) {
+        describe('The update fn', function() {
+          it('should call davClient with right parameters', function(done) {
             var contact = {id: '456'};
             mockery.registerMock('../dav-client', {
-              rawClient: function (options) {
+              rawClient: function(options) {
                 expect(options.method).to.equal('PUT');
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
@@ -270,7 +270,7 @@ describe('The contact client APIs', function() {
             getVcard(CONTACT_ID).update(contact);
           });
 
-          it('should resolve with response and body', function (done) {
+          it('should resolve with response and body', function(done) {
             var response = {
               statusCode: 200
             };
@@ -279,39 +279,39 @@ describe('The contact client APIs', function() {
             };
 
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, response, body);
               }
             });
 
-            getVcard(CONTACT_ID).update({}).then(function (data) {
+            getVcard(CONTACT_ID).update({}).then(function(data) {
               expect(data.response).to.deep.equal(response);
               expect(data.body).to.deep.equal(body);
               done();
             });
           });
 
-          it('should reject with error', function (done) {
+          it('should reject with error', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback('a error');
               }
             });
 
-            getVcard(CONTACT_ID).update({}).then(null, function (err) {
+            getVcard(CONTACT_ID).update({}).then(null, function(err) {
               expect(err).to.equal('a error');
               done();
             });
           });
 
-          it('should reject when HTTP status is not 200', function (done) {
+          it('should reject when HTTP status is not 200', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, {statusCode: 199});
               }
             });
 
-            getVcard(CONTACT_ID).update({}).then(null, function (err) {
+            getVcard(CONTACT_ID).update({}).then(null, function(err) {
               expect(err).to.exist;
               done();
             });
@@ -319,10 +319,10 @@ describe('The contact client APIs', function() {
 
         });
 
-        describe('The deleteContact fn', function () {
-          it('should call davClient with right parameters', function (done) {
+        describe('The deleteContact fn', function() {
+          it('should call davClient with right parameters', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options) {
+              rawClient: function(options) {
                 expect(options.method).to.equal('DELETE');
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
@@ -336,7 +336,7 @@ describe('The contact client APIs', function() {
             getVcard(CONTACT_ID).del();
           });
 
-          it('should resolve with response and body', function (done) {
+          it('should resolve with response and body', function(done) {
             var response = {
               statusCode: 204
             };
@@ -345,39 +345,39 @@ describe('The contact client APIs', function() {
             };
 
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, response, body);
               }
             });
 
-            getVcard(CONTACT_ID).del().then(function (data) {
+            getVcard(CONTACT_ID).del().then(function(data) {
               expect(data.response).to.deep.equal(response);
               expect(data.body).to.deep.equal(body);
               done();
             });
           });
 
-          it('should reject with error', function (done) {
+          it('should reject with error', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback('a error');
               }
             });
 
-            getVcard(CONTACT_ID).del().then(null, function (err) {
+            getVcard(CONTACT_ID).del().then(null, function(err) {
               expect(err).to.equal('a error');
               done();
             });
           });
 
-          it('should reject when HTTP status is not 204', function (done) {
+          it('should reject when HTTP status is not 204', function(done) {
             mockery.registerMock('../dav-client', {
-              rawClient: function (options, callback) {
+              rawClient: function(options, callback) {
                 callback(null, {statusCode: 203});
               }
             });
 
-            getVcard(CONTACT_ID).del().then(null, function (err) {
+            getVcard(CONTACT_ID).del().then(null, function(err) {
               expect(err).to.exist;
               done();
             });
