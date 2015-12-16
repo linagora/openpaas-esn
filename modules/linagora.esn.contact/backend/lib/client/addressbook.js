@@ -8,6 +8,7 @@ var VCARD_JSON = 'application/vcard+json';
 var VALID_HTTP_STATUS = {
   GET: [200],
   PUT: [200, 201],
+  POST: [200],
   DELETE: [204]
 };
 
@@ -48,6 +49,12 @@ module.exports = function(dependencies, options) {
       });
     }
 
+    function getAddressBookRootUrl(callback) {
+      davServerUtils.getDavEndpoint(function(davServerUrl) {
+        callback([davServerUrl, PATH, bookId + '.json'].join('/'));
+      });
+    }
+
     function getBookUrl(callback) {
       davServerUtils.getDavEndpoint(function(davServerUrl) {
         callback([davServerUrl, PATH, bookId, 'contacts.json'].join('/'));
@@ -74,9 +81,7 @@ module.exports = function(dependencies, options) {
             url: url,
             json: true,
             query: query || {}
-          }, function(err, response, body) {
-            checkResponse(deferred, 'GET', 'Error while getting contacts from DAV')(err, response, body);
-          });
+          }, checkResponse(deferred, 'GET', 'Error while getting contacts from DAV'));
         });
 
         return deferred.promise;
@@ -98,9 +103,7 @@ module.exports = function(dependencies, options) {
             headers: headers,
             url: url,
             json: true
-          }, function(err, response, body) {
-            checkResponse(deferred, 'GET', 'Error while getting contact from DAV')(err, response, body);
-          });
+          }, checkResponse(deferred, 'GET', 'Error while getting contact from DAV'));
         });
 
         return deferred.promise;
@@ -126,9 +129,7 @@ module.exports = function(dependencies, options) {
             url: url,
             json: true,
             body: contact
-          }, function(err, response, body) {
-            checkResponse(deferred, 'PUT', 'Error while creating contact in DAV')(err, response, body);
-          });
+          }, checkResponse(deferred, 'PUT', 'Error while creating contact in DAV'));
         });
 
         return deferred.promise;
@@ -154,9 +155,7 @@ module.exports = function(dependencies, options) {
             url: url,
             json: true,
             body: contact
-          }, function(err, response, body) {
-            checkResponse(deferred, 'PUT', 'Error while updating contact on DAV')(err, response, body);
-          });
+          }, checkResponse(deferred, 'PUT', 'Error while updating contact on DAV'));
         });
 
         return deferred.promise;
@@ -178,9 +177,7 @@ module.exports = function(dependencies, options) {
             headers: headers,
             url: url,
             json: true
-          }, function(err, response, body) {
-            checkResponse(deferred, 'DELETE', 'Error while deleting contact on DAV')(err, response, body);
-          });
+          }, checkResponse(deferred, 'DELETE', 'Error while deleting contact on DAV'));
         });
 
         return deferred.promise;
@@ -254,8 +251,36 @@ module.exports = function(dependencies, options) {
       };
     }
 
+    /**
+     * Create new addressbook
+     * @param  {Object} addressbook The addressbook json to be created
+     *
+     * @return {Promise}
+     */
+
+    function create(addressbook) {
+      var deferred = q.defer();
+      var headers = {
+        ESNToken: ESNToken,
+        accept: VCARD_JSON
+      };
+
+      getAddressBookRootUrl(function(url) {
+        davClient({
+          method: 'POST',
+          headers: headers,
+          url: url,
+          json: true,
+          body: addressbook
+        }, checkResponse(deferred, 'POST', 'Error while creating addressbook in DAV'));
+      });
+
+      return deferred.promise;
+    }
+
     return {
-      contacts: contacts
+      contacts: contacts,
+      create: create
     };
   };
 

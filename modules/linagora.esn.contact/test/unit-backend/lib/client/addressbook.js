@@ -34,11 +34,11 @@ describe('The contact client APIs', function() {
     return require('../../../../backend/lib/client')(dependencies);
   }
 
-  describe('The addressbook fn', function() {
+  describe('The addressbook client fn', function() {
     var CLIENT_OPTIONS = { ESNToken: '1111' };
     var BOOK_ID = '123';
 
-    function addressbook() {
+    function addressbookClient() {
       return getModule()(CLIENT_OPTIONS).addressbook(BOOK_ID);
     }
 
@@ -58,7 +58,7 @@ describe('The contact client APIs', function() {
               done();
             }
           });
-          addressbook().contacts().list(query);
+          addressbookClient().contacts().list(query);
         });
 
         it('should have default empty query', function(done) {
@@ -68,7 +68,7 @@ describe('The contact client APIs', function() {
               done();
             }
           });
-          addressbook().contacts().list();
+          addressbookClient().contacts().list();
         });
 
         it('should resolve with response and body', function(done) {
@@ -85,7 +85,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts().list().then(function(data) {
+          addressbookClient().contacts().list().then(function(data) {
             expect(data.response).to.deep.equal(response);
             expect(data.body).to.deep.equal(body);
             done();
@@ -99,7 +99,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts().list().then(null, function(err) {
+          addressbookClient().contacts().list().then(null, function(err) {
             expect(err).to.equal('a error');
             done();
           });
@@ -119,7 +119,7 @@ describe('The contact client APIs', function() {
               done();
             }
           });
-          addressbook().contacts('456').get();
+          addressbookClient().contacts('456').get();
         });
 
         it('should resolve with response and body', function(done) {
@@ -136,7 +136,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').get().then(function(data) {
+          addressbookClient().contacts('456').get().then(function(data) {
             expect(data.response).to.deep.equal(response);
             expect(data.body).to.deep.equal(body);
             done();
@@ -150,7 +150,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').get().then(null, function(err) {
+          addressbookClient().contacts('456').get().then(null, function(err) {
             expect(err).to.equal('a error');
             done();
           });
@@ -163,7 +163,7 @@ describe('The contact client APIs', function() {
               done();
             }
           });
-          addressbook().contacts('456').get('use_this_id');
+          addressbookClient().contacts('456').get('use_this_id');
         });
 
       });
@@ -184,7 +184,7 @@ describe('The contact client APIs', function() {
               done();
             }
           });
-          addressbook().contacts(contact.id).create(contact);
+          addressbookClient().contacts(contact.id).create(contact);
         });
 
         it('should resolve with response and body', function(done) {
@@ -201,7 +201,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').create({}).then(function(data) {
+          addressbookClient().contacts('456').create({}).then(function(data) {
             expect(data.response).to.deep.equal(response);
             expect(data.body).to.deep.equal(body);
             done();
@@ -215,7 +215,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').create({}).then(null, function(err) {
+          addressbookClient().contacts('456').create({}).then(null, function(err) {
             expect(err).to.equal('a error');
             done();
           });
@@ -228,7 +228,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').create({}).then(null, function(err) {
+          addressbookClient().contacts('456').create({}).then(null, function(err) {
             expect(err).to.exist;
             done();
           });
@@ -252,7 +252,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').update(contact);
+          addressbookClient().contacts('456').update(contact);
         });
 
         it('should resolve with response and body', function(done) {
@@ -269,7 +269,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').update({}).then(function(data) {
+          addressbookClient().contacts('456').update({}).then(function(data) {
             expect(data.response).to.deep.equal(response);
             expect(data.body).to.deep.equal(body);
             done();
@@ -283,7 +283,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').update({}).then(null, function(err) {
+          addressbookClient().contacts('456').update({}).then(null, function(err) {
             expect(err).to.equal('a error');
             done();
           });
@@ -296,7 +296,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').update({}).then(null, function(err) {
+          addressbookClient().contacts('456').update({}).then(null, function(err) {
             expect(err).to.exist;
             done();
           });
@@ -318,7 +318,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').del();
+          addressbookClient().contacts('456').del();
         });
 
         it('should resolve with response and body', function(done) {
@@ -335,7 +335,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').del().then(function(data) {
+          addressbookClient().contacts('456').del().then(function(data) {
             expect(data.response).to.deep.equal(response);
             expect(data.body).to.deep.equal(body);
             done();
@@ -349,7 +349,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').del().then(null, function(err) {
+          addressbookClient().contacts('456').del().then(null, function(err) {
             expect(err).to.equal('a error');
             done();
           });
@@ -362,7 +362,7 @@ describe('The contact client APIs', function() {
             }
           });
 
-          addressbook().contacts('456').del().then(null, function(err) {
+          addressbookClient().contacts('456').del().then(null, function(err) {
             expect(err).to.exist;
             done();
           });
@@ -397,14 +397,14 @@ describe('The contact client APIs', function() {
             });
             done();
           }));
-          addressbook().contacts().search(searchOptions);
+          addressbookClient().contacts().search(searchOptions);
         });
 
         it('should reject error occur while searching contact', function(done) {
           mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
             callback('some error');
           }));
-          addressbook().contacts().search({}).then(null, function(err) {
+          addressbookClient().contacts().search({}).then(null, function(err) {
             expect(err).to.equal('some error');
             done();
           });
@@ -414,7 +414,7 @@ describe('The contact client APIs', function() {
           mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
             callback(null, {});
           }));
-          addressbook().contacts().search({}).then(function(data) {
+          addressbookClient().contacts().search({}).then(function(data) {
             expect(data.results).to.eql([]);
             done();
           });
@@ -427,7 +427,7 @@ describe('The contact client APIs', function() {
               current_page: 2
             });
           }));
-          addressbook().contacts().search({}).then(function(data) {
+          addressbookClient().contacts().search({}).then(function(data) {
             expect(data.total_count).to.equal(100);
             expect(data.current_page).to.equal(2);
             done();
@@ -455,7 +455,7 @@ describe('The contact client APIs', function() {
             });
           }));
 
-          addressbook().contacts().search({}).then(function(data) {
+          addressbookClient().contacts().search({}).then(function(data) {
             expect(data.results).to.eql([
               { contactId: 1, response: {statusCode: 200}, body: {counter: 1}},
               { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
@@ -488,7 +488,7 @@ describe('The contact client APIs', function() {
             });
           }));
 
-          addressbook().contacts().search({}).then(function(data) {
+          addressbookClient().contacts().search({}).then(function(data) {
             expect(data.results).to.eql([
               { contactId: 1, response: {statusCode: 200}, body: {delay: 1}},
               { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
@@ -503,6 +503,69 @@ describe('The contact client APIs', function() {
 
     });
 
+    describe('The create addressbook fn', function() {
+
+      it('should call davClient with right parameters', function(done) {
+        var addressbook = { id: '456' };
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options) {
+            expect(options.method).to.equal('POST');
+            expect(options.json).to.be.true;
+            expect(options.headers).to.eql({
+              ESNToken: CLIENT_OPTIONS.ESNToken,
+              accept: VCARD_JSON
+            });
+            expect(options.url).to.equal('/dav/api/addressbooks/123.json');
+            expect(options.body).to.equal(addressbook);
+            done();
+          }
+        });
+        addressbookClient().create(addressbook);
+      });
+
+      it('should resolve with response', function(done) {
+        var response = {
+          statusCode: 200
+        };
+
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options, callback) {
+            callback(null, response);
+          }
+        });
+
+        addressbookClient().create({}).then(function(data) {
+          expect(data.response).to.deep.equal(response);
+          done();
+        });
+      });
+
+      it('should reject with error when client returns error', function(done) {
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options, callback) {
+            callback('a error');
+          }
+        });
+
+        addressbookClient().create({}).then(null, function(err) {
+          expect(err).to.equal('a error');
+          done();
+        });
+      });
+
+      it('should reject when HTTP status is not 201', function(done) {
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options, callback) {
+            callback(null, {statusCode: 199});
+          }
+        });
+
+        addressbookClient().create({}).then(null, function(err) {
+          expect(err).to.exist;
+          done();
+        });
+      });
+    });
   });
 
 });
