@@ -51,13 +51,19 @@
 }
 
 .main-calendar {
-  .fc-day-grid {
+  .fc-day-grid, .fc-week .fc-bg, td.fc-week-number {
     color: @secondaryTextColor;
     background-color: @allday-background;
-    .fc-week .fc-bg {
-      background-color: @allday-background;
+  }
+  .fc-month-view .fc-day-grid {
+    .fc-week-number {
+      color: lighten(@secondaryTextColor, 40%);
+    }
+    .fc-day:not(.fc-today) {
+      background-color: @m-white;
     }
   }
+
 
   hr.fc-divider {
     padding: 0;
