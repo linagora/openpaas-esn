@@ -38,11 +38,12 @@ module.exports = function(dependencies) {
   function createContact(vcard, options) {
     var contactId = vcard.getFirstPropertyValue('uid');
     return contactModule.lib.client({ ESNToken: options.esnToken })
-      .addressbook(options.user._id)
-      .contacts(contactId)
+      .addressbookHome(options.user._id)
+      .addressbook(options.addressbook.id)
+      .vcard(contactId)
       .create(vcard.toJSON())
       .then(function() {
-        pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookId: options.user._id, vcard: vcard.toJSON(), user: options.user});
+        pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookHome: options.user._id, bookName: options.addressbook.id, bookId: options.addressbook.id, vcard: vcard.toJSON(), user: options.user});
       }, function(err) {
         logger.error('Error while inserting contact to DAV', err);
         return q.reject(buildErrorMessage(IMPORT_CONTACT_CLIENT_ERROR, err));

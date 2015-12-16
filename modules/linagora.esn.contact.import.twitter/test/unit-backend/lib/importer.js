@@ -57,9 +57,15 @@ describe('The twitter contact importer', function() {
         lib: {
           client: function() {
             return {
-              addressbook: function() {
+              addressbookHome: function() {
                 return {
-                  contacts: function() { return contactClientMock; }
+                  addressbook: function() {
+                    return {
+                      vcard: function() {
+                        return contactClientMock;
+                      }
+                    };
+                  }
                 };
               }
             };
@@ -121,6 +127,9 @@ describe('The twitter contact importer', function() {
           }
         ];
       options = {
+        addressbook: {
+          id: 1234
+        },
         account: {
           type: 'oauth',
           data: {
