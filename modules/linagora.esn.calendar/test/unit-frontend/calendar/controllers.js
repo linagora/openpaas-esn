@@ -209,6 +209,48 @@ describe('The calendar module controllers', function() {
       expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
     });
 
+    it('should register a listener on modifiedCalendarItem that remove and create a new event', function() {
+      var removeEventsFn = sinon.spy(function(id) {
+        expect(id).to.equal('_id');
+      });
+      var renderEventsFn = sinon.spy(function(event) {
+        expect(event).to.deep.equal({
+          title: 'aTitle',
+          id: '_id',
+          _allday: '_allday',
+          _end: '_end',
+          _id: '_id',
+          _start: '_start'
+        });
+      });
+
+      this.controller('calendarController', {$scope: this.scope});
+
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+        if (event === 'clientEvents') {
+          return [{
+            _allday: '_allday',
+            _end: '_end',
+            _id: '_id',
+            _start: '_start'
+          }];
+        } else if (event === 'removeEvents') {
+          removeEventsFn(data);
+        } else if (event === 'renderEvent') {
+          renderEventsFn(data);
+        }
+      };
+
+      this.rootScope.$broadcast('modifiedCalendarItem', {
+        title: 'aTitle',
+        id: '_id'
+      });
+
+      this.scope.$digest();
+      expect(removeEventsFn).to.have.been.called;
+      expect(renderEventsFn).to.have.been.called;
+    });
+
     it('The list calendars and call addEventSource for each', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$digest();

@@ -47,6 +47,33 @@ describe('CalendarShell factory', function() {
     });
   });
 
+  describe('Attendees', function() {
+    it('should allow several attendee properties', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        title: 'non-allday event'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      shell.attendees = [{
+        displayName: 'Leigh Rafe',
+        email: 'leigh.rafe@demo.open-paas.org',
+        fullmail: 'Leigh Rafe <leigh.rafe@demo.open-paas.org>',
+        name: 'Leigh Rafe',
+        partstat: 'NEEDS-ACTION'
+      }, {
+        displayName: 'Leigh Rafe',
+        email: 'leigh.rafe@demo.open-paas.org',
+        fullmail: 'Leigh Rafe <leigh.rafe@demo.open-paas.org>',
+        name: 'Leigh Rafe',
+        partstat: 'NEEDS-ACTION'
+      }];
+
+      expect(shell.attendees.length).to.equal(2);
+    });
+  });
+
   describe('for reccurent events', function() {
 
     function getIcalWithRrule(rrule) {

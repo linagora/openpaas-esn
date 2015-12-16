@@ -192,18 +192,18 @@ angular.module('esn.calendar')
           return;
         }
         this.__attendees = undefined;
-        var self = this;
+        this.vevent.removeAllProperties('attendee');
         values.forEach(function(attendee) {
           var mail = attendee.email || attendee.emails[0];
           var mailto = calendarUtils.prependMailto(mail);
-          var property = self.vevent.updatePropertyWithValue('attendee', mailto);
+          var property = this.vevent.addPropertyWithValue('attendee', mailto);
           property.setParameter('partstat', attendee.partstat || ICAL_PROPERTIES.partstat.needsaction);
           property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
           property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
           if (attendee.displayName && attendee.displayName !== mail) {
             property.setParameter('cn', attendee.displayName);
           }
-        });
+        }.bind(this));
       },
 
       /**

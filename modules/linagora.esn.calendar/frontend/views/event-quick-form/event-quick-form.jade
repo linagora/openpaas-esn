@@ -38,7 +38,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
             span.col-xs-12.col-sm-6 #{__('Will you attend?')}
             button.btn.btn-default.col-xs-4.col-sm-2.accepted(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
             button.btn.btn-default.col-xs-4.col-sm-2.undecided(type='button', ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE" }') #{__('Maybe')}
-            button.btn.btn-default.col-xs-4.col-sm-2.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}
+            button.btn.btn-default.col-xs-4.col-sm-2.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": invitedAttendee.partstat == "DECLINED" }') #{__('No')}
         .col-xs-12
           hr
         attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')

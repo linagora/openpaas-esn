@@ -226,6 +226,55 @@ describe('The event-form module controllers', function() {
           this.eventFormController.modifyEvent();
         });
 
+        it('should send modify request if deep changes (attendees)', function() {
+          this.scope.createModal = {
+            hide: function() {
+              throw new Error('should not be there');
+            }
+          };
+          this.scope.closeModal = function() {};
+          this.eventFormController = this.controller('eventFormController', {
+            $rootScope: this.rootScope,
+            $scope: this.scope
+          });
+
+          this.scope.event = {
+            startDate: new Date(),
+            endDate: new Date(),
+            allDay: false,
+            title: 'title',
+            attendees: [{
+              name: 'attendee1',
+              partstart: 'DECLINED'
+            }, {
+              name: 'attendee2',
+              partstart: 'ACCEPTED'
+            }]
+          };
+          this.scope.editedEvent = {
+            startDate: new Date(),
+            endDate: new Date(),
+            allDay: false,
+            title: 'title',
+            attendees: [{
+              name: 'attendee1',
+              partstart: 'ACCEPTED'
+            }, {
+              name: 'attendee2',
+              partstart: 'ACCEPTED'
+            }]
+          };
+
+          this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
+            return $q.when();
+          });
+
+          this.eventFormController.modifyEvent();
+
+          this.scope.$digest();
+          expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
+        });
+
         it('should not send modify request if properties not visible in the UI changed', function(done) {
           this.scope.createModal = {
             hide: function() {
@@ -408,6 +457,56 @@ describe('The event-form module controllers', function() {
         };
         this.scope.restActive = false;
         expect(this.eventFormController.canPerformCall()).to.be.true;
+      });
+    });
+
+    describe('changeParticipation function', function() {
+      beforeEach(function() {
+        this.scope.editedEvent = {
+          id: 'eventId',
+          start: new Date(),
+          organizer: {
+            name: 'aOrganizer',
+            partstat: 'DECLINED'
+          },
+          attendees: []
+        };
+        this.scope.isOrganizer = true;
+      });
+
+      it('should if isOrganizer, modify attendees list and set invitedAttendee and broadcast on event:attendees:updated', function(done) {
+        this.scope.$on('event:attendees:updated', function(event, attendees) {
+          expect(attendees).to.deep.equal([{
+            name: 'aOrganizer',
+            partstat: 'ACCEPTED'
+          }]);
+          expect(this.scope.invitedAttendee).to.deep.equal({
+            name: 'aOrganizer',
+            partstat: 'ACCEPTED'
+          });
+          done();
+        }.bind(this));
+
+        this.scope.invitedAttendee = undefined;
+        this.eventFormController.changeParticipation('ACCEPTED');
+      });
+
+      it('should call changeParticipation if isOganizer and already invitedAttendee and broadcast on event:attendees:updated', function(done) {
+        this.scope.$on('event:attendees:updated', function(event, attendees) {
+          expect(this.scope.invitedAttendee).to.deep.equal({
+            name: 'aOrganizer',
+            partstat: 'ACCEPTED'
+          });
+          expect(this.scope.editedEvent.changeParticipation).to.have.been.called;
+          done();
+        }.bind(this));
+
+        this.scope.editedEvent.changeParticipation = sinon.spy();
+        this.scope.invitedAttendee = {
+          name: 'aOrganizer',
+          partstat: 'DECLINED'
+        };
+        this.eventFormController.changeParticipation('ACCEPTED');
       });
     });
   });

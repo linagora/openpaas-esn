@@ -165,7 +165,13 @@ angular.module('esn.calendar')
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
-      if (JSON.stringify($scope.editedEvent, EVENT_MODIFY_COMPARE_KEYS) === JSON.stringify($scope.event, EVENT_MODIFY_COMPARE_KEYS)) {
+      function _hasModificationsBetween(eventA, eventB) {
+        return EVENT_MODIFY_COMPARE_KEYS.some(function(key) {
+          return !angular.equals(eventA[key], eventB[key]);
+        });
+      }
+
+      if (!_hasModificationsBetween($scope.editedEvent, $scope.event)) {
         if ($scope.createModal) {
           $scope.createModal.hide();
         }
@@ -191,11 +197,14 @@ angular.module('esn.calendar')
     this.changeParticipation = function(status) {
       if ($scope.isOrganizer && !$scope.invitedAttendee) {
         var organizer = angular.copy($scope.editedEvent.organizer);
-        $scope.editedEvent.attendees.push(organizer);
+        organizer.partstat = status;
+        $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat(organizer);
         $scope.invitedAttendee = organizer;
+      } else if ($scope.isOrganizer && $scope.invitedAttendee.partstat !== status) {
+        $scope.editedEvent.changeParticipation(status, [$scope.invitedAttendee.email]);
       }
 
       $scope.invitedAttendee.partstat = status;
-      $scope.$broadcast('event:attendees:updated');
+      $scope.$broadcast('event:attendees:updated', $scope.editedEvent.attendees);
     };
   });
