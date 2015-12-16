@@ -216,8 +216,9 @@ describe('The calendar module controllers', function() {
       var renderEventsFn = sinon.spy(function(event) {
         expect(event).to.deep.equal({
           title: 'aTitle',
+          allDay: '_allday',
           id: '_id',
-          _allday: '_allday',
+          _allDay: '_allday',
           _end: '_end',
           _id: '_id',
           _start: '_start'
@@ -243,6 +244,7 @@ describe('The calendar module controllers', function() {
 
       this.rootScope.$broadcast('modifiedCalendarItem', {
         title: 'aTitle',
+        allDay: '_allday',
         id: '_id'
       });
 
