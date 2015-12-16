@@ -11,8 +11,8 @@ module.exports = function(dependencies) {
   var proxy = require('../proxy')(dependencies)(PATH);
   var avatarHelper = require('./avatarHelper')(dependencies);
 
-  function getContactUrl(req, bookId, contactId) {
-    return [req.davserver, '/', PATH, '/', bookId, '/contacts/', contactId, '.vcf'].join('');
+  function getContactUrl(req, bookHome, bookName, contactId) {
+    return [req.davserver, '/', PATH, '/', bookHome, '/', bookName,'/', contactId, '.vcf'].join('');
   }
 
   function getContactsFromDAV(req, res) {
@@ -21,34 +21,34 @@ module.exports = function(dependencies) {
     };
 
     contactModule.lib.client(options)
-    .addressbook(req.params.bookId)
-    .contacts()
-    .list(req.query)
-    .then(function(data) {
-      var body = data.body;
-      var response = data.response;
-      // inject text avatar if there's no avatar
-      if (body && body._embedded && body._embedded['dav:item']) {
-        q.all(body._embedded['dav:item'].map(function(davItem) {
-          return avatarHelper.injectTextAvatar(req.params.bookId, davItem.data)
-            .then(function(newData) {
-              davItem.data = newData;
-            });
-        })).then(function() {
+      .addressbookHome(req.params.bookHome)
+      .addressbook(req.params.bookName)
+      .list(req.query)
+      .then(function(data) {
+        var body = data.body;
+        var response = data.response;
+        // inject text avatar if there's no avatar
+        if (body && body._embedded && body._embedded['dav:item']) {
+          q.all(body._embedded['dav:item'].map(function(davItem) {
+            return avatarHelper.injectTextAvatar(req.params.bookHome, davItem.data)
+              .then(function(newData) {
+                davItem.data = newData;
+              });
+          })).then(function() {
+            return res.status(response.statusCode).json(body);
+          });
+        } else {
           return res.status(response.statusCode).json(body);
-        });
-      } else {
-        return res.status(response.statusCode).json(body);
-      }
-    }, function(err) {
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: 'Error while getting contacts from DAV server'
         }
+      }, function(err) {
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while getting contacts from DAV server'
+          }
+        });
       });
-    });
   }
 
   function getContact(req, res) {
@@ -57,22 +57,23 @@ module.exports = function(dependencies) {
     };
 
     contactModule.lib.client(options)
-    .addressbook(req.params.bookId)
-    .contacts(req.params.contactId)
-    .get()
-    .then(function(data) {
-      avatarHelper.injectTextAvatar(req.params.bookId, data.body).then(function(newBody) {
-        return res.status(data.response.statusCode).json(newBody);
+      .addressbookHome(req.params.bookHome)
+      .addressbook(req.params.bookName)
+      .vcard(req.params.contactId)
+      .get()
+      .then(function(data) {
+        avatarHelper.injectTextAvatar(req.params.bookHome, data.body).then(function(newBody) {
+          return res.status(data.response.statusCode).json(newBody);
+        });
+      }, function(err) {
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while getting contact from DAV server'
+          }
+        });
       });
-    }, function(err) {
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: 'Error while getting contact from DAV server'
-        }
-      });
-    });
   }
 
   function updateContact(req, res) {
@@ -94,23 +95,24 @@ module.exports = function(dependencies) {
 
     if (create) {
       contactModule.lib.client({ ESNToken: headers.ESNToken })
-      .addressbook(req.params.bookId)
-      .contacts(req.params.contactId)
-      .create(req.body)
-      .then(function(data) {
-        avatarHelper.injectTextAvatar(req.params.bookId, req.body).then(function(newBody) {
-          pubsub.topic('contacts:contact:add').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: newBody, user: req.user});
+        .addressbookHome(req.params.bookHome)
+        .addressbook(req.params.bookName)
+        .vcard(req.params.contactId)
+        .create(req.body)
+        .then(function(data) {
+          avatarHelper.injectTextAvatar(req.params.bookHome, req.body).then(function(newBody) {
+            pubsub.topic('contacts:contact:add').publish({contactId: req.params.contactId, bookId: req.params.bookHome, vcard: newBody, user: req.user});
+          });
+          res.status(data.response.statusCode).json(data.body);
+        }, function(err) {
+          res.status(500).json({
+            error: {
+              code: 500,
+              message: 'Server Error',
+              details: 'Error while creating contact on DAV server'
+            }
+          });
         });
-        res.status(data.response.statusCode).json(data.body);
-      }, function(err) {
-        res.status(500).json({
-          error: {
-            code: 500,
-            message: 'Server Error',
-            details: 'Error while creating contact on DAV server'
-          }
-        });
-      });
     } else {
       return proxy.handle({
         onError: function(response, data, req, res, callback) {
@@ -120,7 +122,7 @@ module.exports = function(dependencies) {
 
         onSuccess: function(response, data, req, res, callback) {
           logger.debug('Success while updating contact %s', req.params.contactId);
-          pubsub.topic('contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body, user: req.user});
+          pubsub.topic('contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookHome, vcard: req.body, user: req.user});
 
           return callback(null, data);
         },
@@ -141,7 +143,7 @@ module.exports = function(dependencies) {
       onSuccess: function(response, data, req, res, callback) {
         logger.debug('Success while deleting contact %s', req.params.contactId);
 
-        pubsub.topic('contacts:contact:delete').publish({contactId: req.params.contactId, bookId: req.params.bookId});
+        pubsub.topic('contacts:contact:delete').publish({contactId: req.params.contactId, bookId: req.params.bookHome});
 
         return callback(null, data);
       }
@@ -162,8 +164,8 @@ module.exports = function(dependencies) {
       page: req.query.page
     };
     contactModule.lib.client({ ESNToken: ESNToken })
-      .addressbook(req.params.bookId)
-      .contacts()
+      .addressbookHome(req.params.bookHome)
+      .addressbook(req.params.bookName)
       .search(options)
       .then(function(data) {
         var json = {
@@ -195,11 +197,11 @@ module.exports = function(dependencies) {
         });
 
         q.all(dataCleanResult.map(function(result, index) {
-          return avatarHelper.injectTextAvatar(req.params.bookId, result.body)
+          return avatarHelper.injectTextAvatar(req.params.bookHome, result.body)
             .then(function(newVcard) {
               json._embedded['dav:item'][index] = {
                 _links: {
-                  self: getContactUrl(req, req.params.bookId, result.contactId)
+                  self: getContactUrl(req, req.params.bookHome, req.params.bookName, result.contactId)
                 },
                 data: newVcard
               };

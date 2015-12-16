@@ -43,13 +43,26 @@ describe('The addressbooks module', function() {
         lib: {
           client: function() {
             return {
-              addressbook: function() {
+              addressbookHome: function() {
                 return {
-                  get: function() {},
-                  list: function() {},
-                  create: function() {},
-                  update: function() {},
-                  del: function() {}
+                  addressbook: function() {
+                    return {
+                      vcard: function() {
+                        return {
+                          get: function() {
+                          },
+                          create: function() {
+                          },
+                          update: function() {
+                          },
+                          del: function() {
+                          }
+                        }
+                      },
+                      list: function() {
+                      }
+                    };
+                  }
                 };
               }
             };
@@ -86,15 +99,19 @@ describe('The addressbooks module', function() {
     });
 
     it('should call contact client with right parameters', function(done) {
-      req.params.bookId = '123';
+      req.params.bookHome = 'home';
+      req.params.bookName = 'name';
       dependencies.contact.lib.client = function(options) {
         expect(options.ESNToken).to.equal(req.token.token);
         return {
-          addressbook: function(bookId) {
-            expect(bookId).to.equal(req.params.bookId);
+          addressbookHome: function(bookHome) {
+            expect(bookHome).to.equal(req.params.bookHome);
             return {
-              contacts: function() {
+              addressbook: function(bookName) {
+                expect(bookName).to.equal(req.params.bookName);
                 return {
+                  vcard: function() {
+                  },
                   list: function(query) {
                     expect(query).to.eql(req.query);
                     done();
@@ -102,7 +119,7 @@ describe('The addressbooks module', function() {
                   }
                 };
               }
-            };
+            }
           }
         };
       };
@@ -113,9 +130,9 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 500 if contact client reject promise', function(done) {
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
                   list: function() {
                     return q.reject();
@@ -146,9 +163,9 @@ describe('The addressbooks module', function() {
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
                   list: function() {
                     return q.resolve({
@@ -179,6 +196,8 @@ describe('The addressbooks module', function() {
 
     it('should have body with text avatar injected', function(done) {
       var statusCode = 200;
+      var bookHome = 'book123';
+
       var vcard1 = ['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', 'abc']
@@ -194,15 +213,15 @@ describe('The addressbooks module', function() {
           'dav:item': [{ data: vcard1 }, { data: vcard2 }]
         }
       };
-      req.params.bookId = '123';
-      var avatarUrl1 = 'http://localhost:8080/contact/api/contacts/123/abc/avatar';
-      var avatarUrl2 = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
+      req.params.bookHome = bookHome;
+      var avatarUrl1 = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/abc/avatar';
+      var avatarUrl2 = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/xyz/avatar';
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
                   list: function() {
                     return q.resolve({
@@ -248,20 +267,26 @@ describe('The addressbooks module', function() {
     });
 
     it('should call contact client with right parameters', function(done) {
-      req.params.bookId = '123';
+      req.params.bookHome = 'home';
+      req.params.bookName = 'name';
       req.params.contactId = '456';
       dependencies.contact.lib.client = function(options) {
         expect(options.ESNToken).to.equal(req.token.token);
         return {
-          addressbook: function(bookId) {
-            expect(bookId).to.equal(req.params.bookId);
+          addressbookHome: function(bookHome) {
+            expect(bookHome).to.equal(req.params.bookHome);
             return {
-              contacts: function(contactId) {
-                expect(contactId).to.equal(req.params.contactId);
+              addressbook: function(bookName) {
+                expect(bookName).to.equal(req.params.bookName);
                 return {
-                  get: function() {
-                    done();
-                    return q.resolve();
+                  vcard: function(contactId) {
+                    expect(contactId).to.equal(req.params.contactId);
+                    return {
+                      get: function() {
+                        done();
+                        return q.resolve();
+                      }
+                    };
                   }
                 };
               }
@@ -276,12 +301,16 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 500 if contact client reject promise', function(done) {
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  get: function() {
-                    return q.reject();
+                  vcard: function() {
+                    return {
+                      get: function() {
+                        return q.reject();
+                      }
+                    };
                   }
                 };
               }
@@ -310,15 +339,19 @@ describe('The addressbooks module', function() {
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  get: function() {
-                    return q.resolve({
-                      response: { statusCode: statusCode },
-                      body: body
-                    });
+                  vcard: function() {
+                    return {
+                      get: function() {
+                        return q.resolve({
+                          response: {statusCode: statusCode},
+                          body: body
+                        });
+                      }
+                    };
                   }
                 };
               }
@@ -342,25 +375,31 @@ describe('The addressbooks module', function() {
 
     it('should have body with text avatar injected', function(done) {
       var statusCode = 200;
+      var bookHome = 'bookHome123';
       var body = ['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', 'xyz']
         ]
       ];
-      req.params.bookId = '123';
-      var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
+
+      req.params.bookHome = bookHome;
+      var avatarUrl = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/xyz/avatar';
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  get: function() {
-                    return q.resolve({
-                      response: { statusCode: statusCode },
-                      body: body
-                    });
+                  vcard: function() {
+                    return {
+                      get: function() {
+                        return q.resolve({
+                          response: {statusCode: statusCode},
+                          body: body
+                        });
+                      }
+                    };
                   }
                 };
               }
@@ -395,7 +434,8 @@ describe('The addressbooks module', function() {
         davserver: 'http://dav:8080',
         url: '/foo/bar',
         params: {
-          bookId: 'book123',
+          bookHome: 'bookHome',
+          bookName: 'book123',
           cardId: 'card123'
         },
         body: 'body'
@@ -406,16 +446,21 @@ describe('The addressbooks module', function() {
       dependencies.contact.lib.client = function(options) {
         expect(options.ESNToken).to.equal(req.token.token);
         return {
-          addressbook: function(bookId) {
-            expect(bookId).to.equal(req.params.bookId);
+          addressbookHome: function(bookHome) {
+            expect(bookHome).to.equal(req.params.bookHome);
             return {
-              contacts: function(contactId) {
-                expect(contactId).to.equal(req.params.contactId);
+              addressbook: function(bookName) {
+                expect(bookName).to.equal(req.params.bookName);
                 return {
-                  create: function(contact) {
-                    expect(contact).to.eql(req.body);
-                    done();
-                    return q.resolve();
+                  vcard: function(contactId) {
+                    expect(contactId).to.equal(req.params.contactId);
+                    return {
+                      create: function(contact) {
+                        expect(contact).to.eql(req.body);
+                        done();
+                        return q.resolve();
+                      }
+                    };
                   }
                 };
               }
@@ -430,12 +475,16 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 500 if http client rejects promise on creation', function(done) {
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  create: function() {
-                    return q.reject();
+                  vcard: function() {
+                    return {
+                      create: function() {
+                        return q.reject();
+                      }
+                    };
                   }
                 };
               }
@@ -464,15 +513,19 @@ describe('The addressbooks module', function() {
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  create: function() {
-                    return q.resolve({
-                      response: { statusCode: statusCode },
-                      body: body
-                    });
+                  vcard: function() {
+                    return {
+                      create: function() {
+                        return q.resolve({
+                          response: {statusCode: statusCode},
+                          body: body
+                        });
+                      }
+                    };
                   }
                 };
               }
@@ -480,7 +533,6 @@ describe('The addressbooks module', function() {
           }
         };
       };
-
       getController().updateContact(req, {
         status: function(code) {
           expect(code).to.equal(statusCode);
@@ -508,7 +560,7 @@ describe('The addressbooks module', function() {
           publish: function(data) {
             expect(data).to.eql({
               contactId: req.params.cardId,
-              bookId: req.params.bookId,
+              bookId: req.params.bookHome,
               vcard: req.body,
               user: req.user
             });
@@ -551,7 +603,7 @@ describe('The addressbooks module', function() {
             called = true;
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
-              bookId: req.params.bookId,
+              bookId: req.params.bookName,
               vcard: req.body,
               user: req.user
             });
@@ -561,15 +613,19 @@ describe('The addressbooks module', function() {
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  create: function() {
-                    return q.resolve({
-                      response: { statusCode: statusCode },
-                      body: req.body
-                    });
+                  vcard: function() {
+                    return {
+                      create: function() {
+                        return q.resolve({
+                          response: {statusCode: statusCode},
+                          body: req.body
+                        });
+                      }
+                    };
                   }
                 };
               }
@@ -608,14 +664,18 @@ describe('The addressbooks module', function() {
 
       dependencies.contact.lib.client = function() {
         return {
-          addressbook: function() {
+          addressbookHome: function() {
             return {
-              contacts: function() {
+              addressbook: function() {
                 return {
-                  create: function(contact) {
-                    expect(JSON.stringify(contact)).to.not.contains(avatarUrl);
-                    done();
-                    return q.resolve();
+                  vcard: function() {
+                    return {
+                      create: function(contact) {
+                        expect(JSON.stringify(contact)).to.not.contains(avatarUrl);
+                        done();
+                        return q.resolve();
+                      }
+                    };
                   }
                 };
               }
@@ -640,7 +700,8 @@ describe('The addressbooks module', function() {
         davserver: 'http://dav:8080',
         url: '/foo/bar',
         params: {
-          bookId: 'book123',
+          bookName: 'bookName',
+          bookHome: 'bookHome',
           cardId: 'card123'
         }
       };
@@ -672,7 +733,7 @@ describe('The addressbooks module', function() {
             called = true;
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
-              bookId: req.params.bookId
+              bookId: req.params.bookHome
             });
             expect(data.vcard).to.not.exist;
           }
@@ -717,14 +778,20 @@ describe('The addressbooks module', function() {
 
   describe('The searchContacts function', function() {
 
+    var BOOK_NAME = 'bookName456';
+    var BOOK_HOME = 'bookHome123';
+
     function createContactClientMock(searchFn) {
       return function() {
         return {
-          addressbook: function(bookId) {
-            expect(bookId).to.equal('456');
+          addressbookHome: function(bookHome) {
+            expect(bookHome).to.equal(BOOK_HOME);
             return {
-              contacts: function() {
-                return { search: searchFn };
+              addressbook: function(bookName) {
+                expect(bookName).to.equal(BOOK_NAME);
+                return {
+                  search: searchFn
+                };
               }
             };
           }
@@ -735,7 +802,6 @@ describe('The addressbooks module', function() {
     it('should call contact client with the right parameters', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
-      var bookId = '456';
       var page = 1;
       var limit = 20;
 
@@ -762,14 +828,13 @@ describe('The addressbooks module', function() {
           limit: limit
         },
         user: user,
-        params: { bookId: bookId }
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME }
       });
     });
 
     it('should send back HTTP 500 when contact client search rejects', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
-      var bookId = '456';
 
       dependencies.contact = {
         lib: {
@@ -783,7 +848,7 @@ describe('The addressbooks module', function() {
       controller.searchContacts({
         query: { search: search },
         user: user,
-        params: { bookId: bookId }
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME }
       }, {
         status: function(code) {
           expect(code).to.equal(500);
@@ -795,7 +860,6 @@ describe('The addressbooks module', function() {
     it('should have header with total count on success', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
-      var bookId = '456';
 
       dependencies.contact = {
         lib: {
@@ -812,7 +876,7 @@ describe('The addressbooks module', function() {
       controller.searchContacts({
         query: { search: search },
         user: user,
-        params: { bookId: bookId }
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME }
       }, {
         header: function(key, value) {
           expect(key).to.equal('X-ESN-Items-Count');
@@ -825,7 +889,6 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 200 JSON response when contact client resolves', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
-      var bookId = '456';
 
       dependencies.contact = {
         lib: {
@@ -838,7 +901,11 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
+      controller.searchContacts({
+        query: {search: search},
+        user: user,
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME }
+      }, {
         header: function() {},
         status: function(code) {
           expect(code).to.equal(200);
@@ -854,7 +921,6 @@ describe('The addressbooks module', function() {
     it('should send the total numbers of hits in the response', function(done) {
       var search = 'Bruce';
       var user = {_id: '123'};
-      var bookId = '456';
 
       dependencies.contact = {
         lib: {
@@ -868,7 +934,11 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
+      controller.searchContacts({
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME },
+        query: {search: search},
+        user: user
+      }, {
         header: function() {},
         status: function() {
           return {
@@ -898,7 +968,11 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
+      controller.searchContacts({
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME },
+        query: {search: search},
+        user: user
+      }, {
         header: function() {},
         status: function() {
           return {
@@ -914,7 +988,6 @@ describe('The addressbooks module', function() {
     it('should send the response page in the correct order', function(done) {
       var search = 'Bruce';
       var user = {_id: '123'};
-      var bookId = '456';
       var limit = 2;
       var page = 3;
 
@@ -954,7 +1027,7 @@ describe('The addressbooks module', function() {
 
       var controller = getController();
       var req = {
-        params: { bookId: bookId },
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME },
         query: {
           search: search,
           page: page,
@@ -980,12 +1053,12 @@ describe('The addressbooks module', function() {
                 _embedded: {
                   'dav:item': [{
                     _links: {
-                      self: [req.davserver, 'addressbooks', bookId, 'contacts', successContact1.contactId + '.vcf'].join('/')
+                      self: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact1.contactId + '.vcf'].join('/')
                     },
                     data: successContact1.body
                   }, {
                     _links: {
-                      self: [req.davserver, 'addressbooks', bookId, 'contacts', successContact2.contactId + '.vcf'].join('/')
+                      self: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact2.contactId + '.vcf'].join('/')
                     },
                     data: successContact2.body
                   }]
