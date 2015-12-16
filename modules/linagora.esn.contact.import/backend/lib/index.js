@@ -2,10 +2,14 @@
 
 var q = require('q');
 
+var TECHNICAL_USER_TYPE = 'dav';
+var TOKEN_TTL = 20000;
+
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var webserverWrapper = dependencies('webserver-wrapper');
+  var technicalUser = dependencies('technical-user');
 
   var webserver = require('../webserver')(dependencies);
   var importers = require('./importers')(dependencies);
@@ -21,38 +25,54 @@ module.exports = function(dependencies) {
     webserverWrapper.addApp('contact.import.' + importer.name, webserver.getStaticApp(importer.frontend.staticPath));
   }
 
-  function importContacts(options) {
+  function getImporterOptions(user, account) {
+    var defer = q.defer();
 
-    var accountId = options.accountId;
-    var type = options.type;
-    var user = options.user;
+    var options = {
+      account: account,
+      user: user
+    };
 
-    var accounts = user.accounts.filter(function(account) {
-      return (account.data && account.data.provider === type && account.data.id === accountId);
+    technicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, user.domains[0].domain_id, function(err, users) {
+      if (err) {
+        return defer.reject(err);
+      }
+
+      if (!users || !users.length) {
+        return defer.reject(new Error('Can not find technical user for contact import'));
+      }
+
+      technicalUser.getNewToken(users[0], TOKEN_TTL, function(err, token) {
+        if (err) {
+          return defer.reject(err);
+        }
+
+        if (!token) {
+          return defer.reject(new Error('Can not generate token for contact import'));
+        }
+
+        options.esnToken = token.token;
+        defer.resolve(options);
+      });
     });
 
-    if (!accounts || !accounts.length) {
-      return q.reject(new Error('No valid account found'));
+    return defer.promise;
+  }
+
+  function importAccountContacts(user, account) {
+
+    var importer = importers.get(account.data.provider);
+    if (!importer || !importer.lib || !importer.lib.importer) {
+      return q.reject(new Error('Can not find importer ' + account.data.provider));
     }
 
-    var defer = q.defer();
-    var importer = importers.get(options.type);
-    if (!importer || !importer.lib || !importer.lib.importer) {
-      defer.reject(new Error('Can not find importer'));
-    } else {
-      importer.lib.importer.importContact({
-        esnToken: options.esnToken,
-        type: options.type,
-        account: accounts[0],
-        user: user
-      }).then(defer.resolve, defer.reject);
-    }
-    return defer.promise;
+    return getImporterOptions(user, account).then(importer.lib.importer.importContact);
   }
 
   return {
     importers: importers,
     addImporter: addImporter,
-    importContacts: importContacts
+    importAccountContacts: importAccountContacts,
+    getImporterOptions: getImporterOptions
   };
 };

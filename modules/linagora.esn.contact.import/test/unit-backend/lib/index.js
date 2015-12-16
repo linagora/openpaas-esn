@@ -1,7 +1,5 @@
 'use strict';
 
-var chai = require('chai');
-var expect = chai.expect;
 var mockery = require('mockery');
 var sinon = require('sinon');
 var q = require('q');
@@ -10,7 +8,7 @@ var expect = chai.expect;
 
 describe('The contact import backend module', function() {
 
-  var deps;
+  var deps, user, account;
 
   var dependencies = function(name) {
     return deps[name];
@@ -22,21 +20,15 @@ describe('The contact import backend module', function() {
 
   var type = 'twitter';
   var id = 123;
-  var user = {
-    accounts: [
-      {
-        data: {
-          provider: type,
-          id: id
-        }
-      },
-      {
-        data: {
-          provider: 'test',
-          id: id
-        }
-      }
-    ]
+  var domainId = 456;
+
+  var technicalUser = {
+    findByTypeAndDomain: function(type, domain, callback) {
+      callback(null, [{_id: 1}, {_id: 2}]);
+    },
+    getNewToken: function(user, ttl, callback) {
+      callback(null, {token: 123});
+    }
   };
 
   beforeEach(function() {
@@ -46,6 +38,27 @@ describe('The contact import backend module', function() {
         info: console.log,
         error: console.log
       }
+    };
+
+    account =  {
+      data: {
+        provider: type,
+        id: id
+      }
+    };
+    user = {
+      domains: [
+        {domain_id: domainId}
+      ],
+      accounts: [
+        account,
+        {
+          data: {
+            provider: 'test',
+            id: id
+          }
+        }
+      ]
     };
   });
 
@@ -106,17 +119,19 @@ describe('The contact import backend module', function() {
     });
   });
 
-  describe('The importContacts function', function() {
+  describe('The importAccountContacts function', function() {
 
     it('should reject if account is not found', function(done) {
       mockery.registerMock('./importers', function() {
         return {
-          get: function() {
+          get: function(type) {
+            expect(type).to.equals(account.data.provider);
             return null;
           }
         };
       });
-      getModule().importContacts({user: {accounts: []}, accountId: id, type: type}).then(done, function() {
+      getModule().importAccountContacts(user, account).then(done, function(err) {
+        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
         done();
       });
     });
@@ -124,12 +139,14 @@ describe('The contact import backend module', function() {
     it('should call with the matching account', function(done) {
       mockery.registerMock('./importers', function() {
         return {
-          get: function() {
+          get: function(type) {
+            expect(type).to.equals(account.data.provider);
             return {
               lib: {
                 importer: {
                   importContact: function(options) {
-                    expect(options.account).to.deep.equals(user.accounts[0]);
+                    expect(options.account).to.deep.equals(account);
+                    expect(options.user).to.deep.equals(user);
                     done();
                     return q({});
                   }
@@ -139,18 +156,21 @@ describe('The contact import backend module', function() {
           }
         };
       });
-      getModule().importContacts({user: user, accountId: id, type: type});
+      deps['technical-user'] = technicalUser;
+
+      getModule().importAccountContacts(user, account);
     });
 
     it('should reject if importer is undefined', function(done) {
       mockery.registerMock('./importers', function() {
         return {
           get: function(type) {
+            expect(type).to.equals(account.data.provider);
             return null;
           }
         };
       });
-      getModule().importContacts({user: user, accountId: id, type: type}).then(done, function() {
+      getModule().importAccountContacts(user, account).then(done, function() {
         done();
       });
     });
@@ -158,12 +178,14 @@ describe('The contact import backend module', function() {
     it('should reject if importer.lib is undefined', function(done) {
       mockery.registerMock('./importers', function() {
         return {
-          get: function() {
+          get: function(type) {
+            expect(type).to.equals(account.data.provider);
             return {};
           }
         };
       });
-      getModule().importContacts({user: user, accountId: id, type: type}).then(done, function() {
+      deps['technical-user'] = technicalUser;
+      getModule().importAccountContacts(user, account).then(done, function() {
         done();
       });
     });
@@ -184,7 +206,97 @@ describe('The contact import backend module', function() {
           }
         };
       });
-      getModule().importContacts({user: user, accountId: id, type: type}).then(function() {
+      deps['technical-user'] = technicalUser;
+      getModule().importAccountContacts(user, account).then(function() {
+        done();
+      }, done);
+    });
+  });
+
+  describe('The getImporterOptions function', function() {
+
+    it('should reject if technicalUser.findByTypeAndDomain fails', function(done) {
+      var err = new Error('I failed!');
+      technicalUser.findByTypeAndDomain = function(type, domain, callback) {
+        return callback(err);
+      };
+      deps['technical-user'] = technicalUser;
+
+      getModule().getImporterOptions(user, account).then(done, function(e) {
+        expect(e).to.deep.equal(err);
+        done();
+      });
+    });
+
+    it('should reject if technicalUser.findByTypeAndDomain does not send back users', function(done) {
+      technicalUser.findByTypeAndDomain = function(type, domain, callback) {
+        return callback();
+      };
+      deps['technical-user'] = technicalUser;
+
+      getModule().getImporterOptions(user, account).then(done, function(err) {
+        expect(err.message).to.equal('Can not find technical user for contact import');
+        done();
+      });
+    });
+
+    it('should reject if technicalUser.findByTypeAndDomain sends back empty user array', function(done) {
+      technicalUser.findByTypeAndDomain = function(type, domain, callback) {
+        return callback(null, []);
+      };
+      deps['technical-user'] = technicalUser;
+
+      getModule().getImporterOptions(user, account).then(done, function(err) {
+        expect(err.message).to.equal('Can not find technical user for contact import');
+        done();
+      });
+    });
+
+    it('should reject if technicalUser.getNewToken fails', function(done) {
+      var err = new Error('I failed!');
+      technicalUser.findByTypeAndDomain = function(type, domain, callback) {
+        return callback(null, [{}]);
+      };
+      technicalUser.getNewToken = function(user, ttl, callback) {
+        callback(err);
+      };
+      deps['technical-user'] = technicalUser;
+
+      getModule().getImporterOptions(user, account).then(done, function(e) {
+        expect(e).to.deep.equal(err);
+        done();
+      });
+    });
+
+    it('should reject if technicalUser.getNewToken does not return a token', function(done) {
+      technicalUser.findByTypeAndDomain = function(type, domain, callback) {
+        return callback(null, [{}]);
+      };
+      technicalUser.getNewToken = function(user, ttl, callback) {
+        callback();
+      };
+      deps['technical-user'] = technicalUser;
+
+      getModule().getImporterOptions(user, account).then(done, function(e) {
+        expect(e.message).to.equal('Can not generate token for contact import');
+        done();
+      });
+    });
+
+    it('should resolve with valid options', function(done) {
+      var token = {_id: 123456789, token: 'MyToken'};
+      technicalUser.findByTypeAndDomain = function(type, domain, callback) {
+        return callback(null, [{}]);
+      };
+      technicalUser.getNewToken = function(user, ttl, callback) {
+        callback(null, token);
+      };
+      deps['technical-user'] = technicalUser;
+
+      getModule().getImporterOptions(user, account).then(function(options) {
+        expect(options.account).to.deep.equal(account);
+        expect(options.user).to.deep.equal(user);
+        expect(options.esnToken).to.deep.equal(token.token);
         done();
       }, done);
     });

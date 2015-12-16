@@ -23,17 +23,11 @@ describe('The contact import controller', function() {
     var req;
     beforeEach(function() {
       req = {
-        body: {
-          account_id: '321'
-        },
-        token: {
-          token: '123'
-        },
         user: {
           _id: 1
         },
-        params: {
-          type: 'twitter'
+        account: {
+          _id: 2
         }
       };
     });
@@ -44,10 +38,9 @@ describe('The contact import controller', function() {
 
     it('should send back HTTP 500 when import rejects', function(done) {
       var lib = {
-        importContacts: function(options) {
-          expect(options.esnToken).to.equal(req.token.token);
-          expect(options.user).to.deep.equal(req.user);
-          expect(options.accountId).to.deep.equal(req.body.account_id);
+        importAccountContacts: function(user, account) {
+          expect(user).to.equal(req.user);
+          expect(account).to.deep.equal(req.account);
           return q.reject(new Error('Import failure'));
         }
       };
@@ -57,7 +50,7 @@ describe('The contact import controller', function() {
           expect(code).to.equal(500);
           return {
             json: function(data) {
-              expect(data.error.status).to.equal(500);
+              expect(data.error.code).to.equal(500);
               expect(data.error.message).to.equal('Server Error');
               expect(data.error.details).to.equal('Error while importing contacts');
               done();
@@ -69,10 +62,9 @@ describe('The contact import controller', function() {
 
     it('should send back HTTP 202 when import is resolved', function(done) {
       var lib = {
-        importContacts: function(options) {
-          expect(options.esnToken).to.equal(req.token.token);
-          expect(options.user).to.deep.equal(req.user);
-          expect(options.accountId).to.deep.equal(req.body.account_id);
+        importAccountContacts: function(user, account) {
+          expect(user).to.equal(req.user);
+          expect(account).to.deep.equal(req.account);
           return q.when({});
         }
       };

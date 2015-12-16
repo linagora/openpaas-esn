@@ -67,4 +67,60 @@ describe('The contact import middleware', function() {
       });
     });
   });
+
+  describe('The getAccount function', function() {
+
+    var req, lib;
+    var accountId = 123;
+
+    beforeEach(function() {
+      lib = {
+        importers: {}
+      };
+      req = {
+        params: {
+          type: 'twitter'
+        },
+        token: {
+          token: '123'
+        },
+        body: {
+          account_id: accountId
+        },
+        user: {
+          _id: 1,
+          accounts: []
+        }
+      };
+    });
+
+    var getMiddleware = function() {
+      return require('../../../../backend/webserver/api/middleware')(function() {}, lib);
+    };
+
+    it('should send back HTTP 404 when account is not found', function(done) {
+      getMiddleware().getAccount(req, checkResponseError(404, done), function() {
+        done(new Error());
+      });
+    });
+
+    it('should set the account in the request and call next', function(done) {
+      var provider = 'twitter';
+      var account = {
+        data: {
+          provider: provider,
+          id: accountId
+        }
+      };
+      req.params.type = provider;
+      req.body = {
+        account_id: accountId
+      };
+      req.user.accounts.push(account);
+      getMiddleware().getAccount(req, null, function() {
+        expect(req.account).to.deep.equal(account);
+        done();
+      });
+    });
+  });
 });
