@@ -63,22 +63,23 @@ module.exports = function(dependencies) {
     var esnToken = req.token && req.token.token ? req.token.token : '';
     var avatarSize = req.query.size ? req.query.size : DEFAULT_AVATAR_SIZE;
 
-    contactClient({ ESNToken: esnToken })
-    .addressbook(addressBookId)
-    .contacts(contactId)
-    .get()
-    .then(function(data) {
-      var avatar = _getContactAvatar(data.body, avatarSize);
-      if (typeof avatar === 'string') {
-        res.redirect(avatar);
-      } else {
-        res.type('png');
-        res.send(avatar);
-      }
-    }, function(err) {
-      logger.error(err);
-      res.status(404).send('Sorry, we cannot find avatar with your request!');
-    });
+    contactClient({ESNToken: esnToken})
+      .addressbookHome(addressBookId)
+      .addressbook()
+      .vcard(contactId)
+      .get()
+      .then(function(data) {
+        var avatar = _getContactAvatar(data.body, avatarSize);
+        if (typeof avatar === 'string') {
+          res.redirect(avatar);
+        } else {
+          res.type('png');
+          res.send(avatar);
+        }
+      }, function(err) {
+        logger.error(err);
+        res.status(404).send('Sorry, we cannot find avatar with your request!');
+      });
   }
 
   return {

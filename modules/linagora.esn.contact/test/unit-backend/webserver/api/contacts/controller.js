@@ -215,7 +215,7 @@ describe('The contacts api controller', function() {
     function createAddressbookMock(data) {
       return function() {
         return {
-          contacts: function() {
+          vcard: function() {
             return {
               get: function() {
                 if (data) {
@@ -245,7 +245,11 @@ describe('The contacts api controller', function() {
           };
         }
       };
-      contactClientMock.addressbook = createAddressbookMock();
+      contactClientMock.addressbookHome = function() {
+        return {
+          addressbook: createAddressbookMock()
+        };
+      };
       controller.getAvatar(req, res);
     });
 
@@ -260,7 +264,11 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      contactClientMock.addressbook = createAddressbookMock(contact);
+      contactClientMock.addressbookHome = function() {
+        return {
+          addressbook: createAddressbookMock(contact)
+        };
+      };
 
       var req = {
         params: {},
@@ -287,7 +295,11 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      contactClientMock.addressbook = createAddressbookMock(contact);
+      contactClientMock.addressbookHome = function() {
+        return {
+          addressbook: createAddressbookMock(contact)
+        };
+      };
 
       var req = {
         params: {},
@@ -316,7 +328,11 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      contactClientMock.addressbook = createAddressbookMock(contact);
+      contactClientMock.addressbookHome = function() {
+        return {
+          addressbook: createAddressbookMock(contact)
+        };
+      };
 
       var req = {
         params: {},
@@ -345,7 +361,11 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      contactClientMock.addressbook = createAddressbookMock(contact);
+      contactClientMock.addressbookHome = function() {
+        return {
+          addressbook: createAddressbookMock(contact)
+        };
+      };
 
       var req = {
         params: {},
