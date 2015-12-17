@@ -305,7 +305,7 @@ describe('The multi-input Angular module', function() {
       var nextItemInput = element.find('input[ng-model="newItem.value"]');
       nextItemInput.val('this_is_an_invalid_email_2');
       nextItemInput.triggerHandler('input');
-      expect(this.eleScope.newItem.value).to.equal('this_is_an_invalid_email_2');
+      expect(this.eleScope.content[1].value).to.equal('this_is_an_invalid_email_2');
     });
 
     it('should not display an "add a field button" when there is no existing content', function() {
@@ -438,6 +438,40 @@ describe('The multi-input Angular module', function() {
       element = this.initDirective(this.$scope, directive);
       this.eleScope.$digest();
       expect(this.eleScope.autocapitalize).to.equal('off');
+    });
+
+    it('should add new content as soon as the next field has content', function() {
+      this.$scope.contact = {
+        emails: []
+      };
+      var element = this.initDirective(this.$scope);
+      this.eleScope.showNextField = true;
+      this.eleScope.$digest();
+
+      var email = 'alice@mail.com';
+      var nextItemInput = element.find('input[ng-model="newItem.value"]');
+      nextItemInput.val(email);
+      nextItemInput.triggerHandler('input');
+      expect(this.eleScope.content[0].value).to.equal(email);
+    });
+
+    it('should not hide next field when it is blur', function() {
+      this.$scope.contact = {
+        emails: [{
+          type: 'Work',
+          value: 'alice@mail.com'
+        }]
+      };
+      var element = this.initDirective(this.$scope);
+      this.eleScope.showNextField = true;
+      this.eleScope.$digest();
+      expect(element.find('.multi-input-next').length).to.equal(1);
+
+      var nextItemInput = element.find('input[ng-model="newItem.value"]');
+      nextItemInput.triggerHandler('input');
+      nextItemInput.triggerHandler('blur');
+
+      expect(element.find('.multi-input-next').length).to.equal(1);
     });
   });
 

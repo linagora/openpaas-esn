@@ -100,15 +100,14 @@ angular.module('esn.multi-input', [])
         scope.verifyNew = function() {
           if (scope.newItem.value) {
             scope.showAddButton = true;
+            controller.acceptNew();
+            controller.initFlags();
+            $timeout(function() {
+              element.find('.multi-input-content input').last().focus();
+            }, 0, false);
           } else {
             scope.showAddButton = false;
           }
-        };
-        scope.acceptNew = function() {
-          if (scope.newItem.value) {
-            controller.acceptNew();
-          }
-          controller.initFlags();
         };
         scope.addField = function() {
           scope.showAddButton = false;
@@ -128,6 +127,12 @@ angular.module('esn.multi-input', [])
         scope.deleteField = function(index) {
           controller.acceptRemove(index);
           controller.initFlags();
+        };
+
+        scope.hideNextField = function() {
+          scope.newItem.value = '';
+          scope.showNextField = false;
+          scope.showAddButton = true;
         };
 
         scope.isMultiTypeField = function() {
