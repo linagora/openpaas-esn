@@ -26,10 +26,22 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
 
   .directive('contextualSidebar', function(contextualSidebarService) {
     function link(scope, element, attr) {
-      var options = {scope: scope};
+      var options = {scope: scope},
+        placementToAnimationMap = {
+          left: 'am-fade-and-slide-left'
+        };
+
       angular.forEach(['template', 'templateUrl', 'controller', 'contentTemplate'], function(key) {
-        if (angular.isDefined(attr[key])) { options[key] = attr[key]; }
+        if (angular.isDefined(attr[key])) {
+          options[key] = attr[key];
+        }
       });
+
+      if (angular.isDefined(placementToAnimationMap[attr.placement])) {
+        options.placement = attr.placement;
+        options.animation = placementToAnimationMap[attr.placement];
+      }
+
       var sidebar = contextualSidebarService(options);
 
       element.on('click', function() {
