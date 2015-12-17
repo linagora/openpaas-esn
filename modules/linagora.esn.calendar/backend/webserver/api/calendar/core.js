@@ -316,8 +316,8 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
         var to = { objectType: 'email', id: attendeeEmail };
 
         var jwtPayload = {
-          attendeeMail: attendeeEmail,
-          organizerMail: organizer.preferredEmail,
+          attendeeEmail: attendeeEmail,
+          organizerEmail: organizer.preferredEmail,
           event: ics,
           calendarId: calendarId
         };

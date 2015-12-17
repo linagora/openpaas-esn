@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 var q = require('q');
 var fs = require('fs');
+var sinon = require('sinon');
 
 describe('The calendar core module', function() {
 
@@ -365,7 +366,8 @@ describe('The calendar core module', function() {
       lastname: 'organizerLastname',
       emails: [
         'organizer@open-paas.org'
-      ]
+      ],
+      preferredEmail: 'organizer@open-paas.org'
     };
     var attendee1 = {
       firstname: 'attendee1Firstname',
@@ -469,6 +471,40 @@ describe('The calendar core module', function() {
         };
 
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarId', this.helpers.callbacks.error(done));
+      });
+
+      it('should generate a token with proper information', function(done) {
+        var method = 'REQUEST';
+
+        userMock.findByEmail = function(email, callback) {
+          if (email === attendee1.emails[0]) {
+            return callback(null, attendee1);
+          } else {
+            return callback(null, attendee2);
+          }
+        };
+
+        authMock.jwt.generateWebToken = sinon.spy(function(token, callback) {
+          callback('a_token');
+        });
+
+        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarId', function() {
+          function testTokenWith(action, attendeeEmail) {
+            expect(authMock.jwt.generateWebToken).to.have.been.calledWith({
+              action: action,
+              attendeeEmail: attendeeEmail,
+              calendarId: 'calendarId',
+              organizerEmail: organizer.preferredEmail,
+              event: ics
+            });
+          }
+
+          ['ACCEPTED', 'DECLINED', 'TENTATIVE'].forEach(function(action) {
+            attendeeEmails.forEach(testTokenWith.bind(null, action));
+          });
+
+          done();
+        });
       });
 
       it('should return an error if contentSender.send return an error', function(done) {
