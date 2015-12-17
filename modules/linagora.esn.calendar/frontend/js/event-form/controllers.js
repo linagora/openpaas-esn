@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
     if (!$scope.event) {
       $scope.event = eventUtils.originalEvent;
     }
@@ -205,6 +205,6 @@ angular.module('esn.calendar')
       }
 
       $scope.invitedAttendee.partstat = status;
-      $scope.$broadcast('event:attendees:updated', $scope.editedEvent.attendees);
+      $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
     };
   });

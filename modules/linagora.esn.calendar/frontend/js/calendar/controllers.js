@@ -18,7 +18,7 @@ angular.module('esn.calendar')
     });
   })
 
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
 
     var windowJQuery = angular.element($window);
 
@@ -30,7 +30,7 @@ angular.module('esn.calendar')
       var height = windowJQuery.height() - getCalendar().offset().top;
       height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
       getCalendar().fullCalendar('option', 'height', height);
-      $rootScope.$broadcast('calendar:height', height);
+      $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
     };
 
     $scope.eventClick = function(event) {
@@ -50,7 +50,7 @@ angular.module('esn.calendar')
 
       function revertFunc() {
         _revertFunc();
-        $rootScope.$broadcast('revertedCalendarItemModification', event);
+        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, event);
       }
 
       calendarService.modifyEvent(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc)
@@ -84,7 +84,7 @@ angular.module('esn.calendar')
     $scope.uiConfig.calendar.viewRender = function(view) {
       $timeout($scope.resizeCalendarHeight, 1000);
       calendarCurrentView.save(view);
-      $rootScope.$broadcast('HOME_CALENDAR_VIEW_CHANGE', view);
+      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, view);
     };
 
     $scope.uiConfig.calendar.eventClick = $scope.eventClick;
@@ -148,23 +148,23 @@ angular.module('esn.calendar')
     }
 
     var unregisterFunctions = [
-      $rootScope.$on('modifiedCalendarItem', function(event, data) {
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, function(event, data) {
         _modifiedCalendarItem(data);
       }),
-      $rootScope.$on('removedCalendarItem', function(event, data) {
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
         getCalendar().fullCalendar('removeEvents', data);
       }),
-      $rootScope.$on('addedCalendarItem', function(event, data) {
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
         getCalendar().fullCalendar('renderEvent', data);
       }),
-      $rootScope.$on('calendars-list:toggleView', function(event, calendar) {
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, calendar) {
         if (calendar.toggled) {
           getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
         } else {
           getCalendar().fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
         }
       }),
-      $rootScope.$on('calendars-list:added', function(event, calendars) {
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendars) {
         calendars.forEach(function(cal) {
           calendarService.createCalendar($scope.calendarHomeId, cal)
             .then(function() {
@@ -179,11 +179,11 @@ angular.module('esn.calendar')
             .catch($scope.displayCalendarError);
         });
       }),
-      $rootScope.$on('calendars-list:removed', function(event, calendars) {
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendars) {
         // TODO not implemented yet
         $log.debug('Calendars to remove', calendars);
       }),
-      $rootScope.$on('MINI_CALENDAR_DATE_CHANGE', function(event, newDate) {
+      $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, newDate) {
         var view = getCalendar().fullCalendar('getView');
         if (newDate && !newDate.isBetween(view.start, view.end)) {
           getCalendar().fullCalendar('gotoDate', newDate);
@@ -204,14 +204,14 @@ angular.module('esn.calendar')
     }
 
     var sio = livenotification('/calendars');
-    sio.on('event:created', liveNotificationHandlerOnCreate);
-    sio.on('event:updated', liveNotificationHandlerOnUpdate);
-    sio.on('event:deleted', liveNotificationHandlerOnDelete);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnUpdate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
 
     $scope.$on('$destroy', function() {
-      sio.removeListener('event:created', liveNotificationHandlerOnCreate);
-      sio.removeListener('event:updated', liveNotificationHandlerOnUpdate);
-      sio.removeListener('event:deleted', liveNotificationHandlerOnDelete);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
       unregisterFunctions.forEach(function(unregisterFunction) {
         unregisterFunction();
       });

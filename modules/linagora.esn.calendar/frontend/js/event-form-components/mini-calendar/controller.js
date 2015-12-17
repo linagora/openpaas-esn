@@ -3,7 +3,7 @@
 /* global _:false */
 
 angular.module('esn.calendar')
-  .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG,
+  .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG, CALENDAR_EVENTS,
     uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView) {
 
     var calendarDeffered = $q.defer();
@@ -40,11 +40,11 @@ angular.module('esn.calendar')
 
     calendarPromise.then(selectPeriod.bind(null, currentView.start || fcMoment()));
 
-    $scope.miniCalendarConfig.select = function(start, end, jsEvent, view) {
+    $scope.miniCalendarConfig.select = function(start, end, jsEvent) {
       if (jsEvent) {
         calendarPromise.then(selectPeriod.bind(null, start));
-        $rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', start);
-        $rootScope.$broadcast('calendar:mini-calendar:toggle');
+        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, start);
+        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
       }
     };
 
@@ -73,8 +73,8 @@ angular.module('esn.calendar')
     };
 
     $scope.miniCalendarConfig.eventClick = function(event) {
-      $rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', event.start);
-      $rootScope.$broadcast('calendar:mini-calendar:toggle');
+      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, event.start);
+      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
     };
 
     var calendarWrapperPromise = $q.all({
@@ -104,12 +104,12 @@ angular.module('esn.calendar')
     }
 
     var unregisterFunctions = [
-      bindEventToCalWrapperMethod('addedCalendarItem', 'addEvent'),
-      bindEventToCalWrapperMethod('removedCalendarItem', 'removeEvent'),
-      bindEventToCalWrapperMethod('modifiedCalendarItem', 'modifyEvent'),
-      bindEventToCalWrapperMethod('revertedCalendarItemModification', 'modifyEvent'),
+      bindEventToCalWrapperMethod(CALENDAR_EVENTS.ITEM_ADD, 'addEvent'),
+      bindEventToCalWrapperMethod(CALENDAR_EVENTS.ITEM_REMOVE, 'removeEvent'),
+      bindEventToCalWrapperMethod(CALENDAR_EVENTS.ITEM_MODIFICATION, 'modifyEvent'),
+      bindEventToCalWrapperMethod(CALENDAR_EVENTS.REVERT_MODIFICATION, 'modifyEvent'),
 
-      $rootScope.$on('HOME_CALENDAR_VIEW_CHANGE', function(event, view) {
+      $rootScope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) {
         $scope.homeCalendarViewMode = view.name;
         var start = view.name === 'month' ? fcMoment(view.start).add(15, 'days') : view.start;
         calendarPromise.then(selectPeriod.bind(null, start));

@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .directive('attendeesList', function() {
+  .directive('attendeesList', function(CALENDAR_EVENTS) {
     return {
       restrict: 'E',
       replace: true,
@@ -42,7 +42,7 @@ angular.module('esn.calendar')
         };
 
         updateAttendeeStats(scope.attendees);
-        scope.$on('event:attendees:updated', function(event, data) {
+        scope.$on(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) {
           updateAttendeeStats(data);
         });
       }

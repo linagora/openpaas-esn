@@ -23,7 +23,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarEventEmitter', function($rootScope, $q, socket) {
+  .factory('calendarEventEmitter', function($rootScope, $q, socket, CALENDAR_EVENTS) {
     var websocket = socket('/calendars');
 
     return {
@@ -37,24 +37,24 @@ angular.module('esn.calendar')
       },
       fullcalendar: {
         emitCreatedEvent: function(shell) {
-          $rootScope.$emit('addedCalendarItem', shell);
+          $rootScope.$emit(CALENDAR_EVENTS.ITEM_ADD, shell);
         },
         emitRemovedEvent: function(id) {
-          $rootScope.$emit('removedCalendarItem', id);
+          $rootScope.$emit(CALENDAR_EVENTS.ITEM_REMOVE, id);
         },
         emitModifiedEvent: function(shell) {
-          $rootScope.$emit('modifiedCalendarItem', shell);
+          $rootScope.$emit(CALENDAR_EVENTS.ITEM_MODIFICATION, shell);
         }
       },
       websocket: {
         emitCreatedEvent: function(shell) {
-          websocket.emit('event:created', shell);
+          websocket.emit(CALENDAR_EVENTS.WS.EVENT_CREATED, shell);
         },
         emitRemovedEvent: function(shell) {
-          websocket.emit('event:deleted', shell);
+          websocket.emit(CALENDAR_EVENTS.WS.EVENT_DELETED, shell);
         },
         emitUpdatedEvent: function(shell) {
-          websocket.emit('event:updated', shell);
+          websocket.emit(CALENDAR_EVENTS.WS.EVENT_UPDATED, shell);
         }
       }
     };

@@ -12,11 +12,12 @@ describe('The attendees-list component', function() {
   });
 
   describe('attendeesList directive', function() {
-    beforeEach(angular.mock.inject(function($rootScope, $compile, moment) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, moment, CALENDAR_EVENTS) {
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.moment = moment;
       this.$compile = $compile;
+      this.CALENDAR_EVENTS = CALENDAR_EVENTS;
 
       this.$scope.attendees = [
         { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
@@ -46,7 +47,7 @@ describe('The attendees-list component', function() {
       });
     });
 
-    it('should fire updateAttendeeStats if event:attendees:updated is emited', function() {
+    it('should fire updateAttendeeStats if CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE is emited', function() {
       this.initDirective(this.$scope);
       this.$scope.attendees = [
         { email: 'other1@example.com', partstat: 'ACCEPTED', clicked: false },
@@ -56,7 +57,7 @@ describe('The attendees-list component', function() {
         { email: 'other5@example.com', partstat: 'YOLO' }
       ];
       this.$scope.$digest();
-      this.$scope.$broadcast('event:attendees:updated', this.$scope.attendees);
+      this.$scope.$broadcast(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, this.$scope.attendees);
       expect(this.eleScope.attendeesPerPartstat).to.deep.equal({
         'NEEDS-ACTION': 0,
         ACCEPTED: 2,

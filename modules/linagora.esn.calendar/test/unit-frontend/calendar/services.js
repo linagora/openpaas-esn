@@ -564,7 +564,7 @@ describe('The calendar module services', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, _ICAL_, CalendarShell, fcMoment, _moment_) {
+    beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, _ICAL_, CalendarShell, fcMoment, _moment_, CALENDAR_EVENTS) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.$rootScope.$emit = function(message) {
@@ -575,6 +575,7 @@ describe('The calendar module services', function() {
       this.fcMoment = fcMoment;
       ICAL = _ICAL_;
       moment = _moment_;
+      this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     }));
 
     describe('The listCalendars fn', function() {
@@ -980,7 +981,7 @@ describe('The calendar module services', function() {
         };
 
         var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:created');
+          expect(event).to.equal(this.CALENDAR_EVENTS.WS.EVENT_CREATED);
           expect(JSON.stringify(data)).to.equal(JSON.stringify(new this.CalendarShell(vcalendar, {
             path: path,
             etag: etag
@@ -993,9 +994,10 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.createEvent('/path/to/calendar', calendarShell, { graceperiod: true }).then(
           function(shell) {
-            expect(emitMessage).to.equal('modifiedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(shell.title).to.equal('test event');
             expect(shell.etag).to.equal(etag);
             expect(shell.path).to.equal(path);
@@ -1031,10 +1033,7 @@ describe('The calendar module services', function() {
           return deffered.promise;
         };
 
-        var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:created');
-          expect(data).to.deep.equal(vcalendar);
-        });
+        var socketEmitSpy = sinon.spy();
         this.socketEmit = socketEmitSpy;
 
         var headers = { ETag: 'etag' };
@@ -1045,7 +1044,7 @@ describe('The calendar module services', function() {
         var self = this;
         this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
           function() {
-            expect(emitMessage).to.equal('removedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
             expect(self.modalCreated).to.be.true;
@@ -1078,7 +1077,7 @@ describe('The calendar module services', function() {
           });
         };
 
-        this.gracePeriodService.cancel = function(taskId) {
+        this.gracePeriodService.cancel = function() {
           var deffered = $q.defer();
           deffered.reject({statusText: statusErrorText});
           return deffered.promise;
@@ -1089,9 +1088,10 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
-          function(response) {
-            expect(emitMessage).to.equal('addedCalendarItem');
+          function() {
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(errorSpy).to.have.been.called;
             done();
           }
@@ -1133,9 +1133,10 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
-          function(response) {
-            expect(emitMessage).to.equal('addedCalendarItem');
+          function() {
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(errorSpy).to.have.been.called;
             done();
           }
@@ -1210,15 +1211,16 @@ describe('The calendar module services', function() {
         };
 
         var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:updated');
+          expect(event).to.equal(this.CALENDAR_EVENTS.WS.EVENT_UPDATED);
         });
         this.socketEmit = socketEmitSpy;
 
+        var self = this;
         this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
           function(shell) {
             expect(shell.title).to.equal('test event');
             expect(shell.etag).to.equal('changed-etag');
-            expect(emitMessage).to.equal('modifiedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(shell.path).to.equal('/path/to/uid.ics');
             expect(socketEmitSpy).to.have.been.called;
             done();
@@ -1334,15 +1336,13 @@ describe('The calendar module services', function() {
           });
         };
 
-        this.gracePeriodService.cancel = function(taskId) {
+        this.gracePeriodService.cancel = function() {
           var deffered = $q.defer();
           deffered.resolve({});
           return deffered.promise;
         };
 
-        var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:created');
-        });
+        var socketEmitSpy = sinon.spy();
         this.socketEmit = socketEmitSpy;
 
         var headers = { ETag: 'etag' };
@@ -1350,9 +1350,10 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
           function(response) {
-            expect(emitMessage).to.equal('modifiedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
             expect(response).to.be.false;
@@ -1388,9 +1389,10 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
-          function(response) {
-            expect(emitMessage).to.equal('modifiedCalendarItem');
+          function() {
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(errorSpy).to.have.been.called;
             done();
           }
@@ -1424,9 +1426,10 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
+        var self = this;
         this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
-          function(response) {
-            expect(emitMessage).to.equal('modifiedCalendarItem');
+          function() {
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(errorSpy).to.have.been.called;
             done();
           }
@@ -1483,19 +1486,17 @@ describe('The calendar module services', function() {
           return $q.when();
         };
 
-        var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:deleted');
-          expect(data).to.deep.equal(this.event.vcalendar);
-        });
+        var socketEmitSpy = sinon.spy();
 
         this.socketEmit = socketEmitSpy;
 
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
+        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
           function(response) {
-            expect(emitMessage).to.equal('removedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(socketEmitSpy).to.not.have.been.called;
             expect(response).to.be.false;
             done();
@@ -1519,7 +1520,7 @@ describe('The calendar module services', function() {
         };
 
         var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:deleted');
+          expect(event).to.equal(this.CALENDAR_EVENTS.WS.EVENT_DELETED);
           expect(data).to.deep.equal(this.event);
         });
         this.socketEmit = socketEmitSpy;
@@ -1527,9 +1528,10 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
+        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function(response) {
-            expect(emitMessage).to.equal('removedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(socketEmitSpy).to.have.been.called;
             expect(response).to.be.true;
             done();
@@ -1560,9 +1562,10 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
+        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function(response) {
-            expect(emitMessage).to.equal('addedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
             expect(response).to.be.false;
@@ -1595,9 +1598,10 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
+        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
-          function(response) {
-            expect(emitMessage).to.equal('removedCalendarItem');
+          function() {
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(errorSpy).to.have.been.called;
             done();
           }
@@ -1629,9 +1633,10 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
+        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
-          function(response) {
-            expect(emitMessage).to.equal('removedCalendarItem');
+          function() {
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(errorSpy).to.have.been.called;
             done();
           }
@@ -1662,9 +1667,10 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: taskId});
 
+        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function(response) {
-            expect(emitMessage).to.equal('removedCalendarItem');
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(registerSpy).to.have.been.called;
             expect(response).to.be.true;
             done();

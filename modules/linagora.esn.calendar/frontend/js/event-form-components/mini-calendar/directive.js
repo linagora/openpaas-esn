@@ -13,7 +13,7 @@ angular.module('esn.calendar')
       controller: 'miniCalendarController'
     };
   })
-  .directive('miniCalendarMobile', function($window) {
+  .directive('miniCalendarMobile', function($window, CALENDAR_EVENTS) {
     return {
       restrict: 'E',
       replace: true,
@@ -24,7 +24,7 @@ angular.module('esn.calendar')
       controller: 'miniCalendarController',
       link: function(scope, element) {
 
-        scope.$on('calendar:mini-calendar:toggle', function() {
+        scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
           // initial-state is invisible and height: 0 so that the mini-calendar is not
           // expanded yet
           element.removeClass('initial-state');

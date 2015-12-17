@@ -58,9 +58,9 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('calendarLeftPane', function(LEFT_PANEL_BOTTOM_MARGIN) {
+  .directive('calendarLeftPane', function(LEFT_PANEL_BOTTOM_MARGIN, CALENDAR_EVENTS) {
     function link(scope, element) {
-      scope.$on('calendar:height', function(event, height) {
+      scope.$on(CALENDAR_EVENTS.CALENDAR_HEIGHT, function(event, height) {
         element.height(height - LEFT_PANEL_BOTTOM_MARGIN);
       });
     }
@@ -114,13 +114,13 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('toggleMiniCalendar', function($rootScope) {
+  .directive('toggleMiniCalendar', function($rootScope, CALENDAR_EVENTS) {
     return {
       restrict: 'A',
-      link: function(scope, element, attrs) {
+      link: function(scope, element) {
         element.click(function() {
           element.toggleClass('toggled');
-          $rootScope.$broadcast('calendar:mini-calendar:toggle');
+          $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
         });
       }
     };

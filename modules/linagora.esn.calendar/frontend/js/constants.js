@@ -80,4 +80,28 @@ angular.module('esn.calendar')
    * When checking if an event has been modified in the event form, these JSON
    * keys on the calendar shell will be checked.
    */
-  .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description']);
+  .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description'])
+
+  .constant('CALENDAR_EVENTS', {
+    CALENDAR_HEIGHT: 'calendar:height',
+    EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',
+    HOME_CALENDAR_VIEW_CHANGE: 'calendar:homeViewChange',
+    ITEM_ADD: 'calendar:itemAdd',
+    ITEM_MODIFICATION: 'calendar:itemModification',
+    ITEM_REMOVE: 'calendar:itemRemove',
+    REVERT_MODIFICATION: 'calendar:revertModification',
+    CALENDARS: {
+      ADD: 'calendar:calendars:add',
+      REMOVE: 'calendar:calendars:remove',
+      TOGGLE_VIEW: 'calendar:calendars:toggleView'
+    },
+    MINI_CALENDAR: {
+      DATE_CHANGE: 'calendar:mini:dateChange',
+      TOGGLE: 'calendar:mini:toggle'
+    },
+    WS: {
+      EVENT_CREATED: 'calendar:ws:event:created',
+      EVENT_UPDATED: 'calendar:ws:event:updated',
+      EVENT_DELETED: 'calendar:ws:event:deleted'
+    }
+  });
