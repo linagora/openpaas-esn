@@ -5,7 +5,7 @@ var expect = chai.expect;
 describe('The mini-calendar controller', function() {
 
   var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
-    sessionMock, miniCalendarLogicMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock, calendarCurrentViewMock;
+    sessionMock, miniCalendarServiceMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock, calendarCurrentViewMock;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
@@ -32,7 +32,7 @@ describe('The mini-calendar controller', function() {
       }
     };
 
-    miniCalendarLogicMock = {
+    miniCalendarServiceMock = {
       getWeekAroundDay: function() {
         return {firstWeekDay: null, nextFirstWeekDay: null};
       },
@@ -79,7 +79,7 @@ describe('The mini-calendar controller', function() {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarEventSource', calendarEventSourceMock);
       $provide.value('uiCalendarConfig', uiCalendarConfigMock);
-      $provide.value('miniCalendarLogic', miniCalendarLogicMock);
+      $provide.value('miniCalendarService', miniCalendarServiceMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
       $provide.constant('USER_UI_CONFIG', USER_UI_CONFIG_MOCK);
     });
@@ -164,12 +164,36 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.select(day, null, true, null);
     });
 
+    it('should broadcast calendar:mini-calendar:toggle when a day is selected', function(done) {
+      var day = fcMoment();
+      $scope.miniCalendarConfig.viewRender();
+
+      var unregister = $rootScope.$on('calendar:mini-calendar:toggle', function() {
+        unregister();
+        done();
+      });
+
+      $scope.miniCalendarConfig.select(day, null, true, null);
+    });
+
     it('should broadcast MINI_CALENDAR_DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = fcMoment();
       $scope.miniCalendarConfig.viewRender();
 
       var unregister = $rootScope.$on('MINI_CALENDAR_DATE_CHANGE', function(_day) {
         expect(day.isSame(_day, 'day')).to.be.true;
+        unregister();
+        done();
+      });
+
+      $scope.miniCalendarConfig.eventClick({start: day});
+    });
+
+    it('should broadcast calendar:mini-calendar:toggle, when a event is clicked', function(done) {
+      var day = fcMoment();
+      $scope.miniCalendarConfig.viewRender();
+
+      var unregister = $rootScope.$on('calendar:mini-calendar:toggle', function() {
         unregister();
         done();
       });
@@ -221,7 +245,7 @@ describe('The mini-calendar controller', function() {
         expect(end.isSame(lastWeekDay, 'day')).to.be.true;
       });
 
-      miniCalendarLogicMock.getWeekAroundDay = sinon.spy(function(config, day) {
+      miniCalendarServiceMock.getWeekAroundDay = sinon.spy(function(config, day) {
         expect(config).to.equals($scope.miniCalendarConfig);
         expect(day.isSame(dayInWeek, 'day')).to.be.true;
         return {firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay};
@@ -230,7 +254,7 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.select(dayInWeek, null, true, null);
       $scope.$digest();
       expect(fcMethodMock.select).to.have.been.called;
-      expect(miniCalendarLogicMock.getWeekAroundDay).to.have.been.called;
+      expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.called;
     });
 
     it('should select the good period on HOME_CALENDAR_VIEW_CHANGE with week as view mode', function(done) {
@@ -241,11 +265,11 @@ describe('The mini-calendar controller', function() {
         expect(start.isSame(firstWeekDay, 'day')).to.be.true;
         expect(end.isSame(lastWeekDay, 'day')).to.be.true;
         expect(fcMethodMock.select).to.have.been.called;
-        expect(miniCalendarLogicMock.getWeekAroundDay).to.have.been.called;
+        expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.called;
         done();
       });
 
-      miniCalendarLogicMock.getWeekAroundDay = sinon.spy(function(config, day) {
+      miniCalendarServiceMock.getWeekAroundDay = sinon.spy(function(config, day) {
         expect(config).to.equals($scope.miniCalendarConfig);
         expect(day.isSame(dayInWeek, 'day')).to.be.true;
         return {firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay};
@@ -287,14 +311,14 @@ describe('The mini-calendar controller', function() {
 
     beforeEach(function() {
       calWrapper = {};
-      miniCalendarLogicMock.miniCalendarWrapper = function() {
+      miniCalendarServiceMock.miniCalendarWrapper = function() {
         return calWrapper;
       };
       initController();
     });
 
     it('should  wrap the calendar inside a miniCalendarWrapper', function(done) {
-      miniCalendarLogicMock.miniCalendarWrapper = sinon.spy(function(_calendar, eventSources) {
+      miniCalendarServiceMock.miniCalendarWrapper = sinon.spy(function(_calendar, eventSources) {
         expect(eventSources).to.deep.equals(['anEventSource']);
         expect(_calendar).to.equals(calendar);
         done();

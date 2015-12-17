@@ -47,6 +47,7 @@ angular.module('esn.calendar')
       defaultView: 'month',
       height: 250,
       timezone: 'local',
+      weekNumbers: false,
       header: {
         left: 'prev',
         center: 'title',
