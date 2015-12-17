@@ -75,13 +75,14 @@ describe('The attendees-autocomplete-input component', function() {
       this.$scope.$digest();
     });
 
-    it('should call calendarAttendeeService remove added attendees', function(done) {
+    it('should remove duplicate attendees based on ID comparing to added attendees', function(done) {
       this.initDirective(this.$scope);
       this.eleScope.originalAttendees = [{
+        id: '222222',
         email: 'fist@last'
       }];
       this.eleScope.getInvitableAttendees(query).then(function(response) {
-        expect(response).to.deep.equal([
+        expect(response).to.eql([
           { displayName: 'contact1', id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'},
           { displayName: 'contact20', id: '444444', email: '4@last', preferredEmail: '4@last', partstat: 'NEEDS-ACTION'}
         ]);
@@ -111,68 +112,40 @@ describe('The attendees-autocomplete-input component', function() {
   });
 
   describe('onAddingAttendee', function() {
-    it('should support adding external attendees', function() {
-      var att, res;
-      this.initDirective(this.$scope);
-
-      att = { displayName: 'hello@example.com' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(att.email).to.equal('hello@example.com');
-      expect(att.displayName).to.equal('hello@example.com');
-      expect(res).to.be.true;
-
-      att = { email: 'hello@example.com', displayName: 'world' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(att.email).to.equal('hello@example.com');
-      expect(att.displayName).to.equal('world');
-      expect(res).to.be.true;
-
-      att = { emails: ['hello@example.com'], displayName: 'world' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(att.emails).to.deep.equal(['hello@example.com']);
-      expect(att.displayName).to.equal('world');
-      expect(res).to.be.true;
-    });
-
-    it('should bail on already added attendees', function() {
-      var att, res;
-      this.initDirective(this.$scope);
-      this.$scope.newAttendees = [{ email: 'hello@example.com' }];
-      this.$scope.$digest();
-
-      att = { displayName: 'hello@example.com' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(res).to.be.false;
-
-      att = { email: 'hello@example.com', displayName: 'world' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(res).to.be.false;
-    });
-
-    it('should bail on already existing attendees in editedEvent', function() {
-      var att, res;
-      this.$scope.attendees = [{email: 'hello@example.com'}];
-      this.initDirective(this.$scope);
-      att = { displayName: 'hello@example.com' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(res).to.be.false;
-
-      att = { email: 'hello@example.com', displayName: 'world' };
-      res = this.eleScope.onAddingAttendee(att);
-      expect(res).to.be.false;
-    });
-
     it('should bail on invalid emails', function() {
       var att, res;
       this.initDirective(this.$scope);
 
-      att = { displayName: 'aaaaaaaaaarrrggghhhh' };
+      att = { id: 1, displayName: 'aaaaaaaaaarrrggghhhh' };
       res = this.eleScope.onAddingAttendee(att);
       expect(res).to.be.false;
 
       att = { email: 'wooooohooooooooo', displayName: 'world' };
       res = this.eleScope.onAddingAttendee(att);
       expect(res).to.be.false;
+    });
+
+    describe('adding plain email attendee', function() {
+      it('should use displayName as ID and email', function() {
+        var displayName = 'plain@email.com';
+        var att = { displayName: displayName };
+        this.eleScope.onAddingAttendee(att);
+        expect(att).to.eql({
+          displayName: displayName,
+          id: displayName,
+          email: displayName
+        });
+      });
+
+      it('should still return true when there is duplicate email from user/contact attendees', function() {
+        var duplicateEmail = 'duplicate@email.com';
+        this.eleScope.originalAttendees = [{
+          id: '1',
+          email: duplicateEmail
+        }];
+        expect(this.eleScope.onAddingAttendee({ displayName: duplicateEmail })).to.be.true;
+
+      });
     });
   });
 
