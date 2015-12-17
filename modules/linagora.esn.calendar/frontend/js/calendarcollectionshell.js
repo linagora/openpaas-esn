@@ -12,25 +12,9 @@ angular.module('esn.calendar')
     function CalendarCollectionShell(calendar) {
       this.name = calendar['dav:name'] || 'Events';
       this.color = calendar['apple:color'] || '#2196f3';
-      var description = calendar['caldav:description'] || '';
-      var href = calendar._links.self.href;
-      var id = href.split('/').pop().split('.').shift();
-
-      this.getName = function() {
-        return this.name;
-      };
-      this.getColor = function() {
-        return this.color;
-      };
-      this.getDescription = function() {
-        return description;
-      };
-      this.getHref = function() {
-        return href;
-      };
-      this.getId = function() {
-        return id;
-      };
+      this.description = calendar['caldav:description'] || '';
+      this.href = calendar._links.self.href;
+      this.id = this.href.split('/').pop().split('.').shift();
     }
 
     /**
@@ -44,10 +28,10 @@ angular.module('esn.calendar')
         shell = CalendarCollectionShell.from(shell);
       }
       return {
-        id: shell.getId(),
-        'dav:name': shell.getName(),
-        'apple:color': shell.getColor(),
-        'caldav:description': shell.getDescription()
+        id: shell.id,
+        'dav:name': shell.name,
+        'apple:color': shell.color,
+        'caldav:description': shell.description
       };
     };
 
