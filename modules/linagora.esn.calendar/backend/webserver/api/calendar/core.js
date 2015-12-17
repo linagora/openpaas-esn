@@ -164,7 +164,7 @@ function generateActionLink(baseUrl, jwtPayload, action) {
     if (err) {
       return deferred.reject(err);
     }
-    return deferred.resolve(urlBuilder.resolve(baseUrl, '/api/calendars/event/participation/?jwt=' + token));
+    return deferred.resolve(urlBuilder.resolve(baseUrl, '/calendar/api/calendars/event/participation/?jwt=' + token));
   });
   return deferred.promise;
 }
