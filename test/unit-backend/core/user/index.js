@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The user core module', function() {
   var mockModels, mockPubSub, mockEsnConfig;
@@ -9,6 +10,7 @@ describe('The user core module', function() {
     mockModels = this.helpers.mock.models;
     mockPubSub = this.helpers.mock.pubsub;
     mockEsnConfig = this.helpers.mock.esnConfig;
+    mockery.registerMock('../auth/token', {getNewToken: function() {}});
   });
 
   describe('recordUser method', function() {

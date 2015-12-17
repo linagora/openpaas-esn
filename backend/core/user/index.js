@@ -3,6 +3,7 @@
 var util = require('util');
 var esnConfig = require('../../core')['esn-config'];
 var logger = require('../logger');
+var authToken = require('../auth/token');
 var extend = require('extend');
 var mongoose = require('mongoose');
 var trim = require('trim');
@@ -115,5 +116,10 @@ module.exports.getCompanies = function(user, callback) {
   });
   return callback(null, companies);
 };
+
+function getNewToken(user, ttl, callback) {
+  authToken.getNewToken({ttl: ttl, user: user._id, user_type: TYPE}, callback);
+}
+module.exports.getNewToken = getNewToken;
 
 module.exports.domain = require('./domain');
