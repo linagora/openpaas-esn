@@ -1,0 +1,19 @@
+.card.col-xs-12.col-md-10.no-padding.calendar-edit
+  .card-body.card-padding
+    .listview.p-t-5.calendars-list
+      .lv-body
+        .p-10
+          a.lv-item(href="", ng-click="add()")
+            .media
+              .pull-left
+                i.mdi.mdi-plus
+              .media-body
+                .lv-title
+                  | #{__('')}Add
+          a.lv-item(href="", ng-repeat="calendar in calendars", ng-click='modify(calendar)')
+            .media
+              .pull-left(ng-click="toggleCalendar(calendar)")
+                i.mdi.mdi-label(ng-style="{'color': calendar.color}")
+              .media-body(ng-click="toggleCalendar(calendar)")
+                .lv-title
+                  span {{calendar.name}}

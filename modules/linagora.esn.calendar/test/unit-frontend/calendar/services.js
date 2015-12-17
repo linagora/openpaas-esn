@@ -492,8 +492,7 @@ describe('The calendar module services', function() {
   });
 
   describe('The calendarService service', function() {
-    var ICAL, moment;
-    var emitMessage;
+    var ICAL, moment, emitMessage, CalendarCollectionShellMock;
 
     beforeEach(function() {
       var self = this;
@@ -559,6 +558,9 @@ describe('The calendar module services', function() {
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
         $provide.value('$modal', self.$modal);
+        $provide.value('CalendarCollectionShell', function() {
+          return CalendarCollectionShellMock.apply(this, arguments);
+        });
       });
     });
 
@@ -574,6 +576,88 @@ describe('The calendar module services', function() {
       ICAL = _ICAL_;
       moment = _moment_;
     }));
+
+    describe('The listCalendars fn', function() {
+      it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
+
+        var response = {
+          _links: {
+            self: {
+              href:'\/calendars\/56698ca29e4cf21f66800def.json'
+            }
+          },
+          _embedded: {
+            'dav:calendar': [
+            {
+              _links: {
+                self: {
+                  href: '\/calendars\/56698ca29e4cf21f66800def\/events.json'
+                }
+              },
+              'dav:name': null,
+              'caldav:description': null,
+              'calendarserver:ctag': 'http:\/\/sabre.io\/ns\/sync\/3',
+              'apple:color': null,
+              'apple:order': null
+            }
+            ]
+          }
+        };
+
+        var calendarCollection = {};
+        CalendarCollectionShellMock = sinon.spy(function(davCal) {
+          expect(davCal).to.deep.equal(response._embedded['dav:calendar'][0]);
+          return calendarCollection;
+        });
+
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond(response);
+
+        this.calendarService.listCalendars('homeId').then(function(calendars) {
+          expect(calendars).to.have.length(1);
+          expect(calendars[0]).to.equal(calendarCollection);
+          expect(CalendarCollectionShellMock).to.have.been.called;
+          done();
+        });
+
+        this.$httpBackend.flush();
+
+      });
+    });
+
+    describe('The create calendar fn', function() {
+      it('should wrap the received dav:calendar in a CalendarCollectionShell', function(done) {
+
+        var response = {
+          _links: {
+            self: {
+              href: '\/calendars\/56698ca29e4cf21f66800def\/events.json'
+            }
+          },
+          'dav:name': null,
+          'caldav:description': null,
+          'calendarserver:ctag': 'http:\/\/sabre.io\/ns\/sync\/3',
+          'apple:color': null,
+          'apple:order': null
+        };
+
+        var calendarCollection = {};
+        CalendarCollectionShellMock = sinon.spy(function(davCal) {
+          expect(davCal).to.deep.equal(response);
+          return calendarCollection;
+        });
+
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId/id.json').respond(response);
+
+        this.calendarService.getCalendar('homeId', 'id').then(function(calendar) {
+          expect(calendar).to.equal(calendarCollection);
+          expect(CalendarCollectionShellMock).to.have.been.called;
+          done();
+        });
+
+        this.$httpBackend.flush();
+
+      });
+    });
 
     describe('The listEvents fn', function() {
 

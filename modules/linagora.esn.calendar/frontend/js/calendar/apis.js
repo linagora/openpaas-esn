@@ -128,6 +128,23 @@ angular.module('esn.calendar')
     }
 
     /**
+     * Get a calendar (dav:calendar).
+     * @param  {String} calendarHomeId The calendarHomeId.
+     * @param  {String} calendarId     The calendarId.
+     * @return {Object} An array of dav:calendar
+     */
+    function getCalendar(calendarHomeId, calendarId) {
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          return response.data;
+        });
+    }
+
+    /**
      * Create a calendar in the specified calendar home.
      * @param  {String}         calendarHomeId   The calendar home id in which to create a new calendar
      * @param  {ICAL.Component} calendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
@@ -147,6 +164,7 @@ angular.module('esn.calendar')
     return {
       listEvents: listEvents,
       listCalendars: listCalendars,
+      getCalendar: getCalendar,
       listEventsForCalendar: listEventsForCalendar,
       listAllCalendars: listAllCalendars,
       createCalendar: createCalendar
