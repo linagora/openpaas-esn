@@ -114,7 +114,7 @@ describe('The calendar module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, CalendarShell, fcMoment) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, CalendarShell, fcMoment, CALENDAR_EVENTS) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -125,6 +125,7 @@ describe('The calendar module controllers', function() {
     this.moment = moment;
     this.CalendarShell = CalendarShell;
     this.fcMoment = fcMoment;
+    this.CALENDAR_EVENTS = CALENDAR_EVENTS;
   }));
 
   afterEach(function() {
@@ -209,7 +210,7 @@ describe('The calendar module controllers', function() {
       expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
     });
 
-    it('should register a listener on modifiedCalendarItem that remove and create a new event', function() {
+    it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event', function() {
       var removeEventsFn = sinon.spy(function(id) {
         expect(id).to.equal('_id');
       });
@@ -242,7 +243,7 @@ describe('The calendar module controllers', function() {
         }
       };
 
-      this.rootScope.$broadcast('modifiedCalendarItem', {
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
         title: 'aTitle',
         allDay: '_allday',
         id: '_id'
@@ -268,7 +269,7 @@ describe('The calendar module controllers', function() {
       expect(fullCalendarSpy).to.have.been.calledTwice;
     });
 
-    it('should createCalendar on calendars-list:added', function() {
+    it('should createCalendar on CALENDAR_EVENTS.CALENDARS.ADD', function() {
       this.controller('calendarController', {$scope: this.scope});
       var called = 0;
 
@@ -278,7 +279,7 @@ describe('The calendar module controllers', function() {
         }
         called++;
       };
-      this.rootScope.$broadcast('calendars-list:added', [{
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.ADD, [{
         getHref: function() { return 'href'; },
         getColor: function() { return 'color'; }
       }, {
@@ -292,7 +293,7 @@ describe('The calendar module controllers', function() {
       expect(createCalendarSpy).to.have.been.calledTwice;
     });
 
-    it('should emit addEventSource on calendars-list:toggleView and calendar.toggled is true', function() {
+    it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and calendar.toggled is true', function() {
       this.controller('calendarController', {$scope: this.scope});
       var called = 0;
 
@@ -302,14 +303,14 @@ describe('The calendar module controllers', function() {
         }
         called++;
       };
-      this.rootScope.$broadcast('calendars-list:toggleView', {toggled: true});
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {toggled: true});
       this.scope.$digest();
 
       // 2 are already added at initialization of the controller.
       expect(called).to.equal(3);
     });
 
-    it('should emit removeEventSource on calendars-list:toggleView and calendar.toggled is false', function() {
+    it('should emit removeEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEWand calendar.toggled is false', function() {
       this.controller('calendarController', {$scope: this.scope});
       var called = 0;
 
@@ -319,7 +320,7 @@ describe('The calendar module controllers', function() {
         }
         called++;
       };
-      this.rootScope.$broadcast('calendars-list:toggleView', {toggled: false});
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {toggled: false});
       this.scope.$digest();
 
       expect(called).to.equal(1);
@@ -414,12 +415,13 @@ describe('The calendar module controllers', function() {
       this.scope.$digest();
     });
 
-    it('should initialize a listener on event:created ws event', function(done) {
+    it('should initialize a listener on CALENDAR_EVENTS.WS.EVENT_CREATED ws event', function(done) {
+      var self = this;
       liveNotification = function(namespace) {
         expect(namespace).to.equal('/calendars');
         return {
           on: function(event, handler) {
-            expect(event).to.equal('event:created');
+            expect(event).to.equal(self.CALENDAR_EVENTS.WS.EVENT_CREATED);
             expect(handler).to.be.a('function');
             done();
           }
@@ -488,7 +490,7 @@ describe('The calendar module controllers', function() {
         this.scope.eventDropAndResize(event, {});
       });
 
-      it('should send a revertedCalendarItemModification with the event before the drap and drop if reverted ', function(done) {
+      it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event before the drap and drop if reverted ', function(done) {
         var event = this.CalendarShell.fromIncompleteShell({
           path: 'aPath',
           etag: 'anEtag'
@@ -497,7 +499,7 @@ describe('The calendar module controllers', function() {
 
         var revertFunc = sinon.spy();
 
-        this.rootScope.$on('revertedCalendarItemModification', function(angularEvent, _event) {
+        this.rootScope.$on(this.CALENDAR_EVENTS.REVERT_MODIFICATION, function(angularEvent, _event) {
           expect(_event).to.equals(event);
           expect(revertFunc).to.have.been.called;
           done();
@@ -529,14 +531,14 @@ describe('The calendar module controllers', function() {
         this.scope.eventDropAndResize(event, {});
       });
 
-      it('should broadcast HOME_CALENDAR_VIEW_CHANGE when the view change', function(done) {
+      it('should broadcast CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE when the view change', function(done) {
         this.controller('calendarController', {$scope: this.scope});
 
         var event = this.CalendarShell.fromIncompleteShell({
           etag: 'anEtag'
         });
 
-        this.rootScope.$on('HOME_CALENDAR_VIEW_CHANGE', function(angularEvent, _event) {
+        this.rootScope.$on(this.CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(angularEvent, _event) {
           expect(_event).to.equals(event);
           done();
         });
@@ -545,7 +547,7 @@ describe('The calendar module controllers', function() {
 
       });
 
-      it('should receive MINI_CALENDAR_DATE_CHANGE and change view if needed', function(done) {
+      it('should receive CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE and change view if needed', function(done) {
         this.controller('calendarController', {$scope: this.scope});
         var date = this.fcMoment('2015-01-13');
 
@@ -555,7 +557,7 @@ describe('The calendar module controllers', function() {
           if (name === 'getView') {
             if (first) {
               first = false;
-              self.rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', date);
+              self.rootScope.$broadcast(self.CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, date);
             }
             return {
               start: self.fcMoment('2015-01-01'),
@@ -569,7 +571,7 @@ describe('The calendar module controllers', function() {
           }
         });
 
-        this.rootScope.$broadcast('MINI_CALENDAR_DATE_CHANGE', this.fcMoment('2015-01-13'));
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, this.fcMoment('2015-01-13'));
       });
 
     });
@@ -579,18 +581,19 @@ describe('The calendar module controllers', function() {
       var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener;
 
       beforeEach(function() {
+        var self = this;
         liveNotification = function(namespace) {
           expect(namespace).to.equal('/calendars');
           return {
             on: function(event, handler) {
               switch (event) {
-                case 'event:created':
+                case self.CALENDAR_EVENTS.WS.EVENT_CREATED:
                   wsEventCreateListener = handler;
                   break;
-                case 'event:updated':
+                case self.CALENDAR_EVENTS.WS.EVENT_UPDATED:
                   wsEventModifyListener = handler;
                   break;
-                case 'event:deleted':
+                case self.CALENDAR_EVENTS.WS.EVENT_DELETED:
                   wsEventDeleteListener = handler;
                   break;
               }

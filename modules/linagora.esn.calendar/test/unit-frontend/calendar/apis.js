@@ -415,7 +415,6 @@ describe('The calendar module apis', function() {
     describe('createCalendar request', function(done) {
 
       it('should return the http response if response.status is 201', function(done) {
-        console.log(this.vcalendar);
         this.$httpBackend.expectPOST('/dav/api/calendars/test.json', this.vcalendar).respond(201, 'aResponse');
 
         this.calendarAPI.createCalendar('test', this.vcalendar)

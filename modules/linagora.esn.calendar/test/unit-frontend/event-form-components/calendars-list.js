@@ -31,11 +31,12 @@ describe('The calendar-lists component', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell) {
+  beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell, CALENDAR_EVENTS) {
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
     this.$compile = $compile;
     this.CalendarCollectionShell = CalendarCollectionShell;
+    this.CALENDAR_EVENTS = CALENDAR_EVENTS;
 
     this.initDirective = function(scope) {
       var html = '<calendars-list calendars="calendars"/>';
@@ -105,9 +106,9 @@ describe('The calendar-lists component', function() {
   });
 
   describe('scope.toggleCalendar', function() {
-    it('should toggle calendar.toggled and emit the calendar into calendars-list:toggleView', function() {
+    it('should toggle calendar.toggled and emit the calendar into CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW', function() {
       var toggleSpy = sinon.spy();
-      this.$rootScope.$on('calendars-list:toggleView', function(event, data) {
+      this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
         expect(data.href).to.equal('href');
         toggleSpy();
       });

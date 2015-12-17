@@ -3,6 +3,12 @@
 var initialized = false;
 var NAMESPACE = '/calendars';
 var jcalHelper = require('../lib/jcal/jcalHelper');
+var PUBSUB_EVENT = 'calendar:event:updated';
+var WS_EVENTS = {
+  EVENT_CREATED: 'calendar:ws:event:created',
+  EVENT_UPDATED: 'calendar:ws:event:updated',
+  EVENT_DELETED: 'calendar:ws:event:deleted'
+};
 
 function notify(io, ioHelper, event, msg) {
   var clientSockets = ioHelper.getUserSocketsFromNamespace(msg.target._id, io.of(NAMESPACE).sockets);
@@ -27,7 +33,7 @@ function init(dependencies) {
     return;
   }
 
-  pubsub.global.topic('calendar:event:updated').subscribe(function(msg) {
+  pubsub.global.topic(PUBSUB_EVENT).subscribe(function(msg) {
     notify(io, ioHelper, msg.websocketEvent, msg);
   });
 
@@ -56,7 +62,7 @@ function init(dependencies) {
             event: calendarShell,
             websocketEvent: websocketEvent
           };
-          pubsub.local.topic('calendar:event:updated').forward(pubsub.global, msg);
+          pubsub.local.topic(PUBSUB_EVENT).forward(pubsub.global, msg);
         });
       }
 
@@ -71,16 +77,16 @@ function init(dependencies) {
         _notify(jcalHelper.getOrganizerEmail(calendarShell.vcalendar), calendarShell, websocketEvent);
       }
 
-      socket.on('event:created', function(data) {
-        _notifyAttendees(data, 'event:created');
+      socket.on(WS_EVENTS.EVENT_CREATED, function(data) {
+        _notifyAttendees(data, WS_EVENTS.EVENT_CREATED);
       });
-      socket.on('event:updated', function(data) {
-        _notifyAttendees(data, 'event:updated');
-        _notifyOrganizer(data, 'event:updated');
+      socket.on(WS_EVENTS.EVENT_UPDATED, function(data) {
+        _notifyAttendees(data, WS_EVENTS.EVENT_UPDATED);
+        _notifyOrganizer(data, WS_EVENTS.EVENT_UPDATED);
       });
-      socket.on('event:deleted', function(data) {
-        _notifyAttendees(data, 'event:deleted');
-        _notifyOrganizer(data, 'event:deleted');
+      socket.on(WS_EVENTS.EVENT_DELETED, function(data) {
+        _notifyAttendees(data, WS_EVENTS.EVENT_DELETED);
+        _notifyOrganizer(data, WS_EVENTS.EVENT_DELETED);
       });
     });
 

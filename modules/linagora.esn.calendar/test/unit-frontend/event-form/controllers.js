@@ -99,12 +99,13 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, eventUtils) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, eventUtils, CALENDAR_EVENTS) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.moment = moment;
     this.eventUtils = eventUtils;
+    this.CALENDAR_EVENTS = CALENDAR_EVENTS;
   }));
 
   describe('The eventFormController controller', function() {
@@ -474,8 +475,8 @@ describe('The event-form module controllers', function() {
         this.scope.isOrganizer = true;
       });
 
-      it('should if isOrganizer, modify attendees list and set invitedAttendee and broadcast on event:attendees:updated', function(done) {
-        this.scope.$on('event:attendees:updated', function(event, attendees) {
+      it('should if isOrganizer, modify attendees list and set invitedAttendee and broadcast on CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
+        this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, attendees) {
           expect(attendees).to.deep.equal([{
             name: 'aOrganizer',
             partstat: 'ACCEPTED'
@@ -491,8 +492,8 @@ describe('The event-form module controllers', function() {
         this.eventFormController.changeParticipation('ACCEPTED');
       });
 
-      it('should call changeParticipation if isOganizer and already invitedAttendee and broadcast on event:attendees:updated', function(done) {
-        this.scope.$on('event:attendees:updated', function(event, attendees) {
+      it('should call changeParticipation if isOganizer and already invitedAttendee and broadcast on CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
+        this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function() {
           expect(this.scope.invitedAttendee).to.deep.equal({
             name: 'aOrganizer',
             partstat: 'ACCEPTED'

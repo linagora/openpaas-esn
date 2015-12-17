@@ -76,7 +76,7 @@ describe('The calendar WS events module', function() {
           expect(userId).to.equal('123');
           var socket = {
             emit: function(event, ics) {
-              expect(event).to.equal('event:created');
+              expect(event).to.equal('calendar:ws:event:created');
               expect(ics).to.equal('ICS');
               done();
             }
@@ -89,27 +89,27 @@ describe('The calendar WS events module', function() {
             _id: '123'
           },
           event: 'ICS',
-          websocketEvent: 'event:created'
+          websocketEvent: 'calendar:ws:event:created'
         });
       });
     });
 
-    it('should register a listener to the websocket "event:updated" event', function() {
+    it('should register a listener to the websocket "calendar:ws:event:updated" event', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
       mod.init(this.moduleHelpers.dependencies);
-      expect(this.socketListeners['event:updated']).to.exist;
+      expect(this.socketListeners['calendar:ws:event:updated']).to.exist;
     });
 
-    it('should register a listener to the websocket "event:created" event', function() {
+    it('should register a listener to the websocket "calendar:ws:event:created" event', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
       mod.init(this.moduleHelpers.dependencies);
-      expect(this.socketListeners['event:created']).to.exist;
+      expect(this.socketListeners['calendar:ws:event:created']).to.exist;
     });
 
-    it('should register a listener to the websocket "event:updated" event', function() {
+    it('should register a listener to the websocket "calendar:ws:event:deleted" event', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
       mod.init(this.moduleHelpers.dependencies);
-      expect(this.socketListeners['event:deleted']).to.exist;
+      expect(this.socketListeners['calendar:ws:event:deleted']).to.exist;
     });
 
     describe('websocket listeners', function() {
@@ -148,7 +148,7 @@ describe('The calendar WS events module', function() {
         };
       });
 
-      describe('event:updated websocket listener', function() {
+      describe('calendar:ws:event:updated websocket listener', function() {
 
         it('should publish to the global pubsub for the organizer mail and each attendee mail in the received jcal object', function(done) {
           var sentToGlobal = 0;
@@ -161,7 +161,7 @@ describe('The calendar WS events module', function() {
                     expect(data).to.deep.equal({
                       target: johnDoe,
                       event: calendarShell,
-                      websocketEvent: 'event:updated'
+                      websocketEvent: 'calendar:ws:event:updated'
                     });
 
                     sentToGlobal++;
@@ -169,7 +169,7 @@ describe('The calendar WS events module', function() {
                     expect(data).to.deep.equal({
                       target: organizer,
                       event: calendarShell,
-                      websocketEvent: 'event:updated'
+                      websocketEvent: 'calendar:ws:event:updated'
                     });
                     done();
                   }
@@ -180,12 +180,12 @@ describe('The calendar WS events module', function() {
 
           var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
           mod.init(this.moduleHelpers.dependencies);
-          this.socketListeners['event:updated'](calendarShell);
+          this.socketListeners['calendar:ws:event:updated'](calendarShell);
         });
 
       });
 
-      describe('event:deleted websocket listener', function() {
+      describe('calendar:ws:event:deleted websocket listener', function() {
 
         it('should publish to the global pubsub for the organizer mail and each attendee mail in the received jcal object', function(done) {
           var sentToGlobal = 0;
@@ -198,7 +198,7 @@ describe('The calendar WS events module', function() {
                     expect(data).to.deep.equal({
                       target: johnDoe,
                       event: calendarShell,
-                      websocketEvent: 'event:deleted'
+                      websocketEvent: 'calendar:ws:event:deleted'
                     });
 
                     sentToGlobal++;
@@ -206,7 +206,7 @@ describe('The calendar WS events module', function() {
                     expect(data).to.deep.equal({
                       target: organizer,
                       event: calendarShell,
-                      websocketEvent: 'event:deleted'
+                      websocketEvent: 'calendar:ws:event:deleted'
                     });
                     done();
                   }
@@ -217,7 +217,7 @@ describe('The calendar WS events module', function() {
 
           var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
           mod.init(this.moduleHelpers.dependencies);
-          this.socketListeners['event:deleted'](calendarShell);
+          this.socketListeners['calendar:ws:event:deleted'](calendarShell);
         });
 
       });
