@@ -8,25 +8,12 @@ var expect = chai.expect;
 describe('The calendar-lists component', function() {
 
   beforeEach(function() {
-    this.uuid4 = {
-      // This is a valid uuid4. Change this if you need other uuids generated.
-      _uuid: '00000000-0000-4000-a000-000000000000',
-      generate: function() {
-        return this._uuid;
-      }
-    };
-    this.calendarService = {
-      calendarHomeId: '12345'
-    };
-
     this.locationMock = {};
 
     var self = this;
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
     angular.mock.module(function($provide) {
-      $provide.value('uuid4', self.uuid4);
-      $provide.value('calendarService', self.calendarService);
       $provide.value('$location', self.locationMock);
     });
   });

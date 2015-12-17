@@ -11,7 +11,7 @@ angular.module('esn.calendar')
     });
 
     $scope.modify = function(cal) {
-      $location.url('/calendar/edit/' + cal.getId());
+      $location.url('/calendar/edit/' + cal.id);
     };
 
     $scope.add = function(cal) {

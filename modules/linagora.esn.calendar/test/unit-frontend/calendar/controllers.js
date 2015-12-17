@@ -36,11 +36,11 @@ describe('The calendar module controllers', function() {
       },
       listCalendars: function() {
         return $q.when([{
-          getHref: function() { return 'href'; },
-          getColor: function() { return 'color'; }
+          href: 'href',
+          color: 'color'
         }, {
-          getHref: function() { return 'href2'; },
-          getColor: function() { return 'color2'; }
+          href: 'href2',
+          color: 'color2'
         }]);
       },
       createCalendar: function() {
@@ -258,39 +258,15 @@ describe('The calendar module controllers', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$digest();
       expect(this.scope.calendars.length).to.equal(2);
-      expect(this.scope.calendars[0].getHref()).to.equal('href');
-      expect(this.scope.calendars[0].getColor()).to.equal('color');
-      expect(this.scope.calendars[1].getHref()).to.equal('href2');
-      expect(this.scope.calendars[1].getColor()).to.equal('color2');
+      expect(this.scope.calendars[0].href).to.equal('href');
+      expect(this.scope.calendars[0].color).to.equal('color');
+      expect(this.scope.calendars[1].href).to.equal('href2');
+      expect(this.scope.calendars[1].color).to.equal('color2');
       expect(this.scope.eventSourcesMap.href.color).to.equal('color');
       expect(this.scope.eventSourcesMap.href2.color).to.equal('color2');
       expect(this.scope.eventSourcesMap.href.events).to.be.a('Array');
       expect(this.scope.eventSourcesMap.href2.events).to.be.a('Array');
       expect(fullCalendarSpy).to.have.been.calledTwice;
-    });
-
-    it('should createCalendar on CALENDAR_EVENTS.CALENDARS.ADD', function() {
-      this.controller('calendarController', {$scope: this.scope});
-      var called = 0;
-
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
-        if (event !== 'addEventSource') {
-          return;
-        }
-        called++;
-      };
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.ADD, [{
-        getHref: function() { return 'href'; },
-        getColor: function() { return 'color'; }
-      }, {
-        getHref: function() { return 'href2'; },
-        getColor: function() { return 'color2'; }
-      }]);
-      this.scope.$digest();
-
-      // 2 are already added at initialization of the controller.
-      expect(called).to.equal(4);
-      expect(createCalendarSpy).to.have.been.calledTwice;
     });
 
     it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and calendar.toggled is true', function() {

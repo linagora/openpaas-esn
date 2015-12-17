@@ -117,13 +117,14 @@ angular.module('esn.calendar')
       .then(function(calendars) {
         $scope.calendars = calendars;
         $scope.calendars.forEach(function(calendar) {
-          $scope.eventSourcesMap[calendar.getHref()] = {
-            events: calendarEventSource(calendar.getHref(), $scope.displayCalendarError),
-            color: calendar.getColor()
+          $scope.eventSourcesMap[calendar.href] = {
+            events: calendarEventSource(calendar.href, $scope.displayCalendarError),
+            color: calendar.color
           };
-          getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.getHref()]);
+          getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
         });
-      });
+      })
+      .catch($scope.displayCalendarError);
 
     function _modifiedCalendarItem(newEvent) {
       var event = getCalendar().fullCalendar('clientEvents', newEvent.id)[0];
@@ -163,25 +164,6 @@ angular.module('esn.calendar')
         } else {
           getCalendar().fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
         }
-      }),
-      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendars) {
-        calendars.forEach(function(cal) {
-          calendarService.createCalendar($scope.calendarHomeId, cal)
-            .then(function() {
-              $log.debug('Successfully added a new calendar', cal);
-              // Updating eventSources of fullcalendar
-              $scope.eventSourcesMap[cal.getHref()] = {
-                events: calendarEventSource(cal.getHref(), $scope.displayCalendarError),
-                color: cal.getColor()
-              };
-              getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[cal.getHref()]);
-            })
-            .catch($scope.displayCalendarError);
-        });
-      }),
-      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendars) {
-        // TODO not implemented yet
-        $log.debug('Calendars to remove', calendars);
       }),
       $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, newDate) {
         var view = getCalendar().fullCalendar('getView');
