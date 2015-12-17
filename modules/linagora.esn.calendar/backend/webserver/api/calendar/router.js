@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
     authorizationMW.requiresAPILogin,
     controller.inviteAttendees);
 
-  router.put('/api/calendars/event/participation',
+  router.get('/api/calendars/event/participation',
     authorizationMW.requiresJWT,
     calendarMW.decodeJWT,
     tokenMW.generateNewToken(),
