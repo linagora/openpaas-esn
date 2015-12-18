@@ -81,7 +81,7 @@ describe('jcalHelper', function() {
       });
     });
 
-    it('should parse jcal formatted event without end date nor duration', function() {
+    it('should parse jcal formatted event using the cancel method', function() {
       ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/cancel-event.ics').toString('utf8');
       expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
         method: 'CANCEL',
@@ -91,7 +91,10 @@ describe('jcalHelper', function() {
           date: '06/12/2015',
           time: '1:00 PM'
         },
-        end: null,
+        end: {
+          date: '06/12/2015',
+          time: '4:00 PM'
+        },
         allDay: false,
         durationInDays: null,
         location: 'https://hubl.in/openpaas',
