@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $location, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService) {
+  .controller('calendarEditionController', function($scope, $log, $location, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
     if (!calendarService.calendarHomeId) {
       $location.path('/calendar');
       return;
@@ -10,6 +10,8 @@ angular.module('esn.calendar')
     headerService.subHeader.addInjection('calendar-edition-header', $scope);
     $scope.newCalendar = !calendar;
     $scope.calendar = calendar || {};
+    $scope.oldCalendar = {};
+    angular.copy($scope.calendar, $scope.oldCalendar);
 
     if ($scope.newCalendar) {
       $scope.calendar.href = CalendarCollectionShell.buildHref(calendarService.calendarHomeId, uuid4.generate());
@@ -21,16 +23,30 @@ angular.module('esn.calendar')
       headerService.resetAllInjections();
     });
 
+    function hasModifications(oldCalendar, newCalendar) {
+      return CALENDAR_MODIFY_COMPARE_KEYS.some(function(key) {
+        return !angular.equals(oldCalendar[key], newCalendar[key]);
+      });
+    }
+
     $scope.submit = function() {
+      var shell = CalendarCollectionShell.from($scope.calendar);
       if ($scope.newCalendar) {
-        CalendarCollectionShell.from($scope.calendar);
-        calendarService.createCalendar(calendarService.calendarHomeId, CalendarCollectionShell.from($scope.calendar))
+        calendarService.createCalendar(calendarService.calendarHomeId, shell)
           .then(function() {
             notificationFactory.weakInfo('New calendar - ', $scope.calendar.name + ' has been created.');
             $location.path('/calendar');
           });
       } else {
-        $log.debug('To be done, modify');
+        if (!hasModifications($scope.oldCalendar, $scope.calendar)) {
+          $location.path('/calendar');
+          return;
+        }
+        calendarService.modifyCalendar(calendarService.calendarHomeId, shell)
+          .then(function() {
+            notificationFactory.weakInfo('New calendar - ', $scope.calendar.name + ' has been modified.');
+            $location.path('/calendar');
+          });
       }
     };
 

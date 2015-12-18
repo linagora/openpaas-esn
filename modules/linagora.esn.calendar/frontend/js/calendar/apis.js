@@ -161,13 +161,31 @@ angular.module('esn.calendar')
         });
     }
 
+    /**
+     * Create a calendar in the specified calendar home.
+     * @param  {String}         calendarHomeId   The calendar home id in which to create a new calendar
+     * @param  {ICAL.Component} calendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
+     * @return {Object}                        the http response.
+     */
+    function modifyCalendar(calendarHomeId, calendar) {
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendar.id);
+      return request('proppatch', path, null, calendar)
+        .then(function(response) {
+          if (response.status !== 204) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+
     return {
       listEvents: listEvents,
       listCalendars: listCalendars,
       getCalendar: getCalendar,
       listEventsForCalendar: listEventsForCalendar,
       listAllCalendars: listAllCalendars,
-      createCalendar: createCalendar
+      createCalendar: createCalendar,
+      modifyCalendar: modifyCalendar
     };
   })
 
