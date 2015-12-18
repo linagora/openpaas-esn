@@ -23,6 +23,10 @@ angular.module('esn.calendar')
       headerService.resetAllInjections();
     });
 
+    function canSaveCalendar() {
+      return !!$scope.calendar.name && $scope.calendar.name.length > 1;
+    }
+
     function hasModifications(oldCalendar, newCalendar) {
       return CALENDAR_MODIFY_COMPARE_KEYS.some(function(key) {
         return !angular.equals(oldCalendar[key], newCalendar[key]);
@@ -30,6 +34,10 @@ angular.module('esn.calendar')
     }
 
     $scope.submit = function() {
+      if (!canSaveCalendar()) {
+        return;
+      }
+
       var shell = CalendarCollectionShell.from($scope.calendar);
       if ($scope.newCalendar) {
         calendarService.createCalendar(calendarService.calendarHomeId, shell)

@@ -58,6 +58,18 @@ describe('The calendar-lists component', function() {
   });
 
   describe('scope.submit', function() {
+    it('should do nothing if the calendar name is empty', function() {
+      this.locationMock.path = sinon.spy();
+      this.calendarService.modifyCalendar = sinon.spy();
+      this.calendarService.createCalendar = sinon.spy();
+
+      this.initController();
+      this.$scope.submit();
+      expect(this.locationMock.path).to.have.not.been.called;
+      expect(this.calendarService.modifyCalendar).to.have.not.been.called;
+      expect(this.calendarService.createCalendar).to.have.not.been.called;
+    });
+
     it('should call createCalendar if newCalendar is true', function() {
       this.notificationFactoryMock.weakInfo = sinon.spy();
       this.locationMock.path = sinon.spy(function(path) {
@@ -91,11 +103,10 @@ describe('The calendar-lists component', function() {
         });
         this.calendarService.modifyCalendar = sinon.spy();
 
-        this.$scope.calendar = {
-          color: 'aColor',
-          name: 'aName'
-        };
         this.initController();
+        this.$scope.calendar.color = 'aColor';
+        this.$scope.calendar.name = 'aName';
+        this.$scope.oldCalendar.name = 'aName';
         this.$scope.newCalendar = false;
         this.$scope.submit();
         expect(this.locationMock.path).to.have.been.called;

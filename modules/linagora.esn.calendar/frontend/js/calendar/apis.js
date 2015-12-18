@@ -162,7 +162,7 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Create a calendar in the specified calendar home.
+     * Modify a calendar in the specified calendar home.
      * @param  {String}         calendarHomeId   The calendar home id in which to create a new calendar
      * @param  {ICAL.Component} calendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
      * @return {Object}                        the http response.
