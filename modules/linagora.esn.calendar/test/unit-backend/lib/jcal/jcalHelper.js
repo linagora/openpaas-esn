@@ -93,10 +93,10 @@ describe('jcalHelper', function() {
         },
         end: {
           date: '06/12/2015',
-          time: '4:00 PM'
+          time: '2:00 PM'
         },
         allDay: false,
-        durationInDays: null,
+        durationInDays: 0,
         location: 'https://hubl.in/openpaas',
         description: 'Présentation de OPENPAAS',
         organizer: {
