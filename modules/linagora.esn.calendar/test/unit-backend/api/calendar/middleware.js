@@ -28,7 +28,7 @@ describe('The calendar middlewares', function() {
       };
     });
 
-    it('should send 400 if req has no calendarId', function(done) {
+    it('should send 400 if req has no calendarURI', function(done) {
       var req = {
         user: {
           event: 'event',
@@ -43,7 +43,7 @@ describe('The calendar middlewares', function() {
     it('should send 400 if req has no event', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           attendeeEmail: 'attendeeEmail',
           action: 'action',
           organizerEmail: 'organizerEmail'
@@ -55,7 +55,7 @@ describe('The calendar middlewares', function() {
     it('should send 400 if req has no attendeeEmail', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           event: 'event',
           action: 'action',
           organizerEmail: 'organizerEmail'
@@ -67,7 +67,7 @@ describe('The calendar middlewares', function() {
     it('should send 400 if req has no action', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           event: 'event',
           attendeeEmail: 'attendeeEmail',
           organizerEmail: 'organizerEmail'
@@ -79,7 +79,7 @@ describe('The calendar middlewares', function() {
     it('should send 400 if req has no organizerEmail', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           event: 'event',
           attendeeEmail: 'attendeeEmail',
           action: 'action'
@@ -91,7 +91,7 @@ describe('The calendar middlewares', function() {
     it('should send 400 if req.organizerEmail could not be found as a ESN user', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           event: 'event',
           attendeeEmail: 'attendeeEmail',
           action: 'action',
@@ -112,7 +112,7 @@ describe('The calendar middlewares', function() {
     it('should send 500 if an error happens while searching for req.organizerEmail as a ESN user', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           event: 'event',
           attendeeEmail: 'attendeeEmail',
           action: 'action',
@@ -147,7 +147,7 @@ describe('The calendar middlewares', function() {
     it('should call next if all the required properties are present and valid', function(done) {
       var req = {
         user: {
-          calendarId: 'calendarId',
+          calendarURI: 'calendarURI',
           event: 'event',
           attendeeEmail: 'attendeeEmail',
           action: 'action',

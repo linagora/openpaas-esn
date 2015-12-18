@@ -217,7 +217,7 @@ describe('The calendars API', function() {
       testError400({
         method: 'REQUEST',
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -225,7 +225,7 @@ describe('The calendars API', function() {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -233,11 +233,11 @@ describe('The calendars API', function() {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
-    it('should send 400 if the request body has no "calendarId" property', function(done) {
+    it('should send 400 if the request body has no "calendarURI" property', function(done) {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
@@ -250,7 +250,7 @@ describe('The calendars API', function() {
         emails: 123,
         method: 'REQUEST',
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -259,7 +259,7 @@ describe('The calendars API', function() {
         emails: ['email1@domain1', 'email2@domain1'],
         method: 123,
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -268,16 +268,16 @@ describe('The calendars API', function() {
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
         event: 123,
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
-    it('should send 400 if the request body "calendarId" property is invalid', function(done) {
+    it('should send 400 if the request body "calendarURI" property is invalid', function(done) {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
         event: 'ICS',
-        calendarId: 123
+        calendarURI: 123
       }, this.helpers, this.app, done);
     });
 
@@ -292,7 +292,7 @@ describe('The calendars API', function() {
           emails: ['email1@domain1', 'email2@domain1'],
           method: 'REQUEST',
           event: 'ICS',
-          calendarId: 'calId'
+          calendarURI: 'calId'
         });
         req.expect(200, done);
       });

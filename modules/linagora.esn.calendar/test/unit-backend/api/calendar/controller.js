@@ -24,7 +24,6 @@ describe('The calendar controller', function() {
           _id: 'c3po'
         }
       };
-      console.log(ics);
       var res = {
         status: function(status) {
           expect(status).to.equal(400);
@@ -49,7 +48,7 @@ describe('The calendar controller', function() {
         req = {
           eventPayload: {
             event: ics,
-            calendarId: 'events',
+            calendarURI: 'events',
             attendeeEmail: 'janedoe@open-paas.org',
             action: 'ACCEPTED'
           },
@@ -68,7 +67,7 @@ describe('The calendar controller', function() {
             req.davserver,
             'calendars',
             req.user._id,
-            req.eventPayload.calendarId,
+            req.eventPayload.calendarURI,
             vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid') + '.ics'
           ].join('/'));
           expect(options.body).to.exist;
@@ -98,7 +97,7 @@ describe('The calendar controller', function() {
             req.davserver,
             'calendars',
             req.user._id,
-            req.eventPayload.calendarId,
+            req.eventPayload.calendarURI,
             vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid') + '.ics'
           ].join('/'));
           expect(options.body).to.exist;

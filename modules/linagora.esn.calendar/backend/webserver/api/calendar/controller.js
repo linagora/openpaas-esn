@@ -60,12 +60,12 @@ function inviteAttendees(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Event is required and must be a string (ICS format)'}});
   }
 
-  var calendarId = req.body.calendarId;
-  if (!calendarId || typeof calendarId !== 'string') {
+  var calendarURI = req.body.calendarURI;
+  if (!calendarURI || typeof calendarURI !== 'string') {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Calendar Id is required and must be a string'}});
   }
 
-  calendar.inviteAttendees(req.user, emails, notify, method, event, calendarId, function(err) {
+  calendar.inviteAttendees(req.user, emails, notify, method, event, calendarURI, function(err) {
     if (err) {
       logger.error('Error when trying to send invitations to attendees', err);
       return res.status(500).json({error: {code: 500, message: 'Error when trying to send invitations to attendees', details: err.message}});
@@ -87,7 +87,7 @@ function changeParticipation(req, res) {
   var property = vevent.updatePropertyWithValue('attendee', req.eventPayload.attendeeEmail);
   property.setParameter('partstat', req.eventPayload.action);
 
-  var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarId, vevent.getFirstPropertyValue('uid') + '.ics'].join('/'));
+  var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarURI, vevent.getFirstPropertyValue('uid') + '.ics'].join('/'));
   request({method: 'PUT', headers: {ESNToken: ESNToken}, body: vcalendar.toJSON(), url: url, json: true}, function(err, response) {
     if (err || response.statusCode < 200 || response.statusCode >= 300) {
       return res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err ? err.message : response.body}});
