@@ -76,16 +76,17 @@ function inviteAttendees(req, res) {
 
 function changeParticipation(req, res) {
   var ESNToken = req.token && req.token.token ? req.token.token : '';
-
+  console.log('req.eventPayload', req.eventPayload);
   var icalendar = ICAL.parse(req.eventPayload.event);
   var vcalendar = new ICAL.Component(icalendar);
+  console.log('icalendar', icalendar);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
   var hasAttendee = jcalHelper.getAttendeesEmails(icalendar).indexOf(req.eventPayload.attendeeEmail) !== -1;
   if (!hasAttendee) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Attendee does not exist.'}});
   }
-  var property = vevent.updatePropertyWithValue('attendee', req.eventPayload.attendeeEmail);
-  property.setParameter('partstat', req.eventPayload.action);
+  var attendee = jcalHelper.getVeventAttendeeByMail(vevent, req.eventPayload.attendeeEmail);
+  attendee.setParameter('partstat', req.eventPayload.action);
 
   var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarURI, vevent.getFirstPropertyValue('uid') + '.ics'].join('/'));
   request({method: 'PUT', headers: {ESNToken: ESNToken}, body: vcalendar.toJSON(), url: url, json: true}, function(err, response) {
