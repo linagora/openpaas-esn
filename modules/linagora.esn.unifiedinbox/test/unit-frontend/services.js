@@ -807,12 +807,12 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The newComposerService ', function() {
 
-    var $location, $timeout, newComposerService, screenSize, boxOverlayOpener;
+    var $state, $timeout, newComposerService, screenSize, boxOverlayOpener;
 
-    beforeEach(inject(function(_$location_, _$timeout_, _newComposerService_, _screenSize_, _boxOverlayOpener_) {
+    beforeEach(inject(function(_$state_, _$timeout_, _newComposerService_, _screenSize_, _boxOverlayOpener_) {
       newComposerService = _newComposerService_;
       screenSize = _screenSize_;
-      $location = _$location_;
+      $state = _$state_;
       $timeout = _$timeout_;
       boxOverlayOpener = _boxOverlayOpener_;
     }));
@@ -829,12 +829,12 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should update the location if screenSize returns true', function() {
         screenSize.is = sinon.stub().returns(true);
-        $location.path = sinon.spy();
+        $state.go = sinon.spy();
 
         newComposerService.open();
         $timeout.flush();
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox/compose');
+        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: undefined});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -863,12 +863,12 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should update the location with the email id if screenSize returns true', function() {
         screenSize.is = sinon.stub().returns(true);
-        $location.path = sinon.spy();
+        $state.go = sinon.spy();
 
-        newComposerService.openDraft({id: 'expected'});
+        newComposerService.openDraft({expected: 'field'});
         $timeout.flush();
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox/compose/expected');
+        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: {expected: 'field'}});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {

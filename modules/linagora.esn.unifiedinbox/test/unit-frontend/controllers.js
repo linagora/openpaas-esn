@@ -27,12 +27,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     module('linagora.esn.unifiedinbox', function($provide) {
       $provide.value('jmapClient', jmapClient = {});
       $provide.value('$stateParams', $stateParams);
-      $provide.value('$location', $location = {});
+      $provide.value('$location', $location = {
+        url: angular.noop
+      });
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('Offline', Offline);
       $provide.value('draftService', draftService = {});
       $provide.value('attendeeService', attendeeService = {
-        addProvider: function() {}
+        addProvider: angular.noop
       });
     });
   });

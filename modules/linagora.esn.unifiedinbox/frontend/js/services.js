@@ -296,16 +296,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('newComposerService', function($location, $timeout, screenSize, boxOverlayOpener) {
+  .service('newComposerService', function($state, screenSize, boxOverlayOpener) {
 
     function choseByScreenSize(xs, others) {
       screenSize.is('xs') ? xs.apply() : others.apply();
     }
 
-    function newMobileComposer(emailId) {
-      $timeout(function() {
-        $location.path('/unifiedinbox/compose' + (emailId ? '/' + emailId : ''));
-      });
+    function newMobileComposer(email) {
+      $state.go('/unifiedinbox/compose', {email: email});
     }
 
     function newBoxedComposer() {
@@ -329,7 +327,7 @@ angular.module('linagora.esn.unifiedinbox')
       },
       openDraft: function(email) {
         choseByScreenSize(
-          newMobileComposer.bind(this, email.id),
+          newMobileComposer.bind(this, email),
           newBoxedDraftComposer.bind(this, email)
         );
       }

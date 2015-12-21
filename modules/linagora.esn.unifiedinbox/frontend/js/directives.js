@@ -189,7 +189,7 @@ angular.module('linagora.esn.unifiedinbox')
           returnToMainLocation();
         };
 
-        var disableOnBackAutoSave = scope.$on('$locationChangeSuccess', quitAsSaveDraft);
+        var disableOnBackAutoSave = scope.$on('$stateChangeSuccess', quitAsSaveDraft);
         scope.hide = quitAsSendEmail;
 
         scope.$on('fullscreenEditForm:show', hideMobileHeader);
@@ -198,16 +198,8 @@ angular.module('linagora.esn.unifiedinbox')
         scope.enableSendButton = showMobileHeader;
         showMobileHeader();
 
-        if ($stateParams.emailId) {
-          jmapClient.getMessages({
-            ids: [$stateParams.emailId]
-          }).then(function(messages) {
-            controller.initCtrl(messages[0]);
-          });
-        } else {
-          controller.initCtrl();
-        }
 
+        controller.initCtrl($stateParams.email);
       }
     };
   })

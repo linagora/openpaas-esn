@@ -7,7 +7,8 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, iFrameResize = function() {}, elementScrollDownService;
+  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
+    iFrameResize = angular.noop, elementScrollDownService, $stateParams;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -41,11 +42,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('ASTrackerController', {});
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
+    $stateParams = _$stateParams_;
   }));
 
   beforeEach(function() {
@@ -176,14 +178,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should save draft when location has successfully changed', function() {
-        $rootScope.$broadcast('$locationChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess');
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
       it('should save draft only once when close is called, then location has successfully changed', function() {
         $scope.close();
-        $rootScope.$broadcast('$locationChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess');
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
@@ -220,6 +222,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       it('should expose a search function through its controller', function() {
         expect(ctrl.search).to.be.a('function');
       });
+
     });
 
     describe('The mobile header buttons', function() {
@@ -275,7 +278,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should be hidden when location has successfully changed', function() {
-        $rootScope.$broadcast('$locationChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess');
 
         expect(headerService.subHeader.resetInjections).to.have.been.called;
       });
