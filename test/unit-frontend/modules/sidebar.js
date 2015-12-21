@@ -45,9 +45,46 @@ describe('The Sidebar Angular module', function() {
       };
     }));
 
-    it('should allow overriding only template, templateUrl, controller and contentTemplate', function() {
+    it('should allow overriding only template, templateUrl, controller, contentTemplate and placement if it is set to left', function() {
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="left"/>',
+        this.$scope
+      );
+      expect(options).to.shallowDeepEqual({
+        template: 'template',
+        templateUrl: 'templateUrl',
+        controller: 'controller',
+        contentTemplate: 'contentTemplate',
+        placement: 'left'
+      });
+    });
+
+    it('should automatically set animation to "am-fade-and-slide-left" if placement is set to left', function() {
+      this.initDirective(
+        '<div contextual-sidebar placement="left"/>',
+        this.$scope
+      );
+
+      expect(options.animation).to.equal('am-fade-and-slide-left');
+    });
+
+    it('should animation be set to default if placement has a value other than left', function() {
+      this.initDirective(
+        '<div contextual-sidebar placement="right"/>',
+        this.$scope
+      );
+      expect(options.animation).to.be.undefined;
+
+      this.initDirective(
+        '<div contextual-sidebar placement="top"/>',
+        this.$scope
+      );
+      expect(options.animation).to.be.undefined;
+    });
+
+    it('should allow overriding only template, templateUrl, controller and contentTemplate if placement is set to any value other than left', function() {
+      this.initDirective(
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="right"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
@@ -56,6 +93,19 @@ describe('The Sidebar Angular module', function() {
         controller: 'controller',
         contentTemplate: 'contentTemplate'
       });
+      expect(options.placement).to.be.undefined;
+
+      this.initDirective(
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="top"/>',
+        this.$scope
+      );
+      expect(options).to.shallowDeepEqual({
+        template: 'template',
+        templateUrl: 'templateUrl',
+        controller: 'controller',
+        contentTemplate: 'contentTemplate'
+      });
+      expect(options.placement).to.be.undefined;
     });
 
     it('should call toggle on click', function() {

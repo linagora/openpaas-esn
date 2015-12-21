@@ -1,0 +1,9 @@
+ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
+  li.text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
+
+ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
+  .listview.p-t-5
+    .lv-body
+      .p-10
+        a.lv-item(ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'name']")
+          mailbox-display(mailbox="mailbox")

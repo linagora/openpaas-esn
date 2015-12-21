@@ -5,5 +5,9 @@
   .listview.lv-bordered.lv-lg
     .lv-body
       div Unified Inbox content
-        
+  // This is only for test purposes. It MUST be moved to the modal/popup that should be introduced in INBOX-81
+  div(sidebar-mailboxes-loader, contextual-sidebar, data-content-template="/unifiedinbox/views/sidebar/sidebar-inbox.html", data-placement="left")
+    button.btn.btn-primary.waves-effect
+      i.mdi.mdi-menu
+
   inbox-fab
