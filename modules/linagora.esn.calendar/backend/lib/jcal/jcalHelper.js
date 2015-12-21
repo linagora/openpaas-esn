@@ -8,6 +8,15 @@ function _getEmail(attendee) {
   return attendee.getFirstValue().replace(/^MAILTO:/i, '');
 }
 
+function getVeventAttendeeByMail(vevent, email) {
+  var results = vevent.getAllProperties('attendee').filter(function(attendee) {
+    return _getEmail(attendee) === email;
+  });
+
+  return results.length ? results[0] : null;
+}
+module.exports.getVeventAttendeeByMail = getVeventAttendeeByMail;
+
 /**
  * Return a formatted, easily usable data for an email template from a jcal object
  * @param {String} icalendar Representation of a icalendar object as a string.
