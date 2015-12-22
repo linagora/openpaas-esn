@@ -104,7 +104,7 @@ Note: It send user notification and email to attendees if notify is set to true.
 
     HTTP/1.1 200 OK
 
-## PUT /api/calendars/event/participation
+## GET /api/calendars/event/participation
 
 Update the attendee participation to an event (used by links in invitation emails).
 
@@ -123,7 +123,7 @@ Update the attendee participation to an event (used by links in invitation email
 
 **Request:**
 
-    PUT /api/calendars/event/participation?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaXBvIjpbIjEyMzQ1Njc4OTAiXX0.E6QGuuqelyf0RsEicnsQCDteSAij0KRb7GOQIouFm9A
+    GET /api/calendars/event/participation?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaXBvIjpbIjEyMzQ1Njc4OTAiXX0.E6QGuuqelyf0RsEicnsQCDteSAij0KRb7GOQIouFm9A
     Host: localhost:8080
 
 **Response:**

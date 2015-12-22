@@ -42,6 +42,21 @@ describe('jcalHelper', function() {
     });
   });
 
+  describe('getVeventAttendeeByMail', function() {
+    beforeEach(function() {
+      this.vevent = new icaljs.Component(icaljs.parse(fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf-8'))).getFirstSubcomponent('vevent');
+    });
+
+    it('should return undefined if no attendee with the given email', function() {
+      expect(this.jcalHelper.getVeventAttendeeByMail(this.vevent, 'chuck@norris.com')).to.be.null;
+    });
+
+    it('should return the good attendee if a valid email is provided', function() {
+      var attendee = this.jcalHelper.getVeventAttendeeByMail(this.vevent, 'johndoe@open-paas.org').toJSON();
+      expect(attendee[1].cn).to.equal('John Doe');
+    });
+  });
+
   describe('jcal2content function', function() {
     var ics;
 

@@ -16,10 +16,12 @@ describe('The calendar controller', function() {
   describe('the modifyParticipation function', function() {
     it('should send 400 if the attendee does not exist in the vevent', function(done) {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/noAttendee.ics').toString('utf8');
-      var jcal = ICAL.Component.fromString(ics).toJSON();
       var req = {
         eventPayload: {
-          event: jcal
+          event: ics
+        },
+        user: {
+          _id: 'c3po'
         }
       };
       var res = {
@@ -43,13 +45,15 @@ describe('The calendar controller', function() {
       beforeEach(function() {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
         vcalendar = ICAL.Component.fromString(ics);
-        var jcal = vcalendar.toJSON();
         req = {
           eventPayload: {
-            event: jcal,
-            calendarId: 'calID',
-            attendeeEmail: 'Jane Doe',
+            event: ics,
+            calendarURI: 'events',
+            attendeeEmail: 'janedoe@open-paas.org',
             action: 'ACCEPTED'
+          },
+          user: {
+            _id: 'c3po'
           },
           davserver: 'http://davserver',
           headers: ['header1', 'header2']
@@ -61,8 +65,10 @@ describe('The calendar controller', function() {
           expect(options.method).to.equal('PUT');
           expect(options.url).to.equal([
             req.davserver,
-            req.eventPayload.calendarId,
-            vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid')
+            'calendars',
+            req.user._id,
+            req.eventPayload.calendarURI,
+            vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid') + '.ics'
           ].join('/'));
           expect(options.body).to.exist;
           return callback(new Error());
@@ -89,8 +95,10 @@ describe('The calendar controller', function() {
           expect(options.method).to.equal('PUT');
           expect(options.url).to.equal([
             req.davserver,
-            req.eventPayload.calendarId,
-            vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid')
+            'calendars',
+            req.user._id,
+            req.eventPayload.calendarURI,
+            vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid') + '.ics'
           ].join('/'));
           expect(options.body).to.exist;
           return callback(null, {statusCode: 200});

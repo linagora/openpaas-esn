@@ -164,7 +164,7 @@ function generateActionLink(baseUrl, jwtPayload, action) {
     if (err) {
       return deferred.reject(err);
     }
-    return deferred.resolve(urlBuilder.resolve(baseUrl, '/api/calendars/event/participation/?jwt=' + token));
+    return deferred.resolve(urlBuilder.resolve(baseUrl, '/calendar/api/calendars/event/participation/?jwt=' + token));
   });
   return deferred.promise;
 }
@@ -191,7 +191,7 @@ function generateActionLinks(baseUrl, jwtPayload) {
   });
 }
 
-function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calendarId, callback) {
+function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calendarURI, callback) {
   if (!notify) {
     return q({}).nodeify(callback);
   }
@@ -212,7 +212,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
     return q.reject(new Error('The ics is required')).nodeify(callback);
   }
 
-  if (!calendarId) {
+  if (!calendarURI) {
     return q.reject(new Error('The calendar id is required')).nodeify(callback);
   }
 
@@ -316,10 +316,10 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
         var to = { objectType: 'email', id: attendeeEmail };
 
         var jwtPayload = {
-          attendeeMail: attendeeEmail,
-          organizerMail: organizer.preferredEmail,
+          attendeeEmail: attendeeEmail,
+          organizerEmail: organizer.preferredEmail,
           event: ics,
-          calendarId: calendarId
+          calendarURI: calendarURI
         };
         return generateActionLinks(baseUrl, jwtPayload).then(function(links) {
           var contentWithLinks = {};

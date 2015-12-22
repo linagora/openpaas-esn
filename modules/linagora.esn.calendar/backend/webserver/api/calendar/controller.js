@@ -3,6 +3,7 @@
 var request = require('request');
 var urlBuilder = require('url');
 var ICAL = require('ical.js');
+var jcalHelper = require('../../../lib/jcal/jcalHelper.js');
 var calendar,
     arrayHelpers,
     logger;
@@ -59,12 +60,12 @@ function inviteAttendees(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Event is required and must be a string (ICS format)'}});
   }
 
-  var calendarId = req.body.calendarId;
-  if (!calendarId || typeof calendarId !== 'string') {
+  var calendarURI = req.body.calendarURI;
+  if (!calendarURI || typeof calendarURI !== 'string') {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Calendar Id is required and must be a string'}});
   }
 
-  calendar.inviteAttendees(req.user, emails, notify, method, event, calendarId, function(err) {
+  calendar.inviteAttendees(req.user, emails, notify, method, event, calendarURI, function(err) {
     if (err) {
       logger.error('Error when trying to send invitations to attendees', err);
       return res.status(500).json({error: {code: 500, message: 'Error when trying to send invitations to attendees', details: err.message}});
@@ -74,25 +75,23 @@ function inviteAttendees(req, res) {
 }
 
 function changeParticipation(req, res) {
-  var headers = req.headers || {};
-  headers.ESNToken = req.token && req.token.token ? req.token.token : '';
-
-  var vevent = new ICAL.Component(req.eventPayload.event).getFirstSubcomponent('vevent');
-  var hasAttendee = vevent.getAllProperties('attendee').some(function(attendee) {
-    var cn = attendee.getParameter('cn');
-    return cn === req.eventPayload.attendeeEmail;
-  });
+  var ESNToken = req.token && req.token.token ? req.token.token : '';
+  console.log('req.eventPayload', req.eventPayload);
+  var icalendar = ICAL.parse(req.eventPayload.event);
+  var vcalendar = new ICAL.Component(icalendar);
+  console.log('icalendar', icalendar);
+  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  var hasAttendee = jcalHelper.getAttendeesEmails(icalendar).indexOf(req.eventPayload.attendeeEmail) !== -1;
   if (!hasAttendee) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Attendee does not exist.'}});
   }
-  var property = vevent.updatePropertyWithValue('attendee', req.eventPayload.attendeeEmail);
-  property.setParameter('partstat', req.eventPayload.action);
+  var attendee = jcalHelper.getVeventAttendeeByMail(vevent, req.eventPayload.attendeeEmail);
+  attendee.setParameter('partstat', req.eventPayload.action);
 
-  var url = urlBuilder.resolve(req.davserver, [req.eventPayload.calendarId, vevent.getFirstPropertyValue('uid')].join('/'));
-  request({method: 'PUT', headers: headers, body: vevent.toJSON(), url: url, json: true}, function(err, response) {
+  var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarURI, vevent.getFirstPropertyValue('uid') + '.ics'].join('/'));
+  request({method: 'PUT', headers: {ESNToken: ESNToken}, body: vcalendar.toJSON(), url: url, json: true}, function(err, response) {
     if (err || response.statusCode < 200 || response.statusCode >= 300) {
-      logger.error('Error while modifying event.', err);
-      return res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err.message}});
+      return res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err ? err.message : response.body}});
     }
     return res.status(200).end();
   });

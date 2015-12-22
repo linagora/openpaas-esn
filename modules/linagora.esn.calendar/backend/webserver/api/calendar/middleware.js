@@ -5,7 +5,7 @@ var userModule, logger;
 function decodeJWT(req, res, next) {
   var payload = req.user;
   var badRequest;
-  if (!payload.calendarId) {
+  if (!payload.calendarURI) {
     badRequest = 'Calendar ID is required';
   }
   if (!payload.event) {

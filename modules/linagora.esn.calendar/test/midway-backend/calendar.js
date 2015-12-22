@@ -165,7 +165,7 @@ describe('The calendars API', function() {
     });
   });
 
-  describe('PUT /api/calendars/event/participation', function() {
+  describe('GET /api/calendars/event/participation', function() {
     var jwtCoreModule;
 
     beforeEach(function() {
@@ -177,14 +177,14 @@ describe('The calendars API', function() {
     });
 
     it('should return 401 if no jwt is provided', function(done) {
-      var req = request(this.app).put('/api/calendars/event/participation');
+      var req = request(this.app).get('/api/calendars/event/participation');
       req.expect(401, done);
     });
 
     it('should return 400 when the provided jwt does not contain correct information', function(done) {
       var self = this;
       jwtCoreModule.generateWebToken({test: 'notCompliant'}, function(err, token) {
-        var req = request(self.app).put('/api/calendars/event/participation?jwt=' + token);
+        var req = request(self.app).get('/api/calendars/event/participation?jwt=' + token);
         req.expect(400).end(done);
       });
     });
@@ -217,7 +217,7 @@ describe('The calendars API', function() {
       testError400({
         method: 'REQUEST',
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -225,7 +225,7 @@ describe('The calendars API', function() {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -233,11 +233,11 @@ describe('The calendars API', function() {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
-    it('should send 400 if the request body has no "calendarId" property', function(done) {
+    it('should send 400 if the request body has no "calendarURI" property', function(done) {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
@@ -250,7 +250,7 @@ describe('The calendars API', function() {
         emails: 123,
         method: 'REQUEST',
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -259,7 +259,7 @@ describe('The calendars API', function() {
         emails: ['email1@domain1', 'email2@domain1'],
         method: 123,
         event: 'ICS',
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
@@ -268,16 +268,16 @@ describe('The calendars API', function() {
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
         event: 123,
-        calendarId: 'calId'
+        calendarURI: 'calId'
       }, this.helpers, this.app, done);
     });
 
-    it('should send 400 if the request body "calendarId" property is invalid', function(done) {
+    it('should send 400 if the request body "calendarURI" property is invalid', function(done) {
       testError400({
         emails: ['email1@domain1', 'email2@domain1'],
         method: 'REQUEST',
         event: 'ICS',
-        calendarId: 123
+        calendarURI: 123
       }, this.helpers, this.app, done);
     });
 
@@ -292,7 +292,7 @@ describe('The calendars API', function() {
           emails: ['email1@domain1', 'email2@domain1'],
           method: 'REQUEST',
           event: 'ICS',
-          calendarId: 'calId'
+          calendarURI: 'calId'
         });
         req.expect(200, done);
       });
