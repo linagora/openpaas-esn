@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
+/* global _: false */
 
 var expect = chai.expect;
 
@@ -561,6 +562,13 @@ describe('The calendar module services', function() {
         $provide.value('CalendarCollectionShell', function() {
           return CalendarCollectionShellMock.apply(this, arguments);
         });
+        $provide.decorator('$log', function($delegate) {
+          self.logMock = _.mapValues($delegate, function(val) {
+            return _.isFunction(val) ? sinon.spy(val) : val;
+          });
+
+          return self.logMock;
+        });
       });
     });
 
@@ -1056,7 +1064,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should transmit error to grace task if canceling the creation fail', function(done) {
+      it('should log error if canceling the creation fail', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -1066,14 +1074,11 @@ describe('The calendar module services', function() {
         var event = new this.CalendarShell(vcalendar);
 
         var statusErrorText = 'ERROR';
-        var errorSpy = sinon.spy(function(error) {
-          expect(error).to.equal(statusErrorText);
-        });
 
         this.gracePeriodService.grace = function() {
           return $q.when({
             cancelled: true,
-            error: errorSpy
+            error: angular.noop
           });
         };
 
@@ -1092,7 +1097,7 @@ describe('The calendar module services', function() {
         this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
-            expect(errorSpy).to.have.been.called;
+            expect(self.logMock.error).to.have.been.calledWith(sinon.match.any, sinon.match(statusErrorText));
             done();
           }
         );
@@ -1101,7 +1106,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
+      it('should transmit an error message to grace task even if the error message from the backend is empty', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -1365,16 +1370,13 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should transmit error to grace task if canceling the modification fail', function(done) {
+      it('should log error if canceling the modification fail', function(done) {
         var statusErrorText = 'ERROR';
-        var errorSpy = sinon.spy(function(error) {
-          expect(error).to.equal(statusErrorText);
-        });
 
         this.gracePeriodService.grace = function() {
           return $q.when({
             cancelled: true,
-            error: errorSpy
+            error: angular.noop
           });
         };
 
@@ -1393,7 +1395,7 @@ describe('The calendar module services', function() {
         this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
-            expect(errorSpy).to.have.been.called;
+            expect(self.logMock.error).to.have.been.calledWith(sinon.match.any, sinon.match(statusErrorText));
             done();
           }
         );
@@ -1577,15 +1579,13 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should transmit error to grace task if canceling the deletion fail', function(done) {
+      it('should log the error if canceling the deletion fail', function(done) {
         var statusErrorText = 'ERROR';
-        var errorSpy = sinon.spy(function(error) {
-          expect(error).to.equal(statusErrorText);
-        });
+
         this.gracePeriodService.grace = function() {
           return $q.when({
             cancelled: true,
-            error: errorSpy
+            error: angular.noop
           });
         };
 
@@ -1602,7 +1602,7 @@ describe('The calendar module services', function() {
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
-            expect(errorSpy).to.have.been.called;
+            expect(self.logMock.error).to.have.been.calledWith(sinon.match.any, sinon.match(statusErrorText));
             done();
           }
         );
@@ -1611,7 +1611,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
+      it('should transmit an error message to grace task even if canceling the deletion fail', function(done) {
         var statusErrorText = '';
         var errorSpy = sinon.spy(function(error) {
           expect(error).to.be.not.empty;

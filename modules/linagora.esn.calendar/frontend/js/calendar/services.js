@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
+  .factory('calendarService', function($rootScope, $q, $log, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
 
     /**
      * List all calendars in the calendar home.
@@ -216,7 +216,9 @@ angular.module('esn.calendar')
                     scope.event = event;
                     scope.modal = $modal({scope: scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
                   }, function(err) {
-                    task.error(err.statusText || 'Unexpected error. Cannot cancel the event creation');
+                    var errorMessage =  'Unexpected error. Cannot cancel the event creation';
+                    $log.error(errorMessage, err.statusText);
+                    task.error(errorMessage);
                   });
                 } else {
                   // Unfortunately, sabredav doesn't support Prefer:
@@ -293,7 +295,9 @@ angular.module('esn.calendar')
             task.success();
             return $q.when(false);
           }, function(err) {
-            task.error(err.statusText  || 'Unexpected error. Cannot cancel the event deletion');
+            var errorMessage =  'Unexpected error. Cannot cancel the event deletion';
+            $log.error(errorMessage, err.statusText);
+            task.error(errorMessage);
             return $q.when(false);
           });
         } else {
@@ -353,7 +357,9 @@ angular.module('esn.calendar')
             task.success();
             return $q.when(false);
           }, function(err) {
-            task.error(err.statusText || 'Unexpected error. Cannot cancel the event modification');
+            var errorMessage =  'Unexpected error. Cannot cancel the event modification';
+            $log.error(errorMessage, err.statusText);
+            task.error(errorMessage);
             return $q.when(false);
           });
         } else {
