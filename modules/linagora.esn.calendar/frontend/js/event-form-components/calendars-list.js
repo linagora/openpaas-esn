@@ -4,8 +4,6 @@ angular.module('esn.calendar')
 
   /**
    * This directive takes an array of CalendarCollectionShell in entry and the calendarHomeId, then emit those events:
-   *     calendars-list:added - with an array of CalendarCollectionShell
-   *     calendars-list:removed - with an array of CalendarCollectionShell
    *     calendars-list:toggleView - with the calendar {href: '', name: '', color: '', description: '', toggled: true||false} which should be toggled
    *
    */
@@ -14,11 +12,11 @@ angular.module('esn.calendar')
 
       function cloneCalendar(calendar) {
         return {
-          href: calendar.getHref(),
-          name: calendar.getName(),
-          color: calendar.getColor(),
-          description: calendar.getDescription(),
-          id: calendar.getId(),
+          href: calendar.href,
+          name: calendar.name,
+          color: calendar.color,
+          description: calendar.description,
+          id: calendar.id,
           toggled: true
         };
       }

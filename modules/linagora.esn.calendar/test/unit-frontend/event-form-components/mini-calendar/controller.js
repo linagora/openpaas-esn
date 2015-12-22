@@ -25,9 +25,7 @@ describe('The mini-calendar controller', function() {
         expect(userId).to.equals(sessionMock.user._id);
         var deferred = $q.defer();
         deferred.resolve([{
-          getHref: function() {
-            return 'href';
-          }
+          href: 'href'
         }]);
         return deferred.promise;
       }

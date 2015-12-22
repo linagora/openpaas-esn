@@ -82,7 +82,7 @@ angular.module('esn.calendar')
       calendars: calendarService.listCalendars(userId)
     }).then(function(resolved) {
       var eventSources = resolved.calendars.map(function(cal) {
-        return calendarEventSource(cal.getHref(), function(error) {
+        return calendarEventSource(cal.href, function(error) {
           notificationFactory.weakError('Could not retrieve event sources', error.message);
           $log.error('Could not retrieve event sources', error);
         });

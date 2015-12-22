@@ -58,11 +58,11 @@ describe('CalendarCollectionShell factory', function() {
         description: 'description',
         href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json'
       });
-      expect(calendarCollection.getName()).to.equal('name');
-      expect(calendarCollection.getColor()).to.equal('color');
-      expect(calendarCollection.getDescription()).to.equal('description');
-      expect(calendarCollection.getHref()).to.equal('/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json');
-      expect(calendarCollection.getId()).to.equal('db0d5d63-c36a-42fc-9684-6f5e8132acfe');
+      expect(calendarCollection.name).to.equal('name');
+      expect(calendarCollection.color).to.equal('color');
+      expect(calendarCollection.description).to.equal('description');
+      expect(calendarCollection.href).to.equal('/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json');
+      expect(calendarCollection.id).to.equal('db0d5d63-c36a-42fc-9684-6f5e8132acfe');
     });
   });
 
