@@ -198,7 +198,6 @@ angular.module('linagora.esn.unifiedinbox')
         scope.enableSendButton = showMobileHeader;
         showMobileHeader();
 
-
         controller.initCtrl($stateParams.email);
       }
     };
