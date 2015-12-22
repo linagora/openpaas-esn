@@ -16,7 +16,7 @@ angular.module('esn.calendar')
         if (callback) {
           // Timeout the callback so that fullcalendar events are
           // correctly handled after location has changed.
-          $timeout(callback);
+          $timeout(callback, 100);
         }
       };
 
