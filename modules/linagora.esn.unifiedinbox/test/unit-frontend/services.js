@@ -422,6 +422,352 @@ describe('The Unified Inbox Angular module services', function() {
         expect(expectedRcpt).to.shallowDeepEqual(rcpt);
       });
     });
+
+    describe('the prefixSubject function', function() {
+
+      it('should prefix the subject with the required prefix if it does not already exist in the subject', function() {
+        expect(emailSendingService.prefixSubject('subject', 'Re: ')).to.equal('Re: subject');
+        expect(emailSendingService.prefixSubject('Re:subject', 'Re: ')).to.equal('Re: Re:subject');
+      });
+
+      it('should not prefix the subject with the required prefix if it exists in the subject', function() {
+        expect(emailSendingService.prefixSubject('Re: subject', 'Re: ')).to.equal('Re: subject');
+      });
+
+      it('should ensure that the prefix is suffixed with a space', function() {
+        expect(emailSendingService.prefixSubject('subject', 'Re:')).to.equal('Re: subject');
+        expect(emailSendingService.prefixSubject('subject', 'Re: ')).to.equal('Re: subject');
+      });
+
+      it('should do nothing when subject/prefix is/are not provided', function() {
+        expect(emailSendingService.prefixSubject(null, 'Re:')).to.be.undefined;
+        expect(emailSendingService.prefixSubject('subject', null)).to.be.undefined;
+        expect(emailSendingService.prefixSubject(null, null)).to.be.undefined;
+      });
+    });
+
+    describe('the quoteBody function', function() {
+      var email, expectedAnswer;
+
+      it('should create a quote from the email body', function() {
+        email = {
+          htmlBody: '<p>hello</p>',
+          from: {email: 'sender@linagora.com', name: 'linagora'},
+          date: '12:00:00 14:00'
+        };
+        expectedAnswer = '<cite> On 12:00:00 14:00, from sender@linagora.com:</cite><blockquote><p>hello</p></blockquote>';
+
+        expect(emailSendingService.quoteBody(email)).to.equal(expectedAnswer);
+
+        email = {
+          htmlBody: '<p>hello</p>',
+          from: {emails: ['sender@linagora.com'], name: 'linagora'},
+          date: '12:00:00 14:00'
+        };
+
+        expect(emailSendingService.quoteBody(email)).to.equal(expectedAnswer);
+      });
+    });
+
+    describe('the showReplyAllButton function', function() {
+      var email;
+
+      it('should return true when more than one recipient is provided', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+        expect(emailSendingService.showReplyAllButton(email)).to.be.true;
+      });
+      it('should return false when one/zero recipient is provided', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [],
+          bcc: []
+        };
+        expect(emailSendingService.showReplyAllButton(email)).to.be.false;
+        email = {
+        };
+        expect(emailSendingService.showReplyAllButton(email)).to.be.false;
+      });
+    });
+
+    describe('the getReplyAllRecipients function', function() {
+      var email, sender, expectedRcpt;
+      it('should do nothing when email/sender is/are not provided', function() {
+        expect(emailSendingService.getReplyAllRecipients(null, {})).to.be.undefined;
+        expect(emailSendingService.getReplyAllRecipients({}, null)).to.be.undefined;
+        expect(emailSendingService.getReplyAllRecipients(null, null)).to.be.undefined;
+      });
+
+      it('should: 1- add FROM to the TO field, 2- do not modify the recipient when the sender is not listed inside', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should: 1- add FROM to the TO field, 2- remove the sender from the recipient object if listed in TO or CC', function() {
+        email = {
+          to: [{displayName: 'sender', email: 'sender@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: 'sender', email: 'sender@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
+          cc: [{displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should not add FROM to the TO filed if it represents the sender', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: 'sender', email: 'sender@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should leverage the replyTo filed instead of FROM (when provided)', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'},
+          replyTo: {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should not modify the BCC field even if the sender is listed inside', function() {
+        email = {
+          to: [{displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedRcpt.bcc);
+
+        sender =  {displayName: '5', email: '5@linagora.com'};
+        expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedRcpt.bcc);
+      });
+
+      it('should remove the sender from the recipient object (the sender email could be an array or a string)', function() {
+        email = {
+          to: [{displayName: 'sender', email: 'sender@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+
+        sender =  {displayName: 'sender', emails: ['sender@linagora.com']};
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+    });
+
+    describe('the getReplyRecipients function', function() {
+      var email, sender, expectedRcpt;
+      it('should do nothing when email/sender is/are not provided', function() {
+        expect(emailSendingService.getReplyRecipients(null, {})).to.be.undefined;
+        expect(emailSendingService.getReplyRecipients({}, null)).to.be.undefined;
+        expect(emailSendingService.getReplyRecipients(null, null)).to.be.undefined;
+      });
+
+      it('should reply to FROM if FROM is not the sender', function() {
+        email = {
+          from: {displayName: '0', email: '0@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '0', email: '0@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should reply to ReplyTo if ReplyTo is not the sender', function() {
+        email = {
+          from: {displayName: '0', email: '0@linagora.com'},
+          replyTo: {displayName: 'replyto', email: 'replyto@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: 'replyto', email: 'replyto@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should replyAll if From is the sender', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: 'sender', email: 'sender@linagora.com'}
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
+      it('should replyAll if replyTo is the sender', function() {
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
+          from: {displayName: '0', email: '0@linagora.com'},
+          replyTo: {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}
+        };
+
+        sender =  {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'};
+
+        expectedRcpt = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+    });
+
+    describe('the createReplyAllEmailObject function', function() {
+      var email, sender, expectedAnswer;
+
+      it('should create a reply all email object', function() {
+        email = {
+          from: {email: 'sender@linagora.com', name: 'linagora'},
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '3', email: '3@linagora.com'}],
+          date: '12:00:00 14:00',
+          subject: 'my subject',
+          htmlBody: '<p>my body</p>'
+        };
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '3', email: '3@linagora.com'}],
+          subject: 'Re: my subject',
+          htmlBody: '<p><br/></p><cite> On 12:00:00 14:00, from sender@linagora.com:</cite><blockquote><p>my body</p></blockquote>'
+        };
+
+        expect(emailSendingService.createReplyAllEmailObject(email, sender)).to.shallowDeepEqual(expectedAnswer);
+      });
+    });
+
+    describe('the createReplyEmailObject function', function() {
+      var email, sender, expectedAnswer;
+
+      it('should create a reply email object', function() {
+        email = {
+          from: {email: 'from@linagora.com', name: 'linagora'},
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '3', email: '3@linagora.com'}],
+          date: '12:00:00 14:00',
+          subject: 'my subject',
+          htmlBody: '<p>my body</p>'
+        };
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          to: [{email: 'from@linagora.com', name: 'linagora'}],
+          subject: 'Re: my subject',
+          htmlBody: '<p><br/></p><cite> On 12:00:00 14:00, from from@linagora.com:</cite><blockquote><p>my body</p></blockquote>'
+        };
+
+        expect(emailSendingService.createReplyEmailObject(email, sender)).to.shallowDeepEqual(expectedAnswer);
+      });
+    });
   });
 
   describe('The draftService service', function() {
@@ -879,6 +1225,41 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           title: 'Continue your draft',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+          email: {email: 'object'}
+        });
+      });
+
+    });
+
+    describe('the "openEmailCustomTitle" method', function() {
+
+      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+        screenSize.is = function(size) {
+          expect(size).to.equal('xs');
+          done();
+        };
+        newComposerService.openEmailCustomTitle('title', {id: 'value'});
+      });
+
+      it('should update the location with the email id if screenSize returns true', function() {
+        screenSize.is = sinon.stub().returns(true);
+        $state.go = sinon.spy();
+
+        newComposerService.openEmailCustomTitle('title', {expected: 'field'});
+        $timeout.flush();
+
+        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: {expected: 'field'}});
+      });
+
+      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
+        screenSize.is = sinon.stub().returns(false);
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.openEmailCustomTitle('title', {email: 'object'});
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          title: 'title',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
           email: {email: 'object'}
         });

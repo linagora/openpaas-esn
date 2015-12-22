@@ -88,7 +88,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $location, jmapClient, jmap, notificationFactory) {
+  .controller('viewEmailController', function($scope, $stateParams, $location, jmapClient, jmap, session, notificationFactory, emailSendingService, newComposerService) {
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
 
@@ -100,6 +100,14 @@ angular.module('linagora.esn.unifiedinbox')
         }, function(err) {
           notificationFactory.weakError('Failed to move message to trash', err.message || err);
         });
+    };
+
+    $scope.reply = function() {
+      newComposerService.openEmailCustomTitle('Start writing your reply email', emailSendingService.createReplyEmailObject($scope.email, session.user));
+    };
+
+    $scope.replyAll = function() {
+      newComposerService.openEmailCustomTitle('Start writing your reply all email', emailSendingService.createReplyAllEmailObject($scope.email, session.user));
     };
 
     jmapClient.getMessages({
