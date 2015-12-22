@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, $location, scope, $controller, $timeout,
     jmapClient, jmap, notificationFactory, attendeeService, draftService, Offline = {},
-    emailSendingService, Composition;
+    emailSendingService, Composition, newComposerService = {};
 
   beforeEach(function() {
     $stateParams = {
@@ -36,6 +36,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('attendeeService', attendeeService = {
         addProvider: angular.noop
       });
+      $provide.value('newComposerService', newComposerService);
     });
   });
 
@@ -392,6 +393,46 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         $rootScope.$digest();
       });
 
+    });
+
+    describe('the reply function', function() {
+      it('should leverage openEmailCustomTitle() and createReplyEmailObject()', function() {
+        newComposerService.openEmailCustomTitle = sinon.spy();
+        emailSendingService.createReplyEmailObject = sinon.spy();
+
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            email:'sender@linagora.com'
+          }]);
+        };
+
+        initController('viewEmailController');
+        $rootScope.$digest();
+
+        scope.reply();
+        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
+        expect(emailSendingService.createReplyEmailObject).to.have.been.called;
+      });
+    });
+
+    describe('the replyAll function', function() {
+      it('should leverage openEmailCustomTitle() and createReplyAllEmailObject()', function() {
+        newComposerService.openEmailCustomTitle = sinon.spy();
+        emailSendingService.createReplyAllEmailObject = sinon.spy();
+
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            email:'sender@linagora.com'
+          }]);
+        };
+
+        initController('viewEmailController');
+        $rootScope.$digest();
+
+        scope.replyAll();
+        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
+        expect(emailSendingService.createReplyAllEmailObject).to.have.been.called;
+      });
     });
 
   });

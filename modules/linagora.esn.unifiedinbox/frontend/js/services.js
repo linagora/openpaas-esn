@@ -196,12 +196,146 @@ angular.module('linagora.esn.unifiedinbox')
       return defer.promise;
     }
 
+    function prefixSubject(subject, prefix) {
+      if (!!subject && !!prefix) {
+
+        if (prefix.indexOf(' ', prefix.length - 1) === -1) {
+          prefix = prefix + ' ';
+        }
+
+        if (subject.slice(0, prefix.length) === prefix) {
+          return subject;
+        }
+
+        return prefix + subject;
+      }
+    }
+
+    function showReplyAllButton(email) {
+      var rcpt = {
+        to: email.to || [],
+        cc: email.cc || [],
+        bcc: email.bcc || []
+      };
+      var result = rcpt.to.length + rcpt.cc.length + rcpt.bcc.length;
+      return result > 1;
+    }
+
+    function getEmailAddress(recipient) {
+      if (!!recipient) {
+        return recipient.email || recipient.emails[0];
+      }
+    }
+
+    /**
+     * This function is to avoid the current problem with JMAP-client.
+     * In fact, the current version of JMAP-Client return an email with
+     * replyTo which is always set to {name: '', email:'@'}.
+     * Once the JMAP-Client is patched this function could simply become:
+     * return email.replyTo || email.from;
+     */
+    function getReplyToField(email) {
+      if (getEmailAddress(email.replyTo) !== '@') {
+        return email.replyTo || email.from;
+      } else {
+        return email.from;
+      }
+    }
+
+    function getReplyAllRecipients(email, sender) {
+      if (!email || !sender) {
+        return;
+      }
+
+      var replyAllRecipients = {};
+      var rcpt = {
+        to: email.to || [],
+        cc: email.cc || [],
+        bcc: email.bcc || []
+      };
+      var replyTo = getReplyToField(email);
+
+      replyAllRecipients.to = rcpt.to.filter(function(item) {
+        return item.email !== getEmailAddress(sender);
+      });
+
+      if (getEmailAddress(replyTo) !== getEmailAddress(sender)) {
+        replyAllRecipients.to.push(replyTo);
+      }
+
+      replyAllRecipients.cc = rcpt.cc.filter(function(item) {
+        return item.email !== getEmailAddress(sender);
+      });
+
+      replyAllRecipients.bcc = rcpt.bcc;
+
+      return replyAllRecipients;
+    }
+
+    function getReplyRecipients(email, sender) {
+      if (!email || !sender) {
+        return;
+      }
+
+      var replyTo = getReplyToField(email);
+
+      if (getEmailAddress(replyTo) !== getEmailAddress(sender)) {
+        return {
+          to: [replyTo]
+        };
+      } else {
+        return getReplyAllRecipients(email, sender);
+      }
+    }
+
+    /**
+     * do not create an element using $window.document.createElement('blockquote') for example.
+     * In fact, AngularJS restricts access to DOM nodes from within expressions.
+     * https://docs.angularjs.org/error/$parse/isecdom
+     */
+    function quoteBody(email) {
+      var cite =  '<cite> On ' + email.date + ', from ' + getEmailAddress(email.from) + ':</cite>';
+      var blockquote = '<blockquote>' + email.htmlBody + '</blockquote>';
+      return cite + blockquote;
+    }
+
+    function createReplyAllEmailObject(email, sender) {
+      var replyAllEmailObject = {}, rcpt;
+      replyAllEmailObject.from = getEmailAddress(sender);
+      rcpt = getReplyAllRecipients(email, sender);
+      Object.keys(rcpt).forEach(function(key) {
+        replyAllEmailObject[key] = rcpt[key];
+      });
+      replyAllEmailObject.subject = prefixSubject(email.subject, 'Re: ');
+      replyAllEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
+      return replyAllEmailObject;
+    }
+
+    function createReplyEmailObject(email, sender) {
+      var replyEmailObject = {}, rcpt;
+      replyEmailObject.from = getEmailAddress(sender);
+      rcpt = getReplyRecipients(email, sender);
+      Object.keys(rcpt).forEach(function(key) {
+        replyEmailObject[key] = rcpt[key];
+      });
+      replyEmailObject.subject = prefixSubject(email.subject, 'Re: ');
+      replyEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
+      return replyEmailObject;
+    }
+
     return {
       ensureEmailAndNameFields: ensureEmailAndNameFields,
       emailsAreValid: emailsAreValid,
       removeDuplicateRecipients: removeDuplicateRecipients,
       noRecipient: noRecipient,
-      sendEmail: sendEmail
+      sendEmail: sendEmail,
+      prefixSubject: prefixSubject,
+      getReplyRecipients: getReplyRecipients,
+      getReplyAllRecipients: getReplyAllRecipients,
+      quoteBody: quoteBody,
+      showReplyAllButton: showReplyAllButton,
+      createReplyAllEmailObject: createReplyAllEmailObject,
+      createReplyEmailObject: createReplyEmailObject
     };
   })
 
@@ -314,8 +448,12 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function newBoxedDraftComposer(email) {
+      newBoxedComposerCustomTitle('Continue your draft', email);
+    }
+
+    function newBoxedComposerCustomTitle(title, email) {
       boxOverlayOpener.open({
-        title: 'Continue your draft',
+        title: title,
         templateUrl: '/unifiedinbox/views/composer/box-compose.html',
         email: email
       });
@@ -329,6 +467,12 @@ angular.module('linagora.esn.unifiedinbox')
         choseByScreenSize(
           newMobileComposer.bind(this, email),
           newBoxedDraftComposer.bind(this, email)
+        );
+      },
+      openEmailCustomTitle: function(title, email) {
+        choseByScreenSize(
+          newMobileComposer.bind(this, email),
+          newBoxedComposerCustomTitle.bind(this, title, email)
         );
       }
     };
