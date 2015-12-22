@@ -7,7 +7,7 @@
     .card.listview.lv-bordered.lv-lg
       .lv-body
         .lv-item.media(ng-repeat="email in group.emails")
-          a(ng-href="/#/unifiedinbox/{{::mailbox}}/{{::email.id}}")
+          a(href="", ng-click="openEmail(email)")
             .media-body(ng-class="::{bold: email.isUnread}")
               .lv-title.text-right.pull-right-sm
                 i.mdi.mdi-attachment(ng-if="::email.hasAttachment")

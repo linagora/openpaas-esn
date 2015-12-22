@@ -205,15 +205,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($log, jmap, jmapClient, session, notificationFactory) {
+  .service('draftService', function($q, $log, jmap, jmapClient, session, notificationFactory) {
 
     function saveDraftSuccess() {
       notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
+      return $q.when();
     }
 
     function saveDraftFailed(err) {
       notificationFactory.weakError('Error', 'Your email has not been saved');
       $log.error('A draft has not been saved', err);
+      return $q.reject(err);
     }
 
     function haveDifferentRecipients(left, right) {
@@ -270,9 +272,9 @@ angular.module('linagora.esn.unifiedinbox')
 
     Draft.prototype.save = function(newEmailState) {
       if (!this.needToBeSaved(newEmailState)) {
-        return;
+        return $q.reject();
       }
-      jmapClient
+      return jmapClient
         .saveAsDraft(new jmap.OutboundMessage(jmapClient, {
           from: new jmap.EMailer({
             email: session.user.preferredEmail,
@@ -292,4 +294,125 @@ angular.module('linagora.esn.unifiedinbox')
         return new Draft(originalEmailState);
       }
     };
+  })
+
+  .service('newComposerService', function($state, screenSize, boxOverlayOpener) {
+
+    function choseByScreenSize(xs, others) {
+      screenSize.is('xs') ? xs.apply() : others.apply();
+    }
+
+    function newMobileComposer(email) {
+      $state.go('/unifiedinbox/compose', {email: email});
+    }
+
+    function newBoxedComposer() {
+      boxOverlayOpener.open({
+        title: 'Compose an email',
+        templateUrl: '/unifiedinbox/views/composer/box-compose.html'
+      });
+    }
+
+    function newBoxedDraftComposer(email) {
+      boxOverlayOpener.open({
+        title: 'Continue your draft',
+        templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+        email: email
+      });
+    }
+
+    return {
+      open: function() {
+        choseByScreenSize(newMobileComposer, newBoxedComposer);
+      },
+      openDraft: function(email) {
+        choseByScreenSize(
+          newMobileComposer.bind(this, email),
+          newBoxedDraftComposer.bind(this, email)
+        );
+      }
+    };
+  })
+
+  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline) {
+
+    function addDisplayNameToRecipients(recipients) {
+      return (recipients || []).map(function(recipient) {
+        return {
+          name: recipient.name,
+          email: recipient.email,
+          displayName: recipient.name || recipient.email
+        };
+      });
+    }
+
+    function prepareEmail(email) {
+      var preparingEmail = angular.copy(email || {});
+      preparingEmail.rcpt = {
+        to: addDisplayNameToRecipients(preparingEmail.to),
+        cc: addDisplayNameToRecipients(preparingEmail.cc),
+        bcc: addDisplayNameToRecipients(preparingEmail.bcc)
+      };
+      return preparingEmail;
+    }
+
+    function Composition(message) {
+      this.originalMessage = message;
+      this.email = prepareEmail(message);
+      this.draft = draftService.startDraft(this.email);
+    }
+
+    Composition.prototype.saveDraft = function() {
+      this.draft.save(this.email).then(this.destroyOriginalDraft.bind(this));
+    };
+
+    Composition.prototype.getEmail = function() {
+      return this.email;
+    };
+
+    Composition.prototype.canBeSentOrNotify = function() {
+      if (emailSendingService.noRecipient(this.email.rcpt)) {
+        notificationFactory.weakError('Note', 'Your email should have at least one recipient');
+        return false;
+      }
+
+      if (!Offline.state || Offline.state === 'down') {
+        notificationFactory.weakError('Note', 'Your device loses its Internet connection. Try later!');
+        return false;
+      }
+
+      emailSendingService.removeDuplicateRecipients(this.email.rcpt);
+
+      return true;
+    };
+
+    Composition.prototype.send = function() {
+      if (!this.canBeSentOrNotify()) {
+        return;
+      }
+
+      var self = this;
+      this.email.from = session.user;
+
+      var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
+      emailSendingService.sendEmail(this.email).then(
+        function() {
+          notify.close();
+          notificationFactory.weakSuccess('Success', 'Your email has been sent');
+          self.destroyOriginalDraft();
+        },
+        function() {
+          notify.close();
+          notificationFactory.weakError('Error', 'An error has occurred while sending email');
+        }
+      );
+    };
+
+    Composition.prototype.destroyOriginalDraft = function() {
+      if (this.originalMessage) {
+        this.originalMessage.destroy();
+      }
+    };
+
+    return Composition;
   });

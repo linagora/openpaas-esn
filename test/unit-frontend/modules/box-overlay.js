@@ -77,20 +77,6 @@ describe('The box-overlay Angular module', function() {
       expect(overlays()).to.have.length(1);
     });
 
-    it('should remove the overlay when the calling element\'s scope is destroyed, if auto-destroy=true', function() {
-      compileAndClickTheButton('<button box-overlay box-auto-destroy="true" />');
-      $scope.$destroy();
-
-      expect(overlays()).to.have.length(0);
-    });
-
-    it('should not remove the overlay when the calling element\'s scope is destroyed, if auto-destroy=false', function() {
-      compileAndClickTheButton('<button box-overlay />');
-      $scope.$destroy();
-
-      expect(overlays()).to.have.length(1);
-    });
-
     it('should correctly fetch a custom template, and add it to the overlay', function() {
       $httpBackend.expectGET('/path/to/the/template').respond('<div class="i-am-the-template">Test</div>');
 
@@ -219,6 +205,47 @@ describe('The box-overlay Angular module', function() {
       maximizeFirstBox();
 
       expect(angular.element('.box-overlay-container').hasClass('maximized')).to.equal(true);
+    });
+
+  });
+
+  describe('The boxOverlayOpener service', function() {
+
+    var boxOverlay, boxOverlayReturnValue, boxOverlayOpener;
+
+    beforeEach(angular.mock.module(function($provide) {
+      boxOverlay = function(options) {
+        boxOverlay.receivedOptions = options;
+        return boxOverlayReturnValue;
+      };
+      $provide.value('$boxOverlay', boxOverlay);
+    }));
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _boxOverlayOpener_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+      boxOverlayOpener = _boxOverlayOpener_;
+    }));
+
+    it('delegate to $boxOverlay with the given options', function() {
+      boxOverlayOpener.open({my: 'super options'});
+
+      expect(boxOverlay.receivedOptions).to.deep.equal({my: 'super options'});
+    });
+
+    it('call the show fn if the returned value is defined', function(done) {
+      boxOverlayReturnValue = {
+        show: done
+      };
+
+      boxOverlayOpener.open({});
+    });
+
+    it('not try to call the show fn if the returned value is undefined', function() {
+      boxOverlayReturnValue = undefined;
+
+      boxOverlayOpener.open({});
     });
 
   });

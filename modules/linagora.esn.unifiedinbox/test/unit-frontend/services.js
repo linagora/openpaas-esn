@@ -697,24 +697,26 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The save method', function() {
 
-      it('should do nothing if needToBeSaved returns false', function() {
+      it('should do nothing and return rejected promise if needToBeSaved returns false', function() {
         jmapClient.saveAsDraft = sinon.spy();
-
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return false;};
-        draft.save({});
+
+        var result = draft.save({});
 
         expect(jmapClient.saveAsDraft).to.not.have.been.called;
+        expect(result).to.be.rejected;
       });
 
       it('should call saveAsDraft if needToBeSaved returns true', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
-        draft.save({rcpt: {}});
+
+        var result = draft.save({rcpt: {}});
 
         expect(jmapClient.saveAsDraft).to.have.been.called;
+        expect(result).to.be.fulfilled;
       });
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
@@ -790,15 +792,372 @@ describe('The Unified Inbox Angular module services', function() {
 
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
-        draft.save({rcpt: {}});
+
+        var result = draft.save({rcpt: {}});
 
         $rootScope.$digest();
         expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
         expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
+        expect(result).to.be.rejected;
       });
 
     });
 
   });
 
+  describe('The newComposerService ', function() {
+
+    var $state, $timeout, newComposerService, screenSize, boxOverlayOpener;
+
+    beforeEach(inject(function(_$state_, _$timeout_, _newComposerService_, _screenSize_, _boxOverlayOpener_) {
+      newComposerService = _newComposerService_;
+      screenSize = _screenSize_;
+      $state = _$state_;
+      $timeout = _$timeout_;
+      boxOverlayOpener = _boxOverlayOpener_;
+    }));
+
+    describe('the "open" method', function() {
+
+      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+        screenSize.is = function(size) {
+          expect(size).to.equal('xs');
+          done();
+        };
+        newComposerService.open();
+      });
+
+      it('should update the location if screenSize returns true', function() {
+        screenSize.is = sinon.stub().returns(true);
+        $state.go = sinon.spy();
+
+        newComposerService.open();
+        $timeout.flush();
+
+        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: undefined});
+      });
+
+      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
+        screenSize.is = sinon.stub().returns(false);
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.open();
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          title: 'Compose an email',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html'
+        });
+      });
+
+    });
+
+    describe('the "openDraft" method', function() {
+
+      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+        screenSize.is = function(size) {
+          expect(size).to.equal('xs');
+          done();
+        };
+        newComposerService.openDraft({id: 'value'});
+      });
+
+      it('should update the location with the email id if screenSize returns true', function() {
+        screenSize.is = sinon.stub().returns(true);
+        $state.go = sinon.spy();
+
+        newComposerService.openDraft({expected: 'field'});
+        $timeout.flush();
+
+        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: {expected: 'field'}});
+      });
+
+      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
+        screenSize.is = sinon.stub().returns(false);
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.openDraft({email: 'object'});
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          title: 'Continue your draft',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+          email: {email: 'object'}
+        });
+      });
+
+    });
+
+  });
+
+  describe('The Composition factory', function() {
+
+    var Composition, draftService, emailSendingService, session, $timeout, Offline,
+        notificationFactory, closeNotificationSpy, notificationTitle, notificationText;
+
+    beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
+         _Composition_, _emailSendingService_, _$timeout_) {
+      draftService = _draftService_;
+      notificationFactory = _notificationFactory_;
+      session = _session_;
+      Offline = _Offline_;
+      Composition = _Composition_;
+      emailSendingService = _emailSendingService_;
+      $timeout = _$timeout_;
+    }));
+
+    beforeEach(inject(function() {
+      Offline.state = 'up';
+      notificationTitle = '';
+      notificationText = '';
+
+      closeNotificationSpy = sinon.spy();
+
+      notificationFactory.weakSuccess = function(callTitle, callText) {
+        notificationTitle = callTitle;
+        notificationText = callText;
+      };
+
+      notificationFactory.weakError = function(callTitle, callText) {
+        notificationTitle = callTitle;
+        notificationText = callText;
+      };
+
+      notificationFactory.notify = function() {
+        notificationTitle = 'Info';
+        notificationText = 'Sending';
+        return {
+          close: closeNotificationSpy
+        };
+      };
+    }));
+
+    it('should set the displayName from the name to recipients when instantiated', function() {
+      var email = {
+        to: [{name: 'name1', email: '1@linagora.com'}],
+        cc: [{name: 'name2', email: '2@linagora.com'}],
+        bcc: [{name: 'name3', email: '3@linagora.com'}]
+      };
+
+      var result = new Composition(email).getEmail();
+
+      expect(result.rcpt).to.deep.equal({
+        to: [{name: 'name1', email: '1@linagora.com', displayName: 'name1'}],
+        cc: [{name: 'name2', email: '2@linagora.com', displayName: 'name2'}],
+        bcc: [{name: 'name3', email: '3@linagora.com', displayName: 'name3'}]
+      });
+    });
+
+    it('should set the displayName from the email to recipients when instantiated, when no name', function() {
+      var email = {
+        to: [{email: '1@linagora.com'}],
+        cc: [{email: '2@linagora.com'}],
+        bcc: [{email: '3@linagora.com'}]
+      };
+
+      var result = new Composition(email).getEmail();
+
+      expect(result.rcpt).to.deep.equal({
+        to: [{name: undefined, email: '1@linagora.com', displayName: '1@linagora.com'}],
+        cc: [{name: undefined, email: '2@linagora.com', displayName: '2@linagora.com'}],
+        bcc: [{name: undefined, email: '3@linagora.com', displayName: '3@linagora.com'}]
+      });
+    });
+
+    it('should start a draft when instantiated', function() {
+      draftService.startDraft = sinon.spy();
+
+      new Composition({obj: 'expected'});
+
+      expect(draftService.startDraft).to.have.been
+        .calledWith({obj: 'expected', rcpt: { bcc: [], cc: [], to: [] } });
+    });
+
+    it('should save the draft when saveDraft is called', function() {
+      var saveSpy = sinon.stub().returns($q.when({}));
+      draftService.startDraft = function() {
+        return {
+          save: saveSpy
+        };
+      };
+
+      var composition = new Composition({obj: 'expected'});
+      composition.getEmail().test = 'tested';
+      composition.saveDraft();
+
+      expect(saveSpy).to.have.been
+        .calledWith({obj: 'expected', test: 'tested', rcpt: { bcc: [], cc: [], to: [] }});
+    });
+
+    it('should destroy the original draft when saveDraft is called', function() {
+      draftService.startDraft = function() {
+        return {
+          save: sinon.stub().returns($q.when({}))
+        };
+      };
+
+      var message = { destroy: sinon.spy() };
+
+      new Composition(message).saveDraft();
+      $timeout.flush();
+
+      expect(message.destroy).to.have.been.calledOnce;
+    });
+
+    it('"canBeSentOrNotify" fn should returns false when the email has no recipient', function() {
+      var email = {
+        rcpt: {
+          to: [],
+          cc: [],
+          bcc: []
+        }
+      };
+
+      var result = new Composition(email).canBeSentOrNotify();
+
+      expect(result).to.equal(false);
+      expect(notificationTitle).to.equal('Note');
+      expect(notificationText).to.equal('Your email should have at least one recipient');
+    });
+
+    it('"canBeSentOrNotify" fn should returns false when the network connection is down', function() {
+      Offline.state = 'down';
+      var email = {
+        to: [{email: '1@linagora.com'}],
+        cc: [],
+        bcc: []
+      };
+
+      var result = new Composition(email).canBeSentOrNotify();
+
+      expect(result).to.equal(false);
+      expect(notificationTitle).to.equal('Note');
+      expect(notificationText).to.equal('Your device loses its Internet connection. Try later!');
+    });
+
+    it('"send" fn should successfully notify when a valid email is sent', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      var email = {
+        destroy: angular.noop,
+        to: [{email: '1@linagora.com'}, {email: '2@linagora.com'}],
+        cc: [{email: '1@linagora.com'}, {email: '3@linagora.com'}],
+        bcc: [{email: '1@linagora.com'}, {email: '2@linagora.com'}, {email: '4@linagora.com'}]
+      };
+
+      var expectedRcpt = {
+        to: [{displayName: '1@linagora.com', email: '1@linagora.com'}, {displayName: '2@linagora.com', email: '2@linagora.com'}],
+        cc: [{displayName: '3@linagora.com', email: '3@linagora.com'}],
+        bcc: [{displayName: '4@linagora.com', email: '4@linagora.com'}]
+      };
+
+      var composition = new Composition(email);
+      composition.send();
+      $timeout.flush();
+
+      expect(composition.getEmail().rcpt).to.shallowDeepEqual(expectedRcpt);
+      expect(closeNotificationSpy).to.have.been.calledOnce;
+      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
+      expect(notificationTitle).to.equal('Success');
+      expect(notificationText).to.equal('Your email has been sent');
+    });
+
+    it('"send" fn should successfully send an email even if only bcc is used', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      var email = {
+        destroy: angular.noop,
+        to: [],
+        cc: [],
+        bcc: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      new Composition(email).send();
+      $timeout.flush();
+
+      expect(closeNotificationSpy).to.have.been.calledOnce;
+      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
+      expect(notificationTitle).to.equal('Success');
+      expect(notificationText).to.equal('Your email has been sent');
+    });
+
+    it('"send" fn should notify immediately about sending email for slow connection. The final notification is shown once the email is sent', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
+        return $q.when();
+      }, 200));
+
+      var email = {
+        destroy: angular.noop,
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      new Composition(email).send();
+
+      expect(notificationTitle).to.equal('Info');
+      expect(notificationText).to.equal('Sending');
+      $timeout.flush(201);
+      expect(closeNotificationSpy).to.have.been.calledOnce;
+      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
+      expect(notificationTitle).to.equal('Success');
+      expect(notificationText).to.equal('Your email has been sent');
+    });
+
+    it('"send" fn should notify immediately about sending email for slow connection. this notification is then replaced by an error one in the case of failure', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
+        return $q.reject();
+      }, 200));
+
+      var email = {
+        destroy: angular.noop,
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      new Composition(email).send();
+
+      expect(notificationTitle).to.equal('Info');
+      expect(notificationText).to.equal('Sending');
+      $timeout.flush(201);
+      expect(closeNotificationSpy).to.have.been.calledOnce;
+      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
+      expect(notificationTitle).to.equal('Error');
+      expect(notificationText).to.equal('An error has occurred while sending email');
+    });
+
+    it('"send" fn should assign email.from using the session before sending', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+      session.user = 'yolo';
+
+      var email = {
+        destroy: angular.noop,
+        to: [{name: '1', email: '1@linagora.com'}]
+      };
+
+      new Composition(email).send();
+      $timeout.flush();
+
+      expect(emailSendingService.sendEmail).to.have.been.calledWith({
+        from: 'yolo',
+        destroy: angular.noop,
+        to: [{name: '1', email: '1@linagora.com'}],
+        rcpt: {
+          to: [{name: '1', displayName: '1', email: '1@linagora.com'}],
+          cc: [],
+          bcc: []
+        }
+      });
+    });
+
+    it('"send" fn should destroy the original draft if one', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      var message = {
+        destroy: sinon.spy(),
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      };
+
+      new Composition(message).send();
+      $timeout.flush();
+
+      expect(message.destroy).to.have.been.calledOnce;
+    });
+
+  });
 });

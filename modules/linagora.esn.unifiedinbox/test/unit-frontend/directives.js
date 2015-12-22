@@ -7,7 +7,8 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient, iFrameResize = function() {}, elementScrollDownService;
+  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
+    iFrameResize = angular.noop, elementScrollDownService, $stateParams;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -41,11 +42,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('ASTrackerController', {});
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
+    $stateParams = _$stateParams_;
   }));
 
   beforeEach(function() {
@@ -74,6 +76,25 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $scope.$digest();
     return element;
   }
+
+  describe('The newComposer directive', function() {
+
+    var newComposerService;
+
+    beforeEach(inject(function(_newComposerService_) {
+      newComposerService = _newComposerService_;
+    }));
+
+    it('should call the open fn from newComposerService when clicked', function() {
+      var testee = compileDirective('<div new-composer/>');
+      newComposerService.open = sinon.spy();
+
+      testee.click();
+
+      expect(newComposerService.open).to.have.been.calledOnce;
+    });
+
+  });
 
   describe('The inboxMenu directive', function() {
 
@@ -146,162 +167,138 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       draftService = _draftService_;
     }));
 
-    it('should save draft when location has successfully changed', function() {
-      compileDirective('<composer />');
-      $scope.saveDraft = sinon.spy();
+    describe('its controller', function() {
 
-      $rootScope.$broadcast('$locationChangeSuccess');
+      var directive, ctrl;
 
-      expect($scope.saveDraft).to.be.calledOnce;
-    });
+      beforeEach(function() {
+        directive = compileDirective('<composer />');
+        ctrl = directive.controller('composer');
+        ctrl.saveDraft = sinon.spy();
+      });
 
-    it('should save draft only once when close is called, then location has successfully changed', function() {
-      compileDirective('<composer />');
-      $scope.saveDraft = sinon.spy();
+      it('should save draft when location has successfully changed', function() {
+        $rootScope.$broadcast('$stateChangeSuccess');
 
-      $scope.close();
-      $rootScope.$broadcast('$locationChangeSuccess');
+        expect(ctrl.saveDraft).to.have.been.calledOnce;
+      });
 
-      expect($scope.saveDraft).to.be.calledOnce;
-    });
+      it('should save draft only once when close is called, then location has successfully changed', function() {
+        $scope.close();
+        $rootScope.$broadcast('$stateChangeSuccess');
 
-    it('should save draft when the composer is closed', function() {
-      compileDirective('<composer />');
-      $scope.saveDraft = sinon.spy();
+        expect(ctrl.saveDraft).to.have.been.calledOnce;
+      });
 
-      $scope.close();
+      it('should save draft when the composer is closed', function() {
+        $scope.close();
 
-      expect($scope.saveDraft).to.be.calledOnce;
-    });
+        expect(ctrl.saveDraft).to.have.been.calledOnce;
+      });
 
-    it('should change location when the composer is closed', function() {
-      compileDirective('<composer />');
-      $location.path = sinon.spy();
+      it('should change location when the composer is closed', function() {
+        $location.path = sinon.spy();
 
-      $scope.close();
+        $scope.close();
 
-      expect($location.path).to.be.calledWith('/unifiedinbox');
-    });
+        expect($location.path).to.have.been.calledWith('/unifiedinbox');
+      });
 
-    it('should not save a draft when the composer is hidden', function() {
-      compileDirective('<composer />');
-      $scope.saveDraft = sinon.spy();
+      it('should not save a draft when the composer is hidden', function() {
+        $scope.hide();
+        $rootScope.$digest();
 
-      $scope.hide();
-      $rootScope.$digest();
+        expect(ctrl.saveDraft).to.have.not.been.called;
+      });
 
-      expect($scope.saveDraft).to.not.be.called;
-    });
+      it('should change location when the composer is hidden', function() {
+        $location.path = sinon.spy();
 
-    it('should change location when the composer is hidden', function() {
-      compileDirective('<composer />');
-      $location.path = sinon.spy();
+        $scope.hide();
 
-      $scope.hide();
+        expect($location.path).to.have.been.calledWith('/unifiedinbox');
+      });
 
-      expect($location.path).to.be.calledWith('/unifiedinbox');
-    });
+      it('should expose a search function through its controller', function() {
+        expect(ctrl.search).to.be.a('function');
+      });
 
-    it('should expose a search function through its controller', function() {
-      expect(compileDirective('<composer />').controller('composer').search).to.be.a('function');
     });
 
     describe('The mobile header buttons', function() {
 
-      var headerService;
+      var headerService, mainHeader, ctrl;
 
       beforeEach(inject(function(_headerService_) {
         headerService = _headerService_;
+
+        mainHeader = compileDirective('<main-header/>');
+        ctrl = compileDirective('<composer/>').controller('composer');
+        ctrl.saveDraft = angular.noop;
       }));
 
       it('should bind the send button to the scope method', function() {
-        var mainH = compileDirective('<main-header/>');
-        compileDirective('<composer/>');
         $scope.send = sinon.spy();
 
-        mainH.find('.composer-subheader .send-button').click();
+        mainHeader.find('.composer-subheader .send-button').click();
 
-        expect($scope.send).to.be.called;
+        expect($scope.send).to.have.been.called;
       });
 
       it('should bind the close button to the scope method', function() {
-        var mainH = compileDirective('<main-header/>');
-        compileDirective('<composer/>');
         $scope.close = sinon.spy();
 
-        mainH.find('.composer-subheader .close-button').click();
+        mainHeader.find('.composer-subheader .close-button').click();
 
-        expect($scope.close).to.be.called;
+        expect($scope.close).to.have.been.called;
       });
     });
 
     describe('The mobile header display', function() {
 
-      var headerService;
+      var headerService, ctrl;
 
       beforeEach(inject(function(_headerService_) {
         headerService = _headerService_;
         headerService.subHeader.addInjection = sinon.spy();
         headerService.subHeader.resetInjections = sinon.spy();
+
+        ctrl = compileDirective('<composer/>').controller('composer');
+        ctrl.saveDraft = angular.noop;
       }));
 
       it('should be shown when directive is linked', function() {
-        compileDirective('<composer/>');
-
-        expect(headerService.subHeader.addInjection).to.be.called;
+        expect(headerService.subHeader.addInjection).to.have.been.called;
       });
 
       it('should be shown when the fullscreen edit form is closed', function() {
-        compileDirective('<composer/>');
-
         $rootScope.$broadcast('fullscreenEditForm:close');
 
-        expect(headerService.subHeader.addInjection).to.be.calledTwice;
+        expect(headerService.subHeader.addInjection).to.have.been.calledTwice;
       });
 
       it('should be hidden when location has successfully changed', function() {
-        compileDirective('<composer/>');
+        $rootScope.$broadcast('$stateChangeSuccess');
 
-        $rootScope.$broadcast('$locationChangeSuccess');
-
-        expect(headerService.subHeader.resetInjections).to.be.called;
-      });
-
-      it('should be hidden when the email is sent', function() {
-        compileDirective('<composer/>');
-        $scope.email = {
-          rcpt: {
-            to: [{displayName: '1', email: '1@linagora.com'}]
-          }
-        };
-
-        $scope.send();
-
-        expect(headerService.subHeader.resetInjections).to.be.called;
+        expect(headerService.subHeader.resetInjections).to.have.been.called;
       });
 
       it('should be hidden when the fullscreen edit form is shown', function() {
-        compileDirective('<composer/>');
-
         $rootScope.$broadcast('fullscreenEditForm:show');
 
-        expect(headerService.subHeader.resetInjections).to.be.called;
+        expect(headerService.subHeader.resetInjections).to.have.been.called;
       });
 
       it('should be hidden when disableSendButton fn is called', function() {
-        compileDirective('<composer/>');
-
         $scope.disableSendButton();
 
-        expect(headerService.subHeader.resetInjections).to.be.called;
+        expect(headerService.subHeader.resetInjections).to.have.been.called;
       });
 
       it('should be shown when enableSendButton fn is called', function() {
-        compileDirective('<composer/>');
-
         $scope.enableSendButton();
 
-        expect(headerService.subHeader.addInjection).to.be.calledTwice;
+        expect(headerService.subHeader.addInjection).to.have.been.calledTwice;
       });
     });
 
@@ -316,12 +313,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     }));
 
     it('should save draft when the composer is destroyed', function() {
-      compileDirective('<composer-desktop />');
-      $scope.saveDraft = sinon.spy();
+      var ctrl = compileDirective('<composer-desktop />').controller('composerDesktop');
+      ctrl.saveDraft = sinon.spy();
 
       $scope.$emit('$destroy');
 
-      expect($scope.saveDraft).to.be.called;
+      expect(ctrl.saveDraft).to.have.been.called;
     });
 
     it('should delegate the hide fn to the box\'s $hide fn', function() {
@@ -330,7 +327,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       $scope.hide();
 
-      expect($scope.$hide).to.be.called;
+      expect($scope.$hide).to.have.been.called;
     });
 
     it('should expose a search function through its controller', function() {
@@ -429,11 +426,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The inboxFab directive', function() {
 
-    var boxOverlayService, $location;
+    var boxOverlayService, $location, newComposerService;
 
-    beforeEach(inject(function(_boxOverlayService_, _$location_) {
+    beforeEach(inject(function(_boxOverlayService_, _$location_, _newComposerService_) {
       boxOverlayService = _boxOverlayService_;
       $location = _$location_;
+      newComposerService = _newComposerService_;
     }));
 
     function findInnerFabButton(fab) {
@@ -494,12 +492,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should change location when the compose fn is called', function() {
-      $location.path = sinon.spy();
-      compileFabDirective();
+      newComposerService.open = sinon.spy();
+      var fab = compileFabDirective();
 
-      $scope.compose();
+      fab.click();
 
-      expect($location.path).to.be.calledWith('/unifiedinbox/compose');
+      expect(newComposerService.open).to.have.been.calledOnce;
     });
   });
 

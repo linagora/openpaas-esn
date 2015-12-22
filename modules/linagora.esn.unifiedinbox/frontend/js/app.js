@@ -15,7 +15,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.scroll',
   'op.dynamicDirective',
   'esn.header',
-  'esn.offline-wrapper'
+  'esn.offline-wrapper',
+  'matchMedia'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider.state('/unifiedinbox', {
@@ -24,7 +25,8 @@ angular.module('linagora.esn.unifiedinbox', [
     })
     .state('/unifiedinbox/compose', {
       url: '/unifiedinbox/compose',
-      template: '<composer/>'
+      template: '<composer/>',
+      params: {email: {}}
     })
     .state('/unifiedinbox/:mailbox', {
       url: '/unifiedinbox/:mailbox',
