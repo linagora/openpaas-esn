@@ -35,33 +35,57 @@ describe('The Alpha List module', function() {
     });
 
     describe('The replaceItem fn', function() {
+      var category, items, categories;
 
-      it('should replace item with the new one', function() {
+      beforeEach(function() {
         var keys = 'ABC';
         var others = '#';
-        var items = [
+        items = [
           { id: 1, firstName: 'A', lastName: 'A' },
           { id: 2, firstName: 'B', lastName: 'B' },
           { id: 3, firstName: 'C', lastName: 'C' },
           { id: 4, firstName: 'D', lastName: 'D' }
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
+        categories = category.get();
+      });
 
-        var categories = category.get();
-        expect(categories.A).to.eql([items[0]]);
+      it('should just remove old item if it is not belong the current list', function() {
 
-        var newContact = { id: 1, firstName: 'New A', lastName: 'New A' };
+        var newContact = { id: 1, firstName: 'El'};
         category.replaceItem(newContact);
-
         expect(categories).to.eql({
-          '#': [items[3], newContact],
+          '#': [items[3]],
           A: [],
           B: [items[1]],
           C: [items[2]]
         });
+      });
 
+      it('should just add new item if it is belong the current list', function() {
+
+        var newContact = { id: 5, firstName: 'An'};
+        category.replaceItem(newContact);
+        expect(categories).to.eql({
+          '#': [items[3]],
+          A: [items[0], newContact],
+          B: [items[1]],
+          C: [items[2]]
+        });
+      });
+
+      it('should replace item if it is belong the current list', function() {
+
+        var newContact = { id: 1, firstName: 'BA'};
+        category.replaceItem(newContact);
+        expect(categories).to.eql({
+          '#': [items[3]],
+          A: [],
+          B: [items[1], newContact],
+          C: [items[2]]
+        });
       });
 
     });
@@ -94,8 +118,8 @@ describe('The Alpha List module', function() {
         var items = [
           { id: 1, firstName: 'A', lastName: 'A1' },
           { id: 2, firstName: 'A', lastName: 'Delete me' },
-          { id: 2, firstName: 'A', lastName: 'Delete me' },
-          { id: 3, firstName: 'A', lastName: 'A3' }
+          { id: 3, firstName: 'A', lastName: 'Delete me' },
+          { id: 4, firstName: 'A', lastName: 'A3' }
         ];
 
         var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
@@ -104,6 +128,7 @@ describe('The Alpha List module', function() {
         var categories = category.get();
 
         category.removeItemWithId(2);
+        category.removeItemWithId(3);
         expect(categories).to.eql({
           A: [items[0], items[3]],
           '#': []
