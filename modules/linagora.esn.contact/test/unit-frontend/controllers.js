@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The Contacts Angular module', function() {
+describe('The Contacts controller module', function() {
 
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell,
       notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, ContactAPIClient, shellToVCARD;
@@ -1380,6 +1380,7 @@ describe('The Contacts Angular module', function() {
 
     it('should update the contact on CONTACT_EVENTS.UPDATED event', function(done) {
       var contact = {
+        id: '123456',
         lastName: 'Last'
       };
 
@@ -1390,9 +1391,8 @@ describe('The Contacts Angular module', function() {
         },
         AlphaCategoryService: function() {
           return {
-            replaceItem: function(item) {
-              expect(item).to.deep.equal(contact);
-
+            replaceItem: function(contact) {
+              expect(contact).to.deep.equal(contact);
               done();
             },
             get: function() {},

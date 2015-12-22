@@ -3,7 +3,7 @@
     contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{avatarSize}}')
   .media-body.p-l-15
     .lv-title
-      | {{displayShell.getDisplayName()}}
+      | {{contact.displayName}}
     ul.lv-attrs.contact-list-item-attrs
       li.hidden-xs(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
         a(ng-click="actionClick($event, attrs.action)")

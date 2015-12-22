@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The Contacts Angular module services', function() {
+describe('The Contacts service module', function() {
 
   beforeEach(function() {
     module('esn.core');
