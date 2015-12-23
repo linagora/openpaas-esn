@@ -9,7 +9,6 @@ describe('The twitter contact importer mapping function', function() {
   describe('The toVcard function', function() {
     function compareShell(shell, ical) {
       var vcard = getModule().toVcard(shell);
-
       for (var propName in ical) {
         var prop = vcard.getFirstProperty(propName);
         var value = prop.toICAL();
@@ -205,5 +204,25 @@ describe('The twitter contact importer mapping function', function() {
       compareShell(following, ical);
     });
 
+    it('should use ID of Twitter account as uid of vcard', function() {
+      var following = {
+        id_str: '12345',
+        name: 'First Last',
+        tags: [{ text: 'a' }, { text: 'b'}],
+        screen_name: 'AwesomePaaS',
+        profile_image_url_https: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+      };
+      var ical = {
+        version: 'VERSION:4.0',
+        uid: 'UID:12345',
+        fn: 'FN:First Last',
+        n: 'N:Last;First',
+        socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
+        categories: 'CATEGORIES:Twitter',
+        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+      };
+
+      compareShell(following, ical);
+    });
   });
 });

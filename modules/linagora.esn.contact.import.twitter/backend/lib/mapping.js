@@ -1,7 +1,6 @@
 'use strict';
 
 var ICAL = require('ical.js');
-var uuid = require('node-uuid');
 var trim = require('trim');
 
 module.exports = function() {
@@ -12,7 +11,7 @@ module.exports = function() {
     var vcard = new ICAL.Component('vcard');
 
     vcard.addPropertyWithValue('version', '4.0');
-    vcard.addPropertyWithValue('uid', uuid.v4());
+    vcard.addPropertyWithValue('uid', json.id_str);
 
     var name = trim(json.name).replace(/\s+/g, ' ');
     vcard.addPropertyWithValue('fn', name);
