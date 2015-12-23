@@ -122,7 +122,7 @@ angular.module('linagora.esn.graceperiod')
 
   })
 
-  .factory('gracePeriodService', function($q, gracePeriodAPI, notifyOfGracedRequest) {
+  .factory('gracePeriodService', function($q, gracePeriodAPI, notifyOfGracedRequest, notifyService) {
     var tasks = {};
 
     function remove(id) {
@@ -241,7 +241,7 @@ angular.module('linagora.esn.graceperiod')
               notification.close();
             },
             error: function(errorMessage) {
-              $.notify({
+              notifyService({
                 message: errorMessage
               }, {
                 type: 'danger',
