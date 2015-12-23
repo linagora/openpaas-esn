@@ -1,8 +1,8 @@
 .listview.p-t-5.calendars-list
   .lv-header
-    a.visible-xs.pull-right(href="", ng-click="openConfigPanel()")
+    a.visible-xs.pull-right(href="", ui-sref="calendar.editCalendarList")
       i.mdi.mdi-settings
-    a.hidden-xs.pull-right(href="", ng-click="add()")
+    a.hidden-xs.pull-right(href="", ui-sref="calendar.add")
       i.mdi.mdi-plus
     .lv-header-title Calendars
     .clearfix
@@ -16,8 +16,8 @@
             i.mdi.mdi-checkbox-marked-outline
           .pull-left(ng-if="!calendar.toggled", ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-checkbox-blank-outline
-          .pull-right.hidden-xs(ng-click="edit(calendar)")
-            i.mdi.mdi-settings
+          .pull-right.hidden-xs(ui-sref='calendar.edit({id: calendar.id})' ui-sref-opts='{id: calendar.id}')
+              i.mdi.mdi-settings
           .media-body(ng-click="toggleCalendar(calendar)")
             .lv-title
               span {{calendar.name}}

@@ -8,14 +8,8 @@ var expect = chai.expect;
 describe('The calendar-lists component', function() {
 
   beforeEach(function() {
-    this.locationMock = {};
-
-    var self = this;
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
-    angular.mock.module(function($provide) {
-      $provide.value('$location', self.locationMock);
-    });
   });
 
   beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell, CALENDAR_EVENTS) {
@@ -51,44 +45,6 @@ describe('The calendar-lists component', function() {
 
     this.eleScope.calendars.forEach(function(calendar) {
       expect(calendar.toggled).to.be.true;
-    });
-  });
-
-  describe('scope.openConfigPanel', function() {
-    it('should move to mobile calendars configuration view', function() {
-      this.locationMock.url = sinon.spy(function(url) {
-        expect(url).to.equal('/calendar/calendars-edit');
-      });
-      this.initDirective(this.$scope);
-      this.eleScope.openConfigPanel();
-      expect(this.locationMock.url).to.have.been.calledOnce;
-    });
-  });
-
-  describe('scope.add', function() {
-    it('should move to calendar configuration view', function() {
-      this.locationMock.url = sinon.spy(function(url) {
-        expect(url).to.equal('/calendar/add');
-      });
-      this.initDirective(this.$scope);
-      this.eleScope.add();
-      expect(this.locationMock.url).to.have.been.calledOnce;
-    });
-  });
-
-  describe('scope.edit', function() {
-    it('should move to calendar configuration view passing the good id', function() {
-      this.locationMock.url = sinon.spy(function(url) {
-        expect(url).to.equal('/calendar/edit/42');
-      });
-
-      var cal = {
-        id: 42
-      };
-
-      this.initDirective(this.$scope);
-      this.eleScope.edit(cal);
-      expect(this.locationMock.url).to.have.been.calledOnce;
     });
   });
 
