@@ -30,6 +30,12 @@ describe('The esn.url Angular module', function() {
         expect(updateUrlParameter(DEFAULT_URL, 'key', 'value')).to.equal(expectedUrl);
       });
 
+      it('should add parameter correctly when url already has parameters', function() {
+        var inputUrl = DEFAULT_URL + '?x=1&y=2';
+        var expectedUrl = DEFAULT_URL + '?x=1&y=2&z=3';
+        expect(updateUrlParameter(inputUrl, 'z', '3')).to.equal(expectedUrl);
+      });
+
       it('should update parameter to URL', function() {
         var inputUrl = DEFAULT_URL + '?key=value';
         var expectedUrl = DEFAULT_URL + '?key=otherValue';
@@ -40,6 +46,12 @@ describe('The esn.url Angular module', function() {
         var inputUrl = DEFAULT_URL + '#contact';
         var expectedUrl = DEFAULT_URL + '?key=value#contact';
         expect(updateUrlParameter(inputUrl, 'key', 'value')).to.equal(expectedUrl);
+      });
+
+      it('should add parameter correctly when url already has parameters and hash', function() {
+        var inputUrl = DEFAULT_URL + '?x=1&y=2#contact';
+        var expectedUrl = DEFAULT_URL + '?x=1&y=2&z=3#contact';
+        expect(updateUrlParameter(inputUrl, 'z', '3')).to.equal(expectedUrl);
       });
 
       it('should update parameter correctly when URL contains hash', function() {
