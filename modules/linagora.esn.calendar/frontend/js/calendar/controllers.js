@@ -12,26 +12,28 @@ angular.module('esn.calendar')
     $scope.uiConfig = angular.copy(USER_UI_CONFIG);
 
     headerService.mainHeader.addInjection('calendar-header-content');
-    headerService.subHeader.addInjection('calendar-header-mobile', $scope);
+    headerService.subHeader.addInjection('calendar-header-mobile');
+
     $scope.$on('$destroy', function() {
       headerService.resetAllInjections();
     });
   })
 
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
+  .controller('calendarController', function($scope, $q, $rootScope, $window, $modal, $timeout, $log, $alert, $state, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
 
     var windowJQuery = angular.element($window);
 
-    function getCalendar() {
-      return uiCalendarConfig.calendars[$scope.calendarHomeId];
-    }
+    $scope.$state = $state;
 
-    $scope.resizeCalendarHeight = function() {
-      var height = windowJQuery.height() - getCalendar().offset().top;
+    var calendarDeffered = $q.defer();
+    var calendarPromise = calendarDeffered.promise;
+
+    $scope.resizeCalendarHeight = calendarPromise.then.bind(calendarPromise, function(calendar) {
+      var height = windowJQuery.height() - calendar.offset().top;
       height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
-      getCalendar().fullCalendar('option', 'height', height);
+      calendar.fullCalendar('option', 'height', height);
       $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
-    };
+    });
 
     $scope.eventClick = function(event) {
       $scope.event = event.clone();
@@ -82,6 +84,7 @@ angular.module('esn.calendar')
     $scope.uiConfig.calendar.eventAfterAllRender = $scope.resizeCalendarHeight;
 
     $scope.uiConfig.calendar.viewRender = function(view) {
+      calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.calendarHomeId]);
       $timeout($scope.resizeCalendarHeight, 1000);
       calendarCurrentView.save(view);
       $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, view);
@@ -121,31 +124,36 @@ angular.module('esn.calendar')
             events: calendarEventSource(calendar.href, $scope.displayCalendarError),
             color: calendar.color
           };
-          getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+          calendarPromise.then(function(cal) {
+            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+          });
         });
       })
       .catch($scope.displayCalendarError);
 
     function _modifiedCalendarItem(newEvent) {
-      var event = getCalendar().fullCalendar('clientEvents', newEvent.id)[0];
-      if (!event) {
-        return;
-      }
+      calendarPromise.then(function(calendar) {
+        var event = calendar.fullCalendar('clientEvents', newEvent.id)[0];
+        if (!event) {
+          return;
+        }
 
-      // We fake the _allDay property to fix the case when switching from
-      // allday to non-allday, as otherwise the end date is cleared and then
-      // set to the wrong date by fullcalendar.
-      newEvent._allDay = newEvent.allDay;
-      newEvent._end = event._end;
-      newEvent._id =  event._id;
-      newEvent._start = event._start;
+        // We fake the _allDay property to fix the case when switching from
+        // allday to non-allday, as otherwise the end date is cleared and then
+        // set to the wrong date by fullcalendar.
+        newEvent._allDay = newEvent.allDay;
+        newEvent._end = event._end;
+        newEvent._id =  event._id;
+        newEvent._start = event._start;
 
-      /*
-       * OR-1426 removing and create a new event in fullcalendar works much better than
-       * updating it. Otherwise, we are loosing datas and synchronization like vcalendar, allday, attendees, vevent.
-       */
-      getCalendar().fullCalendar('removeEvents', newEvent.id);
-      getCalendar().fullCalendar('renderEvent', newEvent);
+        /*
+         * OR-1426 removing and create a new event in fullcalendar works much better than
+         * updating it. Otherwise, we are loosing datas and synchronization like vcalendar, allday, attendees, vevent.
+         */
+        calendar.fullCalendar('removeEvents', newEvent.id);
+        calendar.fullCalendar('renderEvent', newEvent);
+
+      });
     }
 
     var unregisterFunctions = [
@@ -153,23 +161,31 @@ angular.module('esn.calendar')
         _modifiedCalendarItem(data);
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
-        getCalendar().fullCalendar('removeEvents', data);
+        calendarPromise.then(function(calendar) {
+          calendar.fullCalendar('removeEvents', data);
+        });
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
-        getCalendar().fullCalendar('renderEvent', data);
+        calendarPromise.then(function(calendar) {
+          calendar.fullCalendar('renderEvent', data);
+        });
       }),
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, calendar) {
-        if (calendar.toggled) {
-          getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
-        } else {
-          getCalendar().fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
-        }
+        calendarPromise.then(function(cal) {
+          if (calendar.toggled) {
+            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+          } else {
+            cal.fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
+          }
+        });
       }),
       $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, newDate) {
-        var view = getCalendar().fullCalendar('getView');
-        if (newDate && !newDate.isBetween(view.start, view.end)) {
-          getCalendar().fullCalendar('gotoDate', newDate);
-        }
+        calendarPromise.then(function(calendar) {
+          var view = calendar.fullCalendar('getView');
+          if (newDate && !newDate.isBetween(view.start, view.end)) {
+            calendar.fullCalendar('gotoDate', newDate);
+          }
+        });
       })
     ];
 

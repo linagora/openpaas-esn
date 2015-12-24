@@ -249,6 +249,7 @@ describe('The calendar module controllers', function() {
         id: '_id'
       });
 
+      this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
       expect(removeEventsFn).to.have.been.called;
       expect(renderEventsFn).to.have.been.called;
@@ -256,6 +257,7 @@ describe('The calendar module controllers', function() {
 
     it('The list calendars and call addEventSource for each', function() {
       this.controller('calendarController', {$scope: this.scope});
+      this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
       expect(this.scope.calendars.length).to.equal(2);
       expect(this.scope.calendars[0].href).to.equal('href');
@@ -271,6 +273,9 @@ describe('The calendar module controllers', function() {
 
     it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and calendar.toggled is true', function() {
       this.controller('calendarController', {$scope: this.scope});
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.$digest();
+
       var called = 0;
 
       this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
@@ -279,14 +284,14 @@ describe('The calendar module controllers', function() {
         }
         called++;
       };
+
       this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {toggled: true});
       this.scope.$digest();
 
-      // 2 are already added at initialization of the controller.
-      expect(called).to.equal(3);
+      expect(called).to.equal(1);
     });
 
-    it('should emit removeEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEWand calendar.toggled is false', function() {
+    it('should emit removeEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and calendar.toggled is false', function() {
       this.controller('calendarController', {$scope: this.scope});
       var called = 0;
 
@@ -296,6 +301,7 @@ describe('The calendar module controllers', function() {
         }
         called++;
       };
+      this.scope.uiConfig.calendar.viewRender({});
       this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {toggled: false});
       this.scope.$digest();
 
@@ -328,7 +334,6 @@ describe('The calendar module controllers', function() {
     it('should resize the calendar height once when the window is resized', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$digest();
-      var called = 0;
 
       var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
       uiCalendarDiv.appendTo(document.body);
@@ -339,12 +344,14 @@ describe('The calendar module controllers', function() {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
 
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
-        called++;
-      };
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.$digest();
+
+      var fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
 
       angular.element(this.$window).resize();
-      expect(called).to.equal(1);
+      this.scope.$digest();
+      expect(fullCalendarSpy).to.be.calledOnce;
       uiCalendarDiv.remove();
     });
 
@@ -367,6 +374,8 @@ describe('The calendar module controllers', function() {
       };
 
       angular.element(this.$window).resize();
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.$digest();
       expect(called).to.equal(1);
       uiCalendarDiv.remove();
     });
@@ -526,7 +535,6 @@ describe('The calendar module controllers', function() {
       it('should receive CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE and change view if needed', function(done) {
         this.controller('calendarController', {$scope: this.scope});
         var date = this.fcMoment('2015-01-13');
-
         var first = true;
         var self = this;
         var spy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy(function(name, newDate) {
@@ -542,12 +550,15 @@ describe('The calendar module controllers', function() {
           }
           if (name === 'gotoDate') {
             expect(newDate.isSame(date, 'day')).to.be.true;
-            expect(spy).to.be.calledThrice;
+            expect(spy).to.be.calledTwice;
             done();
           }
         });
 
         this.rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, this.fcMoment('2015-01-13'));
+        this.scope.uiConfig.calendar.viewRender({});
+        this.scope.$digest();
+
       });
 
     });

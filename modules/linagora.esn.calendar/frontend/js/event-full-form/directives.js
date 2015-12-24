@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .directive('eventFullForm', function($timeout, $location, eventUtils, headerService) {
+  .directive('eventFullForm', function($timeout, $state, eventUtils, headerService) {
     function link(scope, element, attrs, controller) {
       headerService.subHeader.addInjection('event-full-form-subheader', scope);
       controller.initFormData();
@@ -12,12 +12,8 @@ angular.module('esn.calendar')
       scope.submit = eventUtils.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       scope.changeParticipation = controller.changeParticipation;
       scope.goBack = function(callback) {
-        $location.path('/calendar');
-        if (callback) {
-          // Timeout the callback so that fullcalendar events are
-          // correctly handled after location has changed.
-          $timeout(callback, 100);
-        }
+        (callback || angular.noop)();
+        $state.go('calendar.main');
       };
 
       function _resetStoredEvents() {

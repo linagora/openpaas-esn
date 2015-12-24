@@ -3,4 +3,5 @@
     calendar-left-pane
   .col-xs-12.col-md-9.col-lg-10
     mini-calendar-mobile(calendar-id="calendarHomeId").initial-state.hidden-sm.hidden-md.hidden-lg
-    .calendar.main-calendar(ui-calendar="uiConfig.calendar", ng-model="eventSources", calendar="{{calendarHomeId}}")
+    .ui-view(name='form')
+    .ui-view(name='calendar', ng-show="$state.includes('calendar.main')")
