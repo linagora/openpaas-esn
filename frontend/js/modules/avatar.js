@@ -2,6 +2,7 @@
 
 angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
   .constant('AVATAR_MIN_SIZE_PX', 256)
+  .constant('AVATAR_MAX_SIZE_MB', 5)
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
@@ -284,14 +285,11 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       }
     };
   })
-  .directive('loadButton', function(selectionService, AVATAR_MIN_SIZE_PX) {
+  .directive('loadButton', function(selectionService, AVATAR_MIN_SIZE_PX, AVATAR_MAX_SIZE_MB) {
 
     return {
       restrict: 'A',
       replace: true,
-      scope: {
-        maxSize: '='
-      },
       link: function(scope, element, attrs) {
         element.bind('change', function(evt) {
           evt.stopPropagation();
@@ -301,9 +299,9 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           if (!file || !file.type.match(/^image\//)) {
             selectionService.setError('Wrong file type, please select a valid image');
           } else {
-            var maxSize = scope.maxSize || 10;
-            if (file.size > maxSize * 1048576) {
-              selectionService.setError('File is too large (maximum size is ' + scope.maxSize + ' Mb)');
+            var megabyte = Math.pow(2, 20);
+            if (file.size > AVATAR_MAX_SIZE_MB * megabyte) {
+              selectionService.setError('File is too large (maximum size is ' + AVATAR_MAX_SIZE_MB + ' Mb)');
             } else {
               var reader = new FileReader();
               reader.onload = (function(theFile) {
