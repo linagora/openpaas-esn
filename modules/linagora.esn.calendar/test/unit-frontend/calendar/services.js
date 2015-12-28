@@ -1941,7 +1941,7 @@ describe('The calendar module services', function() {
         });
 
         calendarCurrentView.save({
-          date: fcMoment('2015-11-30'),
+          start: fcMoment('2015-11-30'),
           name: 'month'
         });
 
