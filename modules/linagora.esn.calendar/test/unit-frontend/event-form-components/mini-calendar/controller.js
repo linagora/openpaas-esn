@@ -177,7 +177,6 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.select(day, null, true, null);
     });
 
-    
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = fcMoment();
       $scope.miniCalendarConfig.viewRender();
