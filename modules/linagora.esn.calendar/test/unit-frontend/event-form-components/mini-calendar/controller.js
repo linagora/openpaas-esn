@@ -1,5 +1,6 @@
 'use strict';
-/* global chai: false */ /* global sinon: false */
+/* global chai: false */
+/* global sinon: false */
 var expect = chai.expect;
 
 describe('The mini-calendar controller', function() {
@@ -155,7 +156,7 @@ describe('The mini-calendar controller', function() {
 
       $scope.miniCalendarConfig.viewRender();
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(_day) {
+      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) {
         expect(day.isSame(_day, 'day')).to.be.true;
         unregister();
         done();
@@ -176,11 +177,12 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.select(day, null, true, null);
     });
 
+    
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = fcMoment();
       $scope.miniCalendarConfig.viewRender();
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(_day) {
+      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) {
         expect(day.isSame(_day, 'day')).to.be.true;
         unregister();
         done();
