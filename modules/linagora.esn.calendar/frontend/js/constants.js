@@ -82,6 +82,8 @@ angular.module('esn.calendar')
    */
   .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description'])
 
+  .constant('CALENDAR_MODIFY_COMPARE_KEYS', ['name'])
+
   .constant('CALENDAR_EVENTS', {
     CALENDAR_HEIGHT: 'calendar:height',
     EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',

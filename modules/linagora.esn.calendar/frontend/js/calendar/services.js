@@ -108,6 +108,20 @@ angular.module('esn.calendar')
     }
 
     /**
+     * Modify a calendar in the calendar home defined by its id.
+     * @param  {String}                   calendarHomeId the id of the calendar in which we will create a new calendar
+     * @param  {CalendarCollectionShell}  calendar       the calendar to create
+     * @return {Object}                                  the http response
+     */
+    function modifyCalendar(calendarHomeId, calendar) {
+      return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
+        .then(function(response) {
+          return response;
+        })
+        .catch($q.reject);
+    }
+
+    /**
      * List all events between a specific range [start..end] in a calendar defined by its path.<
      * @param  {String}   calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
      * @param  {fcMoment} start        start date
@@ -417,6 +431,7 @@ angular.module('esn.calendar')
       createEvent: createEvent,
       getCalendar: getCalendar,
       createCalendar: createCalendar,
+      modifyCalendar: modifyCalendar,
       removeEvent: removeEvent,
       modifyEvent: modifyEvent,
       changeParticipation: changeParticipation,

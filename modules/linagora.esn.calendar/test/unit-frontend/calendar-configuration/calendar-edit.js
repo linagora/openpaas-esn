@@ -58,6 +58,18 @@ describe('The calendar-lists component', function() {
   });
 
   describe('scope.submit', function() {
+    it('should do nothing if the calendar name is empty', function() {
+      this.locationMock.path = sinon.spy();
+      this.calendarService.modifyCalendar = sinon.spy();
+      this.calendarService.createCalendar = sinon.spy();
+
+      this.initController();
+      this.$scope.submit();
+      expect(this.locationMock.path).to.have.not.been.called;
+      expect(this.calendarService.modifyCalendar).to.have.not.been.called;
+      expect(this.calendarService.createCalendar).to.have.not.been.called;
+    });
+
     it('should call createCalendar if newCalendar is true', function() {
       this.notificationFactoryMock.weakInfo = sinon.spy();
       this.locationMock.path = sinon.spy(function(path) {
@@ -82,6 +94,55 @@ describe('The calendar-lists component', function() {
       this.$scope.submit();
       expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
       expect(this.locationMock.path).to.have.been.called;
+    });
+
+    describe('when newCalendar is false', function() {
+      it('should return to /calendar if the event has not been modified', function() {
+        this.locationMock.path = sinon.spy(function(path) {
+          expect(path).to.equal('/calendar');
+        });
+        this.calendarService.modifyCalendar = sinon.spy();
+
+        this.initController();
+        this.$scope.calendar.color = 'aColor';
+        this.$scope.calendar.name = 'aName';
+        this.$scope.oldCalendar.name = 'aName';
+        this.$scope.newCalendar = false;
+        this.$scope.submit();
+        expect(this.locationMock.path).to.have.been.called;
+        expect(this.calendarService.modifyCalendar).to.have.not.been.called;
+      });
+
+      it('should call modifyCalendar if the event has not been modified', function() {
+        var modifiedName = 'anotherName';
+        this.notificationFactoryMock.weakInfo = sinon.spy();
+        this.locationMock.path = sinon.spy(function(path) {
+          expect(path).to.equal('/calendar');
+        });
+        this.calendarService.modifyCalendar = function(calendarHomeId, shell) {
+          expect(calendarHomeId).to.equal('12345');
+          expect(shell).to.shallowDeepEqual({
+            href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
+            name: modifiedName
+          });
+          return {
+            then: function(callback) {
+              callback();
+            }
+          };
+        };
+
+        this.$scope.calendar = {
+          color: 'aColor',
+          name: 'aName'
+        };
+        this.initController();
+        this.$scope.calendar.name = modifiedName;
+        this.$scope.newCalendar = false;
+        this.$scope.submit();
+        expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
+        expect(this.locationMock.path).to.have.been.called;
+      });
     });
   });
 });
