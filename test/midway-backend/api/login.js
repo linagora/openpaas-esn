@@ -20,8 +20,7 @@ describe('The login API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should not log the user with wrong credentials', function(done) {
@@ -188,4 +187,3 @@ describe('The login API', function() {
     });
   });
 });
-

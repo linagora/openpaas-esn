@@ -25,8 +25,7 @@ describe('The addressbooks controller', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('GET /api/addressbooks', function() {

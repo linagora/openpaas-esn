@@ -30,6 +30,10 @@ describe('The Contact model', function() {
     this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
 
+  afterEach(function(done) {
+    this.helpers.mongo.dropDatabase(done);
+  });
+
   it('should save an user contact into an addressbook', function(done) {
     fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function(user) {
       new AddressBook({ name: ABName, creator: user._id }).save(helpers.callbacks.noErrorAnd(function(book) {
@@ -80,23 +84,6 @@ describe('The Contact model', function() {
         fetchBackContacts();
       });
     });
-  });
-
-  afterEach(function(done) {
-    emails = [];
-    userEmails = [];
-
-    var async = require('async');
-    async.parallel([
-      function(cb) {
-        User.remove(cb);
-      },
-      function(cb) {
-        Contact.remove(cb);
-      }
-    ], function() {
-      this.mongoose.disconnect(done);
-    }.bind(this));
   });
 
 });

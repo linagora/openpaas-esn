@@ -21,6 +21,10 @@ describe('The User model', function() {
     this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
 
+  afterEach(function(done) {
+    this.helpers.mongo.dropDatabase(done);
+  });
+
   it('should save the user email trimmed and in lowercase', function(done) {
     userFixtures.newDummyUser([email_ci]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
       User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
@@ -409,22 +413,5 @@ describe('The User model', function() {
         done();
       }));
     }));
-  });
-
-  afterEach(function(done) {
-    var callback = function(item, fn) {
-      item.remove(fn);
-    };
-
-    var async = require('async');
-    async.parallel([
-      function(cb) {
-        User.find().exec(function(err, users) {
-          async.forEach(users, callback, cb);
-        });
-      }
-    ], function() {
-      this.mongoose.disconnect(done);
-    }.bind(this));
   });
 });

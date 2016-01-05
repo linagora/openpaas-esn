@@ -22,9 +22,7 @@ describe('The feedback API', function() {
   });
 
   afterEach(function(done) {
-    var mongoose = require('mongoose');
-    mongoose.connection.db.dropDatabase();
-    mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should not be able to send a feedback without being authenticated', function(done) {

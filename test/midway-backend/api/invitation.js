@@ -41,7 +41,7 @@ describe('The invitation controller', function() {
     });
 
     afterEach(function(done) {
-      this.mongoose.disconnect(done);
+      this.helpers.mongo.dropDatabase(done);
     });
 
     it('should fail on empty payload', function(done) {
@@ -102,7 +102,7 @@ describe('The invitation controller', function() {
     });
 
     afterEach(function(done) {
-      this.mongoose.disconnect(done);
+      this.helpers.mongo.dropDatabase(done);
     });
 
     it('should fail if UUID is unknown', function(done) {
@@ -143,7 +143,7 @@ describe('The invitation controller', function() {
     });
 
     afterEach(function(done) {
-      this.mongoose.disconnect(done);
+      this.helpers.mongo.dropDatabase(done);
     });
 
     it('should return 404 on root resource', function(done) {
@@ -223,18 +223,7 @@ describe('The invitation controller', function() {
     });
 
     afterEach(function(done) {
-      var self = this;
-      require('async').parallel([
-        function(done) {
-          self.helpers.api.cleanDomainDeployment(self.models, done);
-        },
-        function(done) {
-          self.helpers.mongo.clearCollection('invitations', done);
-        }
-      ], done);
-    });
-    afterEach(function(done) {
-      this.mongoose.disconnect(done);
+      this.helpers.mongo.dropDatabase(done);
     });
 
     it('should return 404 for an unknown invitation', function(done) {

@@ -12,6 +12,10 @@ describe('The Invitation model', function() {
     Invitation = mongoose.model('Invitation');
   });
 
+  afterEach(function(done) {
+    this.helpers.mongo.dropDatabase(done);
+  });
+
   it('should save the invitation with any data', function(done) {
     var json = {
       type: 'email',
@@ -112,24 +116,6 @@ describe('The Invitation model', function() {
           done();
         });
       });
-    });
-  });
-
-  afterEach(function(done) {
-    var callback = function(item, fn) {
-      item.remove(fn);
-    };
-
-    var async = require('async');
-    async.parallel([
-      function(cb) {
-        Invitation.find().exec(function(err, invitations) {
-          async.forEach(invitations, callback, cb);
-        });
-      }
-    ], function() {
-      var mongoose = require('mongoose');
-      mongoose.disconnect(done);
     });
   });
 });

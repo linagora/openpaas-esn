@@ -26,8 +26,7 @@ describe('The mongo-based authentication module', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should auth from any registered email', function(done) {

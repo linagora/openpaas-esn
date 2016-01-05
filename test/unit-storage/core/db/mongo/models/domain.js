@@ -21,9 +21,7 @@ describe('The domain model module', function() {
   });
 
   afterEach(function(done) {
-    this.testEnv.removeDBConfigFile();
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('name field', function() {

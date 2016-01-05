@@ -34,7 +34,7 @@ describe('The files API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('POST /api/files', function() {

@@ -167,8 +167,7 @@ describe('The signup handler', function() {
     });
 
     afterEach(function(done) {
-      this.mongoose.connection.db.dropDatabase();
-      this.mongoose.disconnect(done);
+      this.helpers.mongo.dropDatabase(done);
     });
 
     it('should send back error if invitation is not set', function(done) {

@@ -6,13 +6,19 @@ describe('the Usernotification mongoose model', function() {
   var moduleFile;
   var Model;
   var mongoose;
+
   before(function() {
     moduleFile = this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification';
   });
+
   beforeEach(function() {
     mongoose = require('mongoose');
     Model = require(moduleFile);
     mongoose.connect(this.testEnv.mongoUrl);
+  });
+
+  afterEach(function(done) {
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('subject field', function() {

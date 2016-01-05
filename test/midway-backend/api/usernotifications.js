@@ -119,8 +119,7 @@ describe('The user notification API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should get HTTP 401 when not authenticated', function(done) {

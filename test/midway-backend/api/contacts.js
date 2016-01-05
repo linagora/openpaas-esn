@@ -46,10 +46,7 @@ describe('The contacts controller', function() {
   });
 
   afterEach(function(done) {
-    var self = this;
-    self.mongoose.connection.db.dropDatabase(function() {
-      self.mongoose.disconnect(done);
-    });
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('GET /api/contacts', function(done) {

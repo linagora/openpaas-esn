@@ -24,7 +24,7 @@ describe('The filestore gridfs module', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   after(function() {

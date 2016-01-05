@@ -18,6 +18,10 @@ describe('The AddressBook model', function() {
     this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
 
+  afterEach(function(done) {
+    this.helpers.mongo.dropDatabase(done);
+  });
+
   it('should save an addressbook', function(done) {
     var mongoUrl = this.testEnv.mongoUrl;
     function testSavedAB(savedAB) {
@@ -47,22 +51,5 @@ describe('The AddressBook model', function() {
         testSavedAB(savedAB);
       });
     });
-  });
-
-  afterEach(function(done) {
-    var callback = function(item, fn) {
-      item.remove(fn);
-    };
-
-    var async = require('async');
-    async.parallel([
-      function(cb) {
-        AddressBook.find().exec(function(err, ab) {
-          async.forEach(ab, callback, cb);
-        });
-      }
-    ], function() {
-      this.mongoose.disconnect(done);
-    }.bind(this));
   });
 });
