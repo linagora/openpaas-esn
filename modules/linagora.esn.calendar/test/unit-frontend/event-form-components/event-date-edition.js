@@ -232,7 +232,7 @@ describe('The event-date-edition component', function() {
     it('should have a first formatters that output the date -1 day if event is a allday', function() {
       this.$scope.event = {
         allDay: true,
-        end: this.fcMoment('2015-07-03')
+        end: this.fcMoment('2015/07/03')
       };
       var element = this.initDirective(this.$scope);
       var controller = element.controller('ngModel');
