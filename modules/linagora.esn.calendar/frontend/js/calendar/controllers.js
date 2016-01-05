@@ -119,7 +119,7 @@ angular.module('esn.calendar')
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
             events: calendarEventSource(calendar.href, $scope.displayCalendarError),
-            color: calendar.color
+            backgroundColor: calendar.color
           };
           getCalendar().fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
         });

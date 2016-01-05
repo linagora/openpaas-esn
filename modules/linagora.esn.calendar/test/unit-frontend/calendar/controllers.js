@@ -262,8 +262,8 @@ describe('The calendar module controllers', function() {
       expect(this.scope.calendars[0].color).to.equal('color');
       expect(this.scope.calendars[1].href).to.equal('href2');
       expect(this.scope.calendars[1].color).to.equal('color2');
-      expect(this.scope.eventSourcesMap.href.color).to.equal('color');
-      expect(this.scope.eventSourcesMap.href2.color).to.equal('color2');
+      expect(this.scope.eventSourcesMap.href.backgroundColor).to.equal('color');
+      expect(this.scope.eventSourcesMap.href2.backgroundColor).to.equal('color2');
       expect(this.scope.eventSourcesMap.href.events).to.be.a('Array');
       expect(this.scope.eventSourcesMap.href2.events).to.be.a('Array');
       expect(fullCalendarSpy).to.have.been.calledTwice;

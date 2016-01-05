@@ -1,15 +1,12 @@
 @event-border-color: rgba(255,255,255,0.5);
-
-.event-common {
-  background: @primaryColor;
-}
+@event-fade: 0.7;
 
 .event-accepted {
   border: solid 1px @event-border-color;
 }
 
 .event-needs-action {
-  background-color: fade(@primaryColor, 50%);
+  opacity: @event-fade;
   border: dashed 1px @event-border-color;
 }
 
@@ -28,7 +25,7 @@
 
 .event-declined {
   border: solid 1px @event-border-color;
-  background-color: fade(@primaryColor, 50%);
+  opacity: @event-fade;
   .fc-title {
     text-decoration: line-through;
   }
