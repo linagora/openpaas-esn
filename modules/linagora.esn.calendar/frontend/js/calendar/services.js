@@ -477,6 +477,8 @@ angular.module('esn.calendar')
       element.addClass('event-common');
 
       if (invitedAttendee) {
+        event.startEditable = false;
+        event.durationEditable = false;
         if (invitedAttendee.partstat === 'NEEDS-ACTION') {
           element.addClass('event-needs-action');
         } else if (invitedAttendee.partstat === 'TENTATIVE') {

@@ -250,12 +250,15 @@ describe('The calendar module services', function() {
     Element.prototype.append = function() {
     };
 
+    var userEmail = 'aAttendee@open-paas.org';
     beforeEach(function() {
+      var emailMap = {};
+      emailMap[userEmail] = true;
       var asSession = {
         user: {
           _id: '123456',
-          emails: ['aAttendee@open-paas.org'],
-          emailMap: { 'aAttendee@open-paas.org': true }
+          emails: [userEmail],
+          emailMap: emailMap
         },
         domain: {
           company_name: 'test'
@@ -326,7 +329,7 @@ describe('The calendar module services', function() {
 
       it('should add event-needs-action class if current user is found in the DECLINED attendees', function() {
         event.attendees.push({
-          email: 'aAttendee@open-paas.org',
+          email: userEmail,
           partstat: 'DECLINED'
         });
         this.eventUtils.render(event, element);
@@ -335,7 +338,7 @@ describe('The calendar module services', function() {
 
       it('should add event-needs-action class if current user is found in the ACCEPTED attendees', function() {
         event.attendees.push({
-          email: 'aAttendee@open-paas.org',
+          email: userEmail,
           partstat: 'ACCEPTED'
         });
         this.eventUtils.render(event, element);
@@ -344,7 +347,7 @@ describe('The calendar module services', function() {
 
       it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
         event.attendees.push({
-          email: 'aAttendee@open-paas.org',
+          email: userEmail,
           partstat: 'NEEDS-ACTION'
         });
         this.eventUtils.render(event, element);
@@ -353,7 +356,7 @@ describe('The calendar module services', function() {
 
       it('should add event-tentative class if current user is found in the TENTATIVE attendees', function() {
         event.attendees.push({
-          email: 'aAttendee@open-paas.org',
+          email: userEmail,
           partstat: 'TENTATIVE'
         });
         this.eventUtils.render(event, element);
@@ -369,6 +372,21 @@ describe('The calendar module services', function() {
         event.isInstance = function() { return true; };
         this.eventUtils.render(event, element);
         expect(element.class).to.include('event-is-instance');
+      });
+
+      it('should keep startEditable and durationEditable to undefined if the user is not an attendee of the event', function() {
+        this.eventUtils.render(event, element);
+        expect(event.startEditable).to.not.exist;
+        expect(event.durationEditable).to.not.exist;
+      });
+
+      it('should set startEditable and durationEditable to false if the user is an attendee of the event', function() {
+        event.attendees.push({
+          email: userEmail
+        });
+        this.eventUtils.render(event, element);
+        expect(event.startEditable).to.be.false;
+        expect(event.durationEditable).to.be.false;
       });
     });
 
