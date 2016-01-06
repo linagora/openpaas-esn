@@ -10,7 +10,7 @@ describe('The JWT auth webserver module', function() {
   describe('the useStrategy function', function() {
     it('should do nothing if an error occurs while retrieving configuration', function() {
       var jwtCoreModule = {
-        getWebTokenSecret: function(callback) {
+        getWebTokenConfig: function(callback) {
           return callback(new Error());
         }
       };
@@ -27,10 +27,12 @@ describe('The JWT auth webserver module', function() {
     });
 
     it('should add JWT strategy in to passport with correct configuration', function(done) {
-      var secret = 'secret';
       var jwtCoreModule = {
-        getWebTokenSecret: function(callback) {
-          return callback(null, secret);
+        getWebTokenConfig: function(callback) {
+          return callback(null, {
+            publicKey: 'public key',
+            algorithm: 'algo'
+          });
         }
       };
       mockery.registerMock('../../core/auth/jwt', jwtCoreModule);
@@ -39,8 +41,9 @@ describe('The JWT auth webserver module', function() {
       var JWTStrategyMock = {
         Strategy: function(opts, verifyFunction) {
           expect(opts).to.deep.equal({
-            secretOrKey: secret,
-            tokenQueryParameterName: 'jwt'
+            secretOrKey: 'public key',
+            tokenQueryParameterName: 'jwt',
+            algorithms: ['algo']
           });
           expect(verifyFunction).to.exist;
           return jwtStrategy;

@@ -1,7 +1,8 @@
 'use strict';
 
 var expect = require('chai').expect,
-    request = require('supertest');
+    request = require('supertest'),
+    fs = require('fs-extra');
 
 describe('The jwt API', function() {
 
@@ -37,16 +38,23 @@ describe('The jwt API', function() {
     });
 
     it('should send back a new jwt when logged in', function(done) {
-      helpers.api.loginAsUser(webserver.application, fixtures.emails[0], fixtures.password, helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
-        loggedInAsUser(request(webserver.application)
-          .post('/api/jwt/generate'))
-          .expect(200)
-          .end(helpers.callbacks.noErrorAnd(function(res) {
-            expect(res.body).to.exist;
 
-            done();
-          }));
-      }));
+      var conf = this.helpers.requireBackend('core/esn-config')('jwt'),
+          publicKey = fs.readFileSync(this.testEnv.fixtures + '/crypto/public-key', 'utf8'),
+          privateKey = fs.readFileSync(this.testEnv.fixtures + '/crypto/private-key', 'utf8');
+
+      conf.store({publicKey: publicKey, privateKey: privateKey, algorithm: 'RS256'}, function() {
+        helpers.api.loginAsUser(webserver.application, fixtures.emails[0], fixtures.password, helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          loggedInAsUser(request(webserver.application)
+            .post('/api/jwt/generate'))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(function(res) {
+              expect(res.body).to.exist;
+
+              done();
+            }));
+        }));
+      });
     });
   });
 

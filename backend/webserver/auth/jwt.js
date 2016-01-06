@@ -6,13 +6,14 @@ var JwtStrategy = require('passport-jwt').Strategy;
 var logger = require('../../core/logger');
 
 module.exports.useStrategy = function() {
-  return jwtAuth.getWebTokenSecret(function(err, secret) {
+  return jwtAuth.getWebTokenConfig(function(err, config) {
     if (err) {
       return logger.error('Could not use JWT strategy.', err);
     }
     var opts = {
-      secretOrKey: secret,
-      tokenQueryParameterName: 'jwt'
+      secretOrKey: config.publicKey,
+      tokenQueryParameterName: 'jwt',
+      algorithms: [config.algorithm]
     };
     var strategy = new JwtStrategy(opts, function(jwtPayload, done) {
       return done(null, jwtPayload);
