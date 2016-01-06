@@ -11,12 +11,13 @@ describe('The GracePeriod Angular module', function() {
 
     beforeEach(function() {
       module('esn.websocket');
+      module('esn.http');
       module('linagora.esn.graceperiod');
     });
 
     describe('Functions tests', function() {
 
-      var gracePeriodLiveNotification, $rootScope;
+      var gracePeriodLiveNotification, $rootScope, $q;
       var liveNotificationMock, onFn, removeListenerFn;
 
       beforeEach(function() {
@@ -31,7 +32,8 @@ describe('The GracePeriod Angular module', function() {
           $provide.value('livenotification', liveNotificationMock);
         });
 
-        inject(function(_$rootScope_, _gracePeriodLiveNotification_) {
+        inject(function(_$rootScope_, _gracePeriodLiveNotification_, _$q_) {
+          $q = _$q_;
           $rootScope = _$rootScope_;
           gracePeriodLiveNotification = _gracePeriodLiveNotification_;
         });
@@ -232,18 +234,30 @@ describe('The GracePeriod Angular module', function() {
   describe('The gracePeriodService service', function() {
 
     var gracePeriodService, $httpBackend, $rootScope, $browser, $timeout;
+    var timeoutMock, GRACE_DELAY, HTTP_LAG_UPPER_BOUND;
 
     beforeEach(function() {
       module('esn.websocket');
       module('linagora.esn.graceperiod');
+
+      timeoutMock = null;
+      module(function($provide) {
+        $provide.decorator('$timeout', function($delegate) {
+          return function() {
+            return (timeoutMock || $delegate).apply(this, arguments);
+          };
+        });
+      });
     });
 
-    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$rootScope_, _$browser_, _$timeout_, _$httpBackend_) {
+    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$rootScope_, _$browser_, _$timeout_, _$httpBackend_, _GRACE_DELAY_, _HTTP_LAG_UPPER_BOUND_) {
       $rootScope = _$rootScope_;
       gracePeriodService = _gracePeriodService_;
       $browser = _$browser_;
       $timeout = _$timeout_;
       $httpBackend = _$httpBackend_;
+      GRACE_DELAY = _GRACE_DELAY_;
+      HTTP_LAG_UPPER_BOUND = _HTTP_LAG_UPPER_BOUND_;
     }));
 
     describe('The remove fn', function() {
@@ -310,6 +324,54 @@ describe('The GracePeriod Angular module', function() {
         $httpBackend.flush();
       });
 
+      it('should try to DELETE a second time before the end of the graceperiod and success if it success on the second time', function(done) {
+        var id = '123';
+        var responseData = 'this is data';
+
+        timeoutMock = sinon.spy(function(callback, delay) {
+          expect(delay).to.equal(GRACE_DELAY - HTTP_LAG_UPPER_BOUND);
+          $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(200, responseData);
+          return $q.when(callback());
+        });
+
+        gracePeriodService.addTaskId(id);
+
+        gracePeriodService.cancel(id).then(function(response) {
+          expect(response).to.shallowDeepEqual({
+            status: 200,
+            data: responseData
+          });
+          done();
+        }, done.bind(null, 'This promise should have succeed'));
+
+        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'not found');
+        $rootScope.$apply();
+        $httpBackend.flush();
+      });
+
+      it('should try to DELETE a second time before the end of the graceperiod and fail if it fail on the second time', function(done) {
+        var id = '123';
+        var errorMessage = 'not found';
+        timeoutMock = sinon.spy(function(callback, delay) {
+          expect(delay).to.equal(GRACE_DELAY - HTTP_LAG_UPPER_BOUND);
+          $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, errorMessage);
+          return $q.when(callback());
+        });
+
+        gracePeriodService.addTaskId(id);
+
+        gracePeriodService.cancel(id).then(done.bind(null, 'This promise should have fail'), function(error) {
+          expect(error).to.shallowDeepEqual({
+            status: 404,
+            data: errorMessage
+          });
+          done();
+        });
+
+        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'not found');
+        $rootScope.$apply();
+        $httpBackend.flush();
+      });
     });
 
     describe('The grace fn', function() {

@@ -122,7 +122,7 @@ angular.module('linagora.esn.graceperiod')
 
   })
 
-  .factory('gracePeriodService', function($q, gracePeriodAPI, notifyOfGracedRequest) {
+  .factory('gracePeriodService', function($timeout, $log, $q, notifyService, gracePeriodAPI, notifyOfGracedRequest, HTTP_LAG_UPPER_BOUND, GRACE_DELAY) {
     var tasks = {};
 
     function remove(id) {
@@ -138,12 +138,35 @@ angular.module('linagora.esn.graceperiod')
       }
     }
 
+    function retryBeforeEnd(task, previousError, promiseFactory) {
+      return task.justBeforeEnd.then(function() {
+        return promiseFactory();
+      }, function() {
+        throw previousError;
+      });
+    }
+
     function cancel(id) {
+      var task = tasks[id];
+
+      var notification = notifyService({
+        message: 'Canceling...'
+      }, {
+        type: 'info',
+        placement: {
+          from: 'bottom',
+          align: 'center'
+        }
+      });
+
       return remove(id).then(function() {
-        return gracePeriodAPI.one('tasks').one(id).remove();
+        return gracePeriodAPI.one('tasks').one(id).remove().catch(function(error) {
+          $log.error('Could not cancel graceperiod, we will try again at the end of the graceperiod', error);
+          return retryBeforeEnd(task, error, gracePeriodAPI.one('tasks').one(id).remove);
+        });
       }, function() {
         return $q.reject('Canceling invalid task id: ' + id);
-      });
+      }).finally(notification.close);
     }
 
     function flush(id) {
@@ -160,9 +183,13 @@ angular.module('linagora.esn.graceperiod')
       }));
     }
 
+    function timeoutPromise(duration) {
+      return duration > 0 ? $timeout(angular.noop, duration) : $q.reject();
+    }
+
     function grace(id, text, linkText, delay, context) {
       var notify = notifyOfGracedRequest(text, linkText, delay);
-      addTask(id, context, notify.notification);
+      addTask(id, context, notify.notification, delay);
       return notify.promise;
     }
 
@@ -170,11 +197,12 @@ angular.module('linagora.esn.graceperiod')
       return notifyOfGracedRequest(text, linkText, delay).promise;
     }
 
-    function addTask(taskId, context, notification) {
+    function addTask(taskId, context, notification, delay) {
       if (taskId) {
         tasks[taskId] = {
           notification: notification,
-          context: context
+          context: context,
+          justBeforeEnd: timeoutPromise((delay || GRACE_DELAY) - HTTP_LAG_UPPER_BOUND)
         };
       }
     }
@@ -208,7 +236,7 @@ angular.module('linagora.esn.graceperiod')
     };
   })
 
-  .factory('notifyOfGracedRequest', function(GRACE_DELAY, ERROR_DELAY, $q, $rootScope, notifyService) {
+  .factory('notifyOfGracedRequest', function(GRACE_DELAY, ERROR_DELAY, $q, $rootScope, notifyService, $log) {
     function appendCancelLink(text, linkText) {
       return text + ' <a class="cancel-task">' + linkText + '</a>';
     }
@@ -240,8 +268,9 @@ angular.module('linagora.esn.graceperiod')
             success: function() {
               notification.close();
             },
-            error: function(errorMessage) {
-              $.notify({
+            error: function(errorMessage, consoleLogSupplement) {
+              $log.error(errorMessage, consoleLogSupplement);
+              notifyService({
                 message: errorMessage
               }, {
                 type: 'danger',

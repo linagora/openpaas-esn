@@ -1056,52 +1056,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should transmit error to grace task if canceling the creation fail', function(done) {
-        var vcalendar = new ICAL.Component('vcalendar');
-        var vevent = new ICAL.Component('vevent');
-        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
-        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
-        vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
-        vcalendar.addSubcomponent(vevent);
-        var event = new this.CalendarShell(vcalendar);
-
-        var statusErrorText = 'ERROR';
-        var errorSpy = sinon.spy(function(error) {
-          expect(error).to.equal(statusErrorText);
-        });
-
-        this.gracePeriodService.grace = function() {
-          return $q.when({
-            cancelled: true,
-            error: errorSpy
-          });
-        };
-
-        this.gracePeriodService.cancel = function() {
-          var deffered = $q.defer();
-          deffered.reject({statusText: statusErrorText});
-          return deffered.promise;
-        };
-
-        var headers = { ETag: 'etag' };
-        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
-        this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
-        emitMessage = null;
-
-        var self = this;
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
-          function() {
-            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
-            expect(errorSpy).to.have.been.called;
-            done();
-          }
-        );
-
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
-      });
-
-      it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
+      it('should transmit an error message to grace task even if the error message from the backend is empty', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -1365,43 +1320,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should transmit error to grace task if canceling the modification fail', function(done) {
-        var statusErrorText = 'ERROR';
-        var errorSpy = sinon.spy(function(error) {
-          expect(error).to.equal(statusErrorText);
-        });
-
-        this.gracePeriodService.grace = function() {
-          return $q.when({
-            cancelled: true,
-            error: errorSpy
-          });
-        };
-
-        this.gracePeriodService.cancel = function(taskId) {
-          var deffered = $q.defer();
-          deffered.reject({statusText: statusErrorText});
-          return deffered.promise;
-        };
-
-        var headers = { ETag: 'etag' };
-        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
-        this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
-        emitMessage = null;
-
-        var self = this;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
-          function() {
-            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
-            expect(errorSpy).to.have.been.called;
-            done();
-          }
-        );
-
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
-      });
-
       it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
         var statusErrorText = '';
         var errorSpy = sinon.spy(function(error) {
@@ -1577,41 +1495,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should transmit error to grace task if canceling the deletion fail', function(done) {
-        var statusErrorText = 'ERROR';
-        var errorSpy = sinon.spy(function(error) {
-          expect(error).to.equal(statusErrorText);
-        });
-        this.gracePeriodService.grace = function() {
-          return $q.when({
-            cancelled: true,
-            error: errorSpy
-          });
-        };
-
-        this.gracePeriodService.cancel = function(taskId) {
-          var deffered = $q.defer();
-          deffered.reject({statusText: statusErrorText});
-          return deffered.promise;
-        };
-
-        emitMessage = null;
-        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
-
-        var self = this;
-        this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
-          function() {
-            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
-            expect(errorSpy).to.have.been.called;
-            done();
-          }
-        );
-
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
-      });
-
-      it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
+      it('should transmit an error message to grace task even if canceling the deletion fail', function(done) {
         var statusErrorText = '';
         var errorSpy = sinon.spy(function(error) {
           expect(error).to.be.not.empty;

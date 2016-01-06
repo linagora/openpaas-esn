@@ -26,6 +26,8 @@ angular.module('esn.http', ['restangular'])
     };
   })
 
+  .constant('HTTP_LAG_UPPER_BOUND', 500)
+
   .factory('httpErrorHandler', function($window, $location, $log) {
 
     function redirectToLogin() {

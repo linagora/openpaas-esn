@@ -15,7 +15,7 @@ module.exports = function(config) {
       'frontend/components/angular-animate/angular-animate.js',
       'frontend/components/angular-strap/dist/angular-strap.js',
       'frontend/components/angular-strap/dist/angular-strap.tpl.js',
-      'frontend/components/underscore/underscore.js',
+      'frontend/components/lodash/dist/lodash.min.js',
       'frontend/components/restangular/dist/restangular.js',
       'frontend/components/openpaas-logo/openpaas-logo.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
