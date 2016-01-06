@@ -8,12 +8,17 @@ describe('the TimelineEntriesTracker module', function() {
   var ReadTimelineEntriesTracker;
   var tracker;
 
-  var ObjectId = require('bson').ObjectId;
-  var userId = new ObjectId('538d87b37779021a1acf1b10');
-  var activityStreamUuid = '46e2250b-29c7-49c6-aae4-12e6574ea911';
-  var timelineEntryId = new ObjectId('538d87b37779021a1acf1b12');
+  var ObjectId;
+  var userId;
+  var activityStreamUuid;
+  var timelineEntryId;
 
   beforeEach(function(done) {
+    ObjectId = require('bson').ObjectId;
+    userId = new ObjectId('538d87b37779021a1acf1b10');
+    activityStreamUuid = '46e2250b-29c7-49c6-aae4-12e6574ea911';
+    timelineEntryId = new ObjectId('538d87b37779021a1acf1b12');
+
     this.mongoose = require('mongoose');
     this.helpers.requireBackend('core/db/mongo/models/timelineentry');
     this.helpers.requireBackend('core/db/mongo/models/domain');
@@ -26,9 +31,7 @@ describe('the TimelineEntriesTracker module', function() {
   });
 
   afterEach(function(done) {
-    this.testEnv.removeDBConfigFile();
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should create a new TimelineEntriesTracker with the init values', function(done) {

@@ -6,6 +6,10 @@ var async = require('async');
 
 describe('The activitystreams core module', function() {
 
+  afterEach(function(done) {
+    this.helpers.mongo.dropDatabase(done);
+  });
+
   it('query should send back error when options is undefined', function(done) {
     this.helpers.mock.models({});
 
@@ -44,12 +48,6 @@ describe('The activitystreams core module', function() {
       Community = this.mongoose.model('Community');
 
       this.mongoose.connect(this.testEnv.mongoUrl, done);
-    });
-
-    afterEach(function(done) {
-      this.testEnv.removeDBConfigFile();
-      this.mongoose.connection.db.dropDatabase();
-      this.mongoose.disconnect(done);
     });
 
     it('should return all the entries with the given target', function(done) {

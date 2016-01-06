@@ -31,8 +31,7 @@ describe('The user domain module', function() {
     });
 
     afterEach(function(done) {
-      this.mongoose.connection.db.dropDatabase();
-      this.mongoose.disconnect(done);
+      this.helpers.mongo.dropDatabase(done);
     });
 
     it('should return users which belong to the given domain when calling getUsersList', function(done) {
@@ -177,12 +176,7 @@ describe('The user domain module', function() {
     });
 
     after(function(done) {
-      var self = this;
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) { done(err); }
-        self.mongoose.connection.db.dropDatabase();
-        self.mongoose.disconnect(done);
-      });
+      this.helpers.mongo.dropDatabase(done);
     });
 
     beforeEach(function(done) {
@@ -421,14 +415,7 @@ describe('The user domain module', function() {
     });
 
     after(function(done) {
-      var self = this;
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) {
-          done(err);
-        }
-        self.mongoose.connection.db.dropDatabase();
-        self.mongoose.disconnect(done);
-      });
+      this.helpers.mongo.dropDatabase(done);
     });
 
     beforeEach(function(done) {
@@ -577,14 +564,7 @@ describe('The user domain module', function() {
     });
 
     after(function(done) {
-      var self = this;
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) {
-          done(err);
-        }
-        self.mongoose.connection.db.dropDatabase();
-        self.mongoose.disconnect(done);
-      });
+      this.helpers.mongo.dropDatabase(done);
     });
 
     beforeEach(function(done) {

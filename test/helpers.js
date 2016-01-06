@@ -137,12 +137,21 @@ module.exports = function(mixin, testEnv) {
       require('mongoose').disconnect(callback);
     },
     dropDatabase: function(callback) {
-      MongoClient.connect(testEnv.mongoUrl, function(err, db) {
-        db.dropDatabase(function(err) {
-          db.close(function() {});
-          callback(err);
+      function _dropDatabase() {
+        MongoClient.connect(testEnv.mongoUrl, function(err, db) {
+          if (err) {
+            return callback(err);
+          }
+          db.dropDatabase(function(err) {
+            if (err) {
+              console.log('Error while droping the database, retrying...', err);
+              return _dropDatabase();
+            }
+            db.close(callback);
+          });
         });
-      });
+      }
+      _dropDatabase();
     },
     clearCollection: function(collectionName, callback) {
       require('mongoose').connection.db.collection(collectionName).remove(callback);

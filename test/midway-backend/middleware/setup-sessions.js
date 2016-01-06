@@ -36,8 +36,7 @@ describe('The sessions middleware', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should be a MongoDB Session Storage on "connected" event', function(done) {

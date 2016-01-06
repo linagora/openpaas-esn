@@ -18,8 +18,7 @@ describe('The feedback module', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   it('should create a document in mongo with the feedback content and the author', function(done) {

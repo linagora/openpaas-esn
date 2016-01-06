@@ -16,10 +16,7 @@ describe('The companies routes', function() {
   });
 
   afterEach(function(done) {
-    var mongoose = this.mongoose;
-    mongoose.connection.db.dropDatabase(function() {
-      mongoose.disconnect(done);
-    });
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('HEAD /api/companies', function() {

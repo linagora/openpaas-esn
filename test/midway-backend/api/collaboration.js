@@ -37,8 +37,7 @@ describe('The collaborations API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.mongo.dropDatabase(done);
   });
 
   describe('GET /api/collaborations/membersearch', function() {
