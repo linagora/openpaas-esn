@@ -7,7 +7,7 @@ angular.module('esn.calendar')
    *     calendars-list:toggleView - with the calendar {href: '', name: '', color: '', description: '', toggled: true||false} which should be toggled
    *
    */
-  .directive('calendarsList', function($location, session, calendarService, CalendarCollectionShell, uuid4, CALENDAR_EVENTS) {
+  .directive('calendarsList', function(session, calendarService, CalendarCollectionShell, uuid4, CALENDAR_EVENTS) {
     function link(scope) {
 
       function cloneCalendar(calendar) {
@@ -31,21 +31,9 @@ angular.module('esn.calendar')
         scope.calendars = scope._calendars.map(cloneCalendar);
       }
 
-      scope.edit = function(calendar) {
-        $location.url('/calendar/edit/' + calendar.id);
-      };
-
-      scope.add = function() {
-        $location.url('/calendar/add');
-      };
-
       scope.toggleCalendar = function(calendar)  {
         calendar.toggled = !calendar.toggled;
         scope.$emit(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, calendar);
-      };
-
-      scope.openConfigPanel = function()  {
-        $location.url('/calendar/calendars-edit');
       };
     }
 

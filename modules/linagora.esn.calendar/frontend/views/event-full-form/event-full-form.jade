@@ -1,98 +1,100 @@
-.col-xs-12.col-md-10.nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
-  .card-header.hidden-xs
-    .row.flex-vertical-centered(ng-if='isOrganizer')
-      .col-xs-12.col-sm-7
-        h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
-        h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
-      .col-xs-12.col-sm-5.buttons
-          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
-            span(ng-if='isNew(editedEvent)') #{__('Create')}
-            span(ng-if='!isNew(editedEvent)') #{__('Modify')}
-          button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(deleteEvent);', ng-if="!isNew(editedEvent)")
-            | #{__('Delete')}
-          button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
-            | #{__('Cancel')}
-    .row.flex-vertical-centered(ng-if='!isOrganizer')
-      .col-xs-7
-        h1 #{__('Consult')}
-      .col-xs-5
-          button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
-            | #{__('Back')}
+.row
+  .col-xs-12.no-padding-xs
+    .nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
+      .card-header.hidden-xs
+        .row.flex-vertical-centered(ng-if='isOrganizer')
+          .col-xs-12.col-sm-7
+            h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
+            h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
+          .col-xs-12.col-sm-5.buttons
+              button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
+                span(ng-if='isNew(editedEvent)') #{__('Create')}
+                span(ng-if='!isNew(editedEvent)') #{__('Modify')}
+              button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(deleteEvent);', ng-if="!isNew(editedEvent)")
+                | #{__('Delete')}
+              button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
+                | #{__('Cancel')}
+        .row.flex-vertical-centered(ng-if='!isOrganizer')
+          .col-xs-7
+            h1 #{__('Consult')}
+          .col-xs-5
+              button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
+                | #{__('Back')}
 
-  .card-body.card-padding
-    form.form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
-      .row
-        .col-xs-12.col-sm-6
+      .card-body.card-padding
+        form.form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
           .row
-            .col-xs-12
-              .form-group
-                .fg-line
-                  input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+            .col-xs-12.col-sm-6
+              .row
+                .col-xs-12
+                  .form-group
+                    .fg-line
+                      input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
 
-          .row
-            .col-xs-12
-              .form-group
-                .input-group
-                  span.input-group-addon
-                    i.mdi.mdi-calendar-multiple
-                  .fg-line.select
-                    select.form-control(ng-disabled="!isOrganizer")
-                      option(value="calendarA") calendarA
-                      option(value="calendarB") calendarB
+              .row
+                .col-xs-12
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.mdi.mdi-calendar-multiple
+                      .fg-line.select
+                        select.form-control(ng-disabled="!isOrganizer")
+                          option(value="calendarA") calendarA
+                          option(value="calendarB") calendarB
 
-          event-date-edition(event="editedEvent", disabled="!isOrganizer")
+              event-date-edition(event="editedEvent", disabled="!isOrganizer")
 
-          .row
-            .col-xs-12
-              .form-group
-                .input-group
-                  span.input-group-addon
-                    i.mdi.mdi-map-marker
-                  .fg-line
-                    input.form-control.fg-input(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+              .row
+                .col-xs-12
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.mdi.mdi-map-marker
+                      .fg-line
+                        input.form-control.fg-input(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
-          .row.visible-xs
-            attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+              .row.visible-xs
+                attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
-          .row.visible-xs
-            attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
+              .row.visible-xs
+                attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
-          event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
+              event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
 
-          .row
-            .col-xs-12
-              .form-group
-                .input-group
-                  span.input-group-addon
-                    i.mdi.mdi-alarm
-                  .fg-line.select
-                    select.form-control(ng-disabled="!isOrganizer")
-                      option(value="alarmA") alarmA
-                      option(value="alarmB") alarmB
+              .row
+                .col-xs-12
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.mdi.mdi-alarm
+                      .fg-line.select
+                        select.form-control(ng-disabled="!isOrganizer")
+                          option(value="alarmA") alarmA
+                          option(value="alarmB") alarmB
 
-          .row
-            .col-xs-12
-              .form-group
-                .input-group
-                  span.input-group-addon
-                    i.mdi.mdi-lock
-                  .fg-line.select
-                    select.form-control(ng-disabled="!isOrganizer")
-                      option(value="privacyA") privacyA
-                      option(value="privacyB") privacyB
+              .row
+                .col-xs-12
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.mdi.mdi-lock
+                      .fg-line.select
+                        select.form-control(ng-disabled="!isOrganizer")
+                          option(value="privacyA") privacyA
+                          option(value="privacyB") privacyB
 
-        .col-xs-12.col-sm-6
-          .row.hidden-xs
-            attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+            .col-xs-12.col-sm-6
+              .row.hidden-xs
+                attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
-          .row.hidden-xs
-            attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
+              .row.hidden-xs
+                attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer')
 
-          .row
-            .col-xs-12
-              .form-group
-                .input-group
-                  span.input-group-addon.textarea-icon
-                    i.mdi.mdi-format-align-justify
-                  .fg-line
-                    textarea.form-control(auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="!isOrganizer")
+              .row
+                .col-xs-12
+                  .form-group
+                    .input-group
+                      span.input-group-addon.textarea-icon
+                        i.mdi.mdi-format-align-justify
+                      .fg-line
+                        textarea.form-control(auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="!isOrganizer")

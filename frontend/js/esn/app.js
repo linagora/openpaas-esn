@@ -4,7 +4,7 @@ var angularInjections = angularInjections || [];
 
 angular.module('esnApp', [
   'restangular',
-  'ui.router',
+  'ct.ui.router.extras',
   'mgcrea.ngStrap.affix',
   'mgcrea.ngStrap.modal',
   'mgcrea.ngStrap.aside',
