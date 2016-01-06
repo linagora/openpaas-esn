@@ -589,9 +589,8 @@ angular.module('esn.calendar')
      */
     function getDateOnCalendarSelect(start, end) {
       if (end.diff(start, 'minutes') === 30) {
-        var newStart = start.startOf('hour');
-        var newEnd = fcMoment(newStart).add(1, 'hours');
-        return { start: newStart, end: newEnd };
+        var newEnd = fcMoment(start).add(1, 'hours');
+        return { start: start, end: newEnd };
       } else {
         return { start: start, end: end };
       }
