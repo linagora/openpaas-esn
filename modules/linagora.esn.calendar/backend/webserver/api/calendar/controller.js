@@ -76,10 +76,8 @@ function inviteAttendees(req, res) {
 
 function changeParticipation(req, res) {
   var ESNToken = req.token && req.token.token ? req.token.token : '';
-  console.log('req.eventPayload', req.eventPayload);
   var icalendar = ICAL.parse(req.eventPayload.event);
   var vcalendar = new ICAL.Component(icalendar);
-  console.log('icalendar', icalendar);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
   var hasAttendee = jcalHelper.getAttendeesEmails(icalendar).indexOf(req.eventPayload.attendeeEmail) !== -1;
   if (!hasAttendee) {
