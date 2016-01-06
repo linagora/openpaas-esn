@@ -78,13 +78,15 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('sidebarMailboxesLoader', function(jmapClient) {
+  .directive('sidebarMailboxesLoader', function(withJmapClient) {
     return {
       restrict: 'A',
       link: function(scope) {
         if (!scope.mailboxes) {
-          jmapClient.getMailboxes().then(function(mailboxes) {
-            scope.mailboxes = mailboxes;
+          withJmapClient(function(client) {
+            client.getMailboxes().then(function(mailboxes) {
+              scope.mailboxes = mailboxes;
+            });
           });
         }
       }

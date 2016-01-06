@@ -26,6 +26,80 @@ describe('The Unified Inbox Angular module services', function() {
     });
   }));
 
+  describe('The jmapClientProvider service', function() {
+
+    var $log, jmap;
+
+    beforeEach(inject(function(_$log_, $httpBackend, _jmap_, jmapClientProvider) {
+      this.$httpBackend = $httpBackend;
+      this.jmapClientProvider = jmapClientProvider;
+      jmap = _jmap_;
+      $log = _$log_;
+      $log.error = sinon.spy();
+    }));
+
+    it('should return a rejected promise if jwt generation fails', function(done) {
+      this.$httpBackend.expectPOST('/api/jwt/generate').respond(500, 'error');
+
+      this.jmapClientProvider.promise.catch(function(err) {
+        expect($log.error).to.have.been.calledOnce;
+        expect(err).to.be.an.instanceof(Error);
+        done();
+      });
+
+      this.$httpBackend.flush();
+    });
+
+    it('should return a fulfilled promise if jwt generation succeed', function(done) {
+      this.$httpBackend.expectPOST('/api/jwt/generate').respond(200, 'expected jwt');
+
+      this.jmapClientProvider.promise.then(function(client) {
+        expect(client).to.be.an.instanceof(jmap.Client);
+        expect(client.authToken).to.equal('Bearer expected jwt');
+        done();
+      });
+
+      this.$httpBackend.flush();
+    });
+
+  });
+
+  describe('The withJmapClient factory', function() {
+
+    var jmap;
+
+    beforeEach(inject(function($httpBackend, _jmap_, jmapClientProvider, withJmapClient) {
+      this.$httpBackend = $httpBackend;
+      this.jmapClientProvider = jmapClientProvider;
+      this.withJmapClient = withJmapClient;
+      jmap = _jmap_;
+    }));
+
+    it('should give the client in the callback when jmapClient is ready', function(done) {
+      this.$httpBackend.expectPOST('/api/jwt/generate').respond(200, 'the-jwt');
+
+      this.withJmapClient(function(client) {
+        expect(client).to.be.an.instanceof(jmap.Client);
+        done();
+      });
+
+      this.$httpBackend.flush();
+    });
+
+    it('should resolve the callback with a null instance and an error when jmapClient cannot be built', function(done) {
+      this.$httpBackend.expectPOST('/api/jwt/generate').respond(500);
+
+      this.withJmapClient(function(client, err) {
+        expect(client).to.equal(null);
+        expect(err).to.be.an.instanceOf(Error);
+        done();
+      });
+
+      this.$httpBackend.flush();
+    });
+
+  });
+
   describe('The EmailGroupingTool factory', function() {
 
     var EmailGroupingTool;
@@ -770,11 +844,17 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The draftService service', function() {
 
-    var draftService, jmapClient, session, notificationFactory, $log, $rootScope;
+    var draftService, session, notificationFactory, jmapClient, $log, $rootScope;
 
-    beforeEach(inject(function(_draftService_, _jmapClient_, _session_, _notificationFactory_, _$log_, _$rootScope_) {
+    beforeEach(module(function($provide) {
+      jmapClient = {};
+      $provide.constant('withJmapClient', function(callback) {
+        callback(jmapClient);
+      });
+    }));
+
+    beforeEach(inject(function(_draftService_, _session_, _notificationFactory_, _$log_, _$rootScope_) {
       draftService = _draftService_;
-      jmapClient = _jmapClient_;
       session = _session_;
       notificationFactory = _notificationFactory_;
       $log = _$log_;
@@ -1069,6 +1149,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
+
         draft.save({
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
@@ -1096,6 +1177,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
+
         draft.save({
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
@@ -1121,6 +1203,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
+
         draft.save({rcpt: {}});
 
         $rootScope.$digest();
@@ -1272,6 +1355,10 @@ describe('The Unified Inbox Angular module services', function() {
     var Composition, draftService, emailSendingService, session, $timeout, Offline,
         notificationFactory, closeNotificationSpy, notificationTitle, notificationText;
 
+    beforeEach(module(function($provide) {
+      $provide.constant('withJmapClient', function() {});
+    }));
+
     beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
          _Composition_, _emailSendingService_, _$timeout_) {
       draftService = _draftService_;
@@ -1281,9 +1368,7 @@ describe('The Unified Inbox Angular module services', function() {
       Composition = _Composition_;
       emailSendingService = _emailSendingService_;
       $timeout = _$timeout_;
-    }));
 
-    beforeEach(inject(function() {
       Offline.state = 'up';
       notificationTitle = '';
       notificationText = '';

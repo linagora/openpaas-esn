@@ -25,7 +25,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     angular.mock.module('esn.notification');
 
     module('linagora.esn.unifiedinbox', function($provide) {
-      $provide.value('jmapClient', jmapClient = {});
+      jmapClient = {};
+      $provide.value('withJmapClient', function(callback) {
+        callback(jmapClient);
+      });
       $provide.value('$stateParams', $stateParams);
       $provide.value('$location', $location = {
         url: angular.noop

@@ -1,19 +1,21 @@
 'use strict';
 
 angular.module('linagora.esn.unifiedinbox')
-  .controller('listEmailsController', function($scope, $stateParams, $location, jmap, jmapClient, EmailGroupingTool, newComposerService) {
+  .controller('listEmailsController', function($scope, $stateParams, $location, jmap, withJmapClient, EmailGroupingTool, newComposerService) {
 
     function searchForMessages() {
-      jmapClient.getMessageList({
-        filter: {
-          inMailboxes: [$scope.mailbox]
-        },
-        collapseThreads: true,
-        fetchMessages: true,
-        position: 0,
-        limit: 100
-      }).then(function(data) {
-        $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
+      withJmapClient(function(client) {
+        client.getMessageList({
+          filter: {
+            inMailboxes: [$scope.mailbox]
+          },
+          collapseThreads: true,
+          fetchMessages: true,
+          position: 0,
+          limit: 100
+        }).then(function(data) {
+          $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
+        });
       });
     }
 
@@ -31,13 +33,15 @@ angular.module('linagora.esn.unifiedinbox')
       }
     };
 
-    jmapClient.getMailboxes({
-      ids: [$scope.mailbox],
-      properties: ['name', 'role']
-    }).then(function(mailboxes) {
-      $scope.mailboxRole = mailboxes[0].role; // We expect a single mailbox here
-      $scope.mailboxName = mailboxes[0].name;
-    }).then(searchForMessages);
+    withJmapClient(function(client) {
+      client.getMailboxes({
+        ids: [$scope.mailbox],
+        properties: ['name', 'role']
+      }).then(function(mailboxes) {
+        $scope.mailboxRole = mailboxes[0].role; // We expect a single mailbox here
+        $scope.mailboxName = mailboxes[0].name;
+      }).then(searchForMessages);
+    });
 
   })
 
@@ -89,7 +93,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $location, jmapClient, jmap, session, notificationFactory, emailSendingService, newComposerService) {
+  .controller('viewEmailController', function($scope, $stateParams, $location, withJmapClient, jmap, session, notificationFactory, emailSendingService, newComposerService) {
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
 
@@ -115,9 +119,11 @@ angular.module('linagora.esn.unifiedinbox')
       emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
     };
 
-    jmapClient.getMessages({
-      ids: [$scope.emailId]
-    }).then(function(messages) {
-      $scope.email = messages[0]; // We expect a single message here
+    withJmapClient(function(client) {
+      client.getMessages({
+        ids: [$scope.emailId]
+      }).then(function(messages) {
+        $scope.email = messages[0]; // We expect a single message here
+      });
     });
   });
