@@ -12,15 +12,16 @@ angular.module('linagora.esn.unifiedinbox')
         .withAPIUrl(jmapAPIUrl)
         .withAuthenticationToken(jmapAuthToken));
     } else {
-      $http.post('/api/jwt/generate').then(
-        function(response) {
-          deferred.resolve(new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-            .withAPIUrl('https://my-jmap-server/api/')
-            .withAuthenticationToken('Bearer ' + response.data));
-        },
-        function(err) {
-          deferred.reject(new Error(err));
-        });
+      $q.all([
+        $http.get('/unifiedinbox/api/inbox/jmap-config'),
+        $http.post('/api/jwt/generate')
+      ]).then(function(responses) {
+        deferred.resolve(new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+          .withAPIUrl(responses[0].data.api)
+          .withAuthenticationToken('Bearer ' + responses[1].data));
+      }, function(err) {
+        deferred.reject(new Error(err));
+      });
     }
 
     deferred.promise.catch(function(err) {

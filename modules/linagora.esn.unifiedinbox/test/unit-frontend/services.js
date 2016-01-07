@@ -39,6 +39,9 @@ describe('The Unified Inbox Angular module services', function() {
     }));
 
     it('should return a rejected promise if jwt generation fails', function(done) {
+      this.$httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(200, {
+        api: 'the jmap api'
+      });
       this.$httpBackend.expectPOST('/api/jwt/generate').respond(500, 'error');
 
       this.jmapClientProvider.promise.catch(function(err) {
@@ -50,12 +53,29 @@ describe('The Unified Inbox Angular module services', function() {
       this.$httpBackend.flush();
     });
 
+    it('should return a rejected promise if jmap config lookup fails', function(done) {
+      this.$httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(500, 'error');
+      this.$httpBackend.expectPOST('/api/jwt/generate').respond(200, 'expected jwt');
+
+      this.jmapClientProvider.promise.catch(function(err) {
+        expect($log.error).to.have.been.calledOnce;
+        expect(err).to.be.an.instanceof(Error);
+        done();
+      });
+
+      this.$httpBackend.flush();
+    });
+
     it('should return a fulfilled promise if jwt generation succeed', function(done) {
+      this.$httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(200, {
+        api: 'expected jmap api'
+      });
       this.$httpBackend.expectPOST('/api/jwt/generate').respond(200, 'expected jwt');
 
       this.jmapClientProvider.promise.then(function(client) {
         expect(client).to.be.an.instanceof(jmap.Client);
         expect(client.authToken).to.equal('Bearer expected jwt');
+        expect(client.apiUrl).to.equal('expected jmap api');
         done();
       });
 
@@ -76,6 +96,9 @@ describe('The Unified Inbox Angular module services', function() {
     }));
 
     it('should give the client in the callback when jmapClient is ready', function(done) {
+      this.$httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(200, {
+        api: 'expected jmap api'
+      });
       this.$httpBackend.expectPOST('/api/jwt/generate').respond(200, 'the-jwt');
 
       this.withJmapClient(function(client) {
@@ -87,6 +110,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should resolve the callback with a null instance and an error when jmapClient cannot be built', function(done) {
+      this.$httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(500);
       this.$httpBackend.expectPOST('/api/jwt/generate').respond(500);
 
       this.withJmapClient(function(client, err) {
