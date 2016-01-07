@@ -352,18 +352,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
-  describe('The editorPlaceholder directive', function() {
-    it('should add the value of the editorPlaceholder attribute to the contenteditable element', function() {
-      var element = compileDirective('<div editor-placeholder="Write here"><div class="note-editable" contenteditable="true">Hello world!</div></div>');
-      expect(element.find('.note-editable[contenteditable="true"]').attr('placeholder')).to.equal('Write here');
-    });
-
-    it('should do nothing when the editorPlaceholder attribute has no value', function() {
-      var element = compileDirective('<div editor-placeholder><div class="note-editable" contenteditable="true">Hello world!</div></div>');
-      expect(element.find('.note-editable[contenteditable="true"]').attr('placeholder')).to.be.undefined;
-    });
-  });
-
   /**
    * PhantomJS does not work fine with iFrame and 'load' events, thus the .skip()
    * Tests run under Chrome and Firefox, though...

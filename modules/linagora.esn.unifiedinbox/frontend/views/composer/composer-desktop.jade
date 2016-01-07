@@ -23,8 +23,8 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
 
     input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}", ng-model="email.subject")
 
-  .compose-body(ng-model="email.htmlBody", ng-class="{ 'isCollapsed': isCollapsed }", editor-placeholder="#{__('Start writing your email here')}")
-    summernote(config="summernoteOptions")
+  summernote.compose-body(ng-model="email.htmlBody", ng-class="{ 'isCollapsed': isCollapsed }", config="summernoteOptions", placeholder="#{__('Start writing your email here')}")
+
   .btn-group.compose-buttons(role="group", aria-label="label")
     button.btn.btn-primary(type="submit", value="submit") #{__('Send')}
       i.mdi.mdi-send
