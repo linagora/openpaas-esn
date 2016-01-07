@@ -333,7 +333,7 @@ describe('The calendar module services', function() {
           partstat: 'DECLINED'
         });
         this.eventUtils.render(event, element);
-        expect(element.class).to.deep.equal(['event-common', 'event-declined']);
+        expect(element.class).to.deep.equal(['event-declined']);
       });
 
       it('should add event-needs-action class if current user is found in the ACCEPTED attendees', function() {
@@ -342,7 +342,7 @@ describe('The calendar module services', function() {
           partstat: 'ACCEPTED'
         });
         this.eventUtils.render(event, element);
-        expect(element.class).to.deep.equal(['event-common', 'event-accepted']);
+        expect(element.class).to.deep.equal(['event-accepted']);
       });
 
       it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
@@ -351,7 +351,7 @@ describe('The calendar module services', function() {
           partstat: 'NEEDS-ACTION'
         });
         this.eventUtils.render(event, element);
-        expect(element.class).to.deep.equal(['event-common', 'event-needs-action']);
+        expect(element.class).to.deep.equal(['event-needs-action']);
       });
 
       it('should add event-tentative class if current user is found in the TENTATIVE attendees', function() {
@@ -360,12 +360,7 @@ describe('The calendar module services', function() {
           partstat: 'TENTATIVE'
         });
         this.eventUtils.render(event, element);
-        expect(element.class).to.deep.equal(['event-common', 'event-tentative']);
-      });
-
-      it('should add event-common class otherwise', function() {
-        this.eventUtils.render(event, element);
-        expect(element.class).to.deep.equal(['event-common']);
+        expect(element.class).to.deep.equal(['event-tentative']);
       });
 
       it('should add the event-is-instance class for instances', function() {

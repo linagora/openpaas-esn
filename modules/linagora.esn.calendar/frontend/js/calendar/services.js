@@ -474,8 +474,6 @@ angular.module('esn.calendar')
         angular.element('<i class="mdi mdi-sync"/>').insertBefore(timeSpan);
       }
 
-      element.addClass('event-common');
-
       if (invitedAttendee) {
         event.startEditable = false;
         event.durationEditable = false;
