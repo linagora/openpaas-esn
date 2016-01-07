@@ -235,6 +235,7 @@ describe('The GracePeriod Angular module', function() {
 
     var gracePeriodService, $httpBackend, $rootScope, $browser, $timeout;
     var timeoutMock, GRACE_DELAY, HTTP_LAG_UPPER_BOUND;
+    var httpSpy;
 
     beforeEach(function() {
       module('esn.websocket');
@@ -246,6 +247,14 @@ describe('The GracePeriod Angular module', function() {
           return function() {
             return (timeoutMock || $delegate).apply(this, arguments);
           };
+        });
+
+        $provide.decorator('$http', function($delegate) {
+          httpSpy = sinon.spy(function() {
+            return $delegate.apply(this, arguments);
+          });
+
+          return httpSpy;
         });
       });
     });
@@ -328,10 +337,13 @@ describe('The GracePeriod Angular module', function() {
         var id = '123';
         var responseData = 'this is data';
 
+        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'not found');
+
         timeoutMock = sinon.spy(function(callback, delay) {
-          expect(delay).to.equal(GRACE_DELAY - HTTP_LAG_UPPER_BOUND);
-          $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(200, responseData);
-          return $q.when(callback());
+          if (delay === GRACE_DELAY - HTTP_LAG_UPPER_BOUND) {
+            $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(200, responseData);
+            return $q.when(callback());
+          }
         });
 
         gracePeriodService.addTaskId(id);
@@ -341,10 +353,10 @@ describe('The GracePeriod Angular module', function() {
             status: 200,
             data: responseData
           });
+          expect(timeoutMock).to.have.been.calledWith(sinon.match.any, GRACE_DELAY - HTTP_LAG_UPPER_BOUND);
           done();
         }, done.bind(null, 'This promise should have succeed'));
 
-        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'not found');
         $rootScope.$apply();
         $httpBackend.flush();
       });
@@ -353,9 +365,10 @@ describe('The GracePeriod Angular module', function() {
         var id = '123';
         var errorMessage = 'not found';
         timeoutMock = sinon.spy(function(callback, delay) {
-          expect(delay).to.equal(GRACE_DELAY - HTTP_LAG_UPPER_BOUND);
-          $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, errorMessage);
-          return $q.when(callback());
+          if (delay === GRACE_DELAY - HTTP_LAG_UPPER_BOUND) {
+            $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, errorMessage);
+            return $q.when(callback());
+          }
         });
 
         gracePeriodService.addTaskId(id);
@@ -365,10 +378,57 @@ describe('The GracePeriod Angular module', function() {
             status: 404,
             data: errorMessage
           });
+          expect(timeoutMock).to.have.been.calledWith(sinon.match.any, GRACE_DELAY - HTTP_LAG_UPPER_BOUND);
           done();
         });
 
         $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'not found');
+        $rootScope.$apply();
+        $httpBackend.flush();
+      });
+
+      it('should try to DELETE a second time with a timeout of HTTP_LAG_UPPER_BOUND if it fail the first time', function(done) {
+        var id = '123';
+
+        timeoutMock = sinon.spy(function(callback, delay) {
+          if (delay === GRACE_DELAY - HTTP_LAG_UPPER_BOUND) {
+            $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'test');
+            return $q.when(callback());
+          }
+        });
+
+        gracePeriodService.addTaskId(id);
+
+        gracePeriodService.cancel(id).finally(function() {
+          expect(httpSpy).to.have.been.calledWith(sinon.match.has('timeout', HTTP_LAG_UPPER_BOUND));
+          done();
+        });
+
+        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'not found');
+        $rootScope.$apply();
+        $httpBackend.flush();
+      });
+
+      it('should try to DELETE the first time with a timeout promise that trigger HTTP_LAG_UPPER_BOUND before the end of the grace period', function(done) {
+        var id = '123';
+
+        var promiseBeforeEndOfGraceperiod;
+        timeoutMock = sinon.spy(function(callback, delay) {
+          if (delay === GRACE_DELAY - HTTP_LAG_UPPER_BOUND) {
+            $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'test');
+            promiseBeforeEndOfGraceperiod =  $q.when(callback());
+            return promiseBeforeEndOfGraceperiod;
+          }
+        });
+
+        gracePeriodService.addTaskId(id);
+
+        gracePeriodService.cancel(id).finally(function() {
+          expect(httpSpy).to.have.been.calledWith(sinon.match.has('timeout', promiseBeforeEndOfGraceperiod));
+          done();
+        });
+
+        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(200);
         $rootScope.$apply();
         $httpBackend.flush();
       });
