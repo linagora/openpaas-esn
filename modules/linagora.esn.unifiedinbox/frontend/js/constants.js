@@ -15,5 +15,5 @@ angular.module('linagora.esn.unifiedinbox')
   })
   .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
 
-  .constant('jmapAPIUrl', 'https://proxy.jmap.io/jmap/b6ed15b6-5611-11e5-b11b-0026b9fac7aa/')
-  .constant('jmapAuthToken', 'b6ed15b6-5611-11e5-b11b-0026b9fac7aa');
+  .constant('jmapAPIUrl', ' https://demo.open-paas.org/jmap/jmap/606fb372-7f21-11e5-b8d9-06388bb09d1c/')
+  .constant('jmapAuthToken', '606fb372-7f21-11e5-b8d9-06388bb09d1c');

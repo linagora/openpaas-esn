@@ -64,7 +64,8 @@ angular.module('esnApp', [
   'xeditable',
   'op.dynamicDirective',
   'esn.back-detector',
-  'esn.offline-wrapper'
+  'esn.offline-wrapper',
+  'esn.actionList'
 ].concat(angularInjections)).config(function(RestangularProvider, routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...

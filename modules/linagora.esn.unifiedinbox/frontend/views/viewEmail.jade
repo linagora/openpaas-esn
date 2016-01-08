@@ -1,6 +1,6 @@
 .email-view.col-xs-12.col-md-10
 
-  ul.actions
+  ul.actions.pull-right
     li
       a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Go back to mailbox')}")
         i.mdi.mdi-v-centered.mdi-folder
@@ -13,7 +13,7 @@
     li
       a(ng-click="replyAll()" title="#{__('Reply all')}")
         i.mdi.mdi-reply-all
-
+      
   .block-header
     h2.subject {{::email.subject}}
     h3.headers
@@ -30,7 +30,14 @@
         .cc
           span.line-header #{__('CC')}:
           emailer-group(group="::email.cc")
-
+          
+    .actions.pull-right
+      a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Reply')}")
+        i.mdi.mdi-v-centered.mdi-reply
+      a(href="", action-list, template-desktop-url="/unifiedinbox/views/partials/action-list-desktop.html" template-mobile-url="/unifiedinbox/views/partials/action-list-mobile.html" title="#{__('More')}")
+        i.mdi.mdi-v-centered.mdi-view-module
+      .dropdown-menu-right
+                
   .email-body
     html-email-body(ng-if="email.htmlBody", email="::email")
     .lv-item.multilines(ng-if="!email.htmlBody") {{::email.textBody}}
@@ -41,5 +48,16 @@
     .attachments
       i.title.mdi.mdi-attachment #{__('Attachments')}
       inbox-attachment(ng-repeat="attachment in ::email.attachments", ng-if="::!attachment.isInline", attachment="::attachment")
-
+  
+  .lv-footer
+    .modal-attachments
+      ul.actions.pull-right.mobile-modal
+        li
+          a(ng-href='', title="#{__('Forward')}")
+            i.mdi.mdi-v-centered.mdi-forward
+          a(ng-href='', title="#{__('Reply all')}")
+            i.mdi.mdi-v-centered.mdi-reply-all
+          a(ng-href='', title="#{__('Reply')}")
+            i.mdi.mdi-v-centered.mdi-reply 
+              
   inbox-fab
