@@ -280,4 +280,17 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-subheader.html'
     };
+  })
+
+  .directive('emailBodyEditor', function(deviceDetector) {
+    function template(name) {
+      return '/unifiedinbox/views/composer/editor/' + name + '.html';
+    }
+
+    return {
+      restrict: 'E',
+      templateUrl: function() {
+        return deviceDetector.isMobile() ? template('plaintext') : template('richtext');
+      }
+    };
   });
