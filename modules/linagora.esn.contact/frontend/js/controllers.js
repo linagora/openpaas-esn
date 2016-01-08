@@ -2,8 +2,9 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService) {
+  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.bookId = $stateParams.bookId;
+    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.contact = sharedContactDataService.contact;
 
     headerService.subHeader.addInjection('contact-create-subheader', $scope);
@@ -14,38 +15,52 @@ angular.module('linagora.esn.contact')
     $scope.close = closeContactForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
-        return contactsService.create($scope.bookId, $scope.contact).then(null, function(err) {
-          notificationFactory.weakError('Contact creation', err && err.message || 'The contact cannot be created, please retry later');
+        return ContactAPIClient
+          .addressbookHome($scope.bookId)
+          .addressbook($scope.bookName)
+          .vcard()
+          .create($scope.contact)
+          .then(null, function(err) {
+            notificationFactory.weakError(
+              'Contact creation',
+              err && err.message || 'The contact cannot be created, please retry later'
+            );
 
-          return $q.reject(err);
-        });
+            return $q.reject(err);
+          });
       }).then(function() {
         $location.url('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
       }, function(err) {
         displayContactError(err);
-
         return $q.reject(err);
       }).then(function() {
-        return gracePeriodService.clientGrace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
-            .then(function(data) {
-              if (data.cancelled) {
-                contactsService.remove($scope.bookId, $scope.contact).then(function() {
-                    data.success();
-                    openContactForm($scope.bookId, $scope.contact);
-                  }, function(err) {
-                    data.error('Cannot cancel contact creation, the contact is created');
-                    return $q.reject(err);
-                  });
-              }
-            });
+        return gracePeriodService.clientGrace(
+            'You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition'
+          ).then(function(data) {
+            if (data.cancelled) {
+              ContactAPIClient
+                .addressbookHome($scope.bookId)
+                .addressbook($scope.bookName)
+                .vcard($scope.contact.id)
+                .remove({ etag: $scope.contact.etag })
+                .then(function() {
+                  data.success();
+                  openContactForm($scope.bookId, $scope.contact);
+                }, function(err) {
+                  data.error('Cannot cancel contact creation, the contact is created');
+                  return $q.reject(err);
+                });
+            }
+          });
       });
     };
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, contactsService, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, deleteContact, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
     $scope.bookId = $stateParams.bookId;
+    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.cardId = $stateParams.cardId;
     $scope.contact = {};
     $scope.loaded = false;
@@ -80,7 +95,7 @@ angular.module('linagora.esn.contact')
     $scope.deleteContact = function() {
       closeContactForm();
       $timeout(function() {
-        contactsService.deleteContact($scope.bookId, $scope.contact);
+        deleteContact($scope.bookId, $scope.bookName, $scope.contact);
       }, 200);
     };
 
@@ -126,21 +141,27 @@ angular.module('linagora.esn.contact')
 
       $scope.loaded = true;
     } else {
-      contactsService.getCard($scope.bookId, $scope.cardId).then($scope.fillContactData,
-        function(err) {
-        $log.debug('Error while loading contact', err);
-        $scope.error = true;
-        displayContactError('Cannot get contact details');
-      }).finally(function() {
-        $scope.loaded = true;
-      });
+      ContactAPIClient
+        .addressbookHome($scope.bookId)
+        .addressbook($scope.bookName)
+        .vcard($scope.cardId)
+        .get()
+        .then($scope.fillContactData, function(err) {
+          $log.debug('Error while loading contact', err);
+          $scope.error = true;
+          displayContactError('Cannot get contact details');
+        })
+        .finally(function() {
+          $scope.loaded = true;
+        });
     }
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, contactsService, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, shellToVCARD, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
+    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.cardId = $stateParams.cardId;
 
     headerService.subHeader.addInjection('contact-edit-subheader', $scope);
@@ -151,20 +172,26 @@ angular.module('linagora.esn.contact')
     var oldContact = '';
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
-      $scope.contact.vcard = contactsService.shellToVCARD($scope.contact);
+      $scope.contact.vcard = shellToVCARD($scope.contact);
       contactUpdateDataService.contact = null;
       oldContact = JSON.stringify($scope.contact);
       $scope.loaded = true;
     } else {
-      contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
-        $scope.contact = card;
-        oldContact = JSON.stringify(card);
-      }, function() {
-        $scope.error = true;
-        displayContactError('Cannot get contact details');
-      }).finally(function() {
-        $scope.loaded = true;
-      });
+      ContactAPIClient
+        .addressbookHome($scope.bookId)
+        .addressbook($scope.bookName)
+        .vcard($scope.cardId)
+        .get()
+        .then(function(contact) {
+          $scope.contact = contact;
+          oldContact = JSON.stringify(contact);
+        }, function() {
+          $scope.error = true;
+          displayContactError('Cannot get contact details');
+        })
+        .finally(function() {
+          $scope.loaded = true;
+        });
     }
 
     function isContactModified() {
@@ -180,52 +207,60 @@ angular.module('linagora.esn.contact')
         return $scope.close();
       }
       return sendContactToBackend($scope, function() {
-        return contactsService.modify($scope.bookId, $scope.contact).then(function(taskId) {
-          contactUpdateDataService.contact = $scope.contact;
-          contactUpdateDataService.taskId = taskId;
-
-          gracePeriodLiveNotification.registerListeners(
-            taskId, function() {
-              notificationFactory.strongError('', 'Failed to update contact, please try again later');
-              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new ContactShell($scope.contact.vcard, $scope.contact.etag));
-            }
-          );
-
-          $scope.close();
-
-          return gracePeriodService.grace(taskId, 'You have just updated a contact.', 'Cancel')
-            .then(function(data) {
-              if (data.cancelled) {
-                return gracePeriodService.cancel(taskId).then(function() {
-                  data.success();
-                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_UPDATE, new ContactShell($scope.contact.vcard, $scope.contact.etag));
-                }, function(err) {
-                  data.error('Cannot cancel contact update');
-                });
-              } else {
-                gracePeriodService.remove(taskId);
-              }
+        return ContactAPIClient
+          .addressbookHome($scope.bookId)
+          .addressbook($scope.bookName)
+          .vcard($scope.contact.id)
+          .update($scope.contact)
+          .then(function(taskId) {
+            contactUpdateDataService.contact = $scope.contact;
+            contactUpdateDataService.taskId = taskId;
+            gracePeriodLiveNotification.registerListeners(taskId, function() {
+              notificationFactory.strongError(
+                '', 'Failed to update contact, please try again later');
+              $rootScope.$broadcast(
+                CONTACT_EVENTS.CANCEL_UPDATE,
+                new ContactShell($scope.contact.vcard, $scope.contact.etag));
             });
-        });
-      }).then(null, function(err) {
-        displayContactError('The contact cannot be edited, please retry later');
-        return $q.reject(err);
+
+            $scope.close();
+            return gracePeriodService.grace(taskId, 'You have just updated a contact.', 'Cancel')
+              .then(function(data) {
+                if (data.cancelled) {
+                  return gracePeriodService.cancel(taskId).then(function() {
+                    data.success();
+                    $rootScope.$broadcast(
+                      CONTACT_EVENTS.CANCEL_UPDATE,
+                      new ContactShell($scope.contact.vcard, $scope.contact.etag)
+                    );
+                  }, function(err) {
+                    data.error('Cannot cancel contact update');
+                  });
+                } else {
+                  gracePeriodService.remove(taskId);
+                }
+              });
+          }).then(null, function(err) {
+            displayContactError('The contact cannot be edited, please retry later');
+            return $q.reject(err);
+          });
       });
     };
 
     $scope.deleteContact = function() {
       closeContactForm();
       $timeout(function() {
-        contactsService.deleteContact($scope.bookId, $scope.contact);
+        deleteContact($scope.bookId, $scope.bookName, $scope.contact);
       }, 200);
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
+    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
@@ -390,32 +425,50 @@ angular.module('linagora.esn.contact')
     function getSearchResults() {
       $log.debug('Searching contacts, page', $scope.currentPage);
       usSpinnerService.spin(SPINNER);
-      return contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.currentPage).then(function(data) {
+
+      var options = {
+        data: $scope.searchInput,
+        userId: $scope.user._id,
+        page: $scope.currentPage
+      };
+      return ContactAPIClient
+        .addressbookHome($scope.bookId)
+        .addressbook($scope.bookName)
+        .vcard()
+        .search(options)
+        .then(function(data) {
           setSearchResults(data);
           $scope.currentPage = data.current_page;
           $scope.totalHits = $scope.totalHits + data.hits_list.length;
           if ($scope.totalHits === data.total_hits) {
             $scope.lastPage = true;
           }
-        }, searchFailure
-      ).finally(loadPageComplete);
+        }, searchFailure)
+        .finally(loadPageComplete);
     }
 
     function getNextContacts() {
       $log.debug('Load next contacts, page', $scope.currentPage);
       usSpinnerService.spin(SPINNER);
 
-      contactsService.list($scope.bookId, $scope.user._id, {
-        page: $scope.nextPage || $scope.currentPage,
-        paginate: true
-      }).then(function(data) {
-        addItemsToCategories(data.contacts);
-        $scope.lastPage = data.last_page;
-        $scope.nextPage = data.next_page;
-      }, function(err) {
-        $log.error('Can not get contacts', err);
-        displayContactError('Can not get contacts');
-      }).finally(loadPageComplete);
+      ContactAPIClient
+        .addressbookHome($scope.bookId)
+        .addressbook($scope.bookName)
+        .vcard()
+        .list({
+          userId: $scope.user._id,
+          page: $scope.nextPage || $scope.currentPage,
+          paginate: true
+        })
+        .then(function(data) {
+          addItemsToCategories(data.contacts);
+          $scope.lastPage = data.last_page;
+          $scope.nextPage = data.next_page;
+        }, function(err) {
+          $log.error('Can not get contacts', err);
+          displayContactError('Can not get contacts');
+        })
+        .finally(loadPageComplete);
     }
 
     function updateScrollState() {
@@ -501,8 +554,9 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, $window, contactsService, ContactsHelper) {
+  .controller('contactItemController', function($scope, $rootScope, $location, $window, deleteContact, ContactsHelper, DEFAULT_ADDRESSBOOK_NAME) {
 
+    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
     $scope.displayContact = function() {
@@ -520,6 +574,6 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.deleteContact = function() {
-      contactsService.deleteContact($scope.bookId, $scope.contact);
+      deleteContact($scope.bookId, $scope.bookName, $scope.contact);
     };
   });
