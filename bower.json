@@ -80,7 +80,8 @@
     "dynamic-directive": "2.0.0",
     "iframe-resizer": "3.4.2",
     "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git",
-    "angular-summernote": "https://github.com/linagora/angular-summernote.git#linagora-0-5-1",
+    "summernote": "linagora/summernote#waiting-merge",
+    "angular-summernote": "0.7.0",
     "autosize": "3.0.13",
     "offline": "0.7.14",
     "angular-ui-router": "0.2.15",
@@ -94,8 +95,7 @@
     "fullcalendar": "~2.5.0",
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
     "bootstrap-switch": "~3.3.2",
-    "summernote": "~0.6.4",
-    "angular-summernote": "linagora-0-5-1"
+    "summernote": "waiting-merge"
   },
   "devDependencies": {
     "chai-datetime": "~1.4.0",

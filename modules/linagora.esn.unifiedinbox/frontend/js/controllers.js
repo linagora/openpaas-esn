@@ -66,11 +66,12 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.summernoteOptions = {
       focus: true,
       airMode: false,
+      disableResizeEditor: true,
       toolbar: [
         ['style', ['bold', 'italic', 'underline', 'strikethrough']],
         ['textsize', ['fontsize']],
         ['alignment', ['paragraph', 'ul', 'ol']],
-        ['fullscreen', ['fullscreen']]
+        ['fullscreen', ['esnFullscreen']]
       ]
     };
 

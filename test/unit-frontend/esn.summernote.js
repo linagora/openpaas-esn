@@ -1,278 +1,156 @@
 'use strict';
 
 /* global chai: false */
-/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The esn.summernote Angular module', function() {
-  var $compile, $rootScope, $scope, element;
+  var $rootScope, summernote;
 
-  afterEach(function() {
-    if (element) {
-      element.remove();
-    }
+  beforeEach(function() {
+    angular.mock.module('esn.summernote-wrapper', function($provide) {
+      $provide.value('summernote', summernote = { plugins: {} });
+    });
   });
 
-  function compileDirective(html) {
-    element = $compile(html)($scope);
-    $scope.$digest();
-    element.appendTo(document.body);
-    return element;
-  }
+  describe('The summernotePlugins factory', function() {
+
+    var summernotePlugins;
+
+    describe('The add function', function() {
+
+      beforeEach(function() {
+        inject(function(_summernotePlugins_) {
+          summernotePlugins = _summernotePlugins_;
+        });
+      });
+
+      it('should register a new plugin to summernote.plugins', function() {
+        summernotePlugins.add('myPlugin', { a: 'b' });
+
+        expect(summernote.plugins.myPlugin).to.deep.equal({ a: 'b' });
+      });
+
+      it('should overwrite an existing plugin in summernote.plugins', function() {
+        summernotePlugins.add('myPlugin', { a: 'b' });
+        summernotePlugins.add('myPlugin', { c: 'd' });
+
+        expect(summernote.plugins.myPlugin).to.deep.equal({ c: 'd' });
+      });
+
+    });
+
+  });
 
   describe('the fullscreen plugin', function() {
+
+    var plugin, btn, icon, editor;
+
     beforeEach(function() {
       angular.mock.module('esn.summernote-wrapper');
-      angular.mock.inject(function(_$compile_, _$rootScope_) {
-        $compile = _$compile_;
+      angular.mock.inject(function(_$rootScope_, FullscreenPlugin) {
+        plugin = FullscreenPlugin;
         $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
+      });
+
+      btn = $('<button><i class="fa fa-expand" /></button>');
+      icon = btn.find('i.fa');
+      editor = $('<div />');
+    });
+
+    it('should register a new "esnFullscreen" button', function(done) {
+      plugin({
+        memo: function(name, button) {
+          expect(name).to.equal('button.esnFullscreen');
+          expect(button).to.be.a('function');
+
+          done();
+        }
       });
     });
 
-    it('should broadcast a hide/show in alternance while toggling the icon every time the fullscreen button of summernote toolbar is clicked', function() {
-      var hide = sinon.spy(), show = sinon.spy();
-      $scope.$on('header:hide', function() {
-        hide();
-      });
-      $scope.$on('header:show', function() {
-        show();
-      });
-      var element = compileDirective('<summernote/>');
-      element.summernote('focus');
-      var btn = angular.element('[data-name="fullscreen"]');
-      var icon = angular.element('[data-name="fullscreen"] > i');
-      btn.click();
-      expect(hide).to.be.called;
-      expect(icon.hasClass('fa-compress')).to.be.true;
-      expect(icon.hasClass('fa-expand')).to.be.false;
-      btn.click();
-      expect(show).to.be.called;
-      expect(icon.hasClass('fa-compress')).to.be.false;
-      expect(icon.hasClass('fa-expand')).to.be.true;
-    });
-  });
+    it('should create a button with an icon', function(done) {
+      summernote.ui = {
+        button: function(button) {
+          expect(button.contents).to.equal('fa fa-expand');
 
-  describe('the SupportPlaceholder plugin', function() {
-    beforeEach(function() {
-      angular.mock.module('esn.summernote-wrapper');
-      angular.mock.inject(function(_$compile_, _$rootScope_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-      });
-    });
-
-    it('should leverage the content of the summernote editor to toggle empty class on the contenteditable element', function() {
-      var element = compileDirective('<summernote/>');
-      element.summernote('focus');
-      var contentEditable = angular.element('[contenteditable="true"]');
-      expect(contentEditable.hasClass('empty')).to.be.true;
-
-      element.summernote('insertText', 'Hello world!');
-      expect(contentEditable.hasClass('empty')).to.be.false;
-
-      element.summernote('undo');
-      expect(contentEditable.hasClass('empty')).to.be.true;
-    });
-  });
-
-  describe('the ScrollOnEnter plugin', function() {
-    var ScrollOnEnterPlugin, autoScrollDownSpy;
-
-    beforeEach(function() {
-      autoScrollDownSpy = sinon.spy();
-
-      angular.mock.module('esn.summernote-wrapper', function($provide) {
-        $provide.value('elementScrollDownService', {
-          autoScrollDown: autoScrollDownSpy
-        });
-      });
-
-      angular.mock.inject(function(_$compile_, _$rootScope_, _ScrollOnEnterPlugin_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-        ScrollOnEnterPlugin = _ScrollOnEnterPlugin_;
-      });
-    });
-
-    it('should call the auto scroll down method when a new paragraph is inserted', function() {
-      var editorStub = sinon.stub().returns({
-        find: angular.noop
-      });
-      var layoutInfo = {
-        editor: editorStub
+          done();
+        },
+        icon: function(icon) { return icon; }
       };
 
-      ScrollOnEnterPlugin.events.insertParagraph(null, null, layoutInfo);
-      expect(editorStub).to.be.called;
-      expect(autoScrollDownSpy).to.be.called;
-    });
-  });
-
-  describe('the MoveCursorContentEditable factory', function() {
-    var MoveCursorContentEditable, MobileFirefoxNewlinePlugin, event;
-
-    beforeEach(function() {
-      event = {
-        preventDefault: sinon.spy()
-      };
-      angular.mock.module('esn.summernote-wrapper');
-      angular.mock.inject(function(_$compile_, _$rootScope_, _MoveCursorContentEditable_, _MobileFirefoxNewlinePlugin_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-        MoveCursorContentEditable = _MoveCursorContentEditable_;
-        MobileFirefoxNewlinePlugin = _MobileFirefoxNewlinePlugin_;
+      plugin({
+        memo: function(name, button) { button(); }
       });
     });
 
-    describe('the moveCursorFocusedSelection method', function() {
-      it('should move the cursor to the corresponding location', function() {
-        var contentEditable = compileDirective('<div contenteditable="true">First Second Third</div>');
-        contentEditable.focus();
-
-        MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[0], 12);
-        MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-        expect(contentEditable.code()).to.equal('First Second<br> Third');
-
-        MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[0], 5);
-        MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-        expect(contentEditable.code()).to.equal('First<br> Second<br> Third');
-      });
-    });
-  });
-
-  describe('the MobileFirefoxNewline plugin', function() {
-    var $window, MobileFirefoxNewlinePlugin, preventDefaultSpy, event, MoveCursorContentEditable;
-
-    beforeEach(function() {
-      preventDefaultSpy = sinon.spy();
-      event = {
-        preventDefault: preventDefaultSpy
+    it('should send the appropriate command to summernote when button is clicked', function(done) {
+      summernote.ui = {
+        button: function(button) { button.click.bind(btn)(); },
+        icon: function() {}
       };
 
-      angular.mock.module('esn.summernote-wrapper');
-      angular.mock.inject(function(_$compile_, _$window_, _$rootScope_, _MobileFirefoxNewlinePlugin_, _MoveCursorContentEditable_) {
-        $compile = _$compile_;
-        $window = _$window_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-        MobileFirefoxNewlinePlugin = _MobileFirefoxNewlinePlugin_;
-        MoveCursorContentEditable = _MoveCursorContentEditable_;
+      plugin({
+        memo: function(name, button) { button(); },
+        invoke: function(command) {
+          expect(command).to.equal('fullscreen.toggle');
+
+          done();
+        }
       });
     });
 
-    it('should insert a <br> tag', function() {
-      var contentEditable = compileDirective('<div contenteditable="true">Hello world!</div>');
-      contentEditable.focus();
-      MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-      expect(preventDefaultSpy).to.be.called;
-      expect(contentEditable.code()).to.equal('<br>Hello world!');
-    });
+    it('should toggle classes on the icon when button is clicked', function(done) {
+      summernote.ui = {
+        button: function(button) {
+          button.click.bind(btn)();
 
-    it('should insert a <br> tag at the current cursor position', function() {
-      var contentEditable = compileDirective('<div contenteditable="true">The first line The second line</div>');
-      contentEditable.focus();
-      // move the cursor to be after "The first line"
-      MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[0], 14);
+          expect(icon.hasClass('fa-compress')).to.equal(true);
+          expect(icon.hasClass('fa-expand')).to.equal(false);
 
-      MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-      expect(preventDefaultSpy).to.be.called;
-      expect(contentEditable.code()).to.equal('The first line<br> The second line');
-    });
-
-    it('should insert a <br> tag at end of a paragraph', function() {
-      var contentEditable = compileDirective('<div contenteditable="true"><pr>The first line</pr><p>The second line</p></div>');
-      contentEditable.focus();
-      // move the cursor to the end of the second paragraph
-      MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[1], 1);
-
-      MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-      expect(preventDefaultSpy).to.be.called;
-      expect(contentEditable.code()).to.equal('<pr>The first line</pr><p>The second line<br></p>');
-    });
-
-    it('should insert a <br> tag inside a paragraph', function() {
-      var contentEditable = compileDirective('<div contenteditable="true"><pr>The first line</pr><p>The second lineThe third line</p></div>');
-      contentEditable.focus();
-      // set the cursor between "The second line" and "The third line"
-      MoveCursorContentEditable.moveCursorFocusedSelection(contentEditable[0].childNodes[1].childNodes[0], 15);
-
-      MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-      expect(preventDefaultSpy).to.be.called;
-      expect(contentEditable.code()).to.equal('<pr>The first line</pr><p>The second line<br>The third line</p>');
-    });
-  });
-
-  describe('the MobileFirefoxNewline plugin for a non-supported browser', function() {
-    var MobileFirefoxNewlinePlugin, preventDefaultSpy, event;
-
-    beforeEach(function() {
-      preventDefaultSpy = sinon.spy();
-      event = {
-        preventDefault: preventDefaultSpy
+          done();
+        },
+        icon: function() {}
       };
 
-      angular.mock.module('esn.summernote-wrapper', function($provide) {
-        $provide.value('$window', {
-          getSelection: undefined,
-          navigator: {
-            userAgent: 'mobile'
-          }
-        });
-
-        $provide.value('$document', [{
-          documentMode: {}
-        }]);
-      });
-
-      angular.mock.inject(function(_$compile_, _$rootScope_, _MobileFirefoxNewlinePlugin_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-        MobileFirefoxNewlinePlugin = _MobileFirefoxNewlinePlugin_;
+      plugin({
+        memo: function(name, button) { button(); },
+        invoke: function() {},
+        layoutInfo: { editor: editor }
       });
     });
 
-    it('should not modify the content editable div', function() {
-      var contentEditable = compileDirective('<div contenteditable="true">Hello world!</div>');
-      contentEditable.focus();
-      MobileFirefoxNewlinePlugin.events.insertParagraph(event);
-      expect(preventDefaultSpy).to.be.called;
-      expect(contentEditable.code()).to.equal('Hello world!');
+    it('should broadcast header:show when going out of fullscreen', function(done) {
+      $rootScope.$on('header:show', function() { done(); });
+
+      summernote.ui = {
+        button: function(button) { button.click.bind(btn)(); },
+        icon: function() {}
+      };
+
+      plugin({
+        memo: function(name, button) { button(); },
+        invoke: function() {},
+        layoutInfo: { editor: editor }
+      });
     });
+
+    it('should broadcast header:hide when going in fullscreen mode', function(done) {
+      editor.addClass('fullscreen');
+      $rootScope.$on('header:hide', function() { done(); });
+
+      summernote.ui = {
+        button: function(button) { button.click.bind(btn)(); },
+        icon: function() {}
+      };
+
+      plugin({
+        memo: function(name, button) { button(); },
+        invoke: function() {},
+        layoutInfo: { editor: editor }
+      });
+    });
+
   });
 
-  describe('the PreventEmptyArea plugin', function() {
-    beforeEach(function() {
-      angular.mock.module('esn.summernote-wrapper', function($provide) {
-        $provide.value('deviceDetector', {
-          browser: 'firefox',
-          isMobile: function() { return false; }
-        });
-      });
-
-      angular.mock.inject(function(_$compile_, _$rootScope_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
-      });
-    });
-
-    it('should prevent the editor from being empty', function() {
-      var element = compileDirective('<summernote/>');
-      element.summernote('focus');
-      var editor = angular.element('.note-editable');
-      expect(editor.code()).to.equal('<p><br></p>');
-
-      element.summernote('insertText', '');
-      expect(editor.code()).to.equal('<p><br></p>');
-
-      element.summernote('insertText', 'Hello world!');
-      expect(editor.code()).to.equal('<p>Hello world!<br></p>');
-    });
-  });
 });

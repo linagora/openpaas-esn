@@ -5,7 +5,6 @@
 composer, composer-desktop {
   .flex-column;
   .flex-shorthand(1);
-  padding-top: 50px;
 
   .compose {
     .flex-column;
@@ -141,25 +140,39 @@ composer, composer-desktop {
     }
 
     .note-editor {
+      .flex-column;
       .flex-shorthand(1);
+
       border: 0;
 
-      .note-editing-area .note-editable {
-        min-height: 50px;
-        
-        &.empty:not(:focus):before{
-          content: attr(placeholder);
-          color: @m-gray;
-          font-style:italic;
-        }
+      .note-editing-area {
+        .flex-shorthand(1);
 
-        p {
-          margin-bottom: 0;
+        .note-editable {
+          .fill-parent-block;
+
+          p {
+            margin-bottom: 0;
+          }
         }
       }
+
+      &.fullscreen {
+
+        .note-editing-area .note-editable {
+          position: relative;
+        }
+
+      }
+
+      .note-resizebar {
+        display: none;
+      }
+
       .note-popover .note-image-popover {
         background-color: @primaryColor ;
       }
+
       .btn-group:not(.dropdown-menu) .btn-default {
         color: @textPrimaryColor;
         background-color: @primaryColor;
@@ -205,6 +218,13 @@ composer, composer-desktop {
 
   }
 
+}
+
+// So that composer on mobile is full height
+composer {
+  .fill-parent-block;
+
+  top: ~"calc(@{header-height} + @{sub-header-height})";
 }
 
 @media (max-width: @screen-xs-max) {
@@ -254,7 +274,6 @@ composer, composer-desktop {
 @media (min-width: @screen-sm-min) {
 
   composer, composer-desktop {
-    padding-top: 0;
 
     .compose {
 
@@ -281,14 +300,15 @@ composer, composer-desktop {
     }
 
     .note-editor {
-      .note-editing-area .note-editable {
-        max-height: 150px;
-      }
+
       .note-toolbar {
+
         .note-fullscreen {
           display: none;
         }
+
       }
+
     }
 
   }
