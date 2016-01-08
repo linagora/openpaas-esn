@@ -229,6 +229,25 @@ module.exports = function(dependencies) {
     getContactsFromDAV(req, res);
   }
 
+  function getAddressbooks(req, res) {
+    var ESNToken = req.token && req.token.token ? req.token.token : '';
+    contactModule.lib.client({ ESNToken: ESNToken })
+      .addressbookHome(req.params.bookHome)
+      .list()
+      .then(function(data) {
+        res.status(200).json(data.body);
+      }, function(err) {
+        logger.error('Error while getting addressbook list', err);
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while getting addressbook list'
+          }
+        });
+      });
+  }
+
   return {
     getContactsFromDAV: getContactsFromDAV,
     getContact: getContact,
@@ -236,6 +255,7 @@ module.exports = function(dependencies) {
     searchContacts: searchContacts,
     updateContact: updateContact,
     deleteContact: deleteContact,
+    getAddressbooks: getAddressbooks,
     defaultHandler: defaultHandler
   };
 

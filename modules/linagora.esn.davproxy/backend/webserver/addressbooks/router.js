@@ -15,6 +15,14 @@ module.exports = function(dependencies) {
   router.put('/:bookHome/:bookName/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.updateContact);
   router.delete('/:bookHome/:bookName/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.deleteContact);
   router.get('/:bookHome/:bookName.json', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.getContacts);
+
+  router.get(
+    '/:bookHome.json',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    controller.getAddressbooks
+  );
+
   router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.defaultHandler);
 
   return router;
