@@ -187,34 +187,36 @@ describe('The calendar module services', function() {
       this.fcMoment = fcMoment;
     }));
 
-    it('getEndDateOnCalendarSelect should add 30 minutes to end if diff with start is not 30 minutes', function() {
-      var start = this.fcMoment('2013-02-08 09:00:00');
-      var end = this.fcMoment('2013-02-08 09:30:00');
-      var expectedStart = this.fcMoment('2013-02-08 09:00:00').toDate();
-      var expectedEnd = this.fcMoment('2013-02-08 10:00:00').toDate();
-      var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
-      expect(date.start.toDate().getTime()).to.equal(expectedStart.getTime());
-      expect(date.end.toDate().getTime()).to.equal(expectedEnd.getTime());
-    });
+    describe('the getDateOnCalendarSelect function', function() {
+      it('should add 30 minutes to end if diff is 30 minutes and start is an hour', function() {
+        var start = this.fcMoment('2013-02-08 09:00:00');
+        var end = this.fcMoment('2013-02-08 09:30:00');
+        var expectedStart = this.fcMoment('2013-02-08 09:00:00');
+        var expectedEnd = this.fcMoment('2013-02-08 10:00:00');
+        var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
+        expect(expectedStart.isSame(date.start)).to.be.true;
+        expect(expectedEnd.isSame(date.end)).to.be.true;
+      });
 
-    it('getEndDateOnCalendarSelect should remove 30 minutes to start if diff with end is not 30 minutes', function() {
-      var start = this.fcMoment('2013-02-08 09:30:00');
-      var end = this.fcMoment('2013-02-08 10:00:00');
-      var expectedStart = this.fcMoment('2013-02-08 09:00:00').toDate();
-      var expectedEnd = this.fcMoment('2013-02-08 10:00:00').toDate();
-      var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
-      expect(date.start.toDate().getTime()).to.equal(expectedStart.getTime());
-      expect(date.end.toDate().getTime()).to.equal(expectedEnd.getTime());
-    });
+      it('should add 30 minutes to end if diff is 30 minutes and start is an half hour', function() {
+        var start = this.fcMoment('2013-02-08 09:30:00');
+        var end = this.fcMoment('2013-02-08 10:00:00');
+        var expectedStart = this.fcMoment('2013-02-08 09:30:00');
+        var expectedEnd = this.fcMoment('2013-02-08 10:30:00');
+        var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
+        expect(expectedStart.isSame(date.start)).to.be.true;
+        expect(expectedEnd.isSame(date.end)).to.be.true;
+      });
 
-    it('getEndDateOnCalendarSelect should not add 30 minutes to end if diff with start is not 30 minutes', function() {
-      var start = this.fcMoment('2013-02-08 09:00:00');
-      var end = this.fcMoment('2013-02-08 11:30:00');
-      var expectedStart = this.fcMoment('2013-02-08 09:00:00').toDate();
-      var expectedEnd = this.fcMoment('2013-02-08 11:30:00').toDate();
-      var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
-      expect(date.start.toDate().getTime()).to.equal(expectedStart.getTime());
-      expect(date.end.toDate().getTime()).to.equal(expectedEnd.getTime());
+      it('should return same start and end if the diff is not 30 minutes', function() {
+        var start = this.fcMoment('2013-02-08 09:00:00');
+        var end = this.fcMoment('2013-02-08 11:30:00');
+        var expectedStart = this.fcMoment('2013-02-08 09:00:00');
+        var expectedEnd = this.fcMoment('2013-02-08 11:30:00');
+        var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
+        expect(expectedStart.isSame(date.start)).to.be.true;
+        expect(expectedEnd.isSame(date.end)).to.be.true;
+      });
     });
   });
 
