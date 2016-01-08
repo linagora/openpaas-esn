@@ -517,7 +517,7 @@ describe('The contact client APIs', function() {
 
       });
 
-    });
+    }); // The addressbook fn
 
     describe('The create addressbook fn', function() {
 
@@ -581,7 +581,61 @@ describe('The contact client APIs', function() {
           done();
         });
       });
-    });
+    }); // The create addressbook fn
+
+    describe('The list addressbook fn', function() {
+
+      it('should call davClient with the right parameters', function(done) {
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options) {
+            expect(options).to.shallowDeepEqual({
+              method: 'GET',
+              json: true,
+              headers: {
+                ESNToken: CLIENT_OPTIONS.ESNToken,
+                accept: VCARD_JSON
+              },
+              body: undefined
+            });
+            expectBookHomeURL(options.url);
+            done();
+          }
+        });
+        getAddressbookHome().list();
+      });
+
+      it('should resolve with response on success', function(done) {
+        var response = {
+          statusCode: 200
+        };
+
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options, callback) {
+            callback(null, response);
+          }
+        });
+
+        getAddressbookHome().list().then(function(data) {
+          expect(data.response).to.deep.equal(response);
+          done();
+        });
+      });
+
+      it('should reject with error when client returns error', function(done) {
+        mockery.registerMock('../dav-client', {
+          rawClient: function(options, callback) {
+            callback('a error');
+          }
+        });
+
+        getAddressbookHome().list().then(null, function(err) {
+          expect(err).to.equal('a error');
+          done();
+        });
+      });
+
+    }); // The list addresbook fn
+
   });
 
 });
