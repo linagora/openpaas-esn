@@ -7,6 +7,7 @@ angular.module('linagora.esn.contact')
   .factory('ContactAPIClient', function($q,
                             uuid4,
                             ContactShell,
+                            AddressbookShell,
                             ContactsHelper,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
@@ -34,6 +35,10 @@ angular.module('linagora.esn.contact')
       return [];
     }
 
+    function getBookHomeUrl(bookId) {
+      return [ADDRESSBOOK_PATH, bookId + '.json'].join('/');
+    }
+
     function getBookUrl(bookId, bookName) {
       return [ADDRESSBOOK_PATH, bookId, bookName + '.json'].join('/');
     }
@@ -41,6 +46,23 @@ angular.module('linagora.esn.contact')
     function getVCardUrl(bookId, bookName, cardId) {
       return [ADDRESSBOOK_PATH, bookId, bookName, cardId + '.vcf'].join('/');
     }
+
+    // ======================== AB function ====================================
+
+    function listAddressbook(bookId) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+
+      return davClient('GET', getBookHomeUrl(bookId), headers)
+        .then(function(response) {
+          if (response.data._embedded && response.data._embedded['dav:addressbook']) {
+            return response.data._embedded['dav:addressbook'].map(function(item) {
+              return new AddressbookShell(item);
+            });
+          }
+        });
+    }
+
+    // ====================== VCARD functions ==================================
 
     function getCard(bookId, bookName, cardId) {
       var headers = { Accept: CONTACT_ACCEPT_HEADER };
@@ -192,6 +214,10 @@ angular.module('linagora.esn.contact')
       function addressbook(bookName) {
         bookName = bookName || DEFAULT_ADDRESSBOOK_NAME;
 
+        function list() {
+          return listAddressbook(bookId);
+        }
+
         function vcard(cardId) {
           function get() {
             return getCard(bookId, bookName, cardId);
@@ -227,6 +253,7 @@ angular.module('linagora.esn.contact')
           };
         }
         return {
+          list: list,
           vcard: vcard
         };
       }
