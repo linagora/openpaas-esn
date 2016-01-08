@@ -160,10 +160,20 @@ angular.module('linagora.esn.graceperiod')
       });
 
       return remove(id).then(function() {
-        return gracePeriodAPI.one('tasks').one(id).remove().catch(function(error) {
-          $log.error('Could not cancel graceperiod, we will try again at the end of the graceperiod', error);
-          return retryBeforeEnd(task, error, gracePeriodAPI.one('tasks').one(id).remove);
-        });
+        return gracePeriodAPI
+          .one('tasks')
+          .one(id)
+          .withHttpConfig({timeout:task.justBeforeEnd})
+          .remove()
+          .catch(function(error) {
+            $log.error('Could not cancel graceperiod, we will try again at the end of the graceperiod', error);
+            var cancelPromiseFactory = gracePeriodAPI
+              .one('tasks')
+              .one(id)
+              .withHttpConfig({timeout:HTTP_LAG_UPPER_BOUND}).remove;
+
+            return retryBeforeEnd(task, error, cancelPromiseFactory);
+          });
       }, function() {
         return $q.reject('Canceling invalid task id: ' + id);
       }).finally(notification.close);
