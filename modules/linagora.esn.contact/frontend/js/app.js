@@ -10,6 +10,7 @@ angular.module('linagora.esn.contact', [
   'mgcrea.ngStrap.helpers.dateParser',
   'mgcrea.ngStrap.helpers.dateFormatter',
   'linagora.esn.graceperiod',
+  'linagora.esn.davproxy',
   'esn.search',
   'esn.scroll',
   'esn.multi-input',
@@ -75,20 +76,29 @@ angular.module('linagora.esn.contact', [
     injectDynamicDirective(isContactWritable, 'contact-delete-action-item', 'contact-list-menu-items');
   })
 
-  .run(function($q, $log, attendeeService, contactsService, session) {
+  .run(function($q, $log, attendeeService, ContactAPIClient, session) {
     var contactProvider = {
       searchAttendee: function(query) {
-        return contactsService.searchAllAddressBooks(session.user._id, query).then(function(response) {
-          response.hits_list.forEach(function(contact) {
-            if (contact.emails && contact.emails.length !== 0) {
-              contact.email = contact.emails[0].value;
-            }
+        var searchOptions = {
+          data: query,
+          userId: session.user._id
+        };
+        return ContactAPIClient
+          .addressbookHome(session.user._id)
+          .addressbook()
+          .vcard()
+          .search(searchOptions)
+          .then(function(response) {
+            response.hits_list.forEach(function(contact) {
+              if (contact.emails && contact.emails.length !== 0) {
+                contact.email = contact.emails[0].value;
+              }
+            });
+            return response.hits_list;
+          }, function(error) {
+            $log('Error while searching contacts: ' + error);
+            return $q.when([]);
           });
-          return response.hits_list;
-        }, function(error) {
-          $log('Error while searching contacts: ' + error);
-          return $q.when([]);
-        });
       },
       templateUrl: '/contact/views/partials/contact-auto-complete.html'
     };

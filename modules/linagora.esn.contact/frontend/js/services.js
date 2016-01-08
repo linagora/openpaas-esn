@@ -206,7 +206,7 @@ angular.module('linagora.esn.contact')
       isTextAvatar: isTextAvatar
     };
   })
-  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ContactShell, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
+  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, ContactAPIClient, ContactShell, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
     var sio = null;
     var listening = false;
 
@@ -220,10 +220,14 @@ angular.module('linagora.esn.contact')
     }
 
     function liveNotificationHandlerOnUpdate(data) {
-      contactsService.getCard(data.bookId, data.contactId).then(function(updatedContact) {
-        $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, updatedContact);
-      });
-
+      ContactAPIClient
+        .addressbookHome(data.bookId)
+        .addressbook(data.bookName)
+        .vcard(data.contactId)
+        .get()
+        .then(function(updatedContact) {
+          $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, updatedContact);
+        });
     }
 
     function startListen(bookId) {
@@ -259,66 +263,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('contactsService', function(ContactsHelper, ContactShell, notificationFactory, gracePeriodService, GRACE_DELAY, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, $log, CONTACT_EVENTS, gracePeriodLiveNotification, CONTACT_LIST_DEFAULT_SORT, CONTACT_LIST_PAGE_SIZE) {
-
-    function deleteContact(bookId, contact) {
-      remove(bookId, contact, GRACE_DELAY)
-        .then(function(taskId) {
-
-          gracePeriodLiveNotification.registerListeners(
-            taskId,
-            function() {
-              notificationFactory.strongError('', 'Failed to delete contact (' + contact.displayName + '), please try again later');
-              // add the contact to the list again
-              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
-            }
-          );
-
-          return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel')
-            .then(function(data) {
-              if (data.cancelled) {
-                return gracePeriodService.cancel(taskId).then(function() {
-                  data.success();
-                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
-                }, function(err) {
-                  data.error('Cannot cancel contact deletion, the contact might be deleted permanently');
-                  return $q.reject(err);
-                });
-              } else {
-                gracePeriodService.remove(taskId);
-              }
-            });
-        }, function(err) {
-          notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
-          return $q.reject(err);
-        });
-    }
-
-    function configureRequest(method, path, headers, body, params) {
-      var url = DAV_PATH;
-
-      headers = headers || {};
-
-      var config = {
-        url: url.replace(/\/$/, '') + path,
-        method: method,
-        headers: headers,
-        params: params
-      };
-
-      if (body) {
-        config.data = body;
-      }
-
-      return $q.when(config);
-    }
-
-    function request(method, path, headers, body, params) {
-      return configureRequest(method, path, headers, body, params).then(function(config) {
-        return $http(config);
-      });
-    }
-
+  .factory('shellToVCARD', function(ICAL, ContactsHelper) {
     function shellToVCARD(shell) {
       var prop;
       var vcard = new ICAL.Component('vcard');
@@ -420,174 +365,57 @@ angular.module('linagora.esn.contact')
 
       return vcard;
     }
-
-    function bookUrl(bookId) {
-      return '/addressbooks/' + bookId + '/contacts.json';
-    }
-
-    function contactUrl(bookId, cardId) {
-      return '/addressbooks/' + bookId + '/contacts/' + cardId + '.vcf';
-    }
-
-    function addIfMatchHeader(etag, headers) {
-      if (etag) {
-        headers['If-Match'] = etag;
+    return shellToVCARD;
+  })
+  .factory('deleteContact', function(
+                              $rootScope,
+                              $q,
+                              ContactAPIClient,
+                              gracePeriodService,
+                              gracePeriodLiveNotification,
+                              notificationFactory,
+                              GRACE_DELAY,
+                              CONTACT_EVENTS) {
+    return function(bookId, bookName, contact) {
+      var options = { graceperiod: GRACE_DELAY };
+      if (contact.etag) {
+        options.etag = contact.etag;
       }
 
-      return headers;
-    }
+      return ContactAPIClient
+        .addressbookHome(bookId)
+        .addressbook(bookName)
+        .vcard(contact.id)
+        .remove(options)
+        .then(function(taskId) {
+          $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
+          gracePeriodLiveNotification.registerListeners(
+            taskId,
+            function() {
+              notificationFactory.strongError('', 'Failed to delete contact (' + contact.displayName + '), please try again later');
+              // add the contact to the list again
+              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+            }
+          );
 
-    function addGracePeriodParam(gracePeriod, params) {
-      if (gracePeriod) {
-        params.graceperiod = gracePeriod;
-      }
-
-      return params;
-    }
-
-    function getCard(bookId, cardId) {
-      var path = contactUrl(bookId, cardId),
-          headers = {
-            Accept: 'application/vcard+json'
-          };
-
-      return request('get', path, headers).then(function(response) {
-        var contact = new ContactShell(new ICAL.Component(response.data), response.headers('ETag'));
-        ContactsHelper.forceReloadDefaultAvatar(contact);
-        return contact;
-      });
-    }
-
-    function responseAsContactShell(response) {
-      if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
-        return response.data._embedded['dav:item'].map(function(vcarddata) {
-          return new ContactShell(new ICAL.Component(vcarddata.data));
+          return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel')
+            .then(function(data) {
+              if (data.cancelled) {
+                return gracePeriodService.cancel(taskId).then(function() {
+                  data.success();
+                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+                }, function(err) {
+                  data.error('Cannot cancel contact deletion, the contact might be deleted permanently');
+                  return $q.reject(err);
+                });
+              } else {
+                gracePeriodService.remove(taskId);
+              }
+            });
+        }, function(err) {
+          notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
+          return $q.reject(err);
         });
-      }
-      return [];
-    }
-
-    function list(bookId, userId, options) {
-      options = options || {};
-      var currentPage = options.page || 1;
-      var limit = options.limit || CONTACT_LIST_PAGE_SIZE;
-      var offset = (currentPage - 1) * limit;
-
-      var query = {
-        sort: options.sort || CONTACT_LIST_DEFAULT_SORT,
-        userId: userId
-      };
-
-      if (options.paginate) {
-        query.limit = limit;
-        query.offset = offset;
-      }
-
-      return request('get', bookUrl(bookId), null, null, query).then(function(response) {
-        var result = {
-          contacts: responseAsContactShell(response),
-          current_page: currentPage,
-          last_page: !response.data._links.next
-        };
-        if (!response.last_page) {
-          result.next_page = currentPage + 1;
-        }
-        return result;
-      });
-    }
-
-    function create(bookId, contact) {
-      var cardId = uuid4.generate(),
-          headers = {
-            'Content-Type': 'application/vcard+json'
-          };
-
-      contact.id = cardId;
-
-      return request('put', contactUrl(bookId, cardId), headers, shellToVCARD(contact).toJSON()).then(function(response) {
-        if (response.status !== 201) {
-          return $q.reject(response);
-        }
-        return getCard(bookId, cardId)
-          .then(function(contact) {
-            $rootScope.$emit(CONTACT_EVENTS.CREATED, contact);
-            return response;
-          })
-          .finally(function() {
-            return response;
-          });
-
-      });
-    }
-
-    function modify(bookId, contact) {
-      if (!contact.id) {
-        return $q.reject(new Error('Missing contact.id'));
-      }
-
-      var headers = {
-        'Content-Type': 'application/vcard+json',
-        Prefer: 'return-representation'
-      };
-
-      return request('put',
-        contactUrl(bookId, contact.id),
-        addIfMatchHeader(contact.etag, headers),
-        shellToVCARD(contact).toJSON(),
-        addGracePeriodParam(GRACE_DELAY, {})).then(function(response) {
-        if (response.status === 202 || response.status === 204) {
-          $rootScope.$emit(CONTACT_EVENTS.UPDATED, contact);
-          return response.headers('X-ESN-TASK-ID');
-        } else {
-          return $q.reject(response);
-        }
-      });
-    }
-
-    function remove(bookId, contact, gracePeriod) {
-      if (!contact.id) {
-        return $q.reject(new Error('Missing contact.id'));
-      }
-
-      return request('delete',
-        contactUrl(bookId, contact.id),
-        addIfMatchHeader(contact.etag, {}),
-        null,
-        addGracePeriodParam(gracePeriod, {})).then(function(response) {
-        if (response.status !== 204 && response.status !== 202) {
-          return $q.reject(response);
-        }
-
-        $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
-
-        return response.headers('X-ESN-TASK-ID');
-      });
-    }
-
-    function search(bookId, userId, data, page) {
-      return request('get', bookUrl(bookId), null, null, {search: data, userId: userId, page: page}).then(function(response) {
-        return {
-          current_page: response.data._current_page,
-          total_hits: response.data._total_hits,
-          hits_list: responseAsContactShell(response)
-        };
-      });
-    }
-
-    function searchAllAddressBooks(userId, data, page) {
-      return search(userId, userId, data, page);
-    }
-
-    return {
-      remove: remove,
-      list: list,
-      create: create,
-      modify: modify,
-      getCard: getCard,
-      search: search,
-      searchAllAddressBooks: searchAllAddressBooks,
-      deleteContact: deleteContact,
-      shellToVCARD: shellToVCARD
     };
   })
   .factory('displayContactError', function($alert) {
