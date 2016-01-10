@@ -1,9 +1,7 @@
 'use strict';
 
-/* global _:false */
-
 angular.module('esn.calendar')
-  .factory('miniCalendarService', function($q, fcMoment) {
+  .factory('miniCalendarService', function($q, fcMoment, _) {
 
     function forEachDayOfEvent(event, callback) {
       var day = fcMoment(event.start);

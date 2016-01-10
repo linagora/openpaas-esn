@@ -1,10 +1,8 @@
 'use strict';
 
-/* global _:false */
-
 angular.module('esn.calendar')
   .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG, CALENDAR_EVENTS,
-    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView) {
+    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView, _) {
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
