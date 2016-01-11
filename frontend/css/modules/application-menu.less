@@ -1,7 +1,7 @@
 .popover.application-menu {
   margin-top: 38px;
-  max-width: 350px;
-  width: 350px;
+  max-width: 300px;
+  width: 300px;
   .flex() !important; /* override angular-strap display property */
   .flex-vertical-centered();
   .flex-start();
@@ -18,5 +18,18 @@
   }
   i.mdi {
     font-size: 46px;
+  }
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
+
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) {
+  .popover.application-menu {
+    max-width: 350px;
+    width: 350px;
   }
 }

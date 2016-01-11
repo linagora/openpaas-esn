@@ -7,8 +7,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
     templateUrl: '/views/modules/application-menu/application-menu.html',
     html: false,
     trigger: 'manual',
-    autoClose: true,
-    container: '#header'
+    autoClose: true
   })
   .directive('applicationMenuToggler', function($popover, POPOVER_APPLICATION_MENU_OPTIONS) {
     return {
