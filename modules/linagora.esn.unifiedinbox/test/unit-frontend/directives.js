@@ -8,7 +8,8 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
-    iFrameResize = angular.noop, elementScrollDownService, $stateParams;
+      iFrameResize = angular.noop, elementScrollDownService, $stateParams,
+      deviceDetector;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -40,6 +41,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('elementScrollDownService', elementScrollDownService = {});
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
+    $provide.value('deviceDetector', deviceDetector = { isMobile: function() { return false;} });
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
@@ -610,6 +612,23 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       scope.onTagAdded(recipient);
       expect(recipient).to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
     });
+  });
+
+  describe('The emailBodyEditor', function() {
+
+    it('should load summernote when isMobile()=false', function() {
+      expect(compileDirective('<email-body-editor />').find('.summernote')).to.have.length(1);
+    });
+
+    it('should load a textarea when isMobile()=true', function() {
+      deviceDetector.isMobile = function() { return true; };
+
+      var element = compileDirective('<email-body-editor />');
+
+      expect(element.find('textarea')).to.have.length(1);
+      expect(element.find('.summernote')).to.have.length(0);
+    });
+
   });
 
 });

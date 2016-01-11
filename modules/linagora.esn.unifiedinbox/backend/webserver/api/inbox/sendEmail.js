@@ -16,9 +16,14 @@ function sendEmailToRecipients(req, res) {
     to: getEmailFromRecipient(email.rcpt.to),
     cc: getEmailFromRecipient(email.rcpt.cc),
     bcc: getEmailFromRecipient(email.rcpt.bcc),
-    subject: email.subject,
-    html: email.htmlBody
+    subject: email.subject
   };
+
+  if (email.htmlBody) {
+    message.html = email.htmlBody;
+  } else if (email.textBody) {
+    message.text = email.textBody;
+  }
 
   mailer.send(message, function(err) {
     if (err) {

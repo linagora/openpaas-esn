@@ -81,7 +81,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, $http, emailService) {
+  .factory('emailSendingService', function($q, $http, emailService, deviceDetector) {
 
     /**
      * Set the recipient.email and recipient.name fields to
@@ -294,9 +294,11 @@ angular.module('linagora.esn.unifiedinbox')
      * https://docs.angularjs.org/error/$parse/isecdom
      */
     function quoteBody(email) {
-      var cite =  '<cite> On ' + email.date + ', from ' + getEmailAddress(email.from) + ':</cite>';
-      var blockquote = '<blockquote>' + email.htmlBody + '</blockquote>';
-      return cite + blockquote;
+      if (deviceDetector.isMobile()) {
+        return '\r\n\r\n\r\nOn ' + email.date + ', from ' + getEmailAddress(email.from) + ':\r\n\r\n' + email.textBody;
+      } else {
+        return '<cite> On ' + email.date + ', from ' + getEmailAddress(email.from) + ':</cite><blockquote>' + (email.htmlBody || email.textBody) + '</blockquote>';
+      }
     }
 
     function createReplyAllEmailObject(email, sender) {
@@ -307,7 +309,13 @@ angular.module('linagora.esn.unifiedinbox')
         replyAllEmailObject[key] = rcpt[key];
       });
       replyAllEmailObject.subject = prefixSubject(email.subject, 'Re: ');
-      replyAllEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
+
+      if (deviceDetector.isMobile()) {
+        replyAllEmailObject.textBody = quoteBody(email);
+      } else {
+        replyAllEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
+      }
+
       return replyAllEmailObject;
     }
 
@@ -319,7 +327,13 @@ angular.module('linagora.esn.unifiedinbox')
         replyEmailObject[key] = rcpt[key];
       });
       replyEmailObject.subject = prefixSubject(email.subject, 'Re: ');
-      replyEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
+
+      if (deviceDetector.isMobile()) {
+        replyEmailObject.textBody = quoteBody(email);
+      } else {
+        replyEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
+      }
+
       return replyEmailObject;
     }
 

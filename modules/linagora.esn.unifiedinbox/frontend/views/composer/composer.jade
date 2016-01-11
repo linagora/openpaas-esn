@@ -21,4 +21,4 @@ form.form-horizontal.compose.ng-cloak(fullscreen-edit-form-container)
 
     input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}", ng-model="email.subject")
 
-  summernote.compose-body(ng-model="email.htmlBody", config="summernoteOptions", ng-class="{ 'isCollapsed': isCollapsed }", placeholder="#{__('Start writing your email here')}")
+  email-body-editor
