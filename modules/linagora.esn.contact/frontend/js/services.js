@@ -454,7 +454,8 @@ angular.module('linagora.esn.contact')
   .factory('contactUpdateDataService', function() {
     return {
       taskId: null,
-      contact: null
+      contact: null,
+      contactUpdatedIds: []
     };
   })
 

@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -23,6 +24,9 @@ describe('The contact Angular module contactapis', function() {
       this.notificationFactory = {};
       this.gracePeriodService = {};
       this.gracePeriodLiveNotification = {};
+      this.contactUpdateDataService = {
+        contactUpdatedIds: []
+      };
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
       contactWithChangedETag = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last', etag: 'changed-etag' };
@@ -36,16 +40,18 @@ describe('The contact Angular module contactapis', function() {
         $provide.value('uuid4', self.uuid4);
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
+        $provide.value('contactUpdateDataService', self.contactUpdateDataService);
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, DAV_PATH, GRACE_DELAY, _ICAL_, _CONTACT_EVENTS_) {
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, DAV_PATH, GRACE_DELAY, _ICAL_, _CONTACT_EVENTS_) {
       this.$rootScope = $rootScope;
       this.$httpBackend = $httpBackend;
       this.ContactAPIClient = ContactAPIClient;
       this.ContactShell = ContactShell;
       this.DAV_PATH = DAV_PATH;
       this.GRACE_DELAY = GRACE_DELAY;
+      this.ContactsHelper = ContactsHelper;
 
       ICAL = _ICAL_;
       CONTACT_EVENTS = _CONTACT_EVENTS_;
@@ -278,6 +284,23 @@ describe('The contact Angular module contactapis', function() {
                     etag: undefined,
                     vcard: []
                   });
+                }.bind(this)).finally(done);
+
+              this.$rootScope.$apply();
+              this.$httpBackend.flush();
+            });
+
+            it('should force reload default avatar if card is updated', function(done) {
+              this.$httpBackend.expectGET(contactsURL + '?sort=fn').respond(result);
+              this.contactUpdateDataService.contactUpdatedIds = ['myuid'];
+              this.ContactsHelper.forceReloadDefaultAvatar = sinon.spy();
+              this.ContactAPIClient
+                .addressbookHome(bookId)
+                .addressbook(bookName)
+                .vcard()
+                .list()
+                .then(function(data) {
+                  expect(this.ContactsHelper.forceReloadDefaultAvatar.calledWithExactly(data.contacts[0])).to.be.true;
                 }.bind(this)).finally(done);
 
               this.$rootScope.$apply();

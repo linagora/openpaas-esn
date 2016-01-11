@@ -17,13 +17,18 @@ angular.module('linagora.esn.contact')
                             CONTACT_LIST_PAGE_SIZE,
                             CONTACT_LIST_DEFAULT_SORT,
                             shellToVCARD,
-                            davClient) {
+                            davClient,
+                            contactUpdateDataService) {
     var ADDRESSBOOK_PATH = '/addressbooks';
 
     function responseAsContactShell(response) {
       if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
         return response.data._embedded['dav:item'].map(function(vcarddata) {
-          return new ContactShell(new ICAL.Component(vcarddata.data));
+          var contact =  new ContactShell(new ICAL.Component(vcarddata.data));
+          if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
+            ContactsHelper.forceReloadDefaultAvatar(contact);
+          }
+          return contact;
         });
       }
       return [];
