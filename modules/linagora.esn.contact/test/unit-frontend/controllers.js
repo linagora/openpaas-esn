@@ -7,21 +7,14 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
-  var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService, headerService, ContactShell,
-      notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS;
+  var $rootScope, $controller, $timeout, scope, headerService, ContactShell,
+      notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, ContactAPIClient, shellToVCARD;
+  var bookId = '123456789', bookName = 'bookName';
 
   beforeEach(function() {
     usSpinnerService = {
       spin: function() {},
       stop: function() {}
-    },
-    contactsService = {
-      shellToVCARD: function() {
-        return scope.contact;
-      },
-      getCard: function() {
-        return $q.when(scope.contact);
-      }
     },
     ContactShell =  function() {
     },
@@ -86,10 +79,34 @@ describe('The Contacts Angular module', function() {
       }
     };
 
+    ContactAPIClient = {
+      addressbookHome: function() {
+        return {
+          addressbook: function() {
+            return {
+              vcard: function() {
+                return {
+                  get: function() { return $q.when(); },
+                  list: function() { return $q.when({}); },
+                  search: function() { return $q.when({ hits_list: [] }); },
+                  create: function() { return $q.when(); },
+                  update: function() { return $q.when(); },
+                  remove: function() { return $q.when(); }
+                };
+              }
+            };
+          }
+        };
+      }
+    };
+
+    shellToVCARD = function() {
+      return 'vcard';
+    };
+
     angular.mock.module('esn.core');
 
     module('linagora.esn.contact', function($provide) {
-      $provide.value('contactsService', contactsService);
       $provide.value('liveRefreshContactService', liveRefreshContactService);
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('$location', $location);
@@ -103,6 +120,8 @@ describe('The Contacts Angular module', function() {
       $provide.value('$window', $window);
       $provide.value('headerService', headerService);
       $provide.value('ContactShell', ContactShell);
+      $provide.value('ContactAPIClient', ContactAPIClient);
+      $provide.value('shellToVCARD', shellToVCARD);
     });
   });
 
@@ -121,6 +140,22 @@ describe('The Contacts Angular module', function() {
     scope.contact = {};
     CONTACT_EVENTS = _CONTACT_EVENTS_;
   }));
+
+  function createVcardMock(vcardFn, bookId, bookName) {
+    ContactAPIClient.addressbookHome = function(id) {
+      if (bookId) {
+        expect(id).to.equal(bookId);
+      }
+      return {
+        addressbook: function(name) {
+          if (bookName) {
+            expect(name).to.equal(bookName);
+          }
+          return { vcard: vcardFn };
+        }
+      };
+    };
+  }
 
   describe('the newContactController', function() {
 
@@ -193,26 +228,26 @@ describe('The Contacts Angular module', function() {
 
     describe('the accept function', function() {
 
-      it('should not call contactsService.create when already calling it', function(done) {
+      it('should not call ContactAPIClient when already calling it', function(done) {
         scope.calling = true;
-        contactsService.create = function() {
-          return done(new Error('This test should not call contactsService.create'));
+        ContactAPIClient.addressbookHome = function() {
+          return done(new Error('This test should not call ContactAPIClient'));
         };
         scope.accept();
         done();
       });
 
-      it('should not call contactsService.create when contact is not valid', function(done) {
-        contactsService.create = function() {
-          return done(new Error('This test should not call contactsService.create'));
+      it('should not call ContactAPIClient when contact is not valid', function(done) {
+        ContactAPIClient.addressbookHome = function() {
+          return done(new Error('This test should not call ContactAPIClient'));
         };
         scope.accept();
         done();
       });
 
       it('should display an error when contact is not valid', function(done) {
-        contactsService.create = function() {
-          return done(new Error('This test should not call contactsService.create'));
+        ContactAPIClient.addressbookHome = function() {
+          return done(new Error('This test should not call ContactAPIClient'));
         };
         $alert.alert = function() { done(); };
 
@@ -229,29 +264,36 @@ describe('The Contacts Angular module', function() {
         done();
       });
 
-      it('should call contactsService.create with right bookId and contact', function(done) {
+      it('should call ContactAPIClient with right bookId, bookName and contact', function(done) {
+        scope.bookId = bookId;
+        scope.bookName = bookName;
         scope.contact = { firstName: 'Foo', lastName: 'Bar' };
-        contactsService.create = function(id, contact) {
-          expect(id).to.equal(bookId);
-          expect(contact).to.deep.equal(scope.contact);
-
-          done();
-        };
+        createVcardMock(function() {
+          return {
+            create: function(contact) {
+              expect(contact).to.deep.equal(scope.contact);
+              done();
+            }
+          };
+        }, bookId, bookName);
         scope.accept();
       });
 
-      it('should change page on contactsService.create success', function(done) {
+      it('should change page on contact create success', function(done) {
         scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar'};
 
         $location.url = function(path) {
           expect(path).to.equal('/contact/show/' + bookId + '/1');
-
           done();
         };
 
-        contactsService.create = function() {
-          return $q.when();
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -268,7 +310,7 @@ describe('The Contacts Angular module', function() {
         done();
       });
 
-      it('should notify user on contactsService.create failure', function(done) {
+      it('should notify user on contact create failure', function(done) {
         scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
 
         $location.path = function() {
@@ -279,9 +321,13 @@ describe('The Contacts Angular module', function() {
           done();
         };
 
-        contactsService.create = function() {
-          return $q.reject('WTF');
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.reject();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -291,9 +337,13 @@ describe('The Contacts Angular module', function() {
         scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
         $location.path = function() {};
 
-        contactsService.create = function() {
-          return $q.when();
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
+            }
+          };
+        });
 
         scope.accept().then(function() {
           expect(scope.calling).to.be.false;
@@ -311,9 +361,13 @@ describe('The Contacts Angular module', function() {
           done();
         };
 
-        contactsService.create = function() {
-          return $q.when();
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -329,22 +383,30 @@ describe('The Contacts Angular module', function() {
           done();
         };
 
-        contactsService.create = function() {
-          return $q.when();
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
       });
 
-      it('should not grace the request on contactsService.create failure', function(done) {
+      it('should not grace the request on contact create failure', function(done) {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
         gracePeriodService.clientGrace = done;
 
-        contactsService.create = function() {
-          return $q.reject();
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.reject();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -356,21 +418,22 @@ describe('The Contacts Angular module', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
         gracePeriodService.clientGrace = function() {
-          return $q.when({cancelled: true,
-            success: function(textToDisplay) {
+          return $q.when({
+            cancelled: true,
+            success: angular.noop,
+            error: angular.noop
+          });
+        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
             },
-            error: function(textToDisplay) {
-            }});
-        };
-        contactsService.create = function() {
-          return $q.when();
-        };
-        contactsService.remove = function(id, contact) {
-          expect(id).to.equal(bookId);
-          expect(contact).to.deep.equal(scope.contact);
-
-          done();
-        };
+            remove: function() {
+              done();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -380,22 +443,24 @@ describe('The Contacts Angular module', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
         gracePeriodService.clientGrace = function() {
-          return $q.when({cancelled: true,
-            success: function(textToDisplay) {
-            },
+          return $q.when({
+            cancelled: true,
+            success: angular.noop,
             error: function(textToDisplay) {
               done();
-            }});
+            }
+          });
         };
-        contactsService.create = function() {
-          return $q.when();
-        };
-        contactsService.remove = function(id, contact) {
-          expect(id).to.equal(bookId);
-          expect(contact).to.deep.equal(scope.contact);
-
-          return $q.reject();
-        };
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
+            },
+            remove: function() {
+              return $q.reject();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -405,25 +470,29 @@ describe('The Contacts Angular module', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', title: 'PDG'};
 
         gracePeriodService.clientGrace = function() {
-          return $q.when({cancelled: true,
-            success: function(textToDisplay) {
-            },
-            error: function(textToDisplay) {
-            }});
-        };
-        contactsService.create = function() {
-          return $q.when();
-        };
-        contactsService.remove = function(id, contact) {
           $location.url = function(path) {
             expect(path).to.equal('/contact/new/' + bookId);
             expect(sharedContactDataService.contact).to.deep.equal(scope.contact);
 
             done();
           };
-
-          return $q.when();
+          return $q.when({
+            cancelled: true,
+            success: angular.noop,
+            error: angular.noop
+          });
         };
+
+        createVcardMock(function() {
+          return {
+            create: function() {
+              return $q.when();
+            },
+            remove: function() {
+              return $q.when();
+            }
+          };
+        });
 
         scope.accept();
         scope.$digest();
@@ -472,9 +541,11 @@ describe('The Contacts Angular module', function() {
     });
 
     it('should display an error if the contact cannot be loaded initially', function(done) {
-      contactsService.getCard = function() {
-        return $q.reject('WTF');
-      };
+      createVcardMock(function() {
+        return {
+          get: function() { return $q.reject('WTF'); }
+        };
+      });
       $alert.alert = function() { done(); };
 
       this.initController();
@@ -717,19 +788,19 @@ describe('The Contacts Angular module', function() {
         scope.deleteContact();
       });
 
-      it('should call contactsService.remove with the right bookId and cardId', function(done) {
+      it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
+        scope.bookName = 'bookName';
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-        contactsService.deleteContact = function(id, contact) {
-          expect(id).to.deep.equal(bookId);
-          expect(contact).to.deep.equal(scope.contact);
-          done();
-        };
+        $controller.bind(null, 'showContactController', {
+          $scope: scope,
+          deleteContact: function(id, bookName, contact) {
+            expect(id).to.deep.equal(bookId);
+            expect(bookName).to.equal(scope.bookName);
+            expect(contact).to.deep.equal(scope.contact);
+            done();
+          }
+        })();
 
-        contactsService.getCard = function(path) {
-          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-        };
-
-        this.initController();
         scope.deleteContact();
         $timeout.flush();
       });
@@ -815,139 +886,180 @@ describe('The Contacts Angular module', function() {
 
     it('should take contact from contactUpdateDataService if there was a graceperiod', function() {
       contactUpdateDataService.contact = { id: 'myId' };
-      contactsService.shellToVCARD = function() {
-        return 'vcard';
-      };
-      contactsService.getCard = sinon.spy();
+      var getFnSpy = sinon.spy();
+      createVcardMock(function() {
+        return { get: getFnSpy };
+      });
       this.initController();
       expect(scope.contact).to.eql({ id: 'myId', vcard: 'vcard' });
       expect(contactUpdateDataService.contact).to.be.null;
-      expect(contactsService.getCard.callCount).to.equal(0);
+      expect(getFnSpy.callCount).to.equal(0);
     });
 
     describe('The save function', function() {
 
-      it('should call contactsService.modify with the right bookId and cardId', function(done) {
-          contactsService.modify = function(id, contact) {
-            expect(id).to.deep.equal(bookId);
-            expect(contact).to.deep.equal(scope.contact);
-            done();
+      it('should call ContactAPIClient with the right bookId and cardId', function(done) {
+        var originalContact = { id: 123, firstName: 'Foo', lastName: 'Bar' };
+        createVcardMock(function(cardId) {
+          expect(cardId).to.equal(scope.contact.id);
+          return {
+            update: function(contact) {
+              expect(contact).to.deep.equal(scope.contact);
+              done();
+            },
+            get: function() {
+              return $q.when(originalContact);
+            }
           };
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          this.initController();
-          // modify the contact the make modify fn called
-          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-          scope.save();
-        });
+        }, bookId);
+        scope.cardId = originalContact.id;
+        this.initController();
+
+        // modify the contact the make modify fn called
+        scope.contact = { id: 123, firstName: 'FooX', lastName: 'BarX' };
+        scope.save();
+      });
 
       it('should call gracePeriodService.grace with the right taskId', function(done) {
-          contactsService.modify = function() {
-            return $q.when('a taskId');
+        createVcardMock(function() {
+          return {
+            update: function() {
+              return $q.when('a taskId');
+            },
+            get: function() {
+              return $q.when();
+            }
           };
-
-          gracePeriodService.grace = function(taskId) {
-            expect(taskId).to.equal('a taskId');
-            done();
-          };
-
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          this.initController();
-          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-
-          scope.save();
-          scope.$digest();
         });
+
+        gracePeriodService.grace = function(taskId) {
+          expect(taskId).to.equal('a taskId');
+          done();
+        };
+
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        this.initController();
+        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+        scope.save();
+        scope.$digest();
+      });
 
       it('should register graceperiod live notification with the right taskId', function(done) {
-          gracePeriodLiveNotification.registerListeners = function(taskId) {
-            expect(taskId).to.equal('a taskId');
-            done();
-          };
+        gracePeriodLiveNotification.registerListeners = function(taskId) {
+          expect(taskId).to.equal('a taskId');
+          done();
+        };
 
-          contactsService.modify = function() {
-            return $q.when('a taskId');
+        createVcardMock(function() {
+          return {
+            update: function() {
+              return $q.when('a taskId');
+            },
+            get: function() {
+              return $q.when();
+            }
           };
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          this.initController();
-          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-          scope.save();
-          scope.$digest();
         });
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        this.initController();
+        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+        scope.save();
+        scope.$digest();
+      });
 
       it('should save updated contact and taskId contactUpdateDataService', function() {
-          contactsService.modify = function() {
-            return $q.when('a taskId');
+        createVcardMock(function() {
+          return {
+            update: function() {
+              return $q.when('a taskId');
+            },
+            get: function() {
+              return $q.when();
+            }
           };
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          this.initController();
-          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-
-          expect(contactUpdateDataService.contact).to.be.null;
-          expect(contactUpdateDataService.taskId).to.be.null;
-
-          scope.save();
-          scope.$digest();
-
-          expect(contactUpdateDataService.contact).to.eql(scope.contact);
-          expect(contactUpdateDataService.taskId).to.eql('a taskId');
         });
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        this.initController();
+        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+        expect(contactUpdateDataService.contact).to.be.null;
+        expect(contactUpdateDataService.taskId).to.be.null;
+
+        scope.save();
+        scope.$digest();
+
+        expect(contactUpdateDataService.contact).to.eql(scope.contact);
+        expect(contactUpdateDataService.taskId).to.eql('a taskId');
+      });
 
       it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
-          contactsService.modify = function() {
-            return $q.when('a taskId');
+        var originalContact = { id: 1, firstName: 'Foo', lastName: 'Bar', vcard: 'vcard' };
+        createVcardMock(function() {
+          return {
+            update: function() {
+              return $q.when('a taskId');
+            },
+            get: function() {
+              return $q.when(originalContact);
+            }
           };
-
-          gracePeriodService.grace = function() {
-            return $q.when({
-              cancelled: true,
-              success: function() {}
-            });
-          };
-
-          gracePeriodService.cancel = function() {
-            return $q.when();
-          };
-
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          this.initController();
-          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-
-          $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
-            done();
-          });
-
-          scope.save();
-          scope.$digest();
         });
+
+        gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: true,
+            success: function() {}
+          });
+        };
+
+        gracePeriodService.cancel = function() {
+          return $q.when();
+        };
+
+        this.initController();
+        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX', vcard: 'vcard' };
+
+        $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
+          done();
+        });
+
+        scope.save();
+        scope.$digest();
+      });
 
       it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on task failure', function(done) {
-          contactsService.modify = function() {
-            return $q.when('a taskId');
+        var originalContact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        createVcardMock(function() {
+          return {
+            update: function() {
+              return $q.when('a taskId');
+            },
+            get: function() {
+              return $q.when(originalContact);
+            }
           };
-
-          gracePeriodLiveNotification.registerListeners = function(taskId, onError) {
-            expect(taskId).to.equal('a taskId');
-            onError();
-          };
-
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          this.initController();
-          scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-
-          $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
-            done();
-          });
-
-          scope.save();
-          scope.$digest();
         });
+
+        gracePeriodLiveNotification.registerListeners = function(taskId, onError) {
+          expect(taskId).to.equal('a taskId');
+          onError();
+        };
+
+        this.initController();
+        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
+
+        $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
+          done();
+        });
+
+        scope.save();
+        scope.$digest();
+      });
 
       it('should not change page if the contact is invalid', function(done) {
           $location.path = function() {
             done('This test should not change the location');
-          };
-          contactsService.modify = function() {
-            return $q.reject();
           };
           scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
           this.initController();
@@ -956,16 +1068,20 @@ describe('The Contacts Angular module', function() {
           done();
         });
 
-      it('should show the contact without calling modify fn when the contact is not modified', function(done) {
+      it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function(done) {
 
         $location.path = function(url) {
-            expect(url).to.equal('/contact/show/123/xyz');
-            done();
+          expect(url).to.equal('/contact/show/123/xyz');
+          done();
+        };
+        createVcardMock(function() {
+          return {
+            update: function() {
+              done(new Error('Should not call this function'));
+              return $q.reject();
+            }
           };
-        contactsService.modify = function() {
-            done('Should not call this function');
-            return $q.reject();
-          };
+        });
 
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         contactUpdateDataService.contact = true;
@@ -989,19 +1105,19 @@ describe('The Contacts Angular module', function() {
           scope.deleteContact();
         });
 
-      it('should call contactsService.remove with the right bookId and cardId', function(done) {
+      it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
+          scope.bookName = 'bookName';
           scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          contactsService.deleteContact = function(id, contact) {
-            expect(id).to.deep.equal(bookId);
-            expect(contact).to.deep.equal(scope.contact);
-            done();
-          };
+          $controller.bind(null, 'editContactController', {
+            $scope: scope,
+            deleteContact: function(id, bookName, contact) {
+              expect(id).to.deep.equal(bookId);
+              expect(bookName).to.equal(scope.bookName);
+              expect(contact).to.deep.equal(scope.contact);
+              done();
+            }
+          })();
 
-          contactsService.getCard = function(path) {
-            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-          };
-
-          this.initController();
           scope.deleteContact();
           $timeout.flush();
         });
@@ -1072,14 +1188,16 @@ describe('The Contacts Angular module', function() {
     });
 
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
-      gracePeriodService.flushAllTasks = sinon.spy();
-      $controller('contactsListController', {
-        $scope: scope,
-        contactsService: {
+      createVcardMock(function() {
+        return {
           list: function() {
             return $q.reject('WTF');
           }
-        },
+        };
+      });
+      gracePeriodService.flushAllTasks = sinon.spy();
+      $controller('contactsListController', {
+        $scope: scope,
         user: {
           _id: '123'
         }
@@ -1099,14 +1217,16 @@ describe('The Contacts Angular module', function() {
           handler = hdlr;
         }
       };
-      $controller('contactsListController', {
-        $scope: scope,
-        $window: window,
-        contactsService: {
+      createVcardMock(function() {
+        return {
           list: function() {
             return $q.reject('WTF');
           }
-        },
+        };
+      });
+      $controller('contactsListController', {
+        $scope: scope,
+        $window: window,
         user: {
           _id: '123'
         }
@@ -1131,11 +1251,6 @@ describe('The Contacts Angular module', function() {
       $controller('contactsListController', {
         $scope: scope,
         $location: locationMock,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
         user: {
           _id: '123'
         },
@@ -1159,11 +1274,6 @@ describe('The Contacts Angular module', function() {
       var contact = { lastName: 'Last' };
       $controller('contactsListController', {
         $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
         user: { _id: '123' }
       });
 
@@ -1176,11 +1286,6 @@ describe('The Contacts Angular module', function() {
       var contact = { lastName: 'Last' };
       $controller('contactsListController', {
         $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
         user: { _id: '123' }
       });
 
@@ -1204,11 +1309,6 @@ describe('The Contacts Angular module', function() {
       $controller('contactsListController', {
         $scope: scope,
         $location: locationMock,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
         user: {
           _id: '123'
         },
@@ -1234,15 +1334,18 @@ describe('The Contacts Angular module', function() {
         lastName: 'Last'
       };
 
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        };
+      });
+
       var mySpy = sinon.spy();
 
       $controller('contactsListController', {
         $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
         user: {
           _id: '123'
         },
@@ -1282,11 +1385,6 @@ describe('The Contacts Angular module', function() {
 
       $controller('contactsListController', {
         $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
         user: {
           _id: '123'
         },
@@ -1317,12 +1415,16 @@ describe('The Contacts Angular module', function() {
           };
         }
       };
-      contactsService.search = function() {
-        return done(new Error('This test should not call contactsService.search'));
-      };
-      contactsService.list = function() {
-        done();
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            done();
+          },
+          search: function() {
+            return done(new Error('This test should not call search function'));
+          }
+        };
+      });
       $controller('contactsListController', {
         $location: locationMock,
         $scope: scope,
@@ -1343,12 +1445,16 @@ describe('The Contacts Angular module', function() {
         }
       };
       scope.loadingNextContacts = true;
-      contactsService.search = function() {
-        return done(new Error('This test should not call contactsService.search'));
-      };
-      contactsService.list = function() {
-        return done(new Error('This test should not call contactsService.list'));
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return done(new Error('This test should not call list function'));
+          },
+          search: function() {
+            return done(new Error('This test should not call search function'));
+          }
+        };
+      });
       $controller('contactsListController', {
         $location: locationMock,
         $scope: scope,
@@ -1369,13 +1475,17 @@ describe('The Contacts Angular module', function() {
           };
         }
       };
-      contactsService.list = function() {
-        return done(new Error('This test should not call contactsService.list'));
-      };
-      contactsService.search = function() {
-        expect(scope.searchInput).to.equal(query);
-        done();
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return done(new Error('This test should not call list function'));
+          },
+          search: function() {
+            expect(scope.searchInput).to.equal(query);
+            done();
+          }
+        };
+      });
       $controller('contactsListController', {
         $location: locationMock,
         $scope: scope,
@@ -1398,9 +1508,13 @@ describe('The Contacts Angular module', function() {
           }
         }
       };
-      contactsService.list = function() {
-        return done(new Error('This test should not call contactsService.list'));
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return done(new Error('This test should not call list function'));
+          }
+        };
+      });
       $controller('contactsListController', {
         $location: locationMock,
         sharedContactDataService: { searchQuery: query },
@@ -1421,14 +1535,18 @@ describe('The Contacts Angular module', function() {
           };
         }
       };
-      contactsService.search = function() {
-        expect(scope.searchInput).to.equal(query);
-        mySpy();
-        return $q.when({
-          hits_list: [],
-          total_hits: 0
-        });
-      };
+      createVcardMock(function() {
+        return {
+          search: function() {
+            expect(scope.searchInput).to.equal(query);
+            mySpy();
+            return $q.when({
+              hits_list: [],
+              total_hits: 0
+            });
+          }
+        };
+      });
       $controller('contactsListController', {
         $scope: scope,
         $location: locationMock,
@@ -1454,11 +1572,15 @@ describe('The Contacts Angular module', function() {
           };
         }
       };
-      contactsService.search = function() {
-        expect(scope.searchInput).to.equal(query);
-        mySpy();
-        return $q.when([]);
-      };
+      createVcardMock(function() {
+        return {
+          search: function() {
+            expect(scope.searchInput).to.equal(query);
+            mySpy();
+            return $q.when([]);
+          }
+        };
+      });
       $controller('contactsListController', {
         $scope: scope,
         $location: locationMock,
@@ -1473,10 +1595,14 @@ describe('The Contacts Angular module', function() {
       done();
     });
 
-    it('should add no item to the categories when contactsService.list returns an empty list', function() {
-      contactsService.list = function() {
-        return $q.when([]);
-      };
+    it('should add no item to the categories when ContactAPIClient returns an empty list', function() {
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return $q.when([]);
+          }
+        };
+      });
 
       $controller('contactsListController', {
         $scope: scope,
@@ -1496,9 +1622,13 @@ describe('The Contacts Angular module', function() {
       var contactWithA = { displayName: 'A B'},
           contactWithC = { displayName: 'C D' };
 
-      contactsService.list = function() {
-        return $q.when([contactWithA, contactWithC]);
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return $q.when([contactWithA, contactWithC]);
+          }
+        };
+      });
 
       $controller('contactsListController', {
         $scope: scope,
@@ -1521,9 +1651,13 @@ describe('The Contacts Angular module', function() {
       var contact1 = { displayName: 'A B'},
           contact2 = { displayName: 'A B' };
 
-      contactsService.list = function() {
-        return $q.when([contact1, contact2]);
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return $q.when([contact1, contact2]);
+          }
+        };
+      });
 
       $controller('contactsListController', {
         $scope: scope,
@@ -1545,9 +1679,13 @@ describe('The Contacts Angular module', function() {
       var contact1 = { displayName: 'A B'},
           contact2 = { displayName: 'A C' };
 
-      contactsService.list = function() {
-        return $q.when([contact1, contact2]);
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return $q.when([contact1, contact2]);
+          }
+        };
+      });
 
       $controller('contactsListController', {
         $scope: scope,
@@ -1570,9 +1708,13 @@ describe('The Contacts Angular module', function() {
           contact2 = { displayName: 'A C'},
           contact3 = { id: '123' };
 
-      contactsService.list = function() {
-        return $q.when([contact1, contact2, contact3]);
-      };
+      createVcardMock(function() {
+        return {
+          list: function() {
+            return $q.when([contact1, contact2, contact3]);
+          }
+        };
+      });
 
       $controller('contactsListController', {
         $scope: scope,
@@ -1603,7 +1745,6 @@ describe('The Contacts Angular module', function() {
         scope.loadContacts = function() {};
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: contactsService,
           user: user
         });
         scope.clearSearchInput();
@@ -1615,14 +1756,15 @@ describe('The Contacts Angular module', function() {
       it('should load contacts after clear input', function(done) {
         var user = {_id: 123};
         scope.loadContacts = sinon.spy();
-        var contactsService = {
-          list: function() {
-            done();
-          }
-        };
+        createVcardMock(function() {
+          return {
+            list: function() {
+              done();
+            }
+          };
+        });
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: contactsService,
           user: user
         });
         scope.clearSearchInput();
@@ -1645,18 +1787,18 @@ describe('The Contacts Angular module', function() {
 
     describe('The loadContacts function', function() {
 
-      it('should call the contactsService.list fn', function(done) {
+      it('should call the ContactAPIClient vcard list fn', function(done) {
         var user = {_id: 123};
-        var contactsService = {
-          list: function(bookId) {
-            expect(bookId).to.equal(user._id);
-            done();
-          }
-        };
+        createVcardMock(function() {
+          return {
+            list: function() {
+              done();
+            }
+          };
+        });
 
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: contactsService,
           user: user
         });
         scope.loadContacts();
@@ -1668,17 +1810,18 @@ describe('The Contacts Angular module', function() {
         var usSpinnerService = {
           spin: sinon.spy()
         };
-        var contactsService = {
-          list: function() {
-            return $q.when({});
-          }
-        };
+        createVcardMock(function() {
+          return {
+            list: function() {
+              return $q.when({});
+            }
+          };
+        });
         scope.currentPage = 1;
 
         $controller('contactsListController', {
           $scope: scope,
           usSpinnerService: usSpinnerService,
-          contactsService: contactsService,
           user: user
         });
         scope.loadContacts();
@@ -1693,17 +1836,18 @@ describe('The Contacts Angular module', function() {
           },
           stop: sinon.spy()
         };
-        var contactsService = {
-          list: function() {
-            return $q.when({});
-          }
-        };
+        createVcardMock(function() {
+          return {
+            list: function() {
+              return $q.when({});
+            }
+          };
+        });
         scope.currentPage = 1;
 
         $controller('contactsListController', {
           $scope: scope,
           usSpinnerService: usSpinnerService,
-          contactsService: contactsService,
           user: user
         });
         scope.loadContacts();
@@ -1711,24 +1855,22 @@ describe('The Contacts Angular module', function() {
         expect(usSpinnerService.stop).to.have.been.called;
       });
 
-      it('should display error when contactsService.list fails', function(done) {
+      it('should display error when ContactAPIClient fails', function(done) {
         var user = {_id: 123};
-        var defer = $q.defer();
-        defer.reject();
-        var contactsService = {
-          list: function() {
-            return defer.promise;
-          }
-        };
+        createVcardMock(function() {
+          return {
+            list: function() {
+              return $q.reject('WTF');
+            }
+          };
+        });
         $alert.alert = function(options) {
           expect(options.content).to.match(/Can not get contacts/);
-
           done();
         };
 
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: contactsService,
           user: user
         });
 
@@ -1751,11 +1893,6 @@ describe('The Contacts Angular module', function() {
 
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: {
-            list: function() {
-              return $q.when({});
-            }
-          },
           user: user
         });
 
@@ -1777,16 +1914,17 @@ describe('The Contacts Angular module', function() {
             };
           }
         };
-        var contactsService = {
-          search: function() {
-            return $q.when({hits_list: []});
-          }
-        };
+        createVcardMock(function() {
+          return {
+            search: function() {
+              return $q.when({hits_list: []});
+            }
+          };
+        });
 
         $controller('contactsListController', {
           $scope: scope,
           usSpinnerService: usSpinnerService,
-          contactsService: contactsService,
           $location: locationService,
           user: user
         });
@@ -1808,16 +1946,17 @@ describe('The Contacts Angular module', function() {
             };
           }
         };
-        var contactsService = {
-          search: function() {
-            return $q.when({hits_list: []});
-          }
-        };
+        createVcardMock(function() {
+          return {
+            search: function() {
+              return $q.when({hits_list: []});
+            }
+          };
+        });
 
         $controller('contactsListController', {
           $scope: scope,
           usSpinnerService: usSpinnerService,
-          contactsService: contactsService,
           $location: locationService,
           user: user
         });
@@ -1827,13 +1966,15 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should clean previous search results', function() {
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([]);
             }
-          },
+          };
+        });
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           }
@@ -1859,13 +2000,15 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should clean search result data', function() {
+        createVcardMock(function() {
+          return {
+            list: function() {
+              return $q.when({ contacts: [] });
+            }
+          };
+        });
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: {
-            list: function() {
-              return $q.when([]);
-            }
-          },
           user: {
             _id: '123'
           },
@@ -1890,11 +2033,6 @@ describe('The Contacts Angular module', function() {
       it('should quit search mode and get all the user contacts when searchInput is undefined', function(done) {
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: {
-            list: function() {
-              return $q.when([]);
-            }
-          },
           user: {
             _id: '123'
           }
@@ -1911,11 +2049,6 @@ describe('The Contacts Angular module', function() {
       it('should clean pagination data', function() {
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: {
-            list: function() {
-              return $q.when([]);
-            }
-          },
           user: {
             _id: '123'
           }
@@ -1931,23 +2064,28 @@ describe('The Contacts Angular module', function() {
         expect(scope.nextPage).to.equal(0);
       });
 
-      it('should call contactsService.search with right values', function(done) {
+      it('should call ContactAPIClient with right values', function(done) {
         var search = 'Bruce Willis';
+
+        createVcardMock(function() {
+          return {
+            list: function() {
+              return $q.when({});
+            },
+            search: function(options) {
+              expect(options).to.eql({
+                data: search,
+                userId: scope.user._id,
+                page: scope.currentPage
+              });
+              expect(scope.searchMode).to.be.true;
+              done();
+            }
+          };
+        });
 
         $controller('contactsListController', {
           $scope: scope,
-          contactsService: {
-            list: function() {
-              return $q.when([]);
-            },
-            search: function(bookId, userId, data) {
-              expect(scope.searchMode).isTrue;
-              expect(bookId).to.equal(scope.bookId);
-              expect(userId).to.equal(scope.user._id);
-              expect(data).to.equal(search);
-              done();
-            }
-          },
           user: {
             _id: '123'
           },
@@ -1955,6 +2093,7 @@ describe('The Contacts Angular module', function() {
         });
 
         scope.searchInput = search;
+        scope.currentPage = 1;
         scope.search();
         scope.$digest();
       });
@@ -1972,16 +2111,19 @@ describe('The Contacts Angular module', function() {
           hits_list: [contactWithA, contactWithC]
         };
 
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([contactWithA, contactWithB, contactWithC]);
             },
             search: function() {
               return $q.when(result);
             }
-          },
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           },
@@ -2003,19 +2145,22 @@ describe('The Contacts Angular module', function() {
       it('should displayContactError on search failure', function(done) {
         var search = 'Bruce Willis';
 
-        $controller('contactsListController', {
-          $scope: scope,
-          displayContactError: function(error) {
-            expect(error).to.match(/Can not search contacts/);
-            done();
-          },
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([]);
             },
             search: function() {
               return $q.reject(new Error('WTF'));
             }
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
+          displayContactError: function(error) {
+            expect(error).to.match(/Can not search contacts/);
+            done();
           },
           user: {
             _id: '123'
@@ -2042,16 +2187,19 @@ describe('The Contacts Angular module', function() {
           hits_list: [contactWithA, contactWithB]
         };
 
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
             },
             search: function() {
               return $q.when(result);
             }
-          },
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           },
@@ -2080,16 +2228,19 @@ describe('The Contacts Angular module', function() {
           hits_list: [contactWithA, contactWithB]
         };
 
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
             },
             search: function() {
               return $q.when(result);
             }
-          },
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           },
@@ -2119,16 +2270,19 @@ describe('The Contacts Angular module', function() {
           hits_list: [contactWithA, contactWithB]
         };
 
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
             },
             search: function() {
               return $q.when(result);
             }
-          },
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           },
@@ -2146,16 +2300,19 @@ describe('The Contacts Angular module', function() {
       it('should prevent fetching next result page when the previous search fails', function() {
         var search = 'Bruce Willis';
 
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([]);
             },
             search: function() {
               return $q.reject(new Error('WTF'));
             }
-          },
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           },
@@ -2172,9 +2329,8 @@ describe('The Contacts Angular module', function() {
         var search = 'Bruce Willis';
         var called = 0;
 
-        $controller('contactsListController', {
-          $scope: scope,
-          contactsService: {
+        createVcardMock(function() {
+          return {
             list: function() {
               return $q.when([]);
             },
@@ -2183,7 +2339,11 @@ describe('The Contacts Angular module', function() {
               // the search will be never resolved
               return $q.defer().promise;
             }
-          },
+          };
+        });
+
+        $controller('contactsListController', {
+          $scope: scope,
           user: {
             _id: '123'
           },
@@ -2205,7 +2365,6 @@ describe('The Contacts Angular module', function() {
     beforeEach(function() {
 
       this.notificationFactory = {};
-      this.contactsService = {};
       this.gracePeriodService = {
         grace: function() {
           return {
@@ -2231,7 +2390,6 @@ describe('The Contacts Angular module', function() {
           $scope: this.scope,
           $rootScope: this.$rootScope,
           $location: this.$location,
-          contactsService: this.contactsService,
           notificationFactory: this.notificationFactory,
           gracePeriodService: this.gracePeriodService,
           CONTACT_EVENTS: _CONTACT_EVENTS_,
@@ -2242,18 +2400,19 @@ describe('The Contacts Angular module', function() {
 
     describe('the deleteContact function', function() {
 
-      beforeEach(function() {
-        this.initController();
-      });
-
-      it('should call contactsService.deleteContact() with the correct bookId and contact', function(done) {
+      it('should call deleteContact service with the correct bookId, bookName and contact', function(done) {
         var self = this;
 
-        this.contactsService.deleteContact = function(bookId, contact) {
-          expect(bookId).to.equal(self.scope.bookId);
-          expect(contact).to.deep.equal(self.scope.contact);
-          done();
-        };
+        self.scope.bookName = 'bookName';
+        $controller('contactItemController', {
+          $scope: this.scope,
+          deleteContact: function(bookId, bookName, contact) {
+            expect(bookId).to.equal(self.scope.bookId);
+            expect(bookName).to.equal(self.scope.bookName);
+            expect(contact).to.deep.equal(self.scope.contact);
+            done();
+          }
+        });
 
         this.scope.$digest();
         this.scope.deleteContact();

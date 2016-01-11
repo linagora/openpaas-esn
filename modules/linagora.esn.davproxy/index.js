@@ -41,6 +41,14 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
       app.use('/api/addressbooks', this.api.addressbooks);
       app.use('/api/calendars', this.api.calendars);
       app.use('/api/json', this.api.json);
+
+      var frontendModules = [
+        'app.js',
+        'constants.js',
+        'services.js'
+      ];
+      webserverWrapper.injectAngularModules('dav', frontendModules, 'linagora.esn.davproxy', ['esn']);
+
       webserverWrapper.addApp('dav', app);
 
       return callback();
