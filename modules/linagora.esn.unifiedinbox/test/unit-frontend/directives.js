@@ -576,15 +576,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       element.find('recipients-auto-complete').isolateScope().search();
     });
 
-    it('should trigger an error if no controller have the search fn', function() {
-      expect(function() {
-        compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-          $composerController: {},
-          $composerDesktopController: {}
-        });
-      }).to.throw(Error, 'Search function not found');
-    });
-
     it('should scrolldown element when a tag is added and broadcast an event to inform the fullscreen-edit-form to scrolldown', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
         $composerController: {

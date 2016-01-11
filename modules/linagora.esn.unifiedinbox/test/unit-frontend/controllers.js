@@ -398,7 +398,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     describe('the reply function', function() {
       it('should leverage openEmailCustomTitle() and createReplyEmailObject()', function() {
         newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createReplyEmailObject = sinon.spy();
+        emailSendingService.createReplyEmailObject = sinon.spy(function() { return $q.when(); });
 
         jmapClient.getMessages = function() {
           return $q.when([{
@@ -407,9 +407,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
 
         initController('viewEmailController');
-        $rootScope.$digest();
 
         scope.reply();
+        $rootScope.$digest();
+
         expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
         expect(emailSendingService.createReplyEmailObject).to.have.been.called;
       });
@@ -418,7 +419,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     describe('the replyAll function', function() {
       it('should leverage openEmailCustomTitle() and createReplyAllEmailObject()', function() {
         newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createReplyAllEmailObject = sinon.spy();
+        emailSendingService.createReplyAllEmailObject = sinon.spy(function() { return $q.when(); });
 
         jmapClient.getMessages = function() {
           return $q.when([{
@@ -427,9 +428,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
 
         initController('viewEmailController');
-        $rootScope.$digest();
 
         scope.replyAll();
+        $rootScope.$digest();
+
         expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
         expect(emailSendingService.createReplyAllEmailObject).to.have.been.called;
       });
