@@ -20,7 +20,8 @@ angular.module('esn.calendar', [
   'uuid4',
   'ui.calendar',
   'ng.deviceDetector',
-  'naturalSort'
+  'naturalSort',
+  'esn.lodash-wrapper'
 ])
   .config(function($stateProvider, routeResolver) {
     $stateProvider.state('/calendar/communities/:community_id', {
