@@ -14,6 +14,10 @@ angular.module('esnApp', [
   'frapontillo.bootstrap-switch',
   'chart.js',
   'FBAngular',
+  'materialAdmin',
+  'angular-nicescroll',
+  'xeditable',
+  'op.dynamicDirective',
   'esn.core',
   'esn.member',
   'esn.header',
@@ -59,13 +63,10 @@ angular.module('esnApp', [
   'esn.localstorage',
   'esn.http',
   'esn.attendee',
-  'materialAdmin',
-  'angular-nicescroll',
-  'xeditable',
-  'op.dynamicDirective',
   'esn.back-detector',
   'esn.offline-wrapper',
-  'esn.actionList'
+  'esn.actionList',
+  'esn.application-menu'
 ].concat(angularInjections)).config(function(RestangularProvider, routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
