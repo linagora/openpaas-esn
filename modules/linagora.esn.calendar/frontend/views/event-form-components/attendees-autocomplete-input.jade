@@ -4,5 +4,5 @@
       span.input-group-addon
         i.mdi.mdi-account-multiple-plus
       .fg-line
-        tags-input.form-control(ng-model='mutableAttendees', display-property='displayName', key-property='id', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
+        tags-input.form-control(ng-model='mutableAttendees', display-property='displayName', key-property='id', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false', type='email')
           auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/attendees.html")
