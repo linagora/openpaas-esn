@@ -2,12 +2,10 @@
 
 angular.module('esn.calendar', [
   'ui.router',
-  'esn.core',
-  'esn.authentication',
-  'esn.form.helper',
-  'esn.ical',
-  'esn.fcmoment',
-  'esn.community',
+  'uuid4',
+  'ui.calendar',
+  'ng.deviceDetector',
+  'naturalSort',
   'restangular',
   'mgcrea.ngStrap.datepicker',
   'mgcrea.ngStrap.aside',
@@ -15,15 +13,18 @@ angular.module('esn.calendar', [
   'ui.bootstrap.tpls',
   'ui.bootstrap',
   'AngularJstz',
+  'esn.core',
+  'esn.authentication',
+  'esn.form.helper',
+  'esn.ical',
+  'esn.fcmoment',
+  'esn.community',
   'esn.notification',
   'esn.widget.helper',
-  'uuid4',
-  'ui.calendar',
-  'ng.deviceDetector',
-  'naturalSort',
-  'esn.lodash-wrapper'
+  'esn.lodash-wrapper',
+  'op.dynamicDirective'
 ])
-  .config(function($stateProvider, routeResolver) {
+  .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider.state('/calendar/communities/:community_id', {
       url: '/calendar/communities/:community_id',
       templateUrl: '/calendar/views/calendar/community-calendar',
@@ -136,4 +137,7 @@ angular.module('esn.calendar', [
         }
       }
     });
+
+    var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
   });

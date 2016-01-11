@@ -23,6 +23,8 @@ angular.module('esn.community', [
       displayProperty: true
     });
 
+    var community = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-community', {priority: 30});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', community);
   })
   .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);
@@ -1054,4 +1056,21 @@ angular.module('esn.community', [
         }
       });
     });
+<<<<<<< 5809972ee7878c26efbed89976c28d6f2c0d4ecc
+=======
+  })
+  .directive('listCommunityActivityStreams', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/community/community-as-tracker.html'
+    };
+  })
+  .directive('applicationMenuCommunity', function() {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: '<div><a href="/#/communities"><i class="mdi mdi-forum"/><span class="label">Communities</span></a></div>'
+    };
+>>>>>>> OR-2049 inject for every modules, the icon link in the application menu
   });

@@ -1,6 +1,10 @@
 'use strict';
 
 angular.module('esn.application', ['restangular'])
+  .config(function(dynamicDirectiveServiceProvider) {
+    var application = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-application', {priority: 5});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', application);
+  })
   .controller('applicationController', function($scope, $log, $location, applicationAPI, applications) {
     $scope.applications = applications;
     $scope.sending = false;
@@ -54,6 +58,13 @@ angular.module('esn.application', ['restangular'])
     return {
       restrict: 'E',
       templateUrl: '/views/modules/application/application-edit-form.html'
+    };
+  })
+  .directive('applicationMenuApplication', function() {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: '<div><a href="/#/applications"><i class="mdi mdi-apps"/><span class="label">Applications</span></a></div>'
     };
   })
   .factory('applicationAPI', function(Restangular) {

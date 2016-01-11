@@ -2,6 +2,14 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .directive('applicationMenuInbox', function() {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: '<div><a href="/#/unifiedinbox"><i class="mdi mdi-email"/><span class="label">Mail</span></a></div>'
+    };
+  })
+
   .directive('newComposer', function($timeout, newComposerService) {
     return {
       restrict: 'A',

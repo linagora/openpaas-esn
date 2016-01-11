@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.account', ['ui.router', 'restangular', 'op.dynamicDirective', 'esn.core', 'esn.ui', 'linagora.esn.oauth', 'linagora.esn.contact.import'])
-  .config(function($stateProvider, routeResolver) {
+  .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider.state('/accounts', {
       url: '/accounts',
       templateUrl: '/account/views/accounts',
@@ -19,4 +19,7 @@ angular.module('linagora.esn.account', ['ui.router', 'restangular', 'op.dynamicD
         }
       }
     });
+
+    var account = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-account', {priority: -5});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', account);
   });

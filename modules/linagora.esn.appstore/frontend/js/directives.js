@@ -18,6 +18,13 @@ angular.module('esn.appstore')
       uninstall: function(title, message) { return 'Failed to uninstall ' + title + ' : ' + message; }
     }
   })
+  .directive('applicationMenuAppstore', function() {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: '<div><a href="/#/appstore"><i class="mdi mdi-package-variant"/><span class="label">Modules</span></a></div>'
+    };
+  })
   .directive('appstoreButtonSubmit', function($modal) {
     return {
       restrict: 'E',

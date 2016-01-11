@@ -1,16 +1,18 @@
+@application-menu-icon-color: #333333;
+
 .popover.application-menu {
-  margin-top: 38px;
   max-width: 300px;
   width: 300px;
   .flex() !important; /* override angular-strap display property */
   .flex-vertical-centered();
   .flex-start();
   .flex-wrap();
-  div {
+  div, div > a {
     .all-centered();
     .flex-column();
     .col-xs-4();
     height: 90px;
+    color: @application-menu-icon-color;
     .label {
       color: black;
       font-size: 100%;

@@ -1,6 +1,10 @@
 'use strict';
 
 angular.module('esn.member', ['ui.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
+  .config(function(dynamicDirectiveServiceProvider) {
+    var profile = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', profile);
+  })
   .constant('memberSearchConfiguration', {
     searchLimit: 20
   })
@@ -81,6 +85,16 @@ angular.module('esn.member', ['ui.router', 'esn.domain', 'esn.search', 'esn.infi
       if ($scope.members.length === 0 || $scope.members.length < $scope.search.count) {
         opts.offset = $scope.members.length;
         updateMembersList();
+      }
+    };
+  })
+  .directive('applicationMenuMember', function(session) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: '<div><a href="/#/domains/{{::domain._id}}/members"><i class="mdi mdi-account-multiple-outline"/><span class="label">Members</span></a></div>',
+      link: function(scope) {
+        scope.domain = session.domain;
       }
     };
   });

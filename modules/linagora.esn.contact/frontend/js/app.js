@@ -75,6 +75,8 @@ angular.module('linagora.esn.contact', [
 
     injectDynamicDirective(isContactWritable, 'contact-edit-action-item', 'contact-list-menu-items');
     injectDynamicDirective(isContactWritable, 'contact-delete-action-item', 'contact-list-menu-items');
+    var contact = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-contact', {priority: 35});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', contact);
   })
 
   .run(function($q, $log, attendeeService, ContactAPIClient, session) {

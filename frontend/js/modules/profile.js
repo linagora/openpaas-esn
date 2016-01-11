@@ -1,6 +1,10 @@
 'use strict';
 
 angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.session'])
+  .config(function(dynamicDirectiveServiceProvider) {
+    var profile = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-profile', {priority: 20});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', profile);
+  })
   .directive('profileDisplay', function(session) {
     return {
       restrict: 'E',
@@ -196,5 +200,12 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
           });
         });
       }
+    };
+  })
+  .directive('applicationMenuProfile', function() {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: '<div><a href="/#/profile"><i class="mdi mdi-account"/><span class="label">Profile</span></a></div>'
     };
   });
