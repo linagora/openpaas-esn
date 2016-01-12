@@ -40,6 +40,4 @@ angular.module('linagora.esn.unifiedinbox', [
       controller: 'viewEmailController'
     });
 
-    var sidebarDirective = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'inbox-menu', {priority: -150});
-    dynamicDirectiveServiceProvider.addInjection('esn-sidebar-app-menu', sidebarDirective);
   });
