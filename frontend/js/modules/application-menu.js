@@ -38,6 +38,18 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       }
     };
   })
+  .directive('forceMarginLeft', function($timeout) {
+    return {
+      restrict: 'A',
+      scope: {},
+      link: function(scope, element, attrs) {
+        $timeout(function() {
+          var offset = $(element).offset();
+          $(element).offset({top: offset.top, left: offset.left - attrs.forceMarginLeft});
+        }, 50);
+      }
+    };
+  })
   .directive('applicationMenuHome', function() {
     return {
       retrict: 'E',
