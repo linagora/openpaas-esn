@@ -2,10 +2,15 @@
 
 angular.module('linagora.esn.contact')
 
+  .run(function(AddressBookPaginationRegistry, AddressBookPaginationProvider, SearchAddressBookPaginationProvider, CONTACT_LIST_DISPLAY_MODES) {
+    AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.list, AddressBookPaginationProvider);
+    AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.search, SearchAddressBookPaginationProvider);
+  })
+
   .factory('AddressBookPaginationProvider', function(ContactAPIClient, $log) {
 
     function AddressBookPaginationProvider(options) {
-      this.addressbook = options.addressbook;
+      this.addressbook = options.addressbooks[0];
       this.id = this.addressbook.id;
       this.name = this.addressbook.name;
       this.options = options;
@@ -40,7 +45,7 @@ angular.module('linagora.esn.contact')
   .factory('SearchAddressBookPaginationProvider', function(ContactAPIClient, $log) {
 
     function SearchAddressBookPaginationProvider(options) {
-      this.addressbook = options.addressbook;
+      this.addressbook = options.addressbooks[0];
       this.id = this.addressbook.id;
       this.name = this.addressbook.name;
       this.options = options;
@@ -94,14 +99,14 @@ angular.module('linagora.esn.contact')
 
   .factory('AddressBookPaginationService', function() {
 
-    function AddressBookPaginationService(paginable) {
-      this.paginable = paginable;
+    function AddressBookPaginationService(provider) {
+      this.provider = provider;
       this.lastPage = false;
     }
 
     AddressBookPaginationService.prototype.loadNextItems = function(options) {
       var self = this;
-      return this.paginable.loadNextItems(options).then(function(result) {
+      return this.provider.loadNextItems(options).then(function(result) {
         self.lastPage = result.last_page;
         return result;
       });
@@ -110,49 +115,57 @@ angular.module('linagora.esn.contact')
     return AddressBookPaginationService;
   })
 
-  .factory('AddressBookPaginationFactory', function(AddressBookPaginationProvider, SearchAddressBookPaginationProvider, PageAggregatorService, ContactShellComparator, CONTACT_LIST_PAGE_SIZE) {
+  .factory('AddressBookPaginationRegistry', function() {
 
-    function forMultipleAddressBooks(id, addressbooks, options) {
-      var providers = addressbooks.map(function(addressbook) {
-        return new AddressBookPaginationProvider(addressbook);
-      });
+    var providers = {};
 
-      return new PageAggregatorService(id, providers, {
-        compare: options.compare || ContactShellComparator.byDisplayName,
-        results_per_page: CONTACT_LIST_PAGE_SIZE
-      });
+    function put(type, provider) {
+      providers[type] = provider;
     }
 
-    function forSearchAPI(addressbook) {
-      return new SearchAddressBookPaginationProvider(addressbook);
-    }
-
-    function forSingleAddressBook(addressbook) {
-      return new AddressBookPaginationProvider(addressbook);
+    function get(type) {
+      return providers[type];
     }
 
     return {
-      forMultipleAddressBooks: forMultipleAddressBooks,
-      forSearchAPI: forSearchAPI,
-      forSingleAddressBook: forSingleAddressBook
+      put: put,
+      get: get
+    };
+  })
+
+  .factory('AddressBookPagination', function(AddressBookPaginationService, AddressBookPaginationRegistry) {
+
+    function AddressBookPagination(scope) {
+      this.scope = scope;
+    }
+
+    AddressBookPagination.prototype.init = function(provider, options) {
+      if (this.lastPageWatcher) {
+        this.lastPageWatcher.stop();
+      }
+      var PaginationProvider = AddressBookPaginationRegistry.get(provider);
+      if (!PaginationProvider) {
+        throw new Error('Unknown provider ' + provider);
+      }
+
+      this.provider = new PaginationProvider(options);
+      this.service = new AddressBookPaginationService(this.provider);
+      this.lastPageWatcher = new LastPageWatcher(this.scope, this.service);
     };
 
-  })
-  .factory('AddressBookPaginationHelper', function() {
-
-    function LastPageWatcher($scope, addressBookPaginationService) {
+    function LastPageWatcher(scope, addressBookPaginationService) {
       var self = this;
-      this.$scope = $scope;
+      this.scope = scope;
       this.addressBookPaginationService = addressBookPaginationService;
 
-      this.unbindWatch = $scope.$watch(function() {
+      this.unbindWatch = scope.$watch(function() {
         return self.addressBookPaginationService.lastPage;
       }, function(newVal, oldVal) {
         if (newVal !== oldVal) {
-          self.$scope.lastPage = newVal;
+          self.scope.lastPage = newVal;
         }
 
-        if (self.$scope.lastPage) {
+        if (self.scope.lastPage) {
           self.unbindWatch();
         }
       });
@@ -162,7 +175,5 @@ angular.module('linagora.esn.contact')
       this.unbindWatch();
     };
 
-    return {
-      LastPageWatcher: LastPageWatcher
-    };
+    return AddressBookPagination;
   });

@@ -256,7 +256,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService, AddressBookPaginationService, AddressBookPaginationFactory, AddressBookPaginationHelper) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService, AddressBookPagination, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -271,49 +271,6 @@ angular.module('linagora.esn.contact')
     $scope.searchFailure = false;
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
-    $scope.searchMode = false;
-
-    var addressbookPaginator;
-    var addressBookPaginationService;
-    var lastPageWatcher;
-
-    function getAddressbook() {
-      return {id: $scope.bookId, name: $scope.bookName};
-    }
-
-    function clearPagination() {
-      if (lastPageWatcher) {
-        lastPageWatcher.stop();
-      }
-    }
-
-    function createPagination() {
-      addressbookPaginator = AddressBookPaginationFactory.forSingleAddressBook({addressbook: getAddressbook(), user: $scope.user});
-      addressBookPaginationService = new AddressBookPaginationService(addressbookPaginator);
-      lastPageWatcher = new AddressBookPaginationHelper.LastPageWatcher($scope, addressBookPaginationService);
-    }
-
-    function createSearchPagination() {
-      addressbookPaginator = AddressBookPaginationFactory.forSearchAPI({addressbook: getAddressbook(), user: $scope.user});
-      addressBookPaginationService = new AddressBookPaginationService(addressbookPaginator);
-      lastPageWatcher = new AddressBookPaginationHelper.LastPageWatcher($scope, addressBookPaginationService);
-      $scope.searchMode = true;
-    }
-
-    function createAddressbookPagination() {
-      clearPagination();
-      createPagination();
-    }
-
-    function createAddressbookSearchPagination() {
-      if ($scope.searchMode) {
-        return;
-      }
-      clearPagination();
-      createSearchPagination();
-    }
-
-    createAddressbookPagination();
 
     headerService.subHeader.addInjection('contact-list-subheader', $scope);
     $scope.$on('$stateChangeStart', function(evt, next) {
@@ -390,7 +347,6 @@ angular.module('linagora.esn.contact')
       } else {
         $scope.categories.removeItemWithId(contact.id);
       }
-
     });
 
     $scope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(e, data) {
@@ -399,7 +355,6 @@ angular.module('linagora.esn.contact')
       } else {
         addItemsToCategories([data]);
       }
-
     });
 
     $scope.$on('$destroy', function() {
@@ -441,9 +396,8 @@ angular.module('linagora.esn.contact')
     }
 
     function switchToList() {
-      $scope.searchMode = false;
       cleanSearchResults();
-      createAddressbookPagination();
+      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.list);
       $scope.loadContacts();
     }
 
@@ -459,9 +413,8 @@ angular.module('linagora.esn.contact')
         return switchToList();
       }
 
-      createAddressbookSearchPagination();
+      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.search);
       $scope.searching = true;
-      $scope.searchMode = true;
       $scope.searchFailure = false;
       $scope.loadingNextContacts = true;
       getSearchResults().finally(function() {
@@ -472,15 +425,14 @@ angular.module('linagora.esn.contact')
     function getSearchResults() {
       $log.debug('Searching contacts');
       usSpinnerService.spin(SPINNER);
-
-      return addressBookPaginationService.loadNextItems({searchInput: $scope.searchInput})
+      return $scope.pagination.service.loadNextItems({searchInput: $scope.searchInput})
         .then(setSearchResults, searchFailure)
         .finally(loadPageComplete);
     }
 
     function getNextContacts() {
       usSpinnerService.spin(SPINNER);
-      addressBookPaginationService.loadNextItems().then(function(data) {
+      $scope.pagination.service.loadNextItems().then(function(data) {
         addItemsToCategories(data.contacts);
       }, function(err) {
         $log.error('Can not get contacts', err);
@@ -517,6 +469,24 @@ angular.module('linagora.esn.contact')
       $scope.loadContacts();
     };
 
+    $scope.clearSearchInput = function() {
+      $scope.searchInput = null;
+      $scope.appendQueryToURL();
+      switchToList();
+    };
+
+    $scope.createPagination = function(mode) {
+      $scope.mode = mode;
+      if (!$scope.pagination) {
+        $scope.pagination = new AddressBookPagination($scope);
+      }
+      $scope.pagination.init($scope.mode, {
+        user: $scope.user,
+        addressbooks: [{id: $scope.bookId, name: $scope.bookName}]
+      });
+    };
+    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.list);
+
     if ($location.search().q) {
       $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
       $scope.search();
@@ -526,13 +496,6 @@ angular.module('linagora.esn.contact')
       $scope.searchInput = null;
       $scope.loadContacts();
     }
-
-    $scope.clearSearchInput = function() {
-      $scope.searchInput = null;
-      $scope.appendQueryToURL();
-      switchToList();
-    };
-
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {

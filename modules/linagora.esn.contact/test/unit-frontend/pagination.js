@@ -17,7 +17,7 @@ describe('The Contacts Angular pagination module', function() {
       name: 'MyABookName'
     };
     options = {
-      addressbook: addressbook,
+      addressbooks: [addressbook],
       user: user
     };
 
@@ -41,14 +41,15 @@ describe('The Contacts Angular pagination module', function() {
         };
       }
     };
-
-    module('linagora.esn.contact', function($provide) {
-      $provide.value('ContactAPIClient', ContactAPIClient);
-    });
-
   });
 
   describe('The AddressBookPaginationProvider service', function() {
+
+    beforeEach(function() {
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('ContactAPIClient', ContactAPIClient);
+      });
+    });
 
     beforeEach(angular.mock.inject(function(AddressBookPaginationProvider, $rootScope) {
       this.$rootScope = $rootScope;
@@ -78,6 +79,12 @@ describe('The Contacts Angular pagination module', function() {
   });
 
   describe('The SearchAddressBookPaginationProvider service', function() {
+
+    beforeEach(function() {
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('ContactAPIClient', ContactAPIClient);
+      });
+    });
 
     beforeEach(function() {
       inject(function(SearchAddressBookPaginationProvider, $rootScope) {
@@ -134,6 +141,12 @@ describe('The Contacts Angular pagination module', function() {
 
   describe('The AddressBookPaginationService service', function() {
 
+    beforeEach(function() {
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('ContactAPIClient', ContactAPIClient);
+      });
+    });
+
     beforeEach(angular.mock.inject(function(AddressBookPaginationService, $rootScope) {
       this.$rootScope = $rootScope;
       this.AddressBookPaginationService = AddressBookPaginationService;
@@ -164,12 +177,128 @@ describe('The Contacts Angular pagination module', function() {
     });
   });
 
+  describe('The AddressBookPaginationRegistry service', function() {
+    beforeEach(function() {
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('ContactAPIClient', ContactAPIClient);
+      });
+    });
+
+    beforeEach(function() {
+      inject(function(AddressBookPaginationRegistry, $rootScope) {
+        this.$rootScope = $rootScope;
+        this.AddressBookPaginationRegistry = AddressBookPaginationRegistry;
+      });
+    });
+
+    it('should send back the stored provider', function() {
+      var type = 'foo';
+      var value = 'bar';
+      this.AddressBookPaginationRegistry.put(type, value);
+      expect(this.AddressBookPaginationRegistry.get(type)).to.equal(value);
+    });
+  });
+
+  describe('The AddressBookPagination service', function() {
+    var AddressBookPaginationRegistry, AddressBookPaginationService;
+
+    beforeEach(function() {
+      AddressBookPaginationRegistry = {
+        get: function() {},
+        put: function() {}
+      };
+
+      AddressBookPaginationService = function() {};
+
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('AddressBookPaginationRegistry', AddressBookPaginationRegistry);
+        $provide.value('AddressBookPaginationService', AddressBookPaginationService);
+        $provide.value('ContactAPIClient', ContactAPIClient);
+      });
+    });
+
+    beforeEach(function() {
+      inject(function(AddressBookPagination, $rootScope) {
+        this.$rootScope = $rootScope;
+        this.AddressBookPagination = AddressBookPagination;
+      });
+    });
+
+    describe('When instanciating', function() {
+      it('should save the scope', function() {
+        var scope = {foo: 'bar'};
+        var pagination = new this.AddressBookPagination(scope);
+        expect(pagination.scope).to.deep.equal(scope);
+      });
+    });
+
+    describe('The init function', function() {
+      it('should stop the watcher is defined', function(done) {
+        var scope = {foo: 'bar'};
+        var pagination = new this.AddressBookPagination(scope);
+        pagination.lastPageWatcher = {
+          stop: done
+        };
+
+        pagination.init();
+        done(new Error());
+      });
+
+      it('should throw error when pagination provider does not exists', function() {
+        var scope = {foo: 'bar'};
+        var provider = 'list';
+        AddressBookPaginationRegistry.get = function(type) {
+          expect(type).to.equal(provider);
+        };
+        var pagination = new this.AddressBookPagination(scope);
+        expect(pagination.init.bind(pagination, provider)).to.throw(/Unknown provider/);
+      });
+
+      it('should instanciate the provider, service and watcher', function() {
+        var scope = {
+          foo: 'bar',
+          $watch: function() {
+          }
+        };
+        var provider = 'list';
+        var options = {addressbooks: []};
+
+        function Mock(_options) {
+          expect(_options).to.deep.equal(options);
+        }
+
+        AddressBookPaginationRegistry.get = function(type) {
+          expect(type).to.equal(provider);
+          return Mock;
+        };
+        AddressBookPaginationService = function(provider) {
+          expect(provider).to.be.defined;
+          expect(provider).to.be.a.function;
+          console.log(provider);
+        };
+
+        var pagination = new this.AddressBookPagination(scope);
+        pagination.init(provider, options);
+
+        expect(pagination.provider).to.be.a.function;
+        expect(pagination.service).to.be.a.function;
+        expect(pagination.lastPageWatcher).to.be.a.function;
+      });
+    });
+  });
+
   describe('The ContactShellComparator service', function() {
 
     beforeEach(function() {
-      inject(function(AddressBookPaginationProvider, $rootScope) {
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('ContactAPIClient', ContactAPIClient);
+      });
+    });
+
+    beforeEach(function() {
+      inject(function(ContactShellComparator, $rootScope) {
         this.$rootScope = $rootScope;
-        this.AddressBookPaginationProvider = AddressBookPaginationProvider;
+        this.ContactShellComparator = ContactShellComparator;
       });
     });
 

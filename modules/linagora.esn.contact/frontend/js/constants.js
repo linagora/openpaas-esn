@@ -15,6 +15,10 @@ angular.module('linagora.esn.contact')
     cards: 96,
     bigger: 259
   })
+  .constant('CONTACT_LIST_DISPLAY_MODES', {
+    list: 'list',
+    search: 'search'
+  })
   .constant('CONTACT_LIST_DISPLAY_EVENTS', {
     toggle: 'contactlist:toggle'
   })
