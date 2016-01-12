@@ -176,6 +176,133 @@ describe('The calendar module services', function() {
     });
   });
 
+  describe('The keepChangeDuringGraceperiod service', function() {
+    var self;
+
+    beforeEach(function() {
+      self = this;
+
+      this.originalCallback = sinon.spy();
+      this.events = [{id: 1, title: 'should not be replaced'}, {id:2, title: 'to be replaced'}];
+      this.calId = 'a/cal/id';
+
+      this.eventSource = function(start, end, timezone, callback) {
+        callback(self.events);
+      };
+      this.timezone = 'who care';
+
+      angular.mock.module('esn.calendar');
+
+      angular.mock.module(function($provide) {
+        $provide.decorator('$timeout', function($delegate) {
+          self.$timeout = sinon.spy(function() {
+            return $delegate.apply(self, arguments);
+          });
+          angular.extend(self.$timeout, $delegate);
+
+          return self.$timeout;
+        });
+      });
+
+    });
+
+    beforeEach(angular.mock.inject(function(keepChangeDuringGraceperiod, fcMoment, _CALENDAR_GRACE_DELAY_) {
+      this.keepChangeDuringGraceperiod = keepChangeDuringGraceperiod;
+      this.fcMoment = fcMoment;
+
+      this.start = this.fcMoment('1984-01-01');
+      this.end = this.fcMoment('1984-01-07');
+      this.CALENDAR_GRACE_DELAY = _CALENDAR_GRACE_DELAY_;
+      this.modifiedEvent = {
+        id: 2,
+        title: 'has been replaced',
+        start: this.fcMoment('1984-01-03')
+      };
+    }));
+
+    describe('wrapEventSource method', function() {
+      it('should not modify the original event source if no crud event', function() {
+
+        var eventSource = sinon.spy(function(start, end, timezone, callback) {
+          expect([start, end, timezone]).to.be.deep.equals([self.start, self.end, self.timezone]);
+          callback(self.events);
+        });
+
+        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        expect(this.originalCallback).to.have.been.calledOnce;
+        expect(this.originalCallback).to.have.been.calledWithExactly(this.events);
+        expect(eventSource).to.have.been.calledOnce;
+      });
+
+      it('should ignore element added on other calendar', function() {
+        this.modifiedEvent.id = 3;
+        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, 'anOtherCalendar');
+        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
+      });
+
+    });
+
+    describe('deleteRegistration function', function() {
+      it('should delete all registered crud', function() {
+        ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
+          this.keepChangeDuringGraceperiod[action](this.modifiedEvent);
+          this.keepChangeDuringGraceperiod.deleteRegistration(this.modifiedEvent);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
+        }, this);
+      });
+    });
+
+    describe('register functions', function() {
+
+      it('should not replace event if those event has been crud since more than CALENDAR_GRACE_DELAY', function() {
+        ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
+          this.keepChangeDuringGraceperiod[action](this.modifiedEvent);
+          expect(this.$timeout).to.have.been.calledWith(sinon.match.any, this.CALENDAR_GRACE_DELAY);
+          this.$timeout.flush();
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
+        }, this);
+      });
+
+      it('should not replace event if event that has been crud has been undo by the given callback when crud was registered', function() {
+        ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
+          var undo = this.keepChangeDuringGraceperiod[action](this.modifiedEvent);
+          undo();
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
+        }, this);
+      });
+
+      describe('registerUpdate function', function() {
+        it('should take a event and make wrapped event sources replace event with same id from the original source by this one', function() {
+          this.keepChangeDuringGraceperiod.registerUpdate(this.modifiedEvent);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0], self.modifiedEvent]);
+        });
+      });
+
+      describe('registerDelete function', function() {
+        it('should take a event and make wrapped event sources delete event with same id from the original source', function() {
+          this.keepChangeDuringGraceperiod.registerDelete(this.modifiedEvent);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0]]);
+        });
+      });
+
+      describe('registerAdd function', function() {
+        it('should take a event and make wrapped event sources add this event if it is in the requested period and one the same calendar', function() {
+          this.modifiedEvent.id = 3;
+          this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
+        });
+      });
+
+    });
+  });
+
   describe('The calendarUtils service', function() {
     beforeEach(function() {
       angular.mock.module('esn.calendar');

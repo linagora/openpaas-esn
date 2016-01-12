@@ -652,4 +652,69 @@ angular.module('esn.calendar')
       get: get,
       save: save
     };
+  })
+
+ .factory('keepChangeDuringGraceperiod', function($timeout, CALENDAR_GRACE_DELAY) {
+    var changes = {};
+    var DELETE = 'delete';
+    var UPDATE = 'update';
+    var ADD = 'add';
+
+    function deleteRegistration(event) {
+      $timeout.cancel(changes[event.id].expirationPromise);
+      delete(changes[event.id]);
+    }
+
+    function saveChange(action, event, calendarPath) {
+      var undo = deleteRegistration.bind(null, event);
+      changes[event.id] = {
+        expirationPromise: $timeout(undo, CALENDAR_GRACE_DELAY, false),
+        event: event,
+        calendarPath: calendarPath,
+        action: action
+      };
+
+      return undo;
+    }
+
+    function applyUpdatedAndDeleteEvent(events) {
+      return events.reduce(function(previousCleanedEvents, event) {
+
+        var change = changes[event.id];
+        if (!change || change.action === ADD) {
+          previousCleanedEvents.push(event);
+        } else if (change.action === UPDATE) {
+          previousCleanedEvents.push(change.event);
+        }
+
+        return previousCleanedEvents;
+      }, []);
+    }
+
+    function addAddedEvent(start, end, calendarPath, events) {
+
+      angular.forEach(changes, function(change) {
+        if (change.action === ADD && change.event.start.isBetween(start, end) && change.calendarPath === calendarPath) {
+          events.push(change.event);
+        }
+      });
+
+      return events;
+    }
+
+    function wrapEventSource(calendarPath, calendarSource) {
+      return function(start, end, timezone, callback) {
+        calendarSource(start, end, timezone, function(events) {
+          callback(addAddedEvent(start, end, calendarPath, applyUpdatedAndDeleteEvent(events)));
+        });
+      };
+    }
+
+    return {
+      registerAdd: saveChange.bind(null, ADD),
+      registerDelete: saveChange.bind(null, DELETE),
+      registerUpdate: saveChange.bind(null, UPDATE),
+      deleteRegistration: deleteRegistration,
+      wrapEventSource: wrapEventSource
+    };
   });
