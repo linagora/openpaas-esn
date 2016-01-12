@@ -7,7 +7,7 @@ angular.module('linagora.esn.contact')
   .factory('ContactAPIClient', function($q,
                             uuid4,
                             ContactShell,
-                            AddressbookShell,
+                            AddressBookShell,
                             ContactsHelper,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
@@ -56,9 +56,30 @@ angular.module('linagora.esn.contact')
         .then(function(response) {
           if (response.data._embedded && response.data._embedded['dav:addressbook']) {
             return response.data._embedded['dav:addressbook'].map(function(item) {
-              return new AddressbookShell(item);
+              return new AddressBookShell(item);
             });
           }
+        });
+    }
+
+    /**
+     * Get a specified addressbook
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @return {Promise}          Resolve AddressBookShell if success
+     */
+    function getAddressbook(bookId, bookName) {
+      // this is a dummy implementation, because our API from Sabre is not ready
+      var addressbook;
+      return listAddressbook(bookId)
+        .then(function(addressbooks) {
+          addressbooks.some(function(item) {
+            if (item.id === bookName) {
+              addressbook = item;
+              return true;
+            }
+          });
+          return addressbook || $q.reject('Not found addressbook');
         });
     }
 
@@ -218,6 +239,10 @@ angular.module('linagora.esn.contact')
           return listAddressbook(bookId);
         }
 
+        function get() {
+          return getAddressbook(bookId, bookName);
+        }
+
         function vcard(cardId) {
           function get() {
             return getCard(bookId, bookName, cardId);
@@ -254,6 +279,7 @@ angular.module('linagora.esn.contact')
         }
         return {
           list: list,
+          get: get,
           vcard: vcard
         };
       }
