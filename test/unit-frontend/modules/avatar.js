@@ -46,17 +46,59 @@ describe('The Avatar Angular module', function() {
 
   describe('loadButton directive', function() {
     var html = '<input type="file" load-button/>';
+    var initDirective;
     beforeEach(inject(['$compile', '$rootScope', 'selectionService', function($c, $r, selectionService) {
       this.$compile = $c;
       this.$rootScope = $r;
       this.selectionService = selectionService;
+      this.$scope = this.$rootScope.$new();
     }]));
 
+    beforeEach(function() {
+      var self = this;
+      initDirective = function() {
+        var element = self.$compile(html)(self.$scope);
+        self.$scope.$digest();
+        return element;
+      };
+    });
+
     it('should set an error in the scope if file is not set', function(done) {
-      var element = this.$compile(html)(this.$rootScope);
-      this.$rootScope.$digest();
+      var element = initDirective();
       element.trigger('change');
       expect(this.selectionService.getError()).to.equal('Wrong file type, please select a valid image');
+      done();
+    });
+
+    it('should set an error in the scope if file size is > 5MB', function(done) {
+      var element = initDirective();
+      var file = {
+        type: 'change',
+        dataTransfer: {
+          files: [{
+            type: 'image/',
+            size: Math.pow(2, 24)
+          }]
+        }
+      };
+      element.trigger(file);
+      expect(this.selectionService.getError()).to.equal('File is too large (maximum size is 5 Mb)');
+      done();
+    });
+
+    it('should not set an error in the scope if file size is < 5MB', function(done) {
+      var element = initDirective();
+      var file = {
+        type: 'change',
+        dataTransfer: {
+          files: [{
+            type: 'image/',
+            size: Math.pow(2, 10)
+          }]
+        }
+      };
+      element.trigger(file);
+      expect(this.selectionService.getError()).to.be.null;
       done();
     });
   });

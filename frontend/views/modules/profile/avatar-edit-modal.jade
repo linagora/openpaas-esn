@@ -6,26 +6,7 @@
         h4.modal-title(ng-hide="uploading") #{__('Edit your avatar')}
         h4.modal-title(ng-show="uploading") #{__('Updating your avatar')}...
       .modal-body
-        .row.error(ng-hide="uploading")
-        .row.alert.alert-info(ng-show="uploading", role="alert")
-          p
-            span(ng-show="step === 'uploading'") #{__('Uploading avatar')}...
-            span(ng-show="step === 'redirect'") #{__('Avatar updated')}!
-
-          .progress
-            .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{progress}}%")
-              span.sr-only {{progress}} % #{__('Complete')}
-        .row.select-image(ng-hide="uploading")
-          .col-xs-3.col-md-3.col-lg-3
-            .row
-              label
-                span.btn.btn-primary.btn-file #{__('Select an image')}...
-                  input.btn.btn-primary(type="file", accept="image/*", id="profile_image", load-button, max-size="0.5")
-            .row(ng-show='preview')
-              canvas(width="128", height="128", id="preview", img-preview)
-          .col-xs-9.col-md-9.col-lg-9(ng-show='preview')
-            img-loaded(width="380")
-
+        avatar-picker(avatar-placeholder="{{getURL()}}")
       .modal-footer(ng-hide='uploading')
         button.btn.btn-primary(type="button", ng-disabled="uploading || !preview", ng-click="upload()") #{__('Update')}
         button.btn.btn-default(type="button", ng-disabled="uploading", ng-click="$hide()") #{__('Cancel')}
