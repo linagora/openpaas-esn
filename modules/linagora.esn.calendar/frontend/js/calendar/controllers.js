@@ -19,7 +19,7 @@ angular.module('esn.calendar')
     });
   })
 
-  .controller('calendarController', function($scope, $q, $rootScope, $window, $modal, $timeout, $log, $alert, $state, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
+  .controller('calendarController', function($scope, $q, $rootScope, $window, $modal, $timeout, $log, $alert, $state, keepChangeDuringGraceperiod, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
 
     var windowJQuery = angular.element($window);
 
@@ -121,7 +121,8 @@ angular.module('esn.calendar')
         $scope.calendars = calendars;
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
-            events: calendarEventSource(calendar.href, $scope.displayCalendarError),
+
+            events: keepChangeDuringGraceperiod.wrapEventSource(calendar.href.replace(/\.json$/, ''), calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
           calendarPromise.then(function(cal) {

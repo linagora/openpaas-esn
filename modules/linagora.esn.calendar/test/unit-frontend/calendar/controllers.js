@@ -25,6 +25,12 @@ describe('The calendar module controllers', function() {
       }
     };
 
+    this.keepChangeDuringGraceperiodMock = {
+      wrapEventSource: sinon.spy(function(id, eventSource) {
+        return eventSource;
+      })
+    };
+
     this.calendarServiceMock = {
       calendarId: '1234',
       createEvent: function() {
@@ -95,6 +101,7 @@ describe('The calendar module controllers', function() {
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('headerService', self.headerServiceMock);
       $provide.value('user', self.userMock);
+      $provide.value('keepChangeDuringGraceperiod', self.keepChangeDuringGraceperiodMock);
       $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
@@ -269,6 +276,16 @@ describe('The calendar module controllers', function() {
       expect(this.scope.eventSourcesMap.href.events).to.be.a('Array');
       expect(this.scope.eventSourcesMap.href2.events).to.be.a('Array');
       expect(fullCalendarSpy).to.have.been.calledTwice;
+    });
+
+    it('should have wrap each calendar with keepChangeDuringGraceperiod.wrapEventSource', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.$digest();
+      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledTwice;
+      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('href', sinon.match.array);
+
+      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('href2', sinon.match.array);
     });
 
     it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and calendar.toggled is true', function() {
