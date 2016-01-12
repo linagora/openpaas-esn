@@ -2,7 +2,7 @@
 
 angular.module('esn.application-menu', ['op.dynamicDirective'])
   .constant('POPOVER_APPLICATION_MENU_OPTIONS', {
-    animation: 'am-fade',
+    animation: 'am-fade-and-slide-right',
     placement: 'bottom',
     templateUrl: '/views/modules/application-menu/application-menu.html',
     html: false,
@@ -23,7 +23,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       replace: true,
       templateUrl: '/views/modules/application-menu/application-menu-toggler.html',
       link: function(scope, element) {
-        var backdrop = angular.element('<div id="popover-backdrop" class="modal-backdrop in visible-xs">');
+        var backdrop = angular.element('<div id="application-menu-backdrop" class="modal-backdrop in visible-xs">');
         var body = $document.find('body').eq(0);
         var popover = $popover(element, POPOVER_APPLICATION_MENU_OPTIONS);
 
@@ -72,6 +72,6 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/logout"><i class="mdi mdi-home"/><span class="label">Logout</span></a></div>'
+      template: '<div><a href="/logout"><i class="mdi mdi-power"/><span class="label">Logout</span></a></div>'
     };
   });

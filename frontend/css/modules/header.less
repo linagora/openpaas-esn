@@ -33,7 +33,7 @@
     }
 
     li.hover-scale-animation {
-      .hover-pop(rgba(0,0,0,0.12), 2px, 250ms, 0);
+      position: relative;
       width: 50px;
       height: 40px;
       padding: 0;
@@ -47,6 +47,11 @@
         > i.mdi {
           font-size: 1.9em;
           color: @textPrimaryColor;
+        }
+        &:hover {
+          i.mdi {
+            color: @accentColor;
+          }
         }
       }
     }
