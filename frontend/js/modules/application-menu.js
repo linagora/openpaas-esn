@@ -19,20 +19,25 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
   .directive('applicationMenuToggler', function($document, $popover, POPOVER_APPLICATION_MENU_OPTIONS) {
     return {
       restrict: 'E',
-      scope: {},
+      scope: true,
       replace: true,
       templateUrl: '/views/modules/application-menu/application-menu-toggler.html',
       link: function(scope, element) {
         var backdrop = angular.element('<div id="application-menu-backdrop" class="modal-backdrop in visible-xs">');
         var body = $document.find('body').eq(0);
         var popover = $popover(element, POPOVER_APPLICATION_MENU_OPTIONS);
+        scope.isShown = false;
 
         popover.$scope.$on('application-menu.show.before', function() {
           body.append(backdrop);
+          scope.isShown = true;
+          scope.$digest();
         });
 
         popover.$scope.$on('application-menu.hide.before', function() {
           backdrop.remove();
+          scope.isShown = false;
+          scope.$digest();
         });
 
         element.click(popover.toggle.bind(null, null));
