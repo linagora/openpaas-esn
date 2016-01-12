@@ -23,9 +23,18 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       link: function(scope, element) {
         scope.popoverOptions = POPOVER_APPLICATION_MENU_OPTIONS;
         var popover = $popover(element, scope.popoverOptions);
-        element.click(function() {
-          popover.toggle();
-        });
+        element.click(popover.toggle.bind(null, null));
+      }
+    };
+  })
+  .directive('forceCloseOnLinksClick', function($timeout) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        $timeout(function() {
+          var links = element.find('a');
+          links.click(scope.$parent.$hide.bind(null, null));
+        }, 50);
       }
     };
   })
