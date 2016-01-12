@@ -45,11 +45,19 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
     Categorize.prototype._removeItemWithId = function _removeItemWithId(id) {
       var self = this;
 
-      Object.keys(this.categories).forEach(function(name) {
-        self.categories[name] = self.categories[name].filter(function(item) {
-          return item.id !== id;
+      var checkContactInCategories = function(name) {
+        var inCategory = self.categories[name].some(function(item, index) {
+          if (item.id === id) {
+            self.categories[name].splice(index, 1);
+            return true;
+          }
+          return false;
         });
-      });
+
+        return inCategory;
+      };
+
+      return Object.keys(this.categories).some(checkContactInCategories);
     };
 
     Categorize.prototype._removeItemFromCategories = function _removeItemsFromCategories(item) {
@@ -72,21 +80,19 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
       }
     };
 
-    Categorize.prototype._sort = function _sort() {
+    Categorize.prototype._sort = function _sort(categoryName) {
       var self = this;
-      Object.keys(this.categories).forEach(function(name) {
-        self.categories[name] = arrayHelper.sortHashArrayBy(self.categories[name], self.sortBy);
-      });
+      if (categoryName && this.keys.indexOf(categoryName) !== -1) {
+        self.categories[categoryName] = arrayHelper.sortHashArrayBy(self.categories[categoryName], self.sortBy);
+      } else {
+        Object.keys(this.categories).forEach(function(name) {
+          self.categories[name] = arrayHelper.sortHashArrayBy(self.categories[name], self.sortBy);
+        });
+      }
     };
 
     Categorize.prototype.addItems = function addItems(items) {
       this._addItemsToCategories(items);
-      this._sort();
-    };
-
-    Categorize.prototype.replaceItem = function replaceItem(item) {
-      this._removeItemWithId(item.id);
-      this._addItemsToCategories([item]);
       this._sort();
     };
 
@@ -96,6 +102,21 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
 
     Categorize.prototype.removeItem = function removeItem(item) {
       this._removeItemFromCategories(item);
+    };
+
+    Categorize.prototype.replaceItem = function replaceItem(item) {
+      var self = this;
+      var letter = charAPI.getAsciiUpperCase(item[self.sortBy].charAt(0)) || self.keepAllKey;
+      self._removeItemWithId(item.id);
+      if (self.keys.indexOf(letter) >= 0) {
+        for (var i = self.keys.indexOf(letter); i < self.keys.length; i++) {
+          var nextChar = self.keys.charAt(i);
+          if (self.categories[nextChar].length > 0) {
+            self._addItemsToCategories([item]);
+            return self._sort(letter);
+          }
+        }
+      }
     };
 
     Categorize.prototype.removeItemWithId = function removeItemWithId(id) {

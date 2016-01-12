@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The Contacts Angular module', function() {
+describe('The Contacts controller module', function() {
 
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell,
       notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, ContactAPIClient, shellToVCARD;
@@ -70,7 +70,7 @@ describe('The Contacts Angular module', function() {
       addEventListener: function() {}
     };
 
-    contactUpdateDataService = { contact: null, taskId: null };
+    contactUpdateDataService = { contact: null, taskId: null, contactUpdatedIds: [] };
 
     headerService = {
       subHeader: {
@@ -939,6 +939,7 @@ describe('The Contacts Angular module', function() {
 
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         this.initController();
+        scope.$digest();
         scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
 
         scope.save();
@@ -963,12 +964,13 @@ describe('The Contacts Angular module', function() {
         });
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         this.initController();
+        scope.$digest();
         scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
         scope.save();
         scope.$digest();
       });
 
-      it('should save updated contact and taskId contactUpdateDataService', function() {
+      it('should save updated contact, contactUpdatedIds and taskId contactUpdateDataService', function() {
         createVcardMock(function() {
           return {
             update: function() {
@@ -981,16 +983,20 @@ describe('The Contacts Angular module', function() {
         });
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         this.initController();
+        scope.$digest();
+
         scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
 
         expect(contactUpdateDataService.contact).to.be.null;
         expect(contactUpdateDataService.taskId).to.be.null;
+        expect(contactUpdateDataService.contactUpdatedIds).to.eql([]);
 
         scope.save();
         scope.$digest();
 
         expect(contactUpdateDataService.contact).to.eql(scope.contact);
         expect(contactUpdateDataService.taskId).to.eql('a taskId');
+        expect(contactUpdateDataService.contactUpdatedIds).to.eql([1]);
       });
 
       it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
@@ -1380,6 +1386,7 @@ describe('The Contacts Angular module', function() {
 
     it('should update the contact on CONTACT_EVENTS.UPDATED event', function(done) {
       var contact = {
+        id: '123456',
         lastName: 'Last'
       };
 
@@ -1390,9 +1397,8 @@ describe('The Contacts Angular module', function() {
         },
         AlphaCategoryService: function() {
           return {
-            replaceItem: function(item) {
-              expect(item).to.deep.equal(contact);
-
+            replaceItem: function(contact) {
+              expect(contact).to.deep.equal(contact);
               done();
             },
             get: function() {},
@@ -1404,6 +1410,33 @@ describe('The Contacts Angular module', function() {
       $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
       $rootScope.$digest();
       $timeout.flush();
+    });
+
+    it('should store contact id in contactUpdatedIds on CONTACT_EVENTS.UPDATED event', function(done) {
+      var contact = {
+        id: '123456',
+        lastName: 'Last'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        },
+        contactUpdateDataService: {
+          contactUpdatedIds: {
+            indexOf: function() {
+              return -1;
+            },
+            push: function() {
+              done();
+            }
+          }
+        }
+      });
+
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+      $rootScope.$digest();
     });
 
     it('should load contact list when no query is specified in the URL', function(done) {

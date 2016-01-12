@@ -214,6 +214,7 @@ angular.module('linagora.esn.contact')
           .update($scope.contact)
           .then(function(taskId) {
             contactUpdateDataService.contact = $scope.contact;
+            contactUpdateDataService.contactUpdatedIds.push($scope.contact.id);
             contactUpdateDataService.taskId = taskId;
             gracePeriodLiveNotification.registerListeners(taskId, function() {
               notificationFactory.strongError(
@@ -255,7 +256,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -332,8 +333,13 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
+      if (contactUpdateDataService.contactUpdatedIds.indexOf(data.id) === -1) {
+        contactUpdateDataService.contactUpdatedIds.push(data.id);
+      }
       if ($scope.searchInput) { return; }
-      $scope.categories.replaceItem(fillRequiredContactInformation(data));
+      $scope.$applyAsync(function() {
+        $scope.categories.replaceItem(fillRequiredContactInformation(data));
+      });
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {
@@ -356,6 +362,7 @@ angular.module('linagora.esn.contact')
 
     $scope.$on('$destroy', function() {
       gracePeriodService.flushAllTasks();
+      contactUpdateDataService.contactUpdatedIds = [];
     });
 
     $scope.$on('$stateChangeStart', function() {
