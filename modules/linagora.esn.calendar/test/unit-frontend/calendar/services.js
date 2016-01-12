@@ -634,7 +634,7 @@ describe('The calendar module services', function() {
   });
 
   describe('The calendarService service', function() {
-    var ICAL, moment, emitMessage, CalendarCollectionShellMock;
+    var ICAL, moment, emitMessage, CalendarCollectionShellMock, keepChangeDuringGraceperiodMock;
 
     beforeEach(function() {
       var self = this;
@@ -644,6 +644,13 @@ describe('The calendar module services', function() {
           var token = this._token;
           return $q.when({ data: { token: token } });
         }
+      };
+
+      keepChangeDuringGraceperiodMock = {
+        registerAdd: sinon.spy(),
+        registerDelete: sinon.spy(),
+        registerUpdate: sinon.spy(),
+        deleteRegistration: sinon.spy()
       };
 
       this.socket = function(namespace) {
@@ -703,6 +710,7 @@ describe('The calendar module services', function() {
         $provide.value('CalendarCollectionShell', function() {
           return CalendarCollectionShellMock.apply(this, arguments);
         });
+        $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
       });
     });
 
@@ -1198,6 +1206,63 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
+      it('should call keepChangeDuringGraceperiod.registerAdd', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
+        vcalendar.addSubcomponent(vevent);
+        var event = new this.CalendarShell(vcalendar);
+
+        this.gracePeriodService.grace = $q.when.bind(null, {
+          cancelled: true,
+          success: angular.noop
+        });
+
+        this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), {ETag: 'etag'});
+
+        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+          function() {
+            expect(keepChangeDuringGraceperiodMock.registerAdd).to.have.been.calledWith(event);
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should call keepChangeDuringGraceperiod.deleteRegistration if the creation is cancelled', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
+        vcalendar.addSubcomponent(vevent);
+        var event = new this.CalendarShell(vcalendar);
+
+        this.gracePeriodService.grace = $q.when.bind(null, {
+          cancelled: true,
+          success: angular.noop
+        });
+
+        this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+        keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
+          expect(_event).to.equal(event);
+          done();
+        };
+
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), {ETag: 'etag'});
+
+        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true });
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should transmit an error message to grace task even if the error message from the backend is empty', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
@@ -1462,6 +1527,54 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
+      it('should call keepChangeDuringGraceperiod.registerUpdate', function(done) {
+
+        this.gracePeriodService.grace = $q.when.bind(null, {
+          cancelled: true,
+          success: angular.noop
+        });
+
+        this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
+
+        var event = this.event;
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, null, 'etag').then(
+          function() {
+            expect(keepChangeDuringGraceperiodMock.registerUpdate).to.have.been.calledWith(event);
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should call keepChangeDuringGraceperiod.deleteRegistration if the creation is cancelled', function(done) {
+
+        this.gracePeriodService.grace = $q.when.bind(null, {
+          cancelled: true,
+          success: angular.noop
+        });
+
+        this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
+
+        var event = this.event;
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, null, 'etag');
+
+        keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
+          expect(_event).to.equal(event);
+          done();
+        };
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
         var statusErrorText = '';
         var errorSpy = sinon.spy(function(error) {
@@ -1598,6 +1711,51 @@ describe('The calendar module services', function() {
           }, unexpected.bind(null, done)
         );
 
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should call keepChangeDuringGraceperiod.registerDelete', function(done) {
+
+        this.gracePeriodService.grace = $q.when.bind(null, {
+          cancelled: true,
+          success: angular.noop
+        });
+
+        this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
+
+        var event = this.event;
+        this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
+          function() {
+            expect(keepChangeDuringGraceperiodMock.registerDelete).to.have.been.calledWith(event);
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should call keepChangeDuringGraceperiod.deleteRegistration if the creation is cancelled', function(done) {
+
+        this.gracePeriodService.grace = $q.when.bind(null, {
+          cancelled: true,
+          success: angular.noop
+        });
+
+        this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+        var event = this.event;
+        keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
+          expect(_event).to.equal(event);
+          done();
+        };
+
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
+
+        this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag');
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
