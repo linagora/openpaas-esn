@@ -1070,4 +1070,84 @@ describe('The addressbooks module', function() {
       });
     });
   });
+
+  describe('The getAddressbooks fn', function() {
+
+    var BOOK_HOME = 'book12345';
+
+    function createContactClientMock(listFn) {
+      dependencies.contact = {
+        lib: {
+          client: function() {
+            return {
+              addressbookHome: function(bookHome) {
+                expect(bookHome).to.equal(BOOK_HOME);
+                return {
+                  list: listFn
+                };
+              }
+            };
+          }
+        }
+      };
+    }
+
+    it('should return 200 response on success', function(done) {
+      var data = {
+        response: 'response',
+        body: 'body'
+      };
+      createContactClientMock(function() {
+        return q.resolve(data);
+      });
+      var controller = getController();
+      var req = {
+        params: { bookHome: BOOK_HOME },
+        originalUrl: 'http://abc.com',
+        davserver: 'http://davserver.com'
+      };
+      controller.getAddressbooks(req, {
+        status: function(code) {
+          expect(code).to.equal(200);
+          return {
+            json: function(body) {
+              expect(body).to.eql(data.body);
+              done();
+            }
+          };
+        }
+      });
+    });
+
+    it('should return 500 response on errror', function(done) {
+      createContactClientMock(function() {
+        return q.reject();
+      });
+      var controller = getController();
+      var req = {
+        params: { bookHome: BOOK_HOME },
+        originalUrl: 'http://abc.com',
+        davserver: 'http://davserver.com'
+      };
+      controller.getAddressbooks(req, {
+        status: function(code) {
+          expect(code).to.equal(500);
+          return {
+            json: function(json) {
+              expect(json).to.eql({
+                error: {
+                  code: 500,
+                  message: 'Server Error',
+                  details: 'Error while getting addressbook list'
+                }
+              });
+              done();
+            }
+          };
+        }
+      });
+    });
+
+  });
+
 });

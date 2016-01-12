@@ -300,9 +300,33 @@ module.exports = function(dependencies, options) {
       return deferred.promise;
     }
 
+    /**
+     * Get all addressbooks of current user
+     * @return {Promise}
+     */
+    function list() {
+      var deferred = q.defer();
+      var headers = {
+        ESNToken: ESNToken,
+        accept: VCARD_JSON
+      };
+
+      getAddressBookHomeUrl(function(url) {
+        davClient({
+          method: 'GET',
+          headers: headers,
+          url: url,
+          json: true
+        }, checkResponse(deferred, 'GET', 'Error while getting addressbook list in DAV'));
+      });
+
+      return deferred.promise;
+    }
+
     return {
       addressbook: addressbook,
-      create: create
+      create: create,
+      list: list
     };
   }
 

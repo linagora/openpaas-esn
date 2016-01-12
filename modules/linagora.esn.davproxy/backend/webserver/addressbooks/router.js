@@ -11,10 +11,45 @@ module.exports = function(dependencies) {
   var davMiddleware = dependencies('davserver').davMiddleware;
   var controller = require('./controller')(dependencies);
 
-  router.get('/:bookHome/:bookName/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.getContact);
-  router.put('/:bookHome/:bookName/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.updateContact);
-  router.delete('/:bookHome/:bookName/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.deleteContact);
-  router.get('/:bookHome/:bookName.json', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.getContacts);
+  router.get(
+    '/:bookHome/:bookName/:contactId.vcf',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.getContact
+  );
+
+  router.put(
+    '/:bookHome/:bookName/:contactId.vcf',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.updateContact
+  );
+
+  router.delete(
+    '/:bookHome/:bookName/:contactId.vcf',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.deleteContact
+  );
+
+  router.get(
+    '/:bookHome/:bookName.json',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.getContacts
+  );
+
+  router.get(
+    '/:bookHome.json',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    controller.getAddressbooks
+  );
+
   router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.defaultHandler);
 
   return router;

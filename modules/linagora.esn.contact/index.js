@@ -44,9 +44,10 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         'controllers.js',
         'directives.js',
         'services.js',
-        'contactshell.js',
-        'contactdisplayshell.js',
-        'displayshellprovider.js',
+        'shells/contactshell.js',
+        'shells/addressbookshell.js',
+        'shells/contactdisplayshell.js',
+        'shells/displayshellprovider.js',
         'contact-api-client.js'
       ];
       webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn']);

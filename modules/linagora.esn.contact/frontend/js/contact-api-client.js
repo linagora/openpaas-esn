@@ -7,6 +7,7 @@ angular.module('linagora.esn.contact')
   .factory('ContactAPIClient', function($q,
                             uuid4,
                             ContactShell,
+                            AddressBookShell,
                             ContactsHelper,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
@@ -21,6 +22,11 @@ angular.module('linagora.esn.contact')
                             contactUpdateDataService) {
     var ADDRESSBOOK_PATH = '/addressbooks';
 
+    /**
+     * Convert HTTP response to an array of ContactShell
+     * @param  {Response} response Response from $http
+     * @return {Array}          Array of ContactShell
+     */
     function responseAsContactShell(response) {
       if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
         return response.data._embedded['dav:item'].map(function(vcarddata) {
@@ -34,14 +40,82 @@ angular.module('linagora.esn.contact')
       return [];
     }
 
+    /**
+     * Return the AddressbookHome URL, each user has one AddressbookHome
+     * @param  {String} bookId The AddressbookHome ID
+     * @return {String}
+     */
+    function getBookHomeUrl(bookId) {
+      return [ADDRESSBOOK_PATH, bookId + '.json'].join('/');
+    }
+
+    /**
+     * Return the AddressBook url, each user can have many AddressBooks
+     * @param  {String} bookId   The AddressbookHome ID
+     * @param  {String} bookName The addressbook name, AKA uri field of the addessbook
+     * @return {String}
+     */
     function getBookUrl(bookId, bookName) {
       return [ADDRESSBOOK_PATH, bookId, bookName + '.json'].join('/');
     }
 
+    /**
+     * Return the VCard url
+     * @param  {String} bookId   The AddressbookHome ID
+     * @param  {String} bookName The addressbook name
+     * @param  {String} cardId   The card ID
+     * @return {String}
+     */
     function getVCardUrl(bookId, bookName, cardId) {
       return [ADDRESSBOOK_PATH, bookId, bookName, cardId + '.vcf'].join('/');
     }
 
+    /**
+     * List all addressbooks of a user
+     * @param  {String} bookId The AddressbookHome ID
+     * @return {Promise}        Resolve an array of AddressBookShell if success
+     */
+    function listAddressbook(bookId) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+
+      return davClient('GET', getBookHomeUrl(bookId), headers)
+        .then(function(response) {
+          if (response.data._embedded && response.data._embedded['dav:addressbook']) {
+            return response.data._embedded['dav:addressbook'].map(function(item) {
+              return new AddressBookShell(item);
+            });
+          }
+        });
+    }
+
+    /**
+     * Get a specified addressbook
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @return {Promise}          Resolve AddressBookShell if success
+     */
+    function getAddressbook(bookId, bookName) {
+      // this is a dummy implementation, because our API from Sabre is not ready
+      var addressbook;
+      return listAddressbook(bookId)
+        .then(function(addressbooks) {
+          addressbooks.some(function(item) {
+            if (item.id === bookName) {
+              addressbook = item;
+              return true;
+            }
+          });
+          return addressbook || $q.reject('Not found addressbook');
+        });
+    }
+
+    /**
+     * Get specified card
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @param  {String} cardId   the card ID to get
+     * @return {Promise}          Resolve ContactShell if success
+     */
     function getCard(bookId, bookName, cardId) {
       var headers = { Accept: CONTACT_ACCEPT_HEADER };
 
@@ -54,6 +128,21 @@ angular.module('linagora.esn.contact')
         });
     }
 
+    /**
+     * List cards from an addressbook
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @param  {Object} options  Optional, includes:
+     *                           	+ page(Number): current page
+     *                           	+ limit(Number):
+     *                           	+ paginate(Boolean):
+     *                           	+ sort(String):
+     *                           	+ userId(String):
+     * @return {Promise}          If success, resolve an object with:
+     *                            + contacts: an array of ContactShell
+     *                            + current_page:
+     *                            + last_page: true or false
+     */
     function listCard(bookId, bookName, options) {
       options = options || {};
       var currentPage = options.page || 1;
@@ -84,6 +173,19 @@ angular.module('linagora.esn.contact')
         });
     }
 
+    /**
+     * Search card
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @param  {Object} options  Serarch options, includes:
+     *                           	+ data: query to search
+     *                            + userId
+     *                            + page
+     * @return {Promise}          If success, return an object with:
+     *                            + current_page
+     *                            + total_hits
+     *                            + hits_list: an array of ContactShell
+     */
     function searchCard(bookId, bookName, options) {
       if (!options) {
         return $q.reject('Missing options');
@@ -108,6 +210,15 @@ angular.module('linagora.esn.contact')
         });
     }
 
+    /**
+     * Create a vcard
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @param  {ContactShell} contact  Contact to be created, if no contact.id
+     *                                 is specified, the ID will be generated by
+     *                                 uuid4
+     * @return {Promise}          Result if success with statusCode 201
+     */
     function createCard(bookId, bookName, contact) {
       var headers = { 'Content-Type': CONTACT_CONTENT_TYPE_HEADER };
 
@@ -128,6 +239,14 @@ angular.module('linagora.esn.contact')
         });
     }
 
+    /**
+     * Update a card
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @param  {String} cardId   the card ID to update
+     * @param  {ContactShell} contact  the contact to be updated
+     * @return {Promise}          Resolve grace period taskId if success
+     */
     function updateCard(bookId, bookName, cardId, contact) {
       if (!cardId) {
         return $q.reject(new Error('Missing cardId'));
@@ -158,6 +277,19 @@ angular.module('linagora.esn.contact')
         });
     }
 
+    /**
+     * Remove a card
+     * @param  {String} bookId   the addressbook home ID
+     * @param  {String} bookName the addressbook name
+     * @param  {String} cardId   the card ID to update
+     * @param  {Object} options  Includes:
+     *                           		+ etag
+     *                           		+ graceperiod
+     * @return {Promise}          If success and it's a grace task: resolve
+     *                               grace period taskId
+     *                            If success and it's not a grace task: resolve
+     *                            	nothing
+     */
     function removeCard(bookId, bookName, cardId, options) {
       if (!cardId) {
         return $q.reject(new Error('Missing cardId'));
@@ -188,9 +320,31 @@ angular.module('linagora.esn.contact')
         });
     }
 
+    /**
+     * The addressbook API
+     * Examples:
+     * - List addressbooks: addressbookHome(bookId).addresbook().list()
+     * - Get a addressbook: addressbookHome(bookId).addresbook(bookName).get()
+     * - List contacts: addressbookHome(bookId).addresbook(bookName).vcard().list(options)
+     * - Search contacts: addressbookHome(bookId).addresbook(bookName).vcard().search(options)
+     * - Get a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).get()
+     * - Create a contact: addressbookHome(bookId).addresbook(bookName).vcard().create(contact)
+     * - Update a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).update(contact)
+     * - Remove a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).remove(options)
+     * @param  {String} bookId the addressbook home ID
+     * @return {Function}
+     */
     function addressbookHome(bookId) {
       function addressbook(bookName) {
         bookName = bookName || DEFAULT_ADDRESSBOOK_NAME;
+
+        function list() {
+          return listAddressbook(bookId);
+        }
+
+        function get() {
+          return getAddressbook(bookId, bookName);
+        }
 
         function vcard(cardId) {
           function get() {
@@ -227,6 +381,8 @@ angular.module('linagora.esn.contact')
           };
         }
         return {
+          list: list,
+          get: get,
           vcard: vcard
         };
       }

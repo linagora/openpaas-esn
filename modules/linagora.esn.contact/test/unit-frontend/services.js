@@ -458,7 +458,7 @@ describe('The Contacts service module', function() {
 
     });
 
-  }); // The deleteContact service
+  });
 
   describe('The ContactsHelper service', function() {
 

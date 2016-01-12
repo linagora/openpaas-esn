@@ -44,17 +44,22 @@ describe('The contact Angular module contactapis', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, DAV_PATH, GRACE_DELAY, _ICAL_, _CONTACT_EVENTS_) {
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, AddressBookShell, DAV_PATH, GRACE_DELAY, _ICAL_, _CONTACT_EVENTS_) {
       this.$rootScope = $rootScope;
       this.$httpBackend = $httpBackend;
       this.ContactAPIClient = ContactAPIClient;
       this.ContactShell = ContactShell;
+      this.AddressBookShell = AddressBookShell;
       this.DAV_PATH = DAV_PATH;
       this.GRACE_DELAY = GRACE_DELAY;
       this.ContactsHelper = ContactsHelper;
 
       ICAL = _ICAL_;
       CONTACT_EVENTS = _CONTACT_EVENTS_;
+
+      this.getBookHomeUrl = function(bookId) {
+        return [this.DAV_PATH, ADDRESSBOOK_PATH, bookId + '.json'].join('/');
+      };
 
       this.getBookUrl = function(bookId, bookName) {
         return [this.DAV_PATH, ADDRESSBOOK_PATH, bookId, bookName + '.json'].join('/');
@@ -68,6 +73,107 @@ describe('The contact Angular module contactapis', function() {
     describe('The addressbookHome fn', function() {
 
       describe('The addressbook fn', function() {
+
+        describe('The list fn', function() {
+
+          it('should return list of addressbooks', function(done) {
+            var bookId = '123';
+            this.$httpBackend.expectGET(this.getBookHomeUrl(bookId)).respond({
+              _links: {
+                self: {
+                  href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
+                }
+              },
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/contacts.json'
+                    }
+                  },
+                  'dav:name': 'Default Addressbook',
+                  'carddav:description': 'Default Addressbook',
+                  'dav:acl': ['dav:read', 'dav:write']
+                }, {
+                  _links: {
+                    self: {
+                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/1614422648.json'
+                    }
+                  },
+                  'dav:name': 'Twitter addressbook',
+                  'carddav:description': 'AddressBook for Twitter contacts',
+                  'dav:acl': ['dav:read']
+                }]
+              }
+            });
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook()
+              .list()
+              .then(function(addressbooks) {
+                expect(addressbooks.length).to.equal(2);
+                expect(addressbooks[0].name).to.equal('Default Addressbook');
+                expect(addressbooks[1].name).to.equal('Twitter addressbook');
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+
+        });
+
+        describe('The get addressbook fn', function() {
+
+          it('should return an AddressBookShell instance if success', function(done) {
+            var bookId = '123';
+            this.$httpBackend.expectGET(this.getBookHomeUrl(bookId)).respond({
+              _links: {
+                self: {
+                  href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
+                }
+              },
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/contacts.json'
+                    }
+                  },
+                  'dav:name': 'Default Addressbook',
+                  'carddav:description': 'Default Addressbook',
+                  'dav:acl': ['dav:read', 'dav:write']
+                }, {
+                  _links: {
+                    self: {
+                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/1614422648.json'
+                    }
+                  },
+                  'dav:name': 'Twitter addressbook',
+                  'carddav:description': 'AddressBook for Twitter contacts',
+                  'dav:acl': ['dav:read']
+                }]
+              }
+            });
+
+            var bookName = '1614422648';
+            var AddressBookShell = this.AddressBookShell;
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .get()
+              .then(function(addressbook) {
+                expect(addressbook).to.be.instanceof(AddressBookShell);
+                expect(addressbook.id).to.equal(bookName);
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+
+        });
 
         describe('The vcard fn', function() {
 
@@ -212,7 +318,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The get fn
+          });
 
           describe('The list fn', function() {
             var bookId = '5375de4bd684db7f6fbd4f97';
@@ -367,7 +473,7 @@ describe('The contact Angular module contactapis', function() {
               this.$rootScope.$apply();
             });
 
-          }); // The list fn
+          });
 
           describe('The search fn', function() {
 
@@ -443,7 +549,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The search fn
+          });
 
           describe('The create fn', function() {
 
@@ -526,7 +632,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The create fn
+          });
 
           describe('The update fn', function() {
 
@@ -619,7 +725,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The update fn
+          });
 
           describe('The remove fn', function() {
 
@@ -742,13 +848,13 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The remove fn
+          });
 
-        }); // The vcard fn
+        });
 
-      }); // The addressbook fn
+      });
 
-    }); // The addressbookHome fn
+    });
 
-  }); // The ContactAPIClient service
+  });
 });
