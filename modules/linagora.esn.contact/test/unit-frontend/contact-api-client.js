@@ -122,7 +122,7 @@ describe('The contact Angular module contactapis', function() {
             this.$httpBackend.flush();
           });
 
-        }); // The list addressbook fn
+        });
 
         describe('The get addressbook fn', function() {
 
@@ -173,7 +173,7 @@ describe('The contact Angular module contactapis', function() {
             this.$httpBackend.flush();
           });
 
-        }); // The list addressbook fn
+        });
 
         describe('The vcard fn', function() {
 
@@ -318,7 +318,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The get fn
+          });
 
           describe('The list fn', function() {
             var bookId = '5375de4bd684db7f6fbd4f97';
@@ -473,7 +473,7 @@ describe('The contact Angular module contactapis', function() {
               this.$rootScope.$apply();
             });
 
-          }); // The list fn
+          });
 
           describe('The search fn', function() {
 
@@ -549,7 +549,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The search fn
+          });
 
           describe('The create fn', function() {
 
@@ -632,7 +632,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The create fn
+          });
 
           describe('The update fn', function() {
 
@@ -725,7 +725,7 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The update fn
+          });
 
           describe('The remove fn', function() {
 
@@ -848,13 +848,13 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
-          }); // The remove fn
+          });
 
-        }); // The vcard fn
+        });
 
-      }); // The addressbook fn
+      });
 
-    }); // The addressbookHome fn
+    });
 
-  }); // The ContactAPIClient service
+  });
 });

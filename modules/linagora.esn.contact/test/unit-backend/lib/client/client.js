@@ -517,7 +517,7 @@ describe('The contact client APIs', function() {
 
       });
 
-    }); // The addressbook fn
+    });
 
     describe('The create addressbook fn', function() {
 
@@ -581,7 +581,7 @@ describe('The contact client APIs', function() {
           done();
         });
       });
-    }); // The create addressbook fn
+    });
 
     describe('The list addressbook fn', function() {
 
@@ -634,7 +634,7 @@ describe('The contact client APIs', function() {
         });
       });
 
-    }); // The list addresbook fn
+    });
 
   });
 

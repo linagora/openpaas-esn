@@ -1069,7 +1069,7 @@ describe('The addressbooks module', function() {
         }
       });
     });
-  }); // The searchContacts fn
+  });
 
   describe('The getAddressbooks fn', function() {
 
@@ -1148,6 +1148,6 @@ describe('The addressbooks module', function() {
       });
     });
 
-  }); // The getAddressbooks
+  });
 
 });
