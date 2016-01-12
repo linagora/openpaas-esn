@@ -7,8 +7,11 @@ var expect = chai.expect;
 
 describe('The Contacts controller module', function() {
 
-  var $rootScope, $controller, $timeout, scope, headerService, ContactShell,
-      notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService, sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, ContactAPIClient, shellToVCARD;
+  var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationFactoryMock,
+    notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
+    sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS,
+    ContactAPIClient, shellToVCARD;
+
   var bookId = '123456789', bookName = 'bookName';
 
   beforeEach(function() {
@@ -100,6 +103,26 @@ describe('The Contacts controller module', function() {
       }
     };
 
+    AddressBookPaginationService = function(pagination) {
+      this.pagination = pagination;
+    };
+
+    AddressBookPaginationService.prototype.loadNextItems = function(options) {
+      if (this.pagination && this.pagination.loadNextItems) {
+        return this.pagination.loadNextItems(options);
+      }
+      return $q.when({data: []});
+    };
+
+    AddressBookPaginationFactoryMock = {
+      forSingleAddressBook: function() {
+        return {};
+      },
+      forSearchAPI: function() {
+        return {};
+      }
+    };
+
     shellToVCARD = function() {
       return 'vcard';
     };
@@ -121,6 +144,8 @@ describe('The Contacts controller module', function() {
       $provide.value('headerService', headerService);
       $provide.value('ContactShell', ContactShell);
       $provide.value('ContactAPIClient', ContactAPIClient);
+      $provide.value('AddressBookPaginationService', AddressBookPaginationService);
+      $provide.value('AddressBookPaginationFactory', AddressBookPaginationFactoryMock);
       $provide.value('shellToVCARD', shellToVCARD);
     });
   });
@@ -155,6 +180,24 @@ describe('The Contacts controller module', function() {
         }
       };
     };
+  }
+
+  function createPaginationMocks(listFn, searchFn) {
+    if (listFn) {
+      AddressBookPaginationFactoryMock.forSingleAddressBook = function() {
+        return {
+          loadNextItems: listFn
+        };
+      };
+    }
+
+    if (searchFn) {
+      AddressBookPaginationFactoryMock.forSearchAPI = function() {
+        return {
+          loadNextItems: searchFn
+        };
+      };
+    }
   }
 
   describe('the newContactController', function() {
@@ -1194,13 +1237,11 @@ describe('The Contacts controller module', function() {
     });
 
     it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        };
+
+      createPaginationMocks(function() {
+        return $q.reject('WTF');
       });
+
       gracePeriodService.flushAllTasks = sinon.spy();
       $controller('contactsListController', {
         $scope: scope,
@@ -1223,13 +1264,11 @@ describe('The Contacts controller module', function() {
           handler = hdlr;
         }
       };
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        };
+
+      createPaginationMocks(function() {
+        return $q.reject('Fail');
       });
+
       $controller('contactsListController', {
         $scope: scope,
         $window: window,
@@ -1340,12 +1379,8 @@ describe('The Contacts controller module', function() {
         lastName: 'Last'
       };
 
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        };
+      createPaginationMocks(null, function() {
+        return $q.reject('Fail');
       });
 
       var mySpy = sinon.spy();
@@ -1448,16 +1483,13 @@ describe('The Contacts controller module', function() {
           };
         }
       };
-      createVcardMock(function() {
-        return {
-          list: function() {
-            done();
-          },
-          search: function() {
-            return done(new Error('This test should not call search function'));
-          }
-        };
+
+      createPaginationMocks(function() {
+        done();
+      }, function() {
+        done(new Error('This test should not call search function'));
       });
+
       $controller('contactsListController', {
         $location: locationMock,
         $scope: scope,
@@ -1478,16 +1510,13 @@ describe('The Contacts controller module', function() {
         }
       };
       scope.loadingNextContacts = true;
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return done(new Error('This test should not call list function'));
-          },
-          search: function() {
-            return done(new Error('This test should not call search function'));
-          }
-        };
+
+      createPaginationMocks(function() {
+        done(new Error('This test should not call list function'));
+      }, function() {
+        done(new Error('This test should not call search function'));
       });
+
       $controller('contactsListController', {
         $location: locationMock,
         $scope: scope,
@@ -1508,17 +1537,14 @@ describe('The Contacts controller module', function() {
           };
         }
       };
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return done(new Error('This test should not call list function'));
-          },
-          search: function() {
-            expect(scope.searchInput).to.equal(query);
-            done();
-          }
-        };
+
+      createPaginationMocks(function() {
+        done(new Error('Should not be called'));
+      }, function() {
+        expect(scope.searchInput).to.equal(query);
+        done();
       });
+
       $controller('contactsListController', {
         $location: locationMock,
         $scope: scope,
@@ -1541,13 +1567,13 @@ describe('The Contacts controller module', function() {
           }
         }
       };
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return done(new Error('This test should not call list function'));
-          }
-        };
+
+      createPaginationMocks(function() {
+        return done(new Error('This test should not call list function'));
+      }, function() {
+        done();
       });
+
       $controller('contactsListController', {
         $location: locationMock,
         sharedContactDataService: { searchQuery: query },
@@ -1568,18 +1594,18 @@ describe('The Contacts controller module', function() {
           };
         }
       };
-      createVcardMock(function() {
-        return {
-          search: function() {
-            expect(scope.searchInput).to.equal(query);
-            mySpy();
-            return $q.when({
-              hits_list: [],
-              total_hits: 0
-            });
-          }
-        };
+
+      createPaginationMocks(function() {
+        return done(new Error('This test should not call list function'));
+      }, function(options) {
+        expect(scope.searchInput).to.equal(options.searchInput);
+        mySpy();
+        return $q.when({
+          hits_list: [],
+          total_hits: 0
+        });
       });
+
       $controller('contactsListController', {
         $scope: scope,
         $location: locationMock,
@@ -1605,15 +1631,15 @@ describe('The Contacts controller module', function() {
           };
         }
       };
-      createVcardMock(function() {
-        return {
-          search: function() {
-            expect(scope.searchInput).to.equal(query);
-            mySpy();
-            return $q.when([]);
-          }
-        };
+
+      createPaginationMocks(function() {
+        return done(new Error('This test should not call list function'));
+      }, function() {
+        expect(scope.searchInput).to.equal(query);
+        mySpy();
+        return $q.when([]);
       });
+
       $controller('contactsListController', {
         $scope: scope,
         $location: locationMock,
@@ -1628,13 +1654,12 @@ describe('The Contacts controller module', function() {
       done();
     });
 
-    it('should add no item to the categories when ContactAPIClient returns an empty list', function() {
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.when([]);
-          }
-        };
+    it('should add no item to the categories when pagination returns an empty list', function(done) {
+
+      createPaginationMocks(function() {
+        return $q.when([]);
+      }, function() {
+        done(new Error('Should not be called'));
       });
 
       $controller('contactsListController', {
@@ -1648,19 +1673,18 @@ describe('The Contacts controller module', function() {
 
       $timeout(function() {
         expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+        done();
       });
     });
 
-    it('should sort contacts by FN', function() {
+    it('should sort contacts by FN', function(done) {
       var contactWithA = { displayName: 'A B'},
           contactWithC = { displayName: 'C D' };
 
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.when([contactWithA, contactWithC]);
-          }
-        };
+      createPaginationMocks(function() {
+        return $q.when([contactWithA, contactWithC]);
+      }, function() {
+        done(new Error('Should not be called'));
       });
 
       $controller('contactsListController', {
@@ -1677,19 +1701,18 @@ describe('The Contacts controller module', function() {
 
       $timeout(function() {
         expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+        done();
       });
     });
 
-    it('should correctly sort contacts when multiple contacts have the same FN', function() {
+    it('should correctly sort contacts when multiple contacts have the same FN', function(done) {
       var contact1 = { displayName: 'A B'},
           contact2 = { displayName: 'A B' };
 
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.when([contact1, contact2]);
-          }
-        };
+      createPaginationMocks(function() {
+        return $q.when([contact1, contact2]);
+      }, function() {
+        done(new Error('Should not be called'));
       });
 
       $controller('contactsListController', {
@@ -1705,19 +1728,18 @@ describe('The Contacts controller module', function() {
 
       $timeout(function() {
         expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+        done();
       });
     });
 
-    it('should correctly sort contacts when multiple contacts have the same beginning of FN', function() {
+    it('should correctly sort contacts when multiple contacts have the same beginning of FN', function(done) {
       var contact1 = { displayName: 'A B'},
           contact2 = { displayName: 'A C' };
 
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.when([contact1, contact2]);
-          }
-        };
+      createPaginationMocks(function() {
+        return $q.when([contact1, contact2]);
+      }, function() {
+        done(new Error('Should not be called'));
       });
 
       $controller('contactsListController', {
@@ -1733,20 +1755,19 @@ describe('The Contacts controller module', function() {
 
       $timeout(function() {
         expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+        done();
       });
     });
 
-    it('should correctly sort contacts when some contacts does not have FN', function() {
+    it('should correctly sort contacts when some contacts does not have FN', function(done) {
       var contact1 = { firstName: 'A'},
           contact2 = { displayName: 'A C'},
           contact3 = { id: '123' };
 
-      createVcardMock(function() {
-        return {
-          list: function() {
-            return $q.when([contact1, contact2, contact3]);
-          }
-        };
+      createPaginationMocks(function() {
+        return $q.when([contact1, contact2, contact3]);
+      }, function() {
+        done(new Error('Should not be called'));
       });
 
       $controller('contactsListController', {
@@ -1763,6 +1784,7 @@ describe('The Contacts controller module', function() {
 
       $timeout(function() {
         expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+        done();
       });
     });
 
@@ -1788,21 +1810,20 @@ describe('The Contacts controller module', function() {
 
       it('should load contacts after clear input', function(done) {
         var user = {_id: 123};
-        scope.loadContacts = sinon.spy();
-        createVcardMock(function() {
-          return {
-            list: function() {
-              done();
-            }
-          };
+
+        createPaginationMocks(function() {
+          done();
+        }, function() {
+          done(new Error('Should not be called'));
         });
+
+        scope.loadContacts = sinon.spy();
         $controller('contactsListController', {
           $scope: scope,
           user: user
         });
         scope.clearSearchInput();
         $rootScope.$digest();
-        expect(scope.loadContacts).to.have.been.calledOnce;
       });
 
       it('should update location after clear input', function(done) {
@@ -1820,14 +1841,13 @@ describe('The Contacts controller module', function() {
 
     describe('The loadContacts function', function() {
 
-      it('should call the ContactAPIClient vcard list fn', function(done) {
+      it('should call the addressBookPaginationService vcard list fn', function(done) {
         var user = {_id: 123};
-        createVcardMock(function() {
-          return {
-            list: function() {
-              done();
-            }
-          };
+
+        createPaginationMocks(function() {
+          done();
+        }, function() {
+          done(new Error('Should not be called'));
         });
 
         $controller('contactsListController', {
@@ -1838,19 +1858,17 @@ describe('The Contacts controller module', function() {
         $rootScope.$digest();
       });
 
-      it('should spin the throbber when loading contacts', function() {
+      it('should spin the throbber when loading contacts', function(done) {
         var user = {_id: 123};
         var usSpinnerService = {
           spin: sinon.spy()
         };
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when({});
-            }
-          };
+
+        createPaginationMocks(function() {
+          return $q.when({});
+        }, function() {
+          done(new Error('Should not be called'));
         });
-        scope.currentPage = 1;
 
         $controller('contactsListController', {
           $scope: scope,
@@ -1860,23 +1878,22 @@ describe('The Contacts controller module', function() {
         scope.loadContacts();
         $rootScope.$digest();
         expect(usSpinnerService.spin).to.have.been.called;
+        done();
       });
 
-      it('should stop the throbber when contacts are loaded', function() {
+      it('should stop the throbber when contacts are loaded', function(done) {
         var user = {_id: 123};
         var usSpinnerService = {
           spin: function() {
           },
           stop: sinon.spy()
         };
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when({});
-            }
-          };
+
+        createPaginationMocks(function() {
+          return $q.when({});
+        }, function() {
+          done(new Error('Should not be called'));
         });
-        scope.currentPage = 1;
 
         $controller('contactsListController', {
           $scope: scope,
@@ -1886,17 +1903,18 @@ describe('The Contacts controller module', function() {
         scope.loadContacts();
         $rootScope.$digest();
         expect(usSpinnerService.stop).to.have.been.called;
+        done();
       });
 
-      it('should display error when ContactAPIClient fails', function(done) {
+      it('should display error when pagination fails', function(done) {
         var user = {_id: 123};
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.reject('WTF');
-            }
-          };
+
+        createPaginationMocks(function() {
+          return $q.reject('WTF');
+        }, function() {
+          done(new Error('Should not be called'));
         });
+
         $alert.alert = function(options) {
           expect(options.content).to.match(/Can not get contacts/);
           done();
@@ -1935,7 +1953,7 @@ describe('The Contacts controller module', function() {
 
     describe('The search function', function() {
 
-      it('should spin the throbber when searching contacts', function() {
+      it('should spin the throbber when searching contacts', function(done) {
         var user = {_id: 123};
         var usSpinnerService = {
           spin: sinon.spy()
@@ -1947,12 +1965,11 @@ describe('The Contacts controller module', function() {
             };
           }
         };
-        createVcardMock(function() {
-          return {
-            search: function() {
-              return $q.when({hits_list: []});
-            }
-          };
+
+        createPaginationMocks(function() {
+          done(new Error('Should not be called'));
+        }, function() {
+          return $q.when({hits_list: []});
         });
 
         $controller('contactsListController', {
@@ -1964,9 +1981,10 @@ describe('The Contacts controller module', function() {
         scope.search();
         $rootScope.$digest();
         expect(usSpinnerService.spin).to.have.been.called;
+        done();
       });
 
-      it('should stop the throbber when finished searching contacts', function() {
+      it('should stop the throbber when finished searching contacts', function(done) {
         var user = {_id: 123};
         var usSpinnerService = {
           spin: function() {},
@@ -1979,12 +1997,10 @@ describe('The Contacts controller module', function() {
             };
           }
         };
-        createVcardMock(function() {
-          return {
-            search: function() {
-              return $q.when({hits_list: []});
-            }
-          };
+        createPaginationMocks(function() {
+          done(new Error('Should not be called'));
+        }, function() {
+          return $q.when({hits_list: []});
         });
 
         $controller('contactsListController', {
@@ -1996,16 +2012,16 @@ describe('The Contacts controller module', function() {
         scope.search();
         $rootScope.$digest();
         expect(usSpinnerService.stop).to.have.been.called;
+        done();
       });
 
-      it('should clean previous search results', function() {
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([]);
-            }
-          };
+      it('should clean previous search results', function(done) {
+        createPaginationMocks(function() {
+          return $q.when([]);
+        }, function() {
+          done(new Error('Should not be called'));
         });
+
         $controller('contactsListController', {
           $scope: scope,
           user: {
@@ -2018,7 +2034,7 @@ describe('The Contacts controller module', function() {
         scope.search();
         scope.$digest();
         expect(scope.searchResult).to.deep.equal({});
-        expect(scope.currentPage).to.equal(0);
+        done();
       });
 
       it('should update location on each search', function(done) {
@@ -2032,14 +2048,13 @@ describe('The Contacts controller module', function() {
         scope.search();
       });
 
-      it('should clean search result data', function() {
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when({ contacts: [] });
-            }
-          };
+      it('should clean search result data', function(done) {
+        createPaginationMocks(function() {
+          return $q.when({ contacts: [] });
+        }, function() {
+          done(new Error('Should not be called'));
         });
+
         $controller('contactsListController', {
           $scope: scope,
           user: {
@@ -2061,6 +2076,7 @@ describe('The Contacts controller module', function() {
         scope.$digest();
         expect(scope.searchMode).isTrue;
         expect(scope.searchResult.data).to.not.exist;
+        done();
       });
 
       it('should quit search mode and get all the user contacts when searchInput is undefined', function(done) {
@@ -2079,58 +2095,6 @@ describe('The Contacts controller module', function() {
         scope.$digest();
       });
 
-      it('should clean pagination data', function() {
-        $controller('contactsListController', {
-          $scope: scope,
-          user: {
-            _id: '123'
-          }
-        });
-        scope.loadContacts = function() {};
-        scope.$digest();
-        scope.currentPage = 10;
-        scope.nextPage = 11;
-
-        scope.search();
-        scope.$digest();
-        expect(scope.currentPage).to.equal(0);
-        expect(scope.nextPage).to.equal(0);
-      });
-
-      it('should call ContactAPIClient with right values', function(done) {
-        var search = 'Bruce Willis';
-
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when({});
-            },
-            search: function(options) {
-              expect(options).to.eql({
-                data: search,
-                userId: scope.user._id,
-                page: scope.currentPage
-              });
-              expect(scope.searchMode).to.be.true;
-              done();
-            }
-          };
-        });
-
-        $controller('contactsListController', {
-          $scope: scope,
-          user: {
-            _id: '123'
-          },
-          bookId: '456'
-        });
-
-        scope.searchInput = search;
-        scope.currentPage = 1;
-        scope.search();
-        scope.$digest();
-      });
-
       it('should update the contacts list on search success', function() {
         var search = 'Bruce Willis';
 
@@ -2144,15 +2108,10 @@ describe('The Contacts controller module', function() {
           hits_list: [contactWithA, contactWithC]
         };
 
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([contactWithA, contactWithB, contactWithC]);
-            },
-            search: function() {
-              return $q.when(result);
-            }
-          };
+        createPaginationMocks(function() {
+          return $q.when([contactWithA, contactWithB, contactWithC]);
+        }, function() {
+          return $q.when(result);
         });
 
         $controller('contactsListController', {
@@ -2169,7 +2128,6 @@ describe('The Contacts controller module', function() {
         scope.$digest();
 
         expect(scope.searchResult.data).to.deep.equal(result.hits_list);
-        expect(scope.currentPage).to.deep.equal(result.current_page);
         expect(scope.searchResult.count).to.equal(2);
         expect(scope.searchResult.formattedResultsCount).to.exist;
         expect(scope.searchFailure).to.be.false;
@@ -2178,15 +2136,10 @@ describe('The Contacts controller module', function() {
       it('should displayContactError on search failure', function(done) {
         var search = 'Bruce Willis';
 
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([]);
-            },
-            search: function() {
-              return $q.reject(new Error('WTF'));
-            }
-          };
+        createPaginationMocks(function() {
+          return $q.when([]);
+        }, function() {
+          return $q.reject(new Error('Search failure'));
         });
 
         $controller('contactsListController', {
@@ -2220,15 +2173,10 @@ describe('The Contacts controller module', function() {
           hits_list: [contactWithA, contactWithB]
         };
 
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
-            },
-            search: function() {
-              return $q.when(result);
-            }
-          };
+        createPaginationMocks(function() {
+          return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
+        }, function() {
+          return $q.when(result);
         });
 
         $controller('contactsListController', {
@@ -2261,15 +2209,10 @@ describe('The Contacts controller module', function() {
           hits_list: [contactWithA, contactWithB]
         };
 
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
-            },
-            search: function() {
-              return $q.when(result);
-            }
-          };
+        createPaginationMocks(function() {
+          return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
+        }, function() {
+          return $q.when(result);
         });
 
         $controller('contactsListController', {
@@ -2289,59 +2232,13 @@ describe('The Contacts controller module', function() {
         expect(scope.lastPage).to.be.false;
       });
 
-      it('should prevent fetching next result page when there are no more results', function() {
-        var search = 'Bruce Willis';
-
-        var contactWithA = { displayName: 'A B'};
-        var contactWithB = { displayName: 'B C'};
-        var contactWithC = { displayName: 'C D'};
-        var contactWithD = { displayName: 'D E'};
-        var contactWithE = { displayName: 'E F'};
-
-        var result = {
-          total_hits: 2,
-          hits_list: [contactWithA, contactWithB]
-        };
-
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
-            },
-            search: function() {
-              return $q.when(result);
-            }
-          };
-        });
-
-        $controller('contactsListController', {
-          $scope: scope,
-          user: {
-            _id: '123'
-          },
-          bookId: '456'
-        });
-        scope.$digest();
-
-        scope.searchInput = search;
-        scope.totalHits = 0;
-        scope.search();
-        scope.$digest();
-        expect(scope.lastPage).to.be.true;
-      });
-
       it('should prevent fetching next result page when the previous search fails', function() {
         var search = 'Bruce Willis';
 
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([]);
-            },
-            search: function() {
-              return $q.reject(new Error('WTF'));
-            }
-          };
+        createPaginationMocks(function() {
+          return $q.when([]);
+        }, function() {
+          return $q.reject(new Error('Fail'));
         });
 
         $controller('contactsListController', {
@@ -2361,18 +2258,14 @@ describe('The Contacts controller module', function() {
       it('should prevent search when previous search is not complete', function() {
         var search = 'Bruce Willis';
         var called = 0;
+        var promise = $q.defer().promise;
 
-        createVcardMock(function() {
-          return {
-            list: function() {
-              return $q.when([]);
-            },
-            search: function() {
-              called++;
-              // the search will be never resolved
-              return $q.defer().promise;
-            }
-          };
+        createPaginationMocks(function() {
+          return $q.when([]);
+        }, function(options) {
+          called++;
+          // the search will be never resolved
+          return promise;
         });
 
         $controller('contactsListController', {
@@ -2380,10 +2273,17 @@ describe('The Contacts controller module', function() {
           user: {
             _id: '123'
           },
-          bookId: '456'
+          bookId: '456',
+          $location: {
+            search: function() {
+              return {};
+            }
+          }
         });
+        scope.appendQueryToURL = function() {};
 
         scope.searchInput = search;
+        scope.$digest();
         scope.search();
         scope.$digest();
         scope.search();
