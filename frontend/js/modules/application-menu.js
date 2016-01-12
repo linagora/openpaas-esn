@@ -7,7 +7,8 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
     templateUrl: '/views/modules/application-menu/application-menu.html',
     html: false,
     trigger: 'manual',
-    autoClose: true
+    autoClose: true,
+    prefixEvent: 'application-menu'
   })
   .config(function(dynamicDirectiveServiceProvider) {
     var home = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-home', {priority: 50});
@@ -15,14 +16,25 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
     var logout = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-logout', {priority: -50});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', logout);
   })
-  .directive('applicationMenuToggler', function($popover, POPOVER_APPLICATION_MENU_OPTIONS) {
+  .directive('applicationMenuToggler', function($document, $popover, POPOVER_APPLICATION_MENU_OPTIONS) {
     return {
       restrict: 'E',
+      scope: {},
       replace: true,
       templateUrl: '/views/modules/application-menu/application-menu-toggler.html',
       link: function(scope, element) {
-        scope.popoverOptions = POPOVER_APPLICATION_MENU_OPTIONS;
-        var popover = $popover(element, scope.popoverOptions);
+        var backdrop = angular.element('<div id="popover-backdrop" class="modal-backdrop in visible-xs">');
+        var body = $document.find('body').eq(0);
+        var popover = $popover(element, POPOVER_APPLICATION_MENU_OPTIONS);
+
+        popover.$scope.$on('application-menu.show.before', function() {
+          body.append(backdrop);
+        });
+
+        popover.$scope.$on('application-menu.hide.before', function() {
+          backdrop.remove();
+        });
+
         element.click(popover.toggle.bind(null, null));
       }
     };
@@ -41,7 +53,6 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
   .directive('forceMarginLeft', function($timeout) {
     return {
       restrict: 'A',
-      scope: {},
       link: function(scope, element, attrs) {
         $timeout(function() {
           var offset = $(element).offset();
