@@ -6,7 +6,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
-    var createModal = $modal({scope: $scope, template: '/views/modules/profile/avatar-edit-modal.html', show: false, backdrop: 'static', keyboard: false});
+    var createModal = $modal({scope: $scope, templateUrl: '/views/modules/profile/avatar-edit-modal.html', show: false, backdrop: 'static', keyboard: false});
     var alertInstance;
 
     function destroyAlertInstance() {

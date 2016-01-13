@@ -216,7 +216,7 @@ angular.module('esn.calendar')
                     task.success();
                     var scope = $rootScope.$new();
                     scope.event = event;
-                    scope.modal = $modal({scope: scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
+                    scope.modal = $modal({scope: scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
                   }, function(err) {
                     task.error('Unexpected error. Cannot cancel the event creation', err.statusText);
                   });

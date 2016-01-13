@@ -35,7 +35,7 @@ angular.module('esn.appstore')
           modal.destroy();
         });
         $scope.showSubmitModal = function() {
-          $scope.submitModal = $modal({scope: $scope, template: '/appstore/views/appstore/appstore-app-submit-modal'});
+          $scope.submitModal = $modal({scope: $scope, templateUrl: '/appstore/views/appstore/appstore-app-submit-modal'});
         };
       }
     };

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.application', ['restangular'])
+angular.module('esn.application', ['restangular', 'op.dynamicDirective'])
   .config(function(dynamicDirectiveServiceProvider) {
     var application = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-application', {priority: 5});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', application);
