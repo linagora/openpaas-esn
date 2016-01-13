@@ -24,7 +24,7 @@ describe('The Aggregator module', function() {
         expect(wrapper.hasNext()).to.be.true;
       });
 
-      it('should return false when source#loadNextItem call does not send back nextPage', function(done) {
+      it('should return true when source#loadNextItem call does not send back lastPage', function(done) {
         var wrapper = new this.PageAggregatorSourceWrapper({
           loadNextItems: function() {
             return $q.when({data: [1]});
@@ -32,7 +32,7 @@ describe('The Aggregator module', function() {
         });
 
         wrapper.loadNextItems().then(function() {
-          expect(wrapper.hasNext()).to.be.false;
+          expect(wrapper.hasNext()).to.be.true;
           done();
         });
 
@@ -105,7 +105,7 @@ describe('The Aggregator module', function() {
         $rootScope.$apply();
       });
 
-      it('should return hasNext to false when nextPage is not defined in source result', function(done) {
+      it('should return hasNext to true when lastPage is not defined in source result', function(done) {
         var data = [1, 2, 3];
         var id = 123;
 
@@ -117,8 +117,8 @@ describe('The Aggregator module', function() {
         });
 
         wrapper.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: id, hasNext: false, data: data});
-          expect(wrapper.hasNext()).to.be.false;
+          expect(result).to.deep.equal({id: id, hasNext: true, data: data});
+          expect(wrapper.hasNext()).to.be.true;
           done();
         }, done);
         $rootScope.$apply();
@@ -153,7 +153,7 @@ describe('The Aggregator module', function() {
     SourceMock.prototype.loadNextItems = function() {
       var current = this.currentCalls;
       this.currentCalls++;
-      return $q.when({nextPage: this.currentCalls < this.mockData.length, data: this.mockData[current]});
+      return $q.when({lastPage: this.currentCalls >= this.mockData.length, data: this.mockData[current]});
     };
 
     describe('the constructor', function() {
@@ -248,6 +248,29 @@ describe('The Aggregator module', function() {
           this.PageAggregatorService = PageAggregatorService;
           $rootScope = _$rootScope_;
         });
+      });
+
+      it('should return cache when it is not empty', function(done) {
+        var sources = [
+          {
+            loadNextItems: function() {
+              done(new Error('Should not be called'));
+            }
+          },
+          {
+            loadNextItems: function() {
+              return $q.when({data: [2]});
+            }
+          }
+        ];
+        var aggregator = new this.PageAggregatorService('test', sources, {compare: compare});
+        aggregator.wrappedSources[0].data = [1];
+        aggregator._loadItemsFromSources().then(function() {
+          expect(aggregator.wrappedSources[0].data).to.deep.equal([1]);
+          expect(aggregator.wrappedSources[1].data).to.deep.equal([2]);
+          done();
+        });
+        $rootScope.$apply();
       });
 
       it('should add source data to wrapped source data cache when available', function(done) {

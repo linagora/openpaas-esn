@@ -10,9 +10,10 @@ describe('The Contacts controller module', function() {
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, shellToVCARD;
+    ContactAPIClient, shellToVCARD, addressbooks;
 
   var bookId = '123456789', bookName = 'bookName';
+  addressbooks = [];
 
   beforeEach(function() {
     usSpinnerService = {
@@ -147,6 +148,7 @@ describe('The Contacts controller module', function() {
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
       $provide.value('AddressBookPaginationRegistry', AddressBookPaginationRegistryMock);
       $provide.value('shellToVCARD', shellToVCARD);
+      $provide.value('addressbooks', addressbooks);
     });
   });
 
@@ -190,6 +192,11 @@ describe('The Contacts controller module', function() {
     }
     SingleMock.prototype.loadNextItems = singleFn;
 
+    function AggregateMock(options) {
+      this.options = options;
+    }
+    AggregateMock.prototype.loadNextItems = singleFn;
+
     function SearchMock(options) {
       this.options = options;
     }
@@ -197,7 +204,8 @@ describe('The Contacts controller module', function() {
 
     var mocks = {
       single: SingleMock,
-      search: SearchMock
+      search: SearchMock,
+      multiple: AggregateMock
     };
 
     AddressBookPaginationRegistryMock.get = function(type) {
@@ -1662,7 +1670,7 @@ describe('The Contacts controller module', function() {
     it('should add no item to the categories when pagination returns an empty list', function(done) {
 
       createPaginationMocks(function() {
-        return $q.when({contacts: []});
+        return $q.when({data: []});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1685,7 +1693,7 @@ describe('The Contacts controller module', function() {
           contactWithC = { displayName: 'C D' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contactWithA, contactWithC]});
+        return $q.when({data: [contactWithA, contactWithC]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1714,7 +1722,7 @@ describe('The Contacts controller module', function() {
           contact2 = { id: 2, displayName: 'A B' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contact1, contact2]});
+        return $q.when({data: [contact1, contact2]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1742,7 +1750,7 @@ describe('The Contacts controller module', function() {
           contact2 = { displayName: 'A C' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contact1, contact2]});
+        return $q.when({data: [contact1, contact2]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1771,7 +1779,7 @@ describe('The Contacts controller module', function() {
           contact3 = { id: '123' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contact1, contact2, contact3]});
+        return $q.when({data: [contact1, contact2, contact3]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1816,6 +1824,8 @@ describe('The Contacts controller module', function() {
       });
 
       it('should call pagination#init', function(done) {
+        addressbooks.push({id: 1, name: 'foo'});
+        addressbooks.push({id: 2, name: 'bar'});
         createPaginationMocks(function() {
           return $q.when([]);
         });
@@ -1823,12 +1833,13 @@ describe('The Contacts controller module', function() {
 
         $controller('contactsListController', {
           $scope: scope,
-          user: user
+          user: user,
+          addressbooks: addressbooks
         });
         scope.pagination.init = function(_mode, _options) {
           expect(_mode).to.equal(mode);
           expect(_options.user).to.exist;
-          expect(_options.addressbooks).to.be.an.array;
+          expect(_options.addressbooks).to.deep.equal(addressbooks);
           done();
         };
         scope.createPagination(mode);

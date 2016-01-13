@@ -29,7 +29,12 @@ angular.module('linagora.esn.contact', [
       controller: 'contactsListController',
       resolve: {
         domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
+        user: routeResolver.session('user'),
+        addressbooks: function(ContactAPIClient, session) {
+          return session.ready.then(function() {
+            return ContactAPIClient.addressbookHome(session.user._id).addressbook().list();
+          });
+        }
       },
       reloadOnSearch: false
     })

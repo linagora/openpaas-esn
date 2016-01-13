@@ -8,11 +8,16 @@ angular.module('linagora.esn.contact')
       this.description = json['carddav:description'];
 
       var davAcl = json['dav:acl'];
-      this.readable = davAcl.indexOf('dav:read') > -1;
-      this.editable = davAcl.indexOf('dav:write') > -1;
+      if (davAcl && davAcl.length) {
+        this.readable = davAcl.indexOf('dav:read') > -1;
+        this.editable = davAcl.indexOf('dav:write') > -1;
+      }
 
       this.href = json._links.self.href;
-      this.id = this.href.split('/').pop().split('.').shift();
+      var split = this.href.split('/');
+      this.bookName = split.pop().split('.').shift();
+      this.bookId = split.pop();
+      this.id = this.bookName;
     }
 
     return AddressBookShell;

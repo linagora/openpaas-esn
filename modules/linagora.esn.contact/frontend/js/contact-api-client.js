@@ -139,7 +139,7 @@ angular.module('linagora.esn.contact')
      *                           	+ sort(String):
      *                           	+ userId(String):
      * @return {Promise}          If success, resolve an object with:
-     *                            + contacts: an array of ContactShell
+     *                            + data: an array of ContactShell
      *                            + current_page:
      *                            + last_page: true or false
      */
@@ -162,7 +162,7 @@ angular.module('linagora.esn.contact')
       return davClient('GET', getBookUrl(bookId, bookName), null, null, query)
         .then(function(response) {
           var result = {
-            contacts: responseAsContactShell(response),
+            data: responseAsContactShell(response),
             current_page: currentPage,
             last_page: !response.data._links.next
           };

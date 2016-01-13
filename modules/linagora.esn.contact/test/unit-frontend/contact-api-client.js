@@ -330,9 +330,9 @@ describe('The contact Angular module contactapis', function() {
 
             function checkResult(done) {
               return function(data) {
-                expect(data.contacts).to.be.an.array;
-                expect(data.contacts.length).to.equal(1);
-                expect(data.contacts[0].id).to.equal(uid);
+                expect(data.data).to.be.an.array;
+                expect(data.data.length).to.equal(1);
+                expect(data.data[0].id).to.equal(uid);
                 expect(data.current_page).to.eql(options.page);
                 done();
               };
@@ -378,7 +378,7 @@ describe('The contact Angular module contactapis', function() {
                 .vcard()
                 .list()
                 .then(function(data) {
-                  var cards = data.contacts;
+                  var cards = data.data;
                   expect(cards).to.be.an.array;
                   expect(cards.length).to.equal(1);
 
@@ -406,7 +406,7 @@ describe('The contact Angular module contactapis', function() {
                 .vcard()
                 .list()
                 .then(function(data) {
-                  expect(this.ContactsHelper.forceReloadDefaultAvatar.calledWithExactly(data.contacts[0])).to.be.true;
+                  expect(this.ContactsHelper.forceReloadDefaultAvatar.calledWithExactly(data.data[0])).to.be.true;
                 }.bind(this)).finally(done);
 
               this.$rootScope.$apply();
