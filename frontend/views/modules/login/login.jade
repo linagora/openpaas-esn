@@ -17,4 +17,4 @@ form(name='form')
         i.input-helper
         |                     #{__('Remember me')}
 
-    fab.btn-login(type='submit', icon='next', ng-click='autofill(); login(form)', ng-disabled='loginTask.running')
+    a.m-t-25.col-xs-12.btn.btn-accent(type='submit', icon='next', ng-click='autofill(); login(form)', ng-disabled='loginTask.running') #{__('Login')}
