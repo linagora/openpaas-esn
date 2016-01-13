@@ -10,7 +10,8 @@ var VALID_HTTP_STATUS = {
   GET: [200],
   PUT: [200, 201],
   POST: [200, 201],
-  DELETE: [204]
+  DELETE: [204],
+  PROPFIND: [200]
 };
 
 module.exports = function(dependencies, options) {
@@ -111,6 +112,51 @@ module.exports = function(dependencies, options) {
             url: url,
             json: true
           }, checkResponse(deferred, 'GET', 'Error while getting addressbook list in DAV'));
+        });
+
+        return deferred.promise;
+      }
+
+      /**
+       * Get an addressbook
+       * @return {Promise}
+       */
+      function get() {
+        var deferred = q.defer();
+        var headers = {
+          ESNToken: ESNToken,
+          accept: VCARD_JSON
+        };
+
+        var properties = {
+          '{DAV:}displayname': 'dav:name',
+          '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
+          '{DAV:}acl': 'dav:acl'
+        };
+
+        getBookUrl(function(url) {
+          davClient({
+            method: 'PROPFIND',
+            headers: headers,
+            url: url,
+            json: true,
+            body: {
+              properties: Object.keys(properties)
+            }
+          }, function(err, response, body) {
+            var newBody = body;
+            if (!err && response.statusCode === 200) {
+              newBody = {
+                _links: {
+                  self: { href: url }
+                }
+              };
+              Object.keys(properties).forEach(function(key) {
+                newBody[properties[key]] = body[key];
+              });
+            }
+            checkResponse(deferred, 'PROPFIND', 'Error while getting an addressbook from DAV')(err, response, newBody);
+          });
         });
 
         return deferred.promise;
@@ -321,6 +367,7 @@ module.exports = function(dependencies, options) {
       return {
         create: create,
         list: list,
+        get: get,
         vcard: vcard
       };
     }

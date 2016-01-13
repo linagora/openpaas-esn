@@ -180,6 +180,80 @@ describe('The contact client APIs', function() {
         });
       });
 
+      describe('The get addressbook fn', function() {
+        var PROPERTIES = {
+          '{DAV:}displayname': 'dav:name',
+          '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
+          '{DAV:}acl': 'dav:acl'
+        };
+
+        it('should call davClient with right parameters', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options) {
+              expect(options).to.shallowDeepEqual({
+                method: 'PROPFIND',
+                json: true,
+                headers: {
+                  ESNToken: CLIENT_OPTIONS.ESNToken,
+                  accept: VCARD_JSON
+                },
+                body: { properties: Object.keys(PROPERTIES) }
+              });
+              expectBookNameURL(options.url);
+              done();
+            }
+          });
+          getAddressbookHome().addressbook(BOOK_NAME).get();
+        });
+
+        it('should resolve with response after extracting info', function(done) {
+          var name = 'addressbook display name';
+          var description = 'addressbook description';
+          var acl = ['dav:read'];
+          var response = { statusCode: 200 };
+          var body = {
+            '{DAV:}displayname': name,
+            '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
+            '{DAV:}acl': acl
+          };
+
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, response, body);
+            }
+          });
+
+          getAddressbookHome().addressbook(BOOK_NAME).get().then(function(data) {
+            expect(data.response).to.deep.equal(response);
+            expect(data.body).to.deep.equal({
+              _links: {
+                self: {
+                  href: ['/dav/api/addressbooks', BOOK_ID, BOOK_NAME + '.json'].join('/')
+                }
+              },
+              'dav:name': name,
+              'carddav:description': description,
+              'dav:acl': acl
+            });
+            done();
+          });
+        });
+
+        it('should reject with error when client returns error', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback('a error');
+            }
+          });
+
+          getAddressbookHome().addressbook(BOOK_NAME).get().then(null, function(err) {
+            expect(err).to.equal('a error');
+            done();
+          });
+        });
+
+      });
+
       describe('The vcard fn', function() {
 
         function getVcard(id) {
