@@ -6,9 +6,9 @@
     .scale(1.5, 1);
   }
 
-  &.opened {
+  &.open {
     i.mdi {
-      color: @accentColor !important;
+      color: @accentColor !important; /* override #id color */
     }
   }
 }
@@ -49,11 +49,6 @@
 
 #application-menu-backdrop {
   opacity: 0;
-}
-
-/* Small devices (tablets, 768px and up) */
-@media (min-width: @screen-sm-min) {
-
 }
 
 /* Medium devices (desktops, 992px and up) */
