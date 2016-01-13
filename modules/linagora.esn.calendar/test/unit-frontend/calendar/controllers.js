@@ -210,7 +210,7 @@ describe('The calendar module controllers', function() {
       expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
     });
 
-    it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event', function() {
+    it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event if event.source is undefined', function() {
       var removeEventsFn = sinon.spy(function(id) {
         expect(id).to.equal('_id');
       });
@@ -253,6 +253,56 @@ describe('The calendar module controllers', function() {
       this.scope.$digest();
       expect(removeEventsFn).to.have.been.called;
       expect(renderEventsFn).to.have.been.called;
+    });
+
+    it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that update an event if event.source is defined', function() {
+      var removeEventsFn = sinon.spy();
+      var renderEventsFn = sinon.spy();
+      var updateEventsFn = sinon.spy(function(event) {
+        expect(event).to.deep.equal({
+          title: 'aTitle',
+          allDay: '_allday',
+          id: '_id',
+          _allDay: '_allday',
+          _end: '_end',
+          _id: '_id',
+          _start: '_start',
+          source: 'iamasource'
+        });
+      });
+
+      this.controller('calendarController', {$scope: this.scope});
+
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+        if (event === 'clientEvents') {
+          return [{
+            _allday: '_allday',
+            _end: '_end',
+            _id: '_id',
+            _start: '_start',
+            source: 'iamasource'
+          }];
+        } else if (event === 'removeEvents') {
+          removeEventsFn(data);
+        } else if (event === 'renderEvent') {
+          renderEventsFn(data);
+        } else if (event === 'updateEvent') {
+          updateEventsFn(data);
+        }
+      };
+
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
+        title: 'aTitle',
+        allDay: '_allday',
+        id: '_id',
+        source: 'iamasource'
+      });
+
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.$digest();
+      expect(removeEventsFn).to.not.have.been.called;
+      expect(renderEventsFn).to.not.have.been.called;
+      expect(updateEventsFn).to.have.been.called;
     });
 
     it('The list calendars and call addEventSource for each', function() {

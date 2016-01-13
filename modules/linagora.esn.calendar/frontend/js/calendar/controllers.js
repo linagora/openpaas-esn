@@ -147,12 +147,18 @@ angular.module('esn.calendar')
         newEvent._start = event._start;
 
         /*
-         * OR-1426 removing and create a new event in fullcalendar works much better than
+         * OR-1426 removing and create a new event in fullcalendar (events without source property) works much better than
          * updating it. Otherwise, we are loosing datas and synchronization like vcalendar, allday, attendees, vevent.
+         * Also (CAL-97), there are 2 cases:
+         *   * events that are updated directly in fullcalendar have a source property
+         *   * events that comes from the caldav server have not a source property
          */
-        calendar.fullCalendar('removeEvents', newEvent.id);
-        calendar.fullCalendar('renderEvent', newEvent);
-
+        if (!newEvent.source) {
+          calendar.fullCalendar('removeEvents', newEvent.id);
+          calendar.fullCalendar('renderEvent', newEvent);
+        } else {
+          calendar.fullCalendar('updateEvent', newEvent);
+        }
       });
     }
 
