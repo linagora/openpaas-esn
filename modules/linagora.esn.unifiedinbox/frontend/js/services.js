@@ -2,27 +2,20 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .service('jmapClientProvider', function($q, $http, $log, jmap, dollarHttpTransport, dollarQPromiseProvider, jmapAPIUrl, jmapAuthToken) {
+  .service('jmapClientProvider', function($q, $http, $log, jmap, dollarHttpTransport, dollarQPromiseProvider) {
 
-    var deferred = $q.defer(),
-        isJmapProxy = false;
+    var deferred = $q.defer();
 
-    if (isJmapProxy) {
+    $q.all([
+      $http.get('/unifiedinbox/api/inbox/jmap-config'),
+      $http.post('/api/jwt/generate')
+    ]).then(function(responses) {
       deferred.resolve(new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-        .withAPIUrl(jmapAPIUrl)
-        .withAuthenticationToken(jmapAuthToken));
-    } else {
-      $q.all([
-        $http.get('/unifiedinbox/api/inbox/jmap-config'),
-        $http.post('/api/jwt/generate')
-      ]).then(function(responses) {
-        deferred.resolve(new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-          .withAPIUrl(responses[0].data.api)
-          .withAuthenticationToken('Bearer ' + responses[1].data));
-      }, function(err) {
-        deferred.reject(new Error(err));
-      });
-    }
+        .withAPIUrl(responses[0].data.api)
+        .withAuthenticationToken('Bearer ' + responses[1].data));
+    }, function(err) {
+      deferred.reject(new Error(err));
+    });
 
     deferred.promise.catch(function(err) {
       $log.error('Cannot build the jmap-client', err);
