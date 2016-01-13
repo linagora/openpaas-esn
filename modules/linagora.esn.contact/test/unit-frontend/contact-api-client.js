@@ -127,48 +127,33 @@ describe('The contact Angular module contactapis', function() {
         describe('The get addressbook fn', function() {
 
           it('should return an AddressBookShell instance if success', function(done) {
-            var bookId = '5666b4cff5d672f316d4439f';
-            var bookName1 = '1614422648';
-            var bookName2 = '1614422649';
-
-            this.$httpBackend.expectGET(this.getBookHomeUrl(bookId)).respond({
+            var bookId = '123';
+            var bookName = '1614422648';
+            this.$httpBackend.when('PROPFIND', this.getBookUrl(bookId, bookName)).respond({
               _links: {
                 self: {
-                  href: '/esn-sabre/esn.php/addressbooks/' + bookId + ' .json'
+                  href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/1614422648.json'
                 }
               },
-              _embedded: {
-                'dav:addressbook': [{
-                  _links: {
-                    self: {
-                      href: '/esn-sabre/esn.php/addressbooks/' + bookId + '/' + bookName1 + '.json'
-                    }
-                  },
-                  'dav:name': 'Default Addressbook',
-                  'carddav:description': 'Default Addressbook',
-                  'dav:acl': ['dav:read', 'dav:write']
-                }, {
-                  _links: {
-                    self: {
-                      href: '/esn-sabre/esn.php/addressbooks/' + bookId + '/' + bookName2 + '.json'
-                    }
-                  },
-                  'dav:name': 'Twitter addressbook',
-                  'carddav:description': 'AddressBook for Twitter contacts',
-                  'dav:acl': ['dav:read']
-                }]
-              }
+              'dav:name': 'Twitter addressbook',
+              'carddav:description': 'AddressBook for Twitter contacts',
+              'dav:acl': ['dav:read']
             });
 
             var AddressBookShell = this.AddressBookShell;
             this.ContactAPIClient
               .addressbookHome(bookId)
-              .addressbook(bookName1)
+              .addressbook(bookName)
               .get()
               .then(function(addressbook) {
                 expect(addressbook).to.be.instanceof(AddressBookShell);
-                expect(addressbook.bookId).to.equal(bookId);
-                expect(addressbook.bookName).to.equal(bookName1);
+                expect(addressbook).to.shallowDeepEqual({
+                  bookName: bookName,
+                  name: 'Twitter addressbook',
+                  description: 'AddressBook for Twitter contacts',
+                  readable: true,
+                  editable: false
+                });
                 done();
               }, done);
 
