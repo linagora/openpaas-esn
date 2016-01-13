@@ -68,6 +68,55 @@ module.exports = function(dependencies, options) {
       }
 
       /**
+       * Create new addressbook
+       * @param  {Object} addressbook The addressbook json to be created
+       *
+       * @return {Promise}
+       */
+      function create(addressbook) {
+        var deferred = q.defer();
+        var headers = {
+          ESNToken: ESNToken,
+          accept: VCARD_JSON
+        };
+
+        getAddressBookHomeUrl(function(url) {
+          davClient({
+            method: 'POST',
+            headers: headers,
+            url: url,
+            json: true,
+            body: addressbook
+          }, checkResponse(deferred, 'POST', 'Error while creating addressbook in DAV'));
+        });
+
+        return deferred.promise;
+      }
+
+      /**
+       * Get all addressbooks of current user
+       * @return {Promise}
+       */
+      function list() {
+        var deferred = q.defer();
+        var headers = {
+          ESNToken: ESNToken,
+          accept: VCARD_JSON
+        };
+
+        getAddressBookHomeUrl(function(url) {
+          davClient({
+            method: 'GET',
+            headers: headers,
+            url: url,
+            json: true
+          }, checkResponse(deferred, 'GET', 'Error while getting addressbook list in DAV'));
+        });
+
+        return deferred.promise;
+      }
+
+      /**
        * The vcard API
        *
        * @param cardId
@@ -177,156 +226,107 @@ module.exports = function(dependencies, options) {
           return deferred.promise;
         }
 
+        /**
+         * Get list of vcards
+         * @param  {Object} query Contains limit, offset, sort, userId
+         * @return {Promise}
+         */
+        function list(query) {
+          var deferred = q.defer();
+          var headers = {
+            ESNToken: ESNToken,
+            accept: VCARD_JSON
+          };
+
+          getBookUrl(function(url) {
+            davClient({
+              headers: headers,
+              url: url,
+              json: true,
+              query: query || {}
+            }, checkResponse(deferred, 'GET', 'Error while getting contacts from DAV'));
+          });
+
+          return deferred.promise;
+        }
+
+        /**
+         * Search vcards
+         * @param  {Object} options Contains search, userId, limit and page
+         * @return {promise}         Resolve an object with:
+         *                                   - total_count:
+         *                                   - current_page:
+         *                                   - results: an array of objects with:
+         *                                   		+ contactId: the ID of found contact
+         *                                   		+ response: HTTP response from DAV
+         *                                   		+ body: vcard data if statusCode is 2xx
+         *                                   		+ err: error object failed to fetch contact
+         */
+        function search(options) {
+          var deferred = q.defer();
+
+          var searchOptions = {
+            bookId: bookHome,
+            search: options.search,
+            userId: options.userId,
+            limit: options.limit,
+            page: options.page
+          };
+
+          searchClient.searchContacts(searchOptions, function(err, result) {
+            if (err) {
+              return deferred.reject(err);
+            }
+            var output = {
+              total_count: result.total_count,
+              current_page: result.current_page,
+              results: []
+            };
+
+            if (!result.list || result.list.length === 0) {
+              return deferred.resolve(output);
+            }
+            // this promise allways resolve
+            q.all(result.list.map(function(contact, index) {
+              return vcard(contact._id).get().then(function(data) {
+                output.results[index] = {
+                  contactId: contact._id,
+                  response: data.response,
+                  body: data.body
+                };
+              }, function(err) {
+                output.results.push({
+                  contactId: contact._id,
+                  err: err
+                });
+              });
+            })).then(function() {
+              deferred.resolve(output);
+            });
+          });
+
+          return deferred.promise;
+        }
+
         return {
           get: get,
           create: create,
           del: del,
-          update: update
+          update: update,
+          list: list,
+          search: search
         };
-      }
-
-      /**
-       * Get list of vcards
-       * @param  {Object} query Contains limit, offset, sort, userId
-       * @return {Promise}
-       */
-      function list(query) {
-        var deferred = q.defer();
-        var headers = {
-          ESNToken: ESNToken,
-          accept: VCARD_JSON
-        };
-
-        getBookUrl(function(url) {
-          davClient({
-            headers: headers,
-            url: url,
-            json: true,
-            query: query || {}
-          }, checkResponse(deferred, 'GET', 'Error while getting contacts from DAV'));
-        });
-
-        return deferred.promise;
-      }
-
-      /**
-       * Search vcards
-       * @param  {Object} options Contains search, userId, limit and page
-       * @return {promise}         Resolve an object with:
-       *                                   - total_count:
-       *                                   - current_page:
-       *                                   - results: an array of objects with:
-       *                                   		+ contactId: the ID of found contact
-       *                                   		+ response: HTTP response from DAV
-       *                                   		+ body: vcard data if statusCode is 2xx
-       *                                   		+ err: error object failed to fetch contact
-       */
-      function search(options) {
-        var deferred = q.defer();
-
-        var searchOptions = {
-          bookId: bookHome,
-          search: options.search,
-          userId: options.userId,
-          limit: options.limit,
-          page: options.page
-        };
-
-        searchClient.searchContacts(searchOptions, function(err, result) {
-          if (err) {
-            return deferred.reject(err);
-          }
-          var output = {
-            total_count: result.total_count,
-            current_page: result.current_page,
-            results: []
-          };
-
-          if (!result.list || result.list.length === 0) {
-            return deferred.resolve(output);
-          }
-          // this promise allways resolve
-          q.all(result.list.map(function(contact, index) {
-            return vcard(contact._id).get().then(function(data) {
-              output.results[index] = {
-                contactId: contact._id,
-                response: data.response,
-                body: data.body
-              };
-            }, function(err) {
-              output.results.push({
-                contactId: contact._id,
-                err: err
-              });
-            });
-          })).then(function() {
-            deferred.resolve(output);
-          });
-        });
-
-        return deferred.promise;
       }
 
       return {
+        create: create,
         list: list,
-        search: search,
         vcard: vcard
       };
     }
 
-    /**
-     * Create new addressbook
-     * @param  {Object} addressbook The addressbook json to be created
-     *
-     * @return {Promise}
-     */
-    function create(addressbook) {
-      var deferred = q.defer();
-      var headers = {
-        ESNToken: ESNToken,
-        accept: VCARD_JSON
-      };
-
-      getAddressBookHomeUrl(function(url) {
-        davClient({
-          method: 'POST',
-          headers: headers,
-          url: url,
-          json: true,
-          body: addressbook
-        }, checkResponse(deferred, 'POST', 'Error while creating addressbook in DAV'));
-      });
-
-      return deferred.promise;
-    }
-
-    /**
-     * Get all addressbooks of current user
-     * @return {Promise}
-     */
-    function list() {
-      var deferred = q.defer();
-      var headers = {
-        ESNToken: ESNToken,
-        accept: VCARD_JSON
-      };
-
-      getAddressBookHomeUrl(function(url) {
-        davClient({
-          method: 'GET',
-          headers: headers,
-          url: url,
-          json: true
-        }, checkResponse(deferred, 'GET', 'Error while getting addressbook list in DAV'));
-      });
-
-      return deferred.promise;
-    }
-
     return {
-      addressbook: addressbook,
-      create: create,
-      list: list
+      addressbook: addressbook
     };
   }
 

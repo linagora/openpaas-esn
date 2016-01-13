@@ -23,6 +23,7 @@ module.exports = function(dependencies) {
     contactModule.lib.client(options)
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
+      .vcard()
       .list(req.query)
       .then(function(data) {
         var body = data.body;
@@ -166,6 +167,7 @@ module.exports = function(dependencies) {
     contactModule.lib.client({ ESNToken: ESNToken })
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
+      .vcard()
       .search(options)
       .then(function(data) {
         var json = {
@@ -233,6 +235,7 @@ module.exports = function(dependencies) {
     var ESNToken = req.token && req.token.token ? req.token.token : '';
     contactModule.lib.client({ ESNToken: ESNToken })
       .addressbookHome(req.params.bookHome)
+      .addressbook()
       .list()
       .then(function(data) {
         res.status(200).json(data.body);

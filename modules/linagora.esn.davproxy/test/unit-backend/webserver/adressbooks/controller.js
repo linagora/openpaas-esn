@@ -56,10 +56,10 @@ describe('The addressbooks module', function() {
                           update: function() {
                           },
                           del: function() {
+                          },
+                          list: function() {
                           }
                         };
-                      },
-                      list: function() {
                       }
                     };
                   }
@@ -98,6 +98,26 @@ describe('The addressbooks module', function() {
       };
     });
 
+    function createListFnMock(listFn) {
+      dependencies.contact.lib.client = function() {
+        return {
+          addressbookHome: function() {
+            return {
+              addressbook: function() {
+                return {
+                  vcard: function() {
+                    return {
+                      list: listFn
+                    };
+                  }
+                };
+              }
+            };
+          }
+        };
+      };
+    }
+
     it('should call contact client with right parameters', function(done) {
       req.params.bookHome = 'home';
       req.params.bookName = 'name';
@@ -111,12 +131,15 @@ describe('The addressbooks module', function() {
                 expect(bookName).to.equal(req.params.bookName);
                 return {
                   vcard: function() {
-                  },
-                  list: function(query) {
-                    expect(query).to.eql(req.query);
-                    done();
-                    return q.resolve();
+                    return {
+                      list: function(query) {
+                        expect(query).to.eql(req.query);
+                        done();
+                        return q.resolve();
+                      }
+                    };
                   }
+
                 };
               }
             };
@@ -128,21 +151,9 @@ describe('The addressbooks module', function() {
     });
 
     it('should send back HTTP 500 if contact client reject promise', function(done) {
-      dependencies.contact.lib.client = function() {
-        return {
-          addressbookHome: function() {
-            return {
-              addressbook: function() {
-                return {
-                  list: function() {
-                    return q.reject();
-                  }
-                };
-              }
-            };
-          }
-        };
-      };
+      createListFnMock(function() {
+        return q.reject();
+      });
 
       getController().getContactsFromDAV(req, {
         status: function(code) {
@@ -161,24 +172,12 @@ describe('The addressbooks module', function() {
       var statusCode = 200;
       var body = {foo: 'bar'};
 
-      dependencies.contact.lib.client = function() {
-        return {
-          addressbookHome: function() {
-            return {
-              addressbook: function() {
-                return {
-                  list: function() {
-                    return q.resolve({
-                      response: { statusCode: statusCode },
-                      body: body
-                    });
-                  }
-                };
-              }
-            };
-          }
-        };
-      };
+      createListFnMock(function() {
+        return q.resolve({
+          response: { statusCode: statusCode },
+          body: body
+        });
+      });
 
       getController().getContactsFromDAV(req, {
         status: function(code) {
@@ -217,24 +216,12 @@ describe('The addressbooks module', function() {
       var avatarUrl1 = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/abc/avatar';
       var avatarUrl2 = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/xyz/avatar';
 
-      dependencies.contact.lib.client = function() {
-        return {
-          addressbookHome: function() {
-            return {
-              addressbook: function() {
-                return {
-                  list: function() {
-                    return q.resolve({
-                      response: { statusCode: statusCode },
-                      body: body
-                    });
-                  }
-                };
-              }
-            };
-          }
-        };
-      };
+      createListFnMock(function() {
+        return q.resolve({
+          response: { statusCode: statusCode },
+          body: body
+        });
+      });
 
       getController().getContactsFromDAV(req, {
         status: function() {
@@ -781,22 +768,31 @@ describe('The addressbooks module', function() {
     var BOOK_NAME = 'bookName456';
     var BOOK_HOME = 'bookHome123';
 
-    function createContactClientMock(searchFn) {
-      return function() {
-        return {
-          addressbookHome: function(bookHome) {
-            expect(bookHome).to.equal(BOOK_HOME);
+    function createSearchFnMock(searchFn) {
+      dependencies.contact = {
+        lib: {
+          client: function() {
             return {
-              addressbook: function(bookName) {
-                expect(bookName).to.equal(BOOK_NAME);
+              addressbookHome: function(bookHome) {
+                expect(bookHome).to.equal(BOOK_HOME);
                 return {
-                  search: searchFn
+                  addressbook: function(bookName) {
+                    expect(bookName).to.equal(BOOK_NAME);
+                    return {
+                      vcard: function() {
+                        return {
+                          search: searchFn
+                        };
+                      }
+                    };
+                  }
                 };
               }
             };
           }
-        };
+        }
       };
+
     }
 
     it('should call contact client with the right parameters', function(done) {
@@ -805,20 +801,16 @@ describe('The addressbooks module', function() {
       var page = 1;
       var limit = 20;
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function(options) {
-            expect(options).to.deep.equal({
-              search: search,
-              userId: user._id,
-              page: page,
-              limit: limit
-            });
-            done();
-            return q.reject();
-          })
-        }
-      };
+      createSearchFnMock(function(options) {
+        expect(options).to.deep.equal({
+          search: search,
+          userId: user._id,
+          page: page,
+          limit: limit
+        });
+        done();
+        return q.reject();
+      });
 
       var controller = getController();
       controller.searchContacts({
@@ -836,13 +828,9 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: 123};
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function() {
-            return q.reject();
-          })
-        }
-      };
+      createSearchFnMock(function() {
+        return q.reject();
+      });
 
       var controller = getController();
       controller.searchContacts({
@@ -861,16 +849,12 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: 123};
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function() {
-            return q.resolve({
-              total_count: 999,
-              results: []
-            });
-          })
-        }
-      };
+      createSearchFnMock(function() {
+        return q.resolve({
+          total_count: 999,
+          results: []
+        });
+      });
 
       var controller = getController();
       controller.searchContacts({
@@ -890,15 +874,11 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: 123};
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function() {
-            return q.resolve({
-              results: []
-            });
-          })
-        }
-      };
+      createSearchFnMock(function() {
+        return q.resolve({
+          results: []
+        });
+      });
 
       var controller = getController();
       controller.searchContacts({
@@ -922,16 +902,12 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: '123'};
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function() {
-            return q.resolve({
-              total_count: 999,
-              results: []
-            });
-          })
-        }
-      };
+      createSearchFnMock(function() {
+        return q.resolve({
+          total_count: 999,
+          results: []
+        });
+      });
 
       var controller = getController();
       controller.searchContacts({
@@ -955,16 +931,12 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: '123'};
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function() {
-            return q.resolve({
-              current_page: 555,
-              results: []
-            });
-          })
-        }
-      };
+      createSearchFnMock(function() {
+        return q.resolve({
+          current_page: 555,
+          results: []
+        });
+      });
 
       var controller = getController();
       controller.searchContacts({
@@ -996,17 +968,13 @@ describe('The addressbooks module', function() {
       var errorContact = { contactId: 4, err: 'some error' };
       var successContact2 = { contactId: 5, response: { statusCode: 200 }, body: 'success2' };
 
-      dependencies.contact = {
-        lib: {
-          client: createContactClientMock(function() {
-            return q.resolve({
-              total_count: 999,
-              current_page: 555,
-              results: [successContact1, notFoundContact, notIncludedFoundContact, errorContact, successContact2]
-            });
-          })
-        }
-      };
+      createSearchFnMock(function() {
+        return q.resolve({
+          total_count: 999,
+          current_page: 555,
+          results: [successContact1, notFoundContact, notIncludedFoundContact, errorContact, successContact2]
+        });
+      });
 
       mockery.registerMock('./avatarHelper', function() {
         return {
@@ -1075,7 +1043,7 @@ describe('The addressbooks module', function() {
 
     var BOOK_HOME = 'book12345';
 
-    function createContactClientMock(listFn) {
+    function createListFnMock(listFn) {
       dependencies.contact = {
         lib: {
           client: function() {
@@ -1083,7 +1051,11 @@ describe('The addressbooks module', function() {
               addressbookHome: function(bookHome) {
                 expect(bookHome).to.equal(BOOK_HOME);
                 return {
-                  list: listFn
+                  addressbook: function() {
+                    return {
+                      list: listFn
+                    };
+                  }
                 };
               }
             };
@@ -1097,7 +1069,7 @@ describe('The addressbooks module', function() {
         response: 'response',
         body: 'body'
       };
-      createContactClientMock(function() {
+      createListFnMock(function() {
         return q.resolve(data);
       });
       var controller = getController();
@@ -1120,7 +1092,7 @@ describe('The addressbooks module', function() {
     });
 
     it('should return 500 response on errror', function(done) {
-      createContactClientMock(function() {
+      createListFnMock(function() {
         return q.reject();
       });
       var controller = getController();
