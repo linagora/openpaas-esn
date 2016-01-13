@@ -1,0 +1,15 @@
+p
+  br
+cite
+  | ------- Forwarded message -------
+  br
+  | Subject: {{ email.subject }}
+  br
+  | Date: {{ email.date | date:dateFormat:tz }}
+  br
+  | From: {{ email.from.email }}
+  br
+  | {{ email.to | emailerList:'To: '}}
+  br
+  | {{ email.cc | emailerList:'CC: '}}
+blockquote {{ email.htmlBody || email.textBody }}

@@ -111,6 +111,10 @@ angular.module('linagora.esn.unifiedinbox')
       emailSendingService.createReplyAllEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
     };
 
+    $scope.forward = function() {
+      emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
+    };
+
     jmapClient.getMessages({
       ids: [$scope.emailId]
     }).then(function(messages) {

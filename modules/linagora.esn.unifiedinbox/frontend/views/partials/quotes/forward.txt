@@ -1,0 +1,10 @@
+
+
+
+------- Forwarded message -------
+Subject: {{ email.subject }}
+Date: {{ email.date | date:dateFormat:tz }}
+{{ email.to | emailerList:'To: '}}
+{{ email.cc | emailerList:'CC: '}}
+
+{{ email.textBody }}
