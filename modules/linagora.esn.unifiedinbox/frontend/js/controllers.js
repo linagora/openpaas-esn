@@ -104,11 +104,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     $scope.reply = function() {
-      newComposerService.openEmailCustomTitle('Start writing your reply email', emailSendingService.createReplyEmailObject($scope.email, session.user));
+      emailSendingService.createReplyEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
     };
 
     $scope.replyAll = function() {
-      newComposerService.openEmailCustomTitle('Start writing your reply all email', emailSendingService.createReplyAllEmailObject($scope.email, session.user));
+      emailSendingService.createReplyAllEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
     };
 
     jmapClient.getMessages({

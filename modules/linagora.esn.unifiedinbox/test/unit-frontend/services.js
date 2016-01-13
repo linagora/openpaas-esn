@@ -17,6 +17,7 @@ describe('The Unified Inbox Angular module services', function() {
     angular.mock.module('esn.core');
     angular.mock.module('angularMoment');
     angular.mock.module('linagora.esn.unifiedinbox');
+    angular.mock.module('jadeTemplates');
   });
 
   beforeEach(module(function($provide) {
@@ -294,10 +295,11 @@ describe('The Unified Inbox Angular module services', function() {
   });
 
   describe('The emailSendingService factory', function() {
-    var emailSendingService, rcpt;
+    var emailSendingService, rcpt, $rootScope;
 
-    beforeEach(inject(function(_emailSendingService_) {
+    beforeEach(inject(function(_emailSendingService_, _$rootScope_) {
       emailSendingService = _emailSendingService_;
+      $rootScope = _$rootScope_;
     }));
 
     describe('the noRecipient function', function() {
@@ -440,32 +442,9 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should do nothing when subject/prefix is/are not provided', function() {
-        expect(emailSendingService.prefixSubject(null, 'Re:')).to.be.undefined;
-        expect(emailSendingService.prefixSubject('subject', null)).to.be.undefined;
-        expect(emailSendingService.prefixSubject(null, null)).to.be.undefined;
-      });
-    });
-
-    describe('the quoteBody function', function() {
-      var email, expectedAnswer;
-
-      it('should create a quote from the email body', function() {
-        email = {
-          htmlBody: '<p>hello</p>',
-          from: {email: 'sender@linagora.com', name: 'linagora'},
-          date: '12:00:00 14:00'
-        };
-        expectedAnswer = '<cite> On 12:00:00 14:00, from sender@linagora.com:</cite><blockquote><p>hello</p></blockquote>';
-
-        expect(emailSendingService.quoteBody(email)).to.equal(expectedAnswer);
-
-        email = {
-          htmlBody: '<p>hello</p>',
-          from: {emails: ['sender@linagora.com'], name: 'linagora'},
-          date: '12:00:00 14:00'
-        };
-
-        expect(emailSendingService.quoteBody(email)).to.equal(expectedAnswer);
+        expect(emailSendingService.prefixSubject(null, 'Re:')).to.equal(null);
+        expect(emailSendingService.prefixSubject('subject', null)).to.equal('subject');
+        expect(emailSendingService.prefixSubject(null, null)).to.equal(null);
       });
     });
 
@@ -575,6 +554,23 @@ describe('The Unified Inbox Angular module services', function() {
         expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
       });
 
+      it('should not add FROM to the TO field if already there', function() {
+        email = {
+          to: [{ displayName: '1', email: '1@linagora.com' }, { displayName: '2', email: '2@linagora.com' }],
+          from: { displayName: '1', email: '1@linagora.com' }
+        };
+
+        sender =  { displayName: 'sender', email: 'sender@linagora.com' };
+
+        expectedRcpt = {
+          to: [{ displayName: '1', email: '1@linagora.com' }, { displayName: '2', email: '2@linagora.com' }],
+          cc: [],
+          bcc: []
+        };
+
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+      });
+
       it('should leverage the replyTo filed instead of FROM (when provided)', function() {
         email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
@@ -617,7 +613,7 @@ describe('The Unified Inbox Angular module services', function() {
         expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedRcpt.bcc);
       });
 
-      it('should remove the sender from the recipient object (the sender email could be an array or a string)', function() {
+      it('should remove the sender from the recipient object (the sender could be an EMailer or the logged-in User)', function() {
         email = {
           to: [{displayName: 'sender', email: 'sender@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
@@ -635,17 +631,15 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
 
-        sender =  {displayName: 'sender', emails: ['sender@linagora.com']};
+        sender =  {displayName: 'sender', preferredEmail: 'sender@linagora.com'};
         expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
       });
     });
 
     describe('the getReplyRecipients function', function() {
       var email, sender, expectedRcpt;
-      it('should do nothing when email/sender is/are not provided', function() {
-        expect(emailSendingService.getReplyRecipients(null, {})).to.be.undefined;
-        expect(emailSendingService.getReplyRecipients({}, null)).to.be.undefined;
-        expect(emailSendingService.getReplyRecipients(null, null)).to.be.undefined;
+      it('should do nothing when email is not provided', function() {
+        expect(emailSendingService.getReplyRecipients(null)).to.be.undefined;
       });
 
       it('should reply to FROM if FROM is not the sender', function() {
@@ -677,50 +671,12 @@ describe('The Unified Inbox Angular module services', function() {
         expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
       });
 
-      it('should replyAll if From is the sender', function() {
-        email = {
-          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
-          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
-          from: {displayName: 'sender', email: 'sender@linagora.com'}
-        };
-
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
-
-        expectedRcpt = {
-          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
-          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
-        };
-
-        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
-      });
-
-      it('should replyAll if replyTo is the sender', function() {
-        email = {
-          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
-          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
-          from: {displayName: '0', email: '0@linagora.com'},
-          replyTo: {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}
-        };
-
-        sender =  {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'};
-
-        expectedRcpt = {
-          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
-          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
-          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
-        };
-
-        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
-      });
     });
 
     describe('the createReplyAllEmailObject function', function() {
       var email, sender, expectedAnswer;
 
-      it('should create a reply all email object', function() {
+      it('should create a reply all email object', function(done) {
         email = {
           from: {email: 'sender@linagora.com', name: 'linagora'},
           to: [{displayName: '1', email: '1@linagora.com'}],
@@ -736,18 +692,21 @@ describe('The Unified Inbox Angular module services', function() {
           to: [{displayName: '1', email: '1@linagora.com'}],
           cc: [{displayName: '2', email: '2@linagora.com'}],
           bcc: [{displayName: '3', email: '3@linagora.com'}],
-          subject: 'Re: my subject',
-          htmlBody: '<p><br/></p><cite> On 12:00:00 14:00, from sender@linagora.com:</cite><blockquote><p>my body</p></blockquote>'
+          subject: 'Re: my subject'
         };
 
-        expect(emailSendingService.createReplyAllEmailObject(email, sender)).to.shallowDeepEqual(expectedAnswer);
+        emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
       });
     });
 
     describe('the createReplyEmailObject function', function() {
       var email, sender, expectedAnswer;
 
-      it('should create a reply email object', function() {
+      it('should create a reply email object', function(done) {
         email = {
           from: {email: 'from@linagora.com', name: 'linagora'},
           to: [{displayName: '1', email: '1@linagora.com'}],
@@ -761,11 +720,14 @@ describe('The Unified Inbox Angular module services', function() {
         expectedAnswer = {
           from: 'sender@linagora.com',
           to: [{email: 'from@linagora.com', name: 'linagora'}],
-          subject: 'Re: my subject',
-          htmlBody: '<p><br/></p><cite> On 12:00:00 14:00, from from@linagora.com:</cite><blockquote><p>my body</p></blockquote>'
+          subject: 'Re: my subject'
         };
 
-        expect(emailSendingService.createReplyEmailObject(email, sender)).to.shallowDeepEqual(expectedAnswer);
+        emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
       });
     });
   });
@@ -1541,4 +1503,87 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
   });
+
+  describe('The emailBodyService factory', function() {
+
+    var emailBodyService, $rootScope, _, isMobile;
+
+    beforeEach(module(function($provide) {
+      isMobile = false;
+
+      $provide.value('deviceDetector', {
+        isMobile: function() { return isMobile; }
+      });
+      $provide.value('localTimezone', 'UTC');
+    }));
+
+    beforeEach(inject(function(_emailBodyService_, _$rootScope_, ___, $templateCache) {
+      emailBodyService = _emailBodyService_;
+      $rootScope = _$rootScope_;
+      _ = ___;
+
+      $templateCache.put('/unifiedinbox/views/partials/quotes/plaintext.txt', 'On {{ email.date | date:dateFormat:tz }} from {{ email.from.email }}: {{ email.textBody }}');
+    }));
+
+    describe('The quote function', function() {
+
+      var email = {
+        from: {
+          name: 'test',
+          email: 'test@open-paas.org'
+        },
+        subject: 'Heya',
+        date: '2015-08-21T00:10:00Z',
+        textBody: 'TextBody',
+        htmlBody: '<p>HtmlBody</p>'
+      };
+
+      it('should quote htmlBody using a richtext template if not on mobile', function(done) {
+        emailBodyService.quote(email)
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should quote textBody using a richtext template if not on mobile and htmlBody is not available', function(done) {
+        emailBodyService.quote(_.omit(email, 'htmlBody'))
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>TextBody</blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should quote textBody using a plaintext template if on mobile', function(done) {
+        isMobile = true;
+        emailBodyService.quote(email)
+          .then(function(text) {
+            expect(text).to.equal('On Aug 21, 2015 12:10:00 AM from test@open-paas.org: TextBody');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The supportsRichtext function', function() {
+
+      it('is true when deviceDetector.isMobile()=false', function() {
+        expect(emailBodyService.supportsRichtext()).to.equal(true);
+      });
+
+      it('is false when deviceDetector.isMobile()=true', function() {
+        isMobile = true;
+        expect(emailBodyService.supportsRichtext()).to.equal(false);
+      });
+
+    });
+
+  });
+
 });

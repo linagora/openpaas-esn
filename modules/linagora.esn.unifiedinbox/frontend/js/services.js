@@ -81,47 +81,40 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, $http, emailService, deviceDetector) {
+  .factory('emailSendingService', function($q, $http, emailService, deviceDetector, jmap, _, emailBodyService) {
 
     /**
-     * Set the recipient.email and recipient.name fields to
-     * recipient.displayName if they are undefined.
-     * @param {recipient object} recipient
+     * Set the recipient.email and recipient.name fields to recipient.displayName if they are undefined.
+     *
+     * @param {Object} recipient
      */
     function ensureEmailAndNameFields(recipient) {
       if (!recipient.displayName) {
         return recipient;
       }
+
       if (!recipient.email) {
         recipient.email = recipient.displayName;
       }
       if (!recipient.name) {
         recipient.name = recipient.displayName;
       }
+
       return recipient;
     }
 
     /**
-     * Add the following logic when sending an email:
-     * Check for an invalid email used as a recipient
-     * @param {recipient object} rcpt
+     * Add the following logic when sending an email: Check for an invalid email used as a recipient
+     *
+     * @param {Object} rcpt
      */
     function emailsAreValid(rcpt) {
       if (!rcpt) {
         return false;
       }
 
-      rcpt.to = rcpt.to || [];
-      rcpt.cc = rcpt.cc || [];
-      rcpt.bcc = rcpt.bcc || [];
-
-      function isValidTagEmail(tag) {
-        return emailService.isValidEmail(tag.email);
-      }
-
-      var combinedList = [rcpt.to, rcpt.cc, rcpt.bcc];
-      return combinedList.every(function(emails) {
-        return emails.every(isValidTagEmail);
+      return [].concat(rcpt.to || [], rcpt.cc || [], rcpt.bcc || []).every(function(recipient) {
+        return emailService.isValidEmail(recipient.email);
       });
     }
 
@@ -130,11 +123,14 @@ angular.module('linagora.esn.unifiedinbox')
      *  Add the same recipient multiple times, in multiples fields (TO, CC...): allowed.
      *  This multi recipient must receive the email as a TO > CC > BCC recipient in this order.
      *  If the person is in TO and CC, s/he receives as TO. If s/he is in CC/BCC, receives as CC, etc).
-     * @param {recipient object} rcpt
+     *
+     * @param {Object} rcpt
      */
     function removeDuplicateRecipients(rcpt) {
-      var itemContainedInArray = function(array, item) {
-        return array.indexOf(item) !== -1;
+      var notIn = function(array) {
+        return function(item) {
+          return !_.find(array, { email: item.email });
+        };
       };
 
       if (!rcpt) {
@@ -142,42 +138,26 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       rcpt.to = rcpt.to || [];
-      rcpt.cc = rcpt.cc || [];
-      rcpt.bcc = rcpt.bcc || [];
+      rcpt.cc = (rcpt.cc || []).filter(notIn(rcpt.to));
+      rcpt.bcc = (rcpt.bcc || []).filter(notIn(rcpt.to)).filter(notIn(rcpt.cc));
+    }
 
-      var toEmailsList = rcpt.to.map(function(item) {
-        return item.email;
-      });
-      var ccEmailsList = rcpt.cc.map(function(item) {
-        return item.email;
-      });
+    function _countRecipients(rcpt) {
+      if (!rcpt) {
+        return 0;
+      }
 
-      rcpt.cc = rcpt.cc.filter(function(item) {
-        return !itemContainedInArray(toEmailsList, item.email);
-      });
-      rcpt.bcc = rcpt.bcc.filter(function(item) {
-        return !itemContainedInArray(toEmailsList, item.email) && !itemContainedInArray(ccEmailsList, item.email);
-      });
+      return _.size(rcpt.to) + _.size(rcpt.cc) + _.size(rcpt.bcc);
     }
 
     /**
      * Add the following logic to email sending:
-     * check whether the user is trying to send an email with no recipient at all
-     * @param {recipient object} rcpt
+     *  Check whether the user is trying to send an email with no recipient at all
+     *
+     * @param {Object} rcpt
      */
     function noRecipient(rcpt) {
-      if (!rcpt) {
-        return true;
-      }
-
-      rcpt.to = rcpt.to || [];
-      rcpt.cc = rcpt.cc || [];
-      rcpt.bcc = rcpt.bcc || [];
-
-      if (rcpt.to.length === 0 && rcpt.cc.length === 0 && rcpt.bcc.length === 0) {
-        return true;
-      }
-      return false;
+      return _countRecipients(rcpt) === 0;
     }
 
     /**
@@ -197,144 +177,89 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function prefixSubject(subject, prefix) {
-      if (!!subject && !!prefix) {
-
-        if (prefix.indexOf(' ', prefix.length - 1) === -1) {
-          prefix = prefix + ' ';
-        }
-
-        if (subject.slice(0, prefix.length) === prefix) {
-          return subject;
-        }
-
-        return prefix + subject;
+      if (!subject || !prefix) {
+        return subject;
       }
+
+      if (prefix.indexOf(' ', prefix.length - 1) === -1) {
+        prefix = prefix + ' ';
+      }
+
+      if (subject.slice(0, prefix.length) === prefix) {
+        return subject;
+      }
+
+      return prefix + subject;
     }
 
-    function showReplyAllButton(email) {
-      var rcpt = {
-        to: email.to || [],
-        cc: email.cc || [],
-        bcc: email.bcc || []
-      };
-      var result = rcpt.to.length + rcpt.cc.length + rcpt.bcc.length;
-      return result > 1;
+    function showReplyAllButton(rcpt) {
+      return _countRecipients(rcpt) > 1;
     }
 
     function getEmailAddress(recipient) {
-      if (!!recipient) {
-        return recipient.email || recipient.emails[0];
+      if (recipient) {
+        return recipient.email || recipient.preferredEmail;
       }
     }
 
-    /**
-     * This function is to avoid the current problem with JMAP-client.
-     * In fact, the current version of JMAP-Client return an email with
-     * replyTo which is always set to {name: '', email:'@'}.
-     * Once the JMAP-Client is patched this function could simply become:
-     * return email.replyTo || email.from;
-     */
     function getReplyToField(email) {
-      if (getEmailAddress(email.replyTo) !== '@') {
-        return email.replyTo || email.from;
-      } else {
-        return email.from;
+      if (email.replyTo && jmap.EMailer.unknown().email !== email.replyTo.email) {
+        return email.replyTo;
       }
+
+      return email.from;
     }
 
     function getReplyAllRecipients(email, sender) {
+      function notMe(item) {
+        return item.email !== getEmailAddress(sender);
+      }
+
       if (!email || !sender) {
         return;
       }
 
-      var replyAllRecipients = {};
-      var rcpt = {
-        to: email.to || [],
-        cc: email.cc || [],
+      return {
+        to: _(email.to || []).concat(getReplyToField(email)).uniq('email').value().filter(notMe),
+        cc: (email.cc || []).filter(notMe),
         bcc: email.bcc || []
       };
-      var replyTo = getReplyToField(email);
-
-      replyAllRecipients.to = rcpt.to.filter(function(item) {
-        return item.email !== getEmailAddress(sender);
-      });
-
-      if (getEmailAddress(replyTo) !== getEmailAddress(sender)) {
-        replyAllRecipients.to.push(replyTo);
-      }
-
-      replyAllRecipients.cc = rcpt.cc.filter(function(item) {
-        return item.email !== getEmailAddress(sender);
-      });
-
-      replyAllRecipients.bcc = rcpt.bcc;
-
-      return replyAllRecipients;
     }
 
-    function getReplyRecipients(email, sender) {
-      if (!email || !sender) {
+    function getReplyRecipients(email) {
+      if (!email) {
         return;
       }
 
-      var replyTo = getReplyToField(email);
-
-      if (getEmailAddress(replyTo) !== getEmailAddress(sender)) {
-        return {
-          to: [replyTo]
-        };
-      } else {
-        return getReplyAllRecipients(email, sender);
-      }
+      return {
+        to: [getReplyToField(email)],
+        cc: [],
+        bcc: []
+      };
     }
 
-    /**
-     * do not create an element using $window.document.createElement('blockquote') for example.
-     * In fact, AngularJS restricts access to DOM nodes from within expressions.
-     * https://docs.angularjs.org/error/$parse/isecdom
-     */
-    function quoteBody(email) {
-      if (deviceDetector.isMobile()) {
-        return '\r\n\r\n\r\nOn ' + email.date + ', from ' + getEmailAddress(email.from) + ':\r\n\r\n' + email.textBody;
+    function _enrichWithBody(email, body) {
+      if (emailBodyService.supportsRichtext()) {
+        email.htmlBody = body;
       } else {
-        return '<cite> On ' + email.date + ', from ' + getEmailAddress(email.from) + ':</cite><blockquote>' + (email.htmlBody || email.textBody) + '</blockquote>';
+        email.textBody = body;
       }
+
+      return email;
     }
 
-    function createReplyAllEmailObject(email, sender) {
-      var replyAllEmailObject = {}, rcpt;
-      replyAllEmailObject.from = getEmailAddress(sender);
-      rcpt = getReplyAllRecipients(email, sender);
-      Object.keys(rcpt).forEach(function(key) {
-        replyAllEmailObject[key] = rcpt[key];
+    function createQuotedEmail(subjectPrefix, recipients, email, sender) {
+      return emailBodyService.quote(email).then(function(body) {
+        var rcpt = recipients(email, sender);
+
+        return _enrichWithBody({
+          from: getEmailAddress(sender),
+          to: rcpt.to || [],
+          cc: rcpt.cc || [],
+          bcc: rcpt.bcc || [],
+          subject: prefixSubject(email.subject, subjectPrefix)
+        }, body);
       });
-      replyAllEmailObject.subject = prefixSubject(email.subject, 'Re: ');
-
-      if (deviceDetector.isMobile()) {
-        replyAllEmailObject.textBody = quoteBody(email);
-      } else {
-        replyAllEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
-      }
-
-      return replyAllEmailObject;
-    }
-
-    function createReplyEmailObject(email, sender) {
-      var replyEmailObject = {}, rcpt;
-      replyEmailObject.from = getEmailAddress(sender);
-      rcpt = getReplyRecipients(email, sender);
-      Object.keys(rcpt).forEach(function(key) {
-        replyEmailObject[key] = rcpt[key];
-      });
-      replyEmailObject.subject = prefixSubject(email.subject, 'Re: ');
-
-      if (deviceDetector.isMobile()) {
-        replyEmailObject.textBody = quoteBody(email);
-      } else {
-        replyEmailObject.htmlBody = '<p><br/></p>' + quoteBody(email);
-      }
-
-      return replyEmailObject;
     }
 
     return {
@@ -346,10 +271,9 @@ angular.module('linagora.esn.unifiedinbox')
       prefixSubject: prefixSubject,
       getReplyRecipients: getReplyRecipients,
       getReplyAllRecipients: getReplyAllRecipients,
-      quoteBody: quoteBody,
       showReplyAllButton: showReplyAllButton,
-      createReplyAllEmailObject: createReplyAllEmailObject,
-      createReplyEmailObject: createReplyEmailObject
+      createReplyAllEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients),
+      createReplyEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyRecipients)
     };
   })
 
@@ -447,7 +371,7 @@ angular.module('linagora.esn.unifiedinbox')
   .service('newComposerService', function($state, screenSize, boxOverlayOpener) {
 
     function choseByScreenSize(xs, others) {
-      screenSize.is('xs') ? xs.apply() : others.apply();
+      screenSize.is('xs') ? xs() : others();
     }
 
     function newMobileComposer(email) {
@@ -573,4 +497,32 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     return Composition;
+  })
+
+  .factory('localTimezone', function() {
+    // Explicit '' here to tell angular to use the browser timezone for
+    // Date formatting in the 'date' filter. This factory is here to be mocked in unit tests
+    // so that the formatting is consistent accross various development machines.
+    //
+    // See: https://docs.angularjs.org/api/ng/filter/date
+    return '';
+  })
+
+  .factory('emailBodyService', function($interpolate, $templateRequest, deviceDetector, localTimezone) {
+    function quote(email) {
+      var template = supportsRichtext() ? '/unifiedinbox/views/partials/quotes/richtext.html' : '/unifiedinbox/views/partials/quotes/plaintext.txt';
+
+      return $templateRequest(template).then(function(template) {
+        return $interpolate(template)({ email: email, dateFormat: 'medium', tz: localTimezone });
+      });
+    }
+
+    function supportsRichtext() {
+      return !deviceDetector.isMobile();
+    }
+
+    return {
+      quote: quote,
+      supportsRichtext: supportsRichtext
+    };
   });
