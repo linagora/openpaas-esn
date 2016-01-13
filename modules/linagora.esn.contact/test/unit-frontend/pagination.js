@@ -56,6 +56,28 @@ describe('The Contacts Angular pagination module', function() {
       this.AddressBookPaginationProvider = AddressBookPaginationProvider;
     }));
 
+    it('should throw error when options.addressbooks is undefined', function(done) {
+      try {
+        new this.AddressBookPaginationProvider({});
+        done(new Error());
+      } catch (e) {
+        expect(e.message).to.match(/options.addressbooks array is required/);
+        done();
+      }
+    });
+
+    it('should throw error when options.addressbooks is empty', function(done) {
+      try {
+        new this.AddressBookPaginationProvider({
+          addressbooks: []
+        });
+        done(new Error());
+      } catch (e) {
+        expect(e.message).to.match(/options.addressbooks array is required/);
+        done();
+      }
+    });
+
     describe('The loadNextItems function', function() {
       it('should call ContactAPIClient api with right parameters and set state on result', function(done) {
         var nextPage = 'nextPage';
@@ -78,6 +100,78 @@ describe('The Contacts Angular pagination module', function() {
     });
   });
 
+  describe('The MultipleAddressBookPaginationProvider service', function() {
+    var PageAggregatorServiceMock;
+
+    beforeEach(function() {
+      PageAggregatorServiceMock = function() {};
+
+      module('linagora.esn.contact', function($provide) {
+        $provide.value('PageAggregatorService', PageAggregatorServiceMock);
+      });
+    });
+
+    beforeEach(angular.mock.inject(function(MultipleAddressBookPaginationProvider, $rootScope) {
+      this.$rootScope = $rootScope;
+      this.MultipleAddressBookPaginationProvider = MultipleAddressBookPaginationProvider;
+    }));
+
+    it('should throw error when options.addressbooks is undefined', function(done) {
+      try {
+        new this.MultipleAddressBookPaginationProvider({});
+        done(new Error());
+      } catch (e) {
+        expect(e.message).to.match(/options.addressbooks array is required/);
+        done();
+      }
+    });
+
+    it('should throw error when options.addressbooks is empty', function(done) {
+      try {
+        new this.MultipleAddressBookPaginationProvider({
+          addressbooks: []
+        });
+        done(new Error());
+      } catch (e) {
+        expect(e.message).to.match(/options.addressbooks array is required/);
+        done();
+      }
+    });
+
+    it('should create all the required resources', function() {
+      var options = {
+        addressbooks: [{id: 1}, {id: 2}, {id: 3}]
+      };
+
+      var provider = new this.MultipleAddressBookPaginationProvider(options);
+      expect(provider.providers.length).to.equal(options.addressbooks.length);
+      expect(provider.aggregator).to.be.defined;
+    });
+
+    it('should use the options comparator when defined', function() {
+      var options = {
+        addressbooks: [{id: 1}, {id: 2}, {id: 3}],
+        compare: 'MyAwesomeComparator'
+      };
+
+      var provider = new this.MultipleAddressBookPaginationProvider(options);
+      expect(provider.compare).to.equal(options.compare);
+    });
+
+    describe('The loadNextItems function', function() {
+      it('should call the age aggregator service', function(done) {
+        var options = {
+          addressbooks: [{id: 1}, {id: 2}, {id: 3}]
+        };
+
+        PageAggregatorServiceMock.prototype.loadNextItems = done;
+        var provider = new this.MultipleAddressBookPaginationProvider(options);
+        provider.loadNextItems();
+        done(new Error());
+      });
+    });
+  });
+
   describe('The SearchAddressBookPaginationProvider service', function() {
 
     beforeEach(function() {
@@ -91,6 +185,28 @@ describe('The Contacts Angular pagination module', function() {
         this.$rootScope = $rootScope;
         this.SearchAddressBookPaginationProvider = SearchAddressBookPaginationProvider;
       });
+    });
+
+    it('should throw error when options.addressbooks is undefined', function(done) {
+      try {
+        new this.SearchAddressBookPaginationProvider({});
+        done(new Error());
+      } catch (e) {
+        expect(e.message).to.match(/options.addressbooks array is required/);
+        done();
+      }
+    });
+
+    it('should throw error when options.addressbooks is empty', function(done) {
+      try {
+        new this.SearchAddressBookPaginationProvider({
+          addressbooks: []
+        });
+        done(new Error());
+      } catch (e) {
+        expect(e.message).to.match(/options.addressbooks array is required/);
+        done();
+      }
     });
 
     describe('The loadNextItems function', function() {
@@ -290,9 +406,7 @@ describe('The Contacts Angular pagination module', function() {
   describe('The ContactShellComparator service', function() {
 
     beforeEach(function() {
-      module('linagora.esn.contact', function($provide) {
-        $provide.value('ContactAPIClient', ContactAPIClient);
-      });
+      module('linagora.esn.contact');
     });
 
     beforeEach(function() {
@@ -304,16 +418,23 @@ describe('The Contacts Angular pagination module', function() {
 
     describe('The byDisplayName function', function() {
 
-      it('should send back 1st contact when its fn is smaller', function(done) {
-        done();
+      var a = {
+        displayName: 'Aa'
+      };
+      var b = {
+        displayName: 'Abc'
+      };
+
+      it('should send back 1st contact when its fn is smaller', function() {
+        expect(this.ContactShellComparator.byDisplayName(a, b)).to.equal(-1);
       });
 
-      it('should send back 2nd contact when its fn is smaller', function(done) {
-        done();
+      it('should send back 2nd contact when its fn is smaller', function() {
+        expect(this.ContactShellComparator.byDisplayName(b, a)).to.equal(1);
       });
 
-      it('should send back the first contact when fn are equal', function(done) {
-        done();
+      it('should send back the first contact when fn are equal', function() {
+        expect(this.ContactShellComparator.byDisplayName(a, a)).to.equal(0);
       });
     });
   });
