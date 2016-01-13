@@ -60,7 +60,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
+  .factory('calendarService', function($q, $rootScope, keepChangeDuringGraceperiod, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
 
     /**
      * List all calendars in the calendar home.
@@ -205,11 +205,13 @@ angular.module('esn.calendar')
           } else {
             taskId = response;
             event.gracePeriodTaskId = taskId;
+            keepChangeDuringGraceperiod.registerAdd(event, calendarPath);
             calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
                 if (task.cancelled) {
                   gracePeriodService.cancel(taskId).then(function() {
+                    keepChangeDuringGraceperiod.deleteRegistration(event);
                     calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
                     task.success();
                     var scope = $rootScope.$new();
@@ -266,6 +268,7 @@ angular.module('esn.calendar')
       var taskId = null;
       return eventAPI.remove(eventPath, etag).then(function(id) {
         taskId = id;
+        keepChangeDuringGraceperiod.registerDelete(event);
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
       })
       .then(function() {
@@ -289,6 +292,7 @@ angular.module('esn.calendar')
         var task = data;
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {
+            keepChangeDuringGraceperiod.deleteRegistration(event);
             calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             task.success();
             return $q.when(false);
@@ -337,6 +341,7 @@ angular.module('esn.calendar')
         return eventAPI.modify(path, event.vcalendar, etag);
       }).then(function(id) {
         taskId = id;
+        keepChangeDuringGraceperiod.registerUpdate(event);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
       }).then(function() {
         return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
@@ -344,6 +349,7 @@ angular.module('esn.calendar')
         var task = data;
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {
+            keepChangeDuringGraceperiod.deleteRegistration(event);
             if (oldEvent) {
               calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
             } else {
@@ -651,5 +657,70 @@ angular.module('esn.calendar')
     return {
       get: get,
       save: save
+    };
+  })
+
+ .factory('keepChangeDuringGraceperiod', function($timeout, CALENDAR_GRACE_DELAY) {
+    var changes = {};
+    var DELETE = 'delete';
+    var UPDATE = 'update';
+    var ADD = 'add';
+
+    function deleteRegistration(event) {
+      $timeout.cancel(changes[event.id].expirationPromise);
+      delete(changes[event.id]);
+    }
+
+    function saveChange(action, event, calendarPath) {
+      var undo = deleteRegistration.bind(null, event);
+      changes[event.id] = {
+        expirationPromise: $timeout(undo, CALENDAR_GRACE_DELAY, false),
+        event: event,
+        calendarPath: calendarPath,
+        action: action
+      };
+
+      return undo;
+    }
+
+    function applyUpdatedAndDeleteEvent(events) {
+      return events.reduce(function(previousCleanedEvents, event) {
+
+        var change = changes[event.id];
+        if (!change || change.action === ADD) {
+          previousCleanedEvents.push(event);
+        } else if (change.action === UPDATE) {
+          previousCleanedEvents.push(change.event);
+        }
+
+        return previousCleanedEvents;
+      }, []);
+    }
+
+    function addAddedEvent(start, end, calendarPath, events) {
+
+      angular.forEach(changes, function(change) {
+        if (change.action === ADD && change.event.start.isBetween(start, end) && change.calendarPath === calendarPath) {
+          events.push(change.event);
+        }
+      });
+
+      return events;
+    }
+
+    function wrapEventSource(calendarPath, calendarSource) {
+      return function(start, end, timezone, callback) {
+        calendarSource(start, end, timezone, function(events) {
+          callback(addAddedEvent(start, end, calendarPath, applyUpdatedAndDeleteEvent(events)));
+        });
+      };
+    }
+
+    return {
+      registerAdd: saveChange.bind(null, ADD),
+      registerDelete: saveChange.bind(null, DELETE),
+      registerUpdate: saveChange.bind(null, UPDATE),
+      deleteRegistration: deleteRegistration,
+      wrapEventSource: wrapEventSource
     };
   });
