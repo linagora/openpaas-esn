@@ -3,10 +3,10 @@
 angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
 
   .constant('CONTEXTUAL_SIDEBAR', {
-    animation: 'am-fade-and-slide-right',
+    animation: 'am-fade-and-slide-left',
     prefixClass: 'aside',
     prefixEvent: 'contextual-sidebar',
-    placement: 'right',
+    placement: 'left',
     template: '/views/modules/sidebar/contextual-sidebar.html',
     container: false,
     element: null,
