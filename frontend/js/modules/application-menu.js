@@ -60,8 +60,8 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       restrict: 'A',
       link: function(scope, element, attrs) {
         $timeout(function() {
-          var offset = $(element).offset();
-          $(element).offset({top: offset.top, left: offset.left - attrs.forceMarginLeft});
+          var offset = element.offset();
+          element.offset({top: offset.top, left: offset.left - attrs.forceMarginLeft});
         }, 50);
       }
     };
