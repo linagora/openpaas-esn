@@ -5,7 +5,8 @@ var async = require('async'),
   rewire = require('rewire'),
   MongoClient = require('mongodb').MongoClient,
   mockery = require('mockery'),
-  pathLib = require('path');
+  pathLib = require('path'),
+  fs = require('fs-extra');
 
 /*
  * Mocks esnConf(<key>) object.
@@ -371,6 +372,18 @@ module.exports = function(mixin, testEnv) {
         transport: {
           module: 'nodemailer-stub-transport'
         }
+      }, callback);
+    }
+  };
+
+  mixin.jwt = {
+    saveTestConfiguration: function(callback) {
+      var publicKey = fs.readFileSync(testEnv.fixtures + '/crypto/public-key', 'utf8'),
+          privateKey = fs.readFileSync(testEnv.fixtures + '/crypto/private-key', 'utf8');
+      mixin.requireBackend('core/esn-config')('jwt').store({
+        publicKey: publicKey,
+        privateKey: privateKey,
+        algorithm: 'RS256'
       }, callback);
     }
   };

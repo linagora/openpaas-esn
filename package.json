@@ -60,7 +60,7 @@
     "passport": "^0.2.0",
     "passport-http": "~0.2.2",
     "passport-http-bearer": "~1.0.1",
-    "passport-jwt": "^1.2.1",
+    "passport-jwt": "linagora/passport-jwt#v1.2.2-linagora",
     "passport-ldaplng": "0.2.0",
     "passport-local": "^1.0.0",
     "passport-oauth2-client-password": "~0.1.1",

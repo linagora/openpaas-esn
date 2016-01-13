@@ -5,19 +5,25 @@ var jwtAuth = require('../../core/auth/jwt');
 var JwtStrategy = require('passport-jwt').Strategy;
 var logger = require('../../core/logger');
 
-module.exports.useStrategy = function() {
-  return jwtAuth.getWebTokenConfig(function(err, config) {
+function optionsResolver(foundCallback) {
+  jwtAuth.getWebTokenConfig(function(err, config) {
     if (err) {
-      return logger.error('Could not use JWT strategy.', err);
+      logger.error('Could not find the JWT config.', err);
+      foundCallback(err);
+    } else {
+      foundCallback(null, {
+        secretOrKey: config.publicKey,
+        tokenQueryParameterName: 'jwt',
+        algorithms: [config.algorithm]
+      });
     }
-    var opts = {
-      secretOrKey: config.publicKey,
-      tokenQueryParameterName: 'jwt',
-      algorithms: [config.algorithm]
-    };
-    var strategy = new JwtStrategy(opts, function(jwtPayload, done) {
-      return done(null, jwtPayload);
-    });
-    passport.use(strategy);
   });
+}
+
+module.exports.useStrategy = function() {
+
+  passport.use(new JwtStrategy(optionsResolver, function(jwtPayload, done) {
+    return done(null, jwtPayload);
+  }));
+
 };
