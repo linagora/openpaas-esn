@@ -1584,6 +1584,29 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
+      it('should call given cancelCallback when graceperiod is cancelled', function(done) {
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: true,
+            success: angular.noop
+          });
+        };
+
+        this.gracePeriodService.cancel = function() {
+          var deffered = $q.defer();
+          deffered.resolve({});
+          return deffered.promise;
+        };
+
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), { ETag: 'etag' });
+
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag', true, done);
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should call keepChangeDuringGraceperiod.registerUpdate', function(done) {
 
         this.gracePeriodService.grace = $q.when.bind(null, {

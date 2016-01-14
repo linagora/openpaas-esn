@@ -11,7 +11,7 @@
  */
 angular.module('esn.fcmoment', [])
   .factory('fcMoment', function($window, ICAL) {
-    return function(time) {
+    var fcMoment = function(time) {
       if (time && (time instanceof ICAL.Time)) {
         if (!time.zone) {
           time.zone = ICAL.Timezone.localTimezone;
@@ -28,4 +28,8 @@ angular.module('esn.fcmoment', [])
       }
       return $window.$.fullCalendar.moment.apply(this, arguments);
     };
+
+    angular.extend(fcMoment, $window.moment);
+
+    return fcMoment;
   });

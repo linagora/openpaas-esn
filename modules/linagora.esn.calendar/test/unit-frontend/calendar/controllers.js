@@ -529,58 +529,104 @@ describe('The calendar module controllers', function() {
       it('should call calendarService.modifyEvent with scope.event.path if it exists', function(done) {
         var event = this.CalendarShell.fromIncompleteShell({
           path: 'aPath',
-          etag: 'anEtag'
+          etag: 'anEtag',
+          end: this.fcMoment()
         });
         this.scope.event = event;
         this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
           expect(path).to.equal(event.path);
-          expect(oldEvent).to.be.null;
           expect(etag).to.equal(event.etag);
           done();
         };
         this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(event, {});
+        this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
       });
 
-      it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event before the drap and drop if reverted ', function(done) {
+      it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event when the drap and drop if reverted ', function(done) {
         var event = this.CalendarShell.fromIncompleteShell({
           path: 'aPath',
-          etag: 'anEtag'
+          etag: 'anEtag',
+          end: this.fcMoment()
         });
+
         this.scope.event = event;
 
-        var revertFunc = sinon.spy();
-
-        this.rootScope.$on(this.CALENDAR_EVENTS.REVERT_MODIFICATION, function(angularEvent, _event) {
-          expect(_event).to.equals(event);
-          expect(revertFunc).to.have.been.called;
+        var oldEvent;
+        this.rootScope.$on(this.CALENDAR_EVENTS.REVERT_MODIFICATION, function(angularEvent, event) {
+          expect(event).to.equal(oldEvent);
           done();
         });
 
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, delta, revertFunc) {
+        this.calendarServiceMock.modifyEvent = function(path, e, _oldEvent, etag, delta, revertFunc) {
+          oldEvent = _oldEvent;
           revertFunc();
+          return $q.when({});
         };
 
         this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(event, {}, revertFunc);
+        this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
+      });
 
+      it('should compute the event before the resize and pass it to calendarService.modifyEvent', function(done) {
+        var origEnd = this.fcMoment('2016-01-10 12:00');
+        var eventData = {
+          path: 'aPath',
+          etag: 'anEtag',
+          end: this.fcMoment(origEnd)
+        };
+
+        var event = this.CalendarShell.fromIncompleteShell(eventData);
+        this.scope.event = event;
+        var delta = this.fcMoment.duration(1, 'hours');
+
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, _delta, revertFunc) {
+          expect(oldEvent.end.add(delta).isSame(origEnd)).to.be.true;
+          done();
+        };
+
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(false, event, delta);
+      });
+
+      it('should compute the event before the drop and pass it calendarService.modifyEvent', function(done) {
+        var origEnd = this.fcMoment('1997-08-13 10:00');
+        var origStart = this.fcMoment('1997-08-13 11:00');
+        var eventData = {
+          path: 'aPath',
+          etag: 'anEtag',
+          start: this.fcMoment(origStart),
+          end: this.fcMoment(origEnd)
+        };
+
+        var event = this.CalendarShell.fromIncompleteShell(eventData);
+        this.scope.event = event;
+        var delta = this.fcMoment.duration(1, 'hours');
+
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, _delta, revertFunc) {
+          expect(oldEvent.end.add(delta).isSame(origEnd)).to.be.true;
+          expect(oldEvent.start.add(delta).isSame(origStart)).to.be.true;
+          done();
+        };
+
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(true, event, delta);
       });
 
       it('should call calendarService.modifyEvent with a built path if scope.event.path does not exist', function(done) {
         var event = this.CalendarShell.fromIncompleteShell({
-          etag: 'anEtag'
+          etag: 'anEtag',
+          end: this.fcMoment()
         });
         var calendarHomeId = 'calendarHomeId';
         this.scope.calendarHomeId = calendarHomeId;
         this.scope.event = event;
         this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
           expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
-          expect(oldEvent).to.be.null;
           expect(etag).to.equal(event.etag);
           done();
         };
         this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(event, {});
+        this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10, 'seconds'));
       });
 
       it('should broadcast CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE when the view change', function(done) {
