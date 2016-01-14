@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
+/* global _: false */
 
 var expect = chai.expect;
 
@@ -304,9 +305,22 @@ describe('The calendar module services', function() {
   });
 
   describe('The calendarUtils service', function() {
+
+    var self;
+
     beforeEach(function() {
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
+      this.fcMomentMock = null;
+
+      self = this;
+      angular.mock.module(function($provide) {
+        $provide.decorator('fcMoment', function($delegate) {
+          return function() {
+            return (self.fcMomentMock || $delegate).apply(this, arguments);
+          };
+        });
+      });
     });
 
     beforeEach(angular.mock.inject(function(calendarUtils, fcMoment) {
@@ -345,6 +359,49 @@ describe('The calendar module services', function() {
         expect(expectedEnd.isSame(date.end)).to.be.true;
       });
     });
+
+    describe('the getNewStartDate', function() {
+      it('should return the next hour returned by getNewStartDate', function() {
+        [
+          {input: '10:00', output: '10:30'},
+          {input: '10:01', output: '10:30'},
+          {input: '11:31', output: '12:00'},
+          {input: '11:59', output: '12:00'},
+          {input: '12:30', output: '13:00'}
+        ].map(function(obj) {
+          return _.mapValues(obj, function(hour) {
+            return self.fcMoment('1991-10-03 ' + hour);
+          });
+        }).forEach(function(obj) {
+          this.fcMomentMock = sinon.stub().returns(obj.input);
+          var result = this.calendarUtils.getNewStartDate();
+          expect(result.isSame(obj.output, 'second')).to.be.true;
+          expect(this.fcMomentMock).to.have.been.calledOnce;
+        }, this);
+      });
+    });
+
+    describe('the getNewEndDate', function() {
+      it('should return the next hour returned by getNewStartDate', function() {
+        [
+          {input: '10:00', output: '11:30'},
+          {input: '10:01', output: '11:30'},
+          {input: '11:31', output: '13:00'},
+          {input: '11:59', output: '13:00'},
+          {input: '12:30', output: '14:00'}
+        ].map(function(obj) {
+          return _.mapValues(obj, function(hour) {
+            return self.fcMoment('1991-10-03 ' + hour);
+          });
+        }).forEach(function(obj) {
+          this.fcMomentMock = sinon.stub().returns(obj.input);
+          var result = this.calendarUtils.getNewEndDate();
+          expect(result.isSame(obj.output, 'second')).to.be.true;
+          expect(this.fcMomentMock).to.have.been.calledOnce;
+        }, this);
+      });
+    });
+
   });
 
   describe('The eventUtils service', function() {

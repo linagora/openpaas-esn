@@ -575,14 +575,22 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Return a fcMoment representing (the next hour) starting from Date.now()
+     * Return a fcMoment representing (the next half hour) starting from Date.now()
      */
     function getNewStartDate() {
-      return fcMoment().endOf('hour').add(1, 'seconds');
+      var now = fcMoment();
+      var minute = now.minute();
+      now.endOf('hour');
+
+      if (minute < 30) {
+        now.subtract(30, 'minute');
+      }
+
+      return now.add(1, 'seconds');
     }
 
     /**
-     * Return a fcMoment representing (the next hour + 1 hour) starting from Date.now()
+     * Return a fcMoment representing the result of getNewStartDate + one hour
      */
     function getNewEndDate() {
       return getNewStartDate().add(1, 'hours');
