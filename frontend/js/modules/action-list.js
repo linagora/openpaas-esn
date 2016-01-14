@@ -5,30 +5,26 @@ angular.module('esn.actionList', [])
   .directive('actionList', function($modal, $dropdown, screenSize) {
     return {
       restrict: 'A',
-      scope: {
-        templateMobileUrl: '@',
-        templateDesktopUrl: '@'
-      },
-      link: function(scope, element) {
-
-        scope.close = function() {
-          if (scope.opened) {
-            scope.opened.destroy();
+      link: function(scope, element, attrs) {
+        var dialogOpened;
+        function close() {
+          if (dialogOpened) {
+            dialogOpened.destroy();
           }
-        };
+        }
 
         function openForMobile() {
-          scope.close();
-          scope.opened = $modal({scope: scope, templateUrl: scope.templateMobileUrl, placement: 'center'});
+          close();
+          dialogOpened = $modal({scope: scope, templateUrl: attrs.templateMobileUrl, placement: 'center'});
         }
 
         function openForDesktop() {
-          scope.close();
-          scope.opened = $dropdown(element, {scope: scope, trigger: 'manual', show: true, templateUrl: scope.templateDesktopUrl});
+          close();
+          dialogOpened = $dropdown(element, {scope: scope, trigger: 'manual', show: true, templateUrl: attrs.templateDesktopUrl, placement: 'left-bottom'});
         }
 
         function handleWindowResizement() {
-          if (scope.opened.$isShown) {
+          if (dialogOpened && dialogOpened.$isShown) {
             boundOpenFn();
           }
         }
