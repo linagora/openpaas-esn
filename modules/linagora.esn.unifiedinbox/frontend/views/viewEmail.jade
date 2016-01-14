@@ -4,18 +4,6 @@
     li
       a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Go back to mailbox')}")
         i.mdi.mdi-v-centered.mdi-folder
-    li
-      a(ng-click="moveToTrash()" title="#{__('Move to trash')}")
-        i.mdi.mdi-v-centered.mdi-delete
-    li
-      a(ng-click="reply()", title="#{__('Reply')}")
-        i.mdi.mdi-reply
-    li
-      a(ng-click="replyAll()" title="#{__('Reply all')}")
-        i.mdi.mdi-reply-all
-    li
-      a(ng-click="forward()" title="#{__('Forward')}")
-        i.mdi.mdi-forward
 
   .block-header
     h2.subject {{::email.subject}}
@@ -35,12 +23,9 @@
           emailer-group(group="::email.cc")
           
     .actions.pull-right
-      a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Reply')}")
-        i.mdi.mdi-v-centered.mdi-reply
       a(href="", action-list, template-desktop-url="/unifiedinbox/views/partials/action-list-desktop.html" template-mobile-url="/unifiedinbox/views/partials/action-list-mobile.html" title="#{__('More')}")
         i.mdi.mdi-v-centered.mdi-view-module
-      .dropdown-menu-right
-                
+
   .email-body
     html-email-body(ng-if="email.htmlBody", email="::email")
     .lv-item.multilines(ng-if="!email.htmlBody") {{::email.textBody}}
@@ -54,13 +39,13 @@
   
   .lv-footer
     .modal-attachments
-      ul.actions.pull-right.mobile-modal
+      ul.actions
         li
-          a(ng-href='', title="#{__('Forward')}")
-            i.mdi.mdi-v-centered.mdi-forward
-          a(ng-href='', title="#{__('Reply all')}")
-            i.mdi.mdi-v-centered.mdi-reply-all
-          a(ng-href='', title="#{__('Reply')}")
-            i.mdi.mdi-v-centered.mdi-reply 
-              
+          a(ng-click="forward()", title="#{__('Forward')}")
+            i.mdi.mdi-forward
+          a(ng-click="replyAll()", title="#{__('Reply all')}")
+            i.mdi.mdi-reply-all
+          a(ng-click="reply()", title="#{__('Reply')}")
+            i.mdi.mdi-reply
+                     
   inbox-fab

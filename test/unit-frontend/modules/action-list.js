@@ -206,7 +206,6 @@ describe('directive : action-list', function() {
     element.click();
 
     expect($dropdown).to.have.been.calledWith(sinon.match.any, sinon.match({templateUrl: 'toto'}));
-
   });
 
   it('should call destroy on $modal or $dropdown after a screen resize', function() {
