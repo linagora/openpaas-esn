@@ -350,12 +350,9 @@ angular.module('esn.calendar')
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {
             keepChangeDuringGraceperiod.deleteRegistration(event);
-            if (oldEvent) {
-              calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
-            } else {
-              onCancel = onCancel || function() {};
-              onCancel();
-            }
+            calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+
+            (onCancel || angular.noop)();
             task.success();
             return $q.when(false);
           }, function(err) {

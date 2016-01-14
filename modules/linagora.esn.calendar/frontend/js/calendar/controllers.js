@@ -40,22 +40,29 @@ angular.module('esn.calendar')
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 
-    $scope.eventDropAndResize = function(event, delta, _revertFunc) {
+    $scope.eventDropAndResize = function(drop, event, delta) {
       var path = event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       $scope.event = new CalendarShell(event.vcalendar, {
         etag: event.etag,
         path: event.path,
         gracePeriodTaskId: event.gracePeriodTaskId
       });
+
       $scope.event.start = event.start;
       $scope.event.end = event.end;
 
-      function revertFunc() {
-        _revertFunc();
-        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, event);
+      var oldEvent = $scope.event.clone();
+      oldEvent.end = oldEvent.end.subtract(delta);
+
+      if (drop) {
+        oldEvent.start = oldEvent.start.subtract(delta);
       }
 
-      calendarService.modifyEvent(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc)
+      function revertFunc() {
+        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
+      }
+
+      calendarService.modifyEvent(path, event, oldEvent, event.etag, delta.milliseconds !== 0, revertFunc)
         .then(function(response) {
           if (response) {
             notificationFactory.weakInfo('Calendar - ', event.title + ' has been modified.');
@@ -91,8 +98,8 @@ angular.module('esn.calendar')
     };
 
     $scope.uiConfig.calendar.eventClick = $scope.eventClick;
-    $scope.uiConfig.calendar.eventResize = $scope.eventDropAndResize;
-    $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize;
+    $scope.uiConfig.calendar.eventResize = $scope.eventDropAndResize.bind(null, false);
+    $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize.bind(null, true);
     $scope.uiConfig.calendar.select = function(start, end) {
       var date = calendarUtils.getDateOnCalendarSelect(start, end);
       $scope.event = CalendarShell.fromIncompleteShell({
