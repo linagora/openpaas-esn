@@ -135,3 +135,5 @@ For a better readability, REST API is split into several files :
 * [company](REST_company.md)
 * [domain](REST_domain.md)
 * [user](REST_user.md)
+* [JWT](REST_jwt.md)
+

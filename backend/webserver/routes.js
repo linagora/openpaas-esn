@@ -25,6 +25,9 @@ exports = module.exports = function(application) {
   application.delete('/api/oauth/clients/:id', authorize.requiresAPILogin, oauthclients.remove);
   application.get('/api/user/oauth/clients', authorize.requiresAPILogin, oauthclients.created);
 
+  var jwt = require('./controllers/authjwt');
+  application.post('/api/jwt/generate', authorize.requiresAPILogin, jwt.generateWebToken);
+
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
   var domainMiddleware = require('./middleware/domain');

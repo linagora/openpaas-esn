@@ -2,10 +2,34 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('jmapClient', function(jmap, dollarHttpTransport, dollarQPromiseProvider, jmapAPIUrl, jmapAuthToken) {
-    return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-      .withAPIUrl(jmapAPIUrl)
-      .withAuthenticationToken(jmapAuthToken);
+  .service('jmapClientProvider', function($q, $http, $log, jmap, dollarHttpTransport, dollarQPromiseProvider) {
+
+    var deferred = $q.defer();
+
+    $q.all([
+      $http.get('/unifiedinbox/api/inbox/jmap-config'),
+      $http.post('/api/jwt/generate')
+    ]).then(function(responses) {
+      deferred.resolve(new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+        .withAPIUrl(responses[0].data.api)
+        .withAuthenticationToken('Bearer ' + responses[1].data));
+    }, function(err) {
+      deferred.reject(new Error(err));
+    });
+
+    deferred.promise.catch(function(err) {
+      $log.error('Cannot build the jmap-client', err);
+    });
+
+    return {
+      promise: deferred.promise
+    };
+  })
+
+  .factory('withJmapClient', function(jmapClientProvider) {
+    return function(callback) {
+      return jmapClientProvider.promise.then(callback, callback.bind(null, null));
+    };
   })
 
   .factory('EmailGroupingTool', function(moment) {
@@ -278,7 +302,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($q, $log, jmap, jmapClient, session, notificationFactory) {
+  .service('draftService', function($q, $log, jmap, withJmapClient, session, notificationFactory) {
 
     function saveDraftSuccess() {
       notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
@@ -347,8 +371,8 @@ angular.module('linagora.esn.unifiedinbox')
       if (!this.needToBeSaved(newEmailState)) {
         return $q.reject();
       }
-      return jmapClient
-        .saveAsDraft(new jmap.OutboundMessage(jmapClient, {
+      return withJmapClient(function(client) {
+        return client.saveAsDraft(new jmap.OutboundMessage(client, {
           from: new jmap.EMailer({
             email: session.user.preferredEmail,
             name: session.user.name
@@ -360,6 +384,7 @@ angular.module('linagora.esn.unifiedinbox')
           bcc: mapToNameEmailTuple(newEmailState.rcpt.bcc)
         }))
         .then(saveDraftSuccess, saveDraftFailed);
+      });
     };
 
     return {

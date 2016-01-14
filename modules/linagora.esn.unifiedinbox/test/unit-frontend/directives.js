@@ -26,7 +26,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       testrole: 'testclass',
       default: 'defaultclass'
     });
-    $provide.value('jmapClient', jmapClient = {});
+    jmapClient = {};
+    $provide.constant('withJmapClient', function(callback) {
+      callback(jmapClient);
+    });
     $provide.value('session', {
       user: {
         preferredEmail: 'user@open-paas.org',

@@ -3,35 +3,48 @@
 var jwt = require('jsonwebtoken');
 var esnConfig = require('../esn-config');
 
-module.exports.getWebTokenSecret = function(callback) {
-  esnConfig('jwtSecret').get(function(err, config) {
+var PRIVATE_KEY = 'privateKey',
+    PUBLIC_KEY = 'publicKey',
+    ALGORITHM = 'algorithm';
+
+function WebTokenConfig(config) {
+  if (!config[PRIVATE_KEY]) { throw new Error(PRIVATE_KEY + ' is missing in the jwt configuration'); }
+  if (!config[PUBLIC_KEY]) { throw new Error(PUBLIC_KEY + ' is missing in the jwt configuration'); }
+  if (!config[ALGORITHM]) { throw new Error(ALGORITHM + ' is missing in the jwt configuration'); }
+
+  this.privateKey = config[PRIVATE_KEY];
+  this.publicKey = config[PUBLIC_KEY];
+  this.algorithm = config[ALGORITHM];
+}
+
+function getWebTokenConfig(callback) {
+  esnConfig('jwt').get(function(err, config) {
     if (err) {
       return callback(err);
     }
-    if (config && config.secret) {
-      return callback(null, config && config.secret);
+    if (!config) {
+      return callback(new Error('No "jwt" configuration has been found'));
     }
-    var uuid = require('node-uuid').v4();
-    return esnConfig('jwtSecret').store({secret: uuid}, function() {
-      if (err) {
-        return callback(err);
-      }
-      return callback(null, uuid);
-    });
+    return callback(null, new WebTokenConfig(config));
   });
-};
+}
 
-module.exports.generateWebToken = function(payload, callback) {
+function generateWebToken(payload, callback) {
   if (!payload) {
     return callback(new Error('Payload is required to generated a JWT.'));
   }
-  this.getWebTokenSecret(function(err, secret) {
+  getWebTokenConfig(function(err, config) {
     if (err) {
       return callback(err);
     }
-    jwt.sign(payload, secret, {}, function(token) {
+    jwt.sign(payload, config.privateKey, {algorithm: config.algorithm}, function(token) {
       return callback(null, token);
     });
   });
-};
+}
 
+module.exports = {
+  WebTokenConfig: WebTokenConfig,
+  getWebTokenConfig: getWebTokenConfig,
+  generateWebToken: generateWebToken
+};

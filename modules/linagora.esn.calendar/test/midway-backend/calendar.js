@@ -30,6 +30,7 @@ describe('The calendars API', function() {
         done();
       });
     });
+
   });
 
   afterEach(function(done) {
@@ -168,12 +169,14 @@ describe('The calendars API', function() {
   describe('GET /api/calendars/event/participation', function() {
     var jwtCoreModule;
 
-    beforeEach(function() {
+    beforeEach(function(done) {
       var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
       expressApp.use('/', this.helpers.modules.current.lib.api.calendar);
       this.app = this.helpers.modules.getWebServer(expressApp);
 
       jwtCoreModule = this.helpers.requireBackend('core/auth/jwt');
+
+      this.helpers.jwt.saveTestConfiguration(done);
     });
 
     it('should return 401 if no jwt is provided', function(done) {
