@@ -17,8 +17,8 @@ angular.module('linagora.esn.contact')
     bigger: 259
   })
   .constant('CONTACT_LIST_DISPLAY_MODES', {
-    aggregate: 'aggregate',
-    list: 'list',
+    multiple: 'multiple',
+    single: 'single',
     search: 'search'
   })
   .constant('CONTACT_LIST_DISPLAY_EVENTS', {

@@ -1,6 +1,6 @@
 .row.all-centered(ng-switch='mode')
   .col-xs-12.col-md-8
-    div(ng-switch-when='list' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+    div(ng-switch-when='single' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
       .letter-list(ng-if='contacts && contacts.length')
         .block-header
           h2 {{letter}}

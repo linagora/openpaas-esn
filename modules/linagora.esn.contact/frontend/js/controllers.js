@@ -397,7 +397,7 @@ angular.module('linagora.esn.contact')
 
     function switchToList() {
       cleanSearchResults();
-      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.list);
+      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.single);
       $scope.loadContacts();
     }
 
@@ -485,7 +485,7 @@ angular.module('linagora.esn.contact')
         addressbooks: [{id: $scope.bookId, name: $scope.bookName}]
       });
     };
-    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.list);
+    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.single);
 
     if ($location.search().q) {
       $scope.searchInput = $location.search().q.replace(/\+/g, ' ');

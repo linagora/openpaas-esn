@@ -183,12 +183,12 @@ describe('The Contacts controller module', function() {
     };
   }
 
-  function createPaginationMocks(listFn, searchFn) {
+  function createPaginationMocks(singleFn, searchFn) {
 
-    function ListMock(options) {
+    function SingleMock(options) {
       this.options = options;
     }
-    ListMock.prototype.loadNextItems = listFn;
+    SingleMock.prototype.loadNextItems = singleFn;
 
     function SearchMock(options) {
       this.options = options;
@@ -196,7 +196,7 @@ describe('The Contacts controller module', function() {
     SearchMock.prototype.loadNextItems = searchFn;
 
     var mocks = {
-      list: ListMock,
+      single: SingleMock,
       search: SearchMock
     };
 
@@ -1810,7 +1810,7 @@ describe('The Contacts controller module', function() {
           $scope: scope,
           user: user
         });
-        var mode = CONTACT_LIST_DISPLAY_MODES.list;
+        var mode = CONTACT_LIST_DISPLAY_MODES.single;
         scope.createPagination(mode);
         expect(scope.mode).to.equal(mode);
       });

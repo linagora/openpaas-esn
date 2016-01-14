@@ -3,9 +3,9 @@
 angular.module('linagora.esn.contact')
 
   .run(function(AddressBookPaginationRegistry, AddressBookPaginationProvider, SearchAddressBookPaginationProvider, MultipleAddressBookPaginationProvider, CONTACT_LIST_DISPLAY_MODES) {
-    AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.list, AddressBookPaginationProvider);
+    AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.single, AddressBookPaginationProvider);
     AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.search, SearchAddressBookPaginationProvider);
-    AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.aggregate, MultipleAddressBookPaginationProvider);
+    AddressBookPaginationRegistry.put(CONTACT_LIST_DISPLAY_MODES.multiple, MultipleAddressBookPaginationProvider);
   })
 
   .factory('MultipleAddressBookPaginationProvider', function(PageAggregatorService, AddressBookPaginationProvider, ContactShellComparator, DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME, CONTACT_LIST_PAGE_SIZE, $log) {
