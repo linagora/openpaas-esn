@@ -10,6 +10,9 @@ describe('fcMoment factory', function() {
     this.window = {
       $: {
         fullCalendar: {}
+      },
+      moment: {
+        duration: 'it doesn not matter has long it is here'
       }
     };
 
@@ -133,5 +136,9 @@ describe('fcMoment factory', function() {
     this.fcMoment(icalTime);
     expect(stripTimeFunc).to.have.been.called;
     expect(utcOffsetFunc).to.not.have.been.called;
+  });
+
+  it('has a duration method which is like moment.duration', function() {
+    expect(this.fcMoment.duration).to.equal(this.window.moment.duration);
   });
 });
