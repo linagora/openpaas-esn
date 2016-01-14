@@ -8,8 +8,9 @@ angular.module('esn.appstore', [
   'angularFileUpload',
   'restangular',
   'angularFileUpload',
-  'frapontillo.bootstrap-switch'
-]).config(function($stateProvider) {
+  'frapontillo.bootstrap-switch',
+  'op.dynamicDirective'
+]).config(function($stateProvider, dynamicDirectiveServiceProvider) {
 
   $stateProvider.state('/appstore', {
     url: '/appstore',
@@ -65,4 +66,7 @@ angular.module('esn.appstore', [
       }
     }
   });
+
+  var appstore = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-appstore', {priority: 0});
+  dynamicDirectiveServiceProvider.addInjection('esn-application-menu', appstore);
 });

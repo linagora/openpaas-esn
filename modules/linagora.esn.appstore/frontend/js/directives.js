@@ -18,6 +18,13 @@ angular.module('esn.appstore')
       uninstall: function(title, message) { return 'Failed to uninstall ' + title + ' : ' + message; }
     }
   })
+  .directive('applicationMenuAppstore', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/appstore', 'mdi-package-variant', 'Modules')
+    };
+  })
   .directive('appstoreButtonSubmit', function($modal) {
     return {
       restrict: 'E',
@@ -28,7 +35,7 @@ angular.module('esn.appstore')
           modal.destroy();
         });
         $scope.showSubmitModal = function() {
-          $scope.submitModal = $modal({scope: $scope, template: '/appstore/views/appstore/appstore-app-submit-modal'});
+          $scope.submitModal = $modal({scope: $scope, templateUrl: '/appstore/views/appstore/appstore-app-submit-modal'});
         };
       }
     };

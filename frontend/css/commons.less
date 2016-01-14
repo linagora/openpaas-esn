@@ -66,6 +66,12 @@
   -webkit-transform: @transform; /* Opera, Chrome, and Safari */
 }
 
+.scale(@width, @height) {
+  -ms-transform: scale(@width, @height); /* IE 9 */
+  -webkit-transform: scale(@width, @height); /* Safari */
+  transform: scale(@width, @height);
+}
+
 .vertical-centered {
   vertical-align: middle;
   display: inline-block;

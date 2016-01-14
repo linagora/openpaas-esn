@@ -1,6 +1,10 @@
 'use strict';
 
-angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.attendee', 'esn.session', 'esn.user'])
+angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user'])
+  .config(function(dynamicDirectiveServiceProvider) {
+    var invitation = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitation);
+  })
   .factory('domainAPI', function(Restangular) {
 
     /**
@@ -50,6 +54,18 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.attendee', 'esn
       get: get
     };
   })
+
+  .directive('applicationMenuInvitation', function(session, applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members/invite', 'mdi-account-plus', 'Invitation'),
+      link: function(scope) {
+        scope.domain = session.domain;
+      }
+    };
+  })
+
   .directive('inviteMembersInput', function(domainAPI) {
     return {
       restrict: 'E',

@@ -188,4 +188,11 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
       restrict: 'E',
       templateUrl: '/project/views/project-create-button.html'
     };
+  })
+  .directive('applicationMenuProject', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/project', 'mdi-briefcase', 'Projects')
+    };
   });

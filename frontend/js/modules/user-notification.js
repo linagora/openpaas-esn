@@ -74,7 +74,7 @@ angular.module('esn.user-notification',
                 scope: $scope,
                 trigger: 'manual',
                 placement: 'bottom-left',
-                template: '/views/modules/user-notification/user-notification.html'
+                templateUrl: '/views/modules/user-notification/user-notification.html'
               }
             );
             $scope.popover.$promise.then($scope.popover.show);

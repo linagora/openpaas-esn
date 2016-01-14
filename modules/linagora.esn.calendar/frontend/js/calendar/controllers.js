@@ -37,7 +37,7 @@ angular.module('esn.calendar')
 
     $scope.eventClick = function(event) {
       $scope.event = event.clone();
-      $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
+      $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 
     $scope.eventDropAndResize = function(event, delta, _revertFunc) {
@@ -99,7 +99,7 @@ angular.module('esn.calendar')
         start: date.start,
         end: date.end
       });
-      $scope.modal = $modal({scope: $scope, template: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
+      $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
     };
 
     $scope.displayCalendarError = function(err, errorMessage) {

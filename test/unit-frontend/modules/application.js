@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The Application Angular module', function() {
-  beforeEach(angular.mock.module('esn.application'));
+  beforeEach(angular.mock.module('esn.application', 'op.dynamicDirective'));
 
   describe('applicationController controller', function() {
     beforeEach(angular.mock.inject(function($controller, $rootScope, $log, $location, applicationAPI) {

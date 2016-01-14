@@ -43,6 +43,8 @@ angular.module('esn.project', [
       }
     });
 
+    var project = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-project', {priority: 25});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', project);
   })
   .run(function(projectAdapterService, objectTypeAdapter, ASTrackerSubscriptionService, projectAPI) {
     objectTypeAdapter.register('project', projectAdapterService);

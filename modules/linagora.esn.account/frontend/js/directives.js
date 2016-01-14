@@ -1,7 +1,13 @@
 'use strict';
 
 angular.module('linagora.esn.account')
-
+  .directive('applicationMenuAccount', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/accounts', 'mdi-database', 'Accounts')
+    };
+  })
   .directive('fabAccountDropup', function() {
     return {
       restrict: 'E',

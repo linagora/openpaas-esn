@@ -94,6 +94,7 @@
 @import './modules/auto-complete';
 @import './modules/fullscreen-edit-form';
 @import './modules/action-list';
+@import './modules/application-menu';
 /*
  * Widgets
  */
@@ -108,20 +109,10 @@ html, body {
 }
 
 @media (min-width: @screen-lg-min) {
-  #menu-trigger {
-    display: none;
-  }
-
   #sidebar {
     transform: translate3d(0, 0, 0);
     opacity: 1;
     box-shadow: 0 1px 1px rgba(0,0,0,0.15);
-  }
-
-  .main-content {
-    .row:first-child {
-      margin-left: 0;
-    }
   }
 }
 

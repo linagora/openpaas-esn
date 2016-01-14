@@ -124,4 +124,12 @@ angular.module('esn.calendar')
         });
       }
     };
+  })
+
+  .directive('applicationMenuCalendar', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/calendar', 'mdi-calendar', 'Calendar')
+    };
   });

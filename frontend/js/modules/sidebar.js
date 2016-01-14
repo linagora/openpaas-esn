@@ -7,7 +7,7 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
     prefixClass: 'aside',
     prefixEvent: 'contextual-sidebar',
     placement: 'left',
-    template: '/views/modules/sidebar/contextual-sidebar.html',
+    templateUrl: '/views/modules/sidebar/contextual-sidebar.html',
     container: false,
     element: null,
     backdrop: true,
@@ -74,4 +74,3 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
       }
     };
   });
-

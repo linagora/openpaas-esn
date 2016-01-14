@@ -23,6 +23,8 @@ angular.module('esn.community', [
       displayProperty: true
     });
 
+    var community = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-community', {priority: 30});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', community);
   })
   .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);
@@ -1054,4 +1056,11 @@ angular.module('esn.community', [
         }
       });
     });
+  })
+  .directive('applicationMenuCommunity', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/communities', 'mdi-forum', 'Communities')
+    };
   });

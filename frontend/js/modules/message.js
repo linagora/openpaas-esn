@@ -728,7 +728,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         });
 
         $scope.showShareModal = function() {
-          $scope.shareModal = $modal({scope: $scope, template: '/views/modules/message/share/share-message-modal.html'});
+          $scope.shareModal = $modal({scope: $scope, templateUrl: '/views/modules/message/share/share-message-modal.html'});
         };
       }
     };

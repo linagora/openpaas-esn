@@ -1,6 +1,6 @@
 div
   header#header(scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show', disabled='disableScrollListener')
-    div.header-inner.flex-vertical-centered
+    div.header-inner.flex-vertical-centered.flex-space-between
       ul.list-inline.all-centered
         li.logo
           a(href='#')
@@ -12,6 +12,8 @@ div
         li.hover-scale-animation.toggle-fullscreen(device-detector)
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
+        li.hover-scale-animation
+          application-menu-toggler
     .visible-xs
       #sub-header.flex-vertical-centered(ng-if='hasSubHeaderGotInjections', dynamic-directive='sub-header-content')
   sidebar
