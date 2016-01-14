@@ -60,11 +60,11 @@ angular.module('esn.application', ['restangular', 'op.dynamicDirective'])
       templateUrl: '/views/modules/application/application-edit-form.html'
     };
   })
-  .directive('applicationMenuApplication', function() {
+  .directive('applicationMenuApplication', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/applications"><i class="mdi mdi-apps"/><span class="label">Applications</span></a></div>'
+      template: applicationMenuTemplateBuilder('/#/applications', 'mdi-apps', 'Applications')
     };
   })
   .factory('applicationAPI', function(Restangular) {

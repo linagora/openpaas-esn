@@ -9,7 +9,19 @@ describe('The application-menu component', function() {
   beforeEach(function() {
     module('jadeTemplates');
     angular.mock.module('mgcrea.ngStrap');
+    angular.mock.module('esn.lodash-wrapper');
     angular.mock.module('esn.application-menu');
+  });
+
+  describe('applicationMenuTemplateBuilder service', function() {
+    beforeEach(angular.mock.inject(function(applicationMenuTemplateBuilder) {
+      this.applicationMenuTemplateBuilder = applicationMenuTemplateBuilder;
+    }));
+
+    it('should return the good template', function() {
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', 'mdi-awesomeness', 'ClickMe'))
+        .to.equal('<div><a href="/#/awesomestuffthere"><i class="mdi mdi-awesomeness"/><span class="label">ClickMe</span></a></div>');
+    });
   });
 
   describe('application-menu-toggler directive', function() {

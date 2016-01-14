@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.account')
-  .directive('applicationMenuAccount', function() {
+  .directive('applicationMenuAccount', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/accounts"><i class="mdi mdi-database"/><span class="label">Accounts</span></a></div>'
+      template: applicationMenuTemplateBuilder('/#/accounts', 'mdi-database', 'Accounts')
     };
   })
   .directive('fabAccountDropup', function() {

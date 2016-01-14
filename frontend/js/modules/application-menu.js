@@ -16,6 +16,17 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
     var logout = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-logout', {priority: -50});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', logout);
   })
+  .factory('applicationMenuTemplateBuilder', function(_) {
+    var template = '<div><a href="<%- href %>"><i class="mdi <%- icon %>"/><span class="label"><%- label %></span></a></div>';
+    return function(href, icon, label) {
+      var context = {
+        href: href,
+        icon: icon,
+        label: label
+      };
+      return _.template(template)(context);
+    };
+  })
   .directive('applicationMenuToggler', function($document, $popover, POPOVER_APPLICATION_MENU_OPTIONS) {
     return {
       restrict: 'E',
@@ -49,8 +60,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       restrict: 'A',
       link: function(scope, element) {
         $timeout(function() {
-          var links = element.find('a');
-          links.click(scope.$parent.$hide.bind(null, null));
+          element.find('a').click(scope.$parent.$hide.bind(null, null));
         }, 50);
       }
     };
@@ -66,17 +76,17 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       }
     };
   })
-  .directive('applicationMenuHome', function() {
+  .directive('applicationMenuHome', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/"><i class="mdi mdi-home"/><span class="label">Home</span></a></div>'
+      template: applicationMenuTemplateBuilder('/#/', 'mdi-home', 'Home')
     };
   })
-  .directive('applicationMenuLogout', function() {
+  .directive('applicationMenuLogout', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/logout"><i class="mdi mdi-power"/><span class="label">Logout</span></a></div>'
+      template: applicationMenuTemplateBuilder('/logout', 'mdi-power', 'Logout')
     };
   });

@@ -55,11 +55,11 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective
     };
   })
 
-  .directive('applicationMenuInvitation', function(session) {
+  .directive('applicationMenuInvitation', function(session, applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/domains/{{::domain._id}}/members/invite"><i class="mdi mdi-account-plus"/><span class="label">Invitation</span></a></div>',
+      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members/invite', 'mdi-account-plus', 'Invitation'),
       link: function(scope) {
         scope.domain = session.domain;
       }

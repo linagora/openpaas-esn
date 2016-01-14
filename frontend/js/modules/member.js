@@ -88,11 +88,11 @@ angular.module('esn.member', ['ui.router', 'esn.domain', 'esn.search', 'esn.infi
       }
     };
   })
-  .directive('applicationMenuMember', function(session) {
+  .directive('applicationMenuMember', function(session, applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/domains/{{::domain._id}}/members"><i class="mdi mdi-account-multiple-outline"/><span class="label">Members</span></a></div>',
+      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members', 'mdi-account-multiple-outline', 'Members'),
       link: function(scope) {
         scope.domain = session.domain;
       }

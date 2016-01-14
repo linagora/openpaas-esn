@@ -202,10 +202,10 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
       }
     };
   })
-  .directive('applicationMenuProfile', function() {
+  .directive('applicationMenuProfile', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/profile"><i class="mdi mdi-account"/><span class="label">Profile</span></a></div>'
+      template: applicationMenuTemplateBuilder('/#/profile', 'mdi-account', 'Profile')
     };
   });

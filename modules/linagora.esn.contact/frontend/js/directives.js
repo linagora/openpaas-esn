@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .directive('applicationMenuContact', function() {
+  .directive('applicationMenuContact', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: '<div><a href="/#/contact"><i class="mdi mdi-account-multiple"/><span class="label">Contact</span></a></div>'
+      template: applicationMenuTemplateBuilder('/#/contact', 'mdi-account-multiple', 'Contacts')
     };
   })
   .directive('contactNavbarLink', function() {
