@@ -39,7 +39,6 @@ describe('The esn.header Angular module', function() {
       var html = '<main-header></main-header>';
       this.element = this.$compile(html)(this.$scope);
       this.$scope.$digest();
-      this.menuTrigger = this.element.find('#menu-trigger');
     }));
 
     it('should recompute sub header injections on \'sub-header:hasInjection\'', function() {
