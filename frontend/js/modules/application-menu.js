@@ -61,7 +61,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       link: function(scope, element) {
         $timeout(function() {
           element.find('a').click(scope.$parent.$hide.bind(null, null));
-        }, 50);
+        }, 0, false);
       }
     };
   })
@@ -72,7 +72,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
         $timeout(function() {
           var offset = element.offset();
           element.offset({top: offset.top, left: offset.left - attrs.forceMarginLeft});
-        }, 50);
+        }, 0, false);
       }
     };
   })
