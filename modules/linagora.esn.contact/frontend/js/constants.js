@@ -5,6 +5,7 @@
 angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DEFAULT_ADDRESSBOOK_NAME', 'contacts')
+  .constant('DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME', 'ABAggregator')
   .constant('CONTACT_DATE_FORMAT', 'MM/dd/yyyy')
   .constant('CONTACT_LIST_DISPLAY', {
     list: 'list',
@@ -14,6 +15,11 @@ angular.module('linagora.esn.contact')
     list: 35,
     cards: 96,
     bigger: 259
+  })
+  .constant('CONTACT_LIST_DISPLAY_MODES', {
+    multiple: 'multiple',
+    single: 'single',
+    search: 'search'
   })
   .constant('CONTACT_LIST_DISPLAY_EVENTS', {
     toggle: 'contactlist:toggle'

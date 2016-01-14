@@ -256,7 +256,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService, AddressBookPagination, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -271,8 +271,6 @@ angular.module('linagora.esn.contact')
     $scope.searchFailure = false;
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
-    $scope.currentPage = 0;
-    $scope.searchMode = false;
 
     headerService.subHeader.addInjection('contact-list-subheader', $scope);
     $scope.$on('$stateChangeStart', function(evt, next) {
@@ -319,6 +317,7 @@ angular.module('linagora.esn.contact')
     }
 
     function cleanSearchResults() {
+      $scope.searchFailure = false;
       $scope.searchResult = {};
       $scope.totalHits = 0;
     }
@@ -348,7 +347,6 @@ angular.module('linagora.esn.contact')
       } else {
         $scope.categories.removeItemWithId(contact.id);
       }
-
     });
 
     $scope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(e, data) {
@@ -357,7 +355,6 @@ angular.module('linagora.esn.contact')
       } else {
         addItemsToCategories([data]);
       }
-
     });
 
     $scope.$on('$destroy', function() {
@@ -399,10 +396,8 @@ angular.module('linagora.esn.contact')
     }
 
     function switchToList() {
-      $scope.searchMode = false;
-      $scope.currentPage = 0;
-      $scope.nextPage = 0;
       cleanSearchResults();
+      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.single);
       $scope.loadContacts();
     }
 
@@ -417,65 +412,32 @@ angular.module('linagora.esn.contact')
       if (!$scope.searchInput) {
         return switchToList();
       }
+
+      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.search);
       $scope.searching = true;
-      $scope.searchMode = true;
-      $scope.nextPage = null;
-      $scope.currentPage = 1;
       $scope.searchFailure = false;
       $scope.loadingNextContacts = true;
-      $scope.lastPage = false;
       getSearchResults().finally(function() {
         $scope.searching = false;
       });
     };
 
     function getSearchResults() {
-      $log.debug('Searching contacts, page', $scope.currentPage);
+      $log.debug('Searching contacts');
       usSpinnerService.spin(SPINNER);
-
-      var options = {
-        data: $scope.searchInput,
-        userId: $scope.user._id,
-        page: $scope.currentPage
-      };
-      return ContactAPIClient
-        .addressbookHome($scope.bookId)
-        .addressbook($scope.bookName)
-        .vcard()
-        .search(options)
-        .then(function(data) {
-          setSearchResults(data);
-          $scope.currentPage = data.current_page;
-          $scope.totalHits = $scope.totalHits + data.hits_list.length;
-          if ($scope.totalHits === data.total_hits) {
-            $scope.lastPage = true;
-          }
-        }, searchFailure)
+      return $scope.pagination.service.loadNextItems({searchInput: $scope.searchInput})
+        .then(setSearchResults, searchFailure)
         .finally(loadPageComplete);
     }
 
     function getNextContacts() {
-      $log.debug('Load next contacts, page', $scope.currentPage);
       usSpinnerService.spin(SPINNER);
-
-      ContactAPIClient
-        .addressbookHome($scope.bookId)
-        .addressbook($scope.bookName)
-        .vcard()
-        .list({
-          userId: $scope.user._id,
-          page: $scope.nextPage || $scope.currentPage,
-          paginate: true
-        })
-        .then(function(data) {
-          addItemsToCategories(data.contacts);
-          $scope.lastPage = data.last_page;
-          $scope.nextPage = data.next_page;
-        }, function(err) {
-          $log.error('Can not get contacts', err);
-          displayContactError('Can not get contacts');
-        })
-        .finally(loadPageComplete);
+      $scope.pagination.service.loadNextItems().then(function(data) {
+        addItemsToCategories(data.contacts);
+      }, function(err) {
+        $log.error('Can not get contacts', err);
+        displayContactError('Can not get contacts');
+      }).finally(loadPageComplete);
     }
 
     function updateScrollState() {
@@ -484,7 +446,6 @@ angular.module('linagora.esn.contact')
       }
       $scope.loadFailure = false;
       $scope.loadingNextContacts = true;
-      $scope.currentPage = parseInt($scope.nextPage) || parseInt($scope.currentPage) + 1;
       return $q.when();
     }
 
@@ -508,6 +469,24 @@ angular.module('linagora.esn.contact')
       $scope.loadContacts();
     };
 
+    $scope.clearSearchInput = function() {
+      $scope.searchInput = null;
+      $scope.appendQueryToURL();
+      switchToList();
+    };
+
+    $scope.createPagination = function(mode) {
+      $scope.mode = mode;
+      if (!$scope.pagination) {
+        $scope.pagination = new AddressBookPagination($scope);
+      }
+      $scope.pagination.init($scope.mode, {
+        user: $scope.user,
+        addressbooks: [{id: $scope.bookId, name: $scope.bookName}]
+      });
+    };
+    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.single);
+
     if ($location.search().q) {
       $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
       $scope.search();
@@ -517,13 +496,6 @@ angular.module('linagora.esn.contact')
       $scope.searchInput = null;
       $scope.loadContacts();
     }
-
-    $scope.clearSearchInput = function() {
-      $scope.searchInput = null;
-      $scope.appendQueryToURL();
-      switchToList();
-    };
-
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {
