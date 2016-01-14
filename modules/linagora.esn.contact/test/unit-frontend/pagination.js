@@ -219,7 +219,7 @@ describe('The Contacts Angular pagination module', function() {
 
         searchMock = function(query) {
           expect(query).to.deep.equal({userId: user._id, page: 1, data: search});
-          return $q.when({current_page: currentPage, hits_list: hitlist, next_page: nextPage, total_hits: totalHits});
+          return $q.when({current_page: currentPage, data: hitlist, next_page: nextPage, total_hits: totalHits});
         };
         var provider = new this.SearchAddressBookPaginationProvider(options);
 
@@ -242,7 +242,7 @@ describe('The Contacts Angular pagination module', function() {
 
         searchMock = function(query) {
           expect(query).to.deep.equal({userId: user._id, page: 1, data: search});
-          return $q.when({current_page: currentPage, hits_list: hitlist, next_page: nextPage, total_hits: totalHits});
+          return $q.when({current_page: currentPage, data: hitlist, next_page: nextPage, total_hits: totalHits});
         };
         var provider = new this.SearchAddressBookPaginationProvider(options);
 

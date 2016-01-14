@@ -92,7 +92,7 @@ describe('The Contacts controller module', function() {
                 return {
                   get: function() { return $q.when(); },
                   list: function() { return $q.when({}); },
-                  search: function() { return $q.when({ hits_list: [] }); },
+                  search: function() { return $q.when({ data: [] }); },
                   create: function() { return $q.when(); },
                   update: function() { return $q.when(); },
                   remove: function() { return $q.when(); }
@@ -1638,7 +1638,7 @@ describe('The Contacts controller module', function() {
         expect(scope.searchInput).to.equal(options.searchInput);
         mySpy();
         return $q.when({
-          hits_list: [],
+          data: [],
           total_hits: 0
         });
       });
@@ -2053,7 +2053,7 @@ describe('The Contacts controller module', function() {
         createPaginationMocks(function() {
           done(new Error('Should not be called'));
         }, function() {
-          return $q.when({hits_list: []});
+          return $q.when({data: []});
         });
 
         $controller('contactsListController', {
@@ -2084,7 +2084,7 @@ describe('The Contacts controller module', function() {
         createPaginationMocks(function() {
           done(new Error('Should not be called'));
         }, function() {
-          return $q.when({hits_list: []});
+          return $q.when({data: []});
         });
 
         $controller('contactsListController', {
@@ -2189,7 +2189,7 @@ describe('The Contacts controller module', function() {
         var result = {
           total_hits: 2,
           current_page: 1,
-          hits_list: [contactWithA, contactWithC]
+          data: [contactWithA, contactWithC]
         };
 
         createPaginationMocks(function() {
@@ -2211,7 +2211,7 @@ describe('The Contacts controller module', function() {
         scope.search();
         scope.$digest();
 
-        expect(scope.searchResult.data).to.deep.equal(result.hits_list);
+        expect(scope.searchResult.data).to.deep.equal(result.data);
         expect(scope.searchResult.count).to.equal(2);
         expect(scope.searchResult.formattedResultsCount).to.exist;
         expect(scope.searchFailure).to.be.false;
@@ -2254,7 +2254,7 @@ describe('The Contacts controller module', function() {
 
         var result = {
           total_hits: 4,
-          hits_list: [contactWithA, contactWithB]
+          data: [contactWithA, contactWithB]
         };
 
         createPaginationMocks(function() {
@@ -2290,7 +2290,7 @@ describe('The Contacts controller module', function() {
 
         var result = {
           total_hits: 4,
-          hits_list: [contactWithA, contactWithB]
+          data: [contactWithA, contactWithB]
         };
 
         createPaginationMocks(function() {

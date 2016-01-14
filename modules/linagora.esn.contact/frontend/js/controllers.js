@@ -317,7 +317,7 @@ angular.module('linagora.esn.contact')
     }
 
     function setSearchResults(data) {
-      $scope.searchResult.data = ($scope.searchResult.data) ? $scope.searchResult.data.concat(data.hits_list) : data.hits_list;
+      $scope.searchResult.data = ($scope.searchResult.data) ? $scope.searchResult.data.concat(data.data) : data.data;
       $scope.searchResult.count = data.total_hits || 0;
       $scope.searchResult.formattedResultsCount = searchResultSizeFormatter($scope.searchResult.count);
     }

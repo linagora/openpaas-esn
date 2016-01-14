@@ -95,12 +95,12 @@ angular.module('linagora.esn.contact', [
           .vcard()
           .search(searchOptions)
           .then(function(response) {
-            response.hits_list.forEach(function(contact) {
+            response.data.forEach(function(contact) {
               if (contact.emails && contact.emails.length !== 0) {
                 contact.email = contact.emails[0].value;
               }
             });
-            return response.hits_list;
+            return response.data;
           }, function(error) {
             $log('Error while searching contacts: ' + error);
             return $q.when([]);

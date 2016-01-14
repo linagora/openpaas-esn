@@ -118,13 +118,13 @@ angular.module('linagora.esn.contact')
         .search(query)
         .then(function(result) {
           self.currentPage = result.current_page;
-          self.totalHits = self.totalHits + result.hits_list.length;
+          self.totalHits = self.totalHits + result.data.length;
           self.nextPage = result.next_page;
           if (self.totalHits === result.total_hits) {
             self.lastPage = true;
           }
           result.last_page = self.lastPage;
-          result.hits_list.forEach(function(vcard) {
+          result.data.forEach(function(vcard) {
             vcard.addressbook = self.addressbook;
           });
           return result;

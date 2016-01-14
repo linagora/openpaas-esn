@@ -184,7 +184,7 @@ angular.module('linagora.esn.contact')
      * @return {Promise}          If success, return an object with:
      *                            + current_page
      *                            + total_hits
-     *                            + hits_list: an array of ContactShell
+     *                            + data: an array of ContactShell
      */
     function searchCard(bookId, bookName, options) {
       if (!options) {
@@ -205,7 +205,7 @@ angular.module('linagora.esn.contact')
           return {
             current_page: response.data._current_page,
             total_hits: response.data._total_hits,
-            hits_list: responseAsContactShell(response)
+            data: responseAsContactShell(response)
           };
         });
     }

@@ -538,10 +538,10 @@ describe('The contact Angular module contactapis', function() {
                 .then(function(result) {
                   expect(result.current_page).to.equal(response._current_page);
                   expect(result.total_hits).to.equal(response._total_hits);
-                  expect(result.hits_list.length).to.equal(1);
-                  expect(result.hits_list[0].id).to.equal('myuid');
-                  expect(result.hits_list[0].firstName).to.equal('Willis');
-                  expect(result.hits_list[0].lastName).to.equal('Bruce');
+                  expect(result.data.length).to.equal(1);
+                  expect(result.data[0].id).to.equal('myuid');
+                  expect(result.data[0].firstName).to.equal('Willis');
+                  expect(result.data[0].lastName).to.equal('Bruce');
                   done();
                 });
 
