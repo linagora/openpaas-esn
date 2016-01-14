@@ -436,12 +436,12 @@ angular.module('linagora.esn.contact')
       $location.path('/contact');
     };
   })
-  .factory('openContactForm', function($location, sharedContactDataService) {
+  .factory('openContactForm', function(sharedContactDataService, ContactLocationHelper) {
     return function(bookId, contact) {
       if (contact) {
         sharedContactDataService.contact = contact;
       }
-      $location.url('/contact/new/' + bookId);
+      ContactLocationHelper.contact.new(bookId);
     };
   })
   .factory('sharedContactDataService', function() {
@@ -576,4 +576,31 @@ angular.module('linagora.esn.contact')
       setCurrentDisplay: setCurrentDisplay
     };
 
+  })
+  .factory('ContactLocationHelper', function($location) {
+
+    function goHome() {
+      $location.url('/contact');
+    }
+
+    function showContact(bookId, bookName, cardId) {
+      $location.url('/contact/show/' + bookId + '/' + bookName + '/' + cardId);
+    }
+
+    function editContact(bookId, bookName, cardId) {
+      $location.url('/contact/edit/' + bookId + '/' + bookName + '/' + cardId);
+    }
+
+    function newContact(bookId, bookName) {
+      $location.url('/contact/new/' + bookId);
+    }
+
+    return {
+      home: goHome,
+      contact: {
+        new: newContact,
+        show: showContact,
+        edit: editContact
+      }
+    };
   });

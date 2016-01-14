@@ -10,10 +10,9 @@
             button.btn.btn-default(type='button', ng-click='close()')
               i.mdi.mdi-reply
               | #{__(' Back')}
-            a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}' ng-if="displayShell.isWritable()")
-              button.btn.btn-primary(ng-disabled='calling || !loaded', type='button')
-                i.mdi.mdi-pencil
-                | #{__(' Edit')}
+            button.btn.btn-primary(ng-if='displayShell.isWritable()', ng-disabled='calling || !loaded', type='button', ng-click='edit()')
+              i.mdi.mdi-pencil
+              | #{__(' Edit')}
     .card-body.contact-body
       .contact-error-container
       contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday')

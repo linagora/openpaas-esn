@@ -10,9 +10,9 @@ describe('The Contacts controller module', function() {
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, shellToVCARD, addressbooks;
+    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, shellToVCARD, addressbooks;
 
-  var bookId = '123456789', bookName = 'bookName';
+  var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
 
   beforeEach(function() {
@@ -20,8 +20,7 @@ describe('The Contacts controller module', function() {
       spin: function() {},
       stop: function() {}
     },
-    ContactShell =  function() {
-    },
+    ContactShell =  function() {},
     liveRefreshContactService = {
       startListen: function() {},
       stopListen: function() {}
@@ -128,6 +127,25 @@ describe('The Contacts controller module', function() {
       return 'vcard';
     };
 
+    ContactLocationHelper = {
+      home: function() {},
+      contact: {
+        new: function() {},
+        show: function() {},
+        edit: function() {}
+      }
+    };
+
+    openContactFormMock = function(id) {};
+    openContactForm = function(id) {
+      return openContactFormMock(id);
+    };
+
+    closeContactFormMock = function() {};
+    closeContactForm = function() {
+      return closeContactFormMock();
+    };
+
     angular.mock.module('esn.core');
 
     module('linagora.esn.contact', function($provide) {
@@ -148,6 +166,9 @@ describe('The Contacts controller module', function() {
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
       $provide.value('AddressBookPaginationRegistry', AddressBookPaginationRegistryMock);
       $provide.value('shellToVCARD', shellToVCARD);
+      $provide.value('ContactLocationHelper', ContactLocationHelper);
+      $provide.value('openContactForm', openContactForm);
+      $provide.value('closeContactForm', closeContactForm);
       $provide.value('addressbooks', addressbooks);
     });
   });
@@ -274,12 +295,12 @@ describe('The Contacts controller module', function() {
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
-      $location.path = function(path) {
-        expect(path).to.equal('/contact');
-        done();
-      };
-
+      $controller('newContactController', {
+        $scope: scope,
+        closeContactForm: done
+      });
       scope.close();
+      done(new Error('Should not happen'));
     });
 
     describe('the accept function', function() {
@@ -337,9 +358,10 @@ describe('The Contacts controller module', function() {
 
       it('should change page on contact create success', function(done) {
         scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar'};
-
-        $location.url = function(path) {
-          expect(path).to.equal('/contact/show/' + bookId + '/1');
+        ContactLocationHelper.contact.show = function(_bookId, _bookName, _cardId) {
+          expect(_bookId).to.equal(bookId);
+          expect(_bookName).to.equal(scope.bookName);
+          expect(_cardId).to.equal(scope.contact.id);
           done();
         };
 
@@ -525,13 +547,11 @@ describe('The Contacts controller module', function() {
       it('should go back to the editing form if the user cancels during the grace period, saving the contact', function(done) {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', title: 'PDG'};
 
-        gracePeriodService.clientGrace = function() {
-          $location.url = function(path) {
-            expect(path).to.equal('/contact/new/' + bookId);
-            expect(sharedContactDataService.contact).to.deep.equal(scope.contact);
+        openContactFormMock = function() {
+          done();
+        };
 
-            done();
-          };
+        gracePeriodService.clientGrace = function() {
           return $q.when({
             cancelled: true,
             success: angular.noop,
@@ -552,6 +572,7 @@ describe('The Contacts controller module', function() {
 
         scope.accept();
         scope.$digest();
+        done(new Error('Should not happen'));
       });
 
     });
@@ -587,13 +608,10 @@ describe('The Contacts controller module', function() {
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
-      $location.path = function(path) {
-        expect(path).to.equal('/contact');
-        done();
-      };
-
+      closeContactFormMock = done;
       this.initController();
       scope.close();
+      done(new Error('Should not happen'));
     });
 
     it('should display an error if the contact cannot be loaded initially', function(done) {
@@ -768,15 +786,17 @@ describe('The Contacts controller module', function() {
         this.initController();
 
         scope.contact = { id: 'myOtherId' };
-        scope.bookId = '123';
-        scope.cardId = '456';
+        scope.bookId = bookId;
+        scope.bookName = bookName;
+        scope.cardId = cardId;
 
         scope.$emit('$stateChangeStart', {
-          name: '/contact/edit/:bookId/:cardId'
+          name: '/contact/edit/:bookId/:bookName/:cardId'
         },
         {
-          bookId: '123',
-          cardId: '456'
+          bookId: bookId,
+          bookName: bookName,
+          cardId: cardId
         });
 
         scope.$digest();
@@ -835,13 +855,11 @@ describe('The Contacts controller module', function() {
 
     describe('The deleteContact function', function() {
 
-      it('should go back to the list of contacts when called', function(done) {
-        $location.path = function(path) {
-          expect(path).to.equal('/contact');
-          done();
-        };
+      it('should close the contact form when called', function(done) {
+        closeContactFormMock = done;
         this.initController();
         scope.deleteContact();
+        done(new Error());
       });
 
       it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
@@ -1131,11 +1149,17 @@ describe('The Contacts controller module', function() {
         });
 
       it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function(done) {
+        var bookId = '123';
+        var bookName = '456';
+        var cardId = 'xyz';
 
-        $location.path = function(url) {
-          expect(url).to.equal('/contact/show/123/xyz');
+        ContactLocationHelper.contact.show = function(_bookId, _bookName, _cardId) {
+          expect(_bookId).to.equal(bookId);
+          expect(_bookName).to.equal(bookName);
+          expect(_cardId).to.equal(cardId);
           done();
         };
+
         createVcardMock(function() {
           return {
             update: function() {
@@ -1148,24 +1172,24 @@ describe('The Contacts controller module', function() {
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         contactUpdateDataService.contact = true;
         this.initController();
-        scope.bookId = '123';
-        scope.cardId = 'xyz';
+        scope.bookId = bookId;
+        scope.cardId = cardId;
+        scope.bookName = bookName;
 
         scope.save();
+        done(new Error());
       });
 
     });
 
     describe('The deleteContact function', function() {
 
-      it('should go back to the list of contacts when called', function(done) {
-          $location.path = function(path) {
-            expect(path).to.equal('/contact');
-            done();
-          };
-          this.initController();
-          scope.deleteContact();
-        });
+      it('should close the contact form', function(done) {
+        closeContactFormMock = done;
+        this.initController();
+        scope.deleteContact();
+        done(new Error());
+      });
 
       it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
           scope.bookName = 'bookName';
@@ -1219,7 +1243,7 @@ describe('The Contacts controller module', function() {
         user: { _id: '123' }
       });
       scope.$emit('$stateChangeStart', {
-        name: '/contact/show/:bookId/:cardId'
+        name: '/contact/show/:bookId/:bookName/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
     });
@@ -1232,7 +1256,7 @@ describe('The Contacts controller module', function() {
         user: { _id: '123' }
       });
       scope.$emit('$stateChangeStart', {
-        name: '/contact/edit/:bookId/:cardId'
+        name: '/contact/edit/:bookId/:bookName/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
     });
@@ -1996,8 +2020,8 @@ describe('The Contacts controller module', function() {
           _id: 123
         };
 
-        $location.url = function(url) {
-          expect(url).to.equal('/contact/new/' + user._id);
+        openContactFormMock = function(id) {
+          expect(id).to.equal(user._id);
           done();
         };
 
@@ -2007,6 +2031,7 @@ describe('The Contacts controller module', function() {
         });
 
         scope.openContactCreation();
+        done(new Error());
       });
     });
 
@@ -2394,14 +2419,13 @@ describe('The Contacts controller module', function() {
 
       it('should call deleteContact service with the correct bookId, bookName and contact', function(done) {
         var self = this;
-
-        self.scope.bookName = 'bookName';
+        self.scope.addressbook = {bookName: bookName, bookId: bookId};
         $controller('contactItemController', {
           $scope: this.scope,
-          deleteContact: function(bookId, bookName, contact) {
-            expect(bookId).to.equal(self.scope.bookId);
-            expect(bookName).to.equal(self.scope.bookName);
-            expect(contact).to.deep.equal(self.scope.contact);
+          deleteContact: function(_bookId, _bookName, _contact) {
+            expect(_bookId).to.equal(self.scope.addressbook.bookId);
+            expect(_bookName).to.equal(self.scope.addressbook.bookName);
+            expect(_contact).to.deep.equal(self.scope.contact);
             done();
           }
         });
@@ -2414,16 +2438,20 @@ describe('The Contacts controller module', function() {
     });
 
     describe('The displayContact fn', function() {
-      it('should call $location.url to change path to show contact', function(done) {
-        var self = this;
+      it('should show the contact page', function(done) {
+        var addressbook = {bookId: '2', bookName: '3'};
+        var contact = {id: '1'};
         this.initController();
-        this.scope.bookId = '123';
-        this.scope.contact = { id: '456' };
-        this.$location.url = function(url) {
-          expect(url).to.equal('/contact/show/' + self.scope.bookId + '/' + self.scope.contact.id);
+        this.scope.addressbook = addressbook;
+        this.scope.contact = contact;
+        ContactLocationHelper.contact.show = function(_bookId, _bookName, _cardId) {
+          expect(_bookId).to.equal(addressbook.bookId);
+          expect(_bookName).to.equal(addressbook.bookName);
+          expect(_cardId).to.equal(contact.id);
           done();
         };
         this.scope.displayContact();
+        done(new Error());
       });
     });
 

@@ -47,8 +47,8 @@ angular.module('linagora.esn.contact', [
         user: routeResolver.session('user')
       }
     })
-    .state('/contact/show/:bookId/:cardId', {
-      url: '/contact/show/:bookId/:cardId',
+    .state('/contact/show/:bookId/:bookName/:cardId', {
+      url: '/contact/show/:bookId/:bookName/:cardId',
       templateUrl: '/contact/views/contact-show',
       controller: 'showContactController',
       resolve: {
@@ -56,8 +56,8 @@ angular.module('linagora.esn.contact', [
         user: routeResolver.session('user')
       }
     })
-    .state('/contact/edit/:bookId/:cardId', {
-      url: '/contact/edit/:bookId/:cardId',
+    .state('/contact/edit/:bookId/:bookName/:cardId', {
+      url: '/contact/edit/:bookId/:bookName/:cardId',
       templateUrl: '/contact/views/contact-edit',
       controller: 'editContactController',
       resolve: {

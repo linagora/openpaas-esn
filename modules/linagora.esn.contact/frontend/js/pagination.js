@@ -73,6 +73,9 @@ angular.module('linagora.esn.contact')
         }).then(function(result) {
           self.lastPage = result.last_page;
           self.nextPage = result.next_page;
+          result.data.forEach(function(vcard) {
+            vcard.addressbook = self.addressbook;
+          });
           return result;
         });
     };
@@ -121,6 +124,9 @@ angular.module('linagora.esn.contact')
             self.lastPage = true;
           }
           result.last_page = self.lastPage;
+          result.hits_list.forEach(function(vcard) {
+            vcard.addressbook = self.addressbook;
+          });
           return result;
         });
     };
