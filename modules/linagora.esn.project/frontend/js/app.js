@@ -43,8 +43,6 @@ angular.module('esn.project', [
       }
     });
 
-    var sidebarDirective = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'list-project-activity-streams', {priority: -100});
-    dynamicDirectiveServiceProvider.addInjection('esn-sidebar-app-menu', sidebarDirective);
   })
   .run(function(projectAdapterService, objectTypeAdapter, ASTrackerSubscriptionService, projectAPI) {
     objectTypeAdapter.register('project', projectAdapterService);

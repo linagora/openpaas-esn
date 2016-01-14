@@ -15,12 +15,9 @@ describe('The esn.header Angular module', function() {
   });
 
   describe('The mainHeader directive', function() {
-    var sideBarServiceMock = {};
     var spy = sinon.spy();
 
     beforeEach(module(function($provide) {
-      sideBarServiceMock.isLeftSideBarOpen = function() { return false; };
-      $provide.value('sideBarService', sideBarServiceMock);
       $provide.provider('sidebarDirective', function() {
         this.$get = function() { return {}; };
       });
@@ -34,10 +31,9 @@ describe('The esn.header Angular module', function() {
       });
     }));
 
-    beforeEach(inject(function($compile, $rootScope, SIDEBAR_EVENTS) {
+    beforeEach(inject(function($compile, $rootScope) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
-      this.SIDEBAR_EVENTS = SIDEBAR_EVENTS;
       this.$scope = this.$rootScope.$new();
 
       var html = '<main-header></main-header>';
@@ -50,20 +46,6 @@ describe('The esn.header Angular module', function() {
       this.$rootScope.$broadcast('sub-header:hasInjection', true);
       expect(spy).to.have.been.called;
       expect(this.$scope.hasSubHeaderGotInjections).to.be.true;
-    });
-
-    describe('when receiving "display: true"', function() {
-
-      it('should do nothing if the sidebar is open', function() {
-        sideBarServiceMock.isLeftSideBarOpen = function() { return true; };
-        this.$rootScope.$broadcast(this.SIDEBAR_EVENTS.display, {display: true});
-        expect(this.menuTrigger.hasClass('open')).to.equal(false);
-      });
-
-      it('should add the class open', function() {
-        this.$rootScope.$broadcast(this.SIDEBAR_EVENTS.display, {display: true});
-        expect(this.menuTrigger.hasClass('open')).to.equal(true);
-      });
     });
 
     describe('the hideEventListener', function() {
@@ -79,19 +61,5 @@ describe('The esn.header Angular module', function() {
       });
     });
 
-    describe('when receiving "display: false"', function() {
-
-      it('should do nothing if the sidebar is close', function() {
-        this.$rootScope.$broadcast(this.SIDEBAR_EVENTS.display, {display: false});
-        expect(this.menuTrigger.hasClass('open')).to.equal(false);
-      });
-
-      it('should remove the class open', function() {
-        sideBarServiceMock.isLeftSideBarOpen = function() { return true; };
-        this.menuTrigger.addClass('open');
-        this.$rootScope.$broadcast(this.SIDEBAR_EVENTS.display, {display: false});
-        expect(this.menuTrigger.hasClass('open')).to.equal(false);
-      });
-    });
   });
 });

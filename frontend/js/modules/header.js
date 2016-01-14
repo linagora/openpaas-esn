@@ -67,32 +67,12 @@ angular.module('esn.header', ['esn.sidebar'])
     };
   })
 
-  .directive('mainHeader', function($rootScope, deviceDetector, headerService, dynamicDirectiveService, Fullscreen, SIDEBAR_EVENTS, SUB_HEADER_HAS_INJECTION_EVENT, sideBarService) {
+  .directive('mainHeader', function($rootScope, deviceDetector, headerService, dynamicDirectiveService, Fullscreen, SUB_HEADER_HAS_INJECTION_EVENT) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/header/header.html',
       link: function(scope, element, attrs) {
-        function open() {
-          if (sideBarService.isLeftSideBarOpen()) {
-            return;
-          }
-          element.find('#menu-trigger').addClass('open');
-        }
-
-        function close() {
-          if (!sideBarService.isLeftSideBarOpen()) {
-            return;
-          }
-          element.find('#menu-trigger').removeClass('open');
-        }
-
-        var unregister = $rootScope.$on(SIDEBAR_EVENTS.display, function(evt, data) {
-          return data.display ? open() : close();
-        });
-
-        scope.$on('$destroy', unregister);
-
         scope.$on('header:hide', function() {
           element.addClass('hidden');
         });

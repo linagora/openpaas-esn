@@ -183,13 +183,6 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
       templateUrl: '/project/views/project-display.html'
     };
   })
-  .directive('listProjectActivityStreams', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/project/views/list-project-activity-streams.html'
-    };
-  })
   .directive('projectCreateButton', function() {
     return {
       restrict: 'E',

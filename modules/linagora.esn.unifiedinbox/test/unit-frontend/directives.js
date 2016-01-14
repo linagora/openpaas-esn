@@ -98,42 +98,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
-  describe('The inboxMenu directive', function() {
-
-    it('should set $scope.email to the logged-in user email', function() {
-      compileDirective('<inbox-menu />');
-
-      expect($scope.email).to.equal('user@open-paas.org');
-    });
-
-    it('should define $scope.toggleOpen as a function', function() {
-      compileDirective('<inbox-menu />');
-
-      expect($scope.toggleOpen).to.be.a('function');
-    });
-
-    it('should call jmapClient.getMailboxes() with no arguments when toggleOpen is called', function(done) {
-      jmapClient.getMailboxes = done;
-      compileDirective('<inbox-menu />');
-
-      $scope.toggleOpen();
-    });
-
-    it('should set $scope.mailboxes to the returned mailboxes', function(done) {
-      jmapClient.getMailboxes = function() { return $q.when([{ mailbox: '1', role: { value: null } }]); };
-      compileDirective('<inbox-menu />');
-
-      $scope.$watch('mailboxes', function(before, after) {
-        expect(after).to.shallowDeepEqual([{ mailbox: '1' }]);
-
-        done();
-      });
-
-      $scope.toggleOpen();
-      $rootScope.$digest();
-    });
-  });
-
   describe('The mailboxDisplay directive', function() {
 
     it('should define $scope.mailboxIcons to default value if mailbox has no role', function() {
@@ -488,42 +452,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       fab.click();
 
       expect(newComposerService.open).to.have.been.calledOnce;
-    });
-  });
-
-  describe('The inboxMenu directive', function() {
-
-    it('should set $scope.email to the logged-in user email', function() {
-      compileDirective('<inbox-menu />');
-
-      expect($scope.email).to.equal('user@open-paas.org');
-    });
-
-    it('should define $scope.toggleOpen as a function', function() {
-      compileDirective('<inbox-menu />');
-
-      expect($scope.toggleOpen).to.be.a('function');
-    });
-
-    it('should call jmapClient.getMailboxes() with no arguments when toggleOpen is called', function(done) {
-      jmapClient.getMailboxes = done;
-      compileDirective('<inbox-menu />');
-
-      $scope.toggleOpen();
-    });
-
-    it('should set $scope.mailboxes to the returned mailboxes', function(done) {
-      jmapClient.getMailboxes = function() { return $q.when([{ mailbox: '1', role: { value: null } }]); };
-      compileDirective('<inbox-menu />');
-
-      $scope.$watch('mailboxes', function(before, after) {
-        expect(after).to.shallowDeepEqual([{ mailbox: '1' }]);
-
-        done();
-      });
-
-      $scope.toggleOpen();
-      $rootScope.$digest();
     });
   });
 

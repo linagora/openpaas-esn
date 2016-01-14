@@ -23,8 +23,6 @@ angular.module('esn.community', [
       displayProperty: true
     });
 
-    var sidebarDirective = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'list-community-activity-streams', {priority: -50});
-    dynamicDirectiveServiceProvider.addInjection('esn-sidebar-app-menu', sidebarDirective);
   })
   .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);
@@ -1056,11 +1054,4 @@ angular.module('esn.community', [
         }
       });
     });
-  })
-  .directive('listCommunityActivityStreams', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/community/community-as-tracker.html'
-    };
   });
