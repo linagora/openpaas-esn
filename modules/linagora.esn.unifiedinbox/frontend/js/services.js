@@ -248,15 +248,15 @@ angular.module('linagora.esn.unifiedinbox')
       return email;
     }
 
-    function createQuotedEmail(subjectPrefix, recipients, email, sender) {
-      return emailBodyService.quote(email).then(function(body) {
-        var rcpt = recipients(email, sender);
+    function createQuotedEmail(subjectPrefix, recipients, templateName,  email, sender) {
+      return emailBodyService.quote(email, templateName).then(function(body) {
+        var rcpt = recipients ? recipients(email, sender) : {};
 
         return _enrichWithBody({
           from: getEmailAddress(sender),
           to: rcpt.to || [],
           cc: rcpt.cc || [],
-          bcc: rcpt.bcc || [],
+          bcc: rcpt.bcc || [],
           subject: prefixSubject(email.subject, subjectPrefix)
         }, body);
       });
@@ -272,8 +272,9 @@ angular.module('linagora.esn.unifiedinbox')
       getReplyRecipients: getReplyRecipients,
       getReplyAllRecipients: getReplyAllRecipients,
       showReplyAllButton: showReplyAllButton,
-      createReplyAllEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients),
-      createReplyEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyRecipients)
+      createReplyAllEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients, 'default'),
+      createReplyEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyRecipients, 'default'),
+      createForwardEmailObject: createQuotedEmail.bind(null, 'Fw: ', null, 'forward')
     };
   })
 
@@ -509,8 +510,13 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('emailBodyService', function($interpolate, $templateRequest, deviceDetector, localTimezone) {
-    function quote(email) {
-      var template = supportsRichtext() ? '/unifiedinbox/views/partials/quotes/richtext.html' : '/unifiedinbox/views/partials/quotes/plaintext.txt';
+
+    function quote(email, templateName) {
+      if (!templateName) {
+        templateName = 'default';
+      }
+
+      var template = '/unifiedinbox/views/partials/quotes/' + templateName + (supportsRichtext() ? '.html' : '.txt');
 
       return $templateRequest(template).then(function(template) {
         return $interpolate(template)({ email: email, dateFormat: 'medium', tz: localTimezone });

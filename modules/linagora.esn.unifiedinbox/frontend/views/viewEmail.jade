@@ -13,7 +13,10 @@
     li
       a(ng-click="replyAll()" title="#{__('Reply all')}")
         i.mdi.mdi-reply-all
-      
+    li
+      a(ng-click="forward()" title="#{__('Forward')}")
+        i.mdi.mdi-forward
+
   .block-header
     h2.subject {{::email.subject}}
     h3.headers

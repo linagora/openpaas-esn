@@ -730,6 +730,42 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
     });
+
+    describe('the createForwardEmailObject function', function(done) {
+      var email, sender, expectedAnswer;
+
+      it('should create a forward email object', function() {
+        email = {
+          from: {email: 'from@linagora.com', name: 'from'},
+          to: [{name: 'first', email: 'first@linagora.com'}, {name: 'second', email: 'second@linagora.com'}],
+          cc: [{name: 'third', email: 'third@linagora.com'}],
+          date: '12:00:00 14:00',
+          subject: 'my subject',
+          htmlBody: '<p>my body</p>'
+        };
+        sender =  {name: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          subject: 'Fw: my subject',
+          htmlBody: '<p><br/></p>' +
+          '<cite>' +
+          '------- Forwarded message -------<br/>' +
+          'Subject: my subject<br/>' +
+          'Date: 12:00:00 14:00<br/>' +
+          'From: from@linagora.com<br/>' +
+          'To: first &lt;first@linagora.com&gt;, second &lt;second@linagora.com&gt;<br/>' +
+          'CC: third &lt;third@linagora.com&gt;' +
+          '</cite>' +
+          '<blockquote><p>my body</p></blockquote>'
+        };
+
+        emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+    });
   });
 
   describe('The draftService service', function() {
@@ -1522,7 +1558,14 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope = _$rootScope_;
       _ = ___;
 
-      $templateCache.put('/unifiedinbox/views/partials/quotes/plaintext.txt', 'On {{ email.date | date:dateFormat:tz }} from {{ email.from.email }}: {{ email.textBody }}');
+      $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', 'On {{ email.date | date:dateFormat:tz }} from {{ email.from.email }}: {{ email.textBody }}');
+      $templateCache.put('/unifiedinbox/views/partials/quotes/forward.txt',
+        '------- Forwarded message ------- ' +
+        'Subject: {{ email.subject }} ' +
+        'Date: {{ email.date | date:dateFormat:tz }} ' +
+        '{{ email.to | emailerList:"To: "}} ' +
+        '{{ email.cc | emailerList:"CC: "}} ' +
+        '{{ email.textBody }}');
     }));
 
     describe('The quote function', function() {
@@ -1563,6 +1606,27 @@ describe('The Unified Inbox Angular module services', function() {
         emailBodyService.quote(email)
           .then(function(text) {
             expect(text).to.equal('On Aug 21, 2015 12:10:00 AM from test@open-paas.org: TextBody');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should leverage the rich mode of forward template if specified', function(done) {
+        emailBodyService.quote(email, 'forward')
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should leverage the text mode of forward template if specified', function(done) {
+        isMobile = true;
+        emailBodyService.quote(email, 'forward')
+          .then(function(text) {
+            expect(text).to.equal('------- Forwarded message ------- Subject: Heya Date: Aug 21, 2015 12:10:00 AM   TextBody');
           })
           .then(done, done);
 

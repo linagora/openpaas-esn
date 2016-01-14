@@ -437,5 +437,25 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
     });
 
+    describe('the forward function', function() {
+      it('should leverage openEmailCustomTitle() and createForwardEmailObject()', function() {
+        newComposerService.openEmailCustomTitle = sinon.spy();
+        emailSendingService.createForwardEmailObject = sinon.spy(function() { return $q.when(); });
+
+        jmapClient.getMessages = function() {
+          return $q.when([{
+            email:'sender@linagora.com'
+          }]);
+        };
+
+        initController('viewEmailController');
+
+        scope.forward();
+        $rootScope.$digest();
+
+        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your forward email');
+        expect(emailSendingService.createForwardEmailObject).to.have.been.called;
+      });
+    });
   });
 });
