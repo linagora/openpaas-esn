@@ -64,7 +64,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.isCollapsed = true;
     $scope.summernoteOptions = {
-      focus: true,
+      focus: false,
       airMode: false,
       disableResizeEditor: true,
       toolbar: [
