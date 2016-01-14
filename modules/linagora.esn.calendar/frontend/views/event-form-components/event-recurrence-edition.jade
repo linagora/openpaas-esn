@@ -15,7 +15,7 @@
         span.col-xs-3 #{__('Interval')}:
         .col-xs-9
           .fg-line.recurrence-interval-input
-            input.input-sm.form-control(type="number", ng-model="event.rrule.interval")
+            input.input-sm.form-control(type="number", ng-model="event.rrule.interval", ng-disabled="readOnly")
           div(ng-switch="event.rrule.freq")
             span(ng-switch-default) #{__('days')}
             span(ng-switch-when="WEEKLY") #{__('weeks')}
@@ -25,27 +25,27 @@
         span.col-xs-3 #{__('On days')}:
         div.col-xs-9.labels
           label.checkbox.checkbox-inline(ng-repeat="day in WEEK_DAYS")
-            input.form-control(ng-click="toggleWeekdays(day)", type="checkbox")
+            input.form-control(ng-click="toggleWeekdays(day)", type="checkbox", ng-disabled="readOnly")
             i.input-helper {{day}}
       .end
         span.col-xs-3 #{__('End')}:
         div.radios.col-xs-9
             label.radio.radio-inline
-              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil(); resetCount();", checked)
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil(); resetCount();", checked, ng-disabled='readOnly')
               i.input-helper
               | #{__('Never')}
             label.radio.radio-inline
-              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil();", ng-checked="event.rrule.count")
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetUntil();", ng-checked="event.rrule.count", ng-disabled="readOnly")
               i.input-helper
               .input-group
                 span.input-group-addon #{__('After')}
                 .fg-line
-                  input.input-sm.form-control(type="number", ng-model="event.rrule.count", ng-focus="selectEndRadioButton(1)")
+                  input.input-sm.form-control(type="number", ng-model="event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="readOnly")
                 span.input-group-addon.last #{__('occurrences')}
             label.radio.radio-inline
-              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetCount();", ng-checked="event.rrule.until")
+              input.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetCount();", ng-checked="event.rrule.until", ng-disabled="readOnly")
               i.input-helper
               .input-group
                 span.input-group-addon #{__('At')}
                 .fg-line
-                  input.input-sm.form-control(type="text", ng-model="event.rrule.until", ng-focus="selectEndRadioButton(2)", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker)
+                  input.input-sm.form-control(type="text", ng-model="event.rrule.until", ng-focus="selectEndRadioButton(2)", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker, ng-disabled="readOnly")
