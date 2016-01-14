@@ -22,20 +22,20 @@
 
   border: none;
 
-  .panel-heading {
+  >.panel-heading {
     background-color: @primaryColor;
     color: @textPrimaryColor;
 
     i, span {
       color: @textPrimaryColor;
     }
+
+    .panel-title {
+      cursor: pointer;
+    }
   }
 
-  .panel-title {
-    cursor: pointer;
-  }
-
-  .panel-body {
+  >.panel-body {
     .flex-column;
     .flex-shorthand(1);
 

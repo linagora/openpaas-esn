@@ -144,6 +144,10 @@ composer, composer-desktop {
       background-color: @primaryColor;
     }
 
+    .note-placeholder {
+      z-index: 10;
+    }
+
     .note-editor {
       .flex-column;
       .flex-shorthand(1);
@@ -219,6 +223,10 @@ composer, composer-desktop {
 
     .tooltip .fade .bottom .in {
       background-color: lighten(@primaryColor, 10%);
+    }
+
+    .compose-buttons {
+      .align-self(flex-end);
     }
 
   }
@@ -299,9 +307,6 @@ composer {
         }
       }
 
-      .compose-buttons {
-        .align-self(flex-end);
-      }
     }
 
     .note-editor {
@@ -314,28 +319,11 @@ composer {
 
       }
 
-    }
+      .btn-group:not(.dropdown-menu) .btn-default {
 
-  }
-
-}
-
-/* Medium devices (desktops, 992px and up) */
-@media (min-width: @screen-md-min) {
-
-  composer {
-
-    .compose {
-
-      .note-editor {
-
-        .btn-group:not(.dropdown-menu) .btn-default {
-
-          &:hover {
-            background-color: lighten(@primaryColor, 10%);
-            color: @primaryColor;
-          }
-
+        &:hover {
+          background-color: lighten(@primaryColor, 10%);
+          color: @primaryColor;
         }
 
       }

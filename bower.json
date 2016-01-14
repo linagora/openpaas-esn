@@ -81,7 +81,7 @@
     "iframe-resizer": "3.4.2",
     "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git",
     "summernote": "linagora/summernote#waiting-merge",
-    "angular-summernote": "0.7.0",
+    "angular-summernote": "linagora/angular-summernote#waiting-merge",
     "autosize": "3.0.13",
     "offline": "0.7.14",
     "angular-ui-router": "0.2.15",
