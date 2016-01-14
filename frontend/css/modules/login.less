@@ -1,81 +1,42 @@
 body.login {
-  &:after {
-    content: "";
-    vertical-align: middle;
-    display: inline-block;
-    width: 1px;
-  }
-
+  background: url('/images/background-login.jpg') no-repeat right center;
+  -webkit-background-size: cover;
+  background-size: cover;
   &:before {
     height: 49%;
     width: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    background: @primaryColor;
+    background: url('/images/white-logo.svg') no-repeat top left;
+    background-position: top 2% center;
+    background-size: 300px;
     content: "";
     z-index: 0;
+    .hidden-xs;
   }
 }
 
 .login-content {
+  &.card {
+    width: 450px;
+    @media (max-width: @screen-xs-max) {
+      width: 100%;
+    }
+  }
+
+  .login-background {
+    background: @primaryColor;
+    .welcome-logo {
+      width: 280px;
+    }
+    h4 {
+      color: @textPrimaryColor;
+    }
+  }
 
   i.mdi {
     font-size: x-large;
-  }
-
-  .lc-block {
-    vertical-align: middle;
-    position: relative;
-
-    width: 600px;
-    padding: 30px 30px;
-
-    background: @m-white;
-    box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
-    border-radius: 2px;
-    display: inline-block;
-
-    @media (max-width: @screen-xs-max) {
-      padding: 15px 35px 25px 20px;
-      width: 100%;
-    }
-
-    .btn-group {
-      box-shadow: none;
-      .btn {
-        color: @secondaryTextColor;
-
-        .mdi-account-plus {
-          margin-right: 5px;
-        }
-      }
-    }
-
-    .checkbox {
-      margin: 5px 0 0 42px;
-      text-align: left;
-    }
-
-    .btn-login {
-      bottom: -5%;
-      right: 7%;
-      line-height: inherit;
-      color: @text-color;
-      box-shadow: 0 0 4px rgba(0, 0, 0, 0.14),0 4px 8px rgba(0, 0, 0, 0.28);
-      padding-top: 6px;
-      opacity: 0;
-
-      .zoomIn();
-
-      &.card-delay {
-        animation-delay: .25s;
-      }
-    }
-
-    &.toggled {
-      z-index: 10;
-    }
   }
 
   h1, h2, h3, h4 {
@@ -84,17 +45,8 @@ body.login {
     color: @secondaryTextColor;
   }
 
-  .login-navigation {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-
-    .btn-default {
-      color: @secondaryTextColor;
-    }
+  .btn-accent:hover {
+    color: @textPrimaryColor;
   }
 
   .confirm {
@@ -106,6 +58,18 @@ body.login {
 
   .zoomIn {
     animation: zoomIn .25s ease-out forwards;
+  }
+  .actions-footer{
+    cursor: pointer;
+    .tab-nav:not(.tn-vertical):not([data-tab-color]) > li > a::after {
+      background: @accentColor;
+    }
+    .tab-nav:not(.tn-vertical) > li > a::after {
+    	height: 3px;
+    }
+    .tab-nav:not(.tn-vertical) > li.active > a {
+      color: @primaryColor;
+    }
   }
 }
 
