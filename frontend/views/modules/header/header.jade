@@ -2,15 +2,9 @@ div
   header#header(scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show', disabled='disableScrollListener')
     div.header-inner.flex-vertical-centered
       ul.list-inline.all-centered
-        li#menu-trigger(side-bar-toggler)
-          .line-wrap
-            .line.top
-            .line.center
-            .line.bottom
-        li.logo(ng-if='disableScrollListener')
-          a(href='#') OpenPaaS
-        li.logo(ng-if='!disableScrollListener')
-          a(href='#', dynamic-directive='main-header-middle-content')
+        li.logo
+          a(href='#')
+            img.openpaas-logo(src="/images/white-logo.svg")
       ul.list-inline.all-centered
         li.hover-scale-animation
           a(href='')
