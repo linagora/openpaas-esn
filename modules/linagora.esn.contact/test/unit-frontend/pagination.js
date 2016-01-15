@@ -233,7 +233,7 @@ describe('The Contacts Angular pagination module', function() {
         this.$rootScope.$apply();
       });
 
-      it('should set last_page when end reached', function(done) {
+      it('should set lastPage when end reached', function(done) {
         var nextPage = 'nextPage';
         var currentPage = 'currentPage';
         var hitlist = [1, 2, 3, 4];
@@ -279,7 +279,7 @@ describe('The Contacts Angular pagination module', function() {
         var paginable = {
           loadNextItems: function(_options) {
             expect(_options).to.deep.equal(options);
-            return $q.when({last_page: lastPage});
+            return $q.when({lastPage: lastPage});
           }
         };
 

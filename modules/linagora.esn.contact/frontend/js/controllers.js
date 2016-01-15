@@ -272,7 +272,6 @@ angular.module('linagora.esn.contact')
     $scope.prefix = 'contact-index';
     $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
-    $scope.lastPage = false;
     $scope.searchFailure = false;
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.multiple;

@@ -88,24 +88,23 @@ describe('The Aggregator module', function() {
 
       it('should return wrapped source data', function(done) {
         var data = [1, 2, 3];
-        var nextPage = 4;
         var id = 123;
 
         var wrapper = new this.PageAggregatorSourceWrapper({
           id: id,
           loadNextItems: function() {
-            return $q.when({data: data, nextPage: nextPage});
+            return $q.when({data: data, lastPage: true});
           }
         });
 
         wrapper.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: id, hasNext: true, data: data});
+          expect(result).to.deep.equal({id: id, lastPage: true, data: data});
           done();
         }, done);
         $rootScope.$apply();
       });
 
-      it('should return hasNext to true when lastPage is not defined in source result', function(done) {
+      it('should return lastPage to false when lastPage is not defined in source result', function(done) {
         var data = [1, 2, 3];
         var id = 123;
 
@@ -117,7 +116,7 @@ describe('The Aggregator module', function() {
         });
 
         wrapper.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: id, hasNext: true, data: data});
+          expect(result).to.deep.equal({id: id, lastPage: false, data: data});
           expect(wrapper.hasNext()).to.be.true;
           done();
         }, done);
@@ -491,7 +490,7 @@ describe('The Aggregator module', function() {
         };
 
         aggregator.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: name, hasNext: true, data: [item]});
+          expect(result).to.deep.equal({id: name, lastPage: false, data: [item]});
           done();
         }, done);
         $rootScope.$apply();
@@ -517,7 +516,7 @@ describe('The Aggregator module', function() {
         };
 
         aggregator.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: name, hasNext: true, data: [item, item]});
+          expect(result).to.deep.equal({id: name, lastPage: false, data: [item, item]});
           done();
         }, done);
 
@@ -550,7 +549,7 @@ describe('The Aggregator module', function() {
 
           aggregator.loadNextItems().then(function(results) {
             expect(results).to.deep.equal({
-              id: 'test', hasNext: true, data: [
+              id: 'test', lastPage: false, data: [
                 {id: 1, value: 'A'},
                 {id: 1, value: 'A'},
                 {id: 2, value: 'B'},
@@ -562,7 +561,7 @@ describe('The Aggregator module', function() {
             aggregator.loadNextItems().then(function(results) {
 
               expect(results).to.deep.equal({
-                id: 'test', hasNext: true, data: [
+                id: 'test', lastPage: false, data: [
                   {id: 6, value: 'F'},
                   {id: 7, value: 'G'},
                   {id: 8, value: 'H'},
@@ -573,7 +572,7 @@ describe('The Aggregator module', function() {
 
               aggregator.loadNextItems().then(function(results) {
                 expect(results).to.deep.equal({
-                  id: 'test', hasNext: false, data: [
+                  id: 'test', lastPage: true, data: [
                     {id: 26, value: 'Z'},
                     {id: 26, value: 'Z'}
                   ]
@@ -607,7 +606,7 @@ describe('The Aggregator module', function() {
 
           aggregator.loadNextItems().then(function(results) {
             expect(results).to.deep.equal({
-              id: 'test', hasNext: false, data: [
+              id: 'test', lastPage: true, data: [
                 {id: 1, value: 'A'},
                 {id: 2, value: 'B'},
                 {id: 4, value: 'D'},
