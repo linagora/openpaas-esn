@@ -143,7 +143,7 @@ describe('The Contacts controller module', function() {
 
     closeContactFormMock = function() {};
     closeContactForm = function() {
-      return closeContactFormMock();
+      return closeContactFormMock.apply();
     };
 
     angular.mock.module('esn.core');
@@ -607,11 +607,11 @@ describe('The Contacts controller module', function() {
       scope.$emit('$stateChangeStart', {});
     });
 
-    it('should go back to the list of contacts when close is called', function(done) {
-      closeContactFormMock = done;
+    it('should go back to the list of contacts when close is called', function() {
+      closeContactFormMock = sinon.spy();
       this.initController();
       scope.close();
-      done(new Error('Should not happen'));
+      expect(closeContactFormMock).to.have.been.calledOnce;
     });
 
     it('should display an error if the contact cannot be loaded initially', function(done) {
@@ -855,11 +855,11 @@ describe('The Contacts controller module', function() {
 
     describe('The deleteContact function', function() {
 
-      it('should close the contact form when called', function(done) {
-        closeContactFormMock = done;
+      it('should close the contact form when called', function() {
+        closeContactFormMock = sinon.spy();
         this.initController();
         scope.deleteContact();
-        done(new Error());
+        expect(closeContactFormMock).to.have.been.calledOnce;
       });
 
       it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
@@ -1148,24 +1148,17 @@ describe('The Contacts controller module', function() {
           done();
         });
 
-      it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function(done) {
+      it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function() {
         var bookId = '123';
         var bookName = '456';
         var cardId = 'xyz';
+        var updateSpy = sinon.spy();
 
-        ContactLocationHelper.contact.show = function(_bookId, _bookName, _cardId) {
-          expect(_bookId).to.equal(bookId);
-          expect(_bookName).to.equal(bookName);
-          expect(_cardId).to.equal(cardId);
-          done();
-        };
+        ContactLocationHelper.contact.show = sinon.spy();
 
         createVcardMock(function() {
           return {
-            update: function() {
-              done(new Error('Should not call this function'));
-              return $q.reject();
-            }
+            update: updateSpy
           };
         });
 
@@ -1177,18 +1170,19 @@ describe('The Contacts controller module', function() {
         scope.bookName = bookName;
 
         scope.save();
-        done(new Error());
+        expect(ContactLocationHelper.contact.show).to.have.been.calledWith(bookId, bookName, cardId);
+        expect(updateSpy).to.not.have.been.called;
       });
 
     });
 
     describe('The deleteContact function', function() {
 
-      it('should close the contact form', function(done) {
-        closeContactFormMock = done;
+      it('should close the contact form', function() {
+        closeContactFormMock = sinon.spy();
         this.initController();
         scope.deleteContact();
-        done(new Error());
+        expect(closeContactFormMock).to.have.been.calledOnce;
       });
 
       it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
@@ -2014,16 +2008,13 @@ describe('The Contacts controller module', function() {
     });
 
     describe('The openContactCreation function', function() {
-      it('should open the contact creation window', function(done) {
+      it('should open the contact creation window', function() {
 
         var user = {
           _id: 123
         };
 
-        openContactFormMock = function(id) {
-          expect(id).to.equal(user._id);
-          done();
-        };
+        openContactFormMock = sinon.spy();
 
         $controller('contactsListController', {
           $scope: scope,
@@ -2031,7 +2022,7 @@ describe('The Contacts controller module', function() {
         });
 
         scope.openContactCreation();
-        done(new Error());
+        expect(openContactFormMock).to.have.been.calledWith(user._id);
       });
     });
 
@@ -2438,20 +2429,15 @@ describe('The Contacts controller module', function() {
     });
 
     describe('The displayContact fn', function() {
-      it('should show the contact page', function(done) {
+      it('should show the contact page', function() {
         var addressbook = {bookId: '2', bookName: '3'};
         var contact = {id: '1'};
         this.initController();
         this.scope.addressbook = addressbook;
         this.scope.contact = contact;
-        ContactLocationHelper.contact.show = function(_bookId, _bookName, _cardId) {
-          expect(_bookId).to.equal(addressbook.bookId);
-          expect(_bookName).to.equal(addressbook.bookName);
-          expect(_cardId).to.equal(contact.id);
-          done();
-        };
+        ContactLocationHelper.contact.show = sinon.spy();
         this.scope.displayContact();
-        done(new Error());
+        expect(ContactLocationHelper.contact.show).to.have.been.calledWith(addressbook.bookId, addressbook.bookName, contact.id);
       });
     });
 
