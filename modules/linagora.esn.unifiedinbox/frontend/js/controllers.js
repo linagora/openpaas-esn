@@ -10,11 +10,15 @@ angular.module('linagora.esn.unifiedinbox')
             inMailboxes: [$scope.mailbox]
           },
           collapseThreads: true,
-          fetchMessages: true,
+          fetchMessages: false,
           position: 0,
           limit: 100
-        }).then(function(data) {
-          $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, data[1]).getGroupedEmails(); // data[1] is the array of Messages
+        }).then(function(messageList) {
+          return messageList.getMessages({
+            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'hasAttachment', 'mailboxIds']
+          });
+        }).then(function(messages) {
+          $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, messages).getGroupedEmails();
         });
       });
     }

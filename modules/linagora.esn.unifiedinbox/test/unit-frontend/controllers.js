@@ -169,7 +169,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         return $q.when([{role: jmap.MailboxRole.UNKNOWN, name: 'a name'}]);
       };
       jmapClient.getMessageList = function() {
-        return $q.when([[], [{ email: 1 }]]);
+        return $q.when({getMessages: angular.noop});
       };
     });
 
@@ -217,7 +217,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             inMailboxes: ['chosenMailbox']
           },
           collapseThreads: true,
-          fetchMessages: true,
+          fetchMessages: false,
           position: 0,
           limit: 100
         });
@@ -229,11 +229,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $timeout.flush();
     });
 
-    it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
-      jmapClient.getMessageList = function() {
-        return $q.when([[], [{ email: 1 }]]);
+    it('should call jmapClient.getMessageList then getMessages with expected options', function(done) {
+      var messageListResult = {
+        getMessages: function(options) {
+          expect(options).to.deep.equal({
+            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'hasAttachment', 'mailboxIds']
+          });
+
+          done();
+        }
       };
 
+      jmapClient.getMessageList = function() {
+        return $q.when(messageListResult);
+      };
+
+      initController('listEmailsController');
+      $timeout.flush();
+    });
+
+    it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
       initController('listEmailsController');
 
       scope.$watch('groupedEmails', function(before, after) {
