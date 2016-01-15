@@ -210,8 +210,8 @@ describe('The calendar module services', function() {
       this.keepChangeDuringGraceperiod = keepChangeDuringGraceperiod;
       this.fcMoment = fcMoment;
 
-      this.start = this.fcMoment('1984-01-01');
-      this.end = this.fcMoment('1984-01-07');
+      this.start = this.fcMoment('1984-01-01').stripTime();
+      this.end = this.fcMoment('1984-01-07').stripTime();
       this.CALENDAR_GRACE_DELAY = _CALENDAR_GRACE_DELAY_;
       this.modifiedEvent = {
         id: 2,
@@ -292,11 +292,55 @@ describe('The calendar module services', function() {
       });
 
       describe('registerAdd function', function() {
+
         it('should take a event and make wrapped event sources add this event if it is in the requested period and one the same calendar', function() {
           this.modifiedEvent.id = 3;
           this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
           this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
           expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
+        });
+
+        it('should take a event and make wrapped event sources add this event end even if only it\'s end is in the requested period', function() {
+          this.modifiedEvent.id = 3;
+          this.modifiedEvent.start = this.fcMoment('1984-01-06 10:00');
+          this.modifiedEvent.end = this.fcMoment('1984-01-07 01:00');
+          this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
+        });
+
+        it('should take a event and make wrapped event sources add this event end even if only it\'s start is in the requested period', function() {
+          this.modifiedEvent.id = 3;
+          this.modifiedEvent.start = this.fcMoment('1984-01-07 23:59');
+          this.modifiedEvent.end = this.fcMoment('1984-01-08 00:45');
+          this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
+        });
+
+        it('should ignore a event if it is not on the same calendar even if it is in the requested period', function() {
+          this.modifiedEvent.id = 3;
+          this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, 'this_is_an_other_id');
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
+        });
+
+        it('should ignore a event that end before the first day of the requested period', function() {
+          this.modifiedEvent.id = 3;
+          this.modifiedEvent.start = this.fcMoment('1983-31-31 10:00');
+          this.modifiedEvent.end = this.fcMoment('1983-31-31 23:00');
+          this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
+        });
+
+        it('should ignore a event that start after the last day of the requested period', function() {
+          this.modifiedEvent.id = 3;
+          this.modifiedEvent.start = this.fcMoment('1984-01-08 00:30');
+          this.modifiedEvent.end = this.fcMoment('1984-01-08 00:45');
+          this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
+          this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+          expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
         });
       });
 
