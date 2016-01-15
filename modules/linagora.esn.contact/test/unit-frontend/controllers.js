@@ -10,17 +10,17 @@ describe('The Contacts controller module', function() {
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, shellToVCARD;
+    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, shellToVCARD, addressbooks;
 
-  var bookId = '123456789', bookName = 'bookName';
+  var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
+  addressbooks = [];
 
   beforeEach(function() {
     usSpinnerService = {
       spin: function() {},
       stop: function() {}
     },
-    ContactShell =  function() {
-    },
+    ContactShell =  function() {},
     liveRefreshContactService = {
       startListen: function() {},
       stopListen: function() {}
@@ -92,7 +92,7 @@ describe('The Contacts controller module', function() {
                 return {
                   get: function() { return $q.when(); },
                   list: function() { return $q.when({}); },
-                  search: function() { return $q.when({ hits_list: [] }); },
+                  search: function() { return $q.when({ data: [] }); },
                   create: function() { return $q.when(); },
                   update: function() { return $q.when(); },
                   remove: function() { return $q.when(); }
@@ -127,6 +127,25 @@ describe('The Contacts controller module', function() {
       return 'vcard';
     };
 
+    ContactLocationHelper = {
+      home: function() {},
+      contact: {
+        new: function() {},
+        show: function() {},
+        edit: function() {}
+      }
+    };
+
+    openContactFormMock = function(id) {};
+    openContactForm = function(id) {
+      return openContactFormMock(id);
+    };
+
+    closeContactFormMock = function() {};
+    closeContactForm = function() {
+      return closeContactFormMock.apply();
+    };
+
     angular.mock.module('esn.core');
 
     module('linagora.esn.contact', function($provide) {
@@ -147,6 +166,10 @@ describe('The Contacts controller module', function() {
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
       $provide.value('AddressBookPaginationRegistry', AddressBookPaginationRegistryMock);
       $provide.value('shellToVCARD', shellToVCARD);
+      $provide.value('ContactLocationHelper', ContactLocationHelper);
+      $provide.value('openContactForm', openContactForm);
+      $provide.value('closeContactForm', closeContactForm);
+      $provide.value('addressbooks', addressbooks);
     });
   });
 
@@ -190,6 +213,11 @@ describe('The Contacts controller module', function() {
     }
     SingleMock.prototype.loadNextItems = singleFn;
 
+    function AggregateMock(options) {
+      this.options = options;
+    }
+    AggregateMock.prototype.loadNextItems = singleFn;
+
     function SearchMock(options) {
       this.options = options;
     }
@@ -197,7 +225,8 @@ describe('The Contacts controller module', function() {
 
     var mocks = {
       single: SingleMock,
-      search: SearchMock
+      search: SearchMock,
+      multiple: AggregateMock
     };
 
     AddressBookPaginationRegistryMock.get = function(type) {
@@ -266,12 +295,12 @@ describe('The Contacts controller module', function() {
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
-      $location.path = function(path) {
-        expect(path).to.equal('/contact');
-        done();
-      };
-
+      $controller('newContactController', {
+        $scope: scope,
+        closeContactForm: done
+      });
       scope.close();
+      done(new Error('Should not happen'));
     });
 
     describe('the accept function', function() {
@@ -329,9 +358,10 @@ describe('The Contacts controller module', function() {
 
       it('should change page on contact create success', function(done) {
         scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar'};
-
-        $location.url = function(path) {
-          expect(path).to.equal('/contact/show/' + bookId + '/1');
+        ContactLocationHelper.contact.show = function(_bookId, _bookName, _cardId) {
+          expect(_bookId).to.equal(bookId);
+          expect(_bookName).to.equal(scope.bookName);
+          expect(_cardId).to.equal(scope.contact.id);
           done();
         };
 
@@ -517,13 +547,11 @@ describe('The Contacts controller module', function() {
       it('should go back to the editing form if the user cancels during the grace period, saving the contact', function(done) {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', title: 'PDG'};
 
-        gracePeriodService.clientGrace = function() {
-          $location.url = function(path) {
-            expect(path).to.equal('/contact/new/' + bookId);
-            expect(sharedContactDataService.contact).to.deep.equal(scope.contact);
+        openContactFormMock = function() {
+          done();
+        };
 
-            done();
-          };
+        gracePeriodService.clientGrace = function() {
           return $q.when({
             cancelled: true,
             success: angular.noop,
@@ -544,6 +572,7 @@ describe('The Contacts controller module', function() {
 
         scope.accept();
         scope.$digest();
+        done(new Error('Should not happen'));
       });
 
     });
@@ -578,14 +607,11 @@ describe('The Contacts controller module', function() {
       scope.$emit('$stateChangeStart', {});
     });
 
-    it('should go back to the list of contacts when close is called', function(done) {
-      $location.path = function(path) {
-        expect(path).to.equal('/contact');
-        done();
-      };
-
+    it('should go back to the list of contacts when close is called', function() {
+      closeContactFormMock = sinon.spy();
       this.initController();
       scope.close();
+      expect(closeContactFormMock).to.have.been.calledOnce;
     });
 
     it('should display an error if the contact cannot be loaded initially', function(done) {
@@ -760,15 +786,17 @@ describe('The Contacts controller module', function() {
         this.initController();
 
         scope.contact = { id: 'myOtherId' };
-        scope.bookId = '123';
-        scope.cardId = '456';
+        scope.bookId = bookId;
+        scope.bookName = bookName;
+        scope.cardId = cardId;
 
         scope.$emit('$stateChangeStart', {
-          name: '/contact/edit/:bookId/:cardId'
+          name: '/contact/edit/:bookId/:bookName/:cardId'
         },
         {
-          bookId: '123',
-          cardId: '456'
+          bookId: bookId,
+          bookName: bookName,
+          cardId: cardId
         });
 
         scope.$digest();
@@ -827,13 +855,11 @@ describe('The Contacts controller module', function() {
 
     describe('The deleteContact function', function() {
 
-      it('should go back to the list of contacts when called', function(done) {
-        $location.path = function(path) {
-          expect(path).to.equal('/contact');
-          done();
-        };
+      it('should close the contact form when called', function() {
+        closeContactFormMock = sinon.spy();
         this.initController();
         scope.deleteContact();
+        expect(closeContactFormMock).to.have.been.calledOnce;
       });
 
       it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
@@ -1122,42 +1148,42 @@ describe('The Contacts controller module', function() {
           done();
         });
 
-      it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function(done) {
+      it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function() {
+        var bookId = '123';
+        var bookName = '456';
+        var cardId = 'xyz';
+        var updateSpy = sinon.spy();
 
-        $location.path = function(url) {
-          expect(url).to.equal('/contact/show/123/xyz');
-          done();
-        };
+        ContactLocationHelper.contact.show = sinon.spy();
+
         createVcardMock(function() {
           return {
-            update: function() {
-              done(new Error('Should not call this function'));
-              return $q.reject();
-            }
+            update: updateSpy
           };
         });
 
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         contactUpdateDataService.contact = true;
         this.initController();
-        scope.bookId = '123';
-        scope.cardId = 'xyz';
+        scope.bookId = bookId;
+        scope.cardId = cardId;
+        scope.bookName = bookName;
 
         scope.save();
+        expect(ContactLocationHelper.contact.show).to.have.been.calledWith(bookId, bookName, cardId);
+        expect(updateSpy).to.not.have.been.called;
       });
 
     });
 
     describe('The deleteContact function', function() {
 
-      it('should go back to the list of contacts when called', function(done) {
-          $location.path = function(path) {
-            expect(path).to.equal('/contact');
-            done();
-          };
-          this.initController();
-          scope.deleteContact();
-        });
+      it('should close the contact form', function() {
+        closeContactFormMock = sinon.spy();
+        this.initController();
+        scope.deleteContact();
+        expect(closeContactFormMock).to.have.been.calledOnce;
+      });
 
       it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
           scope.bookName = 'bookName';
@@ -1211,7 +1237,7 @@ describe('The Contacts controller module', function() {
         user: { _id: '123' }
       });
       scope.$emit('$stateChangeStart', {
-        name: '/contact/show/:bookId/:cardId'
+        name: '/contact/show/:bookId/:bookName/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
     });
@@ -1224,7 +1250,7 @@ describe('The Contacts controller module', function() {
         user: { _id: '123' }
       });
       scope.$emit('$stateChangeStart', {
-        name: '/contact/edit/:bookId/:cardId'
+        name: '/contact/edit/:bookId/:bookName/:cardId'
       });
       expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
     });
@@ -1606,7 +1632,7 @@ describe('The Contacts controller module', function() {
         expect(scope.searchInput).to.equal(options.searchInput);
         mySpy();
         return $q.when({
-          hits_list: [],
+          data: [],
           total_hits: 0
         });
       });
@@ -1662,7 +1688,7 @@ describe('The Contacts controller module', function() {
     it('should add no item to the categories when pagination returns an empty list', function(done) {
 
       createPaginationMocks(function() {
-        return $q.when({contacts: []});
+        return $q.when({data: []});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1685,7 +1711,7 @@ describe('The Contacts controller module', function() {
           contactWithC = { displayName: 'C D' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contactWithA, contactWithC]});
+        return $q.when({data: [contactWithA, contactWithC]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1714,7 +1740,7 @@ describe('The Contacts controller module', function() {
           contact2 = { id: 2, displayName: 'A B' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contact1, contact2]});
+        return $q.when({data: [contact1, contact2]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1742,7 +1768,7 @@ describe('The Contacts controller module', function() {
           contact2 = { displayName: 'A C' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contact1, contact2]});
+        return $q.when({data: [contact1, contact2]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1771,7 +1797,7 @@ describe('The Contacts controller module', function() {
           contact3 = { id: '123' };
 
       createPaginationMocks(function() {
-        return $q.when({contacts: [contact1, contact2, contact3]});
+        return $q.when({data: [contact1, contact2, contact3]});
       }, function() {
         done(new Error('Should not be called'));
       });
@@ -1816,6 +1842,8 @@ describe('The Contacts controller module', function() {
       });
 
       it('should call pagination#init', function(done) {
+        addressbooks.push({id: 1, name: 'foo'});
+        addressbooks.push({id: 2, name: 'bar'});
         createPaginationMocks(function() {
           return $q.when([]);
         });
@@ -1823,12 +1851,13 @@ describe('The Contacts controller module', function() {
 
         $controller('contactsListController', {
           $scope: scope,
-          user: user
+          user: user,
+          addressbooks: addressbooks
         });
         scope.pagination.init = function(_mode, _options) {
           expect(_mode).to.equal(mode);
           expect(_options.user).to.exist;
-          expect(_options.addressbooks).to.be.an.array;
+          expect(_options.addressbooks).to.deep.equal(addressbooks);
           done();
         };
         scope.createPagination(mode);
@@ -1979,16 +2008,13 @@ describe('The Contacts controller module', function() {
     });
 
     describe('The openContactCreation function', function() {
-      it('should open the contact creation window', function(done) {
+      it('should open the contact creation window', function() {
 
         var user = {
           _id: 123
         };
 
-        $location.url = function(url) {
-          expect(url).to.equal('/contact/new/' + user._id);
-          done();
-        };
+        openContactFormMock = sinon.spy();
 
         $controller('contactsListController', {
           $scope: scope,
@@ -1996,6 +2022,7 @@ describe('The Contacts controller module', function() {
         });
 
         scope.openContactCreation();
+        expect(openContactFormMock).to.have.been.calledWith(user._id);
       });
     });
 
@@ -2017,7 +2044,7 @@ describe('The Contacts controller module', function() {
         createPaginationMocks(function() {
           done(new Error('Should not be called'));
         }, function() {
-          return $q.when({hits_list: []});
+          return $q.when({data: []});
         });
 
         $controller('contactsListController', {
@@ -2048,7 +2075,7 @@ describe('The Contacts controller module', function() {
         createPaginationMocks(function() {
           done(new Error('Should not be called'));
         }, function() {
-          return $q.when({hits_list: []});
+          return $q.when({data: []});
         });
 
         $controller('contactsListController', {
@@ -2153,7 +2180,7 @@ describe('The Contacts controller module', function() {
         var result = {
           total_hits: 2,
           current_page: 1,
-          hits_list: [contactWithA, contactWithC]
+          data: [contactWithA, contactWithC]
         };
 
         createPaginationMocks(function() {
@@ -2175,7 +2202,7 @@ describe('The Contacts controller module', function() {
         scope.search();
         scope.$digest();
 
-        expect(scope.searchResult.data).to.deep.equal(result.hits_list);
+        expect(scope.searchResult.data).to.deep.equal(result.data);
         expect(scope.searchResult.count).to.equal(2);
         expect(scope.searchResult.formattedResultsCount).to.exist;
         expect(scope.searchFailure).to.be.false;
@@ -2218,7 +2245,7 @@ describe('The Contacts controller module', function() {
 
         var result = {
           total_hits: 4,
-          hits_list: [contactWithA, contactWithB]
+          data: [contactWithA, contactWithB]
         };
 
         createPaginationMocks(function() {
@@ -2254,7 +2281,7 @@ describe('The Contacts controller module', function() {
 
         var result = {
           total_hits: 4,
-          hits_list: [contactWithA, contactWithB]
+          data: [contactWithA, contactWithB]
         };
 
         createPaginationMocks(function() {
@@ -2383,14 +2410,13 @@ describe('The Contacts controller module', function() {
 
       it('should call deleteContact service with the correct bookId, bookName and contact', function(done) {
         var self = this;
-
-        self.scope.bookName = 'bookName';
+        self.scope.addressbook = {bookName: bookName, bookId: bookId};
         $controller('contactItemController', {
           $scope: this.scope,
-          deleteContact: function(bookId, bookName, contact) {
-            expect(bookId).to.equal(self.scope.bookId);
-            expect(bookName).to.equal(self.scope.bookName);
-            expect(contact).to.deep.equal(self.scope.contact);
+          deleteContact: function(_bookId, _bookName, _contact) {
+            expect(_bookId).to.equal(self.scope.addressbook.bookId);
+            expect(_bookName).to.equal(self.scope.addressbook.bookName);
+            expect(_contact).to.deep.equal(self.scope.contact);
             done();
           }
         });
@@ -2403,16 +2429,15 @@ describe('The Contacts controller module', function() {
     });
 
     describe('The displayContact fn', function() {
-      it('should call $location.url to change path to show contact', function(done) {
-        var self = this;
+      it('should show the contact page', function() {
+        var addressbook = {bookId: '2', bookName: '3'};
+        var contact = {id: '1'};
         this.initController();
-        this.scope.bookId = '123';
-        this.scope.contact = { id: '456' };
-        this.$location.url = function(url) {
-          expect(url).to.equal('/contact/show/' + self.scope.bookId + '/' + self.scope.contact.id);
-          done();
-        };
+        this.scope.addressbook = addressbook;
+        this.scope.contact = contact;
+        ContactLocationHelper.contact.show = sinon.spy();
         this.scope.displayContact();
+        expect(ContactLocationHelper.contact.show).to.have.been.calledWith(addressbook.bookId, addressbook.bookName, contact.id);
       });
     });
 

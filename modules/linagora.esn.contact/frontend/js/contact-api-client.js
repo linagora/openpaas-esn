@@ -100,12 +100,12 @@ angular.module('linagora.esn.contact')
       return listAddressbook(bookId)
         .then(function(addressbooks) {
           addressbooks.some(function(item) {
-            if (item.id === bookName) {
+            if (item.bookName === bookName) {
               addressbook = item;
               return true;
             }
           });
-          return addressbook || $q.reject('Not found addressbook');
+          return addressbook || $q.reject(new Error('Addressbook has not been found'));
         });
     }
 
@@ -139,7 +139,7 @@ angular.module('linagora.esn.contact')
      *                           	+ sort(String):
      *                           	+ userId(String):
      * @return {Promise}          If success, resolve an object with:
-     *                            + contacts: an array of ContactShell
+     *                            + data: an array of ContactShell
      *                            + current_page:
      *                            + last_page: true or false
      */
@@ -162,7 +162,7 @@ angular.module('linagora.esn.contact')
       return davClient('GET', getBookUrl(bookId, bookName), null, null, query)
         .then(function(response) {
           var result = {
-            contacts: responseAsContactShell(response),
+            data: responseAsContactShell(response),
             current_page: currentPage,
             last_page: !response.data._links.next
           };
@@ -184,7 +184,7 @@ angular.module('linagora.esn.contact')
      * @return {Promise}          If success, return an object with:
      *                            + current_page
      *                            + total_hits
-     *                            + hits_list: an array of ContactShell
+     *                            + data: an array of ContactShell
      */
     function searchCard(bookId, bookName, options) {
       if (!options) {
@@ -205,7 +205,7 @@ angular.module('linagora.esn.contact')
           return {
             current_page: response.data._current_page,
             total_hits: response.data._total_hits,
-            hits_list: responseAsContactShell(response)
+            data: responseAsContactShell(response)
           };
         });
     }

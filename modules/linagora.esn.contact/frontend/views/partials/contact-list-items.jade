@@ -1,15 +1,15 @@
 .row.all-centered(ng-switch='mode')
   .col-xs-12.col-md-8
-    div(ng-switch-when='single' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+    div(ng-switch-when='multiple' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
       .letter-list(ng-if='contacts && contacts.length')
         .block-header
           h2 {{letter}}
         .card.contacts-card.fadeIn200ms
           .listview.lv-bordered.lv-lg
             .lv-body
-              contact-list-item.lv-item.p-0(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by contact.id")
+              contact-list-item.lv-item.p-0(contact='contact', book-id="bookId", addressbook='contact.addressbook', ng-repeat="contact in contacts track by contact.id")
     div(ng-switch-when='search' ng-if='searchResult.data && searchResult.data.length' on-finish-render)
       .card.contacts-card.fadeIn200ms
         .listview.lv-bordered.lv-lg
           .lv-body
-            contact-list-item.lv-item.p-0(contact='contact', book-id="bookId", ng-repeat="contact in searchResult.data track by contact.id" ng-hide="contact.deleted")
+            contact-list-item.lv-item.p-0(contact='contact', book-id="bookId", addressbook='contact.addressbook', ng-repeat="contact in searchResult.data track by contact.id" ng-hide="contact.deleted")

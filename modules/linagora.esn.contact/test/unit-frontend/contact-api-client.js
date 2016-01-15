@@ -127,18 +127,21 @@ describe('The contact Angular module contactapis', function() {
         describe('The get addressbook fn', function() {
 
           it('should return an AddressBookShell instance if success', function(done) {
-            var bookId = '123';
+            var bookId = '5666b4cff5d672f316d4439f';
+            var bookName1 = '1614422648';
+            var bookName2 = '1614422649';
+
             this.$httpBackend.expectGET(this.getBookHomeUrl(bookId)).respond({
               _links: {
                 self: {
-                  href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
+                  href: '/esn-sabre/esn.php/addressbooks/' + bookId + ' .json'
                 }
               },
               _embedded: {
                 'dav:addressbook': [{
                   _links: {
                     self: {
-                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/contacts.json'
+                      href: '/esn-sabre/esn.php/addressbooks/' + bookId + '/' + bookName1 + '.json'
                     }
                   },
                   'dav:name': 'Default Addressbook',
@@ -147,7 +150,7 @@ describe('The contact Angular module contactapis', function() {
                 }, {
                   _links: {
                     self: {
-                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/1614422648.json'
+                      href: '/esn-sabre/esn.php/addressbooks/' + bookId + '/' + bookName2 + '.json'
                     }
                   },
                   'dav:name': 'Twitter addressbook',
@@ -157,15 +160,15 @@ describe('The contact Angular module contactapis', function() {
               }
             });
 
-            var bookName = '1614422648';
             var AddressBookShell = this.AddressBookShell;
             this.ContactAPIClient
               .addressbookHome(bookId)
-              .addressbook(bookName)
+              .addressbook(bookName1)
               .get()
               .then(function(addressbook) {
                 expect(addressbook).to.be.instanceof(AddressBookShell);
-                expect(addressbook.id).to.equal(bookName);
+                expect(addressbook.bookId).to.equal(bookId);
+                expect(addressbook.bookName).to.equal(bookName1);
                 done();
               }, done);
 
@@ -330,9 +333,9 @@ describe('The contact Angular module contactapis', function() {
 
             function checkResult(done) {
               return function(data) {
-                expect(data.contacts).to.be.an.array;
-                expect(data.contacts.length).to.equal(1);
-                expect(data.contacts[0].id).to.equal(uid);
+                expect(data.data).to.be.an.array;
+                expect(data.data.length).to.equal(1);
+                expect(data.data[0].id).to.equal(uid);
                 expect(data.current_page).to.eql(options.page);
                 done();
               };
@@ -378,7 +381,7 @@ describe('The contact Angular module contactapis', function() {
                 .vcard()
                 .list()
                 .then(function(data) {
-                  var cards = data.contacts;
+                  var cards = data.data;
                   expect(cards).to.be.an.array;
                   expect(cards.length).to.equal(1);
 
@@ -406,7 +409,7 @@ describe('The contact Angular module contactapis', function() {
                 .vcard()
                 .list()
                 .then(function(data) {
-                  expect(this.ContactsHelper.forceReloadDefaultAvatar.calledWithExactly(data.contacts[0])).to.be.true;
+                  expect(this.ContactsHelper.forceReloadDefaultAvatar.calledWithExactly(data.data[0])).to.be.true;
                 }.bind(this)).finally(done);
 
               this.$rootScope.$apply();
@@ -538,10 +541,10 @@ describe('The contact Angular module contactapis', function() {
                 .then(function(result) {
                   expect(result.current_page).to.equal(response._current_page);
                   expect(result.total_hits).to.equal(response._total_hits);
-                  expect(result.hits_list.length).to.equal(1);
-                  expect(result.hits_list[0].id).to.equal('myuid');
-                  expect(result.hits_list[0].firstName).to.equal('Willis');
-                  expect(result.hits_list[0].lastName).to.equal('Bruce');
+                  expect(result.data.length).to.equal(1);
+                  expect(result.data[0].id).to.equal('myuid');
+                  expect(result.data[0].firstName).to.equal('Willis');
+                  expect(result.data[0].lastName).to.equal('Bruce');
                   done();
                 });
 

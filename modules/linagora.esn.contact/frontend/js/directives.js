@@ -66,6 +66,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-list-item.html',
       scope: {
         contact: '=',
+        addressbook: '=',
         bookId: '='
       },
       controller: 'contactItemController',
@@ -85,6 +86,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-list-card.html',
       scope: {
         contact: '=',
+        addressbook: '=',
         bookId: '='
       },
       controller: 'contactItemController',

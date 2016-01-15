@@ -18,10 +18,11 @@ angular.module('linagora.esn.contact')
       if (!this.options.addressbooks || this.options.addressbooks.length === 0) {
         throw new Error('options.addressbooks array is required');
       }
+      var self = this;
 
       this.id = options.id || DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME;
       this.providers = this.addressbooks.map(function(addressbook) {
-        return new AddressBookPaginationProvider({addressbooks: [addressbook]});
+        return new AddressBookPaginationProvider({addressbooks: [addressbook], user: self.options.user});
       });
       this.aggregator = new PageAggregatorService(this.id, this.providers, {
         compare: this.compare,
@@ -47,8 +48,8 @@ angular.module('linagora.esn.contact')
       }
 
       this.addressbook = this.options.addressbooks[0];
-      this.id = this.addressbook.id;
-      this.name = this.addressbook.name;
+      this.bookId = this.addressbook.bookId;
+      this.bookName = this.addressbook.bookName;
       this.lastPage = false;
       this.nextPage = 0;
     }
@@ -60,8 +61,8 @@ angular.module('linagora.esn.contact')
       $log.debug('Load contacts page %s on ab', page, this.addressbook);
 
       return ContactAPIClient
-        .addressbookHome(this.id)
-        .addressbook(this.name)
+        .addressbookHome(this.bookId)
+        .addressbook(this.bookName)
         .vcard()
         .list({
           userId: this.options.user._id,
@@ -69,7 +70,11 @@ angular.module('linagora.esn.contact')
           paginate: true
         }).then(function(result) {
           self.lastPage = result.last_page;
+          result.lastPage = result.last_page;
           self.nextPage = result.next_page;
+          result.data.forEach(function(vcard) {
+            vcard.addressbook = self.addressbook;
+          });
           return result;
         });
     };
@@ -87,8 +92,8 @@ angular.module('linagora.esn.contact')
       }
 
       this.addressbook = this.options.addressbooks[0];
-      this.id = this.addressbook.id;
-      this.name = this.addressbook.name;
+      this.bookId = this.addressbook.bookId;
+      this.bookName = this.addressbook.bookName;
       this.totalHits = 0;
       this.lastPage = false;
       this.nextPage = 0;
@@ -106,18 +111,21 @@ angular.module('linagora.esn.contact')
       };
 
       return ContactAPIClient
-        .addressbookHome(this.id)
-        .addressbook(this.name)
+        .addressbookHome(this.bookId)
+        .addressbook(this.bookName)
         .vcard()
         .search(query)
         .then(function(result) {
           self.currentPage = result.current_page;
-          self.totalHits = self.totalHits + result.hits_list.length;
+          self.totalHits = self.totalHits + result.data.length;
           self.nextPage = result.next_page;
           if (self.totalHits === result.total_hits) {
             self.lastPage = true;
           }
-          result.last_page = self.lastPage;
+          result.lastPage = self.lastPage;
+          result.data.forEach(function(vcard) {
+            vcard.addressbook = self.addressbook;
+          });
           return result;
         });
     };
@@ -127,9 +135,13 @@ angular.module('linagora.esn.contact')
 
   .factory('ContactShellComparator', function() {
 
+    function getAsAlpha(str) {
+      return /^[ a-z]+$/i.test(str) ? str.toLowerCase() : '#';
+    }
+
     function byDisplayName(contact1, contact2) {
-      var valueA = contact1.displayName.toLowerCase();
-      var valueB = contact2.displayName.toLowerCase();
+      var valueA = getAsAlpha(contact1.displayName);
+      var valueB = getAsAlpha(contact2.displayName);
 
       if (valueA < valueB) {
         return -1;

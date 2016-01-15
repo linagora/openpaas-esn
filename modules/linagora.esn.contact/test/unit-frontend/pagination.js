@@ -219,7 +219,7 @@ describe('The Contacts Angular pagination module', function() {
 
         searchMock = function(query) {
           expect(query).to.deep.equal({userId: user._id, page: 1, data: search});
-          return $q.when({current_page: currentPage, hits_list: hitlist, next_page: nextPage, total_hits: totalHits});
+          return $q.when({current_page: currentPage, data: hitlist, next_page: nextPage, total_hits: totalHits});
         };
         var provider = new this.SearchAddressBookPaginationProvider(options);
 
@@ -242,7 +242,7 @@ describe('The Contacts Angular pagination module', function() {
 
         searchMock = function(query) {
           expect(query).to.deep.equal({userId: user._id, page: 1, data: search});
-          return $q.when({current_page: currentPage, hits_list: hitlist, next_page: nextPage, total_hits: totalHits});
+          return $q.when({current_page: currentPage, data: hitlist, next_page: nextPage, total_hits: totalHits});
         };
         var provider = new this.SearchAddressBookPaginationProvider(options);
 
@@ -425,6 +425,18 @@ describe('The Contacts Angular pagination module', function() {
         displayName: 'Abc'
       };
 
+      var nonAlpha = {
+        displayName: '#'
+      };
+
+      var thunder = {
+        displayName: '⌁ YOLO ⌁'
+      };
+
+      var number = {
+        displayName: '1'
+      };
+
       it('should send back 1st contact when its fn is smaller', function() {
         expect(this.ContactShellComparator.byDisplayName(a, b)).to.equal(-1);
       });
@@ -435,6 +447,23 @@ describe('The Contacts Angular pagination module', function() {
 
       it('should send back the first contact when fn are equal', function() {
         expect(this.ContactShellComparator.byDisplayName(a, a)).to.equal(0);
+      });
+
+      it('should send back non alpha one as the smaller', function() {
+        expect(this.ContactShellComparator.byDisplayName(nonAlpha, a)).to.equal(-1);
+        expect(this.ContactShellComparator.byDisplayName(thunder, a)).to.equal(-1);
+      });
+
+      it('should send equal when both are non alpha', function() {
+        expect(this.ContactShellComparator.byDisplayName(nonAlpha, thunder)).to.equal(0);
+      });
+
+      it('should send number as smaller than alpha', function() {
+        expect(this.ContactShellComparator.byDisplayName(number, a)).to.equal(-1);
+      });
+
+      it('should send equal between number and non alpha', function() {
+        expect(this.ContactShellComparator.byDisplayName(number, nonAlpha)).to.equal(0);
       });
     });
   });

@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, headerService, ContactAPIClient, ContactLocationHelper, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.contact = sharedContactDataService.contact;
@@ -29,7 +29,7 @@ angular.module('linagora.esn.contact')
             return $q.reject(err);
           });
       }).then(function() {
-        $location.url('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+        ContactLocationHelper.contact.show($scope.bookId, $scope.bookName, $scope.contact.id);
       }, function(err) {
         displayContactError(err);
         return $q.reject(err);
@@ -57,10 +57,10 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, deleteContact, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, deleteContact, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService, ContactAPIClient, ContactLocationHelper) {
     $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
     $scope.bookId = $stateParams.bookId;
-    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
+    $scope.bookName = $stateParams.bookName;
     $scope.cardId = $stateParams.cardId;
     $scope.contact = {};
     $scope.loaded = false;
@@ -92,6 +92,10 @@ angular.module('linagora.esn.contact')
 
     $scope.close = closeContactForm;
 
+    $scope.edit = function() {
+      ContactLocationHelper.contact.edit($scope.bookId, $scope.bookName, $scope.contact.id);
+    };
+
     $scope.deleteContact = function() {
       closeContactForm();
       $timeout(function() {
@@ -119,8 +123,9 @@ angular.module('linagora.esn.contact')
         gracePeriodService.flush(contactUpdateDataService.taskId);
         // check if the user edit the contact again
         if (next && next.name && nextParams &&
-            next.name === '/contact/edit/:bookId/:cardId' &&
+            next.name === '/contact/edit/:bookId/:bookName/:cardId' &&
             nextParams.bookId === $scope.bookId &&
+            nextParams.bookName === $scope.bookName &&
             nextParams.cardId === $scope.cardId) {
           // cache the contact to show in editContactController
           contactUpdateDataService.contact = $scope.contact;
@@ -158,10 +163,10 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, shellToVCARD, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, shellToVCARD, ContactLocationHelper) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
-    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
+    $scope.bookName = $stateParams.bookName;
     $scope.cardId = $stateParams.cardId;
 
     headerService.subHeader.addInjection('contact-edit-subheader', $scope);
@@ -199,7 +204,7 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.close = function() {
-      $location.path('/contact/show/' + $scope.bookId + '/' + $scope.cardId);
+      ContactLocationHelper.contact.show($scope.bookId, $scope.bookName, $scope.cardId);
     };
 
     $scope.save = function() {
@@ -256,7 +261,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService, AddressBookPagination, CONTACT_LIST_DISPLAY_MODES) {
+  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, headerService, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -270,7 +275,8 @@ angular.module('linagora.esn.contact')
     $scope.lastPage = false;
     $scope.searchFailure = false;
     $scope.totalHits = 0;
-    $scope.displayAs = CONTACT_LIST_DISPLAY.list;
+    $scope.displayAs = CONTACT_LIST_DISPLAY.multiple;
+    $scope.addressbooks = addressbooks || [];
 
     headerService.subHeader.addInjection('contact-list-subheader', $scope);
     $scope.$on('$stateChangeStart', function(evt, next) {
@@ -278,8 +284,8 @@ angular.module('linagora.esn.contact')
 
       // store the search query so the search list can be restored when the user
       // switches back to contacts list
-      if (next.name === '/contact/show/:bookId/:cardId' ||
-          next.name === '/contact/edit/:bookId/:cardId') {
+      if (next.name === '/contact/show/:bookId/:bookName/:cardId' ||
+          next.name === '/contact/edit/:bookId/:bookName/:cardId') {
         sharedContactDataService.searchQuery = $scope.searchInput;
       } else {
         sharedContactDataService.searchQuery = null;
@@ -311,7 +317,7 @@ angular.module('linagora.esn.contact')
     }
 
     function setSearchResults(data) {
-      $scope.searchResult.data = ($scope.searchResult.data) ? $scope.searchResult.data.concat(data.hits_list) : data.hits_list;
+      $scope.searchResult.data = ($scope.searchResult.data) ? $scope.searchResult.data.concat(data.data) : data.data;
       $scope.searchResult.count = data.total_hits || 0;
       $scope.searchResult.formattedResultsCount = searchResultSizeFormatter($scope.searchResult.count);
     }
@@ -397,7 +403,7 @@ angular.module('linagora.esn.contact')
 
     function switchToList() {
       cleanSearchResults();
-      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.single);
+      $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
       $scope.loadContacts();
     }
 
@@ -432,8 +438,8 @@ angular.module('linagora.esn.contact')
 
     function getNextContacts() {
       usSpinnerService.spin(SPINNER);
-      $scope.pagination.service.loadNextItems().then(function(data) {
-        addItemsToCategories(data.contacts);
+      $scope.pagination.service.loadNextItems().then(function(result) {
+        addItemsToCategories(result.data);
       }, function(err) {
         $log.error('Can not get contacts', err);
         displayContactError('Can not get contacts');
@@ -480,12 +486,13 @@ angular.module('linagora.esn.contact')
       if (!$scope.pagination) {
         $scope.pagination = new AddressBookPagination($scope);
       }
+
       $scope.pagination.init($scope.mode, {
         user: $scope.user,
-        addressbooks: [{id: $scope.bookId, name: $scope.bookName}]
+        addressbooks: $scope.addressbooks
       });
     };
-    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.single);
+    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
 
     if ($location.search().q) {
       $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
@@ -533,14 +540,12 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $location, $window, deleteContact, ContactsHelper, DEFAULT_ADDRESSBOOK_NAME) {
-
-    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
+  .controller('contactItemController', function($scope, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper) {
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
     $scope.displayContact = function() {
       // use url instead of path to remove search and hash from URL
-      $location.url('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+      ContactLocationHelper.contact.show($scope.addressbook.bookId, $scope.addressbook.bookName, $scope.contact.id);
     };
 
     $scope.actionClick = function(event, action) {
@@ -553,6 +558,6 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.deleteContact = function() {
-      deleteContact($scope.bookId, $scope.bookName, $scope.contact);
+      deleteContact($scope.addressbook.bookId, $scope.addressbook.bookName, $scope.contact);
     };
   });

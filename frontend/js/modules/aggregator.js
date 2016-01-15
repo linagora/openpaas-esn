@@ -7,7 +7,7 @@ angular.module('esn.aggregator', [])
   .factory('PageAggregatorSourceWrapper', function($q, $log) {
     function PageAggregatorSourceWrapper(source) {
       this.source = source;
-      this.endOfPagination = false;
+      this.lastPage = false;
     }
 
     PageAggregatorSourceWrapper.prototype.loadNextItems = function(options) {
@@ -18,7 +18,7 @@ angular.module('esn.aggregator', [])
       }
 
       return this.source.loadNextItems(options).then(function(result) {
-        self.endOfPagination = !result.nextPage;
+        self.lastPage = result.lastPage;
         return {id: self.source.id, hasNext: self.hasNext(), data: result.data || []};
       }, function(err) {
         $log.error('Fail to load new items', err);
@@ -27,7 +27,7 @@ angular.module('esn.aggregator', [])
     };
 
     PageAggregatorSourceWrapper.prototype.hasNext = function() {
-      return !this.endOfPagination;
+      return !this.lastPage;
     };
 
     return PageAggregatorSourceWrapper;
@@ -96,11 +96,16 @@ angular.module('esn.aggregator', [])
 
     PageAggregatorService.prototype._loadItemsFromSources = function() {
       return $q.all(this.wrappedSources.map(function(wrappedSource) {
+
+        if (wrappedSource.data.length > 0) {
+          return $q.when({data: wrappedSource.data});
+        }
+
         return wrappedSource.source.loadNextItems().then(function(result) {
           if (result.data && result.data.length) {
             Array.prototype.push.apply(wrappedSource.data, result.data);
           }
-          return $q.when({data: result.data});
+          return $q.when({data: wrappedSource.data});
         }, function(err) {
           $log.error(err);
           return $q.when({data: []});

@@ -29,7 +29,12 @@ angular.module('linagora.esn.contact', [
       controller: 'contactsListController',
       resolve: {
         domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
+        user: routeResolver.session('user'),
+        addressbooks: function(ContactAPIClient, session) {
+          return session.ready.then(function() {
+            return ContactAPIClient.addressbookHome(session.user._id).addressbook().list();
+          });
+        }
       },
       reloadOnSearch: false
     })
@@ -42,8 +47,8 @@ angular.module('linagora.esn.contact', [
         user: routeResolver.session('user')
       }
     })
-    .state('/contact/show/:bookId/:cardId', {
-      url: '/contact/show/:bookId/:cardId',
+    .state('/contact/show/:bookId/:bookName/:cardId', {
+      url: '/contact/show/:bookId/:bookName/:cardId',
       templateUrl: '/contact/views/contact-show',
       controller: 'showContactController',
       resolve: {
@@ -51,8 +56,8 @@ angular.module('linagora.esn.contact', [
         user: routeResolver.session('user')
       }
     })
-    .state('/contact/edit/:bookId/:cardId', {
-      url: '/contact/edit/:bookId/:cardId',
+    .state('/contact/edit/:bookId/:bookName/:cardId', {
+      url: '/contact/edit/:bookId/:bookName/:cardId',
       templateUrl: '/contact/views/contact-edit',
       controller: 'editContactController',
       resolve: {
@@ -92,12 +97,12 @@ angular.module('linagora.esn.contact', [
           .vcard()
           .search(searchOptions)
           .then(function(response) {
-            response.hits_list.forEach(function(contact) {
+            response.data.forEach(function(contact) {
               if (contact.emails && contact.emails.length !== 0) {
                 contact.email = contact.emails[0].value;
               }
             });
-            return response.hits_list;
+            return response.data;
           }, function(error) {
             $log('Error while searching contacts: ' + error);
             return $q.when([]);
