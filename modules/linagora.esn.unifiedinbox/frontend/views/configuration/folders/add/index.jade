@@ -1,4 +1,4 @@
-.subheader-aware.inbox-main-content.configuration
+.inbox-main-content.configuration
   form(ng-submit="addFolder()")
     .field.fg-line
       .field-name #{__('Name')}
@@ -9,4 +9,4 @@
 
     .button-bar.hidden-xs
       input.btn.btn-primary.pull-right(type="submit", value="#{__('Create')}")
-      input.btn.btn-default.pull-right(type="button", value="#{__('Cancel')}", ui-sref="/unifiedinbox/configuration")
+      input.btn.btn-default.pull-right(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox.configuration")

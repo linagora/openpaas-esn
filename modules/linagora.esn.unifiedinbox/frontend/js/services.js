@@ -401,7 +401,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function newMobileComposer(email) {
-      $state.go('/unifiedinbox/compose', {email: email});
+      $state.go('unifiedinbox-compose', {email: email});
     }
 
     function newBoxedComposer() {

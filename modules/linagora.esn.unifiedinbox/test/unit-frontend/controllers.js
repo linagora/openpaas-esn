@@ -306,18 +306,18 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(newComposerService.openDraft).to.have.been.calledWith({email: 'object'});
       });
 
-      it('should change location path if mailbox has not the draft role', function() {
+      it('should change state if mailbox has not the draft role', function() {
         jmapClient.getMailboxes = function() {
           return $q.when([{role: jmap.MailboxRole.INBOX, name: 'my box'}]);
         };
-        $location.path = sinon.spy();
+        $state.go = sinon.spy();
 
         initController('listEmailsController');
         $timeout.flush();
 
         scope.openEmail({id: 'expectedId'});
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox/chosenMailbox/expectedId');
+        expect($state.go).to.have.been.calledWith('unifiedinbox.email', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
       });
 
     });
@@ -573,7 +573,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The addFolder method', function() {
 
-      it('should go to /unifiedinbox/configuration', function() {
+      it('should go to unifiedinbox.configuration', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         $state.go = sinon.spy();
 
@@ -582,7 +582,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.mailbox = {};
         scope.addFolder();
 
-        expect($state.go).to.have.been.calledWith('/unifiedinbox/configuration');
+        expect($state.go).to.have.been.calledWith('unifiedinbox.configuration');
       });
 
     });
@@ -631,7 +631,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The editFolder method', function() {
 
-      it('should go to /unifiedinbox/configuration', function() {
+      it('should go to unifiedinbox.configuration', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         $state.go = sinon.spy();
 
@@ -640,7 +640,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.mailbox = {};
         scope.editFolder();
 
-        expect($state.go).to.have.been.calledWith('/unifiedinbox/configuration');
+        expect($state.go).to.have.been.calledWith('unifiedinbox.configuration');
       });
 
     });

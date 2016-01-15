@@ -1285,7 +1285,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.open();
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: undefined});
+        expect($state.go).to.have.been.calledWith('unifiedinbox-compose', {email: undefined});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1319,7 +1319,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.openDraft({expected: 'field'});
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: {expected: 'field'}});
+        expect($state.go).to.have.been.calledWith('unifiedinbox-compose', {email: {expected: 'field'}});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1354,7 +1354,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.openEmailCustomTitle('title', {expected: 'field'});
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('/unifiedinbox/compose', {email: {expected: 'field'}});
+        expect($state.go).to.have.been.calledWith('unifiedinbox-compose', {email: {expected: 'field'}});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {

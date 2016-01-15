@@ -2,11 +2,16 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('homeController', function(headerService) {
-    headerService.subHeader.resetInjections();
+  .controller('homeController', function($rootScope, headerService) {
+
+    $rootScope.$on('$stateChangeSuccess', function(event, toState){
+      if (toState.name === 'unifiedinbox') {
+        headerService.subHeader.resetInjections();
+      }
+    });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $location, jmap, withJmapClient, EmailGroupingTool, newComposerService, headerService) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, EmailGroupingTool, newComposerService, headerService) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
@@ -40,7 +45,10 @@ angular.module('linagora.esn.unifiedinbox')
       if (isDraftMailbox()) {
         newComposerService.openDraft(email);
       } else {
-        $location.path('/unifiedinbox/' + $scope.mailbox + '/' + email.id);
+        $state.go('unifiedinbox.email', {
+          mailbox: $scope.mailbox,
+          emailId: email.id
+        });
       }
     };
 
@@ -155,7 +163,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.addFolder = function() {
       notificationFactory.weakSuccess('Successfully created folder ' + $scope.mailbox.name + ' as a child of ' + $scope.mailbox.parentId, '');
-      $state.go('/unifiedinbox/configuration');
+      $state.go('unifiedinbox.configuration');
     };
   })
 
@@ -170,7 +178,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.editFolder = function() {
       notificationFactory.weakSuccess('Successfully edited folder ' + $scope.mailbox.name + ' as a child of ' + $scope.mailbox.parentId, '');
-      $state.go('/unifiedinbox/configuration');
+      $state.go('unifiedinbox.configuration');
     };
 
     $scope.confirmationDialog = function() {

@@ -1,4 +1,4 @@
-.clickable(title='{{ ::mailbox.name }}')
+.clickable(title="{{ ::mailbox.name }}")
   .badge.pull-right(ng-hide='mailbox.unreadMessages === 0') {{ mailbox.unreadMessages }}
   .ellipsis
     i.inbox-icon(ng-class='mailboxIcons')
