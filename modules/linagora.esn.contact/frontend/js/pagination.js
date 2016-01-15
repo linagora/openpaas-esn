@@ -70,6 +70,7 @@ angular.module('linagora.esn.contact')
           paginate: true
         }).then(function(result) {
           self.lastPage = result.last_page;
+          result.lastPage = result.last_page;
           self.nextPage = result.next_page;
           result.data.forEach(function(vcard) {
             vcard.addressbook = self.addressbook;
@@ -121,7 +122,7 @@ angular.module('linagora.esn.contact')
           if (self.totalHits === result.total_hits) {
             self.lastPage = true;
           }
-          result.last_page = self.lastPage;
+          result.lastPage = self.lastPage;
           result.data.forEach(function(vcard) {
             vcard.addressbook = self.addressbook;
           });
@@ -134,9 +135,13 @@ angular.module('linagora.esn.contact')
 
   .factory('ContactShellComparator', function() {
 
+    function getAsAlpha(str) {
+      return /^[ a-z]+$/i.test(str) ? str.toLowerCase() : '#';
+    }
+
     function byDisplayName(contact1, contact2) {
-      var valueA = contact1.displayName.toLowerCase();
-      var valueB = contact2.displayName.toLowerCase();
+      var valueA = getAsAlpha(contact1.displayName);
+      var valueB = getAsAlpha(contact2.displayName);
 
       if (valueA < valueB) {
         return -1;
