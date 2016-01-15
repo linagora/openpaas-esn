@@ -556,4 +556,52 @@ angular.module('linagora.esn.unifiedinbox')
       quote: quote,
       supportsRichtext: supportsRichtext
     };
+  })
+
+  .factory('mailboxesService', function(_, withJmapClient, MAILBOX_LEVEL_SEPARATOR) {
+    function filterSystemMailboxes(mailboxes) {
+      return _.reject(mailboxes, function(mailbox) { return mailbox.role.value; });
+    }
+
+    function qualifyMailboxes(mailboxes) {
+      return mailboxes.map(qualifyMailbox.bind(null, mailboxes));
+    }
+
+    function qualifyMailbox(mailboxes, mailbox) {
+      function findParent(box) {
+        return box.parentId && _.find(mailboxes, { id: box.parentId });
+      }
+
+      var parent = mailbox;
+
+      mailbox.level = 1;
+      mailbox.qualifiedName = mailbox.name;
+
+      while ((parent = findParent(parent))) {
+        mailbox.qualifiedName = parent.name + MAILBOX_LEVEL_SEPARATOR + mailbox.qualifiedName;
+        mailbox.level++;
+      }
+
+      return mailbox;
+    }
+
+    function assignMailboxesList(dst, filter) {
+      return withJmapClient(function(jmapClient) {
+        return jmapClient.getMailboxes()
+          .then(filter || _.identity)
+          .then(qualifyMailboxes)
+          .then(function(mailboxes) {
+            if (dst && !dst.mailboxes) {
+              dst.mailboxes = mailboxes;
+            }
+
+            return mailboxes;
+          });
+      });
+    }
+
+    return {
+      filterSystemMailboxes: filterSystemMailboxes,
+      assignMailboxesList: assignMailboxesList
+    };
   });

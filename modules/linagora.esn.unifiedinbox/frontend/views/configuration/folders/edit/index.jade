@@ -1,0 +1,12 @@
+.subheader-aware.inbox-main-content.configuration
+  form(ng-submit="editFolder()")
+    .field.fg-line
+      .field-name #{__('Rename')}
+      input.form-control(ng-model="mailbox.name", required)
+    .field.fg-line
+      .field-name #{__('Child Of')}
+      select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
+
+    .button-bar.hidden-xs
+      input.btn.btn-primary.pull-right(type="submit", value="#{__('Edit')}")
+      input.btn.btn-default.pull-right(type="button", value="#{__('Cancel')}", ui-sref="/unifiedinbox/configuration")

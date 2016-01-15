@@ -209,7 +209,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       it('should bind the send button to the scope method', function() {
         $scope.send = sinon.spy();
 
-        mainHeader.find('.composer-subheader .send-button').click();
+        mainHeader.find('.inbox-subheader.composer .submit.button').click();
 
         expect($scope.send).to.have.been.called;
       });
@@ -217,7 +217,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       it('should bind the close button to the scope method', function() {
         $scope.close = sinon.spy();
 
-        mainHeader.find('.composer-subheader .close-button').click();
+        mainHeader.find('.inbox-subheader.composer .close.button').click();
 
         expect($scope.close).to.have.been.called;
       });
@@ -229,7 +229,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       beforeEach(inject(function(_headerService_) {
         headerService = _headerService_;
-        headerService.subHeader.addInjection = sinon.spy();
+        headerService.subHeader.setInjection = sinon.spy();
         headerService.subHeader.resetInjections = sinon.spy();
 
         ctrl = compileDirective('<composer/>').controller('composer');
@@ -237,13 +237,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       }));
 
       it('should be shown when directive is linked', function() {
-        expect(headerService.subHeader.addInjection).to.have.been.called;
+        expect(headerService.subHeader.setInjection).to.have.been.called;
       });
 
       it('should be shown when the fullscreen edit form is closed', function() {
         $rootScope.$broadcast('fullscreenEditForm:close');
 
-        expect(headerService.subHeader.addInjection).to.have.been.calledTwice;
+        expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
       });
 
       it('should be hidden when location has successfully changed', function() {
@@ -267,7 +267,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       it('should be shown when enableSendButton fn is called', function() {
         $scope.enableSendButton();
 
-        expect(headerService.subHeader.addInjection).to.have.been.calledTwice;
+        expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
       });
     });
 

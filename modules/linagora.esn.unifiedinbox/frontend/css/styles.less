@@ -2,6 +2,7 @@
 @import './modules/viewEmail';
 @import './modules/composer';
 @import './modules/header';
+@import './modules/configuration';
 
 .comma {
   margin-right: 2px;
@@ -27,4 +28,37 @@
   a {
     cursor: pointer;
   }
+}
+
+.inbox-main-content {
+  position: fixed;
+  overflow: auto;
+
+  left: 0;
+  right: 0;
+  top: @header-height;
+  bottom: 0;
+
+  background-color: @m-white;
+  color: @secondaryTextColor;
+  font-size: 1.4em;
+
+  width: 100%;
+  padding: 15px;
+
+  hr {
+    border-color: @secondaryTextColor;
+  }
+}
+
+.inbox-icon {
+  margin-right: 5px;
+}
+
+@media (min-width: @screen-sm-min) {
+
+  .clickable:hover {
+    color: @text-color;
+  }
+
 }

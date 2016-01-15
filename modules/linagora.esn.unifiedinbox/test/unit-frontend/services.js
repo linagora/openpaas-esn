@@ -1759,4 +1759,126 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The mailboxesService factory', function() {
+
+    var mailboxesService, jmapClient, $rootScope;
+
+    beforeEach(module(function($provide) {
+      jmapClient = {
+        getMailboxes: function() { return $q.when([]); }
+      };
+
+      $provide.value('withJmapClient', function(callback) { return callback(jmapClient); });
+    }));
+
+    beforeEach(inject(function(_mailboxesService_, _$rootScope_) {
+      mailboxesService = _mailboxesService_;
+      $rootScope = _$rootScope_;
+    }));
+
+    describe('The filterSystemMailboxes function', function() {
+
+      it('should filter mailboxes with a known role', function() {
+        var mailboxes = [
+          { id: 1, role: { value: 'inbox' } },
+          { id: 2, role: { } },
+          { id: 3, role: { value: null } },
+          { id: 4, role: { value: 'outbox' } }
+        ];
+        var expected = [
+          { id: 2, role: { } },
+          { id: 3, role: { value: null } }
+        ];
+
+        expect(mailboxesService.filterSystemMailboxes(mailboxes)).to.deep.equal(expected);
+      });
+
+      it('should return an empty array if an empty array is given', function() {
+        expect(mailboxesService.filterSystemMailboxes([])).to.deep.equal([]);
+      });
+
+      it('should return an empty array if nothing is given', function() {
+        expect(mailboxesService.filterSystemMailboxes()).to.deep.equal([]);
+      });
+
+    });
+
+    describe('The assignMailboxesList function', function() {
+
+      it('should return a promise', function(done) {
+        mailboxesService.assignMailboxesList().then(function(mailboxes) {
+          expect(mailboxes).to.deep.equal([]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should assign dst.mailboxes if dst is given', function(done) {
+        var object = {};
+
+        mailboxesService.assignMailboxesList(object).then(function(mailboxes) {
+          expect(object.mailboxes).to.deep.equal([]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should assign dst.mailboxes if dst is given and dst.mailboxes does not exist yet', function(done) {
+        var object = { mailboxes: 'Yolo' };
+
+        mailboxesService.assignMailboxesList(object).then(function(mailboxes) {
+          expect(object.mailboxes).to.equal('Yolo');
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should filter mailboxes using a filter, if given', function(done) {
+        jmapClient.getMailboxes = function() {
+          return $q.when([{}, {}, {}]);
+        };
+        mailboxesService.assignMailboxesList(null, function(mailboxes) {
+          return mailboxes.slice(0, 1);
+        }).then(function(mailboxes) {
+          expect(mailboxes).to.have.length(1);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should add level and qualifiedName properties to mailboxes', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1' },
+            { id: 2, name: '2', parentId: 1 },
+            { id: 3, name: '3', parentId: 2 },
+            { id: 4, name: '4' },
+            { id: 5, name: '5', parentId: 1 }
+          ]);
+        };
+        var expected = [
+          { id: 1, name: '1', level: 1, qualifiedName: '1' },
+          { id: 2, name: '2', parentId: 1, level: 2, qualifiedName: '1 / 2' },
+          { id: 3, name: '3', parentId: 2, level: 3, qualifiedName: '1 / 2 / 3' },
+          { id: 4, name: '4', level: 1, qualifiedName: '4' },
+          { id: 5, name: '5', parentId: 1, level: 2, qualifiedName: '1 / 5' }
+        ];
+
+        mailboxesService.assignMailboxesList().then(function(mailboxes) {
+          expect(mailboxes).to.deep.equal(expected);
+        });
+      });
+
+    });
+
+  });
+
 });

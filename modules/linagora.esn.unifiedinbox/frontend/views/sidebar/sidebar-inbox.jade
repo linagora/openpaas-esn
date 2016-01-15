@@ -4,6 +4,11 @@ ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
 ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
   .listview.p-t-5
     .lv-body
-      .p-10
-        a.lv-item(ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'name']")
-          mailbox-display(mailbox="mailbox")
+      mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'name']", ui-sref="/unifiedinbox/:mailbox({ mailbox: mailbox.id})")
+hr
+ul.nav.nav-pills.nav-stacked
+  .listview.p-t-5
+    .lv-body
+      .lv-item.clickable(ui-sref="/unifiedinbox/configuration")
+        i.inbox-icon.mdi.mdi-settings
+        | #{__('Configuration')}
