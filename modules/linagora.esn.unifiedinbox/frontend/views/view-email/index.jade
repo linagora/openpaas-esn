@@ -1,30 +1,28 @@
-.email-view.col-xs-12.col-md-10
+.subheader-aware.email-view.col-xs-12.col-md-10
 
   ul.actions.pull-right
     li
       a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Go back to mailbox')}")
         i.mdi.mdi-v-centered.mdi-folder
-
-  .block-header
-    h2.subject {{::email.subject}}
-    h3.headers
-      .text-right
-        span.date {{::email.date | date:'short' }}
-        i.mdi.mdi-clock
-      .avatarify
-        .from
-          span.line-header #{__('From')}:
-          emailer(emailer="::email.from")
-        .to
-          span.line-header #{__('To')}:
-          emailer-group(group="::email.to")
-        .cc
-          span.line-header #{__('CC')}:
-          emailer-group(group="::email.cc")
-          
-    .actions.pull-right
+    li
       a(href="", action-list, template-desktop-url="/unifiedinbox/views/partials/action-list-desktop.html" template-mobile-url="/unifiedinbox/views/partials/action-list-mobile.html" title="#{__('More')}")
         i.mdi.mdi-v-centered.mdi-view-module
+
+  h2.subject.visible-md.visible-lg {{::email.subject}}
+  h3.headers
+    .text-right
+      span.date {{::email.date | date:'short' }}
+      i.mdi.mdi-clock
+    .avatarify
+      .from
+        span.line-header #{__('From')}:
+        emailer(emailer="::email.from")
+      .to
+        span.line-header #{__('To')}:
+        emailer-group(group="::email.to")
+      .cc
+        span.line-header #{__('CC')}:
+        emailer-group(group="::email.cc")
 
   .email-body
     html-email-body(ng-if="email.htmlBody", email="::email")

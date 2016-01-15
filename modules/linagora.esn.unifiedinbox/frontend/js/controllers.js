@@ -6,7 +6,7 @@ angular.module('linagora.esn.unifiedinbox')
     headerService.subHeader.resetInjections();
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $location, jmap, withJmapClient, EmailGroupingTool, newComposerService) {
+  .controller('listEmailsController', function($scope, $stateParams, $location, jmap, withJmapClient, EmailGroupingTool, newComposerService, headerService) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
@@ -31,6 +31,8 @@ angular.module('linagora.esn.unifiedinbox')
     function isDraftMailbox() {
       return $scope.mailboxRole === jmap.MailboxRole.DRAFTS;
     }
+
+    headerService.subHeader.setInjection('list-emails-subheader', $scope);
 
     $scope.mailbox = $stateParams.mailbox;
 
@@ -102,7 +104,10 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $location, withJmapClient, jmap, session, notificationFactory, emailSendingService, newComposerService) {
+  .controller('viewEmailController', function($scope, $stateParams, $location, withJmapClient, jmap, session, notificationFactory, emailSendingService, newComposerService, headerService) {
+
+    headerService.subHeader.setInjection('view-email-subheader', $scope);
+
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
 

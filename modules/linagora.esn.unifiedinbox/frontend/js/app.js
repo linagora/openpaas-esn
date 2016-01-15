@@ -49,12 +49,12 @@ angular.module('linagora.esn.unifiedinbox', [
       })
       .state('/unifiedinbox/:mailbox', {
         url: '/unifiedinbox/:mailbox',
-        templateUrl: '/unifiedinbox/views/listEmails',
+        templateUrl: '/unifiedinbox/views/list-emails/index',
         controller: 'listEmailsController'
       })
       .state('/unifiedinbox/:mailbox/:emailId', {
         url: '/unifiedinbox/:mailbox/:emailId',
-        templateUrl: '/unifiedinbox/views/viewEmail',
+        templateUrl: '/unifiedinbox/views/view-email/index',
         controller: 'viewEmailController'
       });
 

@@ -276,6 +276,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $rootScope.$digest();
     });
 
+    it('should display the list-emails-subheader mobile header', function() {
+      headerService.subHeader.setInjection = sinon.spy();
+
+      initController('listEmailsController');
+
+      expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
+    });
+
     describe('openEmail fn', function() {
 
       var newComposerService;
@@ -318,9 +326,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The viewEmailController', function() {
 
-    it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
+    beforeEach(function() {
       jmapClient.getMessages = function() { return $q.when([]); };
+    });
 
+    it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
       initController('viewEmailController');
 
       expect(scope.mailbox).to.equal('chosenMailbox');
@@ -352,6 +362,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         done();
       });
       $rootScope.$digest();
+    });
+
+    it('should display the view-email-subheader mobile header', function() {
+      headerService.subHeader.setInjection = sinon.spy();
+
+      initController('viewEmailController');
+
+      expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-email-subheader', sinon.match.any);
     });
 
     describe('The moveToTrash fn', function() {
