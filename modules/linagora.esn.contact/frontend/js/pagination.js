@@ -32,9 +32,7 @@ angular.module('linagora.esn.contact')
 
     MultipleAddressBookPaginationProvider.prototype.loadNextItems = function() {
       $log.debug('Loading next items on aggregator');
-      return this.aggregator.loadNextItems().then(function(result) {
-        return result;
-      });
+      return this.aggregator.loadNextItems();
     };
 
     return MultipleAddressBookPaginationProvider;

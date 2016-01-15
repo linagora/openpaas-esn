@@ -37,7 +37,6 @@ describe('The Contact Angular module AddressBookShell', function() {
         var shell = new this.AddressBookShell(jsonInput);
 
         expect(shell).to.shallowDeepEqual({
-          id: bookName,
           bookId: bookId,
           bookName: bookName,
           href: jsonInput._links.self.href,

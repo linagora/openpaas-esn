@@ -17,7 +17,6 @@ angular.module('linagora.esn.contact')
       var split = this.href.split('/');
       this.bookName = split.pop().split('.').shift();
       this.bookId = split.pop();
-      this.id = this.bookName;
     }
 
     return AddressBookShell;

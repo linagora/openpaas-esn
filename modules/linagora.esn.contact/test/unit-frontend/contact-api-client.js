@@ -127,18 +127,21 @@ describe('The contact Angular module contactapis', function() {
         describe('The get addressbook fn', function() {
 
           it('should return an AddressBookShell instance if success', function(done) {
-            var bookId = '123';
+            var bookId = '5666b4cff5d672f316d4439f';
+            var bookName1 = '1614422648';
+            var bookName2 = '1614422649';
+
             this.$httpBackend.expectGET(this.getBookHomeUrl(bookId)).respond({
               _links: {
                 self: {
-                  href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
+                  href: '/esn-sabre/esn.php/addressbooks/' + bookId + ' .json'
                 }
               },
               _embedded: {
                 'dav:addressbook': [{
                   _links: {
                     self: {
-                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/contacts.json'
+                      href: '/esn-sabre/esn.php/addressbooks/' + bookId + '/' + bookName1 + '.json'
                     }
                   },
                   'dav:name': 'Default Addressbook',
@@ -147,7 +150,7 @@ describe('The contact Angular module contactapis', function() {
                 }, {
                   _links: {
                     self: {
-                      href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/1614422648.json'
+                      href: '/esn-sabre/esn.php/addressbooks/' + bookId + '/' + bookName2 + '.json'
                     }
                   },
                   'dav:name': 'Twitter addressbook',
@@ -157,15 +160,15 @@ describe('The contact Angular module contactapis', function() {
               }
             });
 
-            var bookName = '1614422648';
             var AddressBookShell = this.AddressBookShell;
             this.ContactAPIClient
               .addressbookHome(bookId)
-              .addressbook(bookName)
+              .addressbook(bookName1)
               .get()
               .then(function(addressbook) {
                 expect(addressbook).to.be.instanceof(AddressBookShell);
-                expect(addressbook.id).to.equal(bookName);
+                expect(addressbook.bookId).to.equal(bookId);
+                expect(addressbook.bookName).to.equal(bookName1);
                 done();
               }, done);
 

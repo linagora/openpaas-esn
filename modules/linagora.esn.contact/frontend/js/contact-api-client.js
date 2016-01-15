@@ -100,12 +100,12 @@ angular.module('linagora.esn.contact')
       return listAddressbook(bookId)
         .then(function(addressbooks) {
           addressbooks.some(function(item) {
-            if (item.id === bookName) {
+            if (item.bookName === bookName) {
               addressbook = item;
               return true;
             }
           });
-          return addressbook || $q.reject('Not found addressbook');
+          return addressbook || $q.reject(new Error('Addressbook has not been found'));
         });
     }
 
