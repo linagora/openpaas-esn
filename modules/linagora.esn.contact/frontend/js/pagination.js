@@ -169,7 +169,7 @@ angular.module('linagora.esn.contact')
     AddressBookPaginationService.prototype.loadNextItems = function(options) {
       var self = this;
       return this.provider.loadNextItems(options).then(function(result) {
-        self.lastPage = result.last_page;
+        self.lastPage = result.lastPage;
         return result;
       });
     };
@@ -218,6 +218,7 @@ angular.module('linagora.esn.contact')
     function LastPageWatcher(scope, addressBookPaginationService) {
       var self = this;
       this.scope = scope;
+      this.scope.lastPage = false;
       this.addressBookPaginationService = addressBookPaginationService;
 
       this.unbindWatch = scope.$watch(function() {
