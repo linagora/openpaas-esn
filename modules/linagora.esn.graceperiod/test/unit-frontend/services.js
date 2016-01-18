@@ -484,7 +484,7 @@ describe('The GracePeriod Angular module', function() {
 
     });
 
-    describe('The hasTaskFor fn', function() {
+    describe('The getTasksFor fn', function() {
 
       var taskId = 'taskId';
       var context = {
@@ -501,19 +501,19 @@ describe('The GracePeriod Angular module', function() {
         gracePeriodService.addTaskId(taskId, context);
       });
 
-      it('should return false if no context query is passed as parameter', function() {
-        expect(gracePeriodService.hasTaskFor()).to.be.false;
+      it('should return an empty array if no context query is passed as parameter', function() {
+        expect(gracePeriodService.getTasksFor()).to.deep.equal([]);
       });
 
-      it('should return false if no task exists for this context query', function() {
-        expect(gracePeriodService.hasTaskFor({id: 'anotherId'})).to.be.false;
-        expect(gracePeriodService.hasTaskFor({id: 'anId', p: 'anotherProperty', p2: 'yolo'})).to.be.false;
+      it('should return an empty array if no task exists for this context query', function() {
+        expect(gracePeriodService.getTasksFor({id: 'anotherId'})).to.deep.equal([]);
+        expect(gracePeriodService.getTasksFor({id: 'anId', p: 'anotherProperty', p2: 'yolo'})).to.deep.equal([]);
       });
 
-      it('should return true if a task exists for this context query', function() {
-        expect(gracePeriodService.hasTaskFor(context)).to.be.true;
-        expect(gracePeriodService.hasTaskFor({id: context.id})).to.be.true;
-        expect(gracePeriodService.hasTaskFor({p: context.p})).to.be.true;
+      it('should return the tasks matching this context query', function() {
+        expect(gracePeriodService.getTasksFor(context)).to.deep.equal([taskId]);
+        expect(gracePeriodService.getTasksFor({id: context.id})).to.deep.equal([taskId]);
+        expect(gracePeriodService.getTasksFor({p: context.p})).to.deep.equal([taskId]);
       });
     });
 
