@@ -29,9 +29,9 @@ angular.module('esn.actionList', [])
           }
         }
 
-        var boundOpenFn = screenSize.get() === 'xs' ? openForMobile : openForDesktop;
+        var boundOpenFn = screenSize.is('xs, sm') ? openForMobile : openForDesktop;
 
-        screenSize.on('xs', function(match) {
+        screenSize.on('xs, sm', function(match) {
           if (match && boundOpenFn === openForDesktop) {
             boundOpenFn = openForMobile;
             handleWindowResizement();
