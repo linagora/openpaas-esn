@@ -1,5 +1,7 @@
-.clickable(title="{{ ::mailbox.name }}")
+.container-fluid.row.clickable(title="{{ ::mailbox.name }}")
   .badge.pull-right(ng-hide='mailbox.unreadMessages === 0') {{ mailbox.unreadMessages }}
-  .ellipsis
-    i.inbox-icon(ng-class='mailboxIcons')
-    | {{ ::mailbox.qualifiedName }}
+  i.pull-left.inbox-icon(ng-class='mailboxIcons')
+  .mailbox-name
+    span.mailbox-name-inner
+      bdi {{ ::mailbox.qualifiedName }}
+    span.mailbox-name-after

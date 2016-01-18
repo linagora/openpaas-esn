@@ -1,14 +1,13 @@
-ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
-  li.text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
+.inbox-aside
+  ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
+    li.text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
 
-ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
-  .listview.p-t-5
-    .lv-body
-      mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.mailbox({ mailbox: mailbox.id})")
-hr
-ul.nav.nav-pills.nav-stacked
-  .listview.p-t-5
-    .lv-body
-      .lv-item.clickable(ui-sref="unifiedinbox.configuration")
-        i.inbox-icon.mdi.mdi-settings
-        | #{__('Configuration')}
+  ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
+    .listview.p-t-5
+      .lv-body
+        mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.mailbox({ mailbox: mailbox.id})")
+
+  .inbox-aside-footer
+    .clickable(ui-sref="unifiedinbox.configuration")
+      i.inbox-icon.mdi.mdi-settings
+      | #{__('Configuration')}

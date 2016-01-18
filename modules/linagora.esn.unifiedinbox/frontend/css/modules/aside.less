@@ -1,0 +1,97 @@
+@inboxAsideFontSize: 1.6em;
+@inboxAsideHeadingFontSize: 1.8em;
+@inboxAsideIconFontSize: 2.2em;
+@inboxAsideMailboxNameHeight: 38px;
+
+.inbox-aside {
+
+  color: @secondaryTextColor;
+
+  .clickable {
+    line-height: @inboxAsideFontSize;
+
+    &:hover {
+      color: @text-color;
+    }
+  }
+
+  .inbox-icon {
+    font-size: @inboxAsideFontSize;
+    vertical-align: bottom;
+  }
+
+  .mailbox-name {
+    background-color: inherit;
+    overflow: hidden;
+    direction: rtl;
+    height: @inboxAsideMailboxNameHeight;
+    text-align: left;
+    line-height: @inboxAsideMailboxNameHeight - 8;
+
+    .mailbox-name-inner {
+      white-space: nowrap;
+      text-align: left;
+      display: inline-block;
+      vertical-align: top;
+      height: @inboxAsideMailboxNameHeight + 1;
+    }
+    .mailbox-name-after {
+      width: 1px;
+      height: @inboxAsideMailboxNameHeight + 1;
+      display: inline-block;
+      position: relative;
+    }
+    .mailbox-name-after:after {
+      content: "…";
+      width: auto;
+      background-color: white;
+      margin-right: 6px;
+      box-shadow: 2px 0 2px white;
+      position: absolute;
+      bottom: @inboxAsideMailboxNameHeight + 1;
+      left: 0;
+      height: @inboxAsideMailboxNameHeight + 1;
+      min-width: 1px;
+    }
+  }
+
+  .inbox-aside-footer {
+    border-top: 1px solid @primaryColor;
+    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .listview:not(.lv-lg):not(.lv-message) {
+    .lv-item {
+      padding: 5px 20px;
+    }
+  }
+
+  .badge {
+    position: absolute;
+    bottom: 10px;
+    left: 35px;
+    min-width: 18px;
+    height: 18px;
+    z-index: 2;
+
+    font-size: 0.7em;
+    line-height: 18px;
+
+    border-radius: 8px;
+    padding: 0;
+  }
+
+}
+
+.inbox-desktop-menu {
+
+  .mailbox-name {
+    .mailbox-name-after:after {
+      background-color: @body-bg;
+      box-shadow: 2px 0 4px @body-bg;
+    }
+  }
+
+}
