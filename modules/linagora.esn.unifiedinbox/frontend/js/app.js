@@ -30,7 +30,11 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox', {
         url: '/unifiedinbox',
         templateUrl: '/unifiedinbox/views/unifiedinbox',
-        controller: 'homeController'
+        deepStateRedirect: {
+          fn: function() {
+            return { state: 'unifiedinbox.inbox' };
+          }
+        }
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
@@ -57,6 +61,12 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/configuration/folders/edit/index',
             controller: 'editFolderController'
           }
+        }
+      })
+      .state('unifiedinbox.inbox', {
+        url: '/inbox',
+        views: {
+          'main@unifiedinbox': { controller: 'goToInboxController' }
         }
       })
       .state('unifiedinbox.mailbox', {

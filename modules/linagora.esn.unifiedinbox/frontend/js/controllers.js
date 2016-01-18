@@ -2,12 +2,11 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('homeController', function($rootScope, headerService) {
-
-    $rootScope.$on('$stateChangeSuccess', function(event, toState){
-      if (toState.name === 'unifiedinbox') {
-        headerService.subHeader.resetInjections();
-      }
+  .controller('goToInboxController', function($state, withJmapClient, jmap) {
+    withJmapClient(function(client) {
+      client.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
+        $state.go('unifiedinbox.mailbox', { mailbox: mailbox.id });
+      });
     });
   })
 

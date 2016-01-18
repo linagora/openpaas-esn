@@ -705,14 +705,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
-  describe('The homeController', function() {
+  describe('The goToInboxController', function() {
 
-    it('should reset the mobile subheader', function() {
-      headerService.subHeader.resetInjections = sinon.spy();
+    it('should requests the INBOX mailbox, and move to it when found', function() {
+      $state.go = sinon.spy();
+      jmapClient.getMailboxWithRole = function() { return $q.when({ id: '1' }); };
 
-      initController('homeController');
+      initController('goToInboxController');
 
-      expect(headerService.subHeader.resetInjections).to.have.been.called;
+      expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: '1' });
     });
 
   });
