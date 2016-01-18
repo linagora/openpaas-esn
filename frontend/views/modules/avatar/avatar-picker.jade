@@ -6,7 +6,7 @@
       input(type="file", accept="image/*", load-button)
 .row.avatar-picker-error
 .row.avatar-picker-preview
-  .col-xs-6.col-xs-offset-3.col-sm-3.col-sm-offset-0
+  .col-xs-12.col-md-3.flex-horizontal-centered
     div(ng-show='!image.selected')
       img(width="128", height="128", ng-src='{{avatarPlaceholder}}')
     div(ng-show='image.selected')
@@ -14,7 +14,7 @@
         a(data-ng-click='removeSelectedImage()', href='')
           i.mdi.mdi-close
         canvas(width="128", height="128", id="preview", img-preview)
-  .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='image.selected')
+  .col-xs-12.col-md-9.flex-horizontal-centered(ng-show='image.selected')
     .hidden-md.hidden-sm.hidden-lg
       img-loaded(width="190")
     .hidden-xs
