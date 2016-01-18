@@ -193,6 +193,12 @@ angular.module('linagora.esn.graceperiod')
       }));
     }
 
+    function flushTasksFor(contextQuery) {
+      return $q.all((getTasksFor(contextQuery) || []).map(function(taskId) {
+        return flush(taskId);
+      }));
+    }
+
     function timeoutPromise(duration) {
       return duration > 0 ? $timeout(angular.noop, duration) : $q.reject();
     }
@@ -246,6 +252,7 @@ angular.module('linagora.esn.graceperiod')
       cancel: cancel,
       flush: flush,
       flushAllTasks: flushAllTasks,
+      flushTasksFor: flushTasksFor,
       remove: remove,
       addTaskId: addTask,
       getTasksFor: getTasksFor,

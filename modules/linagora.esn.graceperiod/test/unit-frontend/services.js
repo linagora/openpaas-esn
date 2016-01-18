@@ -537,6 +537,47 @@ describe('The GracePeriod Angular module', function() {
         expect(gracePeriodService.hasTask(taskId)).to.be.true;
       });
     });
+
+    describe('The flushTasksFor fn', function() {
+
+      var taskId1 = 'taskId1';
+      var taskId2 = 'taskId2';
+      var context = {
+        id: 'anId',
+        p: 'anotherProperty'
+      };
+
+      beforeEach(function() {
+        gracePeriodService.addTaskId(taskId1, context);
+        gracePeriodService.addTaskId(taskId2, context);
+      });
+
+      it('should return a promise resolving to an empty array when no context is given', function(done) {
+        gracePeriodService.flushTasksFor().then(function(response) {
+          expect(response).to.deep.equal([]);
+          done();
+        });
+        $rootScope.$apply();
+      });
+
+      it('should return a promise resolving to an empty array if no task matches the context', function(done) {
+        gracePeriodService.flushTasksFor({id: 'aRandomId'}).then(function(response) {
+          expect(response).to.deep.equal([]);
+          done();
+        });
+        $rootScope.$apply();
+      });
+
+      it('should return a promise resolved when all tasks matching the context have been flushed', function(done) {
+        $httpBackend.expectPUT('/graceperiod/api/tasks/' + taskId1).respond({});
+        $httpBackend.expectPUT('/graceperiod/api/tasks/' + taskId2).respond({});
+        gracePeriodService.flushTasksFor(context).then(function() {
+          done();
+        }, done);
+        $rootScope.$apply();
+        $httpBackend.flush();
+      });
+    });
   });
 
 });
