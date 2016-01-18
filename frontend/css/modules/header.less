@@ -73,6 +73,7 @@
   height: @sub-header-height;
   width: 100%;
   background-color: @primaryColor;
+  position: relative;
 
   .mdi {
     font-size: 1.9em;
@@ -98,7 +99,15 @@
   }
 }
 
+.subheader-aware {
+  margin-top: @sub-header-height;
+}
+
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
-  transform: none;
+
+  .subheader-aware {
+    margin-top: 0;
+  }
+
 }

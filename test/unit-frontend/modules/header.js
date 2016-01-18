@@ -14,6 +14,46 @@ describe('The esn.header Angular module', function() {
     module('esn.header');
   });
 
+  describe('The headerService factory', function() {
+
+    var $rootScope, headerService, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT;
+
+    beforeEach(angular.mock.module(function($provide) {
+
+    }));
+
+    beforeEach(inject(function(_$rootScope_, _headerService_, _dynamicDirectiveService_, _MAIN_HEADER_, _SUB_HEADER_, _SUB_HEADER_HAS_INJECTION_EVENT_) {
+      $rootScope = _$rootScope_;
+      headerService = _headerService_;
+      dynamicDirectiveService = _dynamicDirectiveService_;
+      MAIN_HEADER = _MAIN_HEADER_;
+      SUB_HEADER = _SUB_HEADER_;
+      SUB_HEADER_HAS_INJECTION_EVENT = _SUB_HEADER_HAS_INJECTION_EVENT_;
+    }));
+
+    describe('The subHeader.setInjection function', function() {
+
+      it('should reset injections and append the new one', function() {
+        headerService.subHeader.addInjection('previous', { a: 'b' });
+        headerService.subHeader.setInjection('a', { a: 'b' });
+
+        expect(dynamicDirectiveService.getInjections(SUB_HEADER)).to.have.length(1);
+      });
+
+      it('should broadcast an event', function(done) {
+        $rootScope.$on(SUB_HEADER_HAS_INJECTION_EVENT, function(event, data) {
+          expect(data).to.equal(true);
+
+          done();
+        });
+
+        headerService.subHeader.setInjection('a', { a: 'b' });
+      });
+
+    });
+
+  });
+
   describe('The mainHeader directive', function() {
     var spy = sinon.spy();
 

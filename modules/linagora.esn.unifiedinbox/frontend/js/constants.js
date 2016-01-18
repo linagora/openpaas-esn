@@ -13,4 +13,5 @@ angular.module('linagora.esn.unifiedinbox')
     spam: 'mdi mdi-email',
     templates: 'mdi mdi-email'
   })
-  .constant('INBOX_AUTOCOMPLETE_LIMIT', 20);
+  .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
+  .constant('MAILBOX_LEVEL_SEPARATOR', ' / ');

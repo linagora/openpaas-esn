@@ -1,10 +1,19 @@
 
 .aside#contextual-sidebar {
   width: 268px;
+  top: @header-height;
 
   .aside-body {
     padding: 0;
   }
+
+  hr {
+    margin: 0;
+  }
+}
+
+.aside-backdrop {
+  top: @header-height !important; // Because $aside set styles on the element directly
 }
 
 /* Medium devices (desktops, 992px and up) */

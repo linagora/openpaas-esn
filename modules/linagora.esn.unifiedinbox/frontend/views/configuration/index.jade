@@ -1,0 +1,7 @@
+.subheader-aware.inbox-main-content.configuration
+  .clickable(ui-sref='/unifiedinbox/configuration/folders/add')
+    i.inbox-icon.mdi.mdi-plus
+    | #{__('New')}
+  hr
+  .mailboxes-list
+    mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['level', 'name']", ui-sref="/unifiedinbox/configuration/folders/edit/:mailbox({ mailbox: mailbox.id})")

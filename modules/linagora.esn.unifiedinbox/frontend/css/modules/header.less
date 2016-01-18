@@ -1,7 +1,38 @@
-#header composer-subheader{
-  width: 100%;
+#header {
 
-  .mdi-send {
-    font-size: 1.6em; // send icon seems bigger than other, so we reduce its size
+  #sub-header > * {
+    width: 100%;
   }
+
+  .inbox-subheader {
+
+    .button {
+      position: absolute;
+      top: 10px;
+      opacity: 1;
+      padding: 0 5px;
+
+      &.submit {
+        right: 0;
+      }
+    }
+
+    .title {
+      text-align: center;
+      font-size: 1.4em;
+
+      color: @textPrimaryColor;
+    }
+
+    &.composer {
+      .mdi-send {
+        font-size: 1.6em; // send icon seems bigger than other, so we reduce its size
+      }
+    }
+
+    &.configuration {
+
+    }
+  }
+
 }

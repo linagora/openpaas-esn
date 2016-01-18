@@ -78,17 +78,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('sidebarMailboxesLoader', function(withJmapClient) {
+  .directive('sidebarMailboxesLoader', function(mailboxesService) {
     return {
       restrict: 'A',
       link: function(scope) {
-        if (!scope.mailboxes) {
-          withJmapClient(function(client) {
-            client.getMailboxes().then(function(mailboxes) {
-              scope.mailboxes = mailboxes;
-            });
-          });
-        }
+        mailboxesService.assignMailboxesList(scope);
       }
     };
   })
@@ -164,7 +158,7 @@ angular.module('linagora.esn.unifiedinbox')
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
         function showMobileHeader() {
-          headerService.subHeader.addInjection('composer-subheader', scope);
+          headerService.subHeader.setInjection('composer-subheader', scope);
         }
 
         function hideMobileHeader() {
@@ -256,13 +250,6 @@ angular.module('linagora.esn.unifiedinbox')
           $rootScope.$broadcast('unifiedinbox:tags_added');
         };
       }
-    };
-  })
-
-  .directive('composerSubheader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/composer/composer-subheader.html'
     };
   })
 

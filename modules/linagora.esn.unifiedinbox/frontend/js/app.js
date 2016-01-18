@@ -20,25 +20,42 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.lodash-wrapper'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
-    $stateProvider.state('/unifiedinbox', {
-      url: '/unifiedinbox',
-      templateUrl: '/unifiedinbox/views/unifiedinbox'
-    })
-    .state('/unifiedinbox/compose', {
-      url: '/unifiedinbox/compose',
-      template: '<composer/>',
-      params: {email: {}}
-    })
-    .state('/unifiedinbox/:mailbox', {
-      url: '/unifiedinbox/:mailbox',
-      templateUrl: '/unifiedinbox/views/listEmails',
-      controller: 'listEmailsController'
-    })
-    .state('/unifiedinbox/:mailbox/:emailId', {
-      url: '/unifiedinbox/:mailbox/:emailId',
-      templateUrl: '/unifiedinbox/views/viewEmail',
-      controller: 'viewEmailController'
-    });
+    $stateProvider
+      .state('/unifiedinbox', {
+        url: '/unifiedinbox',
+        templateUrl: '/unifiedinbox/views/unifiedinbox',
+        controller: 'homeController'
+      })
+      .state('/unifiedinbox/compose', {
+        url: '/unifiedinbox/compose',
+        template: '<composer/>',
+        params: {email: {}}
+      })
+      .state('/unifiedinbox/configuration', {
+        url: '/unifiedinbox/configuration',
+        templateUrl: '/unifiedinbox/views/configuration/index',
+        controller: 'configurationController'
+      })
+      .state('/unifiedinbox/configuration/folders/add', {
+        url: '/unifiedinbox/configuration/folders/add',
+        templateUrl: '/unifiedinbox/views/configuration/folders/add/index',
+        controller: 'addFolderController'
+      })
+      .state('/unifiedinbox/configuration/folders/edit/:mailbox', {
+        url: '/unifiedinbox/configuration/folders/edit/:mailbox',
+        templateUrl: '/unifiedinbox/views/configuration/folders/edit/index',
+        controller: 'editFolderController'
+      })
+      .state('/unifiedinbox/:mailbox', {
+        url: '/unifiedinbox/:mailbox',
+        templateUrl: '/unifiedinbox/views/listEmails',
+        controller: 'listEmailsController'
+      })
+      .state('/unifiedinbox/:mailbox/:emailId', {
+        url: '/unifiedinbox/:mailbox/:emailId',
+        templateUrl: '/unifiedinbox/views/viewEmail',
+        controller: 'viewEmailController'
+      });
 
     var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', inbox);

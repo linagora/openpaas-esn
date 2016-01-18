@@ -14,7 +14,7 @@ angular.module('esn.header', ['esn.sidebar'])
       return new dynamicDirectiveService.DynamicDirective(true, directiveName, {scope: scope});
     }
 
-    function changeMainHeaderDisplay(directiveName) {
+    function addMainHeaderInjection(directiveName) {
       var directive = buildDynamicDirective(directiveName);
       dynamicDirectiveService.addInjection(MAIN_HEADER, directive);
     }
@@ -27,10 +27,16 @@ angular.module('esn.header', ['esn.sidebar'])
       return dynamicDirectiveService.getInjections(MAIN_HEADER, {}).length > 0;
     }
 
-    function changeSubHeaderDisplay(directiveName, scope) {
+    function addSubHeaderInjection(directiveName, scope) {
       var directive = buildDynamicDirective(directiveName, scope);
+
       dynamicDirectiveService.addInjection(SUB_HEADER, directive);
       $rootScope.$broadcast(SUB_HEADER_HAS_INJECTION_EVENT, hasSubHeaderGotInjections());
+    }
+
+    function setSubHeaderInjection(directiveName, scope) {
+      resetSubHeaderInjection();
+      addSubHeaderInjection(directiveName, scope);
     }
 
     function resetMainHeaderInjection() {
@@ -43,12 +49,13 @@ angular.module('esn.header', ['esn.sidebar'])
 
     return {
       mainHeader: {
-        addInjection: changeMainHeaderDisplay,
+        addInjection: addMainHeaderInjection,
         resetInjections: resetMainHeaderInjection,
         hasInjections: hasMainHeaderGotInjections
       },
       subHeader: {
-        addInjection: changeSubHeaderDisplay,
+        addInjection: addSubHeaderInjection,
+        setInjection: setSubHeaderInjection,
         resetInjections: resetSubHeaderInjection,
         hasInjections: hasSubHeaderGotInjections
       },
