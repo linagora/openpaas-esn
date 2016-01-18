@@ -138,7 +138,7 @@ describe('The authjwt controller', function() {
         user: {
           preferredEmail: 'expected@email'
         }
-      }, {subject: 'expected@email'});
+      }, {sub: 'expected@email'});
     });
   });
 
