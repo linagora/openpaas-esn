@@ -19,5 +19,7 @@
   "Child Of": "Child Of",
   "Rename": "Rename",
   "Enter a name": "Enter a name",
-  "Cancel": "Cancel"
+  "Cancel": "Cancel",
+  "Delete": "Delete",
+  "Delete folder?": "Delete folder?"
 }

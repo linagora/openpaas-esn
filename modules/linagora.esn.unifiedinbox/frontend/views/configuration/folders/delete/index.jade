@@ -1,0 +1,8 @@
+.modal
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Delete folder?')}
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-default(type="button", ng-click="deleteFolder(); $hide()") #{__('Delete')}
