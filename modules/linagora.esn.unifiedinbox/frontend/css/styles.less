@@ -49,6 +49,10 @@
   hr {
     border-color: @secondaryTextColor;
   }
+
+  .clickable {
+    position: relative;
+  }
 }
 
 .inbox-icon {
@@ -57,8 +61,12 @@
 
 @media (min-width: @screen-sm-min) {
 
-  .clickable:hover {
-    color: @text-color;
+  .inbox-main-content {
+
+    .clickable:hover {
+      color: @text-color;
+    }
+
   }
 
 }
