@@ -50,14 +50,6 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('calendarNavbarLink', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/calendar/user-calendar-navbar-link.html'
-    };
-  })
-
   .directive('calendarLeftPane', function(LEFT_PANEL_BOTTOM_MARGIN, CALENDAR_EVENTS) {
     function link(scope, element) {
       scope.$on(CALENDAR_EVENTS.CALENDAR_HEIGHT, function(event, height) {

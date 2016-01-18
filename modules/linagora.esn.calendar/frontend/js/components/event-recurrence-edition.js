@@ -91,7 +91,7 @@ angular.module('esn.calendar')
         readOnly: '=?'
       },
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/event-recurrence-edition.html',
+      templateUrl: '/calendar/views/components/event-recurrence-edition.html',
       link: link
     };
   });

@@ -76,7 +76,7 @@ angular.module('esn.calendar')
         allDayOnChange: '=?'
       },
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/event-date-edition.html',
+      templateUrl: '/calendar/views/components/event-date-edition.html',
       link: link
     };
   })
