@@ -80,7 +80,6 @@ describe('The event-form module controllers', function() {
       weakInfo: sinon.spy(),
       weakError: sinon.spy()
     };
-    this.gracePeriodService = {};
 
     var self = this;
     angular.mock.module('esn.calendar');
@@ -95,7 +94,6 @@ describe('The event-form module controllers', function() {
       $provide.value('CalendarShell', self.calendarShellMock);
       $provide.value('session', sessionMock);
       $provide.value('notificationFactory', self.notificationFactory);
-      $provide.value('gracePeriodService', self.gracePeriodService);
     });
   });
 
@@ -429,7 +427,6 @@ describe('The event-form module controllers', function() {
     });
 
     describe('canPerformCall function', function() {
-
       beforeEach(function() {
         this.scope.editedEvent = {
           id: 'eventId',
@@ -442,20 +439,7 @@ describe('The event-form module controllers', function() {
         expect(this.eventFormController.canPerformCall()).to.be.false;
       });
 
-      it('should return false if the gracePeriodService has a task for this event', function() {
-        this.gracePeriodService.hasTaskFor = function(context) {
-          expect(context).to.deep.equal({id: 'eventId'});
-          return true;
-        };
-        this.scope.restActive = false;
-        expect(this.eventFormController.canPerformCall()).to.be.false;
-      });
-
-      it('should return true if the gracePeriodService has no task for this event and restActive is false', function() {
-        this.gracePeriodService.hasTaskFor = function(id) {
-          expect(id).to.deep.equal({id: 'eventId'});
-          return false;
-        };
+      it('should return true if restActive is false', function() {
         this.scope.restActive = false;
         expect(this.eventFormController.canPerformCall()).to.be.true;
       });
