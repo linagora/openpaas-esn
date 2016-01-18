@@ -1,6 +1,6 @@
 .subheader-aware.inbox-main
-  .col-md-3.col-lg-2.hidden-xs.hidden-sm(sidebar-mailboxes-loader, ng-include="'/unifiedinbox/views/sidebar/sidebar-inbox.html'")
-  .col-xs-12.col-md-9.col-lg-10
+  .col-md-3.hidden-xs.hidden-sm(sidebar-mailboxes-loader, ng-include="'/unifiedinbox/views/sidebar/desktop-menu.html'")
+  .col-xs-12.col-md-9
     .ui-view(name="main")
       .card
         .card-header
@@ -8,7 +8,7 @@
 
       // This is only for test purposes. It MUST be moved to the modal/popup that should be introduced in INBOX-81
       div(sidebar-mailboxes-loader, contextual-sidebar, data-content-template="/unifiedinbox/views/sidebar/sidebar-inbox.html")
-        button.btn.btn-primary.waves-effect
+        button.btns.btn-primary.waves-effect
           i.mdi.mdi-menu
 
       inbox-fab

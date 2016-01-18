@@ -8,15 +8,11 @@
   color: @secondaryTextColor;
 
   .clickable {
-    line-height: @inboxAsideFontSize;
-
-    &:hover {
-      color: @text-color;
-    }
+    line-height: @inboxAsideIconFontSize;
   }
 
   .inbox-icon {
-    font-size: @inboxAsideFontSize;
+    font-size: @inboxAsideIconFontSize;
     vertical-align: bottom;
   }
 
@@ -55,15 +51,8 @@
     }
   }
 
-  .inbox-aside-footer {
-    border-top: 1px solid @primaryColor;
-    margin-top: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
   .listview:not(.lv-lg):not(.lv-message) {
-    .lv-item {
+    .lv-item:not(.menu-heading) {
       padding: 5px 20px;
     }
   }
@@ -83,14 +72,48 @@
     padding: 0;
   }
 
-}
+  &.inbox-desktop-menu {
+    margin-top: 30px;
 
-.inbox-desktop-menu {
+    .listview:not(.lv-lg):not(.lv-message) {
+      .lv-item.menu-heading {
+        padding-right: 0;
+      }
+    }
 
-  .mailbox-name {
-    .mailbox-name-after:after {
-      background-color: @body-bg;
-      box-shadow: 2px 0 4px @body-bg;
+    .menu-heading {
+      .flex;
+
+      margin-left: -5px;
+      margin-right: -5px;
+      border-left: 5px solid @primaryColor;
+
+      .title {
+        .flex;
+        .flex-shorthand(1);
+
+        .text {
+          .flex-shorthand(1);
+
+          font-weight: bold;
+          font-size: @inboxAsideFontSize;
+          color: @primaryColor;
+        }
+      }
+    }
+
+    .settings-overlay {
+      top: 20%;
+      height: 60%;
+
+      font-size: @inboxAsideIconFontSize;
+    }
+
+    .mailbox-name {
+      .mailbox-name-after:after {
+        background-color: @body-bg;
+        box-shadow: 2px 0 4px @body-bg;
+      }
     }
   }
 
