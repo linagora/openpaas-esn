@@ -70,7 +70,7 @@ describe('The calendar-lists component', function() {
       expect(this.calendarService.createCalendar).to.have.not.been.called;
     });
 
-    it('should call createCalendar if newCalendar is true', function() {
+    it('should call createCalendar if newCalendar is true (with name having only one char)', function() {
       this.notificationFactoryMock.weakInfo = sinon.spy();
       this.locationMock.path = sinon.spy(function(path) {
         expect(path).to.equal('/calendar');
@@ -79,7 +79,7 @@ describe('The calendar-lists component', function() {
         expect(calendarHomeId).to.equal('12345');
         expect(shell).to.shallowDeepEqual({
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
-          name: 'aName',
+          name: 'N',
           color: 'aColor'
         });
         return {
@@ -90,14 +90,14 @@ describe('The calendar-lists component', function() {
       };
       this.initController();
       this.$scope.calendar.color = 'aColor';
-      this.$scope.calendar.name = 'aName';
+      this.$scope.calendar.name = 'N';
       this.$scope.submit();
       expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
       expect(this.locationMock.path).to.have.been.called;
     });
 
     describe('when newCalendar is false', function() {
-      it('should return to /calendar if the event has not been modified', function() {
+      it('should return to /calendar if the calendar has not been modified', function() {
         this.locationMock.path = sinon.spy(function(path) {
           expect(path).to.equal('/calendar');
         });
@@ -113,8 +113,8 @@ describe('The calendar-lists component', function() {
         expect(this.calendarService.modifyCalendar).to.have.not.been.called;
       });
 
-      it('should call modifyCalendar if the event has not been modified', function() {
-        var modifiedName = 'anotherName';
+      it('should call modifyCalendar if the calendar has been modified (with name having only one char)', function() {
+        var modifiedName = 'A';
         this.notificationFactoryMock.weakInfo = sinon.spy();
         this.locationMock.path = sinon.spy(function(path) {
           expect(path).to.equal('/calendar');
