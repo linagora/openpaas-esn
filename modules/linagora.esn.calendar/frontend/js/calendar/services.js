@@ -704,8 +704,15 @@ angular.module('esn.calendar')
 
     function addAddedEvent(start, end, calendarPath, events) {
 
+      function eventInPeriod(event) {
+        return [event.start, event.end].some(function(date) {
+          return date && (date.isSame(start, 'day') || date.isAfter(start)) &&
+            (date.isSame(end, 'day') || date.isBefore(end));
+        });
+      }
+
       angular.forEach(changes, function(change) {
-        if (change.action === ADD && change.event.start.isBetween(start, end) && change.calendarPath === calendarPath) {
+        if (change.action === ADD && eventInPeriod(change.event) && change.calendarPath === calendarPath) {
           events.push(change.event);
         }
       });
