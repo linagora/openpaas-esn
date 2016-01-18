@@ -154,7 +154,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, headerService, mailboxesService, _, notificationFactory) {
+  .controller('editFolderController', function($scope, $state, $stateParams, $modal, headerService, mailboxesService, _, notificationFactory, withJmapClient) {
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
@@ -166,5 +166,22 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.editFolder = function() {
       notificationFactory.weakSuccess('Successfully edited folder ' + $scope.mailbox.name + ' as a child of ' + $scope.mailbox.parentId, '');
       $state.go('/unifiedinbox/configuration');
+    };
+
+    $scope.confirmationDialog = function() {
+      $scope.modal = $modal({scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center'});
+    };
+
+    $scope.deleteFolder = function() {
+      notificationFactory.weakInfo('Deleting ' + $scope.mailbox.name);
+      withJmapClient(function(client) {
+        client
+          .destroyMailbox($scope.mailbox.id)
+          .then(function() {
+            notificationFactory.weakSuccess('Successfully deleted folder ' + $scope.mailbox.name);
+          }, function() {
+            notificationFactory.weakError('Error while deleting folder ' + $scope.mailbox.name);
+          });
+      });
     };
   });

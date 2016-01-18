@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, $location, scope, $controller, $timeout,
       jmapClient, jmap, notificationFactory, attendeeService, draftService, Offline = {},
-      emailSendingService, Composition, newComposerService = {}, headerService, $state;
+      emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal;
 
   beforeEach(function() {
     $stateParams = {
@@ -29,6 +29,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     $state = {
       go: angular.noop
     };
+    $modal = sinon.spy();
 
     angular.mock.module('esn.core');
     angular.mock.module('esn.notification');
@@ -44,6 +45,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('Offline', Offline);
+      $provide.value('$modal', $modal);
       $provide.value('draftService', draftService = {});
       $provide.value('attendeeService', attendeeService = {
         addProvider: angular.noop
@@ -623,6 +625,64 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect($state.go).to.have.been.calledWith('/unifiedinbox/configuration');
       });
 
+    });
+
+    describe('the deleteFolder method', function() {
+      var weakSuccessSpy, weakErrorSpy, weakInfoSpy;
+
+      beforeEach(function() {
+        jmapClient.getMailboxes = function() {return $q.when([]);};
+        weakSuccessSpy = sinon.spy();
+        weakErrorSpy = sinon.spy();
+        weakInfoSpy = sinon.spy();
+        notificationFactory.weakSuccess = weakSuccessSpy;
+        notificationFactory.weakError = weakErrorSpy;
+        notificationFactory.weakInfo = weakInfoSpy;
+      });
+
+      it('should notify when starting deleting a folder and then successfully notify when the folder is deleted', function() {
+        jmapClient.destroyMailbox = function() {return $q.when([]); };
+
+        initController('editFolderController');
+
+        scope.mailbox = {
+          id: 'id',
+          name: 'name',
+          parentId: 'parentId'
+        };
+
+        scope.deleteFolder();
+        expect(weakInfoSpy).to.be.calledWith('Deleting name');
+        scope.$digest();
+        expect(weakSuccessSpy).to.be.calledWith('Successfully deleted folder name');
+      });
+
+      it('should notify when starting deleting a folder and then notify about an error when the folder is not deleted', function() {
+        jmapClient.destroyMailbox = function() {return $q.reject([]); };
+
+        initController('editFolderController');
+
+        scope.mailbox = {
+          id: 'id',
+          name: 'name',
+          parentId: 'parentId'
+        };
+
+        scope.deleteFolder();
+        expect(weakInfoSpy).to.be.calledWith('Deleting name');
+        scope.$digest();
+        expect(weakErrorSpy).to.be.calledWith('Error while deleting folder name');
+      });
+    });
+
+    describe('the confirmationDialog method', function() {
+      it('should leverage $modal service', function() {
+        jmapClient.getMailboxes = function() { return $q.when([]); };
+        initController('editFolderController');
+
+        scope.confirmationDialog();
+        expect($modal).to.have.been.called;
+      });
     });
 
   });

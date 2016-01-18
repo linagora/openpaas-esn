@@ -8,5 +8,11 @@
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
 
     .button-bar.hidden-xs
+      input.btn.btn-default.pull-left(type="button", value="#{__('Delete')}", ng-click="confirmationDialog()")
       input.btn.btn-primary.pull-right(type="submit", value="#{__('Edit')}")
       input.btn.btn-default.pull-right(type="button", value="#{__('Cancel')}", ui-sref="/unifiedinbox/configuration")
+
+    .button-bar.visible-xs
+      a.submit.btn.btn-default.pull-right(href='', ng-click='confirmationDialog()')
+        | #{__('Delete')}
+        i.mdi.mdi-delete.m-l-5.m-r-5
