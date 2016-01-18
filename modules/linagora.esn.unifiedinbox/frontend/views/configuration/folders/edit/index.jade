@@ -1,18 +1,21 @@
-.inbox-main-content.configuration
+.block-header.hidden-xs
+  h2 #{__('%s folder configuration', '{{ ::mailbox.name }}')}
+
+.inbox-main-content.configuration.card
   form(ng-submit="editFolder()")
-    .field.fg-line
+    .form-group.fg-line
       .field-name #{__('Rename')}
       input.form-control(ng-model="mailbox.name", required)
-    .field.fg-line
+    .form-group.fg-line
       .field-name #{__('Child Of')}
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
 
     .button-bar.hidden-xs
       input.btn.btn-default.pull-left(type="button", value="#{__('Delete')}", ng-click="confirmationDialog()")
-      input.btn.btn-primary.pull-right(type="submit", value="#{__('Edit')}")
-      input.btn.btn-default.pull-right(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox.configuration")
+      input.btn.btn-primary(type="submit", value="#{__('Edit')}")
+      input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
 
     .button-bar.visible-xs
-      a.submit.btn.btn-default.pull-right(href='', ng-click='confirmationDialog()')
-        | #{__('Delete')}
+      a.submit.btn.btn-default(href='', ng-click='confirmationDialog()')
         i.mdi.mdi-delete.m-l-5.m-r-5
+        | #{__('Delete')}

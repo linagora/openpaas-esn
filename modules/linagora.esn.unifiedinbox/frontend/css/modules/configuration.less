@@ -28,12 +28,8 @@
       }
     }
 
-    .field {
-      margin-bottom: 10px;
-    }
-
     .button-bar {
-      padding: 10px;
+      direction: rtl;
 
       .btn {
         margin: 0 5px;
@@ -41,4 +37,15 @@
     }
   }
   
+}
+
+@media(min-width: @screen-md-min) {
+
+  .inbox-main-content {
+    &.configuration {
+      .form-group {
+        width: 40%;
+      }
+    }
+  }
 }

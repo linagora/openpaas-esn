@@ -21,5 +21,7 @@
   "Enter a name": "Enter a name",
   "Cancel": "Cancel",
   "Delete": "Delete",
-  "Delete folder?": "Delete folder?"
+  "Delete folder?": "Delete folder?",
+  "%s folder configuration": "%s folder configuration",
+  "Create a new folder": "Create a new folder"
 }

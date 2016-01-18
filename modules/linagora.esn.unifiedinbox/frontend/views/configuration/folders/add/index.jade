@@ -1,12 +1,15 @@
-.inbox-main-content.configuration
+.block-header.hidden-xs
+  h2 #{__('Create a new folder')}
+
+.inbox-main-content.configuration.card
   form(ng-submit="addFolder()")
-    .field.fg-line
+    .form-group.fg-line
       .field-name #{__('Name')}
       input.form-control(ng-model="mailbox.name", placeholder="#{__('Enter a name')}", required)
-    .field.fg-line
+    .form-group.fg-line
       .field-name #{__('Child Of')}
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
 
     .button-bar.hidden-xs
-      input.btn.btn-primary.pull-right(type="submit", value="#{__('Create')}")
-      input.btn.btn-default.pull-right(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox.configuration")
+      input.btn.btn-primary(type="submit", value="#{__('Create')}")
+      input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
