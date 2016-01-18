@@ -2443,7 +2443,7 @@ describe('The Contacts controller module', function() {
 
   });
 
-  describe('The contactHeaderController controller', function() {
+  describe('The contactCategoryLetterController controller', function() {
 
     beforeEach(angular.mock.inject(function($rootScope, _CONTACT_SCROLL_EVENTS_, $browser) {
       this.$rootScope = $rootScope;
@@ -2452,7 +2452,7 @@ describe('The Contacts controller module', function() {
       this.browser = $browser;
 
       this.initController = function() {
-        $controller('contactHeaderController', {
+        $controller('contactCategoryLetterController', {
           $scope: this.scope
         });
       };

@@ -151,7 +151,7 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       template: '{{headerDisplay.categoryLetter}}',
-      controller: 'contactHeaderController'
+      controller: 'contactCategoryLetterController'
     };
   })
 

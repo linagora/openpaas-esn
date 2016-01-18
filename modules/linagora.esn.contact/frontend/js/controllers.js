@@ -527,7 +527,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactHeaderController', function($scope, CONTACT_SCROLL_EVENTS) {
+  .controller('contactCategoryLetterController', function($scope, CONTACT_SCROLL_EVENTS) {
     $scope.headerDisplay = {
       categoryLetter: ''
     };
