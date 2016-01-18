@@ -24,7 +24,7 @@ angular.module('esn.calendar')
     });
 
     function canSaveCalendar() {
-      return !!$scope.calendar.name && $scope.calendar.name.length > 1;
+      return !!$scope.calendar.name && $scope.calendar.name.length >= 1;
     }
 
     function hasModifications(oldCalendar, newCalendar) {
