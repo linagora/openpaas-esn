@@ -471,7 +471,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline, asyncAction) {
+  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline, asyncAction, jmap) {
 
     function addDisplayNameToRecipients(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -494,7 +494,9 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function Composition(message) {
-      this.originalMessage = message;
+      if (message instanceof jmap.Message) {
+        this.originalJmapMessage = message;
+      }
       this.email = prepareEmail(message);
       this.draft = draftService.startDraft(this.email);
     }
@@ -540,8 +542,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     Composition.prototype.destroyOriginalDraft = function() {
-      if (this.originalMessage) {
-        this.originalMessage.destroy();
+      if (this.originalJmapMessage) {
+        this.originalJmapMessage.destroy();
       }
     };
 
