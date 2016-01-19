@@ -735,7 +735,7 @@ describe('The calendar module services', function() {
   });
 
   describe('The calendarService service', function() {
-    var ICAL, moment, emitMessage, CalendarCollectionShellMock, keepChangeDuringGraceperiodMock;
+    var ICAL, moment, emitMessage, CalendarCollectionShellMock, keepChangeDuringGraceperiodMock, flushContext;
 
     beforeEach(function() {
       var self = this;
@@ -770,6 +770,10 @@ describe('The calendar module services', function() {
       this.gracePeriodService = {
         hasTask: function() {
           return true;
+        },
+        flushTasksFor: function(context) {
+          expect(flushContext).to.deep.equal(context);
+          return $q.when([]);
         }
       };
       this.gracePeriodLiveNotification = {
@@ -828,6 +832,10 @@ describe('The calendar module services', function() {
       moment = _moment_;
       this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     }));
+
+    afterEach(function() {
+      flushContext = null;
+    });
 
     describe('The listCalendars fn', function() {
       it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
@@ -1442,6 +1450,10 @@ describe('The calendar module services', function() {
         this.event = new this.CalendarShell(this.vcalendar, {
           path: '/path/to/uid.ics'
         });
+
+        flushContext = {
+          id: this.event.id
+        };
       });
 
       it('should fail if status is not 202', function(done) {
@@ -1509,6 +1521,8 @@ describe('The calendar module services', function() {
         this.gracePeriodService.remove = function(taskId) {
           expect(taskId).to.equal('123456789');
         };
+
+        flushContext = {id: occShell.id};
 
         this.calendarService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag').then(
           function(shell) {
@@ -1755,6 +1769,7 @@ describe('The calendar module services', function() {
           start: this.fcMoment(),
           end: this.fcMoment()
         };
+        flushContext = {id: this.event.id};
       });
 
       it('should fail if status is not 202', function(done) {
@@ -1779,7 +1794,7 @@ describe('The calendar module services', function() {
           });
         };
 
-        this.gracePeriodService.cancel = function(taskId) {
+        this.gracePeriodService.cancel = function() {
           return $q.when();
         };
 

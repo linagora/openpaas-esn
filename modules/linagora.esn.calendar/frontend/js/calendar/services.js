@@ -187,6 +187,10 @@ angular.module('esn.calendar')
         .catch($q.reject);
     }
 
+    function flushTasksForEvent(event) {
+      return gracePeriodService.flushTasksFor({id: event.id});
+    }
+
     /**
      * Create a new event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
      * period service.
@@ -266,12 +270,13 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      return eventAPI.remove(eventPath, etag).then(function(id) {
-        taskId = id;
-        keepChangeDuringGraceperiod.registerDelete(event);
-        calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
-      })
-      .then(function() {
+      return flushTasksForEvent(event).then(function() {
+        return eventAPI.remove(eventPath, etag).then(function(id) {
+          taskId = id;
+          keepChangeDuringGraceperiod.registerDelete(event);
+          calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
+        });
+      }).then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
           gracePeriodService.remove(taskId);
           notifyService({
@@ -336,7 +341,9 @@ angular.module('esn.calendar')
 
       var taskId = null;
 
-      return event.getModifiedMaster().then(function(mastershell) {
+      return flushTasksForEvent(event).then(function() {
+        return event.getModifiedMaster();
+      }).then(function(mastershell) {
         event = mastershell;
         return eventAPI.modify(path, event.vcalendar, etag);
       }).then(function(id) {
@@ -359,7 +366,7 @@ angular.module('esn.calendar')
             task.error('Unexpected error. Cannot cancel the event modification', err.statusText);
             return $q.when(false);
           });
-        } else {
+        } else if (gracePeriodService.hasTask(taskId)) {
           return getEvent(path).then(function(shell) {
             gracePeriodService.remove(taskId);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);

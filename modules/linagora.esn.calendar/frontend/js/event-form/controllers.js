@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, gracePeriodService, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
+  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
     if (!$scope.event) {
       $scope.event = eventUtils.originalEvent;
     }
@@ -64,7 +64,7 @@ angular.module('esn.calendar')
     }
 
     this.canPerformCall = function() {
-      return !$scope.restActive && !gracePeriodService.hasTaskFor({id: $scope.editedEvent.id});
+      return !$scope.restActive;
     };
 
     this.addNewEvent = function() {

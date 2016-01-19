@@ -193,6 +193,12 @@ angular.module('linagora.esn.graceperiod')
       }));
     }
 
+    function flushTasksFor(contextQuery) {
+      return $q.all((getTasksFor(contextQuery) || []).map(function(taskId) {
+        return flush(taskId);
+      }));
+    }
+
     function timeoutPromise(duration) {
       return duration > 0 ? $timeout(angular.noop, duration) : $q.reject();
     }
@@ -217,16 +223,23 @@ angular.module('linagora.esn.graceperiod')
       }
     }
 
-    function hasTaskFor(contextQuery) {
-      return angular.isDefined(contextQuery) && Object.keys(tasks).some(function(taskId) {
-          var taskContext = tasks[taskId].context;
-          if (taskContext) {
-            return Object.keys(contextQuery).every(function(contextKey) {
-              return taskContext[contextKey] === contextQuery[contextKey];
-            });
+    function getTasksFor(contextQuery) {
+      var result = [];
+      if (!angular.isDefined(contextQuery)) {
+        return result;
+      }
+      Object.keys(tasks).forEach(function(taskId) {
+        var taskContext = tasks[taskId].context;
+        if (taskContext) {
+          var contextMatched = Object.keys(contextQuery).every(function(contextKey) {
+            return taskContext[contextKey] === contextQuery[contextKey];
+          });
+          if (contextMatched) {
+            result.push(taskId);
           }
-          return false;
-        });
+        }
+      });
+      return result;
     }
 
     function hasTask(taskId) {
@@ -239,9 +252,10 @@ angular.module('linagora.esn.graceperiod')
       cancel: cancel,
       flush: flush,
       flushAllTasks: flushAllTasks,
+      flushTasksFor: flushTasksFor,
       remove: remove,
       addTaskId: addTask,
-      hasTaskFor: hasTaskFor,
+      getTasksFor: getTasksFor,
       hasTask: hasTask
     };
   })
