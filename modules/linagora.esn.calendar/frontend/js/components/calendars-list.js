@@ -40,7 +40,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/calendars-list.html',
+      templateUrl: '/calendar/views/components/calendars-list.html',
       scope: {
         _calendars: '=?calendars'
       },

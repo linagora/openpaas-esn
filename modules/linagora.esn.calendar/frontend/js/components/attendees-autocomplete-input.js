@@ -68,7 +68,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/attendees-autocomplete-input.html',
+      templateUrl: '/calendar/views/components/attendees-autocomplete-input.html',
       link: link,
       scope: {
         originalAttendees: '=',

@@ -19,19 +19,6 @@ angular.module('esn.calendar')
       link: link
     };
   })
-
-  .directive('eventCreateButton', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        community: '=',
-        user: '='
-      },
-      templateUrl: '/calendar/views/event-quick-form/event-create-button.html'
-    };
-  })
-
   .directive('eventQuickForm', function($location, $timeout, eventUtils) {
     function link(scope, element, attrs, controller) {
       controller.initFormData();

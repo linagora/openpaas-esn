@@ -6,7 +6,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/attendees-list.html',
+      templateUrl: '/calendar/views/components/attendees-list.html',
       scope: {
         attendees: '=',
         readOnly: '='

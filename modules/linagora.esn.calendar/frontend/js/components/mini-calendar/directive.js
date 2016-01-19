@@ -6,7 +6,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/mini-calendar.html',
+      templateUrl: '/calendar/views/components/mini-calendar.html',
       scope: {
         calendarId: '='
       },
@@ -17,7 +17,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/event-form-components/mini-calendar.html',
+      templateUrl: '/calendar/views/components/mini-calendar.html',
       scope: {
         calendarId: '='
       },

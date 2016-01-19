@@ -10,8 +10,6 @@ angular.module('esn.calendar', [
   'mgcrea.ngStrap.datepicker',
   'mgcrea.ngStrap.aside',
   'materialAdmin',
-  'ui.bootstrap.tpls',
-  'ui.bootstrap',
   'AngularJstz',
   'esn.core',
   'esn.authentication',
