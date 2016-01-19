@@ -17,6 +17,7 @@ module.exports = function(config) {
       'frontend/components/angular-strap/dist/angular-strap.js',
       'frontend/components/angular-strap/dist/angular-strap.tpl.js',
       'frontend/components/lodash/dist/lodash.min.js',
+      'frontend/components/clockpicker/dist/bootstrap-clockpicker.js',
       'frontend/components/restangular/dist/restangular.js',
       'frontend/components/openpaas-logo/openpaas-logo.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
