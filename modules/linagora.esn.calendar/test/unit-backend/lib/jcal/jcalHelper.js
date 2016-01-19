@@ -3,14 +3,11 @@
 var expect = require('chai').expect;
 var fs = require('fs-extra');
 var icaljs = require('ical.js');
-var mockery = require('mockery');
-var moment = require('moment-timezone');
 
 describe('jcalHelper', function() {
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
-    mockery.registerMock('moment', function(date) { return moment(date).utc(); });
     this.jcalHelper = require(this.calendarModulePath + '/backend/lib/jcal/jcalHelper');
   });
 
@@ -68,11 +65,13 @@ describe('jcalHelper', function() {
         summary: 'Démo OPENPAAS',
         start: {
           date: '06/12/2015',
-          time: '1:00 PM'
+          time: '1:00 PM',
+          timezone: 'UTC'
         },
         end: {
           date: '06/12/2015',
-          time: '1:30 PM'
+          time: '1:30 PM',
+          timezone: 'UTC'
         },
         allDay: false,
         durationInDays: 0,
@@ -96,6 +95,52 @@ describe('jcalHelper', function() {
       });
     });
 
+    it('should correctly parse date with a specified timezone', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting-tzid.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.shallowDeepEqual({
+        start: {
+          date: '06/12/2015',
+          time: '1:00 PM',
+          timezone: 'America/New_York'
+        },
+        end: {
+          date: '06/12/2015',
+          time: '1:30 PM',
+          timezone: 'America/New_York'
+        }
+      });
+    });
+
+    it('should correctly parse date with different specified timezone for start and end', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/flight-event.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.shallowDeepEqual({
+        start: {
+          date: '06/12/2015',
+          time: '1:00 PM',
+          timezone: 'America/New_York'
+        },
+        end: {
+          date: '06/12/2015',
+          time: '5:00 PM',
+          timezone: 'Europe/Paris'
+        }
+      });
+    });
+
+    it('should correctly parse floating date by passing them as they are', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting-floating.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.shallowDeepEqual({
+        start: {
+          date: '06/12/2015',
+          time: '1:00 PM'
+        },
+        end: {
+          date: '06/12/2015',
+          time: '1:30 PM'
+        }
+      });
+    });
+
     it('should parse jcal formatted event using the cancel method', function() {
       ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/cancel-event.ics').toString('utf8');
       expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
@@ -104,11 +149,13 @@ describe('jcalHelper', function() {
         summary: 'Démo OPENPAAS',
         start: {
           date: '06/12/2015',
-          time: '1:00 PM'
+          time: '1:00 PM',
+          timezone: 'UTC'
         },
         end: {
           date: '06/12/2015',
-          time: '2:00 PM'
+          time: '2:00 PM',
+          timezone: 'UTC'
         },
         allDay: false,
         durationInDays: 0,
@@ -139,10 +186,10 @@ describe('jcalHelper', function() {
         sequence: 0,
         summary: 'Démo OPENPAAS',
         start: {
-          date: '06/11/2015'
+          date: '06/12/2015'
         },
         end: {
-          date: '09/10/2015'
+          date: '09/11/2015'
         },
         allDay: true,
         durationInDays: 92,

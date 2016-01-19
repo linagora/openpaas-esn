@@ -1,7 +1,7 @@
 'use strict';
 
 var ICAL = require('ical.js');
-var moment = require('moment');
+var moment = require('moment-timezone');
 var url = require('url');
 
 function _getEmail(attendee) {
@@ -69,19 +69,51 @@ function jcal2content(icalendar, baseUrl) {
     };
   });
 
+  function icalDateToMoment(icalDate, correspondingIcalStartDate) {
+    var dt;
+    var momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
+
+    if (icalDate.isDate) {
+      dt = moment(momentDatetimeArg.slice(0, 3));
+    } else if (icalDate.zone === ICAL.Timezone.utcTimezone) {
+      dt = moment.utc(momentDatetimeArg);
+    } else {
+      dt = moment(momentDatetimeArg);
+    }
+
+    return dt;
+  }
+
+  function getTimezoneOfIcalDate(icalDatetime) {
+    if (icalDatetime.isDate) {
+      return '';
+    } else {
+      return icalDatetime.zone === ICAL.Timezone.utcTimezone ? 'UTC' : icalDatetime.timezone;
+    }
+  }
+
   var allDay = vevent.getFirstProperty('dtstart').type === 'date';
-  var startDate = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
+  var dtstart = vevent.getFirstPropertyValue('dtstart');
+  var startDate = icalDateToMoment(dtstart);
+  var startTimezone = getTimezoneOfIcalDate(dtstart);
+
   var end, endDate;
   var durationInDays = null;
+  var dtend = vevent.getFirstPropertyValue('dtend');
+
   var period = ICAL.Period.fromData({
-    start: vevent.getFirstPropertyValue('dtstart'),
-    end: vevent.getFirstPropertyValue('dtend') || null,
+    start: dtstart,
+    end: dtend || null,
     duration: vevent.getFirstPropertyValue('duration') || null
   });
-  endDate = moment(period.getEnd().toJSDate());
+
+  endDate = icalDateToMoment(dtend || period.getEnd());
+  var endTimezone = dtend ? getTimezoneOfIcalDate(dtend) : startTimezone;
+
   if (!!endDate && !!startDate) {
     durationInDays = endDate.diff(startDate, 'days');
   }
+
   // OR-1221: end is exclusive when the event is an allday event.
   // For end user, we are chosing an inclusive end date
   if (allDay) {
@@ -92,7 +124,8 @@ function jcal2content(icalendar, baseUrl) {
   } else {
     end = {
       date: endDate.format('L'),
-      time: endDate.format('LT')
+      time: endDate.format('LT'),
+      timezone: endTimezone
     };
   }
 
@@ -113,7 +146,8 @@ function jcal2content(icalendar, baseUrl) {
     description: vevent.getFirstPropertyValue('description'),
     start: {
       date: startDate.format('L'),
-      time: allDay ? undefined : startDate.format('LT')
+      time: allDay ? undefined : startDate.format('LT'),
+      timezone: startTimezone
     },
     end: end,
     allDay: allDay,
