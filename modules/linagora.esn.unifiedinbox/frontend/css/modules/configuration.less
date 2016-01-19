@@ -13,25 +13,23 @@
       vertical-align: bottom;
     }
 
+    .badge {
+      display: none;
+    }
+
     .mailboxes-list {
 
       .clickable {
         margin-bottom: 10px;
       }
 
-    }
-
-    .field {
-      margin-bottom: 10px;
+      .mailbox-name {
+        .ellipsis;
+      }
     }
 
     .button-bar {
-      position: absolute;
-      bottom: 10px;
-      right: 0;
-      left: 0;
-
-      padding: 10px;
+      direction: rtl;
 
       .btn {
         margin: 0 5px;
@@ -39,4 +37,15 @@
     }
   }
   
+}
+
+@media(min-width: @screen-md-min) {
+
+  .inbox-main-content {
+    &.configuration {
+      .form-group {
+        width: 40%;
+      }
+    }
+  }
 }

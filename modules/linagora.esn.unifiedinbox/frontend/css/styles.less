@@ -3,6 +3,7 @@
 @import './modules/composer';
 @import './modules/header';
 @import './modules/configuration';
+@import './modules/aside';
 
 .comma {
   margin-right: 2px;
@@ -30,16 +31,11 @@
   }
 }
 
+.inbox-main {
+  width: 100%;
+}
+
 .inbox-main-content {
-  position: fixed;
-  overflow: auto;
-
-  left: 0;
-  right: 0;
-  top: @header-height;
-  bottom: 0;
-
-  background-color: @m-white;
   color: @secondaryTextColor;
   font-size: 1.4em;
 
@@ -61,7 +57,7 @@
 
 @media (min-width: @screen-sm-min) {
 
-  .inbox-main-content {
+  .inbox-main-content, .inbox-desktop-menu {
 
     .clickable:hover {
       color: @text-color;
