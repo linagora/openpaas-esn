@@ -8,6 +8,11 @@ module.exports = function(contact) {
   if (contact.bookId) {
     result.bookId = contact.bookId;
   }
+
+  if (contact.bookName) {
+    result.bookName = contact.bookName;
+  }
+
   if (contact.contactId) {
     result.contactId = contact.contactId;
   }

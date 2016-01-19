@@ -60,7 +60,7 @@ module.exports = function(dependencies, options) {
       }
       // this promise always resolve
       q.all(result.list.map(function(contact, index) {
-        return vcard(contact.bookId, contact.bookName, contact._id).get().then(function(data) {
+        return vcard(contact._source.bookId, contact._source.bookName, contact._id).get().then(function(data) {
           output.results[index] = {
             contactId: contact._id,
             response: data.response,

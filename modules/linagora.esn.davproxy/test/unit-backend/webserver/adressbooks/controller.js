@@ -548,6 +548,7 @@ describe('The addressbooks module', function() {
             expect(data).to.eql({
               contactId: req.params.cardId,
               bookId: req.params.bookHome,
+              bookName: req.params.bookName,
               vcard: req.body,
               user: req.user
             });

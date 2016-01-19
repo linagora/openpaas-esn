@@ -391,9 +391,9 @@ describe('The contact client APIs', function() {
           it('should resolve contacts fetched from DAV', function(done) {
             var counter = 0;
             var hitLists = [
-              { _id: 1, bookId: BOOK_ID, bookName: BOOK_NAME },
-              { _id: 2, bookId: BOOK_ID, bookName: BOOK_NAME },
-              { _id: 3, bookId: BOOK_ID, bookName: BOOK_NAME }
+              {_id: 1, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}}
             ];
             mockery.registerMock('../dav-client', {
               rawClient: function(options, callback) {
@@ -426,9 +426,9 @@ describe('The contact client APIs', function() {
           it('should return the contacts in the correct order', function(done) {
             var counter = 0;
             var hitLists = [
-              { _id: 1, bookId: BOOK_ID, bookName: BOOK_NAME },
-              { _id: 2, bookId: BOOK_ID, bookName: BOOK_NAME },
-              { _id: 3, bookId: BOOK_ID, bookName: BOOK_NAME }
+              {_id: 1, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}}
             ];
             mockery.registerMock('../dav-client', {
               rawClient: function(options, callback) {
@@ -716,9 +716,6 @@ describe('The contact client APIs', function() {
 
         });
       });
-
     });
-
   });
-
 });

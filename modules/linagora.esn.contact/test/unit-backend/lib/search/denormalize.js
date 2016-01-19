@@ -42,6 +42,11 @@ describe('The contact denormalize module', function() {
     expect(denormalize()).to.shallowDeepEqual({bookId: contact.bookId, contactId: contact.contactId});
   });
 
+  it('should return bookName', function() {
+    contact.bookName = 'ABName';
+    expect(denormalize()).to.shallowDeepEqual({bookName: contact.bookName});
+  });
+
   it('should not fail when vcard is undefined', function() {
     contact.vcard = null;
     expect(denormalize()).to.deep.equal({});

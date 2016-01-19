@@ -60,6 +60,14 @@ module.exports = function(dependencies) {
       });
     }
 
+    if (query.bookName) {
+      filters.push({
+        term: {
+          bookName: query.bookName
+        }
+      });
+    }
+
     var elasticsearchQuery = {
       query: {
         filtered: {
@@ -99,6 +107,7 @@ module.exports = function(dependencies) {
     logger.debug('Searching contacts with options', {
       userId: query.userId,
       bookId: query.bookId,
+      bookName: query.bookName,
       search: terms,
       page: page,
       offset: offset,
