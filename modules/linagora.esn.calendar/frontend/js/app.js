@@ -11,6 +11,7 @@ angular.module('esn.calendar', [
   'mgcrea.ngStrap.aside',
   'materialAdmin',
   'AngularJstz',
+  'angularMoment',
   'esn.core',
   'esn.authentication',
   'esn.form.helper',

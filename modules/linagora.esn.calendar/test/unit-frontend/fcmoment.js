@@ -10,10 +10,11 @@ describe('fcMoment factory', function() {
     this.window = {
       $: {
         fullCalendar: {}
-      },
-      moment: {
-        duration: 'it doesn not matter has long it is here'
       }
+    };
+
+    this.moment = {
+      duration: 'it doesn not matter as long as it is here'
     };
 
     this.jstz = {
@@ -30,6 +31,7 @@ describe('fcMoment factory', function() {
     angular.mock.module(function($provide) {
       $provide.value('$window', self.window);
       $provide.value('jstz', self.jstz);
+      $provide.constant('moment', self.moment);
     });
   });
 
@@ -139,6 +141,6 @@ describe('fcMoment factory', function() {
   });
 
   it('has a duration method which is like moment.duration', function() {
-    expect(this.fcMoment.duration).to.equal(this.window.moment.duration);
+    expect(this.fcMoment.duration).to.equal(this.moment.duration);
   });
 });
