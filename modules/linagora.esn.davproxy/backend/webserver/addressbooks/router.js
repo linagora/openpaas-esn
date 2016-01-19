@@ -43,6 +43,13 @@ module.exports = function(dependencies) {
     controller.getContacts
   );
 
+  router.propfind(
+    '/:bookHome/:bookName.json',
+    authorizationMW.requiresAPILogin,
+    middleware.generateNewToken,
+    controller.getAddressbook
+  );
+
   router.get(
     '/:bookHome.json',
     authorizationMW.requiresAPILogin,

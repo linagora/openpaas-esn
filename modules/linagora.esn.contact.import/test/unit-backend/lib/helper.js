@@ -115,9 +115,13 @@ describe('The contact import helper module', function() {
               addressbookHome: function(bookHome) {
                 expect(bookHome).to.equals(user._id);
                 return {
-                  create: function(addressbook) {
-                    expect(addressbook.id).to.equal(options.account.data.id);
-                    return q.reject(e);
+                  addressbook: function() {
+                    return {
+                      create: function(addressbook) {
+                        expect(addressbook.id).to.equal(options.account.data.id);
+                        return q.reject(e);
+                      }
+                    };
                   }
                 };
               }
@@ -153,9 +157,13 @@ describe('The contact import helper module', function() {
               addressbookHome: function(bookHome) {
                 expect(bookHome).to.equals(user._id);
                 return {
-                  create: function(addressbook) {
-                    expect(addressbook.id).to.equal(options.account.data.id);
-                    return q.resolve({});
+                  addressbook: function() {
+                    return {
+                      create: function(addressbook) {
+                        expect(addressbook.id).to.equal(options.account.data.id);
+                        return q.resolve({});
+                      }
+                    };
                   }
                 };
               }

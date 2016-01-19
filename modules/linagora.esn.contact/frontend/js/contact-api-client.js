@@ -95,17 +95,11 @@ angular.module('linagora.esn.contact')
      * @return {Promise}          Resolve AddressBookShell if success
      */
     function getAddressbook(bookId, bookName) {
-      // this is a dummy implementation, because our API from Sabre is not ready
-      var addressbook;
-      return listAddressbook(bookId)
-        .then(function(addressbooks) {
-          addressbooks.some(function(item) {
-            if (item.bookName === bookName) {
-              addressbook = item;
-              return true;
-            }
-          });
-          return addressbook || $q.reject(new Error('Addressbook has not been found'));
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+
+      return davClient('PROPFIND', getBookUrl(bookId, bookName), headers)
+        .then(function(response) {
+          return new AddressBookShell(response.data);
         });
     }
 

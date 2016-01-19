@@ -44,6 +44,7 @@ module.exports = function(dependencies) {
     return getCreationToken().then(function(token) {
       return contactModule.lib.client({ESNToken: token.token})
         .addressbookHome(user._id)
+        .addressbook()
         .create(addressbook)
         .then(function() {
           options.addressbook = addressbook;

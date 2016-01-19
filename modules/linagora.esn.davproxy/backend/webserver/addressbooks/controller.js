@@ -23,6 +23,7 @@ module.exports = function(dependencies) {
     contactModule.lib.client(options)
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
+      .vcard()
       .list(req.query)
       .then(function(data) {
         var body = data.body;
@@ -166,6 +167,7 @@ module.exports = function(dependencies) {
     contactModule.lib.client({ ESNToken: ESNToken })
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
+      .vcard()
       .search(options)
       .then(function(data) {
         var json = {
@@ -233,6 +235,7 @@ module.exports = function(dependencies) {
     var ESNToken = req.token && req.token.token ? req.token.token : '';
     contactModule.lib.client({ ESNToken: ESNToken })
       .addressbookHome(req.params.bookHome)
+      .addressbook()
       .list()
       .then(function(data) {
         res.status(200).json(data.body);
@@ -248,6 +251,26 @@ module.exports = function(dependencies) {
       });
   }
 
+  function getAddressbook(req, res) {
+    var ESNToken = req.token && req.token.token ? req.token.token : '';
+    contactModule.lib.client({ ESNToken: ESNToken })
+      .addressbookHome(req.params.bookHome)
+      .addressbook(req.params.bookName)
+      .get()
+      .then(function(data) {
+        res.status(200).json(data.body);
+      }, function(err) {
+        logger.error('Error while getting an addressbook', err);
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while getting an addressbook'
+          }
+        });
+      });
+  }
+
   return {
     getContactsFromDAV: getContactsFromDAV,
     getContact: getContact,
@@ -256,6 +279,7 @@ module.exports = function(dependencies) {
     updateContact: updateContact,
     deleteContact: deleteContact,
     getAddressbooks: getAddressbooks,
+    getAddressbook: getAddressbook,
     defaultHandler: defaultHandler
   };
 

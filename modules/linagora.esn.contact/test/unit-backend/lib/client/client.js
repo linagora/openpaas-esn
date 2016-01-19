@@ -63,40 +63,158 @@ describe('The contact client APIs', function() {
         return getAddressbookHome().addressbook(BOOK_NAME);
       }
 
-      describe('The list fn', function() {
-        it('should call davClient with right parameters', function(done) {
-          var query = { q: 'some query' };
+      describe('The list addressbook fn', function() {
+
+        it('should call davClient with the right parameters', function(done) {
           mockery.registerMock('../dav-client', {
             rawClient: function(options) {
+              expect(options).to.shallowDeepEqual({
+                method: 'GET',
+                json: true,
+                headers: {
+                  ESNToken: CLIENT_OPTIONS.ESNToken,
+                  accept: VCARD_JSON
+                },
+                body: undefined
+              });
+              expectBookHomeURL(options.url);
+              done();
+            }
+          });
+          getAddressbookHome().addressbook().list();
+        });
+
+        it('should resolve with response on success', function(done) {
+          var response = {
+            statusCode: 200
+          };
+
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, response);
+            }
+          });
+
+          getAddressbookHome().addressbook().list().then(function(data) {
+            expect(data.response).to.deep.equal(response);
+            done();
+          });
+        });
+
+        it('should reject with error when client returns error', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback('a error');
+            }
+          });
+
+          getAddressbookHome().addressbook().list().then(null, function(err) {
+            expect(err).to.equal('a error');
+            done();
+          });
+        });
+
+      });
+
+      describe('The create addressbook fn', function() {
+
+        it('should call davClient with right parameters', function(done) {
+          var addressbook = { id: '456' };
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options) {
+              expect(options.method).to.equal('POST');
               expect(options.json).to.be.true;
               expect(options.headers).to.eql({
                 ESNToken: CLIENT_OPTIONS.ESNToken,
                 accept: VCARD_JSON
               });
-              expectBookNameURL(options.url);
-              expect(options.query).to.equal(query);
+              expectBookHomeURL(options.url);
+              expect(options.body).to.equal(addressbook);
               done();
             }
           });
-          getAddressbook().list(query);
+          getAddressbookHome().addressbook().create(addressbook);
         });
 
-        it('should have default empty query', function(done) {
-          mockery.registerMock('../dav-client', {
-            rawClient: function(options) {
-              expect(options.query).to.eql({});
-              done();
-            }
-          });
-          getAddressbook().list();
-        });
-
-        it('should resolve with response and body', function(done) {
+        it('should resolve with response', function(done) {
           var response = {
             statusCode: 200
           };
+
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, response);
+            }
+          });
+
+          getAddressbookHome().addressbook().create({}).then(function(data) {
+            expect(data.response).to.deep.equal(response);
+            done();
+          });
+        });
+
+        it('should reject with error when client returns error', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback('a error');
+            }
+          });
+
+          getAddressbookHome().addressbook().create({}).then(null, function(err) {
+            expect(err).to.equal('a error');
+            done();
+          });
+        });
+
+        it('should reject when HTTP status is not 201', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, {statusCode: 199});
+            }
+          });
+
+          getAddressbookHome().addressbook().create({}).then(null, function(err) {
+            expect(err).to.exist;
+            done();
+          });
+        });
+      });
+
+      describe('The get addressbook fn', function() {
+        var PROPERTIES = {
+          '{DAV:}displayname': 'dav:name',
+          '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
+          '{DAV:}acl': 'dav:acl'
+        };
+
+        it('should call davClient with right parameters', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options) {
+              expect(options).to.shallowDeepEqual({
+                method: 'PROPFIND',
+                json: true,
+                headers: {
+                  ESNToken: CLIENT_OPTIONS.ESNToken,
+                  accept: VCARD_JSON
+                },
+                body: { properties: Object.keys(PROPERTIES) }
+              });
+              expectBookNameURL(options.url);
+              done();
+            }
+          });
+          getAddressbookHome().addressbook(BOOK_NAME).get();
+        });
+
+        it('should resolve with response after extracting info', function(done) {
+          var name = 'addressbook display name';
+          var description = 'addressbook description';
+          var acl = ['dav:read'];
+          var response = { statusCode: 200 };
           var body = {
-            _id: 123
+            '{DAV:}displayname': name,
+            '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
+            '{DAV:}acl': acl
           };
 
           mockery.registerMock('../dav-client', {
@@ -105,25 +223,35 @@ describe('The contact client APIs', function() {
             }
           });
 
-          getAddressbook().list().then(function(data) {
+          getAddressbookHome().addressbook(BOOK_NAME).get().then(function(data) {
             expect(data.response).to.deep.equal(response);
-            expect(data.body).to.deep.equal(body);
+            expect(data.body).to.deep.equal({
+              _links: {
+                self: {
+                  href: ['/dav/api/addressbooks', BOOK_ID, BOOK_NAME + '.json'].join('/')
+                }
+              },
+              'dav:name': name,
+              'carddav:description': description,
+              'dav:acl': acl
+            });
             done();
           });
         });
 
-        it('should reject with error', function(done) {
+        it('should reject with error when client returns error', function(done) {
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
               callback('a error');
             }
           });
 
-          getAddressbook().list().then(null, function(err) {
+          getAddressbookHome().addressbook(BOOK_NAME).get().then(null, function(err) {
             expect(err).to.equal('a error');
             done();
           });
         });
+
       });
 
       describe('The vcard fn', function() {
@@ -131,6 +259,200 @@ describe('The contact client APIs', function() {
         function getVcard(id) {
           return getAddressbook().vcard(id);
         }
+
+        describe('The list fn', function() {
+          it('should call davClient with right parameters', function(done) {
+            var query = { q: 'some query' };
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options) {
+                expect(options.json).to.be.true;
+                expect(options.headers).to.eql({
+                  ESNToken: CLIENT_OPTIONS.ESNToken,
+                  accept: VCARD_JSON
+                });
+                expectBookNameURL(options.url);
+                expect(options.query).to.equal(query);
+                done();
+              }
+            });
+            getAddressbook().vcard().list(query);
+          });
+
+          it('should have default empty query', function(done) {
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options) {
+                expect(options.query).to.eql({});
+                done();
+              }
+            });
+            getAddressbook().vcard().list();
+          });
+
+          it('should resolve with response and body', function(done) {
+            var response = {
+              statusCode: 200
+            };
+            var body = {
+              _id: 123
+            };
+
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                callback(null, response, body);
+              }
+            });
+
+            getAddressbook().vcard().list().then(function(data) {
+              expect(data.response).to.deep.equal(response);
+              expect(data.body).to.deep.equal(body);
+              done();
+            });
+          });
+
+          it('should reject with error', function(done) {
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                callback('a error');
+              }
+            });
+
+            getAddressbook().vcard().list().then(null, function(err) {
+              expect(err).to.equal('a error');
+              done();
+            });
+          });
+        });
+
+        describe('The search fn', function() {
+
+          function createSearchClientMock(mock) {
+            return function() {
+              return {
+                searchContacts: mock
+              };
+            };
+          }
+
+          it('should call searchClient.searchContacts with the right parameters', function(done) {
+            var searchOptions = {
+              search: 'alex',
+              userId: 'userId',
+              limit: 10,
+              page: 1
+            };
+            mockery.registerMock('../search', createSearchClientMock(function(options) {
+              expect(options).to.eql({
+                bookId: '123',
+                search: searchOptions.search,
+                userId: searchOptions.userId,
+                limit: searchOptions.limit,
+                page: searchOptions.page
+              });
+              done();
+            }));
+            getAddressbook().vcard().search(searchOptions);
+          });
+
+          it('should reject error occur while searching contact', function(done) {
+            mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+              callback('some error');
+            }));
+            getAddressbook().vcard().search({}).then(null, function(err) {
+              expect(err).to.equal('some error');
+              done();
+            });
+          });
+
+          it('should resolve empty results when the search list is undefined', function(done) {
+            mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+              callback(null, {});
+            }));
+            getAddressbook().vcard().search({}).then(function(data) {
+              expect(data.results).to.eql([]);
+              done();
+            });
+          });
+
+          it('should resolve total_count and current_page returned from search', function(done) {
+            mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+              callback(null, {
+                total_count: 100,
+                current_page: 2
+              });
+            }));
+            getAddressbook().vcard().search({}).then(function(data) {
+              expect(data.total_count).to.equal(100);
+              expect(data.current_page).to.equal(2);
+              done();
+            });
+          });
+
+          it('should resolve contacts fetched from DAV', function(done) {
+            var counter = 0;
+            var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
+                counter++;
+                if (counter === 3) {
+                  callback('some error');
+                } else {
+                  callback(null, {statusCode: 200}, {counter: counter});
+                }
+              }
+            });
+
+            mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+              callback(null, {
+                list: hitLists
+              });
+            }));
+
+            getAddressbook().vcard().search({}).then(function(data) {
+              expect(data.results).to.eql([
+                { contactId: 1, response: {statusCode: 200}, body: {counter: 1}},
+                { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
+                { contactId: 3, err: 'some error' }
+              ]);
+              done();
+            });
+          });
+
+          it('should return the contacts in the correct order', function(done) {
+            var counter = 0;
+            var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
+                counter++;
+                if (counter === 1) {
+                  setTimeout(function() {
+                    callback(null, {statusCode: 200}, {delay: 1});
+                  }, 200);
+                } else {
+                  callback(null, {statusCode: 200}, {counter: counter});
+                }
+              }
+            });
+
+            mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
+              callback(null, {
+                list: hitLists
+              });
+            }));
+
+            getAddressbook().vcard().search({}).then(function(data) {
+              expect(data.results).to.eql([
+                { contactId: 1, response: {statusCode: 200}, body: {delay: 1}},
+                { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
+                { contactId: 3, response: {statusCode: 200}, body: {counter: 3}}
+              ]);
+              done();
+            });
+
+          });
+
+        });
 
         describe('The get fn', function() {
           it('should call davClient with right parameters', function(done) {
@@ -383,254 +705,6 @@ describe('The contact client APIs', function() {
             });
           });
 
-        });
-      });
-
-      describe('The search fn', function() {
-
-        function createSearchClientMock(mock) {
-          return function() {
-            return {
-              searchContacts: mock
-            };
-          };
-        }
-
-        it('should call searchClient.searchContacts with the right parameters', function(done) {
-          var searchOptions = {
-            search: 'alex',
-            userId: 'userId',
-            limit: 10,
-            page: 1
-          };
-          mockery.registerMock('../search', createSearchClientMock(function(options) {
-            expect(options).to.eql({
-              bookId: '123',
-              search: searchOptions.search,
-              userId: searchOptions.userId,
-              limit: searchOptions.limit,
-              page: searchOptions.page
-            });
-            done();
-          }));
-          getAddressbook().search(searchOptions);
-        });
-
-        it('should reject error occur while searching contact', function(done) {
-          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
-            callback('some error');
-          }));
-          getAddressbook().search({}).then(null, function(err) {
-            expect(err).to.equal('some error');
-            done();
-          });
-        });
-
-        it('should resolve empty results when the search list is undefined', function(done) {
-          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
-            callback(null, {});
-          }));
-          getAddressbook().search({}).then(function(data) {
-            expect(data.results).to.eql([]);
-            done();
-          });
-        });
-
-        it('should resolve total_count and current_page returned from search', function(done) {
-          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
-            callback(null, {
-              total_count: 100,
-              current_page: 2
-            });
-          }));
-          getAddressbook().search({}).then(function(data) {
-            expect(data.total_count).to.equal(100);
-            expect(data.current_page).to.equal(2);
-            done();
-          });
-        });
-
-        it('should resolve contacts fetched from DAV', function(done) {
-          var counter = 0;
-          var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
-          mockery.registerMock('../dav-client', {
-            rawClient: function(options, callback) {
-              expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
-              counter++;
-              if (counter === 3) {
-                callback('some error');
-              } else {
-                callback(null, {statusCode: 200}, {counter: counter});
-              }
-            }
-          });
-
-          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
-            callback(null, {
-              list: hitLists
-            });
-          }));
-
-          getAddressbook().search({}).then(function(data) {
-            expect(data.results).to.eql([
-              { contactId: 1, response: {statusCode: 200}, body: {counter: 1}},
-              { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
-              { contactId: 3, err: 'some error' }
-            ]);
-            done();
-          });
-        });
-
-        it('should return the contacts in the correct order', function(done) {
-          var counter = 0;
-          var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
-          mockery.registerMock('../dav-client', {
-            rawClient: function(options, callback) {
-              expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
-              counter++;
-              if (counter === 1) {
-                setTimeout(function() {
-                  callback(null, {statusCode: 200}, {delay: 1});
-                }, 200);
-              } else {
-                callback(null, {statusCode: 200}, {counter: counter});
-              }
-            }
-          });
-
-          mockery.registerMock('../search', createSearchClientMock(function(options, callback) {
-            callback(null, {
-              list: hitLists
-            });
-          }));
-
-          getAddressbook().search({}).then(function(data) {
-            expect(data.results).to.eql([
-              { contactId: 1, response: {statusCode: 200}, body: {delay: 1}},
-              { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
-              { contactId: 3, response: {statusCode: 200}, body: {counter: 3}}
-            ]);
-            done();
-          });
-
-        });
-
-      });
-
-    });
-
-    describe('The create addressbook fn', function() {
-
-      it('should call davClient with right parameters', function(done) {
-        var addressbook = { id: '456' };
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options) {
-            expect(options.method).to.equal('POST');
-            expect(options.json).to.be.true;
-            expect(options.headers).to.eql({
-              ESNToken: CLIENT_OPTIONS.ESNToken,
-              accept: VCARD_JSON
-            });
-            expectBookHomeURL(options.url);
-            expect(options.body).to.equal(addressbook);
-            done();
-          }
-        });
-        getAddressbookHome().create(addressbook);
-      });
-
-      it('should resolve with response', function(done) {
-        var response = {
-          statusCode: 200
-        };
-
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options, callback) {
-            callback(null, response);
-          }
-        });
-
-        getAddressbookHome().create({}).then(function(data) {
-          expect(data.response).to.deep.equal(response);
-          done();
-        });
-      });
-
-      it('should reject with error when client returns error', function(done) {
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options, callback) {
-            callback('a error');
-          }
-        });
-
-        getAddressbookHome().create({}).then(null, function(err) {
-          expect(err).to.equal('a error');
-          done();
-        });
-      });
-
-      it('should reject when HTTP status is not 201', function(done) {
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options, callback) {
-            callback(null, {statusCode: 199});
-          }
-        });
-
-        getAddressbookHome().create({}).then(null, function(err) {
-          expect(err).to.exist;
-          done();
-        });
-      });
-    });
-
-    describe('The list addressbook fn', function() {
-
-      it('should call davClient with the right parameters', function(done) {
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options) {
-            expect(options).to.shallowDeepEqual({
-              method: 'GET',
-              json: true,
-              headers: {
-                ESNToken: CLIENT_OPTIONS.ESNToken,
-                accept: VCARD_JSON
-              },
-              body: undefined
-            });
-            expectBookHomeURL(options.url);
-            done();
-          }
-        });
-        getAddressbookHome().list();
-      });
-
-      it('should resolve with response on success', function(done) {
-        var response = {
-          statusCode: 200
-        };
-
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options, callback) {
-            callback(null, response);
-          }
-        });
-
-        getAddressbookHome().list().then(function(data) {
-          expect(data.response).to.deep.equal(response);
-          done();
-        });
-      });
-
-      it('should reject with error when client returns error', function(done) {
-        mockery.registerMock('../dav-client', {
-          rawClient: function(options, callback) {
-            callback('a error');
-          }
-        });
-
-        getAddressbookHome().list().then(null, function(err) {
-          expect(err).to.equal('a error');
-          done();
         });
       });
 
