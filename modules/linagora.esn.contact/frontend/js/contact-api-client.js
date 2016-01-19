@@ -169,9 +169,9 @@ angular.module('linagora.esn.contact')
 
     /**
      * Search card
-     * @param  {String} bookId   the addressbook home ID
-     * @param  {String} bookName the addressbook name
-     * @param  {Object} options  Serarch options, includes:
+     * @param  {Object} options  Search options, includes:
+     *                            + bookId: The AB home ID
+     *                            + bookName: The AB name
      *                           	+ data: query to search
      *                            + userId
      *                            + page
@@ -180,7 +180,7 @@ angular.module('linagora.esn.contact')
      *                            + total_hits
      *                            + data: an array of ContactShell
      */
-    function searchCard(bookId, bookName, options) {
+    function searchCard(options) {
       if (!options) {
         return $q.reject('Missing options');
       }
@@ -189,9 +189,10 @@ angular.module('linagora.esn.contact')
         userId: options.userId,
         page: options.page
       };
+
       return davClient(
           'GET',
-          getBookUrl(bookId, bookName),
+          options.bookName ? getBookUrl(options.bookId, options.bookName) : getBookHomeUrl(options.bookId),
           null,
           null,
           params
@@ -326,7 +327,7 @@ angular.module('linagora.esn.contact')
      * - Update a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).update(contact)
      * - Remove a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).remove(options)
      * @param  {String} bookId the addressbook home ID
-     * @return {Function}
+     * @return {addressbook: function, search: function}
      */
     function addressbookHome(bookId) {
       function addressbook(bookName) {
@@ -350,7 +351,9 @@ angular.module('linagora.esn.contact')
           }
 
           function search(options) {
-            return searchCard(bookId, bookName, options);
+            options.bookId = bookId;
+            options.bookName = bookName;
+            return searchCard(options);
           }
 
           function create(contact) {
@@ -381,8 +384,14 @@ angular.module('linagora.esn.contact')
         };
       }
 
+      function search(options) {
+        options.bookId = bookId;
+        return searchCard(options);
+      }
+
       return {
-        addressbook: addressbook
+        addressbook: addressbook,
+        search: search
       };
     }
 

@@ -24,13 +24,13 @@ describe('The Contacts Angular pagination module', function() {
     ContactAPIClient = {
       addressbookHome: function() {
         return {
+          search: searchMock,
           addressbook: function() {
             return {
               vcard: function() {
                 return {
                   get: function() { return $q.when(); },
                   list: listMock,
-                  search: searchMock,
                   create: function() { return $q.when(); },
                   update: function() { return $q.when(); },
                   remove: function() { return $q.when(); }
