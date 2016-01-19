@@ -38,6 +38,48 @@ module.exports = function(dependencies, options) {
     };
   }
 
+  function searchContacts(searchOptions) {
+    var deferred = q.defer();
+
+    function vcard(bookId, bookName, cardId) {
+      return addressbookHome(bookId).addressbook(bookName).vcard(cardId);
+    }
+
+    searchClient.searchContacts(searchOptions, function(err, result) {
+      if (err) {
+        return deferred.reject(err);
+      }
+      var output = {
+        total_count: result.total_count,
+        current_page: result.current_page,
+        results: []
+      };
+
+      if (!result.list || result.list.length === 0) {
+        return deferred.resolve(output);
+      }
+      // this promise always resolve
+      q.all(result.list.map(function(contact, index) {
+        return vcard(contact.bookId, contact.bookName, contact._id).get().then(function(data) {
+          output.results[index] = {
+            contactId: contact._id,
+            response: data.response,
+            body: data.body
+          };
+        }, function(err) {
+          output.results.push({
+            contactId: contact._id,
+            err: err
+          });
+        });
+      })).then(function() {
+        deferred.resolve(output);
+      });
+    });
+
+    return deferred.promise;
+  }
+
   /**
    * The addressbookHome API
    *
@@ -309,49 +351,15 @@ module.exports = function(dependencies, options) {
          *                                   		+ err: error object failed to fetch contact
          */
         function search(options) {
-          var deferred = q.defer();
-
           var searchOptions = {
             bookId: bookHome,
+            bookName: name,
             search: options.search,
             userId: options.userId,
             limit: options.limit,
             page: options.page
           };
-
-          searchClient.searchContacts(searchOptions, function(err, result) {
-            if (err) {
-              return deferred.reject(err);
-            }
-            var output = {
-              total_count: result.total_count,
-              current_page: result.current_page,
-              results: []
-            };
-
-            if (!result.list || result.list.length === 0) {
-              return deferred.resolve(output);
-            }
-            // this promise allways resolve
-            q.all(result.list.map(function(contact, index) {
-              return vcard(contact._id).get().then(function(data) {
-                output.results[index] = {
-                  contactId: contact._id,
-                  response: data.response,
-                  body: data.body
-                };
-              }, function(err) {
-                output.results.push({
-                  contactId: contact._id,
-                  err: err
-                });
-              });
-            })).then(function() {
-              deferred.resolve(output);
-            });
-          });
-
-          return deferred.promise;
+          return searchContacts(searchOptions);
         }
 
         return {
@@ -372,8 +380,23 @@ module.exports = function(dependencies, options) {
       };
     }
 
+    /**
+     * Search contacts in all the addressbooks of this addressbook home Id
+     */
+    function search(options) {
+      var searchOptions = {
+        bookId: bookHome,
+        search: options.search,
+        userId: options.userId,
+        limit: options.limit,
+        page: options.page
+      };
+      return searchContacts(searchOptions);
+    }
+
     return {
-      addressbook: addressbook
+      addressbook: addressbook,
+      search: search
     };
   }
 

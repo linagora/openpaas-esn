@@ -164,12 +164,13 @@ module.exports = function(dependencies) {
       limit: req.query.limit,
       page: req.query.page
     };
-    contactModule.lib.client({ ESNToken: ESNToken })
-      .addressbookHome(req.params.bookHome)
-      .addressbook(req.params.bookName)
-      .vcard()
-      .search(options)
-      .then(function(data) {
+
+    var client = contactModule.lib.client({ESNToken: ESNToken}).addressbookHome(req.params.bookHome);
+    if (req.params.bookName) {
+      client = client.addressbook(req.params.bookName).vcard();
+    }
+
+    client.search(options).then(function(data) {
         var json = {
           _links: {
             self: {
@@ -232,6 +233,10 @@ module.exports = function(dependencies) {
   }
 
   function getAddressbooks(req, res) {
+    if (req.query.search) {
+      return searchContacts(req, res);
+    }
+
     var ESNToken = req.token && req.token.token ? req.token.token : '';
     contactModule.lib.client({ ESNToken: ESNToken })
       .addressbookHome(req.params.bookHome)
