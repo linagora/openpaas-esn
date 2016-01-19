@@ -6,16 +6,20 @@
     z-index: 2;
     top: 0;
     border-radius: 2px;
-
-    padding: 0 0 0 20px;
+    height: @contact-toolbar-item-height;
     input[type="text"] {
-      background-color: @contact-search-form-bg-color;
       font-size: 18px;
-      padding: 0 0 0 40px;
-      height: @contact-toolbar-item-height;
-      width: 100%;
+      padding: 5px 0 0 30px;
+      width: 90%;
       border: 0;
       border-radius: 0;
+    }
+
+    i {
+      padding-top: 5px;
+      font-size: x-large;
+      color: @m-gray;
+      position: absolute;
     }
   }
 
@@ -23,29 +27,9 @@
     font-family: 'MaterialDesignIcons';
     content: "\f43b";
     position: absolute;
-    padding: 2px 10px 0 10px;
+    padding: 2px 10px 0 5px;
     font-size: x-large;
     color: @m-gray;
-  }
-
-  .contacts-search-input .form-control:focus {
-    background-position: right center;
-    padding: 0 30px 0 0;
-  }
-
-  .clear-search-input {
-    .mdi:before {
-      font-size: x-large;
-      color: @m-gray;
-    }
-    position: relative;
-    height: @contact-toolbar-item-height;
-    background-color: @contact-search-form-bg-color;
-    padding: 5px 0 0 10px;
-    width: 44px;
-    span {
-      .fadeIn200ms();
-    }
   }
 
   @media (max-width: @screen-md-min) {
