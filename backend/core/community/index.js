@@ -269,6 +269,6 @@ module.exports.cleanMembershipRequest = function(community, user, callback) {
 
 module.exports.search = require('./search');
 
-module.exports.hasDomain = function(community) {
-  return collaborationModule.hasDomain(community);
+module.exports.hasDomain = function(community, domainId) {
+  return collaborationModule.hasDomain(community, domainId);
 };
