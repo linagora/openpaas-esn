@@ -111,7 +111,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $location, withJmapClient, jmap, session, notificationFactory, emailSendingService, newComposerService, headerService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
@@ -119,13 +119,11 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.emailId = $stateParams.emailId;
 
     $scope.moveToTrash = function() {
-      $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH)
-        .then(function() {
-          notificationFactory.weakSuccess('Successfully moved message to trash', '');
-          $location.path('/unifiedinbox/' + $scope.mailbox);
-        }, function(err) {
-          notificationFactory.weakError('Failed to move message to trash', err.message || err);
-        });
+      asyncAction('Move of message "' + $scope.email.subject + '" to trash', function() {
+        return $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
+      }).then(function() {
+        $state.go('unifiedinbox.mailbox', { mailbox: $scope.mailbox });
+      });
     };
 
     $scope.reply = function() {
@@ -154,19 +152,26 @@ angular.module('linagora.esn.unifiedinbox')
     headerService.subHeader.setInjection('configuration-index-subheader', $scope);
   })
 
-  .controller('addFolderController', function($scope, $state, headerService, mailboxesService, notificationFactory) {
+  .controller('addFolderController', function($scope, $state, headerService, mailboxesService, notificationFactory, asyncJmapAction) {
     mailboxesService.assignMailboxesList($scope);
     headerService.subHeader.setInjection('add-folder-subheader', $scope);
 
     $scope.mailbox = {};
 
     $scope.addFolder = function() {
-      notificationFactory.weakSuccess('Successfully created folder ' + $scope.mailbox.name + ' as a child of ' + $scope.mailbox.parentId, '');
-      $state.go('unifiedinbox.configuration');
+      if (!$scope.mailbox.name) {
+        return notificationFactory.weakError('Error', 'Please enter a valid folder name');
+      }
+
+      asyncJmapAction('Creation of folder ' + $scope.mailbox.name, function(client) {
+        return client.createMailbox($scope.mailbox.name, $scope.mailbox.parentId);
+      }).then(function() {
+        $state.go('unifiedinbox');
+      });
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, $modal, headerService, mailboxesService, _, notificationFactory, withJmapClient) {
+  .controller('editFolderController', function($scope, $state, $stateParams, $modal, headerService, mailboxesService, _, notificationFactory, asyncJmapAction) {
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
@@ -176,8 +181,18 @@ angular.module('linagora.esn.unifiedinbox')
     headerService.subHeader.setInjection('edit-folder-subheader', $scope);
 
     $scope.editFolder = function() {
-      notificationFactory.weakSuccess('Successfully edited folder ' + $scope.mailbox.name + ' as a child of ' + $scope.mailbox.parentId, '');
-      $state.go('unifiedinbox.configuration');
+      if (!$scope.mailbox.name) {
+        return notificationFactory.weakError('Error', 'Please enter a valid folder name');
+      }
+
+      asyncJmapAction('Modification of folder ' + $scope.mailbox.name, function(client) {
+        return client.updateMailbox($scope.mailbox.id, {
+          name: $scope.mailbox.name,
+          parentId: $scope.mailbox.parentId
+        });
+      }).then(function() {
+        $state.go('unifiedinbox');
+      });
     };
 
     $scope.confirmationDialog = function() {
@@ -185,15 +200,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     $scope.deleteFolder = function() {
-      notificationFactory.weakInfo('Deleting ' + $scope.mailbox.name);
-      withJmapClient(function(client) {
-        client
-          .destroyMailbox($scope.mailbox.id)
-          .then(function() {
-            notificationFactory.weakSuccess('Successfully deleted folder ' + $scope.mailbox.name);
-          }, function() {
-            notificationFactory.weakError('Error while deleting folder ' + $scope.mailbox.name);
-          });
+      asyncJmapAction('Deletion of folder ' + $scope.mailbox.name, function(client) {
+        return client.destroyMailbox($scope.mailbox.id);
+      }).then(function() {
+        $state.go('unifiedinbox');
       });
     };
   });

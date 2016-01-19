@@ -18,7 +18,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     };
     notificationFactory = {
       weakSuccess: angular.noop,
-      weakError: angular.noop
+      weakError: angular.noop,
+      strongInfo: function() { return { close: angular.noop }; }
     };
     headerService = {
       subHeader: {
@@ -27,7 +28,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       }
     };
     $state = {
-      go: angular.noop
+      go: sinon.spy()
     };
     $modal = sinon.spy();
 
@@ -390,7 +391,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.moveToTrash();
       });
 
-      it('should update location to the parent mailbox when the message was successfully moved', function(done) {
+      it('should update location to the parent mailbox when the message was successfully moved', function() {
         jmapClient.getMessages = function() {
           return $q.when([{
             moveToMailboxWithRole: function() {
@@ -398,16 +399,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             }
           }]);
         };
-        $location.path = function(path) {
-          expect(path).to.equal('/unifiedinbox/chosenMailbox');
-
-          done();
-        };
 
         initController('viewEmailController');
 
         scope.moveToTrash();
         $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: 'chosenMailbox' });
       });
 
       it('should notify weakSuccess when the message was successfully moved', function(done) {
@@ -573,16 +571,31 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The addFolder method', function() {
 
-      it('should go to unifiedinbox.configuration', function() {
+      it('should go to unifiedinbox', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
-        $state.go = sinon.spy();
+        jmapClient.createMailbox = function() { return $q.when([]); };
 
         initController('addFolderController');
 
-        scope.mailbox = {};
+        scope.mailbox = { name: 'Name' };
         scope.addFolder();
+        $rootScope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.configuration');
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
+      });
+
+      it('should do nothing if mailbox.name is not defined', function() {
+        jmapClient.getMailboxes = function() { return $q.when([]); };
+        jmapClient.createMailbox = sinon.spy();
+
+        initController('addFolderController');
+
+        scope.mailbox = { };
+        scope.addFolder();
+        $rootScope.$digest();
+
+        expect($state.go).to.not.have.been.called;
+        expect(jmapClient.createMailbox).to.not.have.been.called;
       });
 
     });
@@ -631,16 +644,31 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The editFolder method', function() {
 
-      it('should go to unifiedinbox.configuration', function() {
+      it('should go to unifiedinbox', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
-        $state.go = sinon.spy();
+        jmapClient.updateMailbox = function() { return $q.when([]); };
+
+        initController('editFolderController');
+
+        scope.mailbox = { name: 'Name' };
+        scope.editFolder();
+        $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
+      });
+
+      it('should do nothing if mailbox.name is not defined', function() {
+        jmapClient.getMailboxes = function() { return $q.when([]); };
+        jmapClient.updateMailbox = sinon.spy();
 
         initController('editFolderController');
 
         scope.mailbox = {};
         scope.editFolder();
+        $rootScope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.configuration');
+        expect($state.go).to.not.have.been.called;
+        expect(jmapClient.updateMailbox).to.not.have.been.called;
       });
 
     });
@@ -650,6 +678,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       beforeEach(function() {
         jmapClient.getMailboxes = function() {return $q.when([]);};
+        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
         weakSuccessSpy = sinon.spy();
         weakErrorSpy = sinon.spy();
         weakInfoSpy = sinon.spy();
@@ -658,39 +687,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         notificationFactory.weakInfo = weakInfoSpy;
       });
 
-      it('should notify when starting deleting a folder and then successfully notify when the folder is deleted', function() {
-        jmapClient.destroyMailbox = function() {return $q.when([]); };
-
+      it('should call client.destroyMailbox', function() {
         initController('editFolderController');
 
         scope.mailbox = {
-          id: 'id',
-          name: 'name',
-          parentId: 'parentId'
+          id: 123
         };
-
         scope.deleteFolder();
-        expect(weakInfoSpy).to.be.calledWith('Deleting name');
-        scope.$digest();
-        expect(weakSuccessSpy).to.be.calledWith('Successfully deleted folder name');
+        $rootScope.$digest();
+
+        expect(jmapClient.destroyMailbox).to.have.been.calledWith(123);
       });
 
-      it('should notify when starting deleting a folder and then notify about an error when the folder is not deleted', function() {
-        jmapClient.destroyMailbox = function() {return $q.reject([]); };
-
+      it('should go to unifiedinbox afterwards', function() {
         initController('editFolderController');
 
         scope.mailbox = {
-          id: 'id',
-          name: 'name',
-          parentId: 'parentId'
+          id: 123
         };
-
         scope.deleteFolder();
-        expect(weakInfoSpy).to.be.calledWith('Deleting name');
-        scope.$digest();
-        expect(weakErrorSpy).to.be.calledWith('Error while deleting folder name');
+        $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
+
     });
 
     describe('the confirmationDialog method', function() {

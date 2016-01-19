@@ -1521,33 +1521,6 @@ describe('The Unified Inbox Angular module services', function() {
       expect(notificationText).to.equal('Your device loses its Internet connection. Try later!');
     });
 
-    it('"send" fn should successfully notify when a valid email is sent', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
-      var email = {
-        destroy: angular.noop,
-        to: [{email: '1@linagora.com'}, {email: '2@linagora.com'}],
-        cc: [{email: '1@linagora.com'}, {email: '3@linagora.com'}],
-        bcc: [{email: '1@linagora.com'}, {email: '2@linagora.com'}, {email: '4@linagora.com'}]
-      };
-
-      var expectedRcpt = {
-        to: [{displayName: '1@linagora.com', email: '1@linagora.com'}, {displayName: '2@linagora.com', email: '2@linagora.com'}],
-        cc: [{displayName: '3@linagora.com', email: '3@linagora.com'}],
-        bcc: [{displayName: '4@linagora.com', email: '4@linagora.com'}]
-      };
-
-      var composition = new Composition(email);
-      composition.send();
-      $timeout.flush();
-
-      expect(composition.getEmail().rcpt).to.shallowDeepEqual(expectedRcpt);
-      expect(closeNotificationSpy).to.have.been.calledOnce;
-      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
-      expect(notificationTitle).to.equal('Success');
-      expect(notificationText).to.equal('Your email has been sent');
-    });
-
     it('"send" fn should successfully send an email even if only bcc is used', function() {
       emailSendingService.sendEmail = sinon.stub().returns($q.when());
 
@@ -1561,52 +1534,7 @@ describe('The Unified Inbox Angular module services', function() {
       new Composition(email).send();
       $timeout.flush();
 
-      expect(closeNotificationSpy).to.have.been.calledOnce;
       expect(emailSendingService.sendEmail).to.have.been.calledOnce;
-      expect(notificationTitle).to.equal('Success');
-      expect(notificationText).to.equal('Your email has been sent');
-    });
-
-    it('"send" fn should notify immediately about sending email for slow connection. The final notification is shown once the email is sent', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
-        return $q.when();
-      }, 200));
-
-      var email = {
-        destroy: angular.noop,
-        to: [{displayName: '1', email: '1@linagora.com'}]
-      };
-
-      new Composition(email).send();
-
-      expect(notificationTitle).to.equal('Info');
-      expect(notificationText).to.equal('Sending');
-      $timeout.flush(201);
-      expect(closeNotificationSpy).to.have.been.calledOnce;
-      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
-      expect(notificationTitle).to.equal('Success');
-      expect(notificationText).to.equal('Your email has been sent');
-    });
-
-    it('"send" fn should notify immediately about sending email for slow connection. this notification is then replaced by an error one in the case of failure', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($timeout(function() {
-        return $q.reject();
-      }, 200));
-
-      var email = {
-        destroy: angular.noop,
-        to: [{displayName: '1', email: '1@linagora.com'}]
-      };
-
-      new Composition(email).send();
-
-      expect(notificationTitle).to.equal('Info');
-      expect(notificationText).to.equal('Sending');
-      $timeout.flush(201);
-      expect(closeNotificationSpy).to.have.been.calledOnce;
-      expect(emailSendingService.sendEmail).to.have.been.calledOnce;
-      expect(notificationTitle).to.equal('Error');
-      expect(notificationText).to.equal('An error has occurred while sending email');
     });
 
     it('"send" fn should assign email.from using the session before sending', function() {
@@ -1877,6 +1805,126 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
+    });
+
+  });
+
+  describe('The asyncAction factory', function() {
+
+    var asyncAction, notificationFactory, notification, $rootScope;
+
+    function qNoop() {
+      return $q.when();
+    }
+
+    beforeEach(module(function($provide) {
+      notification = {
+        close: sinon.spy()
+      };
+      notificationFactory = {
+        strongInfo: sinon.spy(function() { return notification; }),
+        weakSuccess: sinon.spy(),
+        weakError: sinon.spy()
+      };
+
+      $provide.value('notificationFactory', notificationFactory);
+    }));
+
+    beforeEach(inject(function(_asyncAction_, _$rootScope_) {
+      asyncAction = _asyncAction_;
+      $rootScope = _$rootScope_;
+    }));
+
+    it('should start the action', function() {
+      var action = sinon.spy(qNoop);
+
+      asyncAction('Test', action);
+      $rootScope.$digest();
+
+      expect(action).to.have.been.calledWith();
+    });
+
+    it('should notify strongInfo when starting the action', function() {
+      asyncAction('Test', qNoop);
+      $rootScope.$digest();
+
+      expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Test in progress...');
+    });
+
+    it('should close the strongInfo notification when action resolves', function() {
+      asyncAction('Test', qNoop);
+      $rootScope.$digest();
+
+      expect(notification.close).to.have.been.calledWith();
+    });
+
+    it('should close the strongInfo notification when action rejects', function() {
+      asyncAction('Test', function() { return $q.reject(); });
+      $rootScope.$digest();
+
+      expect(notification.close).to.have.been.calledWith();
+    });
+
+    it('should notify weakSuccess when action resolves', function() {
+      asyncAction('Test', qNoop);
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Test succeeded');
+    });
+
+    it('should notify weakError when action rejects', function() {
+      asyncAction('Test', function() { return $q.reject(); });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+    });
+
+    it('should return a promise resolving to the resolved value of the action', function(done) {
+      asyncAction('Test', function() { return $q.when(1); })
+        .then(function(result) {
+          expect(result).to.equal(1);
+
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should return a promise rejecting with the rejection value of the action', function(done) {
+      asyncAction('Test', function() { return $q.reject('Bouh !'); })
+        .then(function() {
+          done('The promise should not be resolved !');
+        }, function(result) {
+          expect(result).to.equal('Bouh !');
+
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+  });
+
+  describe('The asyncJmapAction factory', function() {
+
+    var asyncJmapAction, asyncAction, withJmapClient;
+
+    beforeEach(module(function($provide) {
+      $provide.value('asyncAction', sinon.spy(function(message, action) { return action(); }));
+      $provide.value('withJmapClient', sinon.spy(function(callback) { return callback; }));
+    }));
+
+    beforeEach(inject(function(_asyncJmapAction_, _asyncAction_, _withJmapClient_) {
+      asyncAction = _asyncAction_;
+      withJmapClient = _withJmapClient_;
+      asyncJmapAction = _asyncJmapAction_;
+    }));
+
+    it('should delegate to asyncAction, forwarding the message and the wrapped action', function() {
+      asyncJmapAction('Message', 1);
+
+      expect(withJmapClient).to.have.been.calledWith(1);
+      expect(asyncAction).to.have.been.calledWith('Message', sinon.match.func);
     });
 
   });

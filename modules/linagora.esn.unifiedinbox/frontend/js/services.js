@@ -32,6 +32,35 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .factory('asyncAction', function($q, $log, notificationFactory) {
+    return function(message, action) {
+      var notification = notificationFactory.strongInfo('', message + ' in progress...');
+
+      return action()
+        .then(function(value) {
+          notificationFactory.weakSuccess('', message + ' succeeded');
+
+          return value;
+        }, function(err) {
+          notificationFactory.weakError('Error', message + ' failed');
+          $log.error(err);
+
+          return $q.reject(err);
+        })
+        .finally(function() {
+          notification.close();
+        });
+    };
+  })
+
+  .factory('asyncJmapAction', function(asyncAction, withJmapClient) {
+    return function(message, action) {
+      return asyncAction(message, function() {
+        return withJmapClient(action);
+      });
+    };
+  })
+
   .factory('EmailGroupingTool', function(moment) {
 
     function EmailGroupingTool(mailbox, emails) {
@@ -442,7 +471,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline) {
+  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline, asyncAction) {
 
     function addDisplayNameToRecipients(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -500,20 +529,14 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       var self = this;
+
       this.email.from = session.user;
 
-      var notify = notificationFactory.notify('info', 'Info', 'Sending', { from: 'bottom', align: 'right'}, 0);
-      emailSendingService.sendEmail(this.email).then(
-        function() {
-          notify.close();
-          notificationFactory.weakSuccess('Success', 'Your email has been sent');
-          self.destroyOriginalDraft();
-        },
-        function() {
-          notify.close();
-          notificationFactory.weakError('Error', 'An error has occurred while sending email');
-        }
-      );
+      asyncAction('Sending of your message', function() {
+        return emailSendingService.sendEmail(self.email);
+      }).then(function() {
+        self.destroyOriginalDraft();
+      });
     };
 
     Composition.prototype.destroyOriginalDraft = function() {
