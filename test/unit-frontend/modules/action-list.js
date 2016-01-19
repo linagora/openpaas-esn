@@ -48,32 +48,31 @@ describe('directive : action-list', function() {
     };
   }));
 
-  it('should open a $modal when screen size is <= xs', function() {
-    screenSize.get = function() {
-      return 'xs';
+  it('should open a $modal when screen size is <= sm', function() {
+    screenSize.is = function(match) {
+      expect(match).to.equal('xs, sm');
+      return true;
     };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
 
     expect($modal).to.have.been.called;
-
   });
 
-  it('should open a $dropdown when screen size is > xs', function() {
-    screenSize.get = function() {
-      return 'md';
+  it('should open a $dropdown when screen size is > sm', function() {
+    screenSize.is = function() {
+      return false;
     };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
 
     expect($dropdown).to.have.been.called;
-
   });
 
   it('should first open a $modal when screen size is xs, then open a $dropdown when it changes to lg', function() {
-    screenSize.get = sinon.stub();
-    screenSize.get.onCall(0).returns('xs');
-    screenSize.get.onCall(1).returns('lg');
+    screenSize.is = sinon.stub();
+    screenSize.is.onCall(0).returns(true);
+    screenSize.is.onCall(1).returns(false);
     var onResize;
     screenSize.on = function(event, callback) {
       onResize = callback;
@@ -88,13 +87,12 @@ describe('directive : action-list', function() {
     onResize(false);
     element.click();
     expect($dropdown).to.have.been.called;
-
   });
 
   it('should first open a $dropdown when screen size is lg, then open a $modal when it changes to xs', function() {
-    screenSize.get = sinon.stub();
-    screenSize.get.onCall(0).returns('lg');
-    screenSize.get.onCall(1).returns('xs');
+    screenSize.is = sinon.stub();
+    screenSize.is.onCall(0).returns(false);
+    screenSize.is.onCall(1).returns(true);
     var onResize;
     screenSize.on = function(event, callback) {
       onResize = callback;
@@ -112,9 +110,9 @@ describe('directive : action-list', function() {
   });
 
   it('should not reopen $modal when the screen is resized twice, when screen size still <= xs', function() {
-    screenSize.get = sinon.stub();
-    screenSize.get.onCall(0).returns('lg');
-    screenSize.get.onCall(1).returns('md');
+    screenSize.is = sinon.stub();
+    screenSize.is.onCall(0).returns(false);
+    screenSize.is.onCall(1).returns(false);
     var onResize;
     screenSize.on = function(event, callback) {
       onResize = callback;
@@ -128,13 +126,12 @@ describe('directive : action-list', function() {
     onResize(false);
     expect($dropdown).to.have.been.callCount(1);
     expect($modal).to.have.not.been.called;
-
   });
 
   it('should not reopen $dropdown when the screen is resized twice, when screen size still > xs', function() {
-    screenSize.get = sinon.stub();
-    screenSize.get.onCall(0).returns('xs');
-    screenSize.get.onCall(1).returns('xs');
+    screenSize.is = sinon.stub();
+    screenSize.is.onCall(0).returns(true);
+    screenSize.is.onCall(1).returns(true);
     var onResize;
     screenSize.on = function(event, callback) {
       onResize = callback;
@@ -148,12 +145,11 @@ describe('directive : action-list', function() {
     onResize(true);
     expect($modal).to.have.been.callCount(1);
     expect($dropdown).to.have.not.been.called;
-
   });
 
   it('should not open multiple $modal', function() {
-    screenSize.get = function() {
-      return 'xs';
+    screenSize.is = function() {
+      return true;
     };
     var destroySpy = sinon.spy();
     this.initDirective('<button action-list>Click Me</button>');
@@ -166,12 +162,11 @@ describe('directive : action-list', function() {
     element.click();
 
     expect(destroySpy).to.have.been.callCount(3);
-
   });
 
   it('should not open multiple $dropdown', function() {
-    screenSize.get = function() {
-      return 'lg';
+    screenSize.is = function() {
+      return false;
     };
     var destroySpy = sinon.spy();
     this.initDirective('<button action-list>Click Me</button>');
@@ -184,23 +179,21 @@ describe('directive : action-list', function() {
     element.click();
 
     expect(destroySpy).to.have.been.callCount(3);
-
   });
 
   it('should call mobile template url', function() {
-    screenSize.get = function() {
-      return 'xs';
+    screenSize.is = function() {
+      return true;
     };
     this.initDirective('<button action-list template-mobile-url="action-list-mobile.html">Click Me</button>');
     element.click();
 
     expect($modal).to.have.been.calledWith(sinon.match({templateUrl: 'action-list-mobile.html'}));
-
   });
 
   it('should call desktop template url', function() {
-    screenSize.get = function() {
-      return 'md';
+    screenSize.is = function() {
+      return false;
     };
     this.initDirective('<button action-list template-desktop-url="toto">Click Me</button>');
     element.click();
@@ -209,9 +202,9 @@ describe('directive : action-list', function() {
   });
 
   it('should call destroy on $modal or $dropdown after a screen resize', function() {
-    screenSize.get = sinon.stub();
-    screenSize.get.onCall(0).returns('lg');
-    screenSize.get.onCall(1).returns('xs');
+    screenSize.is = sinon.stub();
+    screenSize.is.onCall(0).returns(false);
+    screenSize.is.onCall(1).returns(true);
     var onResize;
     screenSize.on = function(event, callback) {
       onResize = callback;

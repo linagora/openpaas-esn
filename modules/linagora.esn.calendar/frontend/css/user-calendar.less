@@ -1,14 +1,11 @@
 .user-calendar {
   width: 100%;
-  margin-top: 28px;
+  margin-top: @sub-header-height;
   overflow: hidden;
-  >.row {
-    padding-top: 15px;
-  }
 }
 
-@media (min-width: @screen-sm-min) {
+@media (min-width: @screen-md-min) {
   .user-calendar {
-    margin-top: 0;
+    margin-top: 15px;
   }
 }
