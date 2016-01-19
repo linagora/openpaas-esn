@@ -15,7 +15,7 @@ Generate a new JWT for the logged in user
 
 **Response**
 
-The encoded JWT, the payload contains the user preferred email as the 'subject'.
+The encoded JWT, the payload contains the user preferred email as 'sub'.
 
 **Status Codes:**
 

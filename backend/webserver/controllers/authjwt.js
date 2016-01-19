@@ -3,7 +3,7 @@
 var jwt = require('../../core/auth/jwt');
 
 function generatePayloadWithSubject(user) {
-  return (user && user.preferredEmail) ? {subject: user.preferredEmail} : {};
+  return (user && user.preferredEmail) ? {sub: user.preferredEmail} : {};
 }
 
 function generateWebToken(req, res) {
