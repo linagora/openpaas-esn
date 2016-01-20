@@ -2382,6 +2382,9 @@ describe('The Contacts controller module', function() {
         cancel: function() {}
       };
       this.$location = {};
+      this.$window = {
+        open: function() {}
+      };
     });
 
     beforeEach(angular.mock.inject(function($rootScope, _CONTACT_EVENTS_, _GRACE_DELAY_) {
@@ -2398,6 +2401,7 @@ describe('The Contacts controller module', function() {
           $scope: this.scope,
           $rootScope: this.$rootScope,
           $location: this.$location,
+          $window: this.$window,
           notificationFactory: this.notificationFactory,
           gracePeriodService: this.gracePeriodService,
           CONTACT_EVENTS: _CONTACT_EVENTS_,
@@ -2438,6 +2442,56 @@ describe('The Contacts controller module', function() {
         ContactLocationHelper.contact.show = sinon.spy();
         this.scope.displayContact();
         expect(ContactLocationHelper.contact.show).to.have.been.calledWith(addressbook.bookId, addressbook.bookName, contact.id);
+      });
+    });
+
+    describe('The actionClick fn', function() {
+      it('should call $window.open if action is a site web', function() {
+        var location = 'http://twitter.com';
+        this.initController();
+        this.$window.open = sinon.spy();
+        var event = {
+          preventDefault: angular.noop,
+          stopPropagation: angular.noop
+        };
+        this.scope.actionClick(event, location);
+        expect(this.$window.open).to.have.been.calledOnce;
+      });
+
+      it('should not call $window.open if action is not a site web', function() {
+        var location = 'mailto:someone';
+        this.initController();
+        this.$window.open = sinon.spy();
+        var event = {
+          preventDefault: angular.noop,
+          stopPropagation: angular.noop
+        };
+        this.scope.actionClick(event, location);
+        expect(this.$window.open).to.have.not.been.called;
+      });
+
+      it('should call preventDefault and stopPropagation if action is a site web', function() {
+        var location = 'http://open-paas.org';
+        this.initController();
+        var event = {
+          preventDefault: sinon.spy(),
+          stopPropagation: sinon.spy()
+        };
+        this.scope.actionClick(event, location);
+        expect(event.preventDefault).to.have.been.calledOnce;
+        expect(event.stopPropagation).to.have.been.calledOnce;
+      });
+
+      it('should call stopPropagation if action is not a site web', function() {
+        var location = 'mailto:someone';
+        this.initController();
+        var event = {
+          preventDefault: sinon.spy(),
+          stopPropagation: sinon.spy()
+        };
+        this.scope.actionClick(event, location);
+        expect(event.preventDefault).to.have.not.been.called;
+        expect(event.stopPropagation).to.have.been.calledOnce;
       });
     });
 

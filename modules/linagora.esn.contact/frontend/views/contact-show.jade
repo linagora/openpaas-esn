@@ -41,7 +41,7 @@
           div(ng-repeat='email in emails track by $index')
             .contact-item-data
               p
-                a(ng-href='mailto:{{email.value}}') {{email.value}}
+                a(ng-href='mailto:{{email.value}}' op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}') {{email.value}}
               p.type {{email.type}}
 
         .contact-items-group(ng-if='contact.social && contact.social.length')

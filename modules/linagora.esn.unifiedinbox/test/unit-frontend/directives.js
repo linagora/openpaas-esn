@@ -101,6 +101,68 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
+  describe('The opInboxCompose directive', function() {
+
+    var newComposerService, emailElement;
+
+    beforeEach(inject(function(_newComposerService_) {
+      newComposerService = _newComposerService_;
+    }));
+
+    it('should call the openEmailCustomTitle fn when clicked on mailto link', function() {
+      emailElement = compileDirective('<a ng-href="mailto:SOMEONE" op-inbox-compose op-inbox-compose-display-name="SOMETHING"/>');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+        {
+          to:[{
+            email: 'SOMEONE',
+            name: 'SOMETHING'
+          }]
+        }
+      );
+    });
+
+    it('should call the preventDefault and stopPropagation fn when clicked on mailto link', function() {
+      emailElement = compileDirective('<a op-inbox-compose ng-href="mailto:SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
+      var event = {
+        type: 'click',
+        preventDefault: sinon.spy(),
+        stopPropagation: sinon.spy()
+      };
+      emailElement.trigger(event);
+
+      expect(event.preventDefault).to.have.been.called;
+      expect(event.stopPropagation).to.have.been.called;
+    });
+
+    it('should not call the openEmailCustomTitle fn when the link is not mailto', function() {
+      emailElement = compileDirective('<a ng-href="tel:SOMEONE" op-inbox-compose />');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+
+      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+    });
+
+    it('should it should use the email address as the display name if display name is not defined', function() {
+      emailElement = compileDirective('<a op-inbox-compose ng-href="mailto:SOMEONE"/>');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+        {
+          to:[{
+            email: 'SOMEONE',
+            name: 'SOMEONE'
+          }]
+        }
+      );
+    });
+  });
+
   describe('The mailboxDisplay directive', function() {
 
     it('should define $scope.mailboxIcons to default value if mailbox has no role', function() {
