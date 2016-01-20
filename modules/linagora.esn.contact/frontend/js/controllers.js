@@ -502,6 +502,10 @@ angular.module('linagora.esn.contact')
       $scope.searchInput = null;
       $scope.loadContacts();
     }
+
+    $scope.getContactTitleDisplayCondition = function() {
+      return (!$scope.headerDisplay.letterExists || $scope.displayAs === CONTACT_LIST_DISPLAY.cards) && !$scope.searchInput;
+    };
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {

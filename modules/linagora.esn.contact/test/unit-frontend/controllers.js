@@ -2366,6 +2366,28 @@ describe('The Contacts controller module', function() {
         expect(called).to.equal(1);
       });
     });
+
+    describe('The getContactTitleDisplayCondition fn', function() {
+      it('should return correct value ', function() {
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+        var testGetContactTitleDisplayCondition = function(headerDisplayLetterExists, displayAs, searchInput, returnValue) {
+          scope.headerDisplay = {letterExists: headerDisplayLetterExists};
+          scope.displayAs = displayAs;
+          scope.searchInput = searchInput;
+          expect(scope.getContactTitleDisplayCondition()).to.equal(returnValue);
+        };
+        testGetContactTitleDisplayCondition(false, 'cards', '', true);
+        testGetContactTitleDisplayCondition(true, 'list', '', false);
+        testGetContactTitleDisplayCondition(false, 'list', '', true);
+        testGetContactTitleDisplayCondition(false, 'cards', 'a', false);
+      });
+    });
+
   });
 
   describe('The contactItemController controller', function() {

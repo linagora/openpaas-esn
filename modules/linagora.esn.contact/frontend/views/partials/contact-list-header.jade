@@ -7,7 +7,8 @@ header
             h2
               .contact-categories-letter(ng-show="!searchInput && displayAs === 'list'")
                 contact-category-letter
-              span(ng-show="!headerDisplay.letterExists || displayAs === 'cards'") #{__('Contacts')}
+              span(ng-show="getContactTitleDisplayCondition()") #{__('Contacts')}
+              span(ng-show="searchInput") #{__('Search in contacts')}
               small(ng-switch="searchResult.count" ng-if="!!searchInput")
                 span(ng-switch-when='0') #{__('No contacts found')}
                 span(ng-switch-when='1') #{__('1 contact found')}
