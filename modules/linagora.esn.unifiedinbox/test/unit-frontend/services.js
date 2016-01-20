@@ -1492,7 +1492,6 @@ describe('The Unified Inbox Angular module services', function() {
       expect(message.destroy).to.have.not.been.called;
     });
 
-
     it('should destroy the original draft when saveDraft is called, when the original is a jmap.Message', function() {
       draftService.startDraft = function() {
         return {
