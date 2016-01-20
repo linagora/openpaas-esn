@@ -194,12 +194,13 @@ angular.module('esn.calendar')
     /**
      * Create a new event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
      * period service.
+     * @param  {String}             calendarId   the calendar id.
      * @param  {String}             calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
      * @param  {CalendarShell}      event        the event to PUT to the caldav server
      * @param  {Object}             options      options needed for the creation. For now it only accept {graceperiod: true||false}
      * @return {Mixed}                           the new event wrap into a CalendarShell if it works, the http response otherwise.
      */
-    function createEvent(calendarPath, event, options) {
+    function createEvent(calendarId, calendarPath, event, options) {
       var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
       var taskId = null;
       return eventAPI.create(eventPath, event.vcalendar, options)
@@ -209,7 +210,7 @@ angular.module('esn.calendar')
           } else {
             taskId = response;
             event.gracePeriodTaskId = taskId;
-            keepChangeDuringGraceperiod.registerAdd(event, calendarPath);
+            keepChangeDuringGraceperiod.registerAdd(event, calendarId);
             calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
@@ -683,12 +684,12 @@ angular.module('esn.calendar')
       delete(changes[event.id]);
     }
 
-    function saveChange(action, event, calendarPath) {
+    function saveChange(action, event, calendarId) {
       var undo = deleteRegistration.bind(null, event);
       changes[event.id] = {
         expirationPromise: $timeout(undo, CALENDAR_GRACE_DELAY, false),
         event: event,
-        calendarPath: calendarPath,
+        calendarId: calendarId,
         action: action
       };
 
@@ -709,7 +710,7 @@ angular.module('esn.calendar')
       }, []);
     }
 
-    function addAddedEvent(start, end, calendarPath, events) {
+    function addAddedEvent(start, end, calendarId, events) {
 
       function eventInPeriod(event) {
         return [event.start, event.end].some(function(date) {
@@ -719,7 +720,7 @@ angular.module('esn.calendar')
       }
 
       angular.forEach(changes, function(change) {
-        if (change.action === ADD && eventInPeriod(change.event) && change.calendarPath === calendarPath) {
+        if (change.action === ADD && eventInPeriod(change.event) && change.calendarId === calendarId) {
           events.push(change.event);
         }
       });
@@ -727,10 +728,10 @@ angular.module('esn.calendar')
       return events;
     }
 
-    function wrapEventSource(calendarPath, calendarSource) {
+    function wrapEventSource(calendarId, calendarSource) {
       return function(start, end, timezone, callback) {
         calendarSource(start, end, timezone, function(events) {
-          callback(addAddedEvent(start, end, calendarPath, applyUpdatedAndDeleteEvent(events)));
+          callback(addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events)));
         });
       };
     }

@@ -129,7 +129,7 @@ angular.module('esn.calendar')
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
 
-            events: keepChangeDuringGraceperiod.wrapEventSource(calendar.href.replace(/\.json$/, ''), calendarEventSource(calendar.href, $scope.displayCalendarError)),
+            events: keepChangeDuringGraceperiod.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
           calendarPromise.then(function(cal) {
