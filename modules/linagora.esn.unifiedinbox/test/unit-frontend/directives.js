@@ -530,10 +530,44 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       var scope = element.find('recipients-auto-complete').isolateScope();
-      var recipient = {displayName: 'user@domain'};
-      scope.onTagAdded(recipient);
+      var recipient = { displayName: 'user@domain' };
+
+      expect(scope.onTagAdding(recipient)).to.equal(true);
       expect(recipient).to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
     });
+
+    it('should refuse to add a new tag if displayName matches the email of an existing tag', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
+        $composerController: {
+          search: {}
+        }
+      });
+
+      var scope = element.find('recipients-auto-complete').isolateScope();
+
+      scope.tags.push({ email: 'user@domain' });
+      scope.tags.push({ email: 'user2@domain' });
+      scope.tags.push({ email: 'user3@domain' });
+
+      expect(scope.onTagAdding({ displayName: 'user@domain' })).to.equal(false);
+    });
+
+    it('should refuse to add a new tag if email matches the email of an existing tag', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
+        $composerController: {
+          search: {}
+        }
+      });
+
+      var scope = element.find('recipients-auto-complete').isolateScope();
+
+      scope.tags.push({ email: 'user@domain' });
+      scope.tags.push({ email: 'user2@domain' });
+      scope.tags.push({ email: 'user3@domain' });
+
+      expect(scope.onTagAdding({ email: 'user2@domain' })).to.equal(false);
+    });
+
   });
 
   describe('The emailBodyEditor', function() {

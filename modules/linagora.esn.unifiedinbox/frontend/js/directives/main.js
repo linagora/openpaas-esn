@@ -226,7 +226,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService) {
+  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService, _) {
     return {
       restrict: 'E',
       require: ['^?composer', '^?composerDesktop'],
@@ -242,8 +242,13 @@ angular.module('linagora.esn.unifiedinbox')
       },
       link: function(scope, element, attrs, controllers) {
         scope.search = (controllers[0] || controllers[1]).search;
-        scope.onTagAdded = function(tag) {
-          emailSendingService.ensureEmailAndNameFields(tag);
+
+        scope.onTagAdding = function($tag) {
+          emailSendingService.ensureEmailAndNameFields($tag);
+
+          return !_.find(scope.tags, { email: $tag.email });
+        };
+        scope.onTagAdded = function() {
           elementScrollDownService.autoScrollDown(element.find('div.tags'));
 
           // Scroll down element on full-screen form
