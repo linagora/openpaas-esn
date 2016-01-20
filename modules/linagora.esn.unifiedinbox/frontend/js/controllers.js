@@ -143,7 +143,9 @@ angular.module('linagora.esn.unifiedinbox')
         ids: [$scope.emailId]
       }).then(function(messages) {
         $scope.email = messages[0]; // We expect a single message here
-        $scope.email.setIsUnread(false);
+        if ($scope.email.isUnread) {
+          $scope.email.setIsUnread(false);
+        }
       });
     });
   })
