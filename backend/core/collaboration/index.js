@@ -508,13 +508,13 @@ function getCollaborationsForUser(userId, options, callback) {
   });
 }
 
-function hasDomain(collaboration) {
+function hasDomain(collaboration, domainId) {
   if (!collaboration || !collaboration.domain_ids) {
     return false;
   }
 
-  return collaboration.domain_ids.some(function(domainId) {
-    return domainId + '' === domainId + '';
+  return collaboration.domain_ids.some(function(id) {
+    return id + '' === domainId + '';
   });
 }
 

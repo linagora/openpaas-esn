@@ -1009,4 +1009,22 @@ describe('The collaboration module', function() {
       });
     });
   });
+
+  describe('hasDomain function', function() {
+    beforeEach(function() {
+      this.helpers.mock.models({});
+    });
+
+    it('should test the domainId', function() {
+      mockery.registerMock('../community', {});
+      var hasDomain = this.helpers.requireBackend('core/collaboration/index').hasDomain;
+
+      expect(hasDomain({domain_ids: []}, '12')).to.be.false;
+      expect(hasDomain({domain_ids: ['12']}, '12')).to.be.true;
+      expect(hasDomain({domain_ids: ['12232499', '13412', '1125']}, '12')).to.be.false;
+      expect(hasDomain({domain_ids: ['999', '111', '12', '13']}, '12')).to.be.true;
+    });
+
+  });
+
 });
