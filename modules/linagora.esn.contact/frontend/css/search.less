@@ -14,7 +14,6 @@
       border: 0;
       border-radius: 0;
     }
-
     i {
       padding-top: 5px;
       font-size: x-large;
@@ -35,6 +34,14 @@
   @media (max-width: @screen-md-min) {
     .contacts-search-input {
       flex-grow: 1;
+    }
+  }
+}
+
+#sub-header {
+  .contacts-search-input {
+    i.mdi.mdi-close {
+      color: @m-gray;
     }
   }
 }
