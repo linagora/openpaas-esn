@@ -49,7 +49,7 @@
                   | #{__('Emails')}
               dd 
                 | {{email.type}}:&nbsp;
-                a(ng-href='mailto:{{email.value}}') {{email.value}}
+                a(ng-href='mailto:{{email.value}}' op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}') {{email.value}}
             dl.dl-horizontal(ng-repeat='tel in phones track by $index')
               dt 
                 .hide-if-not-first(ng-if='$first') 

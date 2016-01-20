@@ -6,7 +6,7 @@
       | {{displayShell.getDisplayName()}}
     ul.lv-attrs.contact-list-item-attrs
       li.hidden-xs(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
-        a(ng-click="actionClick($event, attrs.action)")
+        a(ng-click="actionClick($event, attrs.action)" ng-href="{{attrs.action}}" op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}')
           i.mdi.contact-attr-icon(ng-class="attrs.icon")
           |  {{attrs.id}}
 .lv-actions.actions
