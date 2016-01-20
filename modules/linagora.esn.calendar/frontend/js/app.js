@@ -18,6 +18,7 @@ angular.module('esn.calendar', [
   'esn.ical',
   'esn.fcmoment',
   'esn.community',
+  'esn.clockpicker',
   'esn.notification',
   'esn.widget.helper',
   'esn.lodash-wrapper',
