@@ -1019,11 +1019,11 @@ describe('The addressbooks module', function() {
       var limit = 2;
       var page = 3;
 
-      var successContact1 = { contactId: 1, response: { statusCode: 200 }, body: 'success1' };
-      var notFoundContact = { contactId: 2, response: { statusCode: 404 }, body: 'not found' };
-      var notIncludedFoundContact = { contactId: 3, response: { statusCode: 199 }, body: 'not included' };
-      var errorContact = { contactId: 4, err: 'some error' };
-      var successContact2 = { contactId: 5, response: { statusCode: 200 }, body: 'success2' };
+      var successContact1 = { contactId: 1, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 200 }, body: 'success1' };
+      var notFoundContact = { contactId: 2, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 404 }, body: 'not found' };
+      var notIncludedFoundContact = { contactId: 3, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 199 }, body: 'not included' };
+      var errorContact = { contactId: 4, bookId: BOOK_HOME, bookName: BOOK_NAME, err: 'some error' };
+      var successContact2 = { contactId: 5, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 200 }, body: 'success2' };
 
       createSearchFnMock(function() {
         return q.resolve({
@@ -1077,12 +1077,16 @@ describe('The addressbooks module', function() {
                 _embedded: {
                   'dav:item': [{
                     _links: {
-                      self: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact1.contactId + '.vcf'].join('/')
+                      self: {
+                        href: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact1.contactId + '.vcf'].join('/')
+                      }
                     },
                     data: successContact1.body
                   }, {
                     _links: {
-                      self: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact2.contactId + '.vcf'].join('/')
+                      self: {
+                        href: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact2.contactId + '.vcf'].join('/')
+                      }
                     },
                     data: successContact2.body
                   }]

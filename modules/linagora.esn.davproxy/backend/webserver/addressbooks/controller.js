@@ -214,11 +214,11 @@ module.exports = function(dependencies) {
         });
 
         q.all(dataCleanResult.map(function(result, index) {
-          return avatarHelper.injectTextAvatar(req.params.bookHome, result.body)
+          return avatarHelper.injectTextAvatar(result.bookId, result.body)
             .then(function(newVcard) {
               json._embedded['dav:item'][index] = {
                 _links: {
-                  self: getContactUrl(req, req.params.bookHome, req.params.bookName, result.contactId)
+                  self: getContactUrl(req, result.bookId, result.bookName, result.contactId)
                 },
                 data: newVcard
               };

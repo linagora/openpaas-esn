@@ -60,15 +60,23 @@ module.exports = function(dependencies, options) {
       }
       // this promise always resolve
       q.all(result.list.map(function(contact, index) {
-        return vcard(contact._source.bookId, contact._source.bookName, contact._id).get().then(function(data) {
+        var bookId = contact._source.bookId;
+        var bookName = contact._source.bookName;
+        var contactId = contact._id;
+
+        return vcard(bookId, bookName, contactId).get().then(function(data) {
           output.results[index] = {
-            contactId: contact._id,
+            contactId: contactId,
+            bookId: bookId,
+            bookName: bookName,
             response: data.response,
             body: data.body
           };
         }, function(err) {
           output.results.push({
-            contactId: contact._id,
+            contactId: contactId,
+            bookId: bookId,
+            bookName: bookName,
             err: err
           });
         });
