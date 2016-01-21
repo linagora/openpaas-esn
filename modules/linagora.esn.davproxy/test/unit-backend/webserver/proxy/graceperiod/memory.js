@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var mockery = require('mockery');
 var q = require('q');
+var sinon = require('sinon');
 
 describe('The in memory grace period module', function() {
 
@@ -67,5 +68,190 @@ describe('The in memory grace period module', function() {
         done();
       }
     }, {});
+  });
+
+  describe('forwardRequest method', function() {
+    var req, options;
+
+    beforeEach(function() {
+      req = {
+        method: 'PUT',
+        headers: {
+          'A HEADER': 'WITH THIS VALUE'
+        },
+        body: 'aBody',
+        url:'.json',
+        token: { token: 'a new token' },
+        user: { _id: 'aId' }
+      };
+      options = {
+        endpoint: 'api',
+        path: 'sabre',
+        json: true
+      };
+      dependencies.graceperiod = {
+        create: function(forwardRequest) {
+          return q.when({id: forwardRequest});
+        }
+      };
+    });
+
+    it('should call the http client with the correct request', function(done) {
+      mockery.registerMock('../http-client', function(requestOptions) {
+        expect(requestOptions).to.deep.equal({
+          method: 'PUT',
+          url: 'api/sabre.json',
+          headers: {
+            'A HEADER': 'WITH THIS VALUE',
+            ESNToken: 'a new token'
+          },
+          json: true,
+          body: 'aBody'
+        });
+        done();
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest();
+        }
+      }, options);
+    });
+
+    it('should not append the body if method is DELETE', function(done) {
+      req.method = 'DELETE';
+      mockery.registerMock('../http-client', function(requestOptions) {
+        expect(requestOptions).to.deep.equal({
+          method: 'DELETE',
+          url: 'api/sabre.json',
+          headers: {
+            'A HEADER': 'WITH THIS VALUE',
+            ESNToken: 'a new token'
+          },
+          json: true
+        });
+        done();
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest();
+        }
+      }, options);
+    });
+
+    it('should call the callback with an error if the client has failed', function(done) {
+      mockery.registerMock('../http-client', function(requestOptions, callback) {
+        callback(new Error());
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest(function(err) {
+            expect(err).to.exist;
+            done();
+          });
+        }
+      }, options);
+    });
+
+    it('should call options.onError if it\'s defined and the client has failed', function(done) {
+      options.onError = sinon.spy(function(response, body, req, res, callback) {
+        callback();
+      });
+      mockery.registerMock('../http-client', function(requestOptions, callback) {
+        callback(new Error());
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest(function(err) {
+            expect(err).to.exist;
+            expect(options.onError).to.have.been.called;
+            done();
+          });
+        }
+      }, options);
+    });
+
+    it('should call onSuccess if it is defined and the client has succeeded with a 2XX http code', function(done) {
+      options.onSuccess = sinon.spy(function(response, body, req, res, callback) {
+        callback();
+      });
+      mockery.registerMock('../http-client', function(requestOptions, callback) {
+        callback(null, {statusCode: 200});
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest(function(err, response) {
+            expect(err).to.not.exist;
+            expect(options.onSuccess).to.have.been.called;
+            expect(response).to.deep.equal({statusCode: 200});
+            done();
+          });
+        }
+      }, options);
+    });
+
+    it('should call the callback if the client has succeeded', function(done) {
+      mockery.registerMock('../http-client', function(requestOptions, callback) {
+        callback(null, {statusCode: 200});
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest(function(err, response) {
+            expect(err).to.not.exist;
+            expect(response).to.deep.equal({statusCode: 200});
+            done();
+          });
+        }
+      }, options);
+    });
+
+    it('should call the callback with an error if the client has failed with a not 2XX http code', function(done) {
+      mockery.registerMock('../http-client', function(requestOptions, callback) {
+        callback(null, {statusCode: 412});
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest(function(err, response) {
+            expect(err).to.exist;
+            expect(response).to.deep.equal({statusCode: 412});
+            done();
+          });
+        }
+      }, options);
+    });
+
+    it('should call onError if defined and with an error if the client has failed with a not 2XX http code', function(done) {
+      options.onError = sinon.spy(function(response, body, req, res, callback) {
+        callback();
+      });
+      mockery.registerMock('../http-client', function(requestOptions, callback) {
+        callback(null, {statusCode: 412});
+      });
+      getModule()(req, {
+        set: function() {},
+        json: function(code, task) {
+          var forwardRequest = task.id;
+          forwardRequest(function(err, response) {
+            expect(err).to.exist;
+            expect(options.onError).to.have.been.called;
+            expect(response).to.deep.equal({statusCode: 412});
+            done();
+          });
+        }
+      }, options);
+    });
   });
 });
