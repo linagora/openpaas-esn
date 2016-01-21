@@ -1,12 +1,23 @@
 .modal
   .modal-dialog
-    .modal-content
-      li.actions.actions-center
-        a.diplay-inline(ng-click='forward(); $hide()', title="#{__('Forward')}")
-          i.mdi.mdi-v-centered.mdi-forward
-        a.diplay-inline(ng-click='reply(); $hide()', title="#{__('Reply')}")
-          i.mdi.mdi-v-centered.mdi-reply
-        a.diplay-inline(ng-click='replyAll(); $hide()', title="#{__('Reply all')}")
-          i.mdi.mdi-v-centered.mdi-reply-all
-        a.diplay-inline(ng-click='moveToTrash(); $hide()', title="#{__('Move to trash')}")
-          i.mdi.mdi-v-centered.mdi-delete
+    .modal-content.action-list
+      .action
+        a(ng-click='forward(); $hide()', title="#{__('Forward')}")
+          i.mdi.mdi-forward
+          span.label
+            | #{__('Forward')}
+      .action
+        a(ng-click='reply(); $hide()', title="#{__('Reply')}")
+          i.mdi.mdi-reply
+          span.label
+            | #{__('Reply')}
+      .action
+        a(ng-click='replyAll(); $hide()', title="#{__('Reply all')}")
+          i.mdi.mdi-reply-all
+          span.label
+            | #{__('Reply all')}
+      .action
+        a(ng-click='moveToTrash(); $hide()', title="#{__('Delete')}")
+          i.mdi.mdi-delete
+          span.label
+            | #{__('Delete')}

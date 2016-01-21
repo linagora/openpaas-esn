@@ -1,7 +1,40 @@
-.actions-center {
-  float: none;
-  .flex-horizontal-centered();
-  a {
-    cursor: pointer;
+@action-list-icon-color: #4C4C4C;
+
+.action-list {
+  .flex();
+  .flex-vertical-centered();
+  .flex-space-between();
+  .flex-wrap();
+
+  padding: 5px 0;
+
+  .action {
+    .all-centered();
+    .col-xs-4();
+
+    height: 80px;
+
+    & > a {
+      .all-centered();
+      .flex-column();
+
+      color: @action-list-icon-color;
+      cursor: pointer;
+      .label {
+        color: @action-list-icon-color;
+        font-size: 100%;
+      }
+
+      & > i.mdi {
+        font-size: 46px;
+      }
+
+      &:hover {
+        color: darken(@action-list-icon-color, 15%);
+        .label {
+          color: darken(@action-list-icon-color, 15%);
+        }
+      }
+    }
   }
 }
