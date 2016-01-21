@@ -393,7 +393,7 @@ describe('The Unified Inbox Angular module services', function() {
   });
 
   describe('The emailSendingService factory', function() {
-    var emailSendingService, rcpt, $rootScope;
+    var emailSendingService, email, $rootScope;
 
     beforeEach(inject(function(_emailSendingService_, _$rootScope_) {
       emailSendingService = _emailSendingService_;
@@ -402,30 +402,30 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the noRecipient function', function() {
       it('should return true when no recipient is provided', function() {
-        rcpt = {
+        email = {
           to: [],
           cc: [],
           bcc: []
         };
         expect(emailSendingService.noRecipient()).to.be.true;
         expect(emailSendingService.noRecipient({})).to.be.true;
-        expect(emailSendingService.noRecipient(rcpt)).to.be.true;
+        expect(emailSendingService.noRecipient(email)).to.be.true;
       });
 
       it('should return false when some recipients are provided', function() {
-        rcpt = {
+        email = {
           to: [{displayName: '1', email: '1@linagora.com'}],
           cc: [],
           bcc: []
         };
-        expect(emailSendingService.noRecipient(rcpt)).to.be.false;
+        expect(emailSendingService.noRecipient(email)).to.be.false;
 
-        rcpt = {
+        email = {
           to: [],
           cc: [{displayName: '1', email: '1@linagora.com'}],
           bcc: []
         };
-        expect(emailSendingService.noRecipient(rcpt)).to.be.false;
+        expect(emailSendingService.noRecipient(email)).to.be.false;
       });
     });
 
@@ -458,68 +458,68 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the emailsAreValid function', function() {
       it('should return false when some recipients emails are not valid', function() {
-        rcpt = {
+        email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '3', email: '3linagora.com'}],
           bcc: []
         };
-        expect(emailSendingService.emailsAreValid(rcpt)).to.be.false;
+        expect(emailSendingService.emailsAreValid(email)).to.be.false;
       });
 
       it('should return true when all recipients emails are valid', function() {
-        rcpt = {
+        email = {
           to: [{displayName: '1', email: '1@linagora.com'}],
           cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           bcc: [{displayName: '3', email: '3@linagora.com'}]
         };
-        expect(emailSendingService.emailsAreValid(rcpt)).to.be.true;
+        expect(emailSendingService.emailsAreValid(email)).to.be.true;
       });
     });
 
     describe('the removeDuplicateRecipients function', function() {
-      var expectedRcpt;
+      var expectedEmail;
 
       it('should return the same object when recipients emails are all different', function() {
-        rcpt = {
+        email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
-        emailSendingService.removeDuplicateRecipients(rcpt);
-        expect(expectedRcpt).to.shallowDeepEqual(rcpt);
+        emailSendingService.removeDuplicateRecipients(email);
+        expect(expectedEmail).to.shallowDeepEqual(email);
       });
 
       it('should delete duplicated emails in the following priority: to => cc => bcc', function() {
-        rcpt = {
+        email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '2', email: '2@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '4', email: '4@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '6', email: '6@linagora.com'}]
         };
-        emailSendingService.removeDuplicateRecipients(rcpt);
-        expect(expectedRcpt).to.shallowDeepEqual(rcpt);
+        emailSendingService.removeDuplicateRecipients(email);
+        expect(expectedEmail).to.shallowDeepEqual(email);
 
-        rcpt = {
+        email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '4', email: '4@linagora.com'}]
         };
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: []
         };
-        emailSendingService.removeDuplicateRecipients(rcpt);
-        expect(expectedRcpt).to.shallowDeepEqual(rcpt);
+        emailSendingService.removeDuplicateRecipients(email);
+        expect(expectedEmail).to.shallowDeepEqual(email);
       });
     });
 
@@ -571,7 +571,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     describe('the getReplyAllRecipients function', function() {
-      var email, sender, expectedRcpt;
+      var email, sender, expectedEmail;
       it('should do nothing when email/sender is/are not provided', function() {
         expect(emailSendingService.getReplyAllRecipients(null, {})).to.be.undefined;
         expect(emailSendingService.getReplyAllRecipients({}, null)).to.be.undefined;
@@ -588,13 +588,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
       it('should: 1- add FROM to the TO field, 2- remove the sender from the recipient object if listed in TO or CC', function() {
@@ -607,13 +607,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
 
         email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
@@ -624,13 +624,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
           cc: [{displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
       it('should not add FROM to the TO filed if it represents the sender', function() {
@@ -643,13 +643,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
       it('should not add FROM to the TO field if already there', function() {
@@ -660,13 +660,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  { displayName: 'sender', email: 'sender@linagora.com' };
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{ displayName: '1', email: '1@linagora.com' }, { displayName: '2', email: '2@linagora.com' }],
           cc: [],
           bcc: []
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
       it('should leverage the replyTo filed instead of FROM (when provided)', function() {
@@ -680,13 +680,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
       it('should not modify the BCC field even if the sender is listed inside', function() {
@@ -699,16 +699,16 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedRcpt.bcc);
+        expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedEmail.bcc);
 
         sender =  {displayName: '5', email: '5@linagora.com'};
-        expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedRcpt.bcc);
+        expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedEmail.bcc);
       });
 
       it('should remove the sender from the recipient object (the sender could be an EMailer or the logged-in User)', function() {
@@ -721,21 +721,21 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
 
         sender =  {displayName: 'sender', preferredEmail: 'sender@linagora.com'};
-        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
     });
 
     describe('the getReplyRecipients function', function() {
-      var email, sender, expectedRcpt;
+      var email, sender, expectedEmail;
       it('should do nothing when email is not provided', function() {
         expect(emailSendingService.getReplyRecipients(null)).to.be.undefined;
       });
@@ -747,11 +747,11 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: '0', email: '0@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
       it('should reply to ReplyTo if ReplyTo is not the sender', function() {
@@ -762,11 +762,11 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        expectedRcpt = {
+        expectedEmail = {
           to: [{displayName: 'replyto', email: 'replyto@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedRcpt);
+        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
     });
@@ -910,20 +910,16 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {
-            to: [{email: 'to@domain'}],
-            cc: [{email: 'cc@domain'}],
-            bcc: [{email: 'bcc@domain'}]
-          }
+          to: [{email: 'to@domain'}],
+          cc: [{email: 'cc@domain'}],
+          bcc: [{email: 'bcc@domain'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {
-            to: [{email: 'to@domain'}],
-            cc: [{email: 'cc@domain'}],
-            bcc: [{email: 'bcc@domain'}]
-          }
+          to: [{email: 'to@domain'}],
+          cc: [{email: 'cc@domain'}],
+          bcc: [{email: 'bcc@domain'}]
         })).to.equal(false);
       });
 
@@ -931,20 +927,16 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {
-            to: [{email: 'to1@domain'}, {email: 'to2@domain'}],
-            cc: [{email: 'cc1@domain'}, {email: 'cc2@domain'}],
-            bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
-          }
+          to: [{email: 'to1@domain'}, {email: 'to2@domain'}],
+          cc: [{email: 'cc1@domain'}, {email: 'cc2@domain'}],
+          bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {
-            to: [{email: 'to2@domain'}, {email: 'to1@domain'}],
-            cc: [{email: 'cc2@domain'}, {email: 'cc1@domain'}],
-            bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
-          }
+          to: [{email: 'to2@domain'}, {email: 'to1@domain'}],
+          cc: [{email: 'cc2@domain'}, {email: 'cc1@domain'}],
+          bcc: [{email: 'bcc1@domain'}, {email: 'bcc2@domain'}]
         })).to.equal(false);
       });
 
@@ -952,16 +944,12 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {
-            to: [{email: 'to@domain', name:'before'}]
-          }
+          to: [{email: 'to@domain', name:'before'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {
-            to: [{email: 'to@domain', name:'after'}]
-          }
+          to: [{email: 'to@domain', name:'after'}]
         })).to.equal(false);
       });
 
@@ -985,55 +973,55 @@ describe('The Unified Inbox Angular module services', function() {
         })).to.equal(true);
       });
 
-      it('should return true if original has difference into rcpt only', function() {
+      it('should return true if original has difference into recipients only', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: []}
+          to: []
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: [{email: 'second@domain'}]}
+          to: [{email: 'second@domain'}]
         })).to.equal(true);
       });
 
-      it('should return true if new has difference into to rcpt only', function() {
+      it('should return true if new has difference into to recipients only', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: [{email: 'first@domain'}]}
+          to: [{email: 'first@domain'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: [{email: 'second@domain'}]}
+          to: [{email: 'second@domain'}]
         })).to.equal(true);
       });
 
-      it('should return true if new has difference into cc rcpt only', function() {
+      it('should return true if new has difference into cc recipients only', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {cc: [{email: 'first@domain'}]}
+          cc: [{email: 'first@domain'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {cc: [{email: 'second@domain'}]}
+          cc: [{email: 'second@domain'}]
         })).to.equal(true);
       });
 
-      it('should return true if new has difference into bcc rcpt only', function() {
+      it('should return true if new has difference into bcc recipients only', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {bcc: [{email: 'first@domain'}]}
+          bcc: [{email: 'first@domain'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {bcc: [{email: 'second@domain'}]}
+          bcc: [{email: 'second@domain'}]
         })).to.equal(true);
       });
 
@@ -1117,11 +1105,11 @@ describe('The Unified Inbox Angular module services', function() {
         })).to.equal(false);
       });
 
-      it('should return false if original has empty rcpt property', function() {
+      it('should return false if original has empty recipients property', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: []}
+          to: []
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
@@ -1129,7 +1117,7 @@ describe('The Unified Inbox Angular module services', function() {
         })).to.equal(false);
       });
 
-      it('should return false if new has empty rcpt property', function() {
+      it('should return false if new has empty recipients property', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text'
@@ -1137,7 +1125,7 @@ describe('The Unified Inbox Angular module services', function() {
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          rcpt: {to: []}
+          to: []
         })).to.equal(false);
       });
 
@@ -1163,7 +1151,7 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
 
-        draft.save({rcpt: {}}).then(function() {
+        draft.save({to: []}).then(function() {
           expect(jmapClient.saveAsDraft).to.have.been.called;
           done();
         });
@@ -1181,11 +1169,9 @@ describe('The Unified Inbox Angular module services', function() {
         draft.save({
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
-          rcpt: {
-            to: [{email: 'to@domain', name: 'to'}],
-            cc: [{email: 'cc@domain', name: 'cc'}],
-            bcc: [{email: 'bcc@domain', name: 'bcc'}]
-          }
+          to: [{email: 'to@domain', name: 'to'}],
+          cc: [{email: 'cc@domain', name: 'cc'}],
+          bcc: [{email: 'bcc@domain', name: 'bcc'}]
         });
 
         expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
@@ -1209,10 +1195,8 @@ describe('The Unified Inbox Angular module services', function() {
         draft.save({
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
-          rcpt: {
-            to: [{email: 'to@domain', name: 'to', other: 'value'}],
-            cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', other: 'value', name: 'cc2'}]
-          }
+          to: [{email: 'to@domain', name: 'to', other: 'value'}],
+          cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', other: 'value', name: 'cc2'}]
         });
 
         expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
@@ -1232,7 +1216,7 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
 
-        draft.save({rcpt: {}});
+        draft.save({to: []});
 
         $rootScope.$digest();
         expect(notificationFactory.weakInfo).to.have.been.called;
@@ -1248,7 +1232,7 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
 
-        draft.save({rcpt: {}}).catch(function(error) {
+        draft.save({to: []}).catch(function(error) {
           expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
           expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
           expect(error).to.deep.equal(err);
@@ -1435,7 +1419,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       var result = new Composition(email).getEmail();
 
-      expect(result.rcpt).to.deep.equal({
+      expect(result).to.deep.equal({
         to: [{name: 'name1', email: '1@linagora.com', displayName: 'name1'}],
         cc: [{name: 'name2', email: '2@linagora.com', displayName: 'name2'}],
         bcc: [{name: 'name3', email: '3@linagora.com', displayName: 'name3'}]
@@ -1451,7 +1435,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       var result = new Composition(email).getEmail();
 
-      expect(result.rcpt).to.deep.equal({
+      expect(result).to.deep.equal({
         to: [{name: undefined, email: '1@linagora.com', displayName: '1@linagora.com'}],
         cc: [{name: undefined, email: '2@linagora.com', displayName: '2@linagora.com'}],
         bcc: [{name: undefined, email: '3@linagora.com', displayName: '3@linagora.com'}]
@@ -1464,7 +1448,7 @@ describe('The Unified Inbox Angular module services', function() {
       new Composition({obj: 'expected'});
 
       expect(draftService.startDraft).to.have.been
-        .calledWith({obj: 'expected', rcpt: { bcc: [], cc: [], to: [] } });
+        .calledWith({ obj: 'expected', bcc: [], cc: [], to: [] });
     });
 
     it('should save the draft when saveDraft is called', function() {
@@ -1480,7 +1464,7 @@ describe('The Unified Inbox Angular module services', function() {
       composition.saveDraft();
 
       expect(saveSpy).to.have.been
-        .calledWith({obj: 'expected', test: 'tested', rcpt: { bcc: [], cc: [], to: [] }});
+        .calledWith({obj: 'expected', test: 'tested', bcc: [], cc: [], to: [] });
     });
 
     it('should not try to destroy the original draft, when saveDraft is called and the original is not a jmap.Message', function() {
@@ -1518,11 +1502,9 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('"canBeSentOrNotify" fn should returns false when the email has no recipient', function() {
       var email = {
-        rcpt: {
-          to: [],
-          cc: [],
-          bcc: []
-        }
+        to: [],
+        cc: [],
+        bcc: []
       };
 
       var result = new Composition(email).canBeSentOrNotify();
@@ -1578,12 +1560,9 @@ describe('The Unified Inbox Angular module services', function() {
       expect(emailSendingService.sendEmail).to.have.been.calledWith({
         from: 'yolo',
         destroy: angular.noop,
-        to: [{name: '1', email: '1@linagora.com'}],
-        rcpt: {
-          to: [{name: '1', displayName: '1', email: '1@linagora.com'}],
-          cc: [],
-          bcc: []
-        }
+        to: [{name: '1', displayName: '1', email: '1@linagora.com'}],
+        cc: [],
+        bcc: []
       });
     });
 

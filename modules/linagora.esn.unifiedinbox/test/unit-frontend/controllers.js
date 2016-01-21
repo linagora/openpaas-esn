@@ -86,7 +86,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.hide = sinon.spy();
       scope.disableSendButton = sinon.spy();
       scope.enableSendButton = sinon.spy();
-      scope.email = {rcpt: []};
+      scope.email = {to: []};
     }));
 
     function initCtrl(email) {
@@ -111,11 +111,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should not send an email when canBeSentOrNotify returns false', function() {
       Composition.prototype.canBeSentOrNotify = sinon.stub().returns(false);
       initCtrl({
-        rcpt: {
-          to: [],
-          cc: [],
-          bcc: []
-        }
+        to: [],
+        cc: [],
+        bcc: []
       });
 
       scope.send();
@@ -129,11 +127,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       Composition.prototype.canBeSentOrNotify = sinon.stub().returns(true);
       Composition.prototype.send = sinon.spy();
       initCtrl({
-        rcpt: {
-          to: [{displayName: '1', email: '1@linagora.com'}],
-          cc: [],
-          bcc: []
-        }
+        to: [{displayName: '1', email: '1@linagora.com'}],
+        cc: [],
+        bcc: []
       });
 
       scope.send();

@@ -13,9 +13,9 @@ function sendEmailToRecipients(req, res) {
 
   var message = {
     from: email.from.emails[0],
-    to: getEmailFromRecipient(email.rcpt.to),
-    cc: getEmailFromRecipient(email.rcpt.cc),
-    bcc: getEmailFromRecipient(email.rcpt.bcc),
+    to: getEmailFromRecipient(email.to),
+    cc: getEmailFromRecipient(email.cc),
+    bcc: getEmailFromRecipient(email.bcc),
     subject: email.subject
   };
 

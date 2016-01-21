@@ -159,14 +159,14 @@ angular.module('linagora.esn.unifiedinbox')
     /**
      * Add the following logic when sending an email: Check for an invalid email used as a recipient
      *
-     * @param {Object} rcpt
+     * @param {Object} email
      */
-    function emailsAreValid(rcpt) {
-      if (!rcpt) {
+    function emailsAreValid(email) {
+      if (!email) {
         return false;
       }
 
-      return [].concat(rcpt.to || [], rcpt.cc || [], rcpt.bcc || []).every(function(recipient) {
+      return [].concat(email.to || [], email.cc || [], email.bcc || []).every(function(recipient) {
         return emailService.isValidEmail(recipient.email);
       });
     }
@@ -177,40 +177,40 @@ angular.module('linagora.esn.unifiedinbox')
      *  This multi recipient must receive the email as a TO > CC > BCC recipient in this order.
      *  If the person is in TO and CC, s/he receives as TO. If s/he is in CC/BCC, receives as CC, etc).
      *
-     * @param {Object} rcpt
+     * @param {Object} email
      */
-    function removeDuplicateRecipients(rcpt) {
+    function removeDuplicateRecipients(email) {
       var notIn = function(array) {
         return function(item) {
           return !_.find(array, { email: item.email });
         };
       };
 
-      if (!rcpt) {
+      if (!email) {
         return;
       }
 
-      rcpt.to = rcpt.to || [];
-      rcpt.cc = (rcpt.cc || []).filter(notIn(rcpt.to));
-      rcpt.bcc = (rcpt.bcc || []).filter(notIn(rcpt.to)).filter(notIn(rcpt.cc));
+      email.to = email.to || [];
+      email.cc = (email.cc || []).filter(notIn(email.to));
+      email.bcc = (email.bcc || []).filter(notIn(email.to)).filter(notIn(email.cc));
     }
 
-    function _countRecipients(rcpt) {
-      if (!rcpt) {
+    function _countRecipients(email) {
+      if (!email) {
         return 0;
       }
 
-      return _.size(rcpt.to) + _.size(rcpt.cc) + _.size(rcpt.bcc);
+      return _.size(email.to) + _.size(email.cc) + _.size(email.bcc);
     }
 
     /**
      * Add the following logic to email sending:
      *  Check whether the user is trying to send an email with no recipient at all
      *
-     * @param {Object} rcpt
+     * @param {Object} email
      */
-    function noRecipient(rcpt) {
-      return _countRecipients(rcpt) === 0;
+    function noRecipient(email) {
+      return _countRecipients(email) === 0;
     }
 
     /**
@@ -245,8 +245,8 @@ angular.module('linagora.esn.unifiedinbox')
       return prefix + subject;
     }
 
-    function showReplyAllButton(rcpt) {
-      return _countRecipients(rcpt) > 1;
+    function showReplyAllButton(email) {
+      return _countRecipients(email) > 1;
     }
 
     function getEmailAddress(recipient) {
@@ -303,13 +303,13 @@ angular.module('linagora.esn.unifiedinbox')
 
     function createQuotedEmail(subjectPrefix, recipients, templateName,  email, sender) {
       return emailBodyService.quote(email, templateName).then(function(body) {
-        var rcpt = recipients ? recipients(email, sender) : {};
+        var newRecipients = recipients ? recipients(email, sender) : {};
 
         return _enrichWithBody({
           from: getEmailAddress(sender),
-          to: rcpt.to || [],
-          cc: rcpt.cc || [],
-          bcc: rcpt.bcc || [],
+          to: newRecipients.to || [],
+          cc: newRecipients.cc || [],
+          bcc: newRecipients.bcc || [],
           subject: prefixSubject(email.subject, subjectPrefix)
         }, body);
       });
@@ -378,21 +378,19 @@ angular.module('linagora.esn.unifiedinbox')
 
     Draft.prototype.needToBeSaved = function(newEmailState) {
       var original = this.originalEmailState || {};
-      original.rcpt = original.rcpt || {};
       original.subject = (original.subject || '').trim();
       original.htmlBody = (original.htmlBody || '').trim();
 
       var newest = newEmailState || {};
-      newest.rcpt = newest.rcpt || {};
       newest.subject = (newest.subject || '').trim();
       newest.htmlBody = (newest.htmlBody || '').trim();
 
       return (
         original.subject !== newest.subject ||
         original.htmlBody !== newest.htmlBody ||
-        haveDifferentRecipients(original.rcpt.to || [], newest.rcpt.to || []) ||
-        haveDifferentRecipients(original.rcpt.cc || [], newest.rcpt.cc || []) ||
-        haveDifferentRecipients(original.rcpt.bcc || [], newest.rcpt.bcc || [])
+        haveDifferentRecipients(original.to || [], newest.to || []) ||
+        haveDifferentRecipients(original.cc || [], newest.cc || []) ||
+        haveDifferentRecipients(original.bcc || [], newest.bcc || [])
       );
     };
 
@@ -408,9 +406,9 @@ angular.module('linagora.esn.unifiedinbox')
           }),
           subject: newEmailState.subject,
           htmlBody: newEmailState.htmlBody,
-          to: mapToNameEmailTuple(newEmailState.rcpt.to),
-          cc: mapToNameEmailTuple(newEmailState.rcpt.cc),
-          bcc: mapToNameEmailTuple(newEmailState.rcpt.bcc)
+          to: mapToNameEmailTuple(newEmailState.to),
+          cc: mapToNameEmailTuple(newEmailState.cc),
+          bcc: mapToNameEmailTuple(newEmailState.bcc)
         }))
         .then(saveDraftSuccess, saveDraftFailed);
       });
@@ -485,11 +483,11 @@ angular.module('linagora.esn.unifiedinbox')
 
     function prepareEmail(email) {
       var preparingEmail = angular.copy(email || {});
-      preparingEmail.rcpt = {
-        to: addDisplayNameToRecipients(preparingEmail.to),
-        cc: addDisplayNameToRecipients(preparingEmail.cc),
-        bcc: addDisplayNameToRecipients(preparingEmail.bcc)
-      };
+
+      ['to', 'cc', 'bcc'].forEach(function(recipients) {
+        preparingEmail[recipients] = addDisplayNameToRecipients(preparingEmail[recipients]);
+      });
+
       return preparingEmail;
     }
 
@@ -510,7 +508,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     Composition.prototype.canBeSentOrNotify = function() {
-      if (emailSendingService.noRecipient(this.email.rcpt)) {
+      if (emailSendingService.noRecipient(this.email)) {
         notificationFactory.weakError('Note', 'Your email should have at least one recipient');
         return false;
       }
@@ -520,7 +518,7 @@ angular.module('linagora.esn.unifiedinbox')
         return false;
       }
 
-      emailSendingService.removeDuplicateRecipients(this.email.rcpt);
+      emailSendingService.removeDuplicateRecipients(this.email);
 
       return true;
     };
