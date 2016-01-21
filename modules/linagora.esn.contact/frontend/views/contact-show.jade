@@ -1,18 +1,19 @@
 .col-xs-12.col-md-10.no-padding-xs
+  .card-contact
+    .contact-header.m-b-10.flex-space-between.hidden-xs
+      button.btn.btn-default(type='button', ng-click='close()')
+        i.mdi.mdi-reply
+        | #{__(' Back')}
+      ul.actions.flex-space-around
+        li.contact-dropdown.dropdown
+          a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+            i.mdi.mdi-dots-vertical
+        li
+          button.btn.btn-primary(ng-if='displayShell.isWritable()', ng-disabled='calling || !loaded', type='button', ng-click='edit()')
+            i.mdi.mdi-pencil
+            | #{__(' Edit')}
 
-  .card.m-t-25.hidden-xs(ng-submit='accept()')
-    .card-header.contact-header
-      .row
-        .col-xs-8
-          h1 {{contact.displayName}}
-        .col-xs-4
-          .contact-buttons
-            button.btn.btn-default(type='button', ng-click='close()')
-              i.mdi.mdi-reply
-              | #{__(' Back')}
-            button.btn.btn-primary(ng-if='displayShell.isWritable()', ng-disabled='calling || !loaded', type='button', ng-click='edit()')
-              i.mdi.mdi-pencil
-              | #{__(' Edit')}
+  .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
       .contact-error-container
       contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday')

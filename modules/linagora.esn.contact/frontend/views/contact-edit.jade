@@ -1,23 +1,23 @@
 .col-xs-12.col-md-10.no-padding-xs
-  .card.card-contact(ng-submit='accept()')
-    .card-header.contact-header.hidden-xs
-      .row
-        .col-xs-8
-          h1 #{__('Edit a contact')}
-        .col-xs-4
-          .contact-buttons
-            button.btn.btn-default(type='button', ng-click='close()')
-              | #{__('Cancel')}
-            button.m-r-15.btn.btn-primary(ng-disabled='calling || !loaded', type='button', ng-click='save()')
-              i.mdi.mdi-check.m-r-5
-              | #{__('Save')}
-            .contact-dropdown.lv-actions.actions
-              li.dropdown
-                a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-                  i.mdi.mdi-dots-vertical
-              ul.dropdown-menu.dropdown-menu-right
-                li
-                  a(ng-click="deleteContact()") #{__('Delete')}
+  .card-contact
+    .contact-header.m-b-10.flex-space-between
+      button.btn.btn-default(type='button', ng-click='close()')
+        i.mdi.mdi-reply
+        | #{__(' Cancel')}
+      .header-label #{__(' Edit contact')}
+      ul.actions.flex-space-around
+        li.contact-dropdown.dropdown
+          a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+            i.mdi.mdi-dots-vertical
+          ul.dropdown-menu.dropdown-menu-right
+            li
+              a(ng-click="deleteContact()") #{__('Delete')}
+        li
+          button.btn.btn-primary(ng-disabled='calling || !loaded', type='button', ng-click='save()')
+            i.mdi.mdi-pencil
+            | #{__(' Save')}
+
+  .card(ng-submit='accept()')
     .card-body.card-padding.contact-body
       .contact-error-container
       contact-edition-form(ng-if='loaded && !error', contact='contact')

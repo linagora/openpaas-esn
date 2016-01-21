@@ -62,10 +62,14 @@ ul.dropdown {
 }
 
 .contact-header {
-  background-color: @contact-header-color;
-  h1 {
-    font-size: 22px;
-    color: @m-white;
+  background-color: @body-bg;
+  padding: 0 10px 0 10px;
+
+  .header-label {
+    color: @m-gray;
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
   }
 }
 
@@ -417,20 +421,20 @@ contact-photo {
   }
   &.actions > li > a > i,
   &.actions > a > i {
-    color: @m-white;
+    color: @m-gray;
   }
   &.actions > li > a:hover > i,
   &.actions > a:hover > i {
-    color: @m-white;
+    color: @m-gray;
   }
   &.actions > li > a:before,
   &.actions > a:before {
-    background-color: @m-white;
+    background-color: @m-gray;
     opacity: 0.2;
   }
   &.actions > li.open > a > i,
   &.actions.open > a > i {
-    color: @m-white;
+    color: @m-gray;
   }
   li.open + ul.dropdown-menu {
     display: block;
@@ -439,7 +443,7 @@ contact-photo {
   & .mdi {
     margin-top: 2px;
     font-size: 1.9em;
-    color: @m-white;
+    color: @m-gray;
   }
 }
 

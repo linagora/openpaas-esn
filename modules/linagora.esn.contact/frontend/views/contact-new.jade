@@ -1,15 +1,20 @@
 .col-xs-12.col-md-10.no-padding-xs
-  .card.card-contact(ng-submit='accept()')
-    .card-header.contact-header.hidden-xs
-      .row
-        .col-xs-8
-          h1 #{__('Create a new contact')}
-        .col-xs-4
-          .contact-buttons
-            button.btn.btn-default(type='button', ng-click='close()')
-              | #{__('Cancel')}
-            button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
-              | #{__('Create')}
+  .card-contact
+    .contact-header.m-b-10.flex-space-between
+      button.btn.btn-default(type='button', ng-click='close()')
+        i.mdi.mdi-reply
+        | #{__(' Cancel')}
+      .header-label #{__(' Create a new contact')}
+      ul.actions.flex-space-around
+        li.contact-dropdown.dropdown
+          a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+            i.mdi.mdi-dots-vertical
+        li
+          button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
+            i.mdi.mdi-pencil
+            | #{__(' Create')}
+
+  .card(ng-submit='accept()')
     .card-body.card-padding
       .contact-error-container
       contact-edition-form(contact='contact')
