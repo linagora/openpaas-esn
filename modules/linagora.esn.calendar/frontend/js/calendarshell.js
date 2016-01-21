@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarShell', function($q, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, RRuleShell, ICAL_PROPERTIES) {
+  .factory('CalendarShell', function($q, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES) {
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -262,16 +262,10 @@ angular.module('esn.calendar')
           return $q.when(this);
         }
 
-        var vevents = this.vcalendar.getAllSubcomponents('vevent');
-        for (var i = 0, len = vevents.length; len > 1 && i < len; i++) {
-          if (!vevents[i].hasProperty('recurrence-id')) {
-            var mastershell = new CalendarShell(vevents[i], {
-              path: this.path,
-              etag: this.etag,
-              gracePeriodTaskId: this.gracePeriodTaskId
-            });
-            return $q.when(mastershell);
-          }
+        var fromCache = masterEventCache.getMasterEvent(this.path);
+        if (fromCache) {
+          fromCache.modifyOccurrence(this);
+          return $q.when(fromCache);
         }
 
         // Not found, we need to retrieve the event
@@ -281,7 +275,6 @@ angular.module('esn.calendar')
             etag: this.etag,
             gracePeriodTaskId: this.gracePeriodTaskId
           });
-
           mastershell.modifyOccurrence(this);
           return mastershell;
         }.bind(this));
@@ -309,6 +302,7 @@ angular.module('esn.calendar')
         }
 
         this.vcalendar.addSubcomponent(instance.clone().vevent);
+        masterEventCache.saveMasterEvent(this);
       }
     };
 

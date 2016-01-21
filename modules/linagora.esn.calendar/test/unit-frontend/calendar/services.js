@@ -2326,4 +2326,37 @@ describe('The calendar module services', function() {
     });
 
   });
+
+  describe('the masterEventCache service', function() {
+    var masterEventCache, CalendarShell, fcMoment;
+
+    beforeEach(function() {
+      angular.mock.module('esn.calendar');
+
+      angular.mock.inject(function(_masterEventCache_, _CalendarShell_, _fcMoment_) {
+        masterEventCache = _masterEventCache_;
+        CalendarShell = _CalendarShell_;
+        fcMoment = _fcMoment_;
+      });
+    });
+
+    it('should not save an instance', function() {
+      var path = 'aPath';
+      masterEventCache.saveMasterEvent(CalendarShell.fromIncompleteShell({
+        recurrenceId: fcMoment(),
+        path: path
+      }));
+      expect(masterEventCache.getMasterEvent(path)).to.not.exist;
+    });
+
+    it('should save a master event', function() {
+      var path = 'aPath';
+      var shell = CalendarShell.fromIncompleteShell({
+        path: path
+      });
+      masterEventCache.saveMasterEvent(shell);
+      expect(masterEventCache.getMasterEvent(path)).to.equal(shell);
+      expect(masterEventCache.getMasterEvent('randomPath')).to.not.exist;
+    });
+  });
 });

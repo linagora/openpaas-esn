@@ -757,4 +757,23 @@ angular.module('esn.calendar')
       deleteRegistration: deleteRegistration,
       wrapEventSource: wrapEventSource
     };
+  })
+
+  .factory('masterEventCache', function() {
+    var map = {};
+
+    function saveMasterEvent(shell) {
+      if (!shell.isInstance()) {
+        map[shell.path] = shell;
+      }
+    }
+
+    function getMasterEvent(path) {
+      return map[path];
+    }
+
+    return {
+      saveMasterEvent: saveMasterEvent,
+      getMasterEvent: getMasterEvent
+    };
   });
