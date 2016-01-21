@@ -224,6 +224,7 @@ describe('The addressbooks dav proxy', function() {
             user: user,
             contactId: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9',
             bookId: user._id.toString(),
+            bookName: 'contacts',
             vcard: ['vcard', [
               ['version', {}, 'text', '4.0'],
               ['uid', {}, 'text', '3c6d4032-fce2-485b-b708-3d8d9ba280da'],
