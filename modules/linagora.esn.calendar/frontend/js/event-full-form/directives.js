@@ -8,8 +8,9 @@ angular.module('esn.calendar')
       controller.initFormData();
 
       scope.isNew = eventUtils.isNew;
+      scope.isInvolvedInATask = eventUtils.isInvolvedInATask;
       scope.deleteEvent = controller.deleteEvent;
-      scope.submit = eventUtils.isNew(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
+      scope.submit = eventUtils.isNew(scope.editedEvent) && !eventUtils.isInvolvedInATask(scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       scope.changeParticipation = controller.changeParticipation;
       scope.goBack = function(callback) {
         (callback || angular.noop)();

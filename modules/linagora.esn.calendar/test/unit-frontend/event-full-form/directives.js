@@ -64,14 +64,28 @@ describe('The event-full-form Angular module directives', function() {
       expect(spyNewEvent).to.have.been.called;
     });
 
-    it('should have a submit function that is modifyEvent', function() {
+    it('should have a submit function that is modifyEvent if event has a gracePeriodTaskId property', function() {
       this.$scope.editedEvent = {
         id: '12345',
-        etag: '12345',
+        allDay: true,
+        start: this.fcMoment('2013-02-08 12:30'),
+        end: this.fcMoment('2013-02-08 13:30'),
+        location: 'aLocation',
+        gracePeriodTaskId: '123456'
+      };
+      this.initDirective(this.$scope);
+      this.$scope.submit();
+      expect(spyModifyEvent).to.have.been.called;
+    });
+
+    it('should have a submit function that is modifyEvent if event has an etag property', function() {
+      this.$scope.editedEvent = {
+        id: '12345',
         allDay: true,
         start: this.moment('2013-02-08 12:30'),
         end: this.moment('2013-02-08 13:30'),
-        location: 'aLocation'
+        location: 'aLocation',
+        etag: '12345'
       };
       this.initDirective(this.$scope);
       this.$scope.submit();
