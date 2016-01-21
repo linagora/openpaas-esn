@@ -350,22 +350,42 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewEmailController');
     });
 
-    it('should assign the returned message to $scope.email and mark it as read', function(done) {
-      var setIsUnreadSpy = sinon.spy();
+    it('should assign the returned message to $scope.email', function(done) {
       jmapClient.getMessages = function() {
-        return $q.when([{ email: 1, setIsUnread: setIsUnreadSpy }]);
+        return $q.when([{ property: 'property' }]);
       };
 
       initController('viewEmailController');
 
       scope.$watch('email', function(before, after) {
-        expect(after.email).to.equal(1);
+        expect(after).to.deep.equal({ property: 'property' });
 
         done();
       });
 
       scope.$digest();
+    });
+
+    it('should mark an unread email as read', function() {
+      var setIsUnreadSpy = sinon.spy();
+      jmapClient.getMessages = function() {
+        return $q.when([{ isUnread: true, setIsUnread: setIsUnreadSpy }]);
+      };
+
+      initController('viewEmailController');
+
       expect(setIsUnreadSpy).to.have.been.calledWith(false);
+    });
+
+    it('should not invoke setIsUnread on a read email', function() {
+      var setIsUnreadSpy = sinon.spy();
+      jmapClient.getMessages = function() {
+        return $q.when([{ isUnread: false, setIsUnread: setIsUnreadSpy }]);
+      };
+
+      initController('viewEmailController');
+
+      expect(setIsUnreadSpy).to.not.have.been.called;
     });
 
     it('should display the view-email-subheader mobile header', function() {
@@ -385,8 +405,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
               expect(role).to.equal(jmap.MailboxRole.TRASH);
 
               done();
-            },
-            setIsUnread: angular.noop
+            }
           }]);
         };
 
@@ -400,8 +419,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return $q.when([{
             moveToMailboxWithRole: function() {
               return $q.when();
-            },
-            setIsUnread: angular.noop
+            }
           }]);
         };
 
@@ -418,8 +436,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return $q.when([{
             moveToMailboxWithRole: function() {
               return $q.when();
-            },
-            setIsUnread: angular.noop
+            }
           }]);
         };
         notificationFactory.weakSuccess = function() { done(); };
@@ -435,8 +452,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return $q.when([{
             moveToMailboxWithRole: function() {
               return $q.reject('Fail');
-            },
-            setIsUnread: angular.noop
+            }
           }]);
         };
         notificationFactory.weakError = function() { done(); };
@@ -456,8 +472,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         jmapClient.getMessages = function() {
           return $q.when([{
-            email:'sender@linagora.com',
-            setIsUnread: angular.noop
+            email:'sender@linagora.com'
           }]);
         };
 
@@ -478,8 +493,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         jmapClient.getMessages = function() {
           return $q.when([{
-            email:'sender@linagora.com',
-            setIsUnread: angular.noop
+            email:'sender@linagora.com'
           }]);
         };
 
@@ -500,8 +514,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         jmapClient.getMessages = function() {
           return $q.when([{
-            email:'sender@linagora.com',
-            setIsUnread: angular.noop
+            email:'sender@linagora.com'
           }]);
         };
 
