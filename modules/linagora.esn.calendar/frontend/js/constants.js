@@ -84,6 +84,8 @@ angular.module('esn.calendar')
 
   .constant('CALENDAR_MODIFY_COMPARE_KEYS', ['name'])
 
+  .constant('MASTER_EVENT_CACHE_TTL', 300000)
+
   .constant('CALENDAR_EVENTS', {
     CALENDAR_HEIGHT: 'calendar:height',
     EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',
