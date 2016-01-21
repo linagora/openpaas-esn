@@ -10,7 +10,7 @@
               button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(submit);')
                 span(ng-if='isNew(editedEvent)') #{__('Create')}
                 span(ng-if='!isNew(editedEvent)') #{__('Modify')}
-              button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(deleteEvent);', ng-if="!isNew(editedEvent)")
+              button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goBack(deleteEvent);', ng-if="isInvolvedInATask(editedEvent) || !isNew(editedEvent)")
                 | #{__('Delete')}
               button.btn.btn-default.pull-right(type='button', ng-click="goBack()")
                 | #{__('Cancel')}
