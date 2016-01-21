@@ -28,12 +28,10 @@ angular.module('esn.calendar')
         vcalendar = vcomponent;
       } else if (vcomponent.name === 'vevent') {
         vevent = vcomponent;
-        vcalendar = vevent.parent;
-      }
-
-      if (!vcalendar && vevent) {
         vcalendar = new ICAL.Component('vcalendar');
         vcalendar.addSubcomponent(vevent);
+      } else {
+        throw new Error('Cannot create a shell - Unsupported vcomponent');
       }
 
       this.vcalendar = vcalendar;
