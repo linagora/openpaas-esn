@@ -352,6 +352,20 @@ angular.module('esn.calendar')
         keepChangeDuringGraceperiod.registerUpdate(event);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
       }).then(function() {
+        gracePeriodLiveNotification.registerListeners(taskId, function() {
+          gracePeriodService.remove(taskId);
+          notifyService({
+            message: 'Could not modify the event, it may have been modified by an external source. Please refresh your calendar.'
+          }, {
+            type: 'danger',
+            placement: {
+              from: 'bottom',
+              align: 'center'
+            },
+            delay: CALENDAR_ERROR_DISPLAY_DELAY
+          });
+          calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+        });
         return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
       }).then(function(data) {
         var task = data;

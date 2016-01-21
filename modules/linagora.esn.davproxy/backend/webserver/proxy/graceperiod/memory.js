@@ -1,6 +1,8 @@
 'use strict';
 
 var client = require('../http-client');
+var extend = require('extend');
+var http = require('http');
 
 module.exports = function(dependencies) {
 
@@ -16,13 +18,10 @@ module.exports = function(dependencies) {
     };
 
     function forwardRequest(callback) {
-
       var requestOptions = {
         method: req.method,
         url: target,
-        headers: {
-          ESNToken: req.token.token
-        }
+        headers: extend({}, req.headers, { ESNToken: req.token.token })
       };
 
       if (options.json) {
@@ -38,9 +37,7 @@ module.exports = function(dependencies) {
           logger.error('Error while sending request', err);
 
           if (options.onError) {
-            return options.onError(response, body, req, res, function() {
-              callback(new Error('Error while sending request'));
-            });
+            return options.onError(response, body, req, res, callback.bind(null, new Error('Error while sending request')));
           }
 
           return callback(new Error('Error while sending request'));
@@ -48,13 +45,19 @@ module.exports = function(dependencies) {
 
         logger.info('Response from remote service: HTTP %s', response.statusCode);
 
-        if (options.onSuccess) {
-          return options.onSuccess(response, body, req, res, function() {
-            callback(null, response);
-          });
+        var error;
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          if (options.onSuccess) {
+            return options.onSuccess(response, body, req, res, callback.bind(null, null, response));
+          }
+        } else {
+          error = {error: {code: response.statusCode, message: http.STATUS_CODES[response.statusCode], details: response.statusMessage}};
+          if (options.onError) {
+            return options.onError(response, body, req, res, callback.bind(null, error, response));
+          }
         }
 
-        callback(null, response);
+        callback(error, response);
       });
     }
 

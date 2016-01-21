@@ -1749,6 +1749,21 @@ describe('The calendar module services', function() {
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
+
+      it('should register an error handler for grace period error', function(done) {
+        this.gracePeriodLiveNotification.registerListeners = function() {
+          done();
+        };
+
+        emitMessage = null;
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
+
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag');
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
     });
 
     describe('The remove fn', function() {
