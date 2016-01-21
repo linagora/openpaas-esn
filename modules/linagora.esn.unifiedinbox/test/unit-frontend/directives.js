@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
       iFrameResize = angular.noop, elementScrollDownService, $stateParams,
-      deviceDetector;
+      deviceDetector, searchService;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -45,6 +45,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', deviceDetector = { isMobile: function() { return false;} });
+    $provide.value('searchService', searchService = { searchRecipients: angular.noop });
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
@@ -237,7 +238,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       it('should not save a draft when the composer is hidden', function() {
         $scope.hide();
-        $rootScope.$digest();
 
         expect(ctrl.saveDraft).to.have.not.been.called;
       });
@@ -248,10 +248,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         $scope.hide();
 
         expect($location.path).to.have.been.calledWith('/unifiedinbox');
-      });
-
-      it('should expose a search function through its controller', function() {
-        expect(ctrl.search).to.be.a('function');
       });
 
     });
@@ -359,10 +355,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.hide();
 
       expect($scope.$hide).to.have.been.called;
-    });
-
-    it('should expose a search function through its controller', function() {
-      expect(compileDirective('<composer-desktop />').controller('composerDesktop').search).to.be.a('function');
     });
 
     it('should disable button when disableSendButton fn is called', function() {
@@ -549,21 +541,19 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       }).to.throw(Error, 'This directive requires a template attribute');
     });
 
-    it('should define $scope.search from the composer directive controller', function(done) {
+    it('should define $scope.search from searchService.searchRecipients', function(done) {
+      searchService.searchRecipients = function() { done(); };
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {
-          search: done
-        }
+        $composerController: {}
       });
 
       element.find('recipients-auto-complete').isolateScope().search();
     });
 
     it('should define $scope.search from the composerDesktop directive controller', function(done) {
+      searchService.searchRecipients = function() { done(); };
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerDesktopController: {
-          search: done
-        }
+        $composerDesktopController: {}
       });
 
       element.find('recipients-auto-complete').isolateScope().search();
@@ -578,10 +568,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       var scope = element.find('recipients-auto-complete').isolateScope();
       var recipient = {displayName: 'user@domain'};
-      $scope.$on('unifiedinbox:tags_added', unifiedinboxTagsAddedSpy);
+
       scope.onTagAdded(recipient);
-      expect(autoScrollDownSpy).to.be.called;
-      expect(unifiedinboxTagsAddedSpy).to.be.called;
+
+      expect(autoScrollDownSpy).to.have.been.calledWith();
     });
 
     it('should leverage the recipient object to create a corresponding jmap json object', function() {

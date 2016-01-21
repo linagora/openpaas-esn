@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, $location, scope, $controller, $timeout,
-      jmapClient, jmap, notificationFactory, attendeeService, draftService, Offline = {},
+      jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal;
 
   beforeEach(function() {
@@ -48,9 +48,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('Offline', Offline);
       $provide.value('$modal', $modal);
       $provide.value('draftService', draftService = {});
-      $provide.value('attendeeService', attendeeService = {
-        addProvider: angular.noop
-      });
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
@@ -139,41 +136,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(Composition.prototype.send).to.have.been.calledOnce;
     });
 
-    it('should delegate searching to attendeeService', function(done) {
-      var ctrl = initCtrl();
-      attendeeService.getAttendeeCandidates = function(query, limit) {
-        expect(query).to.equal('open-paas.org');
+    it('should initialize the controller when a Composition instance is given in state params', function() {
+      $stateParams.composition = { getEmail: angular.noop };
+      initController('composerController');
 
-        done();
-      };
-
-      ctrl.search('open-paas.org');
+      expect(scope.composition).to.deep.equal($stateParams.composition);
     });
 
-    it('should exclude search results with no email', function(done) {
-      var ctrl = initCtrl();
-      attendeeService.getAttendeeCandidates = function(query, limit) {
-        expect(query).to.equal('open-paas.org');
+    it('should initialize the controller when an email is given in state params', function() {
+      $stateParams.email = { to: [] };
+      initController('composerController');
 
-        return $q.when([{
-          displayName: 'user1',
-          email: 'user1@open-paas.org'
-        }, {
-          displayName: 'user2'
-        }]);
-      };
-
-      ctrl.search('open-paas.org')
-        .then(function(results) {
-          expect(results).to.deep.equal([{
-            displayName: 'user1',
-            email: 'user1@open-paas.org'
-          }]);
-        })
-        .then(done, done);
-
-      scope.$digest();
+      expect(scope.composition).to.be.an.instanceof(Composition);
+      expect(scope.email).to.be.a('object');
     });
+
   });
 
   describe('The listEmailsController', function() {
@@ -753,6 +730,45 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('goToInboxController');
 
       expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: '1' });
+    });
+
+  });
+
+  describe('The recipientsFullscreenEditFormController', function() {
+
+    it('should go to unifiedinbox.compose if $stateParams.rcpt is not defined', function() {
+      $state.go = sinon.spy();
+
+      initController('recipientsFullscreenEditFormController');
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.compose');
+    });
+
+    it('should go to unifiedinbox.compose if $stateParams.composition is not defined', function() {
+      $state.go = sinon.spy();
+      $stateParams.rcpt = 'to';
+
+      initController('recipientsFullscreenEditFormController');
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.compose');
+    });
+
+    it('should expose $stateParams.rcpt and $stateParams.composition in the scope', function() {
+      $stateParams.rcpt = 'to';
+      $stateParams.composition = 'composition';
+
+      initController('recipientsFullscreenEditFormController');
+
+      expect(scope.composition).to.equal('composition');
+      expect(scope.rcpt).to.equal('to');
+    });
+
+    it('should define the "fullscreen-edit-form-subheader" subheader', function() {
+      headerService.subHeader.setInjection = sinon.spy();
+
+      initController('recipientsFullscreenEditFormController');
+
+      expect(headerService.subHeader.setInjection).to.have.been.calledWith('fullscreen-edit-form-subheader', sinon.match.any);
     });
 
   });

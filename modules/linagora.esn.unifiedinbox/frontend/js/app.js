@@ -22,11 +22,6 @@ angular.module('linagora.esn.unifiedinbox', [
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider
-      .state('unifiedinbox-compose', {
-        url: '/unifiedinbox/compose',
-        template: '<composer/>',
-        params: {email: {}}
-      })
       .state('unifiedinbox', {
         url: '/unifiedinbox',
         templateUrl: '/unifiedinbox/views/unifiedinbox',
@@ -36,6 +31,25 @@ angular.module('linagora.esn.unifiedinbox', [
             return { state: 'unifiedinbox.inbox' };
           }
         }
+      })
+      .state('unifiedinbox.compose', {
+        url: '/compose',
+        views: {
+          'main@unifiedinbox': {
+            template: '<composer />'
+          }
+        },
+        params: { email: {}, composition: null }
+      })
+      .state('unifiedinbox.compose.recipients', {
+        url: '/:rcpt',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/composer/fullscreen-edit-form/index',
+            controller: 'recipientsFullscreenEditFormController'
+          }
+        },
+        params: { composition: null }
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',

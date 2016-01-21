@@ -428,7 +428,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function newMobileComposer(email) {
-      $state.go('unifiedinbox-compose', {email: email});
+      $state.go('unifiedinbox.compose', { email: email });
     }
 
     function newBoxedComposer() {
@@ -626,5 +626,17 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       filterSystemMailboxes: filterSystemMailboxes,
       assignMailboxesList: assignMailboxesList
+    };
+  })
+
+  .service('searchService', function(attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
+    return {
+      searchRecipients: function(query) {
+        return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
+          return recipients.filter(function(recipient) {
+            return recipient.email;
+          });
+        });
+      }
     };
   });

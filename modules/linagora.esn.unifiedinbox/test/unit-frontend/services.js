@@ -9,7 +9,8 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module services', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
-      localTimeZone = 'Europe/Paris';
+      localTimeZone = 'Europe/Paris',
+      attendeeService;
 
   beforeEach(function() {
     angular.mock.module('esn.jmap-client-wrapper');
@@ -24,6 +25,7 @@ describe('The Unified Inbox Angular module services', function() {
     $provide.constant('moment', function(argument) {
       return moment.tz(argument || nowDate, localTimeZone);
     });
+    $provide.value('attendeeService', attendeeService = { addProvider: angular.noop });
   }));
 
   describe('The jmapClientProvider service', function() {
@@ -1275,7 +1277,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.open();
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox-compose', {email: undefined});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: undefined});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1309,7 +1311,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.openDraft({expected: 'field'});
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox-compose', {email: {expected: 'field'}});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1344,7 +1346,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.openEmailCustomTitle('title', {expected: 'field'});
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox-compose', {email: {expected: 'field'}});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1945,6 +1947,55 @@ describe('The Unified Inbox Angular module services', function() {
 
       expect(withJmapClient).to.have.been.calledWith(1);
       expect(asyncAction).to.have.been.calledWith('Message', sinon.match.func);
+    });
+
+  });
+
+  describe('The searchService factory', function() {
+
+    var $rootScope, searchService;
+
+    beforeEach(inject(function(_$rootScope_, _searchService_) {
+      $rootScope = _$rootScope_;
+      searchService = _searchService_;
+    }));
+
+    describe('The searchRecipients method', function() {
+
+      it('should delegate to attendeeService', function() {
+        attendeeService.getAttendeeCandidates = sinon.spy(function() { return $q.when(); });
+
+        searchService.searchRecipients('open-paas.org');
+
+        expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith('open-paas.org');
+      });
+
+      it('should exclude search results with no email', function(done) {
+        attendeeService.getAttendeeCandidates = function(query) {
+          expect(query).to.equal('open-paas.org');
+
+          return $q.when([{
+            displayName: 'user1',
+            email: 'user1@open-paas.org'
+          }, {
+            displayName: 'user2'
+          }]);
+        };
+
+        searchService.searchRecipients('open-paas.org')
+          .then(function(results) {
+            expect(results).to.deep.equal([{
+              displayName: 'user1',
+              email: 'user1@open-paas.org'
+            }]);
+
+            done();
+          })
+          .then(null, done);
+
+        $rootScope.$digest();
+      });
+
     });
 
   });
