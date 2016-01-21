@@ -84,10 +84,11 @@ angular.module('esn.calendar')
 
       var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
       $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
-      var path = '/calendars/' + $scope.calendarHomeId + '/events';
+      var calendarId = 'events';
+      var path = '/calendars/' + $scope.calendarHomeId + '/' + calendarId;
       $scope.restActive = true;
       _hideModal();
-      calendarService.createEvent(path, $scope.editedEvent, { graceperiod: true })
+      calendarService.createEvent(calendarId, path, $scope.editedEvent, { graceperiod: true })
         .then(function(response) {
           if (response) {
             notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');

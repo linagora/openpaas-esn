@@ -1139,7 +1139,7 @@ describe('The calendar module services', function() {
           });
         };
 
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(500);
             done();
@@ -1165,7 +1165,7 @@ describe('The calendar module services', function() {
 
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(200, '');
 
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(200);
             done();
@@ -1202,7 +1202,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(404);
         emitMessage = null;
 
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           function(response) {
             expect(socketEmitSpy).to.not.have.been.called;
             expect(response).to.not.exist;
@@ -1254,7 +1254,7 @@ describe('The calendar module services', function() {
         emitMessage = null;
 
         var self = this;
-        this.calendarService.createEvent('/path/to/calendar', calendarShell, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true }).then(
           function(shell) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(shell.title).to.equal('test event');
@@ -1301,7 +1301,7 @@ describe('The calendar module services', function() {
         emitMessage = null;
 
         var self = this;
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
             expect(socketEmitSpy).to.have.not.been.called;
@@ -1333,7 +1333,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), {ETag: 'etag'});
 
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           function() {
             expect(keepChangeDuringGraceperiodMock.registerAdd).to.have.been.calledWith(event);
             done();
@@ -1367,7 +1367,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), {ETag: 'etag'});
 
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true });
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
@@ -1405,7 +1405,7 @@ describe('The calendar module services', function() {
         emitMessage = null;
 
         var self = this;
-        this.calendarService.createEvent('/path/to/calendar', event, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(errorSpy).to.have.been.called;

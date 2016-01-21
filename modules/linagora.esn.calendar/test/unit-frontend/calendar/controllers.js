@@ -43,9 +43,11 @@ describe('The calendar module controllers', function() {
       listCalendars: function() {
         return $q.when([{
           href: 'href',
+          id: 'id',
           color: 'color'
         }, {
           href: 'href2',
+          id: 'id2',
           color: 'color2'
         }]);
       },
@@ -333,9 +335,9 @@ describe('The calendar module controllers', function() {
       this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
       expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledTwice;
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('href', sinon.match.array);
+      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
 
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('href2', sinon.match.array);
+      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
     });
 
     it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and calendar.toggled is true', function() {
