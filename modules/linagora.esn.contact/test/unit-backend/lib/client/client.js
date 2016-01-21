@@ -343,6 +343,7 @@ describe('The contact client APIs', function() {
             mockery.registerMock('../search', createSearchClientMock(function(options) {
               expect(options).to.eql({
                 bookId: '123',
+                bookName: BOOK_NAME,
                 search: searchOptions.search,
                 userId: searchOptions.userId,
                 limit: searchOptions.limit,
@@ -389,7 +390,11 @@ describe('The contact client APIs', function() {
 
           it('should resolve contacts fetched from DAV', function(done) {
             var counter = 0;
-            var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+            var hitLists = [
+              {_id: 1, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}}
+            ];
             mockery.registerMock('../dav-client', {
               rawClient: function(options, callback) {
                 expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
@@ -420,7 +425,11 @@ describe('The contact client APIs', function() {
 
           it('should return the contacts in the correct order', function(done) {
             var counter = 0;
-            var hitLists = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+            var hitLists = [
+              {_id: 1, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
+              {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}}
+            ];
             mockery.registerMock('../dav-client', {
               rawClient: function(options, callback) {
                 expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
@@ -707,9 +716,6 @@ describe('The contact client APIs', function() {
 
         });
       });
-
     });
-
   });
-
 });

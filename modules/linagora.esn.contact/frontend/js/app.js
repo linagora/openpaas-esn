@@ -93,8 +93,6 @@ angular.module('linagora.esn.contact', [
         };
         return ContactAPIClient
           .addressbookHome(session.user._id)
-          .addressbook()
-          .vcard()
           .search(searchOptions)
           .then(function(response) {
             response.data.forEach(function(contact) {

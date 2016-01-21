@@ -112,8 +112,6 @@ angular.module('linagora.esn.contact')
 
       return ContactAPIClient
         .addressbookHome(this.bookId)
-        .addressbook(this.bookName)
-        .vcard()
         .search(query)
         .then(function(result) {
           self.currentPage = result.current_page;

@@ -102,15 +102,23 @@ module.exports = function(dependencies) {
         .create(req.body)
         .then(function(data) {
           avatarHelper.injectTextAvatar(req.params.bookHome, req.body).then(function(newBody) {
-            pubsub.topic('contacts:contact:add').publish({contactId: req.params.contactId, bookId: req.params.bookHome, vcard: newBody, user: req.user});
+            pubsub.topic('contacts:contact:add').publish({
+              contactId: req.params.contactId,
+              bookId: req.params.bookHome,
+              bookName: req.params.bookName,
+              vcard: newBody,
+              user: req.user
+            });
           });
           res.status(data.response.statusCode).json(data.body);
         }, function(err) {
+          var msg = 'Error while creating contact on DAV server';
+          logger.error(msg, err);
           res.status(500).json({
             error: {
               code: 500,
               message: 'Server Error',
-              details: 'Error while creating contact on DAV server'
+              details: msg
             }
           });
         });
@@ -123,7 +131,13 @@ module.exports = function(dependencies) {
 
         onSuccess: function(response, data, req, res, callback) {
           logger.debug('Success while updating contact %s', req.params.contactId);
-          pubsub.topic('contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookHome, vcard: req.body, user: req.user});
+          pubsub.topic('contacts:contact:update').publish({
+            contactId: req.params.contactId,
+            bookId: req.params.bookHome,
+            bookName: req.params.bookName,
+            vcard: req.body,
+            user: req.user
+          });
 
           return callback(null, data);
         },
@@ -164,12 +178,13 @@ module.exports = function(dependencies) {
       limit: req.query.limit,
       page: req.query.page
     };
-    contactModule.lib.client({ ESNToken: ESNToken })
-      .addressbookHome(req.params.bookHome)
-      .addressbook(req.params.bookName)
-      .vcard()
-      .search(options)
-      .then(function(data) {
+
+    var client = contactModule.lib.client({ESNToken: ESNToken}).addressbookHome(req.params.bookHome);
+    if (req.params.bookName) {
+      client = client.addressbook(req.params.bookName).vcard();
+    }
+
+    client.search(options).then(function(data) {
         var json = {
           _links: {
             self: {
@@ -232,6 +247,10 @@ module.exports = function(dependencies) {
   }
 
   function getAddressbooks(req, res) {
+    if (req.query.search) {
+      return searchContacts(req, res);
+    }
+
     var ESNToken = req.token && req.token.token ? req.token.token : '';
     contactModule.lib.client({ ESNToken: ESNToken })
       .addressbookHome(req.params.bookHome)
