@@ -873,7 +873,7 @@ describe('The Unified Inbox Angular module services', function() {
     beforeEach(module(function($provide) {
       jmapClient = {};
       $provide.constant('withJmapClient', function(callback) {
-        callback(jmapClient);
+        return callback(jmapClient);
       });
     }));
 
@@ -1145,26 +1145,30 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The save method', function() {
 
-      it('should do nothing and return rejected promise if needToBeSaved returns false', function() {
+      it('should do nothing and return rejected promise if needToBeSaved returns false', function(done) {
         jmapClient.saveAsDraft = sinon.spy();
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return false;};
 
-        var result = draft.save({});
+        draft.save({}).catch(function() {
+          expect(jmapClient.saveAsDraft).to.not.have.been.called;
+          done();
+        });
 
-        expect(jmapClient.saveAsDraft).to.not.have.been.called;
-        expect(result).to.be.rejected;
+        $rootScope.$digest();
       });
 
-      it('should call saveAsDraft if needToBeSaved returns true', function() {
+      it('should call saveAsDraft if needToBeSaved returns true', function(done) {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
 
-        var result = draft.save({rcpt: {}});
+        draft.save({rcpt: {}}).then(function() {
+          expect(jmapClient.saveAsDraft).to.have.been.called;
+          done();
+        });
 
-        expect(jmapClient.saveAsDraft).to.have.been.called;
-        expect(result).to.be.fulfilled;
+        $rootScope.$digest();
       });
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
@@ -1235,7 +1239,7 @@ describe('The Unified Inbox Angular module services', function() {
         expect(notificationFactory.weakInfo).to.have.been.calledWithExactly('Note', 'Your email has been saved as draft');
       });
 
-      it('should notify when has not saved successfully', function() {
+      it('should notify when has not saved successfully', function(done) {
         var err = {message: 'rejected with err'};
         jmapClient.saveAsDraft = function() {return $q.reject(err);};
         notificationFactory.weakError = sinon.spy();
@@ -1244,12 +1248,14 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({});
         draft.needToBeSaved = function() {return true;};
 
-        var result = draft.save({rcpt: {}});
+        draft.save({rcpt: {}}).catch(function(error) {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
+          expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
+          expect(error).to.deep.equal(err);
+          done();
+        });
 
         $rootScope.$digest();
-        expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your email has not been saved');
-        expect($log.error).to.have.been.calledWith('A draft has not been saved', err);
-        expect(result).to.be.rejected;
       });
 
     });
