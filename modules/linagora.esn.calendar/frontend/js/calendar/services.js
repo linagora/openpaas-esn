@@ -341,16 +341,19 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
+      var master, instance;
 
-      return flushTasksForEvent(event).then(function() {
-        return event.getModifiedMaster();
-      }).then(function(mastershell) {
-        event = mastershell;
+      return event.getModifiedMaster().then(function(masterShell) {
+        master = masterShell;
+        instance = event;
+        return flushTasksForEvent(masterShell);
+      }).then(function() {
+        event = master;
         return eventAPI.modify(path, event.vcalendar, etag);
       }).then(function(id) {
         taskId = id;
         keepChangeDuringGraceperiod.registerUpdate(event);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
       }).then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
           gracePeriodService.remove(taskId);
@@ -384,7 +387,7 @@ angular.module('esn.calendar')
         } else if (gracePeriodService.hasTask(taskId)) {
           return getEvent(path).then(function(shell) {
             gracePeriodService.remove(taskId);
-            calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+            calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
             calendarEventEmitter.websocket.emitUpdatedEvent(shell);
             return shell;
           }, function(response) {

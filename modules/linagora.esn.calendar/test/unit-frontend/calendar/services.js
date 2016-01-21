@@ -1522,7 +1522,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        flushContext = {id: occShell.id};
+        flushContext = {id: this.event.id};
 
         this.calendarService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag').then(
           function(shell) {
