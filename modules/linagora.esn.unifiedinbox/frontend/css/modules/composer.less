@@ -70,55 +70,6 @@ composer, composer-desktop {
         }
       }
 
-      .tags {
-        .flex;
-
-        .input {
-          text-align: right;
-        }
-
-        .tag-list {
-          .flex;
-          .flex-shorthand(1);
-
-          width: 70%;
-          overflow: hidden;
-        }
-      }
-
-    }
-
-    tags-input {
-      .host {
-        margin-bottom: 0;
-      }
-
-      .tags {
-        border: 1px solid lighten(@m-gray, 30%);
-
-        .input {
-          height: 25px;
-        }
-
-        .tag-item {
-          margin: 1px;
-          padding: 4px 8px;
-
-          font-size: @autocompleteFontSize;
-          text-transform: none;
-          box-shadow: none;
-        }
-      }
-
-      .auto-complete-match {
-        img {
-          width: 35px;
-        }
-
-        .row {
-          font-size: 0.8em;
-        }
-      }
     }
 
     email-body-editor {
@@ -235,9 +186,10 @@ composer, composer-desktop {
 
 // So that composer on mobile is full height
 composer {
-  .fill-parent-block;
-
+  position: fixed;
   top: ~"calc(@{header-height} + @{sub-header-height})";
+  bottom: 0;
+  width: 100%;
 }
 
 @media (max-width: @screen-xs-max) {
@@ -245,19 +197,6 @@ composer {
   composer {
 
     .compose {
-
-      .tags .tag-list .tag-item {
-        line-height: 1.8em;
-
-        // Hide the remove-button (X) of ngTagsInput for mobile devices in display mode
-        .remove-button {
-          display: none;
-        }
-      }
-
-      .focused .tags .tag-list .tag-item .remove-button {
-        display: inline;
-      }
 
       .note-editor {
 
@@ -287,27 +226,6 @@ composer {
 @media (min-width: @screen-sm-min) {
 
   composer, composer-desktop {
-
-    .compose {
-
-      .compose-header {
-
-        .tags {
-          display: block;
-
-          .input {
-            text-align: left;
-          }
-
-          .tag-list {
-            display: inline;
-            width: auto;
-            overflow: auto;
-          }
-        }
-      }
-
-    }
 
     .note-editor {
 

@@ -44,6 +44,13 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('fullscreenEditFormSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/composer/fullscreen-edit-form/subheader.html'
+    };
+  })
+
   .directive('inboxSubheaderCloseButton', function() {
     return {
       restrict: 'E',
@@ -55,5 +62,12 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/subheader/burger-button.html'
+    };
+  })
+
+  .directive('inboxSubheaderBackButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/subheader/back-button.html'
     };
   });

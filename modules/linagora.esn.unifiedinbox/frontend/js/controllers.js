@@ -63,26 +63,34 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('composerController', function($scope, Composition, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
-
-    var self = this;
-
-    this.search = function(query) {
-      return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
-        return recipients.filter(function(recipient) {
-          return recipient.email;
-        });
-      });
-    };
+  .controller('composerController', function($scope, $stateParams, headerService, Composition) {
 
     this.initCtrl = function(email) {
-      self.composition = new Composition(email);
-      $scope.email = self.composition.getEmail();
+      this.initCtrlWithComposition(new Composition(email));
+    };
+
+    this.initCtrlWithComposition = function(comp) {
+      $scope.composition = comp;
+      $scope.email = $scope.composition.getEmail();
     };
 
     this.saveDraft = function() {
-      self.composition.saveDraft();
+      $scope.composition.saveDraft();
     };
+
+    this.showMobileHeader = function() {
+      headerService.subHeader.setInjection('composer-subheader', $scope);
+    };
+
+    this.hideMobileHeader = function() {
+      headerService.subHeader.resetInjections();
+    };
+
+    if ($stateParams.composition) {
+      this.initCtrlWithComposition($stateParams.composition);
+    } else if ($stateParams.email) {
+      this.initCtrl($stateParams.email);
+    }
 
     $scope.isCollapsed = true;
     $scope.summernoteOptions = {
@@ -101,9 +109,9 @@ angular.module('linagora.esn.unifiedinbox')
 
       $scope.disableSendButton();
 
-      if (self.composition.canBeSentOrNotify()) {
+      if ($scope.composition.canBeSentOrNotify()) {
         $scope.hide();
-        self.composition.send();
+        $scope.composition.send();
       } else {
         $scope.enableSendButton();
       }
@@ -209,4 +217,15 @@ angular.module('linagora.esn.unifiedinbox')
         $state.go('unifiedinbox');
       });
     };
+  })
+
+  .controller('recipientsFullscreenEditFormController', function($scope, $rootScope, $state, $stateParams, headerService) {
+    if (!$stateParams.rcpt || !$stateParams.composition) {
+      $state.go('unifiedinbox.compose');
+    }
+
+    $scope.rcpt = $stateParams.rcpt;
+    $scope.composition = $stateParams.composition;
+
+    headerService.subHeader.setInjection('fullscreen-edit-form-subheader', $scope);
   });

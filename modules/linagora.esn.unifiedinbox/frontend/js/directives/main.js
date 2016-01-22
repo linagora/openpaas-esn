@@ -175,27 +175,19 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($location, $stateParams, headerService) {
+  .directive('composer', function($location, $rootScope) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
-        function showMobileHeader() {
-          headerService.subHeader.setInjection('composer-subheader', scope);
-        }
-
-        function hideMobileHeader() {
-          headerService.subHeader.resetInjections();
-        }
-
         function returnToMainLocation() {
           $location.path('/unifiedinbox');
         }
 
         function quit(action) {
           disableOnBackAutoSave();
-          hideMobileHeader();
+          controller.hideMobileHeader();
 
           if (action) {
             action();
@@ -214,14 +206,13 @@ angular.module('linagora.esn.unifiedinbox')
           returnToMainLocation();
         };
 
-        scope.$on('fullscreenEditForm:show', hideMobileHeader);
-        scope.$on('fullscreenEditForm:close', showMobileHeader);
+        scope.$on('fullscreenEditForm:show', controller.hideMobileHeader);
+        scope.$on('fullscreenEditForm:close', controller.showMobileHeader);
 
-        scope.disableSendButton = hideMobileHeader;
-        scope.enableSendButton = showMobileHeader;
-        showMobileHeader();
+        scope.disableSendButton = controller.hideMobileHeader;
+        scope.enableSendButton = controller.showMobileHeader;
 
-        controller.initCtrl($stateParams.email);
+        controller.showMobileHeader();
       }
     };
   })
@@ -250,10 +241,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService, _) {
+  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService, searchService, _) {
     return {
       restrict: 'E',
-      require: ['^?composer', '^?composerDesktop'],
       scope: {
         tags: '=ngModel'
       },
@@ -264,8 +254,8 @@ angular.module('linagora.esn.unifiedinbox')
 
         return '/unifiedinbox/views/composer/' + attr.template + '.html';
       },
-      link: function(scope, element, attrs, controllers) {
-        scope.search = (controllers[0] || controllers[1]).search;
+      link: function(scope, element) {
+        scope.search = searchService.searchRecipients;
 
         scope.onTagAdding = function($tag) {
           emailSendingService.ensureEmailAndNameFields($tag);
@@ -274,9 +264,6 @@ angular.module('linagora.esn.unifiedinbox')
         };
         scope.onTagAdded = function() {
           elementScrollDownService.autoScrollDown(element.find('div.tags'));
-
-          // Scroll down element on full-screen form
-          $rootScope.$broadcast('unifiedinbox:tags_added');
         };
       }
     };

@@ -1,0 +1,102 @@
+.inbox-tags-input {
+
+  .host {
+    margin-bottom: 0;
+  }
+
+  .tags {
+
+    .tag-item {
+      margin: 1px;
+      padding: 4px 8px;
+
+      font-size: @autocompleteFontSize;
+      text-transform: none;
+      box-shadow: none;
+    }
+
+  }
+
+  .auto-complete-match {
+
+    img {
+      width: 35px;
+    }
+
+    .row {
+      font-size: 0.8em;
+    }
+
+  }
+}
+
+composer, composer-desktop {
+
+  .inbox-tags-input {
+
+    .tags {
+      .flex;
+
+      border: 1px solid lighten(@m-gray, 30%);
+
+      .input {
+        height: 25px;
+        text-align: right;
+      }
+
+      .tag-list {
+        .flex;
+        .flex-shorthand(1);
+
+        width: 70%;
+        overflow: hidden;
+      }
+
+    }
+
+  }
+
+}
+
+composer {
+
+  .inbox-tags-input {
+
+    .tags .tag-list .tag-item {
+      line-height: 1.8em;
+
+      .remove-button {
+        display: none; // Hide the remove-button (X) of ngTagsInput for mobile devices in display mode
+      }
+
+    }
+
+  }
+
+}
+
+@media (min-width: @screen-md-min) {
+
+  composer, composer-desktop {
+
+    .inbox-tags-input {
+
+      .tags {
+        display: block;
+
+        .input {
+          text-align: left;
+        }
+
+        .tag-list {
+          display: inline;
+          width: auto;
+          overflow: auto;
+        }
+      }
+
+    }
+
+  }
+
+}
