@@ -19,7 +19,15 @@ describe('The esn.clockpicker module', function() {
 
     beforeEach(function() {
       this.directiveElement = {};
+      this.isMobile = false;
+
       angular.mock.module(function($provide) {
+        $provide.value('detectUtils', {
+          isMobile: function() {
+            return self.isMobile;
+          }
+        });
+
         $provide.decorator('clockpickerWrapperDirective', function($delegate) {
           var directive = $delegate[0];
           directive.compile = function() {
@@ -54,6 +62,34 @@ describe('The esn.clockpicker module', function() {
 
       this.initDirective();
     }));
+
+    it('should not make field read-only one non mobile device', function() {
+      this.directiveElement.addClass = sinon.spy();
+      this.directiveElement.attr = sinon.spy();
+      this.initDirective();
+      expect(this.directiveElement.addClass).to.not.have.been.called;
+      expect(this.directiveElement.attr).to.not.have.been.called;
+    });
+
+    it('should make field read-only one mobile device', function() {
+      this.isMobile = true;
+      this.directiveElement.addClass = sinon.spy();
+      this.directiveElement.attr = sinon.spy();
+      this.initDirective();
+      expect(this.directiveElement.addClass).to.have.been.calledWith('ignore-readonly');
+      expect(this.directiveElement.attr).to.have.been.calledWith('readonly');
+    });
+
+    it('should not set css ignore-readonly one mobile phone if already readonly', function() {
+      this.isMobile = true;
+      this.directiveElement.addClass = sinon.spy();
+      this.directiveElement.attr = sinon.spy();
+      this.directiveElement.is = sinon.stub().returns(true);
+      this.initDirective();
+      expect(this.directiveElement.addClass).to.not.have.been.called;
+      expect(this.directiveElement.attr).to.not.have.been.called;
+      expect(this.directiveElement.is).to.have.been.calledWith('[readonly]');
+    });
 
     it('should call clockpicker with default options if any are provided', function() {
       expect(this.directiveElement.clockpicker).to.have.been.calledWith(this.clockpickerDefaultOptions);
