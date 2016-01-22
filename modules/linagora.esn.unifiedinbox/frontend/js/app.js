@@ -98,7 +98,7 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/view-email/index',
-            controller: 'viewEmailController'
+            controller: 'viewEmailController as ctrl'
           }
         }
       });

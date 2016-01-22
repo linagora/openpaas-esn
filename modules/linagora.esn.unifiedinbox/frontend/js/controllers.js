@@ -119,14 +119,14 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, jmapEmailService) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
 
-    $scope.moveToTrash = function() {
+    this.moveToTrash = function() {
       asyncAction('Move of message "' + $scope.email.subject + '" to trash', function() {
         return $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
       }).then(function() {
@@ -134,16 +134,24 @@ angular.module('linagora.esn.unifiedinbox')
       });
     };
 
-    $scope.reply = function() {
+    this.reply = function() {
       emailSendingService.createReplyEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
     };
 
-    $scope.replyAll = function() {
+    this.replyAll = function() {
       emailSendingService.createReplyAllEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
     };
 
-    $scope.forward = function() {
+    this.forward = function() {
       emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
+    };
+
+    this.markAsUnread = function() {
+      jmapEmailService.setFlag($scope.email, 'isUnread', true);
+    };
+
+    this.markAsRead = function() {
+      jmapEmailService.setFlag($scope.email, 'isUnread', false);
     };
 
     withJmapClient(function(client) {
@@ -151,9 +159,8 @@ angular.module('linagora.esn.unifiedinbox')
         ids: [$scope.emailId]
       }).then(function(messages) {
         $scope.email = messages[0]; // We expect a single message here
-        if ($scope.email.isUnread) {
-          $scope.email.setIsUnread(false);
-        }
+
+        jmapEmailService.setFlag($scope.email, 'isUnread', false);
       });
     });
   })

@@ -39,11 +39,11 @@
     .modal-attachments
       ul.actions
         li
-          a(ng-click="forward()", title="#{__('Forward')}")
+          a(ng-click="ctrl.forward()", title="#{__('Forward')}")
             i.mdi.mdi-forward
-          a(ng-click="replyAll()", title="#{__('Reply all')}")
+          a(ng-click="ctrl.replyAll()", title="#{__('Reply all')}")
             i.mdi.mdi-reply-all
-          a(ng-click="reply()", title="#{__('Reply')}")
+          a(ng-click="ctrl.reply()", title="#{__('Reply')}")
             i.mdi.mdi-reply
 
   inbox-fab

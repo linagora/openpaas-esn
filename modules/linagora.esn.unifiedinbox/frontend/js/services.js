@@ -639,4 +639,24 @@ angular.module('linagora.esn.unifiedinbox')
         });
       }
     };
+  })
+
+  .service('jmapEmailService', function($q, jmap) {
+    function setFlag(email, flag, state) {
+      if (!email || !flag || !angular.isDefined(state)) {
+        throw new Error('Parameters "email", "flag" and "state" are required.');
+      }
+
+      if (email[flag] === state) {
+        return $q.when();
+      }
+
+      return email['set' + jmap.Utils.capitalize(flag)](state).then(function() {
+        email[flag] = state;
+      });
+    }
+
+    return {
+      setFlag: setFlag
+    };
   });
