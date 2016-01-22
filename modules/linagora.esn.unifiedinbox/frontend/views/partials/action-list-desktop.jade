@@ -18,6 +18,13 @@ ul.dropdown-menu.dropdown-menu-right
     a(ng-switch-when='true', ng-click="ctrl.markAsRead()" title="#{__('Mark as read')}")
       | #{__('Mark as read')}
       i.mdi.mdi-eye.m-l-10.m-r-5
+  li(ng-switch='email.isFlagged')
+    a(ng-switch-when='false', ng-click="ctrl.markAsFlagged()" title="#{__('Star')}")
+      | #{__('Star')}
+      i.mdi.mdi-star.m-l-10.m-r-5
+    a(ng-switch-when='true', ng-click="ctrl.unmarkAsFlagged()" title="#{__('Unstar')}")
+      | #{__('Unstar')}
+      i.mdi.mdi-star-off.m-l-10.m-r-5
   li
     a(ng-click="ctrl.moveToTrash()" title="#{__('Delete')}")
       | #{__('Delete')}

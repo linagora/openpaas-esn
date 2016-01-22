@@ -10,7 +10,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, EmailGroupingTool, newComposerService, headerService) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, EmailGroupingTool, newComposerService, headerService, jmapEmailService) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
@@ -24,7 +24,7 @@ angular.module('linagora.esn.unifiedinbox')
           limit: 100
         }).then(function(messageList) {
           return messageList.getMessages({
-            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'hasAttachment', 'mailboxIds']
+            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
           });
         }).then(function(messages) {
           $scope.groupedEmails = new EmailGroupingTool($scope.mailbox, messages).getGroupedEmails();
@@ -40,7 +40,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.mailbox = $stateParams.mailbox;
 
-    $scope.openEmail = function(email) {
+    this.openEmail = function(email) {
       if (isDraftMailbox()) {
         newComposerService.openDraft(email);
       } else {
@@ -49,6 +49,13 @@ angular.module('linagora.esn.unifiedinbox')
           emailId: email.id
         });
       }
+    };
+
+    this.setIsFlagged = function(event, email, state) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+
+      jmapEmailService.setFlag(email, 'isFlagged', state);
     };
 
     withJmapClient(function(client) {
@@ -152,6 +159,18 @@ angular.module('linagora.esn.unifiedinbox')
 
     this.markAsRead = function() {
       jmapEmailService.setFlag($scope.email, 'isUnread', false);
+    };
+
+    this.markAsFlagged = function() {
+      this.setIsFlagged(null, $scope.email, true);
+    };
+
+    this.unmarkAsFlagged = function() {
+      this.setIsFlagged(null, $scope.email, false);
+    };
+
+    this.setIsFlagged = function(event, email, state) {
+      jmapEmailService.setFlag(email, 'isFlagged', state);
     };
 
     withJmapClient(function(client) {

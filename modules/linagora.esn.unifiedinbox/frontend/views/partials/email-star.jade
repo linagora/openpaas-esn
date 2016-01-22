@@ -1,0 +1,3 @@
+a.clickable(desktop-hover='isHover = hover')
+  i.email-status-icon.mdi(ng-if='email.isFlagged', ng-class='{ "mdi-star-off": isHover, "mdi-star": !isHover }', desktop-click='ctrl.setIsFlagged(event, email, false)')
+  i.email-status-icon.mdi(ng-if='!email.isFlagged', ng-class='{ "mdi-star-outline": !isHover, "mdi-star": isHover }', desktop-click='ctrl.setIsFlagged(event, email, true)')

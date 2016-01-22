@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module controllers', function() {
 
-  var $stateParams, $rootScope, $location, scope, $controller, $timeout,
+  var $stateParams, $rootScope, $location, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
       jmapEmailService;
@@ -56,11 +56,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_, _Composition_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _emailSendingService_, _Composition_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
-    $timeout = _$timeout_;
     emailSendingService = _emailSendingService_;
     Composition = _Composition_;
 
@@ -187,7 +186,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       initController('listEmailsController');
-      $timeout.flush();
 
       expect(scope.mailboxRole).to.equal('expected role');
       expect(scope.mailboxName).to.equal('expected name');
@@ -200,7 +198,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       initController('listEmailsController');
-      $timeout.flush();
     });
 
     it('should call jmapClient.getMessageList with correct arguments', function(done) {
@@ -219,14 +216,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       initController('listEmailsController');
-      $timeout.flush();
     });
 
     it('should call jmapClient.getMessageList then getMessages with expected options', function(done) {
       var messageListResult = {
         getMessages: function(options) {
           expect(options).to.deep.equal({
-            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'hasAttachment', 'mailboxIds']
+            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
           });
 
           done();
@@ -238,7 +234,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       initController('listEmailsController');
-      $timeout.flush();
     });
 
     it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
@@ -274,10 +269,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
         newComposerService.openDraft = sinon.spy();
 
-        initController('listEmailsController');
-        $timeout.flush();
+        var controller = initController('listEmailsController');
 
-        scope.openEmail({email: 'object'});
+        controller.openEmail({email: 'object'});
 
         expect(newComposerService.openDraft).to.have.been.calledWith({email: 'object'});
       });
@@ -288,12 +282,43 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
         $state.go = sinon.spy();
 
-        initController('listEmailsController');
-        $timeout.flush();
+        var controller = initController('listEmailsController');
 
-        scope.openEmail({id: 'expectedId'});
+        controller.openEmail({id: 'expectedId'});
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.email', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
+      });
+
+    });
+
+    describe('The setIsFlagged function', function() {
+
+      it('should stop immediate propagation', function(done) {
+        var event = {
+          stopImmediatePropagation: done
+        };
+
+        initController('listEmailsController').setIsFlagged(event);
+      });
+
+      it('should prevent default behaviour', function(done) {
+        var event = {
+          stopImmediatePropagation: angular.noop,
+          preventDefault: done
+        };
+
+        initController('listEmailsController').setIsFlagged(event);
+      });
+
+      it('should call jmapEmailService.setFlag, passing the email and state arguments', function() {
+        var event = {
+          stopImmediatePropagation: angular.noop,
+          preventDefault: angular.noop
+        };
+
+        initController('listEmailsController').setIsFlagged(event, {}, true);
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith({}, 'isFlagged', true);
       });
 
     });
@@ -497,6 +522,36 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         initController('viewEmailController').markAsRead();
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
+      });
+
+    });
+
+    describe('the markAsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        initController('viewEmailController').markAsFlagged();
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
+      });
+
+    });
+
+    describe('the unmarkAsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        initController('viewEmailController').unmarkAsFlagged();
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
+      });
+
+    });
+
+    describe('The setIsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag, passing the email and state arguments', function() {
+        initController('viewEmailController').setIsFlagged(null, {}, true);
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith({}, 'isFlagged', true);
       });
 
     });

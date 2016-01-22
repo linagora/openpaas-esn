@@ -18,7 +18,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.offline-wrapper',
   'matchMedia',
   'esn.lodash-wrapper',
-  'esn.settings-overlay'
+  'esn.settings-overlay',
+  'esn.desktop-utils'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider
@@ -89,7 +90,7 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/list-emails/index',
-            controller: 'listEmailsController'
+            controller: 'listEmailsController as ctrl'
           }
         }
       })

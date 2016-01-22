@@ -7,10 +7,11 @@
     .card.listview.lv-bordered.lv-lg
       .lv-body
         .lv-item.media(ng-repeat="email in group.emails")
-          a(href="", ng-click="openEmail(email)")
+          div.clickable(ng-click="ctrl.openEmail(email)")
             .media-body(ng-class="::{bold: email.isUnread}")
               .lv-title.text-right.pull-right-sm
-                i.mdi.mdi-attachment(ng-if="::email.hasAttachment")
+                i.email-status-icon.mdi.mdi-attachment(ng-if='::email.hasAttachment')
+                ng-include(src="'/unifiedinbox/views/partials/email-star'")
                 span.date {{::email.date | date: group.dateFormat}}
               .avatarify
                 .lv-title {{::email.subject}}
