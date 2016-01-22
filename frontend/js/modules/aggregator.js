@@ -107,7 +107,7 @@ angular.module('esn.aggregator', [])
           }
           return $q.when({data: wrappedSource.data});
         }, function(err) {
-          $log.error(err);
+          $log.debug(err.message || err);
           return $q.when({data: []});
         });
       }));
