@@ -213,6 +213,8 @@ angular.module('linagora.esn.unifiedinbox')
         scope.enableSendButton = controller.showMobileHeader;
 
         controller.showMobileHeader();
+
+        element.find('.compose-body').autogrow({ animate: false });
       }
     };
   })

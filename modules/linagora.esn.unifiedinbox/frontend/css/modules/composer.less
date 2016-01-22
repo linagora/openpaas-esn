@@ -184,38 +184,15 @@ composer, composer-desktop {
 
 }
 
-// So that composer on mobile is full height
 composer {
-  position: fixed;
-  top: ~"calc(@{header-height} + @{sub-header-height})";
-  bottom: 0;
+
   width: 100%;
-}
 
-@media (max-width: @screen-xs-max) {
+  .compose {
 
-  composer {
-
-    .compose {
-
-      .note-editor {
-
-        .btn-sm, .btn-group > .btn {
-          font-size: 18px;
-        }
-
-        .note-toolbar {
-          .note-headline {
-            display: none;
-          }
-        }
-
-        .note-alignment > .btn-group {
-          display: none;
-        }
-
-      }
-
+    .compose-body {
+      min-height: 150px; // Minimal height for OpenPaas
+      overflow: auto;
     }
 
   }
