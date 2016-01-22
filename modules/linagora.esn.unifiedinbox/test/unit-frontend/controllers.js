@@ -382,9 +382,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }]);
         };
 
-        initController('viewEmailController');
-
-        scope.moveToTrash();
+        initController('viewEmailController').moveToTrash();
       });
 
       it('should update location to the parent mailbox when the message was successfully moved', function() {
@@ -396,9 +394,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }]);
         };
 
-        initController('viewEmailController');
-
-        scope.moveToTrash();
+        initController('viewEmailController').moveToTrash();
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: 'chosenMailbox' });
@@ -414,9 +410,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
         notificationFactory.weakSuccess = function() { done(); };
 
-        initController('viewEmailController');
-
-        scope.moveToTrash();
+        initController('viewEmailController').moveToTrash();
         scope.$digest();
       });
 
@@ -430,9 +424,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         };
         notificationFactory.weakError = function() { done(); };
 
-        initController('viewEmailController');
-
-        scope.moveToTrash();
+        initController('viewEmailController').moveToTrash();
         scope.$digest();
       });
 
@@ -449,9 +441,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }]);
         };
 
-        initController('viewEmailController');
-
-        scope.reply();
+        initController('viewEmailController').reply();
         scope.$digest();
 
         expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
@@ -470,9 +460,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }]);
         };
 
-        initController('viewEmailController');
-
-        scope.replyAll();
+        initController('viewEmailController').replyAll();
         scope.$digest();
 
         expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
@@ -491,9 +479,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }]);
         };
 
-        initController('viewEmailController');
-
-        scope.forward();
+        initController('viewEmailController').forward();
         scope.$digest();
 
         expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your forward email');

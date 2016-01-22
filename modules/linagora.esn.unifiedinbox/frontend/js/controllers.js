@@ -126,7 +126,7 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
 
-    $scope.moveToTrash = function() {
+    this.moveToTrash = function() {
       asyncAction('Move of message "' + $scope.email.subject + '" to trash', function() {
         return $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
       }).then(function() {
@@ -134,15 +134,15 @@ angular.module('linagora.esn.unifiedinbox')
       });
     };
 
-    $scope.reply = function() {
+    this.reply = function() {
       emailSendingService.createReplyEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
     };
 
-    $scope.replyAll = function() {
+    this.replyAll = function() {
       emailSendingService.createReplyAllEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
     };
 
-    $scope.forward = function() {
+    this.forward = function() {
       emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
     };
 

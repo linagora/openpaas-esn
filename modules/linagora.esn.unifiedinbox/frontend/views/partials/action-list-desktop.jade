@@ -1,17 +1,17 @@
 ul.dropdown-menu.dropdown-menu-right
   li
-    a(ng-click="reply()" title="#{__('Reply')}")
+    a(ng-click="ctrl.reply()" title="#{__('Reply')}")
       | #{__('Reply')}
       i.mdi.mdi-left.mdi-reply.m-l-10.m-r-5
   li
-    a(ng-click="replyAll()" title="#{__('Reply all')}")
+    a(ng-click="ctrl.replyAll()" title="#{__('Reply all')}")
       | #{__('Reply all')}
       i.mdi.mdi-left.mdi-reply-all.m-l-10.m-r-5
   li
-    a(ng-click="forward()" title="#{__('Forward')}")
+    a(ng-click="ctrl.forward()" title="#{__('Forward')}")
       | #{__('Forward')}  
       i.mdi.mdi-left.mdi-forward.m-l-10.m-r-5
   li
-    a(ng-click="moveToTrash()" title="#{__('Delete')}")
+    a(ng-click="ctrl.moveToTrash()" title="#{__('Delete')}")
       | #{__('Delete')}
       i.mdi.mdi-delete.m-l-10.m-r-5

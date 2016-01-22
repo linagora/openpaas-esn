@@ -2,22 +2,22 @@
   .modal-dialog
     .modal-content.action-list
       .action
-        a(ng-click='forward(); $hide()', title="#{__('Forward')}")
+        a(ng-click='ctrl.forward(); $hide()', title="#{__('Forward')}")
           i.mdi.mdi-forward
           span.label
             | #{__('Forward')}
       .action
-        a(ng-click='reply(); $hide()', title="#{__('Reply')}")
+        a(ng-click='ctrl.reply(); $hide()', title="#{__('Reply')}")
           i.mdi.mdi-reply
           span.label
             | #{__('Reply')}
       .action
-        a(ng-click='replyAll(); $hide()', title="#{__('Reply all')}")
+        a(ng-click='ctrl.replyAll(); $hide()', title="#{__('Reply all')}")
           i.mdi.mdi-reply-all
           span.label
             | #{__('Reply all')}
       .action
-        a(ng-click='moveToTrash(); $hide()', title="#{__('Delete')}")
+        a(ng-click='ctrl.moveToTrash(); $hide()', title="#{__('Delete')}")
           i.mdi.mdi-delete
           span.label
             | #{__('Delete')}
