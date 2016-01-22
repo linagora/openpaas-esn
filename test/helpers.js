@@ -387,4 +387,13 @@ module.exports = function(mixin, testEnv) {
       }, callback);
     }
   };
+
+  mixin.redis = {
+    publishConfiguration: function() {
+      var pubsub = mixin.requireBackend('core/pubsub');
+      pubsub.local.topic('redis:configurationAvailable').publish({
+        port: testEnv.serversConfig.redis.port
+      });
+    }
+  };
 };

@@ -37,13 +37,14 @@ module.exports = function(dependencies) {
 
   function createContact(vcard, options) {
     var contactId = vcard.getFirstPropertyValue('uid');
+    var jsonCard = vcard.toJSON();
     return contactModule.lib.client({ ESNToken: options.esnToken })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)
       .vcard(contactId)
-      .create(vcard.toJSON())
+      .create(jsonCard)
       .then(function() {
-        pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookHome: options.user._id, bookName: options.addressbook.id, bookId: options.user._id, vcard: vcard.toJSON(), user: options.user});
+        pubsub.topic('contacts:contact:add').publish({contactId: contactId, bookHome: options.user._id + '', bookName: options.addressbook.id, bookId: options.user._id + '', vcard: jsonCard, user: options.user});
       }, function(err) {
         logger.error('Error while inserting contact to DAV', err);
         return q.reject(buildErrorMessage(IMPORT_CONTACT_CLIENT_ERROR, err));
@@ -140,7 +141,7 @@ module.exports = function(dependencies) {
     config(OAUTH_CONFIG_KEY).get(function(err, oauth) {
 
       if (!(oauth && oauth.twitter)) {
-        return defer.reject('Can not get ouath config');
+        return defer.reject('Can not get oauth configuration for twitter importer');
       }
 
       var twitterConfig = {
