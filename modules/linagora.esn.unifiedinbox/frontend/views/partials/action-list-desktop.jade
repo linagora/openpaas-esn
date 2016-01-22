@@ -2,15 +2,19 @@ ul.dropdown-menu.dropdown-menu-right
   li
     a(ng-click="ctrl.reply()" title="#{__('Reply')}")
       | #{__('Reply')}
-      i.mdi.mdi-left.mdi-reply.m-l-10.m-r-5
+      i.mdi.mdi-reply.m-l-10.m-r-5
   li
     a(ng-click="ctrl.replyAll()" title="#{__('Reply all')}")
       | #{__('Reply all')}
-      i.mdi.mdi-left.mdi-reply-all.m-l-10.m-r-5
+      i.mdi.mdi-reply-all.m-l-10.m-r-5
   li
     a(ng-click="ctrl.forward()" title="#{__('Forward')}")
       | #{__('Forward')}  
-      i.mdi.mdi-left.mdi-forward.m-l-10.m-r-5
+      i.mdi.mdi-forward.m-l-10.m-r-5
+  li
+    a(ng-click="ctrl.markAsUnread()" title="#{__('Mark as unread')}")
+      | #{__('Mark as unread')}
+      i.mdi.mdi-eye-off.m-l-10.m-r-5
   li
     a(ng-click="ctrl.moveToTrash()" title="#{__('Delete')}")
       | #{__('Delete')}

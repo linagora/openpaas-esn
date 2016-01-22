@@ -119,7 +119,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, jmapEmailService) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
@@ -146,14 +146,17 @@ angular.module('linagora.esn.unifiedinbox')
       emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
     };
 
+    this.markAsUnread = function() {
+      jmapEmailService.setFlag($scope.email, 'isUnread', true);
+    };
+
     withJmapClient(function(client) {
       client.getMessages({
         ids: [$scope.emailId]
       }).then(function(messages) {
         $scope.email = messages[0]; // We expect a single message here
-        if ($scope.email.isUnread) {
-          $scope.email.setIsUnread(false);
-        }
+
+        jmapEmailService.setFlag($scope.email, 'isUnread', false);
       });
     });
   })
