@@ -150,6 +150,10 @@ angular.module('linagora.esn.unifiedinbox')
       jmapEmailService.setFlag($scope.email, 'isUnread', true);
     };
 
+    this.markAsRead = function() {
+      jmapEmailService.setFlag($scope.email, 'isUnread', false);
+    };
+
     withJmapClient(function(client) {
       client.getMessages({
         ids: [$scope.emailId]

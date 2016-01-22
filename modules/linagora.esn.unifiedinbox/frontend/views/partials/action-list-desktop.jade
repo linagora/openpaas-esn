@@ -11,10 +11,13 @@ ul.dropdown-menu.dropdown-menu-right
     a(ng-click="ctrl.forward()" title="#{__('Forward')}")
       | #{__('Forward')}  
       i.mdi.mdi-forward.m-l-10.m-r-5
-  li
-    a(ng-click="ctrl.markAsUnread()" title="#{__('Mark as unread')}")
+  li(ng-switch='email.isUnread')
+    a(ng-switch-when='false', ng-click="ctrl.markAsUnread()" title="#{__('Mark as unread')}")
       | #{__('Mark as unread')}
       i.mdi.mdi-eye-off.m-l-10.m-r-5
+    a(ng-switch-when='true', ng-click="ctrl.markAsRead()" title="#{__('Mark as read')}")
+      | #{__('Mark as read')}
+      i.mdi.mdi-eye.m-l-10.m-r-5
   li
     a(ng-click="ctrl.moveToTrash()" title="#{__('Delete')}")
       | #{__('Delete')}

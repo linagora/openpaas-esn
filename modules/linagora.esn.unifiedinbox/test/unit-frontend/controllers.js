@@ -12,10 +12,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
       jmapEmailService;
 
-  function qNoop() {
-    return $q.when();
-  }
-
   beforeEach(function() {
     $stateParams = {
       mailbox: 'chosenMailbox',
@@ -56,7 +52,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
-      $provide.value('jmapEmailService', jmapEmailService = { setFlag: angular.noop });
+      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
     });
   });
 
@@ -345,26 +341,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.$digest();
     });
 
-    it('should mark an unread email as read', function() {
-      var setIsUnreadSpy = sinon.spy(qNoop);
+    it('should mark an unread email using jmapEmailService.setFlag', function() {
       jmapClient.getMessages = function() {
-        return $q.when([{ isUnread: true, setIsUnread: setIsUnreadSpy }]);
+        return $q.when([{ isUnread: true }]);
       };
 
       initController('viewEmailController');
 
-      expect(setIsUnreadSpy).to.have.been.calledWith(false);
-    });
-
-    it('should not invoke setIsUnread on a read email', function() {
-      var setIsUnreadSpy = sinon.spy();
-      jmapClient.getMessages = function() {
-        return $q.when([{ isUnread: false, setIsUnread: setIsUnreadSpy }]);
-      };
-
-      initController('viewEmailController');
-
-      expect(setIsUnreadSpy).to.not.have.been.called;
+      expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
     });
 
     it('should display the view-email-subheader mobile header', function() {
@@ -500,11 +484,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     describe('the markAsUnread function', function() {
 
       it('should call jmapEmailService.setFlag', function() {
-        jmapEmailService.setFlag = sinon.spy();
-
         initController('viewEmailController').markAsUnread();
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
+      });
+
+    });
+
+    describe('the markAsRead function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        initController('viewEmailController').markAsRead();
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
       });
 
     });
