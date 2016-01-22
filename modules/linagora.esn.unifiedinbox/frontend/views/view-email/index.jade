@@ -11,6 +11,7 @@
   h2.subject.visible-md.visible-lg {{::email.subject}}
   h3.headers
     .text-right
+      ng-include(src="'/unifiedinbox/views/partials/email-star'")
       span.date {{::email.date | date:'short' }}
       i.mdi.mdi-clock
     .avatarify

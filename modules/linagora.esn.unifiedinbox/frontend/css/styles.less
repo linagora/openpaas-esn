@@ -34,6 +34,25 @@
 
 .inbox-main {
   width: 100%;
+
+  .email-status-icon {
+    font-size: 20px;
+    vertical-align: middle;
+
+    margin-right: 10px;
+
+    &.mdi-star {
+      color: @primaryColor;
+    }
+
+    &.mdi-star-outline {
+      color: lighten(@m-gray, 20%);
+    }
+
+    &.mdi-star-off {
+      color: @m-gray;
+    }
+  }
 }
 
 .inbox-main-content {

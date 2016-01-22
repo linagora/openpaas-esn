@@ -25,6 +25,15 @@
           i.mdi.mdi-eye
           span.label
             | #{__('Mark as read')}
+      .action(ng-switch='email.isFlagged')
+        a(ng-switch-when='false', ng-click='ctrl.markAsFlagged(); $hide()', title="#{__('Star')}")
+          i.mdi.mdi-star
+          span.label
+            | #{__('Star')}
+        a(ng-switch-when='true', ng-click='ctrl.unmarkAsFlagged(); $hide()', title="#{__('Unstar')}")
+          i.mdi.mdi-star-off
+          span.label
+            | #{__('Unstar')}
       .action
         a(ng-click='ctrl.moveToTrash(); $hide()', title="#{__('Delete')}")
           i.mdi.mdi-delete
