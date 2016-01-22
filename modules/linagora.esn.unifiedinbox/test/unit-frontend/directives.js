@@ -192,10 +192,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $location;
+    var draftService, $state;
 
-    beforeEach(inject(function(_$location_, _draftService_) {
-      $location = _$location_;
+    beforeEach(inject(function(_$state_, _draftService_) {
+      $state = _$state_;
       draftService = _draftService_;
     }));
 
@@ -228,12 +228,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
-      it('should change location when the composer is closed', function() {
-        $location.path = sinon.spy();
-
+      it('should change state when the composer is closed', function() {
+        $state.go = sinon.spy();
         $scope.close();
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox');
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -243,11 +242,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should change location when the composer is hidden', function() {
-        $location.path = sinon.spy();
-
+        $state.go = sinon.spy();
         $scope.hide();
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox');
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
 
     });
@@ -437,11 +435,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The inboxFab directive', function() {
 
-    var boxOverlayService, $location, newComposerService;
+    var boxOverlayService, newComposerService;
 
-    beforeEach(inject(function(_boxOverlayService_, _$location_, _newComposerService_) {
+    beforeEach(inject(function(_boxOverlayService_, _newComposerService_) {
       boxOverlayService = _boxOverlayService_;
-      $location = _$location_;
       newComposerService = _newComposerService_;
     }));
 

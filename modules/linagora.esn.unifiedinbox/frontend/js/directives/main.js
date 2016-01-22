@@ -47,7 +47,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFab', function($timeout, $location, boxOverlayService) {
+  .directive('inboxFab', function($timeout, boxOverlayService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/inbox-fab.html',
@@ -175,14 +175,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($location, $rootScope) {
+  .directive('composer', function($state) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
         function returnToMainLocation() {
-          $location.path('/unifiedinbox');
+          $state.go('unifiedinbox');
         }
 
         function quit(action) {
