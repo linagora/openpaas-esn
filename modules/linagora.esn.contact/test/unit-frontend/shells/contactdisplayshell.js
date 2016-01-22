@@ -28,7 +28,7 @@ describe('ContactDisplayShell', function() {
 
     expect(displayShell.getDefaultAvatar()).to.equal('/contact/images/default_avatar.png');
     expect(displayShell.getDisplayName()).to.equal(displayName);
-    expect(displayShell.isWritable()).to.equal(true);
+    expect(displayShell.isWritable()).to.equal(false);
     expect(displayShell.getOverlayIcon()).to.deep.equal('ng-hide');
     expect(displayShell.getInformationsToDisplay()).to.deep.equal([
       {
@@ -46,70 +46,77 @@ describe('ContactDisplayShell', function() {
     expect(displayShell.getDropDownMenu()).to.equal('default-menu-items');
   }
 
-  it('should provide contact default contact informations for the template to display', function() {
-    injectServices();
-    var shell = {
-      displayName: 'Contact OpenPaas',
-      emails: [
-        {
-          type: 'work',
-          value: 'perso@linagora.com'
-        }
-      ],
-      tel: [
-        {
-          type: 'work',
-          value: '01.02.03.04.05'
-        }
-      ]
-    };
+  describe('The constructor', function() {
+    beforeEach(injectServices);
 
-    var displayShell = new ContactDisplayShell(shell);
+    it('should set the addressbook when defined', function() {
+      var ab = {foo: 'bar'};
+      expect(new ContactDisplayShell({}, ab).addressbook).to.deep.equal(ab);
+    });
 
-    checkContactDisplayShell(displayShell, shell);
-  });
+    it('should provide contact default contact informations for the template to display', function() {
+      var shell = {
+        displayName: 'Contact OpenPaas',
+        emails: [
+          {
+            type: 'work',
+            value: 'perso@linagora.com'
+          }
+        ],
+        tel: [
+          {
+            type: 'work',
+            value: '01.02.03.04.05'
+          }
+        ]
+      };
 
-  it('should provide email and telephone number from work', function() {
-    injectServices();
-    var shell = {
-      displayName: 'Contact OpenPaas',
-      emails: [
+      var displayShell = new ContactDisplayShell(shell);
+
+      checkContactDisplayShell(displayShell, shell);
+    });
+
+    it('should provide email and telephone number from work', function() {
+      var shell = {
+        displayName: 'Contact OpenPaas',
+        emails: [
+          {
+            type: 'home',
+            value: 'perso@home.com'
+          },
+          {
+            type: 'work',
+            value: 'perso@linagora.com'
+          }
+        ],
+        tel: [
+          {
+            type: 'home',
+            value: '06.07.08.09.10'
+          },
+          {
+            type: 'work',
+            value: '01.02.03.04.05'
+          }
+        ]
+      };
+
+      var displayShell = new ContactDisplayShell(shell);
+
+      expect(displayShell.getInformationsToDisplay()).to.deep.equal([
         {
-          type: 'home',
-          value: 'perso@home.com'
+          objectType: 'email',
+          id: 'perso@linagora.com',
+          icon: 'mdi-email-outline',
+          action: 'mailto:' + 'perso@linagora.com'
         },
         {
-          type: 'work',
-          value: 'perso@linagora.com'
-        }
-      ],
-      tel: [
-        {
-          type: 'home',
-          value: '06.07.08.09.10'
-        },
-        {
-          type: 'work',
-          value: '01.02.03.04.05'
-        }
-      ]
-    };
-
-    var displayShell = new ContactDisplayShell(shell);
-
-    expect(displayShell.getInformationsToDisplay()).to.deep.equal([
-      {
-        objectType: 'email',
-        id: 'perso@linagora.com',
-        icon: 'mdi-email-outline',
-        action: 'mailto:' + 'perso@linagora.com'
-      },
-      {
-        objectType: 'phone',
-        id: '01.02.03.04.05',
-        icon: 'mdi-phone',
-        action: 'tel:' + '01.02.03.04.05'
-      }]);
+          objectType: 'phone',
+          id: '01.02.03.04.05',
+          icon: 'mdi-phone',
+          action: 'tel:' + '01.02.03.04.05'
+        }]);
+    });
   });
 
   describe('The getAvatar fn', function() {
@@ -124,7 +131,9 @@ describe('ContactDisplayShell', function() {
     });
 
     it('should return approximate text avatar based on input size', function(done) {
-      ContactsHelper.isTextAvatar = function() { return true; };
+      ContactsHelper.isTextAvatar = function() {
+        return true;
+      };
 
       var shell = {
         displayName: 'Contact OpenPaas',
@@ -145,7 +154,9 @@ describe('ContactDisplayShell', function() {
     });
 
     it('should return original avatar if it is not text avatar', function(done) {
-      ContactsHelper.isTextAvatar = function() { return false; };
+      ContactsHelper.isTextAvatar = function() {
+        return false;
+      };
 
       var shell = {
         displayName: 'Contact OpenPaas',
@@ -165,7 +176,9 @@ describe('ContactDisplayShell', function() {
 
     it('should return default avatar if contact has no avatar', function() {
       var CONTACT_DEFAULT_AVATAR = 'http://linagora.com/user/default_avatar.png';
-      ContactsHelper.isTextAvatar = function() { return false; };
+      ContactsHelper.isTextAvatar = function() {
+        return false;
+      };
       angular.mock.module(function($provide) {
         $provide.constant('CONTACT_DEFAULT_AVATAR', CONTACT_DEFAULT_AVATAR);
       });
@@ -180,5 +193,34 @@ describe('ContactDisplayShell', function() {
       expect(displayShell.getAvatar(256)).to.equal(CONTACT_DEFAULT_AVATAR);
     });
 
+  });
+
+  describe('The isWritable fn', function() {
+    var ContactsHelper = {};
+    var urlUtils = {};
+
+    beforeEach(function() {
+      angular.mock.module(function($provide) {
+        $provide.value('ContactsHelper', ContactsHelper);
+        $provide.value('urlUtils', urlUtils);
+      });
+    });
+
+    beforeEach(injectServices);
+
+    it('should return false when addressbook is not defined', function() {
+      var displayShell = new ContactDisplayShell({});
+      expect(displayShell.isWritable()).to.be.false;
+    });
+
+    it('should return false when addressbook is not editable', function() {
+      var displayShell = new ContactDisplayShell({}, {editable: false});
+      expect(displayShell.isWritable()).to.be.false;
+    });
+
+    it('should return false when addressbook is editable', function() {
+      var displayShell = new ContactDisplayShell({}, {editable: true});
+      expect(displayShell.isWritable()).to.be.true;
+    });
   });
 });

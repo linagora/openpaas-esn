@@ -7,9 +7,9 @@
         .card.contacts-card.fadeIn200ms
           .listview.lv-bordered.lv-lg
             .lv-body
-              contact-list-item.lv-item.p-0(contact='contact', book-id="bookId", addressbook='contact.addressbook', ng-repeat="contact in contacts track by contact.id")
+              contact-list-item.lv-item.p-0(contact='contact', ng-repeat="contact in contacts track by contact.id")
     div(ng-switch-when='search' ng-if='searchResult.data && searchResult.data.length' on-finish-render)
       .card.contacts-card.fadeIn200ms
         .listview.lv-bordered.lv-lg
           .lv-body
-            contact-list-item.lv-item.p-0(contact='contact', book-id="bookId", addressbook='contact.addressbook', ng-repeat="contact in searchResult.data track by contact.id" ng-hide="contact.deleted")
+            contact-list-item.lv-item.p-0(contact='contact', ng-repeat="contact in searchResult.data track by contact.id" ng-hide="contact.deleted")

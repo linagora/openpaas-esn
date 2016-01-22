@@ -300,7 +300,16 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactDisplay directive', function() {
-    var $compile, $rootScope, element, $scope, CONTACT_AVATAR_SIZE;
+    var $compile, $rootScope, element, $scope, CONTACT_AVATAR_SIZE, ContactShellDisplayBuilder;
+
+    beforeEach(function() {
+      ContactShellDisplayBuilder = {
+        build: function() {}
+      };
+      module(function($provide) {
+        $provide.value('ContactShellDisplayBuilder', ContactShellDisplayBuilder);
+      });
+    });
 
     beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
@@ -314,15 +323,30 @@ describe('The contact Angular module directives', function() {
         social: [],
         urls: []
       };
-      element = $compile('<contact-display contact="contact"></contact-display>')($scope);
-      $scope.$digest();
     }));
 
+    var initDirective = function() {
+      element = $compile('<contact-display contact="contact"></contact-display>')($scope);
+      $scope.$digest();
+    };
+
     it('should have bigger size for contact avatar', function() {
+      initDirective();
       expect(element.isolateScope().avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
     });
 
+    it('should set the displayShell in the scope', function() {
+      var display = {foo: 'bar'};
+      ContactShellDisplayBuilder.build = function() {
+        return display;
+      };
+      initDirective();
+      expect(element.isolateScope().displayShell).to.equal(display);
+    });
+
     describe('The hasContactInformation fn', function() {
+
+      beforeEach(initDirective);
 
       it('should return falsy value if there is no contact contact informations', function() {
         var scope = element.isolateScope();
@@ -352,6 +376,8 @@ describe('The contact Angular module directives', function() {
 
     describe('The hasProfileInformation fn', function() {
 
+      beforeEach(initDirective);
+
       it('should return falsy value if there is no contact profile informations', function() {
         var scope = element.isolateScope();
         expect(scope.hasProfileInformation()).to.not.be.ok;
@@ -372,9 +398,7 @@ describe('The contact Angular module directives', function() {
         scope.formattedBirthday = 'abcd';
         expect(scope.hasProfileInformation()).to.be.ok;
       });
-
     });
-
   });
 
   describe('The contactEditionForm directive', function() {
@@ -518,6 +542,11 @@ describe('The contact Angular module directives', function() {
 
     it('should have list size for contact avatar', function() {
       expect(initDirective().isolateScope().avatarSize).to.equal(CONTACT_AVATAR_SIZE.list);
+    });
+
+    it('should set the displayShell in scope', function() {
+      var element = initDirective();
+      expect(element.isolateScope().displayShell).to.be.defined;
     });
 
     it('should display phone', function() {

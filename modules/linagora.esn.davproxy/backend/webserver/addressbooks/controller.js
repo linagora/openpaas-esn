@@ -218,7 +218,9 @@ module.exports = function(dependencies) {
             .then(function(newVcard) {
               json._embedded['dav:item'][index] = {
                 _links: {
-                  self: getContactUrl(req, result.bookId, result.bookName, result.contactId)
+                  self: {
+                    href: getContactUrl(req, result.bookId, result.bookName, result.contactId)
+                  }
                 },
                 data: newVcard
               };

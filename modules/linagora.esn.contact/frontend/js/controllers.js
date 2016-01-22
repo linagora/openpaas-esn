@@ -57,7 +57,7 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, sharedContactDataService, DisplayShellProvider, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, deleteContact, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService, ContactAPIClient, ContactLocationHelper) {
+  .controller('showContactController', function($log, $scope, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, deleteContact, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, headerService, ContactAPIClient, ContactLocationHelper, ContactShellDisplayBuilder) {
     $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
@@ -81,7 +81,7 @@ angular.module('linagora.esn.contact')
 
     $scope.fillContactData = function(contact) {
       ContactsHelper.fillScopeContactData($scope, contact);
-      $scope.displayShell  = DisplayShellProvider.convertToDisplayShell(contact);
+      $scope.displayShell = ContactShellDisplayBuilder.build(contact);
     };
 
     $scope.getAddress = function(type) {
@@ -163,7 +163,7 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, shellToVCARD, ContactLocationHelper) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, shellToVCARD, ContactLocationHelper, ContactShellDisplayBuilder) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
@@ -237,7 +237,7 @@ angular.module('linagora.esn.contact')
                     data.success();
                     $rootScope.$broadcast(
                       CONTACT_EVENTS.CANCEL_UPDATE,
-                      new ContactShell($scope.contact.vcard, $scope.contact.etag)
+                      new ContactShell($scope.contact.vcard, $scope.contact.etag, $scope.contact.href)
                     );
                   }, function(err) {
                     data.error('Cannot cancel contact update');
@@ -266,7 +266,6 @@ angular.module('linagora.esn.contact')
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
-    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
@@ -548,7 +547,11 @@ angular.module('linagora.esn.contact')
 
     $scope.displayContact = function() {
       // use url instead of path to remove search and hash from URL
-      ContactLocationHelper.contact.show($scope.addressbook.bookId, $scope.addressbook.bookName, $scope.contact.id);
+      ContactLocationHelper.contact.show($scope.contact.addressbook.bookId, $scope.contact.addressbook.bookName, $scope.contact.id);
+    };
+
+    $scope.editContact = function() {
+      ContactLocationHelper.contact.edit($scope.contact.addressbook.bookId, $scope.contact.addressbook.bookName, $scope.contact.id);
     };
 
     $scope.actionClick = function(event, action) {
@@ -560,6 +563,6 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.deleteContact = function() {
-      deleteContact($scope.addressbook.bookId, $scope.addressbook.bookName, $scope.contact);
+      deleteContact($scope.contact.addressbook.bookId, $scope.contact.addressbook.bookName, $scope.contact);
     };
   });

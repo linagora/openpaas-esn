@@ -9,6 +9,7 @@ angular.module('linagora.esn.contact')
                             ContactShell,
                             AddressBookShell,
                             ContactsHelper,
+                            ContactShellHelper,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
                             CONTACT_CONTENT_TYPE_HEADER,
@@ -22,22 +23,41 @@ angular.module('linagora.esn.contact')
                             contactUpdateDataService) {
     var ADDRESSBOOK_PATH = '/addressbooks';
 
+    function buildContactShell(vcarddata) {
+      var contact = new ContactShell(new ICAL.Component(vcarddata.data), null, vcarddata._links.self.href);
+      if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
+        ContactsHelper.forceReloadDefaultAvatar(contact);
+      }
+      return contact;
+    }
+
+    function populate(shell) {
+      var metadata = ContactShellHelper.getMetadata(shell);
+      if (!metadata || !metadata.bookId || !metadata.bookName) {
+        return $q.when(shell);
+      }
+
+      return addressbookHome(metadata.bookId).addressbook(metadata.bookName).get().then(function(ab) {
+        shell.addressbook = ab;
+        return shell;
+      }, function(err) {
+        return shell;
+      });
+    }
+
     /**
      * Convert HTTP response to an array of ContactShell
      * @param  {Response} response Response from $http
-     * @return {Array}          Array of ContactShell
+     * @return {Promise}          resolves with an Array of ContactShell
      */
     function responseAsContactShell(response) {
       if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
-        return response.data._embedded['dav:item'].map(function(vcarddata) {
-          var contact =  new ContactShell(new ICAL.Component(vcarddata.data));
-          if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
-            ContactsHelper.forceReloadDefaultAvatar(contact);
-          }
-          return contact;
-        });
+        return $q.all(response.data._embedded['dav:item'].map(function(vcarddata) {
+          return populate(buildContactShell(vcarddata));
+        }));
       }
-      return [];
+
+      return $q.when([]);
     }
 
     /**
@@ -113,12 +133,14 @@ angular.module('linagora.esn.contact')
     function getCard(bookId, bookName, cardId) {
       var headers = { Accept: CONTACT_ACCEPT_HEADER };
 
-      return davClient('GET', getVCardUrl(bookId, bookName, cardId), headers)
+      var href = getVCardUrl(bookId, bookName, cardId);
+
+      return davClient('GET', href, headers)
         .then(function(response) {
           var contact = new ContactShell(
-            new ICAL.Component(response.data), response.headers('ETag'));
+            new ICAL.Component(response.data), response.headers('ETag'), href);
           ContactsHelper.forceReloadDefaultAvatar(contact);
-          return contact;
+          return populate(contact);
         });
     }
 
@@ -155,15 +177,17 @@ angular.module('linagora.esn.contact')
 
       return davClient('GET', getBookUrl(bookId, bookName), null, null, query)
         .then(function(response) {
-          var result = {
-            data: responseAsContactShell(response),
-            current_page: currentPage,
-            last_page: !response.data._links.next
-          };
-          if (!response.last_page) {
-            result.next_page = currentPage + 1;
-          }
-          return result;
+          return responseAsContactShell(response).then(function(shells) {
+            var result = {
+              data: shells,
+              current_page: currentPage,
+              last_page: !response.data._links.next
+            };
+            if (!response.last_page) {
+              result.next_page = currentPage + 1;
+            }
+            return result;
+          });
         });
     }
 
@@ -197,11 +221,13 @@ angular.module('linagora.esn.contact')
           null,
           params
         ).then(function(response) {
-          return {
-            current_page: response.data._current_page,
-            total_hits: response.data._total_hits,
-            data: responseAsContactShell(response)
-          };
+          return responseAsContactShell(response).then(function(shells) {
+            return {
+              current_page: response.data._current_page,
+              total_hits: response.data._total_hits,
+              data: shells
+            };
+          });
         });
     }
 

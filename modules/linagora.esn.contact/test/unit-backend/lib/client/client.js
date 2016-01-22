@@ -414,7 +414,6 @@ describe('The contact client APIs', function() {
             }));
 
             getAddressbook().vcard().search({}).then(function(data) {
-              console.log(data.results);
               expect(data.results).to.eql([
                 { contactId: 1, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {counter: 1}},
                 { contactId: 2, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {counter: 2}},

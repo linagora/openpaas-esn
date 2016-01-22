@@ -27,6 +27,9 @@ describe('The contact Angular module contactapis', function() {
       this.contactUpdateDataService = {
         contactUpdatedIds: []
       };
+      this.ContactShellHelper = {
+        getMetadata: function() {}
+      };
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
       contactWithChangedETag = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last', etag: 'changed-etag' };
@@ -41,6 +44,7 @@ describe('The contact Angular module contactapis', function() {
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
         $provide.value('contactUpdateDataService', self.contactUpdateDataService);
+        $provide.value('ContactShellHelper', self.ContactShellHelper);
       });
     });
 
@@ -167,31 +171,32 @@ describe('The contact Angular module contactapis', function() {
 
           describe('The get fn', function() {
 
+            var defaultResponse = ['vcard', [
+              ['version', {}, 'text', '4.0'],
+              ['uid', {}, 'text', 'myuid'],
+              ['fn', {}, 'text', 'first last'],
+              ['n', {}, 'text', ['last', 'first']],
+              ['email', {type: 'Work'}, 'text', 'mailto:foo@example.com'],
+              ['tel', {type: 'Work'}, 'uri', 'tel:123123'],
+              ['adr', {type: 'Home'}, 'text', ['', '', 's', 'c', '', 'z', 'co']],
+              ['org', {}, 'text', 'org'],
+              ['url', {}, 'uri', 'http://linagora.com'],
+              ['role', {}, 'text', 'role'],
+              ['socialprofile', {type: 'Twitter'}, 'text', '@AwesomePaaS'],
+              ['categories', {}, 'text', 'starred', 'asdf'],
+              ['bday', {}, 'date', '2015-01-01'],
+              ['nickname', {}, 'text', 'nick'],
+              ['note', {}, 'text', 'notes'],
+              ['photo', {}, 'text', 'data:image/png;base64,iVBOR=']
+            ], []];
+
             it('should return a contact', function(done) {
               var bookId = '123';
               var bookName = 'bookName';
               var cardId = '456';
               var expectPath = this.getVCardUrl(bookId, bookName, cardId);
               this.$httpBackend.expectGET(expectPath).respond(
-                ['vcard', [
-                  ['version', {}, 'text', '4.0'],
-                  ['uid', {}, 'text', 'myuid'],
-                  ['fn', {}, 'text', 'first last'],
-                  ['n', {}, 'text', ['last', 'first']],
-                  ['email', {type: 'Work'}, 'text', 'mailto:foo@example.com'],
-                  ['tel', {type: 'Work'}, 'uri', 'tel:123123'],
-                  ['adr', {type: 'Home'}, 'text', ['', '', 's', 'c', '', 'z', 'co']],
-                  ['org', {}, 'text', 'org'],
-                  ['url', {}, 'uri', 'http://linagora.com'],
-                  ['role', {}, 'text', 'role'],
-                  ['socialprofile', {type: 'Twitter'}, 'text', '@AwesomePaaS'],
-                  ['categories', {}, 'text', 'starred', 'asdf'],
-                  ['bday', {}, 'date', '2015-01-01'],
-                  ['nickname', {}, 'text', 'nick'],
-                  ['note', {}, 'text', 'notes'],
-                  ['photo', {}, 'text', 'data:image/png;base64,iVBOR=']
-                ], []],
-                // headers:
+                defaultResponse,
                 {ETag: 'testing-tag'}
               );
 
@@ -224,6 +229,45 @@ describe('The contact Angular module contactapis', function() {
                   expect(contact.nickname).to.equal('nick');
                   expect(contact.notes).to.equal('notes');
                   expect(contact.photo).to.equal('data:image/png;base64,iVBOR=');
+                }.bind(this)).finally(done);
+
+              this.$rootScope.$apply();
+              this.$httpBackend.flush();
+            });
+
+            it('should return a contact and fill the addressbook', function(done) {
+              var bookId = '123';
+              var bookName = 'bookName';
+              var cardId = '456';
+
+              this.ContactShellHelper.getMetadata = function() {
+                return {bookId: bookId, bookName: bookName, cardId: cardId};
+              };
+
+              var expectPath = this.getVCardUrl(bookId, bookName, cardId);
+              this.$httpBackend.expectGET(expectPath).respond(
+                defaultResponse,
+                {ETag: 'testing-tag'}
+              );
+
+              this.$httpBackend.expect('PROPFIND', this.getBookUrl(bookId, bookName)).respond({
+                _links: {
+                  self: {
+                    href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/contacts.json'
+                  }
+                },
+                'dav:name': 'Default Addressbook',
+                'carddav:description': 'Default Addressbook',
+                'dav:acl': ['dav:read', 'dav:write']
+              });
+
+              this.ContactAPIClient
+                .addressbookHome(bookId)
+                .addressbook(bookName)
+                .vcard(cardId)
+                .get()
+                .then(function(contact) {
+                  expect(contact.addressbook).to.exist;
                 }.bind(this)).finally(done);
 
               this.$rootScope.$apply();
@@ -375,7 +419,6 @@ describe('The contact Angular module contactapis', function() {
                     id: uid,
                     firstName: 'Willis',
                     lastName: 'Burce',
-                    etag: undefined,
                     vcard: []
                   });
                 }.bind(this)).finally(done);
