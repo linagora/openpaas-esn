@@ -8,7 +8,7 @@ var VCARD_JSON = 'application/vcard+json';
 
 var VALID_HTTP_STATUS = {
   GET: [200],
-  PUT: [200, 201],
+  PUT: [200, 201, 204],
   POST: [200, 201],
   DELETE: [204],
   PROPFIND: [200]
