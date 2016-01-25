@@ -13,7 +13,7 @@ var DEFAULT_LIMIT = 20;
 
 module.exports = function(dependencies) {
 
-  var pubsub = dependencies('pubsub').local;
+  var pubsub = dependencies('pubsub').global;
   var logger = dependencies('logger');
   var elasticsearch = dependencies('elasticsearch');
 

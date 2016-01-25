@@ -6,7 +6,7 @@ var PATH = 'addressbooks';
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub').local;
+  var pubsub = dependencies('pubsub').global;
   var contactModule = dependencies('contact');
   var proxy = require('../proxy')(dependencies)(PATH);
   var avatarHelper = require('./avatarHelper')(dependencies);

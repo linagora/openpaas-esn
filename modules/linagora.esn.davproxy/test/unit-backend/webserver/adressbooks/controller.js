@@ -28,7 +28,7 @@ describe('The addressbooks module', function() {
         warn: function() {}
       },
       pubsub: {
-        local: {
+        global: {
           topic: function() {
             return {
               publish: function() {}
@@ -541,7 +541,7 @@ describe('The addressbooks module', function() {
       req.body = { fn: 'abc' };
       req.params.contactId = req.params.cardId;
 
-      dependencies.pubsub.local.topic = function(name) {
+      dependencies.pubsub.global.topic = function(name) {
         expect(name).to.equal('contacts:contact:update');
         return {
           publish: function(data) {
@@ -584,7 +584,7 @@ describe('The addressbooks module', function() {
       };
       var called = false;
 
-      dependencies.pubsub.local.topic = function(name) {
+      dependencies.pubsub.global.topic = function(name) {
         expect(name).to.equal('contacts:contact:add');
         return {
           publish: function(data) {
@@ -714,7 +714,7 @@ describe('The addressbooks module', function() {
 
     it('should publish a "contacts:contact:delete" event if request is a delete and is successful', function(done) {
       var called = false;
-      dependencies.pubsub.local.topic = function(name) {
+      dependencies.pubsub.global.topic = function(name) {
         expect(name).to.equal('contacts:contact:delete');
         return {
           publish: function(data) {

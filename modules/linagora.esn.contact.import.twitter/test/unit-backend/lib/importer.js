@@ -190,7 +190,7 @@ describe('The twitter contact importer', function() {
         };
       };
       getImporter().importContact(options).then(null, function(err) {
-          expect(err).to.deep.equal('Can not get ouath config');
+          expect(err).to.deep.equal('Can not get oauth configuration for twitter importer');
           done();
         });
     });

@@ -7,7 +7,7 @@ describe('The contacts search Module', function() {
 
   var deps = {
     pubsub: {
-      local: {
+      global: {
       }
     },
     elasticsearch: {},
@@ -28,7 +28,7 @@ describe('The contacts search Module', function() {
     it('should subscribe to contacts events', function() {
 
       var count = 0;
-      deps.pubsub.local.topic = function() {
+      deps.pubsub.global.topic = function() {
         count++;
         return {
           subscribe: function() {}

@@ -187,7 +187,7 @@ describe('The addressbooks dav proxy', function() {
     describe('The search contacts module', function() {
 
       describe('Single Properties search', function() {
-        var pubsubLocal;
+        var pubsubGlobal;
         var contact;
 
         var search = function(term, expectedSize, done) {
@@ -195,7 +195,7 @@ describe('The addressbooks dav proxy', function() {
             done = expectedSize;
             expectedSize = 1;
           }
-          pubsubLocal.topic('contacts:contact:add').publish(contact);
+          pubsubGlobal.topic('contacts:contact:add').publish(contact);
           var self = this;
           this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
             if (err) {
@@ -219,7 +219,7 @@ describe('The addressbooks dav proxy', function() {
         };
 
         beforeEach(function(done) {
-          pubsubLocal = this.helpers.requireBackend('core/pubsub').local;
+          pubsubGlobal = this.helpers.requireBackend('core/pubsub').global;
           contact = {
             user: user,
             contactId: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9',
@@ -241,6 +241,7 @@ describe('The addressbooks dav proxy', function() {
             ]],
             id: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9'
           };
+          this.helpers.redis.publishConfiguration();
           this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
         });
 
