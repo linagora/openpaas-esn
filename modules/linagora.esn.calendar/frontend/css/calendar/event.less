@@ -1,8 +1,12 @@
 @event-border-color: rgba(255,255,255,0.5);
 @event-fade: 0.7;
 
-.event-accepted {
+.fc-event {
+  min-height: 1.5em;
   border: solid 1px @event-border-color;
+}
+
+.event-accepted {
 }
 
 .event-needs-action {
@@ -24,13 +28,8 @@
 }
 
 .event-declined {
-  border: solid 1px @event-border-color;
   opacity: @event-fade;
   .fc-title {
     text-decoration: line-through;
   }
-}
-
-.fc-event {
-  min-height: 1.5em;
 }
