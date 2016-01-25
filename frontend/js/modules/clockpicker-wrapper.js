@@ -50,7 +50,7 @@ angular.module('esn.clockpicker', ['esn.core', 'angularMoment'])
     donetext: 'ok'
   })
 
-  .directive('clockpickerWrapper', function(clockpickerService, clockpickerDefaultOptions, moment, $timeout) {
+  .directive('clockpickerWrapper', function(clockpickerService, clockpickerDefaultOptions, moment, $timeout, detectUtils) {
 
     function link(scope, element, attr, ngModel) {
 
@@ -59,6 +59,11 @@ angular.module('esn.clockpicker', ['esn.core', 'angularMoment'])
       var formatTime = options.twelvehour ? 'hh:mm A' : 'HH:mm';
 
       element.clockpicker(options);
+
+      if (detectUtils.isMobile() && !element.is('[readonly]')) {
+        element.attr('readonly', 'readonly');
+        element.addClass('ignore-readonly');
+      }
 
       function getModelValue() {
         return ngModel.$modelValue ? ngModel.$modelValue.clone() : moment();
