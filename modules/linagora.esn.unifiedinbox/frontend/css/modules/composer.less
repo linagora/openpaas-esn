@@ -191,8 +191,27 @@ composer {
   .compose {
 
     .compose-body {
-      min-height: 150px; // Minimal height for OpenPaas
+      // This will make the textarea wide enough to overflow the screen,
+      // but be short enough so that when it is focused, the automatic scroll when the
+      // virtual keyboard appears does not hide the caret.
+      min-height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
       overflow: auto;
+    }
+
+    .edit-quoted-mail {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+
+      padding: 5px 10px;
+
+      border-top-left-radius: 5px;
+      background-color: @primaryColor;
+      opacity: 0.8;
+
+      a {
+        color: @textPrimaryColor;
+      }
     }
 
   }

@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      deviceDetector, searchService;
+      isMobile, searchService;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -22,6 +22,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   beforeEach(module(function($provide) {
+    isMobile = false;
+
     $provide.constant('MAILBOX_ROLE_ICONS_MAPPING', {
       testrole: 'testclass',
       default: 'defaultclass'
@@ -41,10 +43,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return iFrameResize;
       }
     });
-    $provide.value('elementScrollService', elementScrollService = {});
+    $provide.value('elementScrollService', elementScrollService = {
+      autoScrollDown: sinon.spy(),
+      scrollDownToElement: sinon.spy()
+    });
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
-    $provide.value('deviceDetector', deviceDetector = { isMobile: function() { return false;} });
+    $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
   }));
 
@@ -296,20 +301,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(headerService.subHeader.setInjection).to.have.been.called;
       });
 
-      it('should be shown when the fullscreen edit form is closed', function() {
-        $rootScope.$broadcast('fullscreenEditForm:close');
-
-        expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
-      });
-
       it('should be hidden when location has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
-
-        expect(headerService.subHeader.resetInjections).to.have.been.called;
-      });
-
-      it('should be hidden when the fullscreen edit form is shown', function() {
-        $rootScope.$broadcast('fullscreenEditForm:show');
 
         expect(headerService.subHeader.resetInjections).to.have.been.called;
       });
@@ -325,6 +318,100 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
         expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
       });
+    });
+
+    describe('The editQuotedMail function', function() {
+
+      function expectFocusAt(position) {
+        var textarea = element.find('.compose-body').get(0);
+
+        expect(document.activeElement).to.equal(textarea);
+        expect(textarea.selectionStart).to.equal(position);
+        expect(textarea.selectionEnd).to.equal(position);
+      }
+
+      beforeEach(inject(function($templateCache) {
+        isMobile = true;
+
+        $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '{{ email.textBody }} Quote {{ email.quoted.textBody }}');
+      }));
+
+      it('should quote the original message, and set it as the textBody', function(done) {
+        compileDirective('<composer />');
+        $scope.email = {
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail().then(function() {
+          expect($scope.email.isQuoting).to.equal(true);
+          expect($scope.email.textBody).to.equal(' Quote Hello');
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should scroll the viewport down to the email body (.compose-body)', function() {
+        compileDirective('<composer />');
+        $scope.email = {
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expect(elementScrollService.scrollDownToElement).to.have.been.calledWith(sinon.match({
+          selector: '.compose-body'
+        }));
+      });
+
+      it('should focus the email body, at the very beginning if there was no text already', function() {
+        compileDirective('<composer />');
+        $scope.email = {
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expectFocusAt(0);
+      });
+
+      it('should focus the email body, after an already typed text if present', function() {
+        compileDirective('<composer />');
+        $scope.email = {
+          textBody: 'I am 18 chars long',
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expectFocusAt(18);
+      });
+
+      it('should trigger a "keyup" event on the body, to trigger autogrow', function(done) {
+        compileDirective('<composer />');
+        element.find('.compose-body').on('keyup', function() {
+          done();
+        });
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+      });
+
     });
 
   });
@@ -524,12 +611,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   describe('The recipientsAutoComplete directive', function() {
-    var autoScrollDownSpy, unifiedinboxTagsAddedSpy;
+    var unifiedinboxTagsAddedSpy;
 
     beforeEach(function() {
-      autoScrollDownSpy = sinon.spy();
       unifiedinboxTagsAddedSpy = sinon.spy();
-      elementScrollService.autoScrollDown = autoScrollDownSpy;
     });
 
     it('should trigger an error if no template is given', function() {
@@ -568,7 +653,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       scope.onTagAdded(recipient);
 
-      expect(autoScrollDownSpy).to.have.been.calledWith();
+      expect(elementScrollService.autoScrollDown).to.have.been.calledWith();
     });
 
     it('should leverage the recipient object to create a corresponding jmap json object', function() {
@@ -626,7 +711,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should load a textarea when isMobile()=true', function() {
-      deviceDetector.isMobile = function() { return true; };
+      isMobile = true;
 
       var element = compileDirective('<email-body-editor />');
 

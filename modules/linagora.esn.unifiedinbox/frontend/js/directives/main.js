@@ -175,7 +175,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($state) {
+  .directive('composer', function($state, $timeout, elementScrollService, emailBodyService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -206,14 +206,30 @@ angular.module('linagora.esn.unifiedinbox')
           returnToMainLocation();
         };
 
-        scope.$on('fullscreenEditForm:show', controller.hideMobileHeader);
-        scope.$on('fullscreenEditForm:close', controller.showMobileHeader);
-
         scope.disableSendButton = controller.hideMobileHeader;
         scope.enableSendButton = controller.showMobileHeader;
 
-        controller.showMobileHeader();
+        scope.editQuotedMail = function() {
+          var emailBody = element.find('.compose-body'),
+              typedTextLength = (scope.email.textBody || '').length;
 
+          return emailBodyService.quote(scope.email, scope.email.quoteTemplate)
+            .then(function(body) {
+              scope.email.isQuoting = true;
+              scope.email.textBody = body;
+            })
+            .then(function() {
+              $timeout(function() {
+                emailBody
+                  .focusBegin(typedTextLength)
+                  .trigger('keyup'); // Dirty hack to trigger autogrow on the textarea
+
+                elementScrollService.scrollDownToElement(emailBody);
+              }, 0);
+            });
+        };
+
+        controller.showMobileHeader();
         element.find('.compose-body').autogrow({ animate: false });
       }
     };

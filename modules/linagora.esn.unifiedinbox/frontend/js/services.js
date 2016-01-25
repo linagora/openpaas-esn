@@ -291,27 +291,37 @@ angular.module('linagora.esn.unifiedinbox')
       };
     }
 
-    function _enrichWithBody(email, body) {
+    function _enrichWithQuote(email, body) {
       if (emailBodyService.supportsRichtext()) {
         email.htmlBody = body;
       } else {
         email.textBody = body;
       }
 
+      email.isQuoting = true;
+
       return email;
     }
 
     function createQuotedEmail(subjectPrefix, recipients, templateName,  email, sender) {
-      return emailBodyService.quote(email, templateName).then(function(body) {
-        var newRecipients = recipients ? recipients(email, sender) : {};
+      var newRecipients = recipients ? recipients(email, sender) : {},
+          newEmail = {
+            from: getEmailAddress(sender),
+            to: newRecipients.to || [],
+            cc: newRecipients.cc || [],
+            bcc: newRecipients.bcc || [],
+            subject: prefixSubject(email.subject, subjectPrefix),
+            quoted: email,
+            isQuoting: false,
+            quoteTemplate: templateName
+          };
 
-        return _enrichWithBody({
-          from: getEmailAddress(sender),
-          to: newRecipients.to || [],
-          cc: newRecipients.cc || [],
-          bcc: newRecipients.bcc || [],
-          subject: prefixSubject(email.subject, subjectPrefix)
-        }, body);
+      if (!emailBodyService.supportsRichtext()) {
+        return $q.when(newEmail);
+      }
+
+      return emailBodyService.quote(email, templateName).then(function(body) {
+        return _enrichWithQuote(newEmail, body);
       });
     }
 

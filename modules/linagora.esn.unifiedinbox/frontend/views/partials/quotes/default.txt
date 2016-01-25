@@ -1,6 +1,6 @@
-
-
-
-On {{ email.date | date:dateFormat:tz }} from {{ email.from.email }}:
-
 {{ email.textBody }}
+
+
+On {{ email.quoted.date | date:dateFormat:tz }} from {{ email.quoted.from.email }}:
+
+{{ email.quoted.textBody }}
