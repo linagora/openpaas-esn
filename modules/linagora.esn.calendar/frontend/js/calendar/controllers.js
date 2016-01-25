@@ -19,7 +19,30 @@ angular.module('esn.calendar')
     });
   })
 
-  .controller('calendarController', function($scope, $q, $rootScope, $window, $modal, $timeout, $log, $alert, $state, keepChangeDuringGraceperiod, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
+  .controller('calendarController', function(
+      $scope,
+      $q,
+      $rootScope,
+      $window,
+      $modal,
+      $timeout,
+      $log,
+      $alert,
+      $state,
+      keepChangeDuringGraceperiod,
+      CalendarShell,
+      uiCalendarConfig,
+      calendarService,
+      calendarUtils,
+      eventUtils,
+      notificationFactory,
+      calendarEventSource,
+      livenotification,
+      gracePeriodService,
+      calendarCurrentView,
+      CALENDAR_EVENTS,
+      MAX_CALENDAR_RESIZE_HEIGHT,
+      CALENDAR_DEDAULT_EVENT_COLOR) {
 
     var windowJQuery = angular.element($window);
 
@@ -128,7 +151,6 @@ angular.module('esn.calendar')
         $scope.calendars = calendars;
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
-
             events: keepChangeDuringGraceperiod.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
@@ -138,6 +160,11 @@ angular.module('esn.calendar')
         });
       })
       .catch($scope.displayCalendarError);
+
+    function _withBackgroundColor(event) {
+      event.backgroundColor = CALENDAR_DEDAULT_EVENT_COLOR;
+      return event;
+    }
 
     function _modifiedCalendarItem(newEvent) {
       calendarPromise.then(function(calendar) {
@@ -172,7 +199,7 @@ angular.module('esn.calendar')
 
     var unregisterFunctions = [
       $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, function(event, data) {
-        _modifiedCalendarItem(data);
+        _modifiedCalendarItem(_withBackgroundColor(data));
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
         calendarPromise.then(function(calendar) {
@@ -181,7 +208,7 @@ angular.module('esn.calendar')
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
         calendarPromise.then(function(calendar) {
-          calendar.fullCalendar('renderEvent', data);
+          calendar.fullCalendar('renderEvent', _withBackgroundColor(data));
         });
       }),
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, calendar) {
@@ -204,11 +231,11 @@ angular.module('esn.calendar')
     ];
 
     function liveNotificationHandlerOnCreate(msg) {
-      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', CalendarShell.fromJSON(msg));
+      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', _withBackgroundColor(CalendarShell.fromJSON(msg)));
     }
 
     function liveNotificationHandlerOnUpdate(msg) {
-      _modifiedCalendarItem(CalendarShell.fromJSON(msg));
+      _modifiedCalendarItem(_withBackgroundColor(CalendarShell.fromJSON(msg)));
     }
 
     function liveNotificationHandlerOnDelete(msg) {

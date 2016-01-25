@@ -231,7 +231,8 @@ describe('The calendar module controllers', function() {
           _allDay: '_allday',
           _end: '_end',
           _id: '_id',
-          _start: '_start'
+          _start: '_start',
+          backgroundColor: '#2196f3'
         });
       });
 
@@ -276,7 +277,8 @@ describe('The calendar module controllers', function() {
           _end: '_end',
           _id: '_id',
           _start: '_start',
-          source: 'iamasource'
+          source: 'iamasource',
+          backgroundColor: '#2196f3'
         });
       });
 
