@@ -1,9 +1,10 @@
-.calendar-header-mobile
-  .row
-    a.col-xs-6(href='', ng-click="cancel()")
-      i.mdi.mdi-close.m-l-5.m-r-5
-      | #{__('Cancel')}
-    col-xs-6.right-action
-        a(href='', ng-click='submit()')
-          | #{__('Save')}
-          i.mdi.mdi-check.m-l-5.m-r-5
+.calendar-edit-header
+  .flex-space-between.flex-vertical-centered
+    .left
+      button.btn.btn-primary(ng-click="cancel()")
+        i.mdi.mdi-close
+        | #{__('Cancel')}
+    .right
+      button.btn.btn-primary(ng-click='submit()')
+        | #{__('Save')}
+        i.mdi.mdi-check
