@@ -1,12 +1,14 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The box-overlay Angular module', function() {
 
-  var $compile, $rootScope, $scope, $timeout, element;
+  var $window, $compile, $rootScope, $scope, $timeout, element,
+      deviceDetector, DEVICES;
 
   function compile(html) {
     element = $compile(html)($scope);
@@ -33,12 +35,29 @@ describe('The box-overlay Angular module', function() {
     $timeout.flush();
   }
 
+  function getMaximizeButton() {
+    return angular.element('.box-overlay-open .toggle-maximize').first();
+  }
+
   function maximizeFirstBox() {
-    angular.element('.box-overlay-open .toggle-maximize').first().click();
+    getMaximizeButton().click();
   }
 
   function minimizeFirstBox() {
     angular.element('.box-overlay-open .toggle-minimize').first().click();
+  }
+
+  function triggerEventOnFirstInputElement(event) {
+    angular.element('.box-overlay-open input').first().trigger({type: event});
+    $scope.$digest();
+  }
+
+  function touchFirstInputElement() {
+    triggerEventOnFirstInputElement('touchstart');
+  }
+
+  function focusFirstInputElement() {
+    triggerEventOnFirstInputElement('focus');
   }
 
   function overlays() {
@@ -59,12 +78,18 @@ describe('The box-overlay Angular module', function() {
 
     var $httpBackend;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_, _$timeout_) {
+    beforeEach(inject(function(_$window_, _$compile_, _$rootScope_, _$httpBackend_, _$timeout_,
+        _deviceDetector_, _DEVICES_) {
+      $window = _$window_;
       $compile = _$compile_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $httpBackend = _$httpBackend_;
       $timeout = _$timeout_;
+      deviceDetector = _deviceDetector_;
+      DEVICES = _DEVICES_;
+
+      deviceDetector.device = DEVICES.ANDROID;
     }));
 
     afterEach(function() {
@@ -188,6 +213,48 @@ describe('The box-overlay Angular module', function() {
       expect(overlays().first().hasClass('minimized')).to.equal(false);
       expect(overlays().last().hasClass('maximized')).to.equal(false);
       expect(overlays().last().hasClass('minimized')).to.equal(true);
+    });
+
+    describe('when the device is an ipad', function() {
+
+      beforeEach(function() {
+        deviceDetector.device = DEVICES.I_PAD;
+
+        $httpBackend.expectGET('/path/to/the/template').respond('<input>Test</input>');
+        compileAndClickTheButton('<button box-overlay box-template-url="/path/to/the/template" />');
+        $httpBackend.flush();
+      });
+
+      it('should automatically open as maximize', function() {
+        expect(overlays().first().hasClass('maximized')).to.equal(true);
+      });
+
+      it('should scroll to top when an input is focused', function() {
+        $window.scrollTo = sinon.spy();
+
+        focusFirstInputElement();
+
+        expect($window.scrollTo).to.have.been.calledWith(0, 0);
+      });
+
+      it('should maximize the box when an input is touched', function() {
+        minimizeFirstBox();
+        expect(overlays().first().hasClass('maximized')).to.equal(false);
+
+        touchFirstInputElement();
+
+        expect(overlays().first().hasClass('maximized')).to.equal(true);
+      });
+
+      it('should do nothing when an input is touched but the box is already maximized', function() {
+        maximizeFirstBox();
+        $scope.$toggleMaximized = sinon.spy();
+
+        touchFirstInputElement();
+
+        expect($scope.$toggleMaximized).to.have.not.been.called;
+      });
+
     });
 
   });
