@@ -27,13 +27,13 @@ describe('The workers lib module', function() {
     it('should save the worker', function() {
       var module = getModule();
       var worker = {
-        name: 'worker',
+        name: 'worker1',
         getWorkerFunction: function() {
           return noop;
         }
       };
       module.add(worker);
-      expect(module.list()).to.deep.equal({'worker': worker});
+      expect(module.list()).to.deep.equal({worker1: worker});
     });
 
     it('should not save the worker when undefined', function() {

@@ -38,7 +38,7 @@ describe('The contact import controller', function() {
 
     it('should send back HTTP 500 when import rejects', function(done) {
       var lib = {
-        importAccountContacts: function(user, account) {
+        importAccountContactsByJobQueue: function(user, account) {
           expect(user).to.equal(req.user);
           expect(account).to.deep.equal(req.account);
           return q.reject(new Error('Import failure'));
@@ -62,7 +62,7 @@ describe('The contact import controller', function() {
 
     it('should send back HTTP 202 when import is resolved', function(done) {
       var lib = {
-        importAccountContacts: function(user, account) {
+        importAccountContactsByJobQueue: function(user, account) {
           expect(user).to.equal(req.user);
           expect(account).to.deep.equal(req.account);
           return q.when({});
