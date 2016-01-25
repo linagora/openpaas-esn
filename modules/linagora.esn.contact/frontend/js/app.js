@@ -84,29 +84,6 @@ angular.module('linagora.esn.contact', [
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', contact);
   })
 
-  .run(function($q, $log, attendeeService, ContactAPIClient, session) {
-    var contactProvider = {
-      searchAttendee: function(query) {
-        var searchOptions = {
-          data: query,
-          userId: session.user._id
-        };
-        return ContactAPIClient
-          .addressbookHome(session.user._id)
-          .search(searchOptions)
-          .then(function(response) {
-            response.data.forEach(function(contact) {
-              if (contact.emails && contact.emails.length !== 0) {
-                contact.email = contact.emails[0].value;
-              }
-            });
-            return response.data;
-          }, function(error) {
-            $log('Error while searching contacts: ' + error);
-            return $q.when([]);
-          });
-      },
-      templateUrl: '/contact/views/partials/contact-auto-complete.html'
-    };
-    attendeeService.addProvider(contactProvider);
+  .run(function(attendeeService, ContactAttendeeProvider) {
+    attendeeService.addProvider(ContactAttendeeProvider);
   });
