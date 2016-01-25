@@ -24,9 +24,9 @@ describe('The contact import helper module', function() {
   beforeEach(function() {
     deps = {
       logger: {
-        debug: console.log,
-        info: console.log,
-        error: console.log
+        debug: function() {},
+        info: function() {},
+        error: function() {}
       }
     };
 
@@ -55,9 +55,30 @@ describe('The contact import helper module', function() {
   });
 
   describe('The initializeAddressBook function', function() {
+    var addressBookMock;
+
     function getFunction(options) {
       return getModule().initializeAddressBook(options);
     }
+
+    beforeEach(function() {
+      addressBookMock = {};
+      deps.contact = {
+        lib: {
+          client: function(opts) {
+            return {
+              addressbookHome: function(bookHome) {
+                return {
+                  addressbook: function() {
+                    return addressBookMock;
+                  }
+                };
+              }
+            };
+          }
+        }
+      };
+    });
 
     it('should reject if user token generation fails', function(done) {
       var e = new Error('Token generation failure');
@@ -93,6 +114,34 @@ describe('The contact import helper module', function() {
       });
     });
 
+    it('should not create dupliate AB if the AB with the same ID is existing', function(done) {
+      var token = {
+        token: 'MyToken'
+      };
+      var options = {
+        account: account,
+        user: user
+      };
+      deps.user = {
+        getNewToken: function(user, ttl, callback) {
+          return callback(null, token);
+        }
+      };
+      addressBookMock = {
+        create: function() {
+          done(new Error('Should not call create fn'));
+        },
+        get: function() {
+          return q.resolve('Existing AB');
+        }
+      };
+
+      getFunction(options).then(function(data) {
+        expect(data.addressbook.id).to.equal(options.account.data.id);
+        done();
+      }, done);
+    });
+
     it('should reject if AB creation fails', function(done) {
       var token = {
         token: 'MyToken'
@@ -107,28 +156,16 @@ describe('The contact import helper module', function() {
           return callback(null, token);
         }
       };
-      deps.contact = {
-        lib: {
-          client: function(opts) {
-            expect(opts.ESNToken).to.equals(token.token);
-            return {
-              addressbookHome: function(bookHome) {
-                expect(bookHome).to.equals(user._id);
-                return {
-                  addressbook: function() {
-                    return {
-                      create: function(addressbook) {
-                        expect(addressbook.id).to.equal(options.account.data.id);
-                        return q.reject(e);
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
+      addressBookMock = {
+        create: function(addressbook) {
+          expect(addressbook.id).to.equal(options.account.data.id);
+          return q.reject(e);
+        },
+        get: function() {
+          return q.reject();
         }
       };
+
       getFunction(options).then(done, function(err) {
         expect(err).to.equal(e);
         done();
@@ -149,28 +186,16 @@ describe('The contact import helper module', function() {
           return callback(null, token);
         }
       };
-      deps.contact = {
-        lib: {
-          client: function(opts) {
-            expect(opts.ESNToken).to.equals(token.token);
-            return {
-              addressbookHome: function(bookHome) {
-                expect(bookHome).to.equals(user._id);
-                return {
-                  addressbook: function() {
-                    return {
-                      create: function(addressbook) {
-                        expect(addressbook.id).to.equal(options.account.data.id);
-                        return q.resolve({});
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
+      addressBookMock = {
+        create: function(addressbook) {
+          expect(addressbook.id).to.equal(options.account.data.id);
+          return q.resolve({});
+        },
+        get: function() {
+          return q.reject();
         }
       };
+
       getFunction(options).then(function(result) {
         expect(result.account).to.deep.equal(options.account);
         expect(result.user).to.deep.equal(options.user);
@@ -200,24 +225,13 @@ describe('The contact import helper module', function() {
         type: account.data.provider
       };
 
-      deps.contact = {
-        lib: {
-          client: function() {
-            return {
-              addressbookHome: function() {
-                return {
-                  addressbook: function() {
-                    return {
-                      create: function(addressbook) {
-                        expect(addressbook).to.deep.equal(addressbookTest);
-                        done();
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
+      addressBookMock = {
+        create: function(addressbook) {
+          expect(addressbook).to.deep.equal(addressbookTest);
+          done();
+        },
+        get: function() {
+          return q.reject();
         }
       };
       getFunction(options);

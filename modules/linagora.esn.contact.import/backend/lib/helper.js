@@ -39,21 +39,25 @@ module.exports = function(dependencies) {
       'dav:acl': ['dav:read'],
       type: account.data.provider
     };
+    options.addressbook = addressbook;
 
-    logger.debug('Creating import addressbook', addressbook);
-
-    return getCreationToken().then(function(token) {
-      return contactModule.lib.client({ESNToken: token.token})
-        .addressbookHome(user._id)
-        .addressbook()
-        .create(addressbook)
-        .then(function() {
-          options.addressbook = addressbook;
-          return q(options);
-        }, function(err) {
-          return q.reject(err);
-        });
-    });
+    return getCreationToken()
+      .then(function(token) {
+        return contactModule.lib.client({ ESNToken: token.token })
+          .addressbookHome(user._id)
+          .addressbook(addressbook.id)
+          .get()
+          .catch(function() {
+            logger.debug('Creating import addressbook', addressbook);
+            return contactModule.lib.client({ESNToken: token.token})
+              .addressbookHome(user._id)
+              .addressbook()
+              .create(addressbook);
+          });
+      })
+      .then(function() {
+        return options;
+      });
   }
 
   function getImporterOptions(user, account) {
