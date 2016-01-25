@@ -61,7 +61,7 @@
     "angular-bootstrap-switch": "~0.3.0",
     "bootstrap-switch": "~3.3.2",
     "angular-chart.js": "~0.5.1",
-    "clockpicker": "0.0.7",
+    "clockpicker": "http://github.com/linagora/clockpicker.git#0.0.8",
     "Chart.js": "nnnick/Chart.js#~1.0.1",
     "arrive": "~2.2.0",
     "angular-jstz": "czarpino/angular-jstz",
