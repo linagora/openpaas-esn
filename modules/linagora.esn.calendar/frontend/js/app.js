@@ -13,6 +13,7 @@ angular.module('esn.calendar', [
   'AngularJstz',
   'angularMoment',
   'esn.core',
+  'esn.header',
   'esn.authentication',
   'esn.form.helper',
   'esn.ical',

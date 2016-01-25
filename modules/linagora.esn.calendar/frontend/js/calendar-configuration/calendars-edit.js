@@ -6,10 +6,6 @@ angular.module('esn.calendar')
 
     $scope.calendars = calendars;
 
-    $scope.$on('$destroy', function() {
-      headerService.resetAllInjections();
-    });
-
     $scope.modify = function(cal) {
       $state.go('calendar.edit', {id: cal.id});
     };

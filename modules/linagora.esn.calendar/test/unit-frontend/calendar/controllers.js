@@ -154,19 +154,6 @@ describe('The calendar module controllers', function() {
       expect(this.headerServiceMock.subHeader.addInjection).to.have.been.calledOnce;
     });
 
-    it('should resetInjection on scope destroy', function() {
-      this.headerServiceMock.mainHeader = {
-        addInjection: function() {}
-      };
-      this.headerServiceMock.subHeader = {
-        addInjection: function() {}
-      };
-      this.headerServiceMock.resetAllInjections = sinon.spy();
-      this.controller('userCalendarController', {$scope: this.scope});
-      this.scope.$destroy();
-      expect(this.headerServiceMock.resetAllInjections).to.have.been.calledOnce;
-    });
-
     it('should not modify constant UI_USER_CONFIG but clone it before modifying it', function() {
       this.headerServiceMock.mainHeader = {
         addInjection: function() {}

@@ -19,10 +19,6 @@ angular.module('esn.calendar')
       $scope.calendar.color = '#' + Math.random().toString(16).substr(-6);
     }
 
-    $scope.$on('$destroy', function() {
-      headerService.resetAllInjections();
-    });
-
     function canSaveCalendar() {
       return !!$scope.calendar.name && $scope.calendar.name.length >= 1;
     }

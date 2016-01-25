@@ -13,10 +13,6 @@ angular.module('esn.calendar')
 
     headerService.mainHeader.addInjection('calendar-header-content');
     headerService.subHeader.addInjection('calendar-header-mobile');
-
-    $scope.$on('$destroy', function() {
-      headerService.resetAllInjections();
-    });
   })
 
   .controller('calendarController', function($scope, $q, $rootScope, $window, $modal, $timeout, $log, $alert, $state, keepChangeDuringGraceperiod, CALENDAR_EVENTS, CalendarShell, uiCalendarConfig, calendarService, calendarUtils, eventUtils, notificationFactory, calendarEventSource, livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT, calendarCurrentView) {
