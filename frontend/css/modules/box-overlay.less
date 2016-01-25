@@ -1,3 +1,7 @@
+@overlayContainerZIndex: @header-z-index - 1;
+@overlayContainerMaximizedZIndex: @header-z-index + 1;
+@overlayBoxZIndex: 5;
+
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
 
@@ -7,7 +11,7 @@
   bottom: 0;
   width: 100%;
   height: 100%;
-  z-index: ~"calc(@{header-z-index} - 1)";
+  z-index: @overlayContainerZIndex;
 }
 
 .box-overlay-open {
@@ -18,7 +22,7 @@
   top: @header-height;
   width: 100%;
   height: ~"calc(100% - @{header-height})";
-  z-index: 5;
+  z-index: @overlayBoxZIndex;
 
   border: none;
 
@@ -78,7 +82,7 @@
       height: 100%;
       top: 0;
       left: 0;
-      z-index: @header-z-index + 1;
+      z-index: @overlayContainerMaximizedZIndex;
 
       background-color: rgba(0, 0, 0, 0.3);
 
