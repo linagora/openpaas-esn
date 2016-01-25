@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      jmapEmailService;
+      jmapEmailService, mailboxesService;
 
   beforeEach(function() {
     $stateParams = {
@@ -49,16 +49,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
-      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
+      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy(function() {
+        return $q.when({
+          mailboxIds: [1]
+        });
+      })});
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _emailSendingService_, _Composition_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_, _Composition_, _mailboxesService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
     emailSendingService = _emailSendingService_;
     Composition = _Composition_;
+    mailboxesService = _mailboxesService_;
 
     scope = $rootScope.$new();
   }));
@@ -155,7 +160,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     beforeEach(function() {
       jmapClient.getMailboxes = function() {
-        return $q.when([{role: jmap.MailboxRole.UNKNOWN, name: 'a name'}]);
+        return $q.when([{role: jmap.MailboxRole.UNKNOWN, name: 'a name', id: 'chosenMailbox'}]);
       };
       jmapClient.getMessageList = function() {
         return $q.when({getMessages: angular.noop});
@@ -164,13 +169,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should set $scope.mailbox from the \'mailbox\' route parameter', function() {
       initController('listEmailsController');
-
-      expect(scope.mailbox).to.equal('chosenMailbox');
+      expect(scope.mailbox.id).to.equal('chosenMailbox');
     });
 
     it('should call jmapClient.getMailboxes with the expected mailbox id and properties', function(done) {
       jmapClient.getMailboxes = function(options) {
-        expect(options).to.deep.equal({ids: ['chosenMailbox'], properties: ['name', 'role']});
+        expect(options).to.deep.equal({ids: ['chosenMailbox']});
         done();
       };
 
@@ -184,8 +188,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('listEmailsController');
 
-      expect(scope.mailboxRole).to.equal('expected role');
-      expect(scope.mailboxName).to.equal('expected name');
+      expect(scope.mailbox.role).to.equal('expected role');
+      expect(scope.mailbox.name).to.equal('expected name');
     });
 
     it('should call jmapClient.getMailboxes then jmapClient.getMessageList', function(done) {
@@ -275,7 +279,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should change state if mailbox has not the draft role', function() {
         jmapClient.getMailboxes = function() {
-          return $q.when([{role: jmap.MailboxRole.INBOX, name: 'my box'}]);
+          return $q.when([{role: jmap.MailboxRole.INBOX, name: 'my box', id: 'chosenMailbox'}]);
         };
         $state.go = sinon.spy();
 
@@ -349,13 +353,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should assign the returned message to $scope.email', function(done) {
       jmapClient.getMessages = function() {
-        return $q.when([{ isUnread: false, property: 'property' }]);
+        return $q.when([{ isUnread: false, property: 'property', mailboxIds: [] }]);
       };
 
       initController('viewEmailController');
 
       scope.$watch('email', function(before, after) {
-        expect(after).to.deep.equal({ isUnread: false, property: 'property' });
+        expect(after).to.deep.equal({ isUnread: false, property: 'property', mailboxIds: [] });
 
         done();
       });
@@ -510,7 +514,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
       });
-
     });
 
     describe('the markAsRead function', function() {
@@ -520,7 +523,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
       });
-
     });
 
     describe('the markAsFlagged function', function() {
@@ -553,6 +555,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
+  });
+
+  describe('The rootController', function() {
+
+    beforeEach(function() {
+      mailboxesService.assignMailboxesList = sinon.spy();
+    });
+
+    it('should call the mailboxesService.assignMailboxesLis function', function() {
+      initController('rootController');
+
+      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
+    });
   });
 
   describe('The configurationController', function() {

@@ -102,15 +102,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('sidebarMailboxesLoader', function(mailboxesService) {
-    return {
-      restrict: 'A',
-      link: function(scope) {
-        mailboxesService.assignMailboxesList(scope);
-      }
-    };
-  })
-
   .directive('emailer', function() {
     return {
       restrict: 'E',
