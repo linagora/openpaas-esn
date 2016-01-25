@@ -101,13 +101,13 @@ describe('The Scroll Angular module', function() {
 
   });
 
-  describe('The elementScrollDownService factory', function() {
+  describe('The elementScrollService factory', function() {
 
-    var $timeout, elementScrollDownService;
+    var $timeout, elementScrollService;
 
-    beforeEach(inject(function(_$timeout_, _elementScrollDownService_) {
+    beforeEach(inject(function(_$timeout_, _elementScrollService_) {
       $timeout = _$timeout_;
-      elementScrollDownService = _elementScrollDownService_;
+      elementScrollService = _elementScrollService_;
     }));
 
     describe('the autoScrollDown method with an element that has a scrollHeight attribute', function() {
@@ -119,13 +119,13 @@ describe('The Scroll Angular module', function() {
       });
 
       it('should call the autoScrollDown method of the element passed as an argument', function() {
-        elementScrollDownService.autoScrollDown(element);
+        elementScrollService.autoScrollDown(element);
         $timeout.flush(1);
         expect(scrollTopSpy).to.be.called;
       });
 
       it('should not call the autoScrollDown method when no element is passed as an argument', function() {
-        elementScrollDownService.autoScrollDown();
+        elementScrollService.autoScrollDown();
         $timeout.flush(1);
         expect(scrollTopSpy).to.not.be.called;
       });
@@ -141,7 +141,7 @@ describe('The Scroll Angular module', function() {
       });
 
       it('should not call the autoScrollDown method', function() {
-        elementScrollDownService.autoScrollDown(element);
+        elementScrollService.autoScrollDown(element);
         $timeout.flush(1);
         expect(scrollTopSpy).to.not.be.called;
       });

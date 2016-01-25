@@ -243,7 +243,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService, searchService, _) {
+  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollService, searchService, _) {
     return {
       restrict: 'E',
       scope: {
@@ -265,7 +265,7 @@ angular.module('linagora.esn.unifiedinbox')
           return !_.find(scope.tags, { email: $tag.email });
         };
         scope.onTagAdded = function() {
-          elementScrollDownService.autoScrollDown(element.find('div.tags'));
+          elementScrollService.autoScrollDown(element.find('div.tags'));
         };
       }
     };

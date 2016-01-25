@@ -80,7 +80,7 @@ angular.module('esn.scroll', [])
     };
   })
 
-  .factory('elementScrollDownService', function($timeout) {
+  .factory('elementScrollService', function($timeout) {
     /**
      * Auto-scroll to the end of the given element
      * @param element

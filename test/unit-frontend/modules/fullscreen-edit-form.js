@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The fullscreen-edit-form Angular module', function() {
 
-  var $compile, $rootScope, $scope, $httpBackend, $timeout, element, elementScrollDownService = {};
+  var $compile, $rootScope, $scope, $httpBackend, $timeout, element, elementScrollService = {};
 
   beforeEach(module('jadeTemplates'));
 
@@ -16,7 +16,7 @@ describe('The fullscreen-edit-form Angular module', function() {
   });
 
   beforeEach(angular.mock.module(function($provide) {
-    $provide.value('elementScrollDownService', elementScrollDownService);
+    $provide.value('elementScrollService', elementScrollService);
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_, _$timeout_) {
@@ -47,7 +47,7 @@ describe('The fullscreen-edit-form Angular module', function() {
 
     beforeEach(function() {
       autoScrollDownSpy = sinon.spy();
-      elementScrollDownService.autoScrollDown = autoScrollDownSpy;
+      elementScrollService.autoScrollDown = autoScrollDownSpy;
     });
 
     it('should call the autoScrollDown method in a $timeout', function() {

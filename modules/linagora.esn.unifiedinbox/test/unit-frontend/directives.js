@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
-      iFrameResize = angular.noop, elementScrollDownService, $stateParams,
+      iFrameResize = angular.noop, elementScrollService, $stateParams,
       deviceDetector, searchService;
 
   beforeEach(function() {
@@ -41,7 +41,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return iFrameResize;
       }
     });
-    $provide.value('elementScrollDownService', elementScrollDownService = {});
+    $provide.value('elementScrollService', elementScrollService = {});
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', deviceDetector = { isMobile: function() { return false;} });
@@ -529,7 +529,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     beforeEach(function() {
       autoScrollDownSpy = sinon.spy();
       unifiedinboxTagsAddedSpy = sinon.spy();
-      elementScrollDownService.autoScrollDown = autoScrollDownSpy;
+      elementScrollService.autoScrollDown = autoScrollDownSpy;
     });
 
     it('should trigger an error if no template is given', function() {

@@ -34,12 +34,12 @@ angular.module('esn.fullscreen-edit-form', ['esn.scroll', 'ui.router'])
     };
   })
 
-  .directive('autoScrollDownNgtagsinput', function($timeout, elementScrollDownService) {
+  .directive('autoScrollDownNgtagsinput', function($timeout, elementScrollService) {
     return {
       restrict: 'A',
       link: function(scope, element) {
         $timeout(function() {
-          elementScrollDownService.autoScrollDown(element.find('div.tags'));
+          elementScrollService.autoScrollDown(element.find('div.tags'));
         }, 0, false);
       }
     };
