@@ -49,24 +49,25 @@
     "strategies": ["local", "mongo", "bearer"]
   },
   "modules": [
-    "linagora.esn.davserver",
-    "linagora.esn.calendar",
+    "linagora.esn.account",
     "linagora.esn.appstore",
-    "linagora.esn.core.webserver",
-    "linagora.esn.core.wsserver",
-    "linagora.esn.project",
+    "linagora.esn.calendar",
     "linagora.esn.contact",
     "linagora.esn.contact.import",
     "linagora.esn.contact.import.twitter",
     "linagora.esn.contact.twitter",
-    "linagora.esn.messaging.email",
+    "linagora.esn.core.webserver",
+    "linagora.esn.core.wsserver",
     "linagora.esn.cron",
-    "linagora.esn.digest.daily",
-    "linagora.esn.graceperiod",
     "linagora.esn.davproxy",
-    "linagora.esn.unifiedinbox",
-    "linagora.esn.account",
-    "linagora.esn.oauth.consumer"
+    "linagora.esn.davserver",
+    "linagora.esn.digest.daily",
+    "linagora.esn.jobqueue",
+    "linagora.esn.graceperiod",
+    "linagora.esn.messaging.email",
+    "linagora.esn.oauth.consumer",
+    "linagora.esn.project",
+    "linagora.esn.unifiedinbox"
   ],
   "email": {
     "templatesDir": "./templates/email"
