@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarCollectionShell', function(pathBuilder) {
+  .factory('CalendarCollectionShell', function(pathBuilder, CALENDAR_DEDAULT_EVENT_COLOR) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -11,7 +11,7 @@ angular.module('esn.calendar')
      */
     function CalendarCollectionShell(calendar) {
       this.name = calendar['dav:name'] || 'Events';
-      this.color = calendar['apple:color'] || '#2196f3';
+      this.color = calendar['apple:color'] || CALENDAR_DEDAULT_EVENT_COLOR;
       this.description = calendar['caldav:description'] || '';
       this.href = calendar._links.self.href;
       this.id = this.href.split('/').pop().split('.').shift();
