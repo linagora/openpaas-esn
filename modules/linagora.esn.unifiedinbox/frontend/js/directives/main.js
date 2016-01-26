@@ -175,7 +175,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($state, $timeout, elementScrollService, emailBodyService) {
+  .directive('composer', function($state, $timeout, elementScrollService, emailBodyService, autosize) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -220,9 +220,8 @@ angular.module('linagora.esn.unifiedinbox')
             })
             .then(function() {
               $timeout(function() {
-                emailBody
-                  .focusBegin(typedTextLength)
-                  .trigger('keyup'); // Dirty hack to trigger autogrow on the textarea
+                emailBody.focusBegin(typedTextLength);
+                autosize.update(emailBody.get(0));
 
                 elementScrollService.scrollDownToElement(emailBody);
               }, 0);
@@ -230,7 +229,6 @@ angular.module('linagora.esn.unifiedinbox')
         };
 
         controller.showMobileHeader();
-        element.find('.compose-body').autogrow({ animate: false });
       }
     };
   })

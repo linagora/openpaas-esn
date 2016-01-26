@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      isMobile, searchService;
+      isMobile, searchService, autosize;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -51,6 +51,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
+    $provide.value('autosize', autosize = { update: sinon.spy() });
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
@@ -401,15 +402,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expectFocusAt(18);
       });
 
-      it('should trigger a "keyup" event on the body, to trigger autogrow', function(done) {
+      it('should update autosize() on the email body', function() {
         compileDirective('<composer />');
-        element.find('.compose-body').on('keyup', function() {
-          done();
-        });
 
         $scope.editQuotedMail();
         $rootScope.$digest();
         $timeout.flush();
+
+        expect(autosize.update).to.have.been.calledWith(element.find('.compose-body').get(0));
       });
 
     });
