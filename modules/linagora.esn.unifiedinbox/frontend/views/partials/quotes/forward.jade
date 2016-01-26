@@ -1,7 +1,8 @@
 p
   br
+
 cite
-  | ------- Forwarded message -------
+  | ------- #{__('Forwarded message')} -------
   br
   | Subject: {{ email.subject }}
   br
@@ -12,4 +13,5 @@ cite
   | {{ email.to | emailerList:'To: '}}
   br
   | {{ email.cc | emailerList:'CC: '}}
+
 blockquote {{ email.htmlBody || email.textBody }}

@@ -1473,14 +1473,14 @@ describe('The Unified Inbox Angular module services', function() {
 
     var Composition, draftService, emailSendingService, session, $timeout, Offline,
         notificationFactory, closeNotificationSpy, notificationTitle, notificationText,
-        jmap;
+        jmap, $rootScope;
 
     beforeEach(module(function($provide) {
       $provide.constant('withJmapClient', function() {});
     }));
 
     beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
-         _Composition_, _emailSendingService_, _$timeout_, _jmap_) {
+         _Composition_, _emailSendingService_, _$timeout_, _jmap_, _$rootScope_) {
       draftService = _draftService_;
       notificationFactory = _notificationFactory_;
       session = _session_;
@@ -1489,6 +1489,7 @@ describe('The Unified Inbox Angular module services', function() {
       emailSendingService = _emailSendingService_;
       $timeout = _$timeout_;
       jmap = _jmap_;
+      $rootScope = _$rootScope_;
 
       Offline.state = 'up';
       notificationTitle = '';
@@ -1700,6 +1701,70 @@ describe('The Unified Inbox Angular module services', function() {
       expect(message.destroy).to.have.been.calledOnce;
     });
 
+    it('"send" fn should quote the original email if current email is not already quoting', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      new Composition({
+        to: [{ email: 'A@A.com' }],
+        quoteTemplate: 'default',
+        quoted: {
+          from: {
+            name: 'test',
+            email: 'test@open-paas.org'
+          },
+          subject: 'Heya',
+          date: '2015-08-21T00:10:00Z',
+          htmlBody: '<p>HtmlBody</p>'
+        }
+      }).send();
+      $rootScope.$digest();
+
+      expect(emailSendingService.sendEmail).to.have.been.calledWith(sinon.match({
+        htmlBody: '<p></p><br/><cite>On Aug 21, 2015 2:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>'
+      }));
+    });
+
+    it('"send" fn should not quote the original email if current email is already quoting', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      new Composition({
+        to: [{ email: 'A@A.com' }],
+        quoteTemplate: 'default',
+        textBody: 'Body',
+        isQuoting: true,
+        quoted: {
+          from: {
+            name: 'test',
+            email: 'test@open-paas.org'
+          },
+          subject: 'Heya',
+          date: '2015-08-21T00:10:00Z',
+          htmlBody: '<p>HtmlBody</p>'
+        }
+      }).send();
+      $rootScope.$digest();
+
+      expect(emailSendingService.sendEmail).to.have.been.calledWith(sinon.match({
+        textBody: 'Body',
+        htmlBody: undefined
+      }));
+    });
+
+    it('"send" fn should not quote the original email if there is no original email', function() {
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
+
+      new Composition({
+        to: [{ email: 'A@A.com' }],
+        textBody: 'Body'
+      }).send();
+      $rootScope.$digest();
+
+      expect(emailSendingService.sendEmail).to.have.been.calledWith(sinon.match({
+        textBody: 'Body',
+        htmlBody: undefined
+      }));
+    });
+
   });
 
   describe('The emailBodyService factory', function() {
@@ -1806,6 +1871,120 @@ describe('The Unified Inbox Angular module services', function() {
       it('is false when deviceDetector.isMobile()=true', function() {
         isMobile = true;
         expect(emailBodyService.supportsRichtext()).to.equal(false);
+      });
+
+    });
+
+    describe('The quoteOriginalEmail function', function() {
+
+      var email;
+
+      describe('With the "default" tempalte', function() {
+
+        beforeEach(function() {
+          email = {
+            quoteTemplate: 'default',
+            quoted: {
+              from: {
+                name: 'test',
+                email: 'test@open-paas.org'
+              },
+              subject: 'Heya',
+              date: '2015-08-21T00:10:00Z',
+              htmlBody: '<p>HtmlBody</p>'
+            }
+          };
+        });
+
+        it('should quote the original email, using htmlBody when defined', function(done) {
+          emailBodyService.quoteOriginalEmail(email)
+            .then(function(text) {
+              expect(text).to.equal('<p></p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
+            })
+            .then(done, done);
+
+          $rootScope.$digest();
+        });
+
+        it('should quote the original email, using textBody when htmlBody is not defined', function(done) {
+          email.quoted.textBody = 'Hello';
+          email.quoted.htmlBody = '';
+
+          emailBodyService.quoteOriginalEmail(email)
+            .then(function(text) {
+              expect(text).to.equal('<p></p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>Hello</blockquote>');
+            })
+            .then(done, done);
+
+          $rootScope.$digest();
+        });
+
+        it('should quote the original email, keeping the already entered text when present', function(done) {
+          email.textBody = 'I was previously typed';
+
+          emailBodyService.quoteOriginalEmail(email)
+            .then(function(text) {
+              expect(text).to.equal('<p>I was previously typed</p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
+            })
+            .then(done, done);
+
+          $rootScope.$digest();
+        });
+
+      });
+
+      describe('With the "forward" tempalte', function() {
+
+        beforeEach(function() {
+          email = {
+            quoteTemplate: 'forward',
+            quoted: {
+              from: {
+                name: 'test',
+                email: 'test@open-paas.org'
+              },
+              subject: 'Heya',
+              date: '2015-08-21T00:10:00Z',
+              htmlBody: '<p>HtmlBody</p>'
+            }
+          };
+        });
+
+        it('should quote the original email, using htmlBody when defined', function(done) {
+          emailBodyService.quoteOriginalEmail(email)
+            .then(function(text) {
+              expect(text).to.equal('<p></p><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
+            })
+            .then(done, done);
+
+          $rootScope.$digest();
+        });
+
+        it('should quote the original email, using textBody when htmlBody is not defined', function(done) {
+          email.quoted.textBody = 'Hello';
+          email.quoted.htmlBody = '';
+
+          emailBodyService.quoteOriginalEmail(email)
+            .then(function(text) {
+              expect(text).to.equal('<p></p><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote>Hello</blockquote>');
+            })
+            .then(done, done);
+
+          $rootScope.$digest();
+        });
+
+        it('should quote the original email, keeping the already entered text when present', function(done) {
+          email.textBody = 'I was previously typed';
+
+          emailBodyService.quoteOriginalEmail(email)
+            .then(function(text) {
+              expect(text).to.equal('<p>I was previously typed</p><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
+            })
+            .then(done, done);
+
+          $rootScope.$digest();
+        });
+
       });
 
     });
