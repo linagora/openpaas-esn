@@ -26,6 +26,7 @@ angular.module('esn.calendar')
       editable: true,
       selectable: true,
       timezone: 'local',
+      nowIndicator: true,
       forceEventDuration: true,
       weekNumbers: true,
       firstDay: 1,
