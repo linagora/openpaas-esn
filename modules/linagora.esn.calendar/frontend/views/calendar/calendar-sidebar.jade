@@ -2,28 +2,28 @@
   .listview.p-t-5.calendars-list
     .lv-body
       .p-10
-        a.lv-item(href="", toggle-calendar-view="basicDay")
+        a.lv-item(href="", toggle-calendar-view="basicDay", ng-click="$hide()")
           .media
             .pull-left
               i.mdi.mdi-menu
             .media-body
               .lv-title
                 span #{__('Planning')}
-        a.lv-item(href="", toggle-calendar-view="agendaDay")
+        a.lv-item(href="", toggle-calendar-view="agendaDay", ng-click="$hide()")
           .media
             .pull-left
               i.mdi.mdi-view-day
             .media-body
               .lv-title
                 span #{__('Day')}
-        a.lv-item(href="", toggle-calendar-view="agendaWeek")
+        a.lv-item(href="", toggle-calendar-view="agendaWeek", ng-click="$hide()")
           .media
             .pull-left
               i.mdi.mdi-view-week
             .media-body
               .lv-title
                 span #{__('Week')}
-        a.lv-item(href="", toggle-calendar-view="month")
+        a.lv-item(href="", toggle-calendar-view="month", ng-click="$hide()")
           .media
             .pull-left
               i.mdi.mdi-calendar-blank
@@ -32,4 +32,4 @@
                 span #{__('Month')}
     .lv-footer
 
-  calendars-list(calendars="calendars")
+  calendars-list(calendars="calendars", on-edit-click="$hide")

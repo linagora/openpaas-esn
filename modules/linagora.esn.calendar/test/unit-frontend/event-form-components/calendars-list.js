@@ -20,7 +20,7 @@ describe('The calendar-lists component', function() {
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
 
     this.initDirective = function(scope) {
-      var html = '<calendars-list calendars="calendars"/>';
+      var html = '<calendars-list calendars="calendars" on-edit-click="click"/>';
       var element = this.$compile(html)(scope);
       scope.$digest();
       this.eleScope = element.isolateScope();
@@ -46,6 +46,13 @@ describe('The calendar-lists component', function() {
     this.eleScope.calendars.forEach(function(calendar) {
       expect(calendar.toggled).to.be.true;
     });
+    expect(this.eleScope.onEditClick).to.exist;
+  });
+
+  it('should call onEditClick on settings icon click', function(done) {
+    this.$scope.click = done;
+    var element = this.initDirective(this.$scope);
+    element.find('a.visible-xs').click();
   });
 
   describe('scope.toggleCalendar', function() {

@@ -9,6 +9,7 @@ angular.module('esn.calendar')
    */
   .directive('calendarsList', function(session, calendarService, CalendarCollectionShell, uuid4, CALENDAR_EVENTS) {
     function link(scope) {
+      scope.onEditClick = scope.onEditClick || angular.noop;
 
       function cloneCalendar(calendar) {
         return {
@@ -42,7 +43,8 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/components/calendars-list.html',
       scope: {
-        _calendars: '=?calendars'
+        _calendars: '=?calendars',
+        onEditClick: '=?'
       },
       link: link
     };
