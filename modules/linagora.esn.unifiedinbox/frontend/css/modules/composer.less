@@ -184,38 +184,34 @@ composer, composer-desktop {
 
 }
 
-// So that composer on mobile is full height
 composer {
-  position: fixed;
-  top: ~"calc(@{header-height} + @{sub-header-height})";
-  bottom: 0;
+
   width: 100%;
-}
 
-@media (max-width: @screen-xs-max) {
+  .compose {
 
-  composer {
+    .compose-body {
+      // This will make the textarea wide enough to overflow the screen,
+      // but be short enough so that when it is focused, the automatic scroll when the
+      // virtual keyboard appears does not hide the caret.
+      min-height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
+      overflow: auto;
+    }
 
-    .compose {
+    .edit-quoted-mail {
+      position: fixed;
+      bottom: 0;
+      right: 0;
 
-      .note-editor {
+      padding: 5px 10px;
 
-        .btn-sm, .btn-group > .btn {
-          font-size: 18px;
-        }
+      border-top-left-radius: 5px;
+      background-color: @primaryColor;
+      opacity: 0.8;
 
-        .note-toolbar {
-          .note-headline {
-            display: none;
-          }
-        }
-
-        .note-alignment > .btn-group {
-          display: none;
-        }
-
+      a {
+        color: @textPrimaryColor;
       }
-
     }
 
   }

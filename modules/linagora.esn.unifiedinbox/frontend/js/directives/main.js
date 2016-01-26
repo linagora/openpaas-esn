@@ -47,7 +47,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFab', function($timeout, $location, boxOverlayService) {
+  .directive('inboxFab', function($timeout, boxOverlayService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/inbox-fab.html',
@@ -175,14 +175,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($location, $rootScope) {
+  .directive('composer', function($state, $timeout, elementScrollService, emailBodyService, autosize) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
         function returnToMainLocation() {
-          $location.path('/unifiedinbox');
+          $state.go('unifiedinbox');
         }
 
         function quit(action) {
@@ -206,11 +206,27 @@ angular.module('linagora.esn.unifiedinbox')
           returnToMainLocation();
         };
 
-        scope.$on('fullscreenEditForm:show', controller.hideMobileHeader);
-        scope.$on('fullscreenEditForm:close', controller.showMobileHeader);
-
         scope.disableSendButton = controller.hideMobileHeader;
         scope.enableSendButton = controller.showMobileHeader;
+
+        scope.editQuotedMail = function() {
+          var emailBody = element.find('.compose-body'),
+              typedTextLength = (scope.email.textBody || '').length;
+
+          return emailBodyService.quote(scope.email, scope.email.quoteTemplate)
+            .then(function(body) {
+              scope.email.isQuoting = true;
+              scope.email.textBody = body;
+            })
+            .then(function() {
+              $timeout(function() {
+                emailBody.focusBegin(typedTextLength);
+                autosize.update(emailBody.get(0));
+
+                elementScrollService.scrollDownToElement(emailBody);
+              }, 0);
+            });
+        };
 
         controller.showMobileHeader();
       }
@@ -241,7 +257,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollDownService, searchService, _) {
+  .directive('recipientsAutoComplete', function($rootScope, emailSendingService, elementScrollService, searchService, _) {
     return {
       restrict: 'E',
       scope: {
@@ -263,7 +279,7 @@ angular.module('linagora.esn.unifiedinbox')
           return !_.find(scope.tags, { email: $tag.email });
         };
         scope.onTagAdded = function() {
-          elementScrollDownService.autoScrollDown(element.find('div.tags'));
+          elementScrollService.autoScrollDown(element.find('div.tags'));
         };
       }
     };

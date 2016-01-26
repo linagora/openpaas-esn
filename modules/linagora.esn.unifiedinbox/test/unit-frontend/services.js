@@ -10,7 +10,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
       localTimeZone = 'Europe/Paris',
-      attendeeService;
+      attendeeService, isMobile;
 
   beforeEach(function() {
     angular.mock.module('esn.jmap-client-wrapper');
@@ -22,10 +22,17 @@ describe('The Unified Inbox Angular module services', function() {
   });
 
   beforeEach(module(function($provide) {
+    isMobile = false;
+
     $provide.constant('moment', function(argument) {
       return moment.tz(argument || nowDate, localTimeZone);
     });
     $provide.value('attendeeService', attendeeService = { addProvider: angular.noop });
+    $provide.value('deviceDetector', {
+      isMobile: function() {
+        return isMobile;
+      }
+    });
   }));
 
   describe('The jmapClientProvider service', function() {
@@ -776,7 +783,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('the createReplyAllEmailObject function', function() {
       var email, sender, expectedAnswer;
 
-      it('should create a reply all email object', function(done) {
+      it('should create a reply all email object, quoting the original message on desktop', function(done) {
         email = {
           from: {email: 'sender@linagora.com', name: 'linagora'},
           to: [{displayName: '1', email: '1@linagora.com'}],
@@ -792,7 +799,10 @@ describe('The Unified Inbox Angular module services', function() {
           to: [{displayName: '1', email: '1@linagora.com'}],
           cc: [{displayName: '2', email: '2@linagora.com'}],
           bcc: [{displayName: '3', email: '3@linagora.com'}],
-          subject: 'Re: my subject'
+          subject: 'Re: my subject',
+          quoted: email,
+          quoteTemplate: 'default',
+          isQuoting: true
         };
 
         emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
@@ -801,12 +811,43 @@ describe('The Unified Inbox Angular module services', function() {
 
         $rootScope.$digest();
       });
+
+      it('should create a reply all email object, not quoting the original message on mobile', function(done) {
+        isMobile = true;
+        email = {
+          from: {email: 'sender@linagora.com', name: 'linagora'},
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '3', email: '3@linagora.com'}],
+          date: '12:00:00 14:00',
+          subject: 'my subject',
+          htmlBody: '<p>my body</p>'
+        };
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '3', email: '3@linagora.com'}],
+          subject: 'Re: my subject',
+          quoted: email,
+          quoteTemplate: 'default',
+          isQuoting: false
+        };
+
+        emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
     });
 
     describe('the createReplyEmailObject function', function() {
       var email, sender, expectedAnswer;
 
-      it('should create a reply email object', function(done) {
+      it('should create a reply email object, quoting the original message on desktop', function(done) {
         email = {
           from: {email: 'from@linagora.com', name: 'linagora'},
           to: [{displayName: '1', email: '1@linagora.com'}],
@@ -820,7 +861,10 @@ describe('The Unified Inbox Angular module services', function() {
         expectedAnswer = {
           from: 'sender@linagora.com',
           to: [{email: 'from@linagora.com', name: 'linagora'}],
-          subject: 'Re: my subject'
+          subject: 'Re: my subject',
+          quoted: email,
+          quoteTemplate: 'default',
+          isQuoting: true
         };
 
         emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
@@ -829,12 +873,41 @@ describe('The Unified Inbox Angular module services', function() {
 
         $rootScope.$digest();
       });
+
+      it('should create a reply email object, not quoting the original message on mobile', function(done) {
+        isMobile = true;
+        email = {
+          from: {email: 'from@linagora.com', name: 'linagora'},
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          cc: [{displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '3', email: '3@linagora.com'}],
+          date: '12:00:00 14:00',
+          subject: 'my subject',
+          htmlBody: '<p>my body</p>'
+        };
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          to: [{email: 'from@linagora.com', name: 'linagora'}],
+          subject: 'Re: my subject',
+          quoted: email,
+          quoteTemplate: 'default',
+          isQuoting: false
+        };
+
+        emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
     });
 
     describe('the createForwardEmailObject function', function(done) {
       var email, sender, expectedAnswer;
 
-      it('should create a forward email object', function() {
+      it('should create a forward email object, quoting the original message on desktop', function() {
         email = {
           from: {email: 'from@linagora.com', name: 'from'},
           to: [{name: 'first', email: 'first@linagora.com'}, {name: 'second', email: 'second@linagora.com'}],
@@ -856,7 +929,10 @@ describe('The Unified Inbox Angular module services', function() {
           'To: first &lt;first@linagora.com&gt;, second &lt;second@linagora.com&gt;<br/>' +
           'CC: third &lt;third@linagora.com&gt;' +
           '</cite>' +
-          '<blockquote><p>my body</p></blockquote>'
+          '<blockquote><p>my body</p></blockquote>',
+          quoted: email,
+          quoteTemplate: 'forward',
+          isQuoting: true
         };
 
         emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
@@ -865,6 +941,33 @@ describe('The Unified Inbox Angular module services', function() {
 
         $rootScope.$digest();
       });
+
+      it('should create a forward email object, not quoting the original message on mobile', function() {
+        isMobile = true;
+        email = {
+          from: {email: 'from@linagora.com', name: 'from'},
+          to: [{name: 'first', email: 'first@linagora.com'}, {name: 'second', email: 'second@linagora.com'}],
+          cc: [{name: 'third', email: 'third@linagora.com'}],
+          date: '12:00:00 14:00',
+          subject: 'my subject',
+          htmlBody: '<p>my body</p>'
+        };
+        sender =  {name: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          subject: 'Fw: my subject',
+          quoted: email,
+          quoteTemplate: 'forward',
+          isQuoting: false
+        };
+
+        emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
     });
   });
 

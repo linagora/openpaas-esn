@@ -8,6 +8,8 @@ angular.module('esn.header', ['esn.sidebar'])
 
   .constant('SUB_HEADER_HAS_INJECTION_EVENT', 'sub-header:hasInjection')
 
+  .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
+
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
 
     function buildDynamicDirective(directiveName, scope) {

@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module controllers', function() {
 
-  var $stateParams, $rootScope, $location, scope, $controller,
+  var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
       jmapEmailService;
@@ -42,9 +42,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         return callback(jmapClient);
       });
       $provide.value('$stateParams', $stateParams);
-      $provide.value('$location', $location = {
-        url: angular.noop
-      });
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('Offline', Offline);
       $provide.value('$modal', $modal);

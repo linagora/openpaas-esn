@@ -70,6 +70,8 @@ module.exports = function(config) {
       'frontend/components/autosize/dist/autosize.min.js',
       'frontend/components/offline/offline.min.js',
       'frontend/components/angular-media-queries/match-media.js',
+      'frontend/components/autogrow/autogrow.js',
+      'frontend/components/jquery.focus/dist/jquery.focus.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',

@@ -87,7 +87,8 @@
     "offline": "0.7.14",
     "angular-ui-router": "0.2.15",
     "ui-router-extras": "0.1.0",
-    "angular-media-queries": "0.4.1"
+    "angular-media-queries": "0.4.1",
+    "jquery.focus": "linagora/jquery.focus#bowerified"
   },
   "resolutions": {
     "jquery": "2.1.1",

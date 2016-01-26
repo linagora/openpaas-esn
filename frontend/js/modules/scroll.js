@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.scroll', [])
+angular.module('esn.scroll', ['esn.header'])
   .constant('SCROLL_EVENTS', {
     RESET_SCROLL: 'scroll:reset'
   })
@@ -80,7 +80,7 @@ angular.module('esn.scroll', [])
     };
   })
 
-  .factory('elementScrollDownService', function($timeout) {
+  .factory('elementScrollService', function($timeout, $window, headerService, SUB_HEADER_HEIGHT_IN_PX) {
     /**
      * Auto-scroll to the end of the given element
      * @param element
@@ -93,7 +93,19 @@ angular.module('esn.scroll', [])
       }
     }
 
+    function scrollDownToElement(element) {
+      var scrollY = element.offset().top;
+
+      if (headerService.subHeader.hasInjections()) {
+        scrollY -= SUB_HEADER_HEIGHT_IN_PX;
+      }
+
+      $window.scrollTo(0, 0);
+      $window.scrollTo(0, scrollY);
+    }
+
     return {
-      autoScrollDown: autoScrollDown
+      autoScrollDown: autoScrollDown,
+      scrollDownToElement: scrollDownToElement
     };
   });

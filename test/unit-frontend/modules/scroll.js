@@ -7,7 +7,25 @@ var expect = chai.expect;
 
 describe('The Scroll Angular module', function() {
 
-  beforeEach(angular.mock.module('esn.scroll'));
+  var subHeaderHasInjections, SUB_HEADER_HEIGHT_IN_PX = 47;
+
+  beforeEach(angular.mock.module('esn.scroll', function($provide) {
+    subHeaderHasInjections = false;
+
+    $provide.decorator('$window', function($delegate) {
+      $delegate.scrollTo = sinon.spy();
+
+      return $delegate;
+    });
+    $provide.value('headerService', {
+      subHeader: {
+        hasInjections: function() {
+          return subHeaderHasInjections;
+        }
+      }
+    });
+    $provide.value('SUB_HEADER_HEIGHT_IN_PX', SUB_HEADER_HEIGHT_IN_PX);
+  }));
 
   describe('The keepScrollPosition directive', function() {
     var $location;
@@ -101,13 +119,13 @@ describe('The Scroll Angular module', function() {
 
   });
 
-  describe('The elementScrollDownService factory', function() {
+  describe('The elementScrollService factory', function() {
 
-    var $timeout, elementScrollDownService;
+    var $timeout, elementScrollService;
 
-    beforeEach(inject(function(_$timeout_, _elementScrollDownService_) {
+    beforeEach(inject(function(_$timeout_, _elementScrollService_) {
       $timeout = _$timeout_;
-      elementScrollDownService = _elementScrollDownService_;
+      elementScrollService = _elementScrollService_;
     }));
 
     describe('the autoScrollDown method with an element that has a scrollHeight attribute', function() {
@@ -119,13 +137,13 @@ describe('The Scroll Angular module', function() {
       });
 
       it('should call the autoScrollDown method of the element passed as an argument', function() {
-        elementScrollDownService.autoScrollDown(element);
+        elementScrollService.autoScrollDown(element);
         $timeout.flush(1);
         expect(scrollTopSpy).to.be.called;
       });
 
       it('should not call the autoScrollDown method when no element is passed as an argument', function() {
-        elementScrollDownService.autoScrollDown();
+        elementScrollService.autoScrollDown();
         $timeout.flush(1);
         expect(scrollTopSpy).to.not.be.called;
       });
@@ -141,11 +159,49 @@ describe('The Scroll Angular module', function() {
       });
 
       it('should not call the autoScrollDown method', function() {
-        elementScrollDownService.autoScrollDown(element);
+        elementScrollService.autoScrollDown(element);
         $timeout.flush(1);
         expect(scrollTopSpy).to.not.be.called;
       });
     });
+
+    describe('The scrollDownToElement function', function() {
+
+      var $window, elementScrollService;
+
+      function elementWithOffset(offset) {
+        return {
+          offset: function() {
+            return {
+              top: offset
+            };
+          }
+        };
+      }
+
+      beforeEach(inject(function(_$window_, _elementScrollService_) {
+        $window = _$window_;
+        elementScrollService = _elementScrollService_;
+      }));
+
+      it('should scroll to top, then down to the element offsetTop', function() {
+        elementScrollService.scrollDownToElement(elementWithOffset(100));
+
+        expect($window.scrollTo).to.have.been.calledWith(0, 0);
+        expect($window.scrollTo).to.have.been.calledWith(0, 100);
+      });
+
+      it('should consider the subHeader, if injections are active', function() {
+        subHeaderHasInjections = true;
+
+        elementScrollService.scrollDownToElement(elementWithOffset(100));
+
+        expect($window.scrollTo).to.have.been.calledWith(0, 0);
+        expect($window.scrollTo).to.have.been.calledWith(0, 100 - SUB_HEADER_HEIGHT_IN_PX);
+      });
+
+    });
+
   });
 
   describe('the resizeScrollbar directive', function() {

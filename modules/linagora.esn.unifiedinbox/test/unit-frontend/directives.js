@@ -8,8 +8,8 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
-      iFrameResize = angular.noop, elementScrollDownService, $stateParams,
-      deviceDetector, searchService;
+      iFrameResize = angular.noop, elementScrollService, $stateParams,
+      isMobile, searchService, autosize;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -22,6 +22,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   beforeEach(module(function($provide) {
+    isMobile = false;
+
     $provide.constant('MAILBOX_ROLE_ICONS_MAPPING', {
       testrole: 'testclass',
       default: 'defaultclass'
@@ -41,11 +43,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         return iFrameResize;
       }
     });
-    $provide.value('elementScrollDownService', elementScrollDownService = {});
+    $provide.value('elementScrollService', elementScrollService = {
+      autoScrollDown: sinon.spy(),
+      scrollDownToElement: sinon.spy()
+    });
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
-    $provide.value('deviceDetector', deviceDetector = { isMobile: function() { return false;} });
+    $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
+    $provide.value('autosize', autosize = { update: sinon.spy() });
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
@@ -192,10 +198,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $location;
+    var draftService, $state;
 
-    beforeEach(inject(function(_$location_, _draftService_) {
-      $location = _$location_;
+    beforeEach(inject(function(_$state_, _draftService_) {
+      $state = _$state_;
       draftService = _draftService_;
     }));
 
@@ -228,12 +234,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
-      it('should change location when the composer is closed', function() {
-        $location.path = sinon.spy();
-
+      it('should change state when the composer is closed', function() {
+        $state.go = sinon.spy();
         $scope.close();
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox');
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -243,11 +248,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should change location when the composer is hidden', function() {
-        $location.path = sinon.spy();
-
+        $state.go = sinon.spy();
         $scope.hide();
 
-        expect($location.path).to.have.been.calledWith('/unifiedinbox');
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
 
     });
@@ -298,20 +302,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(headerService.subHeader.setInjection).to.have.been.called;
       });
 
-      it('should be shown when the fullscreen edit form is closed', function() {
-        $rootScope.$broadcast('fullscreenEditForm:close');
-
-        expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
-      });
-
       it('should be hidden when location has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
-
-        expect(headerService.subHeader.resetInjections).to.have.been.called;
-      });
-
-      it('should be hidden when the fullscreen edit form is shown', function() {
-        $rootScope.$broadcast('fullscreenEditForm:show');
 
         expect(headerService.subHeader.resetInjections).to.have.been.called;
       });
@@ -327,6 +319,99 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
         expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
       });
+    });
+
+    describe('The editQuotedMail function', function() {
+
+      function expectFocusAt(position) {
+        var textarea = element.find('.compose-body').get(0);
+
+        expect(document.activeElement).to.equal(textarea);
+        expect(textarea.selectionStart).to.equal(position);
+        expect(textarea.selectionEnd).to.equal(position);
+      }
+
+      beforeEach(inject(function($templateCache) {
+        isMobile = true;
+
+        $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '{{ email.textBody }} Quote {{ email.quoted.textBody }}');
+      }));
+
+      it('should quote the original message, and set it as the textBody', function(done) {
+        compileDirective('<composer />');
+        $scope.email = {
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail().then(function() {
+          expect($scope.email.isQuoting).to.equal(true);
+          expect($scope.email.textBody).to.equal(' Quote Hello');
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should scroll the viewport down to the email body (.compose-body)', function() {
+        compileDirective('<composer />');
+        $scope.email = {
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expect(elementScrollService.scrollDownToElement).to.have.been.calledWith(sinon.match({
+          selector: '.compose-body'
+        }));
+      });
+
+      it('should focus the email body, at the very beginning if there was no text already', function() {
+        compileDirective('<composer />');
+        $scope.email = {
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expectFocusAt(0);
+      });
+
+      it('should focus the email body, after an already typed text if present', function() {
+        compileDirective('<composer />');
+        $scope.email = {
+          textBody: 'I am 18 chars long',
+          quoted: {
+            textBody: 'Hello'
+          }
+        };
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expectFocusAt(18);
+      });
+
+      it('should update autosize() on the email body', function() {
+        compileDirective('<composer />');
+
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expect(autosize.update).to.have.been.calledWith(element.find('.compose-body').get(0));
+      });
+
     });
 
   });
@@ -437,11 +522,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The inboxFab directive', function() {
 
-    var boxOverlayService, $location, newComposerService;
+    var boxOverlayService, newComposerService;
 
-    beforeEach(inject(function(_boxOverlayService_, _$location_, _newComposerService_) {
+    beforeEach(inject(function(_boxOverlayService_, _newComposerService_) {
       boxOverlayService = _boxOverlayService_;
-      $location = _$location_;
       newComposerService = _newComposerService_;
     }));
 
@@ -527,12 +611,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   describe('The recipientsAutoComplete directive', function() {
-    var autoScrollDownSpy, unifiedinboxTagsAddedSpy;
+    var unifiedinboxTagsAddedSpy;
 
     beforeEach(function() {
-      autoScrollDownSpy = sinon.spy();
       unifiedinboxTagsAddedSpy = sinon.spy();
-      elementScrollDownService.autoScrollDown = autoScrollDownSpy;
     });
 
     it('should trigger an error if no template is given', function() {
@@ -571,7 +653,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       scope.onTagAdded(recipient);
 
-      expect(autoScrollDownSpy).to.have.been.calledWith();
+      expect(elementScrollService.autoScrollDown).to.have.been.calledWith();
     });
 
     it('should leverage the recipient object to create a corresponding jmap json object', function() {
@@ -629,7 +711,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should load a textarea when isMobile()=true', function() {
-      deviceDetector.isMobile = function() { return true; };
+      isMobile = true;
 
       var element = compileDirective('<email-body-editor />');
 
