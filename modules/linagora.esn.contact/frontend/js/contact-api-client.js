@@ -40,7 +40,7 @@ angular.module('linagora.esn.contact')
       return addressbookHome(metadata.bookId).addressbook(metadata.bookName).get().then(function(ab) {
         shell.addressbook = ab;
         return shell;
-      }, function(err) {
+      }, function() {
         return shell;
       });
     }

@@ -51,7 +51,7 @@ describe('ContactDisplayShell', function() {
 
     it('should set the addressbook when defined', function() {
       var ab = {foo: 'bar'};
-      expect(new ContactDisplayShell({}, ab).addressbook).to.deep.equal(ab);
+      expect(new ContactDisplayShell({addressbook: ab}).addressbook).to.deep.equal(ab);
     });
 
     it('should provide contact default contact informations for the template to display', function() {
@@ -214,12 +214,12 @@ describe('ContactDisplayShell', function() {
     });
 
     it('should return false when addressbook is not editable', function() {
-      var displayShell = new ContactDisplayShell({}, {editable: false});
+      var displayShell = new ContactDisplayShell({addressbook: {editable: false}});
       expect(displayShell.isWritable()).to.be.false;
     });
 
     it('should return false when addressbook is editable', function() {
-      var displayShell = new ContactDisplayShell({}, {editable: true});
+      var displayShell = new ContactDisplayShell({addressbook: {editable: true}});
       expect(displayShell.isWritable()).to.be.true;
     });
   });

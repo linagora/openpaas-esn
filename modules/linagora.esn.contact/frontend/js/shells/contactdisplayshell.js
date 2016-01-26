@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact')
   .factory('ContactDisplayShell', function(ContactsHelper, urlUtils, CONTACT_ATTRIBUTES_ORDER, CONTACT_DEFAULT_AVATAR) {
-    var ContactDisplayShell = function(shell, addressbookShell) {
+    var ContactDisplayShell = function(shell) {
       if (shell) {
         this.shell = shell;
         this.overlayIcon = {iconClasses: 'ng-hide'};
@@ -28,8 +28,8 @@ angular.module('linagora.esn.contact')
         }
         this.dropDownMenuDirective = 'default-menu-items';
         this.fallbackAvatar = CONTACT_DEFAULT_AVATAR;
+        this.addressbook = this.shell.addressbook;
       }
-      this.addressbook = addressbookShell;
     };
 
     ContactDisplayShell.prototype.isWritable = function() {

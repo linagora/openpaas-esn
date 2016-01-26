@@ -16,7 +16,7 @@ angular.module('linagora.esn.contact')
       displayShellsRegistered = [];
     }
 
-    function convertToDisplayShell(contactShell) {
+    function toDisplayShell(contactShell) {
       var displayShellMatched = null;
 
       displayShellsRegistered.some(function(elt) {
@@ -36,6 +36,6 @@ angular.module('linagora.esn.contact')
     return {
       addDisplayShell: addDisplayShell,
       resetDisplayShell: resetDisplayShell,
-      convertToDisplayShell: convertToDisplayShell
+      toDisplayShell: toDisplayShell
     };
   });

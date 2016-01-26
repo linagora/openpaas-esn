@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 var expect = chai.expect;
 
 describe('ContactShell Helpers', function() {
@@ -61,27 +62,11 @@ describe('ContactShell Helpers', function() {
     });
 
     describe('The build function', function() {
-      it('should set the current shell AB to the display one', function() {
-        var addressbook = {
-          bookId: 1,
-          bookName: 'twitter'
-        };
-
-        var shell = {
-          bar: 'baz',
-          addressbook: addressbook
-        };
-
-        var built = {
-          foo: 'bar'
-        };
-
-        DisplayShellProvider.convertToDisplayShell = function(_shell) {
-          expect(_shell).to.deep.equal(shell);
-          return built;
-        };
-
-        expect(this.ContactShellDisplayBuilder.build(shell).addressbook).to.deep.equals(addressbook);
+      it('should call the DisplayShell.toDisplayShell function', function() {
+        var spy = sinon.spy();
+        DisplayShellProvider.toDisplayShell = spy;
+        this.ContactShellDisplayBuilder.build({});
+        expect(spy).to.have.been.called.once;
       });
     });
   });

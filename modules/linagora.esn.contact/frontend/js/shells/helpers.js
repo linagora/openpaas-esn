@@ -5,9 +5,7 @@ angular.module('linagora.esn.contact')
   .factory('ContactShellDisplayBuilder', function(DisplayShellProvider) {
 
     function build(shell) {
-      var result = DisplayShellProvider.convertToDisplayShell(shell);
-      result.addressbook = shell.addressbook;
-      return result;
+      return DisplayShellProvider.toDisplayShell(shell);
     }
 
     return {
