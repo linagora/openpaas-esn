@@ -4,7 +4,9 @@ angular.module('linagora.esn.contact')
   .constant('CONTACT_ACCEPT_HEADER', 'application/vcard+json')
   .constant('CONTACT_CONTENT_TYPE_HEADER', 'application/vcard+json')
   .constant('CONTACT_PREFER_HEADER', 'return=representation')
+  .constant('CONTACT_ADDRESSBOOK_TTL', '60000')
   .factory('ContactAPIClient', function($q,
+                            $log,
                             uuid4,
                             ContactShell,
                             AddressBookShell,
@@ -18,10 +20,24 @@ angular.module('linagora.esn.contact')
                             GRACE_DELAY,
                             CONTACT_LIST_PAGE_SIZE,
                             CONTACT_LIST_DEFAULT_SORT,
+                            CONTACT_ADDRESSBOOK_TTL,
                             shellToVCARD,
                             davClient,
+                            Cache,
                             contactUpdateDataService) {
+
     var ADDRESSBOOK_PATH = '/addressbooks';
+
+    var addressbookCache = new Cache({
+      loader: function(options) {
+        $log.debug('Loading from cache', options);
+        return addressbookHome(options.bookId).addressbook(options.bookName).get();
+      },
+      keyBuilder: function(options) {
+        return options.bookId + '-' + options.bookName;
+      },
+      ttl: CONTACT_ADDRESSBOOK_TTL
+    });
 
     function buildContactShell(vcarddata) {
       var contact = new ContactShell(new ICAL.Component(vcarddata.data), null, vcarddata._links.self.href);
@@ -37,7 +53,7 @@ angular.module('linagora.esn.contact')
         return $q.when(shell);
       }
 
-      return addressbookHome(metadata.bookId).addressbook(metadata.bookName).get().then(function(ab) {
+      return addressbookCache.get(metadata).then(function(ab) {
         shell.addressbook = ab;
         return shell;
       }, function() {
