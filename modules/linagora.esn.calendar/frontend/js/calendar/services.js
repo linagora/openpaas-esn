@@ -525,6 +525,15 @@ angular.module('esn.calendar')
       return angular.isUndefined(event.etag);
     }
 
+    /**
+     * Return true or false either the event is involved in a graceperiod task
+     * @param  {CalendarShell}  event the event to checkbox
+     * @return {Boolean}
+     */
+    function isInvolvedInATask(event) {
+      return !angular.isUndefined(event.gracePeriodTaskId);
+    }
+
     function isOrganizer(event) {
       var organizerMail = event && event.organizer && (event.organizer.email || event.organizer.emails[0]);
       return !organizerMail || (organizerMail in session.user.emailMap);
@@ -550,6 +559,7 @@ angular.module('esn.calendar')
       editedEvent: editedEvent,
       render: render,
       isNew: isNew,
+      isInvolvedInATask: isInvolvedInATask,
       isOrganizer: isOrganizer,
       isMajorModification: isMajorModification,
       getEditedEvent: getEditedEvent,

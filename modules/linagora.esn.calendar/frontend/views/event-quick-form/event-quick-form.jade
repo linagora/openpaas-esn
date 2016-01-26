@@ -55,7 +55,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
               .options-button
                 button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
-              .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
+              .delete-button(ng-if="isOrganizer && (isInvolvedInATask(editedEvent) || !isNew(editedEvent))")
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="!canPerformCall()")
                   i.mdi.mdi-delete
               .close-button
