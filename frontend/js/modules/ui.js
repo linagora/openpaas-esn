@@ -57,4 +57,20 @@ angular.module('esn.ui', ['op.dynamicDirective'])
         };
       }
     };
+  })
+
+  .directive('condAttr', function() {
+    return {
+      restrict: 'A',
+      scope: {
+        condAttr: '&',
+        condAttrName: '@',
+        condAttrValue: '@'
+      },
+      link: function(scope, element) {
+        if (scope.condAttr()) {
+          element.attr(scope.condAttrName, scope.condAttrValue || true);
+        }
+      }
+    };
   });

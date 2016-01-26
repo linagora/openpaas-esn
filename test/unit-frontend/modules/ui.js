@@ -121,4 +121,41 @@ describe('The UI module', function() {
       expect(dropup.hasClass('active')).to.be.false;
     });
   });
+
+  describe('The condAttr directive', function() {
+
+    it('should do nothing when condAttr returns false', function() {
+      $scope.cond = function() {return false;};
+
+      initDirective('<div cond-attr="cond()" cond-attr-name="custom"></div>');
+
+      expect(element.attr('custom')).to.not.exist;
+    });
+
+    it('should add given attribute with "true" as value when condAttrValue is undefined', function() {
+      $scope.cond = function() {return true;};
+
+      initDirective('<div cond-attr="cond()" cond-attr-name="custom"></div>');
+
+      expect(element.attr('custom')).to.equal('true');
+    });
+
+    it('should add given attribute with given value', function() {
+      $scope.cond = function() {return true;};
+
+      initDirective('<div cond-attr="cond()" cond-attr-name="custom" cond-attr-value="yo lo"></div>');
+
+      expect(element.attr('custom')).to.equal('yo lo');
+    });
+
+    it('should add given attribute with "false" as value when condAttrValue is "false"', function() {
+      $scope.cond = function() {return true;};
+
+      initDirective('<div cond-attr="cond()" cond-attr-name="custom" cond-attr-value="false"></div>');
+
+      expect(element.attr('custom')).to.equal('false');
+    });
+
+  });
+
 });
