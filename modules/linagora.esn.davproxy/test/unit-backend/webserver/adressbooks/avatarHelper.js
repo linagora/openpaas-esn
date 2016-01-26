@@ -6,9 +6,13 @@ var mockery = require('mockery');
 
 describe('The avatarHelper module', function() {
 
-  var deps, dependencies;
+  var deps, dependencies, bookId, bookName, cardId;
 
   beforeEach(function() {
+    bookId = '123';
+    bookName = '456';
+    cardId = 'xyz';
+
     dependencies = {
       logger: {
         error: function() {},
@@ -32,23 +36,24 @@ describe('The avatarHelper module', function() {
     return require('../../../../backend/webserver/addressbooks/avatarHelper')(deps);
   }
 
+  function getAvatarUrl() {
+    return ['http://localhost:8080/contact/api/contacts', bookId, bookName, cardId, 'avatar'].join('/');
+  }
+
   describe('The injectTextAvatar function', function() {
 
     it('should inject text avatar url to vcard using DEFAULT_BASE_URL', function(done) {
       var vcardData = ['vcard', [
+        ['version', {}, 'text', '4.0'],
+        ['uid', {}, 'text', cardId]
+      ]];
+
+      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+        expect(output).to.eql(['vcard', [
           ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz']
-        ]
-      ];
-      var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
-      var expectedOutput = ['vcard', [
-          ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz'],
-          ['photo', {}, 'uri', avatarUrl]
-        ]
-      ];
-      getModule().injectTextAvatar(123, vcardData).then(function(output) {
-        expect(output).to.eql(expectedOutput);
+          ['uid', {}, 'text', cardId],
+          ['photo', {}, 'uri', getAvatarUrl()]
+        ]]);
         done();
       });
     });
@@ -64,30 +69,28 @@ describe('The avatarHelper module', function() {
       };
       var vcardData = ['vcard', [
           ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz']
+          ['uid', {}, 'text', cardId]
         ]
       ];
-      var avatarUrl = baseUrl + '/contact/api/contacts/123/xyz/avatar';
-      var expectedOutput = ['vcard', [
+      var avatarUrl = baseUrl + '/contact/api/contacts/' + bookId + '/' + bookName + '/' + cardId + '/avatar';
+      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+        expect(output).to.eql(['vcard', [
           ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz'],
+          ['uid', {}, 'text', cardId],
           ['photo', {}, 'uri', avatarUrl]
-        ]
-      ];
-      getModule().injectTextAvatar(123, vcardData).then(function(output) {
-        expect(output).to.eql(expectedOutput);
+        ]]);
         done();
       });
     });
 
     it('should resolve original vcard when it has photo data already', function(done) {
       var vcardData = ['vcard', [
-          ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz'],
-          ['photo', {}, 'uri', 'some data here']
-        ]
-      ];
-      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+        ['version', {}, 'text', '4.0'],
+        ['uid', {}, 'text', cardId],
+        ['photo', {}, 'uri', 'some data here']
+      ]];
+
+      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(vcardData);
         done();
       });
@@ -99,8 +102,9 @@ describe('The avatarHelper module', function() {
           throw new Error('some error');
         }
       });
-      var vcardData = 'a invalid vcard data';
-      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+      var vcardData = 'an invalid vcard data';
+
+      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(vcardData);
         done();
       });
@@ -115,42 +119,36 @@ describe('The avatarHelper module', function() {
         };
       };
       var vcardData = 'some vcard data';
-      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(vcardData);
         done();
       });
     });
-
   });
 
   describe('The removeTextAvatar function', function() {
 
     it('should return vcard without text avatar URL', function() {
-      var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
       var vcardData = ['vcard', [
-          ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz'],
-          ['photo', {}, 'uri', avatarUrl]
-        ]
-      ];
-      var output = getModule().removeTextAvatar(vcardData);
-      var expectedOutput = ['vcard', [
-          ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz']
-        ]
-      ];
-      expect(output).to.eql(expectedOutput);
+        ['version', {}, 'text', '4.0'],
+        ['uid', {}, 'text', cardId],
+        ['photo', {}, 'uri', getAvatarUrl()]
+      ]];
+
+      expect(getModule().removeTextAvatar(vcardData)).to.eql(['vcard', [
+        ['version', {}, 'text', '4.0'],
+        ['uid', {}, 'text', cardId]
+      ]]);
     });
 
-    it('should return original vcard when vcard doesnt have text avatar', function() {
+    it('should return original vcard when vcard does not have text avatar', function() {
       var vcardData = ['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', 'xyz'],
           ['photo', {}, 'uri', 'http://abc.com/avatar.png']
         ]
       ];
-      var output = getModule().removeTextAvatar(vcardData);
-      expect(output).to.eql(vcardData);
+      expect(getModule().removeTextAvatar(vcardData)).to.eql(vcardData);
     });
 
     it('should return original vcard when ical throws error', function() {
@@ -161,10 +159,7 @@ describe('The avatarHelper module', function() {
       });
 
       var vcardData = 'a invalid vcard data';
-      var output = getModule().removeTextAvatar(vcardData);
-      expect(output).to.eql(vcardData);
+      expect(getModule().removeTextAvatar(vcardData)).to.eql(vcardData);
     });
-
   });
-
 });

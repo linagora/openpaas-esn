@@ -59,13 +59,14 @@ module.exports = function(dependencies) {
    */
   function getAvatar(req, res) {
     var addressBookId = req.params.addressBookId;
+    var addressbookName = req.params.addressbookName;
     var contactId = req.params.contactId;
     var esnToken = req.token && req.token.token ? req.token.token : '';
     var avatarSize = req.query.size ? req.query.size : DEFAULT_AVATAR_SIZE;
 
     contactClient({ESNToken: esnToken})
       .addressbookHome(addressBookId)
-      .addressbook()
+      .addressbook(addressbookName)
       .vcard(contactId)
       .get()
       .then(function(data) {
