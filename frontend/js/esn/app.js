@@ -9,6 +9,7 @@ angular.module('esnApp', [
   'mgcrea.ngStrap.modal',
   'mgcrea.ngStrap.aside',
   'angularMoment',
+  'angular-clockpicker',
   'truncate',
   'openpaas-logo',
   'frapontillo.bootstrap-switch',
