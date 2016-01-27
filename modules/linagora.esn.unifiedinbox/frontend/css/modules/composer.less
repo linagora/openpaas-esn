@@ -109,8 +109,6 @@ composer, composer-desktop {
         .flex-shorthand(1);
 
         .note-editable {
-          .fill-parent-block;
-
           p {
             margin-bottom: 0;
           }
@@ -190,7 +188,7 @@ composer {
 
   .compose {
 
-    .compose-body {
+    .compose-body, .note-editor {
       // This will make the textarea wide enough to overflow the screen,
       // but be short enough so that when it is focused, the automatic scroll when the
       // virtual keyboard appears does not hide the caret.
@@ -212,6 +210,22 @@ composer {
       a {
         color: @textPrimaryColor;
       }
+    }
+
+  }
+
+}
+
+composer-desktop {
+
+  .compose {
+
+    .note-editor {
+
+      .note-editable {
+        .fill-parent-block;
+      }
+
     }
 
   }
