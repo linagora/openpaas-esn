@@ -9,6 +9,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import.twitter
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact', 'contact'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact.import', 'contact-import'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.jobqueue', 'jobqueue'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub')
   ],
@@ -25,15 +26,22 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import.twitter
         'services.js',
         'directives.js'
       ];
+      var self = this;
 
       dependencies('contact-import').lib.addImporter({
         ns: 'contact.import.twitter',
         name: 'twitter',
-        lib: this.lib,
         frontend: {
           staticPath: path.normalize(__dirname + '/frontend'),
           modules: frontendModules,
           moduleName: 'linagora.esn.contact.import.twitter'
+        }
+      });
+
+      dependencies('jobqueue').lib.workers.add({
+        name: 'contact-twitter-import',
+        getWorkerFunction: function() {
+          return self.lib.importer.importContact;
         }
       });
 

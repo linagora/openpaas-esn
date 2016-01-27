@@ -6,6 +6,7 @@ module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var webserverWrapper = dependencies('webserver-wrapper');
+  var jobQueue = dependencies('jobqueue');
 
   var webserver = require('../webserver')(dependencies);
   var importers = require('./importers')(dependencies);
@@ -17,7 +18,7 @@ module.exports = function(dependencies) {
       return;
     }
     importers.add(importer);
-    logger.debug('Adding the %s importer', importer.type);
+    logger.debug('Adding the %s importer', importer.name);
     webserverWrapper.injectAngularModules('contact.import.' + importer.name, importer.frontend.modules, importer.frontend.moduleName, ['esn']);
     webserverWrapper.addApp('contact.import.' + importer.name, webserver.getStaticApp(importer.frontend.staticPath));
   }
@@ -34,9 +35,19 @@ module.exports = function(dependencies) {
       .then(importer.lib.importer.importContact);
   }
 
+  function importAccountContactsByJobQueue(user, account) {
+    return helper.getImporterOptions(user, account)
+      .then(helper.initializeAddressBook)
+      .then(function(options) {
+        var jobName = ['contact', options.account.data.provider, 'import'].join('-');
+        return jobQueue.lib.startJob(jobName, options);
+      });
+  }
+
   return {
     importers: importers,
     addImporter: addImporter,
-    importAccountContacts: importAccountContacts
+    importAccountContacts: importAccountContacts,
+    importAccountContactsByJobQueue: importAccountContactsByJobQueue
   };
 };

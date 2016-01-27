@@ -18,6 +18,12 @@ describe('The contact import backend module', function() {
     return require('../../../backend/lib/index')(dependencies);
   };
 
+  var jobQueueMock = {
+    lib: {
+      startJob: function() {}
+    }
+  };
+
   var type = 'twitter';
   var id = 123;
   var domainId = 456;
@@ -28,7 +34,8 @@ describe('The contact import backend module', function() {
         debug: console.log,
         info: console.log,
         error: console.log
-      }
+      },
+      jobqueue: jobQueueMock
     };
 
     account =  {
@@ -199,6 +206,9 @@ describe('The contact import backend module', function() {
         done();
       });
     });
+  });
+
+  describe('The importAccountContactsByJobQueue function', function() {
 
     it('should reject if helper.getImporterOptions rejects', function(done) {
       var e = new Error('Options error');
@@ -212,22 +222,7 @@ describe('The contact import backend module', function() {
           }
         };
       });
-      mockery.registerMock('./importers', function() {
-        return {
-          get: function() {
-            return {
-              lib: {
-                importer: {
-                  importContact: function() {
-                    return q.when({});
-                  }
-                }
-              }
-            };
-          }
-        };
-      });
-      getModule().importAccountContacts(user, account).then(done, function(err) {
+      getModule().importAccountContactsByJobQueue(user, account).then(done, function(err) {
         expect(err).to.equal(e);
         done();
       });
@@ -245,56 +240,66 @@ describe('The contact import backend module', function() {
           }
         };
       });
-      mockery.registerMock('./importers', function() {
-        return {
-          get: function() {
-            return {
-              lib: {
-                importer: {
-                  importContact: function() {
-                    return q.when({});
-                  }
-                }
-              }
-            };
-          }
-        };
-      });
-      getModule().importAccountContacts(user, account).then(done, function(err) {
+      getModule().importAccountContactsByJobQueue(user, account).then(done, function(err) {
         expect(err).to.equal(e);
         done();
       });
     });
 
-    it('should resolve if importer.importContact resolves', function(done) {
+    it('should call jobqueue startJob fn with valid options', function(done) {
+
+      var options = {
+        account: account,
+        user: user
+      };
+      var addressbook = {
+        id: '1',
+        name: 'MyAB'
+      };
+
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q(options);
+          },
+          initializeAddressBook: function(options) {
+            options.addressbook = addressbook;
+            return q(options);
+          }
+        };
+      });
+
+      jobQueueMock.lib.startJob = function(jobName, options) {
+        expect(jobName).to.deep.equals('contact-' + account.data.provider + '-import');
+        expect(options.account).to.deep.equals(account);
+        expect(options.user).to.deep.equals(user);
+        expect(options.addressbook).to.deep.equals(addressbook);
+        done();
+      };
+
+      getModule().importAccountContactsByJobQueue(user, account);
+    });
+
+    it('should resolve if jobqueue startJob resolves', function(done) {
+      var options = {
+        account: account,
+        user: user
+      };
       mockery.registerMock('./helper', function() {
         return {
           getImporterOptions: function() {
             return q({});
           },
           initializeAddressBook: function() {
-            return q({});
+            return q(options);
           }
         };
       });
-      mockery.registerMock('./importers', function() {
-        return {
-          get: function() {
-            return {
-              lib: {
-                importer: {
-                  importContact: function() {
-                    return q.when({});
-                  }
-                }
-              }
-            };
-          }
-        };
-      });
-      getModule().importAccountContacts(user, account).then(function() {
+
+      jobQueueMock.lib.startJob = function() {return q({});};
+      getModule().importAccountContactsByJobQueue(user, account).then(function() {
         done();
-      }, done);
+      });
     });
   });
 });
