@@ -49,6 +49,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         'shells/contactdisplayshell.js',
         'shells/displayshellprovider.js',
         'shells/helpers.js',
+        'shells/builders.js',
         'pagination.js',
         'contact-api-client.js'
       ];
