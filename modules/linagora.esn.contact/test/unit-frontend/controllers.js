@@ -10,7 +10,7 @@ describe('The Contacts controller module', function() {
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, shellToVCARD, addressbooks;
+    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, shellToVCARD, addressbooks, ContactShellDisplayBuilder;
 
   var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
@@ -19,8 +19,13 @@ describe('The Contacts controller module', function() {
     usSpinnerService = {
       spin: function() {},
       stop: function() {}
-    },
-    ContactShell =  function() {},
+    };
+
+    ContactShellDisplayBuilder = {
+      build: function(shell) {return shell;}
+    };
+
+    ContactShell =  function() {};
     liveRefreshContactService = {
       startListen: function() {},
       stopListen: function() {}
@@ -170,6 +175,7 @@ describe('The Contacts controller module', function() {
       $provide.value('openContactForm', openContactForm);
       $provide.value('closeContactForm', closeContactForm);
       $provide.value('addressbooks', addressbooks);
+      $provide.value('ContactShellDisplayBuilder', ContactShellDisplayBuilder);
     });
   });
 
@@ -660,6 +666,18 @@ describe('The Contacts controller module', function() {
         expect(scope.formattedBirthday).to.be.defined;
       });
 
+      it('should build the display shell', function() {
+        var display = {foo: 'bar'};
+        ContactShellDisplayBuilder.build = function() {
+          return display;
+        };
+        contactUpdateDataService.contact = {};
+        this.initController();
+        var contact = {birthday: '123', tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
+        scope.fillContactData(contact);
+        expect(scope.displayShell).to.deep.equal(display);
+      });
+
     });
 
     describe('The $scope.shouldDisplayWork function', function() {
@@ -862,24 +880,20 @@ describe('The Contacts controller module', function() {
         expect(closeContactFormMock).to.have.been.calledOnce;
       });
 
-      it('should call deleteContact service with the right bookId, bookName and cardId', function(done) {
+      it('should call deleteContact service with the right bookId, bookName and cardId', function() {
         scope.bookName = 'bookName';
-        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar', addressbook: {}};
+        var spy = sinon.spy();
+
         $controller.bind(null, 'showContactController', {
           $scope: scope,
-          deleteContact: function(id, bookName, contact) {
-            expect(id).to.deep.equal(bookId);
-            expect(bookName).to.equal(scope.bookName);
-            expect(contact).to.deep.equal(scope.contact);
-            done();
-          }
+          deleteContact: spy
         })();
-
         scope.deleteContact();
         $timeout.flush();
+        expect(spy).to.have.been.calledWith(bookId, scope.bookName, scope.contact);
       });
     });
-
   });
 
   describe('the contactAvatarModalController', function() {
@@ -2434,22 +2448,24 @@ describe('The Contacts controller module', function() {
 
     describe('the deleteContact function', function() {
 
-      it('should call deleteContact service with the correct bookId, bookName and contact', function(done) {
+      it('should call deleteContact service with the correct bookId, bookName and contact', function() {
         var self = this;
-        self.scope.addressbook = {bookName: bookName, bookId: bookId};
+        var addressbook = {bookName: bookName, bookId: bookId};
+        self.scope.contact = {
+          foo: 'bar',
+          addressbook: addressbook
+        };
+
+        var spy = sinon.spy();
+
         $controller('contactItemController', {
           $scope: this.scope,
-          deleteContact: function(_bookId, _bookName, _contact) {
-            expect(_bookId).to.equal(self.scope.addressbook.bookId);
-            expect(_bookName).to.equal(self.scope.addressbook.bookName);
-            expect(_contact).to.deep.equal(self.scope.contact);
-            done();
-          }
+          deleteContact: spy
         });
 
         this.scope.$digest();
         this.scope.deleteContact();
-        done(new Error());
+        expect(spy).to.have.been.calledWith(self.scope.contact.addressbook.bookId, self.scope.contact.addressbook.bookName, self.scope.contact);
       });
 
     });
@@ -2457,9 +2473,8 @@ describe('The Contacts controller module', function() {
     describe('The displayContact fn', function() {
       it('should show the contact page', function() {
         var addressbook = {bookId: '2', bookName: '3'};
-        var contact = {id: '1'};
+        var contact = {id: '1', addressbook: addressbook};
         this.initController();
-        this.scope.addressbook = addressbook;
         this.scope.contact = contact;
         ContactLocationHelper.contact.show = sinon.spy();
         this.scope.displayContact();
@@ -2517,6 +2532,17 @@ describe('The Contacts controller module', function() {
       });
     });
 
+    describe('The editContact fn', function() {
+      it('should show the contact edition page', function() {
+        var addressbook = {bookId: '2', bookName: '3'};
+        var contact = {id: '1', addressbook: addressbook};
+        this.initController();
+        this.scope.contact = contact;
+        ContactLocationHelper.contact.edit = sinon.spy();
+        this.scope.editContact();
+        expect(ContactLocationHelper.contact.edit).to.have.been.calledWith(addressbook.bookId, addressbook.bookName, contact.id);
+      });
+    });
   });
 
   describe('The contactCategoryLetterController controller', function() {

@@ -4,11 +4,14 @@ angular.module('linagora.esn.contact')
   .constant('CONTACT_ACCEPT_HEADER', 'application/vcard+json')
   .constant('CONTACT_CONTENT_TYPE_HEADER', 'application/vcard+json')
   .constant('CONTACT_PREFER_HEADER', 'return=representation')
+  .constant('CONTACT_ADDRESSBOOK_TTL', '60000')
   .factory('ContactAPIClient', function($q,
+                            $log,
                             uuid4,
                             ContactShell,
                             AddressBookShell,
                             ContactsHelper,
+                            ContactShellBuilder,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
                             CONTACT_CONTENT_TYPE_HEADER,
@@ -17,28 +20,11 @@ angular.module('linagora.esn.contact')
                             GRACE_DELAY,
                             CONTACT_LIST_PAGE_SIZE,
                             CONTACT_LIST_DEFAULT_SORT,
+                            CONTACT_ADDRESSBOOK_TTL,
                             shellToVCARD,
-                            davClient,
-                            contactUpdateDataService) {
-    var ADDRESSBOOK_PATH = '/addressbooks';
+                            davClient) {
 
-    /**
-     * Convert HTTP response to an array of ContactShell
-     * @param  {Response} response Response from $http
-     * @return {Array}          Array of ContactShell
-     */
-    function responseAsContactShell(response) {
-      if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
-        return response.data._embedded['dav:item'].map(function(vcarddata) {
-          var contact =  new ContactShell(new ICAL.Component(vcarddata.data));
-          if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
-            ContactsHelper.forceReloadDefaultAvatar(contact);
-          }
-          return contact;
-        });
-      }
-      return [];
-    }
+    var ADDRESSBOOK_PATH = '/addressbooks';
 
     /**
      * Return the AddressbookHome URL, each user has one AddressbookHome
@@ -113,12 +99,14 @@ angular.module('linagora.esn.contact')
     function getCard(bookId, bookName, cardId) {
       var headers = { Accept: CONTACT_ACCEPT_HEADER };
 
-      return davClient('GET', getVCardUrl(bookId, bookName, cardId), headers)
+      var href = getVCardUrl(bookId, bookName, cardId);
+
+      return davClient('GET', href, headers)
         .then(function(response) {
           var contact = new ContactShell(
             new ICAL.Component(response.data), response.headers('ETag'));
           ContactsHelper.forceReloadDefaultAvatar(contact);
-          return contact;
+          return ContactShellBuilder.populateShell(contact, href);
         });
     }
 
@@ -155,15 +143,17 @@ angular.module('linagora.esn.contact')
 
       return davClient('GET', getBookUrl(bookId, bookName), null, null, query)
         .then(function(response) {
-          var result = {
-            data: responseAsContactShell(response),
-            current_page: currentPage,
-            last_page: !response.data._links.next
-          };
-          if (!response.last_page) {
-            result.next_page = currentPage + 1;
-          }
-          return result;
+          return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
+            var result = {
+              data: shells,
+              current_page: currentPage,
+              last_page: !response.data._links.next
+            };
+            if (!response.last_page) {
+              result.next_page = currentPage + 1;
+            }
+            return result;
+          });
         });
     }
 
@@ -197,11 +187,13 @@ angular.module('linagora.esn.contact')
           null,
           params
         ).then(function(response) {
-          return {
-            current_page: response.data._current_page,
-            total_hits: response.data._total_hits,
-            data: responseAsContactShell(response)
-          };
+          return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
+            return {
+              current_page: response.data._current_page,
+              total_hits: response.data._total_hits,
+              data: shells
+            };
+          });
         });
     }
 

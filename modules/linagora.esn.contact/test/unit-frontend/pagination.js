@@ -187,28 +187,6 @@ describe('The Contacts Angular pagination module', function() {
       });
     });
 
-    it('should throw error when options.addressbooks is undefined', function(done) {
-      try {
-        new this.SearchAddressBookPaginationProvider({});
-        done(new Error());
-      } catch (e) {
-        expect(e.message).to.match(/options.addressbooks array is required/);
-        done();
-      }
-    });
-
-    it('should throw error when options.addressbooks is empty', function(done) {
-      try {
-        new this.SearchAddressBookPaginationProvider({
-          addressbooks: []
-        });
-        done(new Error());
-      } catch (e) {
-        expect(e.message).to.match(/options.addressbooks array is required/);
-        done();
-      }
-    });
-
     describe('The loadNextItems function', function() {
       it('should call ContactAPIClient api with right parameters', function(done) {
         var nextPage = 'nextPage';

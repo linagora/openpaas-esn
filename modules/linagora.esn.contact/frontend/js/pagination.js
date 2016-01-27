@@ -72,9 +72,6 @@ angular.module('linagora.esn.contact')
           self.lastPage = result.last_page;
           result.lastPage = result.last_page;
           self.nextPage = result.next_page;
-          result.data.forEach(function(vcard) {
-            vcard.addressbook = self.addressbook;
-          });
           return result;
         });
     };
@@ -82,18 +79,12 @@ angular.module('linagora.esn.contact')
     return AddressBookPaginationProvider;
   })
 
-  .factory('SearchAddressBookPaginationProvider', function(ContactAPIClient, $log) {
+  .factory('SearchAddressBookPaginationProvider', function($log, ContactAPIClient) {
 
     function SearchAddressBookPaginationProvider(options) {
       this.options = options;
-
-      if (!this.options.addressbooks || this.options.addressbooks.length === 0) {
-        throw new Error('options.addressbooks array is required');
-      }
-
-      this.addressbook = this.options.addressbooks[0];
-      this.bookId = this.addressbook.bookId;
-      this.bookName = this.addressbook.bookName;
+      this.user = this.options.user;
+      this.bookId = this.user._id;
       this.totalHits = 0;
       this.lastPage = false;
       this.nextPage = 0;
@@ -102,7 +93,7 @@ angular.module('linagora.esn.contact')
     SearchAddressBookPaginationProvider.prototype.loadNextItems = function(options) {
       var self = this;
       var page = this.currentPage || 1;
-      $log.debug('Search contacts page %s on ab', page, this.addressbook);
+      $log.debug('Search contacts page %s for bookId %s', page, this.bookId);
 
       var query = {
         data: options.searchInput,
@@ -121,9 +112,6 @@ angular.module('linagora.esn.contact')
             self.lastPage = true;
           }
           result.lastPage = self.lastPage;
-          result.data.forEach(function(vcard) {
-            vcard.addressbook = self.addressbook;
-          });
           return result;
         });
     };

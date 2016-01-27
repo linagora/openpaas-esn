@@ -23,7 +23,7 @@ describe('DisplayShellProvider', function() {
   });
 
   it('should provide a default display shell for openpaas', function() {
-    var displayShellDefault = this.DisplayShellProvider.convertToDisplayShell({});
+    var displayShellDefault = this.DisplayShellProvider.toDisplayShell({});
     expect(displayShellDefault.getDropDownMenu()).to.equal('default-menu-items');
   });
 
@@ -64,9 +64,9 @@ describe('DisplayShellProvider', function() {
         test: 'TwitFace'
       };
 
-    var displayShellForTestTwitter = this.DisplayShellProvider.convertToDisplayShell(shellTwitter);
-    var displayShellForTestFacebook = this.DisplayShellProvider.convertToDisplayShell(shellFacebook);
-    var displayShellForTestAwesome = this.DisplayShellProvider.convertToDisplayShell(shellAwesome);
+    var displayShellForTestTwitter = this.DisplayShellProvider.toDisplayShell(shellTwitter);
+    var displayShellForTestFacebook = this.DisplayShellProvider.toDisplayShell(shellFacebook);
+    var displayShellForTestAwesome = this.DisplayShellProvider.toDisplayShell(shellAwesome);
 
     expect(displayShellForTestTwitter.getDropDownMenu()).to.equal('twitter-menu-items');
     expect(displayShellForTestFacebook.getDropDownMenu()).to.equal('facebook-menu-items');

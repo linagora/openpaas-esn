@@ -27,10 +27,11 @@ function init(dependencies) {
   }
 
   pubsub.topic(CONTACT_DELETED).subscribe(function(data) {
-    if (data && data.bookId && data.contactId) {
+    if (data && data.bookId && data.bookName && data.contactId) {
       logger.info('Notifying contact delete');
       synchronizeContactLists('contact:deleted', {
         bookId: data.bookId,
+        bookName: data.bookName,
         contactId: data.contactId
       });
     } else {
@@ -40,10 +41,11 @@ function init(dependencies) {
   });
 
   pubsub.topic(CONTACT_UPDATED).subscribe(function(data) {
-    if (data && data.bookId && data.contactId) {
+    if (data && data.bookId && data.bookName && data.contactId) {
       logger.info('Notifying contact update');
       synchronizeContactLists('contact:updated', {
         bookId: data.bookId,
+        bookName: data.bookName,
         contactId: data.contactId
       });
     } else {
@@ -52,10 +54,11 @@ function init(dependencies) {
   });
 
   pubsub.topic(CONTACT_ADDED).subscribe(function(data) {
-    if (data && data.bookId && data.vcard) {
+    if (data && data.bookId && data.bookName && data.vcard) {
       logger.info('Notifying contact creation');
       synchronizeContactLists('contact:created', {
         bookId: data.bookId,
+        bookName: data.bookName,
         vcard: data.vcard
       });
     } else {

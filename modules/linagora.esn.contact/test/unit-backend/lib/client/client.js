@@ -391,9 +391,9 @@ describe('The contact client APIs', function() {
           it('should resolve contacts fetched from DAV', function(done) {
             var counter = 0;
             var hitLists = [
-              {_id: 1, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
-              {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
-              {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}}
+              {_id: 1, _source: {bookId: BOOK_ID, bookName: BOOK_NAME, _id: 1}},
+              {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME, _id: 2}},
+              {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME, _id: 3}}
             ];
             mockery.registerMock('../dav-client', {
               rawClient: function(options, callback) {
@@ -415,9 +415,9 @@ describe('The contact client APIs', function() {
 
             getAddressbook().vcard().search({}).then(function(data) {
               expect(data.results).to.eql([
-                { contactId: 1, response: {statusCode: 200}, body: {counter: 1}},
-                { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
-                { contactId: 3, err: 'some error' }
+                { contactId: 1, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {counter: 1}},
+                { contactId: 2, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {counter: 2}},
+                { contactId: 3, bookId: BOOK_ID, bookName: BOOK_NAME, err: 'some error' }
               ]);
               done();
             });
@@ -452,9 +452,9 @@ describe('The contact client APIs', function() {
 
             getAddressbook().vcard().search({}).then(function(data) {
               expect(data.results).to.eql([
-                { contactId: 1, response: {statusCode: 200}, body: {delay: 1}},
-                { contactId: 2, response: {statusCode: 200}, body: {counter: 2}},
-                { contactId: 3, response: {statusCode: 200}, body: {counter: 3}}
+                { contactId: 1, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {delay: 1}},
+                { contactId: 2, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {counter: 2}},
+                { contactId: 3, bookId: BOOK_ID, bookName: BOOK_NAME, response: {statusCode: 200}, body: {counter: 3}}
               ]);
               done();
             });

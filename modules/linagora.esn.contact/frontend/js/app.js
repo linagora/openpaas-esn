@@ -20,7 +20,8 @@ angular.module('linagora.esn.contact', [
   'esn.sidebar',
   'op.dynamicDirective',
   'esn.url',
-  'esn.aggregator'
+  'esn.aggregator',
+  'esn.cache'
 ])
   .config(function($stateProvider, routeResolver) {
     $stateProvider.state('/contact', {

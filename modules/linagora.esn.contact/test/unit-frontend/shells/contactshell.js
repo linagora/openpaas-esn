@@ -83,7 +83,7 @@ describe('ContactShell services', function() {
 
   describe('ContactShell factory', function() {
 
-    function checkShellContactCreatedObject(shell, etag) {
+    function checkShellContactCreatedObject(shell, etag, href) {
       expect(shell.id).to.equal('0');
       expect(shell.displayName).to.equal('Test ContactShell');
       expect(shell.lastName).to.equal('ContactShell');
@@ -134,12 +134,14 @@ describe('ContactShell services', function() {
 
     it('should return a constructor to instantiate a contact from a vcard', function() {
       var cardInput = buildFakeVcard();
-      var etag = '';
-      var shell = new this.ContactShell(cardInput, etag);
-      checkShellContactCreatedObject(shell, etag);
+      var shell = new this.ContactShell(cardInput);
+      checkShellContactCreatedObject(shell);
+    });
 
-      etag = '12345678';
-      shell = new this.ContactShell(cardInput, etag);
+    it('should set the etag', function() {
+      var cardInput = buildFakeVcard();
+      var etag = '12345678';
+      var shell = new this.ContactShell(cardInput, etag);
       checkShellContactCreatedObject(shell, etag);
     });
   });

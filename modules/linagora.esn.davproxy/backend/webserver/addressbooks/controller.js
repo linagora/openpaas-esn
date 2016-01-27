@@ -158,7 +158,7 @@ module.exports = function(dependencies) {
       onSuccess: function(response, data, req, res, callback) {
         logger.debug('Success while deleting contact %s', req.params.contactId);
 
-        pubsub.topic('contacts:contact:delete').publish({contactId: req.params.contactId, bookId: req.params.bookHome});
+        pubsub.topic('contacts:contact:delete').publish({contactId: req.params.contactId, bookId: req.params.bookHome, bookName: req.params.bookName});
 
         return callback(null, data);
       }
@@ -214,11 +214,13 @@ module.exports = function(dependencies) {
         });
 
         q.all(dataCleanResult.map(function(result, index) {
-          return avatarHelper.injectTextAvatar(req.params.bookHome, result.body)
+          return avatarHelper.injectTextAvatar(result.bookId, result.body)
             .then(function(newVcard) {
               json._embedded['dav:item'][index] = {
                 _links: {
-                  self: getContactUrl(req, req.params.bookHome, req.params.bookName, result.contactId)
+                  self: {
+                    href: getContactUrl(req, result.bookId, result.bookName, result.contactId)
+                  }
                 },
                 data: newVcard
               };

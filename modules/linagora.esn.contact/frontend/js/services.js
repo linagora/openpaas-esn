@@ -206,13 +206,16 @@ angular.module('linagora.esn.contact')
       isTextAvatar: isTextAvatar
     };
   })
-  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, ContactAPIClient, ContactShell, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
+  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, ContactAPIClient, ContactShell, ContactShellBuilder, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
     var sio = null;
     var listening = false;
 
     function liveNotificationHandlerOnCreate(data) {
-      var contact = new ContactShell(new ICAL.Component(data.vcard));
-      $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
+      ContactShellBuilder.fromWebSocket(data).then(function(shell) {
+        $rootScope.$broadcast(CONTACT_EVENTS.CREATED, shell);
+      }, function() {
+        $log.debug('Can not build the contact from websocket data');
+      });
     }
 
     function liveNotificationHandlerOnDelete(data) {
