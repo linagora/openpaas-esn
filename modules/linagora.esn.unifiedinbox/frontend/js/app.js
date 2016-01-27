@@ -27,6 +27,7 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox', {
         url: '/unifiedinbox',
         templateUrl: '/unifiedinbox/views/unifiedinbox',
+        controller: 'rootController as ctrl',
         deepStateRedirect: {
           default: 'unifiedinbox.inbox',
           fn: function() {

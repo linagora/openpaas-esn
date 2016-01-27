@@ -596,20 +596,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
   });
 
-  describe('The sidebarMailboxesLoader directive', function() {
-
-    it('should call jmapClient.getMailboxes()', function(done) {
-      jmapClient.getMailboxes = done;
-      compileDirective('<div sidebar-mailboxes-loader />');
-    });
-
-    it('should set $scope.mailboxes to the returned mailboxes', function() {
-      jmapClient.getMailboxes = function() {return $q.when([{ mailbox: '1', role: { value: null } }]); };
-      compileDirective('<div sidebar-mailboxes-loader />');
-      expect($scope.mailboxes).to.shallowDeepEqual([{ mailbox: '1' }]);
-    });
-  });
-
   describe('The recipientsAutoComplete directive', function() {
     var unifiedinboxTagsAddedSpy;
 

@@ -1907,7 +1907,7 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
-      it('should add level and qualifiedName properties to mailboxes', function() {
+      it('should add level and qualifiedName properties to mailboxes', function(done) {
         jmapClient.getMailboxes = function() {
           return $q.when([
             { id: 1, name: '1' },
@@ -1927,11 +1927,138 @@ describe('The Unified Inbox Angular module services', function() {
 
         mailboxesService.assignMailboxesList().then(function(mailboxes) {
           expect(mailboxes).to.deep.equal(expected);
+
+          done();
         });
+
+        $rootScope.$digest();
       });
 
     });
 
+    describe('the flagIsUnreadChanged function', function() {
+
+      it('should do nothing if mail is undefined', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1',  unreadMessages: 1}
+          ]);
+        };
+        mailboxesService.assignMailboxesList({});
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged()).to.be.undefined;
+      });
+
+      it('should do nothing if status is undefined', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1',  unreadMessages: 1}
+          ]);
+        };
+        mailboxesService.assignMailboxesList({});
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] })).to.be.undefined;
+      });
+
+      it('should increase the unreadMessages in the mailboxesCache if status=true', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1',  unreadMessages: 1}
+          ]);
+        };
+        mailboxesService.assignMailboxesList({});
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, true)[0].unreadMessages).to.equal(2);
+      });
+
+      it('should decrease the unreadMessages in the mailboxesCache if status=false', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1',  unreadMessages: 1}
+          ]);
+        };
+        mailboxesService.assignMailboxesList({});
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false)[0].unreadMessages).to.equal(0);
+      });
+
+      it('should guarantee that the unreadMessages in the mailboxesCache is never negative', function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1',  unreadMessages: 0}
+          ]);
+        };
+        mailboxesService.assignMailboxesList({});
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false)[0].unreadMessages).to.equal(0);
+      });
+    });
+
+    describe('The assignMailbox function', function() {
+
+      beforeEach(function() {
+        jmapClient.getMailboxes = function() {
+          return $q.when([{name: 'name'}]);
+        };
+      });
+
+      it('should return a promise', function(done) {
+
+        mailboxesService.assignMailbox().then(function() {
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should pass the mailbox.id to jmapClient.getMailboxes', function(done) {
+
+        jmapClient.getMailboxes = function(data) {
+          expect(data).to.deep.equal({ids: [2]});
+          done();
+        };
+
+        mailboxesService.assignMailbox(2);
+      });
+
+      it('should assign dst.mailbox if dst is given', function(done) {
+        var object = {};
+
+        mailboxesService.assignMailbox(null, object).then(function() {
+          expect(object.mailbox).to.deep.equal({name: 'name', level: 1, qualifiedName: 'name'});
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should assign dst.mailbox if dst is given and dst.mailbox does not exist yet', function(done) {
+        var object = { mailbox: 'mailbox' };
+
+        mailboxesService.assignMailbox(null, object).then(function() {
+          expect(object.mailbox).to.equal('mailbox');
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should add level and qualifiedName properties to mailbox', function() {
+        mailboxesService.assignMailbox().then(function(mailbox) {
+          expect(mailbox).to.deep.equal({name: 'name', level: 1, qualifiedName: 'name'});
+        });
+
+        $rootScope.$digest();
+      });
+    });
   });
 
   describe('The asyncAction factory', function() {
@@ -2105,7 +2232,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The jmapEmailService factory', function() {
 
-    var $rootScope, jmapEmailService, jmap;
+    var $rootScope, jmapEmailService, jmap, mailboxesService;
 
     function newEmail(isUnread) {
       var email = new jmap.Message({}, 'id', 'threadId', ['inbox'], { isUnread: isUnread });
@@ -2114,6 +2241,12 @@ describe('The Unified Inbox Angular module services', function() {
 
       return email;
     }
+
+    beforeEach(module(function($provide) {
+      $provide.value('mailboxesService', mailboxesService = {
+        flagIsUnreadChanged: sinon.spy()
+      });
+    }));
 
     beforeEach(inject(function(_$rootScope_, _jmapEmailService_, _jmap_) {
       $rootScope = _$rootScope_;
@@ -2148,7 +2281,9 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should return the Promise returned by setXXX', function(done) {
-        jmapEmailService.setFlag(newEmail(), 'isUnread', true).then(done);
+        jmapEmailService.setFlag(newEmail(), 'isUnread', true).then(function() {
+          done();
+        });
         $rootScope.$digest();
       });
 
@@ -2198,8 +2333,14 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
+      it('should call mailboxesService.flagIsUnreadChanged passing the email and the correspondent state', function() {
+        var email = newEmail(true);
+
+        jmapEmailService.setFlag(email, 'isUnread', false);
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(email, false);
+      });
     });
-
   });
-
 });
