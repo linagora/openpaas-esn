@@ -1,4 +1,4 @@
-p {{ email.textBody }}
+pre {{ email.textBody }}
 br
 
 cite On {{ email.quoted.date | date:dateFormat:tz }}, from {{ email.quoted.from.email }}

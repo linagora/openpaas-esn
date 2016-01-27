@@ -1721,7 +1721,7 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
 
       expect(emailSendingService.sendEmail).to.have.been.calledWith(sinon.match({
-        htmlBody: '<p></p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>'
+        htmlBody: '<pre></pre><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>'
       }));
     });
 
@@ -1899,7 +1899,7 @@ describe('The Unified Inbox Angular module services', function() {
         it('should quote the original email, using htmlBody when defined', function(done) {
           emailBodyService.quoteOriginalEmail(email)
             .then(function(text) {
-              expect(text).to.equal('<p></p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
+              expect(text).to.equal('<pre></pre><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
             })
             .then(done, done);
 
@@ -1912,7 +1912,7 @@ describe('The Unified Inbox Angular module services', function() {
 
           emailBodyService.quoteOriginalEmail(email)
             .then(function(text) {
-              expect(text).to.equal('<p></p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>Hello</blockquote>');
+              expect(text).to.equal('<pre></pre><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>Hello</blockquote>');
             })
             .then(done, done);
 
@@ -1924,7 +1924,7 @@ describe('The Unified Inbox Angular module services', function() {
 
           emailBodyService.quoteOriginalEmail(email)
             .then(function(text) {
-              expect(text).to.equal('<p>I was previously typed</p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
+              expect(text).to.equal('<pre>I was previously typed</pre><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
             })
             .then(done, done);
 
@@ -1953,7 +1953,7 @@ describe('The Unified Inbox Angular module services', function() {
         it('should quote the original email, using htmlBody when defined', function(done) {
           emailBodyService.quoteOriginalEmail(email)
             .then(function(text) {
-              expect(text).to.equal('<p></p><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
+              expect(text).to.equal('<pre></pre><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
             })
             .then(done, done);
 
@@ -1966,7 +1966,7 @@ describe('The Unified Inbox Angular module services', function() {
 
           emailBodyService.quoteOriginalEmail(email)
             .then(function(text) {
-              expect(text).to.equal('<p></p><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote>Hello</blockquote>');
+              expect(text).to.equal('<pre></pre><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote>Hello</blockquote>');
             })
             .then(done, done);
 
@@ -1978,7 +1978,7 @@ describe('The Unified Inbox Angular module services', function() {
 
           emailBodyService.quoteOriginalEmail(email)
             .then(function(text) {
-              expect(text).to.equal('<p>I was previously typed</p><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
+              expect(text).to.equal('<pre>I was previously typed</pre><br/><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
             })
             .then(done, done);
 
