@@ -24,6 +24,7 @@ describe('The Unified Inbox Angular module services', function() {
   beforeEach(module(function($provide) {
     isMobile = false;
 
+    $provide.value('localTimezone', 'UTC');
     $provide.constant('moment', function(argument) {
       return moment.tz(argument || nowDate, localTimeZone);
     });
@@ -1720,7 +1721,7 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
 
       expect(emailSendingService.sendEmail).to.have.been.calledWith(sinon.match({
-        htmlBody: '<p></p><br/><cite>On Aug 21, 2015 2:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>'
+        htmlBody: '<p></p><br/><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>'
       }));
     });
 
@@ -1777,7 +1778,6 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('deviceDetector', {
         isMobile: function() { return isMobile; }
       });
-      $provide.value('localTimezone', 'UTC');
     }));
 
     beforeEach(inject(function(_emailBodyService_, _$rootScope_, ___, $templateCache) {
