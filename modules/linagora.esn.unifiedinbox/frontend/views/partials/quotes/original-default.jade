@@ -1,0 +1,5 @@
+p {{ email.textBody }}
+br
+
+cite On {{ email.quoted.date | date:dateFormat:tz }}, from {{ email.quoted.from.email }}
+blockquote {{ email.quoted.htmlBody || email.quoted.textBody }}

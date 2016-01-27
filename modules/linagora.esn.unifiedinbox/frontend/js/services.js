@@ -479,7 +479,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('Composition', function(session, draftService, emailSendingService, notificationFactory, Offline, asyncAction, jmap) {
+  .factory('Composition', function($q, session, draftService, emailSendingService, notificationFactory, Offline, asyncAction, jmap, emailBodyService) {
 
     function addDisplayNameToRecipients(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -528,10 +528,24 @@ angular.module('linagora.esn.unifiedinbox')
         return false;
       }
 
-      emailSendingService.removeDuplicateRecipients(this.email);
-
       return true;
     };
+
+    function quoteOriginalEmailIfNeeded(email) {
+      // This will only be true if we're on a mobile device and the user did not press "Edit quoted email".
+      // We need to quote the original email in this case, and set the quote as the HTML body so that
+      // the sent email contains the original email, quoted as-is
+      if (!email.isQuoting && email.quoted) {
+        return emailBodyService.quoteOriginalEmail(email).then(function(body) {
+          email.textBody = '';
+          email.htmlBody = body;
+
+          return email;
+        });
+      }
+
+      return $q.when(email);
+    }
 
     Composition.prototype.send = function() {
       if (!this.canBeSentOrNotify()) {
@@ -541,9 +555,12 @@ angular.module('linagora.esn.unifiedinbox')
       var self = this;
 
       this.email.from = session.user;
+      emailSendingService.removeDuplicateRecipients(this.email);
 
       asyncAction('Sending of your message', function() {
-        return emailSendingService.sendEmail(self.email);
+        return quoteOriginalEmailIfNeeded(self.email).then(function(email) {
+          return emailSendingService.sendEmail(email);
+        });
       }).then(function() {
         self.destroyOriginalDraft();
       });
@@ -574,8 +591,14 @@ angular.module('linagora.esn.unifiedinbox')
         templateName = 'default';
       }
 
-      var template = '/unifiedinbox/views/partials/quotes/' + templateName + (supportsRichtext() ? '.html' : '.txt');
+      return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (supportsRichtext() ? '.html' : '.txt'));
+    }
 
+    function quoteOriginalEmail(email) {
+      return _quote(email, '/unifiedinbox/views/partials/quotes/original-' + email.quoteTemplate + '.html');
+    }
+
+    function _quote(email, template) {
       return $templateRequest(template).then(function(template) {
         return $interpolate(template)({ email: email, dateFormat: 'medium', tz: localTimezone });
       });
@@ -587,6 +610,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     return {
       quote: quote,
+      quoteOriginalEmail: quoteOriginalEmail,
       supportsRichtext: supportsRichtext
     };
   })
