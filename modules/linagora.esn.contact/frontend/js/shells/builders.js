@@ -25,8 +25,8 @@ angular.module('linagora.esn.contact')
       this.addressbookCache = cache;
     };
 
-    this.buildContactShell = function(vcarddata) {
-      var contact = new ContactShell(new ICAL.Component(vcarddata.data));
+    this.fromVcard = function(vcard) {
+      var contact = new ContactShell(new ICAL.Component(vcard));
       if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
         ContactsHelper.forceReloadDefaultAvatar(contact);
       }
@@ -51,7 +51,11 @@ angular.module('linagora.esn.contact')
     };
 
     this.fromCardResponse = function(vcarddata) {
-      return this.populateShell(this.buildContactShell(vcarddata), vcarddata._links.self.href)
+      return this.populateShell(this.fromVcard(vcarddata.data), vcarddata._links.self.href);
+    };
+
+    this.fromWebSocket = function(data) {
+      return this.populateAddressbook(this.fromVcard(data.vcard), data.bookId, data.bookName);
     };
 
     this.fromCardListResponse = function(response) {

@@ -143,7 +143,7 @@ describe('ContactShell Builders', function() {
         this.ContactShellBuilder.fromCardResponse = function(vcard) {
           expect(items.indexOf(vcard) > -1).to.be.true;
           spy();
-          return $q.when(vcard)
+          return $q.when(vcard);
         };
 
         this.ContactShellBuilder.fromCardListResponse({data: {_embedded: {'dav:item': items}}}).then(function(result) {
@@ -199,13 +199,13 @@ describe('ContactShell Builders', function() {
       });
     });
 
-    describe('The buildContactShell function', function() {
+    describe('The fromVcard function', function() {
 
       it('should force to reload the default avatar when contact is defined in update service', function() {
         var spy = sinon.spy();
         contactUpdateDataService.contactUpdatedIds = [CARD_ID];
         ContactsHelper.forceReloadDefaultAvatar = spy;
-        this.ContactShellBuilder.buildContactShell({data: vcard});
+        this.ContactShellBuilder.fromVcard(vcard);
         expect(spy).to.have.been.called.once;
       });
 
@@ -213,7 +213,7 @@ describe('ContactShell Builders', function() {
         var spy = sinon.spy();
         contactUpdateDataService.contactUpdatedIds = [];
         ContactsHelper.forceReloadDefaultAvatar = spy;
-        var contact = this.ContactShellBuilder.buildContactShell({data: vcard});
+        var contact = this.ContactShellBuilder.fromVcard(vcard);
         expect(spy).to.not.have.been.called;
         expect(contact).to.be.defined;
       });
@@ -274,7 +274,7 @@ describe('ContactShell Builders', function() {
           expect(id).to.deep.equal(BOOK_ID);
           expect(name).to.deep.equal(BOOK_NAME);
           spy();
-          return $q.when(shell)
+          return $q.when(shell);
         };
         this.ContactShellBuilder.populateShell(shell, href).then(function(data) {
           expect(spy).to.have.been.called;
@@ -288,21 +288,45 @@ describe('ContactShell Builders', function() {
 
       it('should build the shell', function() {
         var href = '/foo/bar';
-        var vcard = {id: 1, _links: {self: {href: href}}};
+        var card = {id: 1, _links: {self: {href: href}}, data: vcard};
         var result = {foo: 'bar'};
         var buildSpy = sinon.spy();
         var populateSpy = sinon.spy();
 
-        this.ContactShellBuilder.buildContactShell = function(data) {
+        this.ContactShellBuilder.fromVcard = function(data) {
           expect(data).to.deep.equal(vcard);
           buildSpy();
           return result;
         };
         this.ContactShellBuilder.populateShell = populateSpy;
 
-        this.ContactShellBuilder.fromCardResponse(vcard);
+        this.ContactShellBuilder.fromCardResponse(card);
         expect(buildSpy).to.have.been.called;
         expect(populateSpy).to.have.been.calledWith(result, href);
+      });
+    });
+
+    describe('The fromWebSocket function', function() {
+      it('should build the shell from websocket data', function() {
+        var fromVcardSpy = sinon.spy();
+        var populateAddressbookSpy = sinon.spy();
+        var data = {
+          vcard: vcard,
+          bookId: BOOK_ID,
+          bookName: BOOK_NAME
+        };
+        var result = 'foo';
+        this.ContactShellBuilder.fromVcard = function(_vcard) {
+          expect(_vcard).to.deep.equal(vcard);
+          fromVcardSpy();
+          return result;
+        };
+        this.ContactShellBuilder.populateAddressbook = populateAddressbookSpy;
+
+        this.ContactShellBuilder.fromWebSocket(data);
+
+        expect(fromVcardSpy).to.have.been.called;
+        expect(populateAddressbookSpy).to.have.been.calledWith(result, BOOK_ID, BOOK_NAME);
       });
     });
   });
