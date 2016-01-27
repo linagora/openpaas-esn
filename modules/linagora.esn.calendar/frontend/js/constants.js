@@ -46,6 +46,7 @@ angular.module('esn.calendar')
     miniCalendar: {
       defaultView: 'month',
       height: 250,
+      editable: false,
       timezone: 'local',
       weekNumbers: false,
       header: {
