@@ -13,6 +13,7 @@ angular.module('esn.calendar', [
   'AngularJstz',
   'angularMoment',
   'esn.core',
+  'esn.header',
   'esn.authentication',
   'esn.form.helper',
   'esn.ical',
@@ -139,4 +140,8 @@ angular.module('esn.calendar', [
 
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
+  }).run(function($rootScope, headerService) {
+    $rootScope.$on('$stateChangeStart', function() {
+      headerService.resetAllInjections();
+    });
   });

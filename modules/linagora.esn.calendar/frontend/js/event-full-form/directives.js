@@ -23,7 +23,6 @@ angular.module('esn.calendar')
       }
 
       element.on('$destroy', _resetStoredEvents);
-      scope.$on('$destroy', headerService.subHeader.resetInjections);
     }
 
     return {

@@ -13,10 +13,6 @@ angular.module('esn.calendar')
 
     headerService.mainHeader.addInjection('calendar-header-content');
     headerService.subHeader.addInjection('calendar-header-mobile');
-
-    $scope.$on('$destroy', function() {
-      headerService.resetAllInjections();
-    });
   })
 
   .controller('calendarController', function(
