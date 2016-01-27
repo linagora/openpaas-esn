@@ -15,12 +15,11 @@ angular.module('linagora.esn.contact')
 
   .factory('ContactShellHelper', function() {
 
-    function getMetadata(shell) {
-      if (!shell || !shell.href) {
+    function getMetadata(href) {
+      if (!href) {
         return;
       }
 
-      var href = shell.href;
       var split = href.split('/');
       var cardId = split.pop().split('.').shift();
       var bookName = split.pop();

@@ -31,12 +31,8 @@ describe('ContactShell Helpers', function() {
         expect(this.ContactShellHelper.getMetadata()).to.not.be.defined;
       });
 
-      it('should return undefined in shell.href undefined', function() {
-        expect(this.ContactShellHelper.getMetadata({})).to.not.be.defined;
-      });
-
       it('should return valid informations when href is set', function() {
-        expect(this.ContactShellHelper.getMetadata({href: getHref()})).to.deep.equals({
+        expect(this.ContactShellHelper.getMetadata(getHref())).to.deep.equals({
           cardId: CARD_ID,
           bookId: BOOK_ID,
           bookName: BOOK_NAME

@@ -3,7 +3,7 @@
 angular.module('linagora.esn.contact')
 
   .factory('ContactShell', function() {
-    function ContactShell(vcard, etag, href) {
+    function ContactShell(vcard, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
         return props.map(function(prop) {
@@ -80,7 +80,6 @@ angular.module('linagora.esn.contact')
 
       this.vcard = vcard;
       this.etag = etag;
-      this.href = href;
       this.photo = vcard.getFirstPropertyValue('photo');
     }
 

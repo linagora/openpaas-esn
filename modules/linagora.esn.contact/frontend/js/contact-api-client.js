@@ -40,15 +40,15 @@ angular.module('linagora.esn.contact')
     });
 
     function buildContactShell(vcarddata) {
-      var contact = new ContactShell(new ICAL.Component(vcarddata.data), null, vcarddata._links.self.href);
+      var contact = new ContactShell(new ICAL.Component(vcarddata.data));
       if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
         ContactsHelper.forceReloadDefaultAvatar(contact);
       }
       return contact;
     }
 
-    function populate(shell) {
-      var metadata = ContactShellHelper.getMetadata(shell);
+    function populate(shell, href) {
+      var metadata = ContactShellHelper.getMetadata(href);
       if (!metadata || !metadata.bookId || !metadata.bookName) {
         return $q.when(shell);
       }
@@ -69,7 +69,7 @@ angular.module('linagora.esn.contact')
     function responseAsContactShell(response) {
       if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
         return $q.all(response.data._embedded['dav:item'].map(function(vcarddata) {
-          return populate(buildContactShell(vcarddata));
+          return populate(buildContactShell(vcarddata), vcarddata._links.self.href);
         }));
       }
 
@@ -154,9 +154,9 @@ angular.module('linagora.esn.contact')
       return davClient('GET', href, headers)
         .then(function(response) {
           var contact = new ContactShell(
-            new ICAL.Component(response.data), response.headers('ETag'), href);
+            new ICAL.Component(response.data), response.headers('ETag'));
           ContactsHelper.forceReloadDefaultAvatar(contact);
-          return populate(contact);
+          return populate(contact, href);
         });
     }
 

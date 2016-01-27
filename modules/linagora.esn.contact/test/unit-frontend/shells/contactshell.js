@@ -130,12 +130,6 @@ describe('ContactShell services', function() {
       } else {
         expect(shell.etag).toBeUndefined;
       }
-
-      if (href) {
-        expect(shell.href).to.equal(href);
-      } else {
-        expect(shell.href).toBeUndefined;
-      }
     }
 
     it('should return a constructor to instantiate a contact from a vcard', function() {
@@ -149,14 +143,6 @@ describe('ContactShell services', function() {
       var etag = '12345678';
       var shell = new this.ContactShell(cardInput, etag);
       checkShellContactCreatedObject(shell, etag);
-    });
-
-    it('should set the href', function() {
-      var cardInput = buildFakeVcard();
-      var etag = '12345678';
-      var href = '/foo/bar';
-      var shell = new this.ContactShell(cardInput, etag, href);
-      checkShellContactCreatedObject(shell, etag, href);
     });
   });
 
