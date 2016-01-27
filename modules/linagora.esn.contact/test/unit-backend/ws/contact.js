@@ -7,6 +7,20 @@ var CONTACT_UPDATED = 'contacts:contact:update';
 
 describe('The contact WS events module', function() {
 
+  function nsNotCalled(done) {
+    return {
+      on: function() {
+      },
+      to: function() {
+        return {
+          emit: function() {
+            done(new Error('Should not be called'));
+          }
+        };
+      }
+    };
+  }
+
   describe('init function', function() {
 
     var nbSubscribedTopics;
@@ -75,6 +89,17 @@ describe('The contact WS events module', function() {
       this.moduleHelpers.addDep('wsserver', {io: self.io});
       this.moduleHelpers.addDep('pubsub', self.pubsub);
 
+      this.checkData = function(data, topic, done) {
+        var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
+        this.contactNamespace = nsNotCalled(done);
+        mod.init(this.moduleHelpers.dependencies);
+        this.logger.warn = function(message) {
+          expect(message).to.match(/Not well-formed data on/);
+          return done();
+        };
+        this.pubsub.local.topic(topic).publish(data);
+      };
+
       done();
     });
 
@@ -111,9 +136,38 @@ describe('The contact WS events module', function() {
 
     describe('contacts:contact:add subscriber', function() {
 
+      it('should not publish event when data is undefined', function(done) {
+        this.checkData(null, CONTACT_ADDED, done);
+      });
+
+      it('should not publish event when data is empty', function(done) {
+        this.checkData({}, CONTACT_ADDED, done);
+      });
+
+      it('should not publish event when bookName and vcard are missing', function(done) {
+        this.checkData({bookId: '123'}, CONTACT_ADDED, done);
+      });
+
+      it('should not publish event when bookId and vcard are missing', function(done) {
+        this.checkData({bookName: '123'}, CONTACT_ADDED, done);
+      });
+
+      it('should not publish event when vcard is missing', function(done) {
+        this.checkData({bookId: '123', bookName: '456'}, CONTACT_ADDED, done);
+      });
+
+      it('should not publish event when bookId is missing', function(done) {
+        this.checkData({vcard: '123', bookName: '456'}, CONTACT_ADDED, done);
+      });
+
+      it('should not publish event when bookName is missing', function(done) {
+        this.checkData({vcard: '123', bookId: '456'}, CONTACT_ADDED, done);
+      });
+
       it('should send create event with contact info in websockets when receiving contacts:contact:add event from the pubsub', function(done) {
         var pubsubData = {
           bookId: '123',
+          bookName: 'name',
           contactId: '456',
           vcard: {
             firstname: 'prenom'
@@ -129,7 +183,7 @@ describe('The contact WS events module', function() {
                 expect(roomId).to.equal(pubsubData.bookId);
                 expect(data).to.deep.equals({
                   room: pubsubData.bookId,
-                  data: { bookId: pubsubData.bookId, vcard: pubsubData.vcard }
+                  data: { bookId: pubsubData.bookId, bookName: pubsubData.bookName, vcard: pubsubData.vcard }
                 });
                 done();
               }
@@ -144,9 +198,38 @@ describe('The contact WS events module', function() {
 
     describe('contacts:contact:delete subscriber', function() {
 
+      it('should not publish event when data is undefined', function(done) {
+        this.checkData(null, CONTACT_DELETED, done);
+      });
+
+      it('should not publish event when data is empty', function(done) {
+        this.checkData({}, CONTACT_DELETED, done);
+      });
+
+      it('should not publish event when bookName and contactId are missing', function(done) {
+        this.checkData({bookId: '123'}, CONTACT_DELETED, done);
+      });
+
+      it('should not publish event when bookId and contactId are missing', function(done) {
+        this.checkData({bookName: '123'}, CONTACT_DELETED, done);
+      });
+
+      it('should not publish event when contactId is missing', function(done) {
+        this.checkData({bookId: '123', bookName: '456'}, CONTACT_DELETED, done);
+      });
+
+      it('should not publish event when bookId is missing', function(done) {
+        this.checkData({contactId: '123', bookName: '456'}, CONTACT_DELETED, done);
+      });
+
+      it('should not publish event when bookName is missing', function(done) {
+        this.checkData({contactId: '123', bookId: '456'}, CONTACT_DELETED, done);
+      });
+
       it('should send delete event with contact info in websockets when receiving contacts:contact:delete event from the pubsub', function(done) {
         var pubsubData = {
           bookId: '123',
+          bookName: 'name',
           contactId: '456'
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
@@ -159,7 +242,7 @@ describe('The contact WS events module', function() {
                 expect(roomId).to.equal(pubsubData.bookId);
                 expect(data).to.deep.equals({
                   room: pubsubData.bookId,
-                  data: { bookId: pubsubData.bookId, contactId: pubsubData.contactId }
+                  data: { bookId: pubsubData.bookId, bookName: pubsubData.bookName, contactId: pubsubData.contactId }
                 });
                 done();
               }
@@ -174,9 +257,38 @@ describe('The contact WS events module', function() {
 
     describe('contacts:contact:update subscriber', function() {
 
+      it('should not publish event when data is undefined', function(done) {
+        this.checkData(null, CONTACT_UPDATED, done);
+      });
+
+      it('should not publish event when data is empty', function(done) {
+        this.checkData({}, CONTACT_UPDATED, done);
+      });
+
+      it('should not publish event when bookName and contactId are missing', function(done) {
+        this.checkData({bookId: '123'}, CONTACT_UPDATED, done);
+      });
+
+      it('should not publish event when bookId and contactId are missing', function(done) {
+        this.checkData({bookName: '123'}, CONTACT_UPDATED, done);
+      });
+
+      it('should not publish event when contactId is missing', function(done) {
+        this.checkData({bookId: '123', bookName: '456'}, CONTACT_UPDATED, done);
+      });
+
+      it('should not publish event when bookId is missing', function(done) {
+        this.checkData({contactId: '123', bookName: '456'}, CONTACT_UPDATED, done);
+      });
+
+      it('should not publish event when bookName is missing', function(done) {
+        this.checkData({contactId: '123', bookId: '456'}, CONTACT_UPDATED, done);
+      });
+
       it('should send update event with contact info in websockets when receiving contacts:contact:update event from the pubsub', function(done) {
         var pubsubData = {
           bookId: '123',
+          bookName: 'name',
           contactId: '456'
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
@@ -189,7 +301,7 @@ describe('The contact WS events module', function() {
                 expect(roomId).to.equal(pubsubData.bookId);
                 expect(data).to.deep.equals({
                   room: pubsubData.bookId,
-                  data: { bookId: pubsubData.bookId, contactId: pubsubData.contactId }
+                  data: { bookId: pubsubData.bookId, bookName: pubsubData.bookName, contactId: pubsubData.contactId }
                 });
                 done();
               }
