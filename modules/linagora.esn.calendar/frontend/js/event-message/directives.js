@@ -85,11 +85,10 @@ angular.module('esn.calendar')
     function controller($scope) {
 
       function _initFormData() {
-        $scope.event = {
+        $scope.event = CalendarShell.fromIncompleteShell({
           start: calendarUtils.getNewStartDate(),
-          end: calendarUtils.getNewEndDate(),
-          allDay: false
-        };
+          end: calendarUtils.getNewEndDate()
+        });
         $scope.restActive = false;
         $scope.EVENT_FORM = EVENT_FORM;
         $scope.activitystream = $scope.$parent.activitystream;
@@ -105,12 +104,11 @@ angular.module('esn.calendar')
 
       function _resetEvent() {
         $scope.rows = 1;
-        $scope.event = {
+        $scope.event = CalendarShell.fromIncompleteShell({
           start: calendarUtils.getNewStartDate(),
           end: calendarUtils.getNewEndDate(),
-          diff: 1,
-          allDay: false
-        };
+          diff: 1
+        });
       }
 
       $scope.submit = function() {
