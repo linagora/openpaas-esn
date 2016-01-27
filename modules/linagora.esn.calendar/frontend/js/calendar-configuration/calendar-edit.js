@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $location, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
+  .controller('calendarEditionController', function($scope, $log, $location, $modal, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
     if (!calendarService.calendarHomeId) {
       $location.path('/calendar');
       return;
@@ -54,12 +54,12 @@ angular.module('esn.calendar')
       }
     };
 
-    $scope.delete = function() {
-      if ($scope.newCalendar) {
-        $log.error('Can\'t delete a new calendar');
-      }
+    $scope.openDeleteConfirmationDialog = function() {
+      $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/calendar-configuration/calendar-edit-delete-confirmation.html', backdrop: 'static', placement: 'center'});
+    };
 
-      $log.debug('To be done, delete');
+    $scope.delete = function() {
+      $log.debug('Delete calendar not implemented yet');
     };
 
     $scope.cancel = function() {
