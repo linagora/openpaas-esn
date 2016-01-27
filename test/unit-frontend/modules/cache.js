@@ -22,12 +22,12 @@ describe('The esn.cache Angular module', function() {
     describe('The constructor', function() {
 
       it('should set ttl to default when not defined', function() {
-        expect(new this.CacheEntry().ttl).to.equal(this.CACHE_NO_TTL)
+        expect(new this.CacheEntry().ttl).to.equal(this.CACHE_NO_TTL);
       });
 
       it('should set ttl to given value', function() {
         var ttl = 10;
-        expect(new this.CacheEntry(ttl).ttl).to.equal(ttl)
+        expect(new this.CacheEntry(ttl).ttl).to.equal(ttl);
       });
 
       it('should create a deferred for the entry value', function() {
