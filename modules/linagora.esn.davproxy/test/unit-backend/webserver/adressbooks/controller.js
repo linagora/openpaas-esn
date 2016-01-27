@@ -721,7 +721,8 @@ describe('The addressbooks module', function() {
             called = true;
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
-              bookId: req.params.bookHome
+              bookId: req.params.bookHome,
+              bookName: req.params.bookName
             });
             expect(data.vcard).to.not.exist;
           }
