@@ -1,7 +1,6 @@
 'use strict';
 
 /* global chai: false */
-/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -27,8 +26,14 @@ describe('The contact Angular module contactapis', function() {
       this.contactUpdateDataService = {
         contactUpdatedIds: []
       };
-      this.ContactShellHelper = {
-        getMetadata: function() {}
+      this.ContactShellBuilder = {
+        populateShell: function(contact) {
+          return $q.when(contact);
+        },
+        fromCardListResponse: function() {
+          return $q.when([]);
+        },
+        setAddressbookCache: function() {}
       };
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
@@ -44,7 +49,7 @@ describe('The contact Angular module contactapis', function() {
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
         $provide.value('contactUpdateDataService', self.contactUpdateDataService);
-        $provide.value('ContactShellHelper', self.ContactShellHelper);
+        $provide.value('ContactShellBuilder', self.ContactShellBuilder);
       });
     });
 
@@ -239,9 +244,11 @@ describe('The contact Angular module contactapis', function() {
               var bookId = '123';
               var bookName = 'bookName';
               var cardId = '456';
+              var addressbook = {id: 1};
 
-              this.ContactShellHelper.getMetadata = function() {
-                return {bookId: bookId, bookName: bookName, cardId: cardId};
+              this.ContactShellBuilder.populateShell = function(contact, href) {
+                contact.addressbook = addressbook;
+                return $q.when(contact);
               };
 
               var expectPath = this.getVCardUrl(bookId, bookName, cardId);
@@ -267,7 +274,7 @@ describe('The contact Angular module contactapis', function() {
                 .vcard(cardId)
                 .get()
                 .then(function(contact) {
-                  expect(contact.addressbook).to.exist;
+                  expect(contact.addressbook).to.deep.equal(addressbook);
                 }.bind(this)).finally(done);
 
               this.$rootScope.$apply();
@@ -360,16 +367,6 @@ describe('The contact Angular module contactapis', function() {
             var contactsURL;
             var result, options;
 
-            function checkResult(done) {
-              return function(data) {
-                expect(data.data).to.be.an.array;
-                expect(data.data.length).to.equal(1);
-                expect(data.data[0].id).to.equal(uid);
-                expect(data.current_page).to.eql(options.page);
-                done();
-              };
-            }
-
             beforeEach(function() {
               options = {};
               contactsURL = this.getBookUrl(bookId, bookName);
@@ -402,7 +399,12 @@ describe('The contact Angular module contactapis', function() {
             });
 
             it('should list cards', function(done) {
+              var shells = [1, 2];
               this.$httpBackend.expectGET(contactsURL + '?sort=fn').respond(result);
+
+              this.ContactShellBuilder.fromCardListResponse = function(response) {
+                return $q.when(shells);
+              };
 
               this.ContactAPIClient
                 .addressbookHome(bookId)
@@ -410,34 +412,7 @@ describe('The contact Angular module contactapis', function() {
                 .vcard()
                 .list()
                 .then(function(data) {
-                  var cards = data.data;
-                  expect(cards).to.be.an.array;
-                  expect(cards.length).to.equal(1);
-
-                  expect(cards[0]).to.be.instanceof(this.ContactShell);
-                  expect(cards[0]).to.shallowDeepEqual({
-                    id: uid,
-                    firstName: 'Willis',
-                    lastName: 'Burce',
-                    vcard: []
-                  });
-                }.bind(this)).finally(done);
-
-              this.$rootScope.$apply();
-              this.$httpBackend.flush();
-            });
-
-            it('should force reload default avatar if card is updated', function(done) {
-              this.$httpBackend.expectGET(contactsURL + '?sort=fn').respond(result);
-              this.contactUpdateDataService.contactUpdatedIds = ['myuid'];
-              this.ContactsHelper.forceReloadDefaultAvatar = sinon.spy();
-              this.ContactAPIClient
-                .addressbookHome(bookId)
-                .addressbook(bookName)
-                .vcard()
-                .list()
-                .then(function(data) {
-                  expect(this.ContactsHelper.forceReloadDefaultAvatar.calledWithExactly(data.data[0])).to.be.true;
+                  expect(data.data).deep.equal(shells);
                 }.bind(this)).finally(done);
 
               this.$rootScope.$apply();
@@ -456,7 +431,9 @@ describe('The contact Angular module contactapis', function() {
                 .addressbook(bookName)
                 .vcard()
                 .list(options)
-                .then(checkResult(done));
+                .then(function() {
+                  done();
+                }, done);
 
               this.$rootScope.$apply();
               this.$httpBackend.flush();
@@ -531,6 +508,7 @@ describe('The contact Angular module contactapis', function() {
             });
 
             it('should return search result', function(done) {
+              var shells = [1, 2, 3];
               var expectPath = this.getBookUrl(bookId, bookName) + '?page=5&search=linagora&userId=userId';
               var response = {
                 _current_page: 1,
@@ -555,6 +533,9 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
+              this.ContactShellBuilder.fromCardListResponse = function(response) {
+                return $q.when(shells);
+              };
 
               var searchOptions = {
                 data: 'linagora',
@@ -569,10 +550,7 @@ describe('The contact Angular module contactapis', function() {
                 .then(function(result) {
                   expect(result.current_page).to.equal(response._current_page);
                   expect(result.total_hits).to.equal(response._total_hits);
-                  expect(result.data.length).to.equal(1);
-                  expect(result.data[0].id).to.equal('myuid');
-                  expect(result.data[0].firstName).to.equal('Willis');
-                  expect(result.data[0].lastName).to.equal('Bruce');
+                  expect(result.data.length).to.equal(shells.length);
                   done();
                 });
 
@@ -918,6 +896,7 @@ describe('The contact Angular module contactapis', function() {
         });
 
         it('should return search result', function(done) {
+          var shells = [1, 2, 3];
           var expectPath = this.getBookHomeUrl(bookId) + '?page=5&search=linagora&userId=userId';
           var response = {
             _current_page: 1,
@@ -942,6 +921,9 @@ describe('The contact Angular module contactapis', function() {
             }
           };
           this.$httpBackend.expectGET(expectPath).respond(response);
+          this.ContactShellBuilder.fromCardListResponse = function() {
+            return $q.when(shells);
+          };
 
           var searchOptions = {
             data: 'linagora',
@@ -954,10 +936,7 @@ describe('The contact Angular module contactapis', function() {
             .then(function(result) {
               expect(result.current_page).to.equal(response._current_page);
               expect(result.total_hits).to.equal(response._total_hits);
-              expect(result.data.length).to.equal(1);
-              expect(result.data[0].id).to.equal('myuid');
-              expect(result.data[0].firstName).to.equal('Willis');
-              expect(result.data[0].lastName).to.equal('Bruce');
+              expect(result.data.length).to.equal(shells.length);
               done();
             });
 

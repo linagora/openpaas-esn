@@ -11,7 +11,7 @@ angular.module('linagora.esn.contact')
                             ContactShell,
                             AddressBookShell,
                             ContactsHelper,
-                            ContactShellHelper,
+                            ContactShellBuilder,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
                             CONTACT_CONTENT_TYPE_HEADER,
@@ -22,59 +22,9 @@ angular.module('linagora.esn.contact')
                             CONTACT_LIST_DEFAULT_SORT,
                             CONTACT_ADDRESSBOOK_TTL,
                             shellToVCARD,
-                            davClient,
-                            Cache,
-                            contactUpdateDataService) {
+                            davClient) {
 
     var ADDRESSBOOK_PATH = '/addressbooks';
-
-    var addressbookCache = new Cache({
-      loader: function(options) {
-        $log.debug('Loading from cache', options);
-        return addressbookHome(options.bookId).addressbook(options.bookName).get();
-      },
-      keyBuilder: function(options) {
-        return options.bookId + '-' + options.bookName;
-      },
-      ttl: CONTACT_ADDRESSBOOK_TTL
-    });
-
-    function buildContactShell(vcarddata) {
-      var contact = new ContactShell(new ICAL.Component(vcarddata.data));
-      if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
-        ContactsHelper.forceReloadDefaultAvatar(contact);
-      }
-      return contact;
-    }
-
-    function populate(shell, href) {
-      var metadata = ContactShellHelper.getMetadata(href);
-      if (!metadata || !metadata.bookId || !metadata.bookName) {
-        return $q.when(shell);
-      }
-
-      return addressbookCache.get(metadata).then(function(ab) {
-        shell.addressbook = ab;
-        return shell;
-      }, function() {
-        return shell;
-      });
-    }
-
-    /**
-     * Convert HTTP response to an array of ContactShell
-     * @param  {Response} response Response from $http
-     * @return {Promise}          resolves with an Array of ContactShell
-     */
-    function responseAsContactShell(response) {
-      if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
-        return $q.all(response.data._embedded['dav:item'].map(function(vcarddata) {
-          return populate(buildContactShell(vcarddata), vcarddata._links.self.href);
-        }));
-      }
-
-      return $q.when([]);
-    }
 
     /**
      * Return the AddressbookHome URL, each user has one AddressbookHome
@@ -156,7 +106,7 @@ angular.module('linagora.esn.contact')
           var contact = new ContactShell(
             new ICAL.Component(response.data), response.headers('ETag'));
           ContactsHelper.forceReloadDefaultAvatar(contact);
-          return populate(contact, href);
+          return ContactShellBuilder.populateShell(contact, href);
         });
     }
 
@@ -193,7 +143,7 @@ angular.module('linagora.esn.contact')
 
       return davClient('GET', getBookUrl(bookId, bookName), null, null, query)
         .then(function(response) {
-          return responseAsContactShell(response).then(function(shells) {
+          return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
             var result = {
               data: shells,
               current_page: currentPage,
@@ -237,7 +187,7 @@ angular.module('linagora.esn.contact')
           null,
           params
         ).then(function(response) {
-          return responseAsContactShell(response).then(function(shells) {
+          return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
             return {
               current_page: response.data._current_page,
               total_hits: response.data._total_hits,
