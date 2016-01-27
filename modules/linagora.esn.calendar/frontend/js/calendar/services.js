@@ -341,16 +341,19 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
+      var master, instance;
 
-      return flushTasksForEvent(event).then(function() {
-        return event.getModifiedMaster();
-      }).then(function(mastershell) {
-        event = mastershell;
+      return event.getModifiedMaster().then(function(masterShell) {
+        master = masterShell;
+        instance = event;
+        return flushTasksForEvent(masterShell);
+      }).then(function() {
+        event = master;
         return eventAPI.modify(path, event.vcalendar, etag);
       }).then(function(id) {
         taskId = id;
         keepChangeDuringGraceperiod.registerUpdate(event);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
       }).then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
           gracePeriodService.remove(taskId);
@@ -384,7 +387,7 @@ angular.module('esn.calendar')
         } else if (gracePeriodService.hasTask(taskId)) {
           return getEvent(path).then(function(shell) {
             gracePeriodService.remove(taskId);
-            calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+            calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
             calendarEventEmitter.websocket.emitUpdatedEvent(shell);
             return shell;
           }, function(response) {
@@ -766,5 +769,27 @@ angular.module('esn.calendar')
       registerUpdate: saveChange.bind(null, UPDATE),
       deleteRegistration: deleteRegistration,
       wrapEventSource: wrapEventSource
+    };
+  })
+
+  .factory('masterEventCache', function($timeout, MASTER_EVENT_CACHE_TTL) {
+    var map = {};
+
+    function saveMasterEvent(shell) {
+      if (!shell.isInstance()) {
+        map[shell.path] = shell;
+        $timeout(function() {
+          delete map[shell.path];
+        }, MASTER_EVENT_CACHE_TTL);
+      }
+    }
+
+    function getMasterEvent(path) {
+      return map[path];
+    }
+
+    return {
+      saveMasterEvent: saveMasterEvent,
+      getMasterEvent: getMasterEvent
     };
   });
