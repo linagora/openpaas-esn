@@ -2,7 +2,7 @@
 
 angular.module('esn.actionList', [])
 
-  .directive('actionList', function($modal, $dropdown, screenSize) {
+  .directive('actionList', function($modal, $popover, screenSize) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
@@ -15,12 +15,25 @@ angular.module('esn.actionList', [])
 
         function openForMobile() {
           close();
-          dialogOpened = $modal({scope: scope, templateUrl: attrs.templateMobileUrl, placement: 'center'});
+          dialogOpened = $modal({
+            scope: scope,
+            templateUrl: attrs.templateMobileUrl,
+            placement: 'center'
+          });
         }
 
         function openForDesktop() {
           close();
-          dialogOpened = $dropdown(element, {scope: scope, trigger: 'manual', show: true, templateUrl: attrs.templateDesktopUrl, placement: 'left-bottom'});
+          dialogOpened = $popover(element, {
+            scope: scope,
+            trigger: 'manual',
+            show: true,
+            autoClose: true,
+            templateUrl: attrs.templateDesktopUrl,
+            html: false,
+            placement: 'left-bottom',
+            animation: 'am-fade-and-slide-right'
+          });
         }
 
         function handleWindowResizement() {

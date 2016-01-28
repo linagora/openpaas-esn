@@ -1,31 +1,40 @@
-ul.dropdown-menu.dropdown-menu-right
-  li
-    a(ng-click="ctrl.reply()" title="#{__('Reply')}")
-      | #{__('Reply')}
-      i.mdi.mdi-reply.m-l-10.m-r-5
-  li
-    a(ng-click="ctrl.replyAll()" title="#{__('Reply all')}")
-      | #{__('Reply all')}
-      i.mdi.mdi-reply-all.m-l-10.m-r-5
-  li
-    a(ng-click="ctrl.forward()" title="#{__('Forward')}")
-      | #{__('Forward')}  
-      i.mdi.mdi-forward.m-l-10.m-r-5
-  li(ng-switch='email.isUnread')
-    a(ng-switch-when='false', ng-click="ctrl.markAsUnread()" title="#{__('Mark as unread')}")
-      | #{__('Mark as unread')}
-      i.mdi.mdi-eye-off.m-l-10.m-r-5
-    a(ng-switch-when='true', ng-click="ctrl.markAsRead()" title="#{__('Mark as read')}")
-      | #{__('Mark as read')}
-      i.mdi.mdi-eye.m-l-10.m-r-5
-  li(ng-switch='email.isFlagged')
-    a(ng-switch-when='false', ng-click="ctrl.markAsFlagged()" title="#{__('Star')}")
-      | #{__('Star')}
-      i.mdi.mdi-star.m-l-10.m-r-5
-    a(ng-switch-when='true', ng-click="ctrl.unmarkAsFlagged()" title="#{__('Unstar')}")
-      | #{__('Unstar')}
-      i.mdi.mdi-star-off.m-l-10.m-r-5
-  li
-    a(ng-click="ctrl.moveToTrash()" title="#{__('Delete')}")
-      | #{__('Delete')}
-      i.mdi.mdi-delete.m-l-10.m-r-5
+.popover
+  .action-list
+    .action
+      a(ng-click='ctrl.forward(); $hide()', title="#{__('Forward')}")
+        i.mdi.mdi-forward
+        span.label
+          | #{__('Forward')}
+    .action
+      a(ng-click='ctrl.reply(); $hide()', title="#{__('Reply')}")
+        i.mdi.mdi-reply
+        span.label
+          | #{__('Reply')}
+    .action
+      a(ng-click='ctrl.replyAll(); $hide()', title="#{__('Reply all')}")
+        i.mdi.mdi-reply-all
+        span.label
+          | #{__('Reply all')}
+    .action(ng-switch='email.isUnread')
+      a(ng-switch-when='false', ng-click='ctrl.markAsUnread(); $hide()', title="#{__('Mark as unread')}")
+        i.mdi.mdi-eye-off
+        span.label
+          | #{__('Mark as unread')}
+      a(ng-switch-when='true', ng-click='ctrl.markAsRead(); $hide()', title="#{__('Mark as read')}")
+        i.mdi.mdi-eye
+        span.label
+          | #{__('Mark as read')}
+    .action(ng-switch='email.isFlagged')
+      a(ng-switch-when='false', ng-click='ctrl.markAsFlagged(); $hide()', title="#{__('Star')}")
+        i.mdi.mdi-star
+        span.label
+          | #{__('Star')}
+      a(ng-switch-when='true', ng-click='ctrl.unmarkAsFlagged(); $hide()', title="#{__('Unstar')}")
+        i.mdi.mdi-star-off
+        span.label
+          | #{__('Unstar')}
+    .action
+      a(ng-click='ctrl.moveToTrash(); $hide()', title="#{__('Delete')}")
+        i.mdi.mdi-delete
+        span.label
+          | #{__('Delete')}

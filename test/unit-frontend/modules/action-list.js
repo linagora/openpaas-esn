@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('directive : action-list', function() {
-  var element, $scope, $compile, $rootScope, screenSize, $modal, $dropdown;
+  var element, $scope, $compile, $rootScope, screenSize, $modal, $popover;
 
   beforeEach(function() {
     screenSize = {
@@ -20,7 +20,7 @@ describe('directive : action-list', function() {
     $modal = sinon.spy(function() {
       return self.opened;
     });
-    $dropdown = sinon.spy(function() {
+    $popover = sinon.spy(function() {
       return self.opened;
     });
   });
@@ -32,7 +32,7 @@ describe('directive : action-list', function() {
     angular.mock.module(function($provide) {
       $provide.value('screenSize', screenSize);
       $provide.value('$modal', $modal);
-      $provide.value('$dropdown', $dropdown);
+      $provide.value('$popover', $popover);
     });
   });
 
@@ -59,17 +59,17 @@ describe('directive : action-list', function() {
     expect($modal).to.have.been.called;
   });
 
-  it('should open a $dropdown when screen size is > sm', function() {
+  it('should open a $popover when screen size is > sm', function() {
     screenSize.is = function() {
       return false;
     };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
 
-    expect($dropdown).to.have.been.called;
+    expect($popover).to.have.been.called;
   });
 
-  it('should first open a $modal when screen size is xs, then open a $dropdown when it changes to lg', function() {
+  it('should first open a $modal when screen size is xs, then open a $popover when it changes to lg', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(true);
     screenSize.is.onCall(1).returns(false);
@@ -86,10 +86,10 @@ describe('directive : action-list', function() {
     };
     onResize(false);
     element.click();
-    expect($dropdown).to.have.been.called;
+    expect($popover).to.have.been.called;
   });
 
-  it('should first open a $dropdown when screen size is lg, then open a $modal when it changes to xs', function() {
+  it('should first open a $popover when screen size is lg, then open a $modal when it changes to xs', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(false);
     screenSize.is.onCall(1).returns(true);
@@ -99,7 +99,7 @@ describe('directive : action-list', function() {
     };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
-    expect($dropdown).to.have.been.called;
+    expect($popover).to.have.been.called;
 
     this.opened =  {
       $isShown: function() { return true; }
@@ -124,11 +124,11 @@ describe('directive : action-list', function() {
       $isShown: function() { return true; }
     };
     onResize(false);
-    expect($dropdown).to.have.been.callCount(1);
+    expect($popover).to.have.been.callCount(1);
     expect($modal).to.have.not.been.called;
   });
 
-  it('should not reopen $dropdown when the screen is resized twice, when screen size still > xs', function() {
+  it('should not reopen $popover when the screen is resized twice, when screen size still > xs', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(true);
     screenSize.is.onCall(1).returns(true);
@@ -144,7 +144,7 @@ describe('directive : action-list', function() {
     };
     onResize(true);
     expect($modal).to.have.been.callCount(1);
-    expect($dropdown).to.have.not.been.called;
+    expect($popover).to.have.not.been.called;
   });
 
   it('should not open multiple $modal', function() {
@@ -164,7 +164,7 @@ describe('directive : action-list', function() {
     expect(destroySpy).to.have.been.callCount(3);
   });
 
-  it('should not open multiple $dropdown', function() {
+  it('should not open multiple $popover', function() {
     screenSize.is = function() {
       return false;
     };
@@ -198,10 +198,10 @@ describe('directive : action-list', function() {
     this.initDirective('<button action-list template-desktop-url="toto">Click Me</button>');
     element.click();
 
-    expect($dropdown).to.have.been.calledWith(sinon.match.any, sinon.match({templateUrl: 'toto'}));
+    expect($popover).to.have.been.calledWith(sinon.match.any, sinon.match({templateUrl: 'toto'}));
   });
 
-  it('should call destroy on $modal or $dropdown after a screen resize', function() {
+  it('should call destroy on $modal or $popover after a screen resize', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(false);
     screenSize.is.onCall(1).returns(true);
@@ -212,7 +212,7 @@ describe('directive : action-list', function() {
 
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
-    expect($dropdown).to.have.been.called;
+    expect($popover).to.have.been.called;
 
     this.opened.destroy = sinon.spy();
 
