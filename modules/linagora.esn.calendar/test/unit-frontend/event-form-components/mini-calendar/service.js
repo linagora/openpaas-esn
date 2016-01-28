@@ -156,6 +156,47 @@ describe('The mini-calendar service', function() {
       $rootScope.$digest();
     });
 
+    it('should not recount event twice when event source is called twice on the same period', function(done) {
+      var start = fcMoment('2015-01-01');
+      var end = fcMoment('2015-01-30');
+      var timezone = 'who cares';
+
+      var sourceEvents = [{
+        id: 'a',
+        start: fcMoment('2015-01-01T14:31:25.724Z'),
+        end: fcMoment('2015-01-01T15:31:25.724Z')
+      }];
+
+      eventSources = [function(_start, _end, _timezone, callback) {
+        callback(sourceEvents);
+      }];
+
+      fcMethodMock.addEventSource = function(eventSource) {
+        var numTest = 0;
+        var testEventSource = eventSource.events.bind(null, start, end, timezone, function(fakeEvents) {
+          numTest++;
+          var numFakeEvent = 0;
+          var fakeEvent = {};
+
+          fakeEvents.forEach(function(event) {
+            expect(event.allDay).to.be.true;
+            fakeEvent[event.start] = parseInt(event.title, 10);
+            numFakeEvent++;
+          });
+
+          expect(fakeEvent['2015-01-01']).to.equals(1);
+          expect(numFakeEvent).to.equals(1);
+          (numTest === 2 ? done : testEventSource)();
+        });
+
+        testEventSource();
+      };
+
+      fcMethodMock.removeEvents = sinon.spy(angular.noop);
+      initWrapper();
+      $rootScope.$digest();
+    });
+
     describe('addEvent function', function() {
 
       it('should update fake event title when adding a real event', function() {

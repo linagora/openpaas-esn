@@ -91,6 +91,8 @@ angular.module('esn.calendar')
 
       function groupByDayEventSources(start, end, timezone, callback) {
         var eventsPromise = [];
+        originalEvents = {};
+        fakeEvents = {};
         eventSources.forEach(function(calendarEventSource) {
           var deferred = $q.defer();
           eventsPromise.push(deferred.promise);
