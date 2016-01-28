@@ -1,0 +1,28 @@
+div
+
+  h3.headers
+    .text-right
+      ng-include(src="'/unifiedinbox/views/partials/email-star'")
+      span.date {{::email.date | date:'short' }}
+      i.mdi.mdi-clock
+    .avatarify
+      .from
+        span.line-header #{__('From')}:
+        emailer(emailer="::email.from")
+      .to
+        span.line-header #{__('To')}:
+        emailer-group(group="::email.to")
+      .cc
+        span.line-header #{__('CC')}:
+        emailer-group(group="::email.cc")
+
+  .email-body
+    html-email-body(ng-if="email.htmlBody", email="::email")
+    .lv-item.multilines(ng-if="!email.htmlBody") {{::email.textBody}}
+    .lv-item(ng-if="!email.htmlBody && !email.textBody") {{::email.preview}}
+      .text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
+
+  .lv-footer(ng-if="email.attachments.length > 0")
+    .attachments
+      i.title.mdi.mdi-attachment #{__('Attachments')}
+      inbox-attachment(ng-repeat="attachment in ::email.attachments", ng-if="::!attachment.isInline", attachment="::attachment")
