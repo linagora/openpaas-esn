@@ -186,6 +186,14 @@ angular.module('linagora.esn.contact')
       return /\/contact\/api\/contacts\/.*?\/avatar/.test(avatarUrl);
     }
 
+    function orderData(contact) {
+      if (!contact) {
+        return;
+      }
+      contact.emails = getOrderedValues(contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
+      contact.tel = getOrderedValues(contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
+    }
+
     function fillScopeContactData($scope, contact) {
       if (!contact) {
         return;
@@ -202,6 +210,7 @@ angular.module('linagora.esn.contact')
       getFormattedAddress: getFormattedAddress,
       forceReloadDefaultAvatar: forceReloadDefaultAvatar,
       getOrderedValues: getOrderedValues,
+      orderData: orderData,
       fillScopeContactData: fillScopeContactData,
       isTextAvatar: isTextAvatar
     };

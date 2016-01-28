@@ -389,6 +389,31 @@ describe('The Contacts service module', function() {
       });
     });
 
+    describe('The orderData function', function() {
+
+      it('should return when contact is not defined', function() {
+        expect(this.contactHelper.orderData()).to.not.be.defined;
+      });
+
+      it('should order emails and tel of the given contact', function() {
+        var homeEmail = {type: 'Home', value: 'me@home'};
+        var workEmail = {type: 'Work', value: 'me@work'};
+        var homePhone = {type: 'Home', value: '+123'};
+        var workPhone = {type: 'Work', value: '+456'};
+        var otherPhone = {type: 'Other', value: '+789'};
+
+        var contact = {
+          emails: [homeEmail, workEmail],
+          tel: [otherPhone, homePhone, workPhone]
+        };
+        this.contactHelper.orderData(contact);
+        expect(contact).to.deep.equal({
+          emails: [workEmail, homeEmail],
+          tel: [workPhone, homePhone, otherPhone]
+        });
+      });
+    });
+
     describe('The getOrderedValues function', function() {
       it('should return empty array when input is undefined', function() {
         expect(this.contactHelper.getOrderedValues()).to.deep.equal([]);
