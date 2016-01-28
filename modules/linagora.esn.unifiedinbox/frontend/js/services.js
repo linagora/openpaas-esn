@@ -734,7 +734,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('jmapEmailService', function($q, jmap, mailboxesService) {
+  .service('jmapEmailService', function($q, jmap, mailboxesService, EMAIL_IS_UNREAD) {
     function setFlag(email, flag, state) {
       if (!email || !flag || !angular.isDefined(state)) {
         throw new Error('Parameters "email", "flag" and "state" are required.');
@@ -746,7 +746,9 @@ angular.module('linagora.esn.unifiedinbox')
 
       return email['set' + jmap.Utils.capitalize(flag)](state).then(function() {
         email[flag] = state;
-        mailboxesService.flagIsUnreadChanged(email, state);
+        if (flag === EMAIL_IS_UNREAD) {
+          mailboxesService.flagIsUnreadChanged(email, state);
+        }
 
         return email;
       });
