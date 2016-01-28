@@ -61,71 +61,71 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('EmailGroupingTool', function(moment) {
+  .factory('ElementGroupingTool', function(moment) {
 
-    function EmailGroupingTool(mailbox, emails) {
+    function ElementGroupingTool(mailbox, elements) {
       this.mailbox = mailbox;
 
-      this.todayEmails = [];
-      this.weeklyEmails = [];
-      this.monthlyEmails = [];
-      this.otherEmails = [];
-      this.allEmails = [
-        {name: 'Today', dateFormat: 'shortTime', emails: this.todayEmails},
-        {name: 'This Week', dateFormat: 'short', emails: this.weeklyEmails},
-        {name: 'This Month', dateFormat: 'short', emails: this.monthlyEmails},
-        {name: 'Older than a month', dateFormat: 'fullDate', emails: this.otherEmails}
+      this.todayElements = [];
+      this.weeklyElements = [];
+      this.monthlyElements = [];
+      this.otherElements = [];
+      this.allElements = [
+        {name: 'Today', dateFormat: 'shortTime', elements: this.todayElements},
+        {name: 'This Week', dateFormat: 'short', elements: this.weeklyElements},
+        {name: 'This Month', dateFormat: 'short', elements: this.monthlyElements},
+        {name: 'Older than a month', dateFormat: 'fullDate', elements: this.otherElements}
       ];
 
-      if (emails) {
-        this.addAll(emails);
+      if (elements) {
+        this.addAll(elements);
       }
 
       return this;
     }
 
-    EmailGroupingTool.prototype.addAll = function addEmail(emails) {
-      emails.forEach(this.addEmail.bind(this));
+    ElementGroupingTool.prototype.addAll = function addElement(elements) {
+      elements.forEach(this.addElement.bind(this));
     };
 
-    EmailGroupingTool.prototype.addEmail = function addEmail(email) {
+    ElementGroupingTool.prototype.addElement = function addElement(element) {
       var currentMoment = moment().utc();
-      var emailMoment = moment(email.date).utc();
+      var elementMoment = moment(element.date).utc();
 
-      if (this._isToday(currentMoment, emailMoment)) {
-        this.todayEmails.push(email);
-      } else if (this._isThisWeek(currentMoment, emailMoment)) {
-        this.weeklyEmails.push(email);
-      } else if (this._isThisMonth(currentMoment, emailMoment)) {
-        this.monthlyEmails.push(email);
+      if (this._isToday(currentMoment, elementMoment)) {
+        this.todayElements.push(element);
+      } else if (this._isThisWeek(currentMoment, elementMoment)) {
+        this.weeklyElements.push(element);
+      } else if (this._isThisMonth(currentMoment, elementMoment)) {
+        this.monthlyElements.push(element);
       } else {
-        this.otherEmails.push(email);
+        this.otherElements.push(element);
       }
     };
 
-    EmailGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
+    ElementGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('day').isBefore(targetMoment);
     };
 
-    EmailGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
+    ElementGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().subtract(7, 'days').startOf('day').isBefore(targetMoment);
     };
 
-    EmailGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
+    ElementGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('month').isBefore(targetMoment);
     };
 
-    EmailGroupingTool.prototype.getGroupedEmails = function getGroupedEmails() {
-      return this.allEmails;
+    ElementGroupingTool.prototype.getGroupedElements = function getGroupedElements() {
+      return this.allElements;
     };
 
-    EmailGroupingTool.prototype.reset = function reset() {
-      return this.allEmails.forEach(function(emailGroup) {
-        emailGroup.emails.length = 0;
+    ElementGroupingTool.prototype.reset = function reset() {
+      return this.allElements.forEach(function(elementGroup) {
+        elementGroup.elements.length = 0;
       });
     };
 
-    return EmailGroupingTool;
+    return ElementGroupingTool;
   })
 
   .factory('createHtmlElement', function() {

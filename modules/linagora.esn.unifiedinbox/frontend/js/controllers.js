@@ -14,7 +14,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, EmailGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
@@ -31,7 +31,7 @@ angular.module('linagora.esn.unifiedinbox')
             properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
           });
         }).then(function(messages) {
-          $scope.groupedEmails = new EmailGroupingTool($scope.mailbox.id, messages).getGroupedEmails();
+          $scope.groupedEmails = new ElementGroupingTool($scope.mailbox.id, messages).getGroupedElements();
         });
       });
     }
@@ -63,6 +63,53 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService
       .assignMailbox($stateParams.mailbox, $scope)
       .then(searchForMessages);
+  })
+
+  .controller('listThreadsController', function($q, $scope, $stateParams, _, withJmapClient, ElementGroupingTool, headerService, mailboxesService) {
+
+    this.openThread = function(thread) {
+      // This function is to be defined in INBOX-112
+      console.log(thread);
+    };
+
+    function _assignEmailAndDate(dst) {
+      return function(email) {
+        _.assign(_.find(dst, {id: email.threadId}), {email: email, date: email.date});
+      };
+    }
+
+    function _prepareThreadsVariable(data) {
+      data[1].forEach(_assignEmailAndDate(data[0]));
+
+      return data[0];
+    }
+
+    function searchForThreads() {
+      withJmapClient(function(client) {
+        client.getMessageList({
+          filter: {
+            inMailboxes: [$scope.mailbox.id]
+          },
+          collapseThreads: true,
+          fetchMessages: false,
+          position: 0,
+          limit: 100
+        })
+          .then(function(messageList) {
+            return $q.all([messageList.getThreads(), messageList.getMessages()]);
+          })
+          .then(_prepareThreadsVariable)
+          .then(function(threads) {
+            $scope.groupedThreads = new ElementGroupingTool($scope.mailbox.id, threads).getGroupedElements();
+          });
+      });
+    }
+
+    headerService.subHeader.setInjection('list-emails-subheader', $scope);
+
+    mailboxesService
+      .assignMailbox($stateParams.mailbox, $scope)
+      .then(searchForThreads);
   })
 
   .controller('composerController', function($scope, $stateParams, headerService, Composition) {
