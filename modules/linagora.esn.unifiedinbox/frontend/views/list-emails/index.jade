@@ -1,12 +1,12 @@
 .list-emails
 
-  .groupedEmails(ng-repeat="group in groupedEmails" ng-if="group.emails.length > 0")
+  .groupedEmails(ng-repeat="group in groupedEmails" ng-if="group.elements.length > 0")
     .block-header
       h2 {{::group.name}}
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
-        .lv-item.media(ng-repeat="email in group.emails")
+        .lv-item.media(ng-repeat="email in group.elements")
           div.clickable(ng-click="ctrl.openEmail(email)")
             .media-body(ng-class="::{bold: email.isUnread}")
               .lv-title.text-right.pull-right-sm

@@ -96,6 +96,15 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
+      .state('unifiedinbox.threads', {
+        url: '/threads/:mailbox',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/list-threads/index',
+            controller: 'listThreadsController as ctrl'
+          }
+        }
+      })
       .state('unifiedinbox.email', {
         url: '/:mailbox/:emailId',
         views: {
