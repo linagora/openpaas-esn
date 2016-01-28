@@ -341,36 +341,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($q, $log, jmap, withJmapClient, session, notificationFactory) {
-
-    function saveDraftSuccess() {
-      notificationFactory.weakInfo('Note', 'Your email has been saved as draft');
-      return $q.when();
-    }
-
-    function saveDraftFailed(err) {
-      notificationFactory.weakError('Error', 'Your email has not been saved');
-      $log.error('A draft has not been saved', err);
-      return $q.reject(err);
-    }
+  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _) {
 
     function haveDifferentRecipients(left, right) {
+      return _.xor(_.map(left, 'email'), _.map(right, 'email')).length > 0;
+    }
 
-      function recipientToEmail(recipient) {
-        return recipient.email;
-      }
-
-      function containsAll(from, to) {
-        return from.every(function(email) {
-          return to.indexOf(email) !== -1;
-        });
-      }
-
-      var leftEmails = left.map(recipientToEmail);
-      var rightEmails = right.map(recipientToEmail);
-
-      return !containsAll(leftEmails, rightEmails) ||
-             !containsAll(rightEmails, leftEmails);
+    function haveDifferentBodies(original, newest) {
+      return trim(original[emailBodyService.bodyProperty]) !== trim(newest[emailBodyService.bodyProperty]);
     }
 
     function mapToNameEmailTuple(recipients) {
@@ -382,25 +360,24 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function trim(value) {
+      return (value || '').trim();
+    }
+
     function Draft(originalEmailState) {
       this.originalEmailState = angular.copy(originalEmailState);
     }
 
     Draft.prototype.needToBeSaved = function(newEmailState) {
-      var original = this.originalEmailState || {};
-      original.subject = (original.subject || '').trim();
-      original.htmlBody = (original.htmlBody || '').trim();
-
-      var newest = newEmailState || {};
-      newest.subject = (newest.subject || '').trim();
-      newest.htmlBody = (newest.htmlBody || '').trim();
+      var original = this.originalEmailState || {},
+          newest = newEmailState || {};
 
       return (
-        original.subject !== newest.subject ||
-        original.htmlBody !== newest.htmlBody ||
-        haveDifferentRecipients(original.to || [], newest.to || []) ||
-        haveDifferentRecipients(original.cc || [], newest.cc || []) ||
-        haveDifferentRecipients(original.bcc || [], newest.bcc || [])
+        trim(original.subject) !== trim(newest.subject) ||
+        haveDifferentBodies(original, newest) ||
+        haveDifferentRecipients(original.to, newest.to) ||
+        haveDifferentRecipients(original.cc, newest.cc) ||
+        haveDifferentRecipients(original.bcc, newest.bcc)
       );
     };
 
@@ -408,19 +385,22 @@ angular.module('linagora.esn.unifiedinbox')
       if (!this.needToBeSaved(newEmailState)) {
         return $q.reject();
       }
-      return withJmapClient(function(client) {
-        return client.saveAsDraft(new jmap.OutboundMessage(client, {
+
+      return asyncJmapAction('Saving your email as draft', function(client) {
+        var draft = {
           from: new jmap.EMailer({
             email: session.user.preferredEmail,
             name: session.user.name
           }),
           subject: newEmailState.subject,
-          htmlBody: newEmailState.htmlBody,
           to: mapToNameEmailTuple(newEmailState.to),
           cc: mapToNameEmailTuple(newEmailState.cc),
           bcc: mapToNameEmailTuple(newEmailState.bcc)
-        }))
-        .then(saveDraftSuccess, saveDraftFailed);
+        };
+
+        draft[emailBodyService.bodyProperty] = newEmailState[emailBodyService.bodyProperty];
+
+        return client.saveAsDraft(new jmap.OutboundMessage(client, draft));
       });
     };
 
@@ -609,6 +589,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
+      bodyProperty: supportsRichtext() ? 'htmlBody' : 'textBody',
       quote: quote,
       quoteOriginalEmail: quoteOriginalEmail,
       supportsRichtext: supportsRichtext
