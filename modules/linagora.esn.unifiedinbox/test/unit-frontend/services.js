@@ -2512,13 +2512,22 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
-      it('should call mailboxesService.flagIsUnreadChanged passing the email and the correspondent state', function() {
+      it('should call mailboxesService.flagIsUnreadChanged when flag=isUnread passing the email and the correspondent state', function() {
         var email = newEmail(true);
 
         jmapEmailService.setFlag(email, 'isUnread', false);
         $rootScope.$digest();
 
         expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(email, false);
+      });
+
+      it('should not call mailboxesService.flagIsUnreadChanged when flag is not isUnread', function() {
+        var email = newEmail(true);
+
+        jmapEmailService.setFlag(email, 'isFlagged', false);
+        $rootScope.$digest();
+
+        expect(mailboxesService.flagIsUnreadChanged).to.not.have.been.called;
       });
     });
   });
