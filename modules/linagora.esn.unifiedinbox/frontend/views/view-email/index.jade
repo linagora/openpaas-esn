@@ -1,14 +1,8 @@
 .email-view
 
-  ul.actions.pull-right
-    li
-      a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Go back to mailbox')}")
-        i.mdi.mdi-v-centered.mdi-folder
-    li
-      a(href="", action-list, template-desktop-url="/unifiedinbox/views/partials/action-list-desktop.html" template-mobile-url="/unifiedinbox/views/partials/action-list-mobile.html" title="#{__('More')}")
-        i.mdi.mdi-v-centered.mdi-view-module
-
-  h2.subject.visible-md.visible-lg {{::email.subject}}
+  .block-header.visible-md.visible-lg
+    h2 {{::email.subject}}
+    
   ng-include(src="'/unifiedinbox/views/partials/email'")
   
   .lv-footer

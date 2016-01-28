@@ -9,6 +9,11 @@
   color: @textPrimaryColor;
 }
 
+.SecondaryColor() {
+  background-color: @body-bg;
+  color: @secondaryTextColor;
+}
+
 .AccentColor() {
   background-color: @accentColor;
   color: @textPrimaryColor;
@@ -190,6 +195,10 @@
   .flex-vertical-centered;
 }
 
+.align-items(@value) {
+  align-items: @value;
+  -webkit-align-items: @value;
+}
 .align-self(@value) {
   align-self: @value;
   -webkit-align-self: @value;
@@ -200,11 +209,19 @@
   .all-centered;
 }
 
-.aligner-item-top {
+.aligner-items-start {
+  .align-items(flex-start);
+}
+
+.aligner-items-end {
+  .align-items(flex-end);
+}
+
+.aligner-item-start {
   .align-self(flex-start);
 }
 
-.aligner-item-bottom {
+.aligner-item-end {
   .align-self(flex-end);
 }
 
