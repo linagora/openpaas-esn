@@ -53,7 +53,6 @@ module.exports = function(dependencies) {
 
   function sendFollowingToDAV(twitterClient, options, ids) {
     var defer = q.defer();
-
     twitterClient.getCustomApiCall('/users/lookup.json', {user_id: ids}, function(err) {
       return defer.reject(buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
     }, function(data) {
@@ -61,11 +60,7 @@ module.exports = function(dependencies) {
       q.all(userList.map(function(userJson) {
         var vcard = twitterToVcard.toVcard(userJson);
         return createContact(vcard, options);
-      })).then(function() {
-        return defer.resolve();
-      }, function(err) {
-        return defer.reject(err);
-      });
+      })).then(defer.resolve, defer.reject);
     });
     return defer.promise;
   }
@@ -82,7 +77,7 @@ module.exports = function(dependencies) {
     var idStack = [];
 
     followingIdsList.forEach(function(value, index) {
-      var arrayIndex = Math.ceil(index / MAX_ID_PER_STACK);
+      var arrayIndex = Math.floor(index / MAX_ID_PER_STACK);
       if (idStack[arrayIndex]) {
         idStack[arrayIndex] += ',' + value.toString();
       } else {
@@ -104,26 +99,25 @@ module.exports = function(dependencies) {
    */
 
   function getFollowingsIds(followingIdsList, twitterClient, next_cursor) {
-
-    var defer = q.defer();
     if (followingIdsList.length >= TWITTER_LIMIT_ID_REQUEST) {
       followingIdsList = followingIdsList.slice(0, TWITTER_LIMIT_ID_REQUEST - 1);
-      return defer.resolve(followingIdsList);
+      return q.resolve(followingIdsList);
+    } else {
+      var defer = q.defer();
+      twitterClient.getCustomApiCall('/friends/ids.json', {cursor: next_cursor}, function(err) {
+        defer.reject(buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
+      }, function(data) {
+        var result = JSON.parse(data);
+        Array.prototype.push.apply(followingIdsList, result.ids);
+        if (result.next_cursor === 0) {
+          defer.resolve(followingIdsList);
+        } else {
+          getFollowingsIds(followingIdsList, twitterClient, result.next_cursor)
+            .then(defer.resolve, defer.reject);
+        }
+      });
+      return defer.promise;
     }
-
-    twitterClient.getCustomApiCall('/friends/ids.json', {cursor: next_cursor}, function(err) {
-      return defer.reject(buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
-    }, function(data) {
-      var result = JSON.parse(data);
-      Array.prototype.push.apply(followingIdsList, result.ids);
-      if (result.next_cursor === 0) {
-        return defer.resolve(followingIdsList);
-      } else {
-        return getFollowingsIds(followingIdsList, twitterClient, result.next_cursor);
-      }
-    });
-
-    return defer.promise;
   }
 
   /**
@@ -152,21 +146,20 @@ module.exports = function(dependencies) {
         callBackUrl: ''
       };
       var twitterClient = new Twitter(twitterConfig);
-
       getFollowingsIds(followingIdsList, twitterClient, -1)
         .then(function(followingIdsList) {
           return sendFollowingsToDAV(followingIdsList, twitterClient, options);
         })
-        .then(null, function(err) {
-          logger.info('Error while importing Twitter followings', err);
+        .then(defer.resolve, function(err) {
+          logger.error('Error while importing Twitter followings', err);
           pubsub.topic(err.type).publish({
             type: err.type,
             provider: TWITTER,
             account: account.data.username,
             user: options.user
           });
+          return defer.reject(err);
         });
-      return defer.resolve();
     });
     return defer.promise;
   }
