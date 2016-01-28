@@ -1,0 +1,41 @@
+.calendar-edit-header {
+  .btn {
+    box-shadow: none;
+  }
+}
+
+.calendars-edit.card, .calendar-edit.card {
+  min-height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
+  overflow: auto;
+  font-size: 1.4em;
+  color: @secondaryTextColor;
+  padding: 15px;
+}
+
+.calendars-edit.card {
+  .mdi {
+    font-size: 1.6em;
+    vertical-align: bottom;
+    margin-right: 5px;
+    color: @secondaryTextColor;
+  }
+  .lv-item {
+    padding: 0 !important; /* override material-admin property */
+    margin-bottom: 10px;
+    span {
+      color: @secondaryTextColor;
+    }
+  }
+}
+
+.calendars-edit {
+  hr {
+    border-color: @secondaryTextColor;
+  }
+}
+
+.calendar-edit-delete-confirmation {
+  .modal-title, .modal-body {
+    text-align: center;
+  }
+}

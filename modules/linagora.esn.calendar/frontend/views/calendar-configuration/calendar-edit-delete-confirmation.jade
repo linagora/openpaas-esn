@@ -1,0 +1,10 @@
+.modal.calendar-edit-delete-confirmation
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Delete the calendar?')}
+      .modal-body
+        span {{::calendar.name}}
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-danger(type="button", ng-click="delete(); $hide()") #{__('Delete')}

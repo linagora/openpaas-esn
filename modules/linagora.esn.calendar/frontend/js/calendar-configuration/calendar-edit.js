@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $location, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
     if (!calendarService.calendarHomeId) {
-      $location.path('/calendar');
+      $state.go('calendar.main');
       return;
     }
 
@@ -39,31 +39,35 @@ angular.module('esn.calendar')
         calendarService.createCalendar(calendarService.calendarHomeId, shell)
           .then(function() {
             notificationFactory.weakInfo('New calendar - ', $scope.calendar.name + ' has been created.');
-            $location.path('/calendar');
+            $state.go('calendar.main');
           });
       } else {
         if (!hasModifications($scope.oldCalendar, $scope.calendar)) {
-          $location.path('/calendar');
+          $state.go('calendar.list');
           return;
         }
         calendarService.modifyCalendar(calendarService.calendarHomeId, shell)
           .then(function() {
             notificationFactory.weakInfo('New calendar - ', $scope.calendar.name + ' has been modified.');
-            $location.path('/calendar');
+            $state.go('calendar.main');
           });
       }
     };
 
-    $scope.delete = function() {
-      if ($scope.newCalendar) {
-        $log.error('Can\'t delete a new calendar');
-      }
+    $scope.openDeleteConfirmationDialog = function() {
+      $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/calendar-configuration/calendar-edit-delete-confirmation.html', backdrop: 'static', placement: 'center'});
+    };
 
-      $log.debug('To be done, delete');
+    $scope.delete = function() {
+      $log.debug('Delete calendar not implemented yet');
     };
 
     $scope.cancel = function() {
-      $location.path('/calendar');
+      $state.go('calendar.main');
+    };
+
+    $scope.cancelMobile = function() {
+      $state.go('calendar.list');
     };
   })
   .directive('calendarEditionHeader', function() {

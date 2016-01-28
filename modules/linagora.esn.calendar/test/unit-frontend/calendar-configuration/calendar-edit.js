@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The calendar-lists component', function() {
+describe('The calendarEditionController controller', function() {
 
   beforeEach(function() {
     this.uuid4 = {
@@ -19,7 +19,7 @@ describe('The calendar-lists component', function() {
       calendarHomeId: '12345'
     };
     this.notificationFactoryMock = {};
-    this.locationMock = {};
+    this.stateMock = {};
     this.calendarMock = null;
     this.headerServiceMock = {
       subHeader: {
@@ -34,7 +34,7 @@ describe('The calendar-lists component', function() {
       $provide.value('uuid4', self.uuid4);
       $provide.value('calendarService', self.calendarService);
       $provide.value('notificationFactory', self.notificationFactoryMock);
-      $provide.value('$location', self.locationMock);
+      $provide.value('$state', self.stateMock);
       $provide.value('calendar', self.calendarMock);
       $provide.value('headerService', self.headerServiceMock);
     });
@@ -59,21 +59,21 @@ describe('The calendar-lists component', function() {
 
   describe('scope.submit', function() {
     it('should do nothing if the calendar name is empty', function() {
-      this.locationMock.path = sinon.spy();
+      this.stateMock.go = sinon.spy();
       this.calendarService.modifyCalendar = sinon.spy();
       this.calendarService.createCalendar = sinon.spy();
 
       this.initController();
       this.$scope.submit();
-      expect(this.locationMock.path).to.have.not.been.called;
+      expect(this.stateMock.go).to.have.not.been.called;
       expect(this.calendarService.modifyCalendar).to.have.not.been.called;
       expect(this.calendarService.createCalendar).to.have.not.been.called;
     });
 
     it('should call createCalendar if newCalendar is true (with name having only one char)', function() {
       this.notificationFactoryMock.weakInfo = sinon.spy();
-      this.locationMock.path = sinon.spy(function(path) {
-        expect(path).to.equal('/calendar');
+      this.stateMock.go = sinon.spy(function(path) {
+        expect(path).to.equal('calendar.main');
       });
       this.calendarService.createCalendar = function(calendarHomeId, shell) {
         expect(calendarHomeId).to.equal('12345');
@@ -93,13 +93,13 @@ describe('The calendar-lists component', function() {
       this.$scope.calendar.name = 'N';
       this.$scope.submit();
       expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
-      expect(this.locationMock.path).to.have.been.called;
+      expect(this.stateMock.go).to.have.been.called;
     });
 
     describe('when newCalendar is false', function() {
-      it('should return to /calendar if the calendar has not been modified', function() {
-        this.locationMock.path = sinon.spy(function(path) {
-          expect(path).to.equal('/calendar');
+      it('should return to calendar.list if the calendar has not been modified', function() {
+        this.stateMock.go = sinon.spy(function(path) {
+          expect(path).to.equal('calendar.list');
         });
         this.calendarService.modifyCalendar = sinon.spy();
 
@@ -109,15 +109,15 @@ describe('The calendar-lists component', function() {
         this.$scope.oldCalendar.name = 'aName';
         this.$scope.newCalendar = false;
         this.$scope.submit();
-        expect(this.locationMock.path).to.have.been.called;
+        expect(this.stateMock.go).to.have.been.called;
         expect(this.calendarService.modifyCalendar).to.have.not.been.called;
       });
 
       it('should call modifyCalendar if the calendar has been modified (with name having only one char)', function() {
         var modifiedName = 'A';
         this.notificationFactoryMock.weakInfo = sinon.spy();
-        this.locationMock.path = sinon.spy(function(path) {
-          expect(path).to.equal('/calendar');
+        this.stateMock.go = sinon.spy(function(path) {
+          expect(path).to.equal('calendar.main');
         });
         this.calendarService.modifyCalendar = function(calendarHomeId, shell) {
           expect(calendarHomeId).to.equal('12345');
@@ -141,7 +141,7 @@ describe('The calendar-lists component', function() {
         this.$scope.newCalendar = false;
         this.$scope.submit();
         expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
-        expect(this.locationMock.path).to.have.been.called;
+        expect(this.stateMock.go).to.have.been.called;
       });
     });
   });

@@ -103,7 +103,7 @@ angular.module('esn.calendar', [
         }
       }
     })
-    .state('calendar.editCalendarList', {
+    .state('calendar.list', {
       url: '/edits',
       views: {
         form: {
@@ -125,11 +125,11 @@ angular.module('esn.calendar', [
         form: {
           templateUrl: '/calendar/views/event-full-form/event-full-form-view',
           resolve: {
-            event: function($stateParams, $location, pathBuilder, calendarService, notificationFactory) {
+            event: function($stateParams, $state, pathBuilder, calendarService, notificationFactory) {
               var eventPath = pathBuilder.forEventId($stateParams.calendar_id, $stateParams.event_id);
               return calendarService.getEvent(eventPath).catch(function(error) {
                 notificationFactory.weakError('Cannot display this event.', error.statusText);
-                $location.path('/calendar');
+                $state.go('calendar.main');
               });
             }
           },
