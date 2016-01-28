@@ -15,7 +15,7 @@ describe('The Contact Live module', function() {
 
   describe('The ContactLiveUpdate service', function() {
     var liveNotificationMock, onFn, removeListenerFn;
-    var $rootScope, ContactLiveUpdate, CONTACT_SIO_EVENTS;
+    var $rootScope, ContactLiveUpdate, CONTACT_WS;
     var namespace = '/contacts';
     var session = {};
 
@@ -33,10 +33,10 @@ describe('The Contact Live module', function() {
         $provide.value('session', session);
       });
 
-      inject(function(_$rootScope_, _ContactLiveUpdate_, _CONTACT_SIO_EVENTS_) {
+      inject(function(_$rootScope_, _ContactLiveUpdate_, _CONTACT_WS_) {
         $rootScope = _$rootScope_;
         ContactLiveUpdate = _ContactLiveUpdate_;
-        CONTACT_SIO_EVENTS = _CONTACT_SIO_EVENTS_;
+        CONTACT_WS = _CONTACT_WS_;
       });
 
     });
@@ -58,22 +58,22 @@ describe('The Contact Live module', function() {
         expect(liveNotificationMock.calledWithExactly(namespace, bookId)).to.be.true;
       });
 
-      it('should make sio to listen on CONTACT_SIO_EVENTS.CREATED event', function() {
+      it('should make sio to listen on CONTACT_WS.events.CREATED event', function() {
         var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
-        expect(onFn.firstCall.calledWith(CONTACT_SIO_EVENTS.CREATED)).to.be.true;
+        expect(onFn.firstCall.calledWith(CONTACT_WS.events.CREATED)).to.be.true;
       });
 
-      it('should make sio to listen on CONTACT_SIO_EVENTS.DELETED event', function() {
+      it('should make sio to listen on CONTACT_WS.events.DELETED event', function() {
         var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
-        expect(onFn.secondCall.calledWith(CONTACT_SIO_EVENTS.DELETED)).to.be.true;
+        expect(onFn.secondCall.calledWith(CONTACT_WS.events.DELETED)).to.be.true;
       });
 
-      it('should make sio to listen on CONTACT_SIO_EVENTS.UPDATED event', function() {
+      it('should make sio to listen on CONTACT_WS.events.UPDATED event', function() {
         var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
-        expect(onFn.thirdCall.calledWith(CONTACT_SIO_EVENTS.UPDATED)).to.be.true;
+        expect(onFn.thirdCall.calledWith(CONTACT_WS.events.UPDATED)).to.be.true;
       });
 
     });
@@ -91,28 +91,28 @@ describe('The Contact Live module', function() {
         expect(removeListenerFn.callCount).to.equal(3);
       });
 
-      it('should make sio to remove CONTACT_SIO_EVENTS.CREATED event listener', function() {
+      it('should make sio to remove CONTACT_WS.events.CREATED event listener', function() {
         var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
 
         ContactLiveUpdate.stopListen();
-        expect(removeListenerFn.firstCall.calledWith(CONTACT_SIO_EVENTS.CREATED)).to.be.true;
+        expect(removeListenerFn.firstCall.calledWith(CONTACT_WS.events.CREATED)).to.be.true;
       });
 
-      it('should make sio to remove CONTACT_SIO_EVENTS.DELETED event listener', function() {
+      it('should make sio to remove CONTACT_WS.events.DELETED event listener', function() {
         var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
 
         ContactLiveUpdate.stopListen();
-        expect(removeListenerFn.secondCall.calledWith(CONTACT_SIO_EVENTS.DELETED)).to.be.true;
+        expect(removeListenerFn.secondCall.calledWith(CONTACT_WS.events.DELETED)).to.be.true;
       });
 
-      it('should make sio to remove CONTACT_SIO_EVENTS.UPDATED event listener', function() {
+      it('should make sio to remove CONTACT_WS.events.UPDATED event listener', function() {
         var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
 
         ContactLiveUpdate.stopListen();
-        expect(removeListenerFn.thirdCall.calledWith(CONTACT_SIO_EVENTS.UPDATED)).to.be.true;
+        expect(removeListenerFn.thirdCall.calledWith(CONTACT_WS.events.UPDATED)).to.be.true;
       });
     });
   });
