@@ -1366,9 +1366,9 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the "open" method', function() {
 
-      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+      it('should delegate to screenSize to know if the size is "xs" or "sm"', function(done) {
         screenSize.is = function(size) {
-          expect(size).to.equal('xs');
+          expect(size).to.equal('xs,sm');
           done();
         };
         newComposerService.open();
@@ -1400,9 +1400,9 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the "openDraft" method', function() {
 
-      it('should delegate to screenSize to know if the size is "xs"', function(done) {
+      it('should delegate to screenSize to know if the size is "xs" or "sm"', function(done) {
         screenSize.is = function(size) {
-          expect(size).to.equal('xs');
+          expect(size).to.equal('xs,sm');
           done();
         };
         newComposerService.openDraft({id: 'value'});
@@ -1437,7 +1437,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should delegate to screenSize to know if the size is "xs"', function(done) {
         screenSize.is = function(size) {
-          expect(size).to.equal('xs');
+          expect(size).to.equal('xs,sm');
           done();
         };
         newComposerService.openEmailCustomTitle('title', {id: 'value'});

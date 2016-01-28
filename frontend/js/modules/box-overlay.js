@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.box-overlay', ['esn.back-detector'])
+angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
 
   .constant('MAX_BOX_COUNT', 2)
 
@@ -93,7 +93,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
   })
 
   .provider('$boxOverlay', function() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService, StateManager) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService, StateManager, deviceDetector, DEVICES) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -104,6 +104,24 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
         if (container().length === 0) {
           angular.element($window.document.body).append($compile('<box-overlay-container></box-overlay-container>')($rootScope.$new()));
         }
+      }
+
+      function setAutoMaximizeForIPAD(box, scope) {
+        if (deviceDetector.device !== DEVICES.I_PAD) {
+          return;
+        }
+
+        scope.$toggleMaximized();
+
+        box
+          .on('focus', 'input, tags-input', function() {
+            $window.scrollTo(0, 0); // Avoid shake effect
+          })
+          .on('touchstart', 'input, textarea, tags-input', function() {
+            if (!scope.isMaximized()) {
+              scope.$apply(scope.$toggleMaximized);
+            }
+          });
       }
 
       function removeContainerElementIfPossible() {
@@ -175,6 +193,7 @@ angular.module('esn.box-overlay', ['esn.back-detector'])
 
             boxElement.addClass('box-overlay-open');
             container().append(boxElement);
+            setAutoMaximizeForIPAD(boxElement, scope);
 
             $timeout(function() {
               var toFocus = boxElement.find('[autofocus]')[0];

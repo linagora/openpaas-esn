@@ -2,8 +2,7 @@
   .panel-heading
     div.panel-title
       i.close.mdi.mdi-close(ng-click="$close()")
-      .hidden-xs
-        span.close.toggle-maximize.mdi.mdi-arrow-expand(ng-click="$toggleMaximized()")
-        span.close.toggle-minimize.mdi.mdi-chevron-down(ng-click="$toggleMinimized()")
+      span.close.toggle-maximize.mdi.mdi-arrow-expand(ng-click="$toggleMaximized()")
+      span.close.toggle-minimize.mdi.mdi-chevron-down(ng-click="$toggleMinimized()")
       span {{title}}
   .panel-body(ng-include="templateUrl")

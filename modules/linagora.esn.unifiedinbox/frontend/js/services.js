@@ -433,8 +433,8 @@ angular.module('linagora.esn.unifiedinbox')
 
   .service('newComposerService', function($state, screenSize, boxOverlayOpener) {
 
-    function choseByScreenSize(xs, others) {
-      screenSize.is('xs') ? xs() : others();
+    function choseByScreenSize(small, others) {
+      screenSize.is('xs,sm') ? small() : others();
     }
 
     function newMobileComposer(email) {
