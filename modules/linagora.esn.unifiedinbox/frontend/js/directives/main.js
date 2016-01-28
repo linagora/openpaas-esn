@@ -227,7 +227,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composerDesktop', function() {
+  .directive('composerDesktop', function($timeout) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
@@ -244,12 +244,22 @@ angular.module('linagora.esn.unifiedinbox')
           element.find('.btn-primary').removeAttr('disabled');
         };
 
+        // The onChange callback will be initially called by summernote when it is initialized
+        // either with an empty body (compose from scratch) or with an existing body (reply, forward, etc.)
+        // So we intercept this to initialize our Composition instance with the summernote representation of the body
+        // which allows us to later compare it with the current body, to detect user changes.
+        scope.onChange = function() {
+          $timeout(function() {
+            controller.initCtrl(scope.email);
+          }, 0);
+
+          scope.onChange = angular.noop;
+        };
+
         scope.hide = scope.$hide;
         scope.$on('$destroy', function() {
           controller.saveDraft();
         });
-
-        controller.initCtrl(scope.email);
       }
     };
   })

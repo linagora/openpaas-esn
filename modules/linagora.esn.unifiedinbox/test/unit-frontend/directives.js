@@ -424,12 +424,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer-desktop directive', function() {
 
-    var draftService;
-
-    beforeEach(inject(function(_draftService_) {
-      draftService = _draftService_;
-    }));
-
     it('should return true when isBoxed is called', function() {
       compileDirective('<composer-desktop />');
 
@@ -468,6 +462,33 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.enableSendButton();
 
       expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
+    });
+
+    it('should initialize the controller with summernote\'s initial value when composing from scratch', function() {
+      var controller = compileDirective('<composer-desktop/>').controller('composerDesktop');
+
+      controller.initCtrl = sinon.spy();
+      $timeout.flush();
+
+      expect(controller.initCtrl).to.have.been.calledWith(sinon.match({
+        htmlBody: ''
+      }));
+    });
+
+    it('should initialize the controller with summernote\'s initial value when composing from an existing email', function() {
+      var controller;
+
+      $scope.email = {
+        htmlBody: '<p><br /></p>Hey'
+      };
+      controller = compileDirective('<composer-desktop/>').controller('composerDesktop');
+
+      controller.initCtrl = sinon.spy();
+      $timeout.flush();
+
+      expect(controller.initCtrl).to.have.been.calledWith(sinon.match({
+        htmlBody: '<p><br></p>Hey' // Bogus <br> !
+      }));
     });
 
   });
