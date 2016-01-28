@@ -1,28 +1,35 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventMessage', function(calendarService, session) {
+  .factory('eventMessageService', function() {
+    return {
+      computeAttendeeStats: function(attendees) {
+        var partstatMap = {
+          'NEEDS-ACTION': 0,
+          ACCEPTED: 0,
+          TENTATIVE: 0,
+          DECLINED: 0,
+          OTHER: 0
+        };
+
+        (attendees || []).forEach(function(attendee) {
+          partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
+        });
+
+        return partstatMap;
+      }
+    };
+  })
+
+  .directive('eventMessage', function(calendarService, session, eventMessageService) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/event-message/templates/event-message.html',
       link: function(scope, element, attrs) {
         function updateAttendeeStats() {
-          var partstatMap = scope.attendeesPerPartstat = {
-            'NEEDS-ACTION': 0,
-            ACCEPTED: 0,
-            TENTATIVE: 0,
-            DECLINED: 0,
-            OTHER: 0
-          };
-
+          scope.attendeesPerPartstat = eventMessageService.computeAttendeeStats(scope.event.attendees);
           scope.hasAttendees = !!scope.event.attendees;
-
-          if (scope.hasAttendees) {
-            scope.event.attendees.forEach(function(attendee) {
-              partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
-            });
-          }
         }
 
         scope.changeParticipation = function(partstat) {
@@ -80,78 +87,72 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('eventMessageEdition', function(CalendarShell, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM) {
+  .controller('eventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM) {
 
-    function link(scope, element, attrs, controller) {
-
-      function _initFormData() {
-        scope.event = {
-          start: calendarUtils.getNewStartDate(),
-          end: calendarUtils.getNewEndDate(),
-          allDay: false
-        };
-        scope.restActive = false;
-        scope.EVENT_FORM = EVENT_FORM;
-        scope.activitystream = scope.$parent.activitystream;
-      }
-
-      function _emitPostedMessage(response) {
-        if (response && scope.activitystream) {
-          calendarEventEmitter.activitystream.emitPostedMessage(
-            response.headers('ESN-Message-Id'),
-            scope.activitystream.activity_stream.uuid);
-        }
-      }
-
-      function _resetEvent() {
-        scope.rows = 1;
-        scope.event = {
-          start: calendarUtils.getNewStartDate(),
-          end: calendarUtils.getNewEndDate(),
-          diff: 1,
-          allDay: false
-        };
-      }
-
-      scope.submit = function() {
-        if (!scope.event.title || scope.event.title.trim().length === 0) {
-          scope.event.title = EVENT_FORM.title.default;
-        }
-
-        if (!scope.calendarHomeId) {
-          scope.calendarHomeId = calendarService.calendarHomeId;
-        }
-
-        if (!scope.activitystream.activity_stream && !scope.activitystream.activity_stream.uuid) {
-          scope.displayError('You can not post to an unknown stream');
-          return;
-        }
-
-        var event = scope.event;
-        var path = '/calendars/' + scope.calendarHomeId + '/events';
-        scope.restActive = true;
-        calendarService.createEvent(path, event.vcalendar, { graceperiod: false })
-          .then(function(response) {
-            _emitPostedMessage(response);
-            _resetEvent();
-            scope.$parent.show('whatsup');
-          })
-          .catch(function(err) {
-            notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
-          })
-          .finally(function() {
-            scope.restActive = false;
-          });
-      };
-
-      // We must init the form on directive load
-      _initFormData();
+    function _initFormData() {
+      $scope.event = CalendarShell.fromIncompleteShell({
+        start: calendarUtils.getNewStartDate(),
+        end: calendarUtils.getNewEndDate()
+      });
+      $scope.restActive = false;
+      $scope.EVENT_FORM = EVENT_FORM;
+      $scope.activitystream = $scope.$parent.activitystream;
     }
 
+    function _emitPostedMessage(response) {
+      if (response && $scope.activitystream) {
+        calendarEventEmitter.activitystream.emitPostedMessage(
+            response.headers('ESN-Message-Id'),
+            $scope.activitystream.activity_stream.uuid);
+      }
+    }
+
+    function _resetEvent() {
+      $scope.rows = 1;
+      $scope.event = CalendarShell.fromIncompleteShell({
+        start: calendarUtils.getNewStartDate(),
+        end: calendarUtils.getNewEndDate(),
+        diff: 1
+      });
+    }
+
+    $scope.submit = function() {
+      if (!$scope.event.title || $scope.event.title.trim().length === 0) {
+        $scope.event.title = EVENT_FORM.title.default;
+      }
+
+      if (!$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
+        $scope.displayError('You can not post to an unknown stream');
+        return;
+      }
+
+      var event = $scope.event;
+      var calendarHomeId = $scope.calendarHomeId || calendarService.calendarHomeId;
+      var path = '/calendars/' + calendarHomeId + '/events';
+      $scope.restActive = true;
+      calendarService.createEvent(calendarHomeId, path, event, { graceperiod: false })
+        .then(function(response) {
+          _emitPostedMessage(response);
+          _resetEvent();
+          $scope.$parent.show('whatsup');
+        })
+      .catch(function(err) {
+        notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+      })
+      .finally(function() {
+        $scope.restActive = false;
+      });
+    };
+
+    // We must init the form on directive load
+    _initFormData();
+  })
+
+  .directive('eventMessageEdition', function() {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/event-message/event-message-edition.html',
-      link: link
+      controller: 'eventMessageEditionController'
     };
   });
