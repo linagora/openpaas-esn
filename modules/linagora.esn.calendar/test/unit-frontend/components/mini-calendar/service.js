@@ -72,6 +72,7 @@ describe('The mini-calendar service', function() {
       miniCalenderLogic.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledOnce;
     });
+
     it('should exclude the technical end date for allday events', function() {
       event.start = fcMoment('2015-11-30');
       event.end = fcMoment('2015-12-01');
@@ -97,7 +98,6 @@ describe('The mini-calendar service', function() {
           return fcMethodMock[name].apply(this, Array.prototype.slice.call(arguments, 1));
         }
       };
-
       eventSources = [];
 
       initWrapper = function() {
@@ -309,7 +309,7 @@ describe('The mini-calendar service', function() {
         var newDate = '2015-01-03';
 
         initWrapper();
-        calWrapper.addEvent({id: 'anId', start: fcMoment(date)});
+        calWrapper.addEvent({id: 'anId', start: fcMoment(date), end: fcMoment(date).add(1, 'hours')});
 
         fcMethodMock.clientEvents = function(id) {
           return [{id: date}];
@@ -334,9 +334,43 @@ describe('The mini-calendar service', function() {
           expect(parseInt(event.title, 10)).to.equals(1);
         });
 
-        calWrapper.modifyEvent({id: 'anId', start: fcMoment(newDate)});
+        calWrapper.modifyEvent({id: 'anId', start: fcMoment(newDate), end: fcMoment(newDate).add(1, 'hours')});
 
         expect(fcMethodMock.removeEvents).to.have.been.called;
+        expect(fcMethodMock.renderEvent).to.have.been.called;
+      });
+
+      it('should update fake event when a real allday event is modify', function() {
+        var date = '2015-01-02';
+        var newDate = '2015-01-03';
+
+        initWrapper();
+        calWrapper.addEvent({id: 'anId', start: fcMoment(date), allDay: true});
+
+        fcMethodMock.clientEvents = function(id) {
+          return [{id: date}];
+        };
+
+        fcMethodMock.clientEvents = sinon.spy(function(id) {
+          if (id === newDate) {
+            return [];
+          } else if (id === date) {
+            return {id: date};
+          } else {
+            throw 'Unexpected id : ' + id;
+          }
+        });
+
+        fcMethodMock.removeEvents = sinon.spy();
+
+        fcMethodMock.renderEvent = sinon.spy(function(event) {
+          expect(event.id).to.equals(newDate);
+          expect(parseInt(event.title, 10)).to.equals(1);
+        });
+
+        calWrapper.modifyEvent({id: 'anId', start: fcMoment(newDate), allDay: true});
+
+        expect(fcMethodMock.removeEvents).to.have.been.calledWith(date);
         expect(fcMethodMock.renderEvent).to.have.been.called;
       });
     });
