@@ -1,22 +1,18 @@
-.row.calendar-edit
-  .col-xs-12
-    h2.hidden-xs #{__('Calendars configuration')}
-    .card
-      .card-body.card-padding
-        .listview.p-t-5.calendars-list
-          .lv-body
-            .p-10
-              a.lv-item(href="", ng-click="add()")
-                .media
-                  .pull-left
-                    i.mdi.mdi-plus
-                  .media-body
-                    .lv-title
-                      | #{__('')}Add
-              a.lv-item(href="", ng-repeat="calendar in calendars", ng-click='modify(calendar)')
-                .media
-                  .pull-left(ng-click="toggleCalendar(calendar)")
-                    i.mdi.mdi-label(ng-style="{'color': calendar.color}")
-                  .media-body(ng-click="toggleCalendar(calendar)")
-                    .lv-title
-                      span {{calendar.name}}
+.block-header.hidden-xs
+  h2 #{__('Calendars configuration')}
+
+.calendars-edit.card
+  .card-body
+    .listview
+      .lv-body
+        a.lv-item(href="", ng-click="add()")
+          .media
+            .pull-left
+              i.mdi.mdi-plus
+              span #{__('New')}
+        hr
+        a.lv-item(href="", ng-repeat="calendar in calendars", ng-click='modify(calendar)')
+          .media
+            .pull-left
+              i.mdi.mdi-label(ng-style="{'color': calendar.color}")
+              span {{::calendar.name}}

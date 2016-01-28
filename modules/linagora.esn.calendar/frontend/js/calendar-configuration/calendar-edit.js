@@ -63,6 +63,10 @@ angular.module('esn.calendar')
     };
 
     $scope.cancel = function() {
+      $state.go('calendar.main');
+    };
+
+    $scope.cancelMobile = function() {
       $state.go('calendar.list');
     };
   })
