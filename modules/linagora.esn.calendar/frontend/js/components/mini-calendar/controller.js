@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
   .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG, CALENDAR_EVENTS,
-    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView, _) {
+    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView, keepChangeDuringGraceperiod, _) {
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
@@ -80,10 +80,12 @@ angular.module('esn.calendar')
       calendars: calendarService.listCalendars(userId)
     }).then(function(resolved) {
       var eventSources = resolved.calendars.map(function(cal) {
-        return calendarEventSource(cal.href, function(error) {
+        var rawSource = calendarEventSource(cal.href, function(error) {
           notificationFactory.weakError('Could not retrieve event sources', error.message);
           $log.error('Could not retrieve event sources', error);
         });
+
+        return keepChangeDuringGraceperiod.wrapEventSource(cal.id, rawSource);
       });
 
       return miniCalendarService.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));

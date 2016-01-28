@@ -7,7 +7,7 @@ describe('The mini-calendar controller', function() {
 
   var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
     sessionMock, miniCalendarServiceMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
-    calendarCurrentViewMock, CALENDAR_EVENTS;
+    calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
@@ -26,9 +26,16 @@ describe('The mini-calendar controller', function() {
         expect(userId).to.equals(sessionMock.user._id);
         var deferred = $q.defer();
         deferred.resolve([{
-          href: 'href'
+          href: 'href',
+          id: 'id'
         }]);
         return deferred.promise;
+      }
+    };
+
+    keepChangeDuringGraceperiodMock = {
+      wrapEventSource: function(id, source) {
+        return source;
       }
     };
 
@@ -80,6 +87,7 @@ describe('The mini-calendar controller', function() {
       $provide.value('calendarEventSource', calendarEventSourceMock);
       $provide.value('uiCalendarConfig', uiCalendarConfigMock);
       $provide.value('miniCalendarService', miniCalendarServiceMock);
+      $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
       $provide.constant('USER_UI_CONFIG', USER_UI_CONFIG_MOCK);
     });
@@ -318,10 +326,21 @@ describe('The mini-calendar controller', function() {
       initController();
     });
 
-    it('should  wrap the calendar inside a miniCalendarWrapper', function(done) {
+    it('should wrap calendars inside a miniCalendarWrapper', function(done) {
       miniCalendarServiceMock.miniCalendarWrapper = sinon.spy(function(_calendar, eventSources) {
         expect(eventSources).to.deep.equals(['anEventSource']);
         expect(_calendar).to.equals(calendar);
+        done();
+      });
+
+      $scope.miniCalendarConfig.viewRender();
+      $scope.$digest();
+    });
+
+    it('should wrap calendars inside keepChangeDuringGraceperiod.wrapEventSource', function(done) {
+      keepChangeDuringGraceperiodMock.wrapEventSource = sinon.spy(function(calId, eventSource) {
+        expect(eventSource).to.deep.equals(['anEventSource']);
+        expect(calId).to.equals('id');
         done();
       });
 
