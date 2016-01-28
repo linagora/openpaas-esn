@@ -12,6 +12,7 @@ angular.module('linagora.esn.contact')
                             AddressBookShell,
                             ContactsHelper,
                             ContactShellBuilder,
+                            VcardBuilder,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
                             CONTACT_CONTENT_TYPE_HEADER,
@@ -21,7 +22,6 @@ angular.module('linagora.esn.contact')
                             CONTACT_LIST_PAGE_SIZE,
                             CONTACT_LIST_DEFAULT_SORT,
                             CONTACT_ADDRESSBOOK_TTL,
-                            shellToVCARD,
                             davClient) {
 
     var ADDRESSBOOK_PATH = '/addressbooks';
@@ -217,7 +217,7 @@ angular.module('linagora.esn.contact')
           'PUT',
           getVCardUrl(bookId, bookName, contact.id),
           headers,
-          shellToVCARD(contact).toJSON()
+          VcardBuilder.toJSON(contact)
         ).then(function(response) {
           if (response.status !== 201) {
             return $q.reject(response);
@@ -253,7 +253,7 @@ angular.module('linagora.esn.contact')
       return davClient('PUT',
           getVCardUrl(bookId, bookName, cardId),
           headers,
-          shellToVCARD(contact).toJSON(),
+          VcardBuilder.toJSON(contact),
           params
         ).then(function(response) {
           if (response.status === 202 || response.status === 204) {
