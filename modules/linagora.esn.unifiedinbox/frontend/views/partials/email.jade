@@ -16,11 +16,11 @@
     .email-header-right
       ul.actions
         li
-          a(ng-href="/#/unifiedinbox/{{::mailbox}}" title="#{__('Go back to mailbox')}")
-            i.mdi.mdi-v-centered.mdi-folder
+          a(ng-click="ctrl.replyAll()" title="#{__('Reply all')}")
+            i.mdi.mdi-reply-all
         li
           a(href="", action-list, template-desktop-url="/unifiedinbox/views/partials/action-list-desktop.html" template-mobile-url="/unifiedinbox/views/partials/action-list-mobile.html" title="#{__('More')}")
-            i.mdi.mdi-v-centered.mdi-view-module
+            i.mdi.mdi-view-module
       .flex-space-between.horiz-space
         ng-include(src="'/unifiedinbox/views/partials/email-star'")
         span.date {{::email.date | date:'short' }}
