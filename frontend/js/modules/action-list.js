@@ -17,7 +17,7 @@ angular.module('esn.actionList', [])
           close();
           dialogOpened = $modal({
             scope: scope,
-            template: '<div class="modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
+            template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
             placement: 'center'
           });
         }

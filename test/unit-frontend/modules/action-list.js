@@ -189,7 +189,7 @@ describe('directive : action-list', function() {
     element.click();
 
     expect($modal).to.have.been.calledWith(sinon.match({
-      template: '<div class="modal"><div class="modal-dialog modal-content" ng-include="\'expected-url.html\'"></div></div>'
+      template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'expected-url.html\'"></div></div>'
     }));
   });
 
