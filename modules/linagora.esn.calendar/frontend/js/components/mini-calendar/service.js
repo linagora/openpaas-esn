@@ -6,7 +6,7 @@ angular.module('esn.calendar')
     function forEachDayOfEvent(event, callback) {
       var day = fcMoment(event.start);
       var end = fcMoment(event.end || event.start);
-      if (!event.allDay) {
+      if (!(event.allDay && event.end)) {
         end.add(1, 'days');
       }
       while (!day.isSame(end, 'day')) {
@@ -64,7 +64,8 @@ angular.module('esn.calendar')
           originalEvents[event.id] = {
             id: event.id,
             start: fcMoment(event.start),
-            end: fcMoment(event.end || event.start)
+            end: event.end && fcMoment(event.end),
+            allDay: event.allDay
           };
         } else {
           delete(originalEvents[event.id]);
@@ -91,6 +92,8 @@ angular.module('esn.calendar')
 
       function groupByDayEventSources(start, end, timezone, callback) {
         var eventsPromise = [];
+        originalEvents = {};
+        fakeEvents = {};
         eventSources.forEach(function(calendarEventSource) {
           var deferred = $q.defer();
           eventsPromise.push(deferred.promise);
