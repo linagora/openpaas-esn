@@ -19,7 +19,7 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .factory('ContactShellBuilder', function($log, $q, ContactShell, ICAL, ContactsHelper, ContactShellHelper, contactUpdateDataService) {
+  .service('ContactShellBuilder', function($log, $q, ContactShell, ICAL, ContactsHelper, ContactShellHelper, contactUpdateDataService) {
 
     this.setAddressbookCache = function(cache) {
       this.addressbookCache = cache;
@@ -68,11 +68,9 @@ angular.module('linagora.esn.contact')
       }
       return $q.when([]);
     };
-
-    return this;
   })
 
-  .factory('VcardBuilder', function(ICAL, ContactsHelper) {
+  .service('VcardBuilder', function(ICAL, ContactsHelper) {
 
     this.toVcard = function(shell) {
       var prop;
@@ -179,6 +177,4 @@ angular.module('linagora.esn.contact')
     this.toJSON = function(shell) {
       return this.toVcard(shell).toJSON();
     };
-
-    return this;
   });
