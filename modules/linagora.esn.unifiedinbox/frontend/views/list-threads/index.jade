@@ -9,7 +9,7 @@
         .lv-item.media(ng-repeat="thread in group.elements")
           div.clickable(ng-click="ctrl.openThread(thread)")
             .badge-container
-              .badge(ng-hide='thread.messageIds.length === 0') {{ thread.messageIds.length }}
+              .badge(ng-hide='thread.messageIds.length < 2') {{ thread.messageIds.length }}
               i.mdi.mdi-email
             .media-body(ng-class="::{bold: thread.email.isUnread}")
               .lv-title.text-right.pull-right
