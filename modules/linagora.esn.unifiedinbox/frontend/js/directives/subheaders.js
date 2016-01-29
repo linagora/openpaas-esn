@@ -16,6 +16,13 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('viewThreadSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/view-thread/subheader.html'
+    };
+  })
+
   .directive('composerSubheader', function() {
     return {
       restrict: 'E',

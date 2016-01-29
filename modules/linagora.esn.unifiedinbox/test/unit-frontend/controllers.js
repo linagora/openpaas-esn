@@ -557,6 +557,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
+  describe('The viewThreadController', function() {
+
+    beforeEach(function() {
+    });
+
+    it('should display the view-thread-subheader mobile header', function() {
+      headerService.subHeader.setInjection = sinon.spy();
+
+      initController('viewThreadController');
+
+      expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-thread-subheader', sinon.match.any);
+    });
+
+  });
+
   describe('The listThreadsController', function() {
 
     beforeEach(function() {
@@ -677,6 +692,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listThreadsController');
 
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
+    });
+
+    it('should change the state to the thread view when openThread is called', function() {
+      var controller = initController('listThreadsController');
+
+      controller.openThread({id: 'expected thread id'});
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.thread', {
+        mailbox: 'chosenMailbox',
+        threadId: 'expected thread id'
+      });
     });
   });
 

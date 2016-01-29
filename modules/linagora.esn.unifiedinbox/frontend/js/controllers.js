@@ -65,11 +65,13 @@ angular.module('linagora.esn.unifiedinbox')
       .then(searchForMessages);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, _, withJmapClient, ElementGroupingTool, headerService, mailboxesService) {
+  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, ElementGroupingTool, headerService, mailboxesService) {
 
     this.openThread = function(thread) {
-      // This function is to be defined in INBOX-112
-      console.log(thread);
+      $state.go('unifiedinbox.thread', {
+        mailbox: $scope.mailbox.id,
+        threadId: thread.id
+      });
     };
 
     function _assignEmailAndDate(dst) {
@@ -226,6 +228,12 @@ angular.module('linagora.esn.unifiedinbox')
         self.markAsRead();
       });
     });
+  })
+
+  .controller('viewThreadController', function($scope, $stateParams, headerService) {
+
+    headerService.subHeader.setInjection('view-thread-subheader', $scope);
+
   })
 
   .controller('configurationController', function($scope, headerService, mailboxesService) {
