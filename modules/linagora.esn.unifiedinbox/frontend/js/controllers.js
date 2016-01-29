@@ -9,7 +9,7 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('goToInboxController', function($state, withJmapClient, jmap) {
     withJmapClient(function(client) {
       client.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
-        $state.go('unifiedinbox.mailbox', { mailbox: mailbox.id });
+        $state.go('unifiedinbox.threads', { mailbox: mailbox.id });
       });
     });
   })

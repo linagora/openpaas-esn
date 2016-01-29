@@ -5,7 +5,7 @@
   ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
     .listview.p-t-5
       .lv-body
-        mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.mailbox({ mailbox: mailbox.id})", ui-sref-opts="{ reload: true }")
+        mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.threads({ mailbox: mailbox.id })", ui-sref-opts="{ reload: true }")
 
   hr
 
