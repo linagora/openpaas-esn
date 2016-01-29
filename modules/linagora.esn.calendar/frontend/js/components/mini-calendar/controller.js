@@ -55,10 +55,10 @@ angular.module('esn.calendar')
     //otherwise if when the directive is initialized hidden
     //when the window is enlarger and the mini-calendar appear
     //the calendar is not render
-    windowJQuery.on('resize.miniCalendarResize', windowResize);
+    windowJQuery.on('resize', windowResize);
 
     function unregisterWindowResize() {
-      windowJQuery.off('resize.miniCalendarResize');
+      windowJQuery.off('resize', windowResize);
     }
 
     var calendarResolved = false;
