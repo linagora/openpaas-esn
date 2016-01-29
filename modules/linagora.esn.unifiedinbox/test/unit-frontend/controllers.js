@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      jmapEmailService, mailboxesService;
+      jmapEmailService, mailboxesService, inboxEmailService;
 
   beforeEach(function() {
     $stateParams = {
@@ -59,13 +59,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_, _Composition_, _mailboxesService_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
+                                          _Composition_, _mailboxesService_, _inboxEmailService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
     emailSendingService = _emailSendingService_;
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
+    inboxEmailService = _inboxEmailService_;
 
     scope = $rootScope.$new();
   }));
@@ -469,6 +471,48 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var controller = initController('viewThreadController');
 
       expect(controller.thread.subject).to.equal('thread subject1');
+    });
+
+    it('should expose a "reply" fn bound to the last email', function() {
+      inboxEmailService.reply = sinon.spy();
+
+      var controller = initController('viewThreadController');
+      controller.thread.emails = [
+        {id: 'email1'},
+        {id: 'email2'}
+      ];
+
+      controller.reply();
+
+      expect(inboxEmailService.reply).to.have.been.calledWith({id: 'email2'});
+    });
+
+    it('should expose a "reply" fn bound to the last email', function() {
+      inboxEmailService.replyAll = sinon.spy();
+
+      var controller = initController('viewThreadController');
+      controller.thread.emails = [
+        {id: 'email1'},
+        {id: 'email2'}
+      ];
+
+      controller.replyAll();
+
+      expect(inboxEmailService.replyAll).to.have.been.calledWith({id: 'email2'});
+    });
+
+    it('should expose a "forward" fn bound to the last email', function() {
+      inboxEmailService.forward = sinon.spy();
+
+      var controller = initController('viewThreadController');
+      controller.thread.emails = [
+        {id: 'email1'},
+        {id: 'email2'}
+      ];
+
+      controller.forward();
+
+      expect(inboxEmailService.forward).to.have.been.calledWith({id: 'email2'});
     });
   });
 

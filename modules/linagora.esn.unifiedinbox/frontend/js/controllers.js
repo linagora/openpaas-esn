@@ -188,7 +188,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient) {
+  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, inboxEmailService, _) {
 
     var self = this;
     self.mailboxId = $stateParams.mailbox;
@@ -207,6 +207,12 @@ angular.module('linagora.esn.unifiedinbox')
             subject: messages[0].subject
           };
         });
+    });
+
+    ['reply', 'replyAll', 'forward'].forEach(function(action) {
+      self[action] = function() {
+        inboxEmailService[action](_.last(self.thread.emails));
+      };
     });
   })
 
