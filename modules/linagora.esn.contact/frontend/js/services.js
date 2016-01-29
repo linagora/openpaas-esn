@@ -186,6 +186,14 @@ angular.module('linagora.esn.contact')
       return /\/contact\/api\/contacts\/.*?\/avatar/.test(avatarUrl);
     }
 
+    function orderData(contact) {
+      if (!contact) {
+        return;
+      }
+      contact.emails = getOrderedValues(contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
+      contact.tel = getOrderedValues(contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
+    }
+
     function fillScopeContactData($scope, contact) {
       if (!contact) {
         return;
@@ -202,6 +210,7 @@ angular.module('linagora.esn.contact')
       getFormattedAddress: getFormattedAddress,
       forceReloadDefaultAvatar: forceReloadDefaultAvatar,
       getOrderedValues: getOrderedValues,
+      orderData: orderData,
       fillScopeContactData: fillScopeContactData,
       isTextAvatar: isTextAvatar
     };
@@ -265,110 +274,6 @@ angular.module('linagora.esn.contact')
       stopListen: stopListen
     };
 
-  })
-  .factory('shellToVCARD', function(ICAL, ContactsHelper) {
-    function shellToVCARD(shell) {
-      var prop;
-      var vcard = new ICAL.Component('vcard');
-
-      vcard.addPropertyWithValue('version', '4.0');
-      vcard.addPropertyWithValue('uid', shell.id);
-
-      if (shell.displayName) {
-        vcard.addPropertyWithValue('fn', shell.displayName);
-      } else {
-        vcard.addPropertyWithValue('fn', ContactsHelper.getFormattedName(shell));
-      }
-
-      if (shell.lastName || shell.firstName) {
-        vcard.addPropertyWithValue('n', [shell.lastName || '', shell.firstName || '']);
-      }
-
-      var categories = [];
-      if (shell.tags) {
-        categories = categories.concat(shell.tags.map(function(tag) { return tag.text; }));
-      }
-
-      if (shell.starred) {
-        categories.push('starred');
-      }
-
-      if (categories.length) {
-        prop = new ICAL.Property('categories');
-        prop.setValues(categories);
-        vcard.addProperty(prop);
-      }
-
-      if (shell.orgName) {
-        vcard.addPropertyWithValue('org', [shell.orgName]);
-      }
-
-      if (shell.orgRole) {
-        vcard.addPropertyWithValue('role', shell.orgRole);
-      }
-
-      if (shell.emails) {
-        shell.emails.forEach(function(data) {
-          var prop = vcard.addPropertyWithValue('email', 'mailto:' + data.value);
-          prop.setParameter('type', data.type);
-        });
-      }
-
-      if (shell.tel) {
-        shell.tel.forEach(function(data) {
-          var prop = vcard.addPropertyWithValue('tel', 'tel:' + data.value);
-          prop.setParameter('type', data.type);
-        });
-      }
-
-      if (shell.addresses) {
-        shell.addresses.forEach(function(data) {
-          var val = ['', '', data.street, data.city, '', data.zip, data.country];
-          var prop = vcard.addPropertyWithValue('adr', val);
-          prop.setParameter('type', data.type);
-        });
-      }
-
-      if (shell.social) {
-        shell.social.forEach(function(data) {
-          var prop = vcard.addPropertyWithValue('socialprofile', data.value);
-          prop.setParameter('type', data.type);
-        });
-      }
-
-      if (shell.urls) {
-        shell.urls.forEach(function(data) {
-
-          vcard.addPropertyWithValue('url', data.value);
-        });
-      }
-
-      if (shell.birthday) {
-        if (shell.birthday instanceof Date) {
-          var value = ICAL.Time.fromJSDate(shell.birthday);
-
-          value.isDate = true;
-          vcard.addPropertyWithValue('bday', value);
-        } else {
-          vcard.addPropertyWithValue('bday', shell.birthday).setParameter('VALUE', 'TEXT');
-        }
-      }
-
-      if (shell.nickname) {
-        vcard.addPropertyWithValue('nickname', shell.nickname);
-      }
-
-      if (shell.notes) {
-        prop = vcard.addPropertyWithValue('note', shell.notes);
-      }
-
-      if (shell.photo) {
-        vcard.addPropertyWithValue('photo', shell.photo);
-      }
-
-      return vcard;
-    }
-    return shellToVCARD;
   })
   .factory('deleteContact', function(
                               $rootScope,

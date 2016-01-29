@@ -120,122 +120,6 @@ describe('The Contacts service module', function() {
 
   });
 
-  describe('The shellToVCARD fn', function() {
-    var shellToVCARD;
-
-    beforeEach(angular.mock.inject(function(_shellToVCARD_) {
-      shellToVCARD = _shellToVCARD_;
-    }));
-
-    function compareShell(shell, ical) {
-      var vcard = shellToVCARD(shell);
-      var properties = vcard.getAllProperties();
-      var propkeys = properties.map(function(p) {
-        return p.name;
-      }).sort();
-      var icalkeys = Object.keys(ical).sort();
-
-      var message = 'Key count mismatch in ical object.\n' +
-                    'expected: ' + icalkeys + '\n' +
-                    '   found: ' + propkeys;
-      expect(properties.length).to.equal(icalkeys.length, message);
-
-      for (var propName in ical) {
-        var prop = vcard.getFirstProperty(propName);
-        expect(prop, 'Missing: ' + propName).to.be.ok;
-        var value = prop.toICAL();
-        expect(value).to.equal(ical[propName].toString());
-      }
-    }
-
-    it('should correctly create a card with display name', function() {
-      var shell = {
-        id: '00000000-0000-4000-a000-000000000000',
-        displayName: 'display name'
-      };
-      var ical = {
-        version: 'VERSION:4.0',
-        uid: 'UID:00000000-0000-4000-a000-000000000000',
-        fn: 'FN:display name'
-      };
-
-      compareShell(shell, ical);
-    });
-
-    it('should correctly create a card with first/last name', function() {
-      var shell = {
-        id: '00000000-0000-4000-a000-000000000000',
-        lastName: 'last',
-        firstName: 'first'
-      };
-      var ical = {
-        version: 'VERSION:4.0',
-        uid: 'UID:00000000-0000-4000-a000-000000000000',
-        fn: 'FN:first last',
-        n: 'N:last;first'
-      };
-
-      compareShell(shell, ical);
-    });
-
-    it('should correctly create a card with all props', function() {
-      var shell = {
-        id: '00000000-0000-4000-a000-000000000000',
-        lastName: 'last',
-        firstName: 'first',
-        starred: true,
-        tags: [{ text: 'a' }, { text: 'b'}],
-        emails: [{ type: 'Home', value: 'email@example.com' }],
-        tel: [{ type: 'Home', value: '123123' }],
-        addresses: [{ type: 'Home', street: 's', city: 'c', zip: 'z', country: 'co' }],
-        social: [{ type: 'Twitter', value: '@AwesomePaaS' }],
-        orgName: 'org',
-        orgRole: 'role',
-        urls: [{ value: 'http://mywebsite.com' }],
-        birthday: new Date(2015, 0, 1),
-        nickname: 'nick',
-        notes: 'notes',
-        photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
-      };
-      var ical = {
-        version: 'VERSION:4.0',
-        uid: 'UID:00000000-0000-4000-a000-000000000000',
-        fn: 'FN:first last',
-        n: 'N:last;first',
-        email: 'EMAIL;TYPE=Home:mailto:email@example.com',
-        adr: 'ADR;TYPE=Home:;;s;c;;z;co',
-        tel: 'TEL;TYPE=Home:tel:123123',
-        org: 'ORG:org',
-        url: 'URL:http://mywebsite.com',
-        role: 'ROLE:role',
-        socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
-        categories: 'CATEGORIES:a,b,starred',
-        bday: 'BDAY;VALUE=DATE:20150101',
-        nickname: 'NICKNAME:nick',
-        note: 'NOTE:notes',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
-      };
-
-      compareShell(shell, ical);
-    });
-
-    it('should correctly create a card when birthday is not a Date', function() {
-      var shell = {
-        id: '00000000-0000-4000-a000-000000000000',
-        birthday: 'not sure about the birthday'
-      };
-      var ical = {
-        version: 'VERSION:4.0',
-        uid: 'UID:00000000-0000-4000-a000-000000000000',
-        fn: 'FN:not sure about the birthday',
-        bday: 'BDAY;VALUE=TEXT:not sure about the birthday'
-      };
-
-      compareShell(shell, ical);
-    });
-
-  });
-
   describe('The deleteContact service', function() {
     var bookId = 'bookId';
     var bookName = 'bookName';
@@ -502,6 +386,31 @@ describe('The Contacts service module', function() {
         var contact = {birthday: '123', tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
         this.contactHelper.fillScopeContactData(scope, contact);
         expect(scope.formattedBirthday).to.be.defined;
+      });
+    });
+
+    describe('The orderData function', function() {
+
+      it('should return when contact is not defined', function() {
+        expect(this.contactHelper.orderData()).to.not.be.defined;
+      });
+
+      it('should order emails and tel of the given contact', function() {
+        var homeEmail = {type: 'Home', value: 'me@home'};
+        var workEmail = {type: 'Work', value: 'me@work'};
+        var homePhone = {type: 'Home', value: '+123'};
+        var workPhone = {type: 'Work', value: '+456'};
+        var otherPhone = {type: 'Other', value: '+789'};
+
+        var contact = {
+          emails: [homeEmail, workEmail],
+          tel: [otherPhone, homePhone, workPhone]
+        };
+        this.contactHelper.orderData(contact);
+        expect(contact).to.deep.equal({
+          emails: [workEmail, homeEmail],
+          tel: [workPhone, homePhone, otherPhone]
+        });
       });
     });
 

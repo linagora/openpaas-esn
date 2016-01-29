@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact')
 
-  .factory('ContactAttendeeProvider', function($q, $log, ContactAPIClient, session) {
+  .factory('ContactAttendeeProvider', function($q, $log, ContactAPIClient, ContactsHelper, session) {
     return {
       searchAttendee: function(query) {
         var searchOptions = {
@@ -14,6 +14,7 @@ angular.module('linagora.esn.contact')
           .search(searchOptions)
           .then(function(response) {
             response.data.forEach(function(contact) {
+              ContactsHelper.orderData(contact);
               if (contact.emails && contact.emails.length !== 0) {
                 contact.email = contact.emails[0].value;
               }

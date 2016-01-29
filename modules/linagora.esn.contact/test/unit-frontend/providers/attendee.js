@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Contacts Angular Attendee Provider module', function() {
 
-  var user, session, ContactAPIClient, searchMock;
+  var user, session, ContactAPIClient, ContactsHelper, searchMock;
 
   beforeEach(function() {
     user = {
@@ -24,6 +24,10 @@ describe('The Contacts Angular Attendee Provider module', function() {
         };
       }
     };
+
+    ContactsHelper = {
+      orderData: function() {}
+    };
   });
 
   describe('The ContactAttendeeProvider service', function() {
@@ -31,6 +35,7 @@ describe('The Contacts Angular Attendee Provider module', function() {
     beforeEach(function() {
       module('linagora.esn.contact', function($provide) {
         $provide.value('ContactAPIClient', ContactAPIClient);
+        $provide.value('ContactsHelper', ContactsHelper);
         $provide.value('session', session);
       });
     });

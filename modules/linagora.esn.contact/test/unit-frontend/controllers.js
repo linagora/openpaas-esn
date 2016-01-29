@@ -10,7 +10,7 @@ describe('The Contacts controller module', function() {
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, shellToVCARD, addressbooks, ContactShellDisplayBuilder;
+    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, VcardBuilder, addressbooks, ContactShellDisplayBuilder;
 
   var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
@@ -128,8 +128,10 @@ describe('The Contacts controller module', function() {
       put: function() {}
     };
 
-    shellToVCARD = function() {
-      return 'vcard';
+    VcardBuilder = {
+      toVcard: function() {
+        return 'vcard';
+      }
     };
 
     ContactLocationHelper = {
@@ -170,7 +172,7 @@ describe('The Contacts controller module', function() {
       $provide.value('ContactAPIClient', ContactAPIClient);
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
       $provide.value('AddressBookPaginationRegistry', AddressBookPaginationRegistryMock);
-      $provide.value('shellToVCARD', shellToVCARD);
+      $provide.value('VcardBuilder', VcardBuilder);
       $provide.value('ContactLocationHelper', ContactLocationHelper);
       $provide.value('openContactForm', openContactForm);
       $provide.value('closeContactForm', closeContactForm);
@@ -1177,7 +1179,7 @@ describe('The Contacts controller module', function() {
         });
 
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-        contactUpdateDataService.contact = true;
+        contactUpdateDataService.contact = {};
         this.initController();
         scope.bookId = bookId;
         scope.cardId = cardId;
