@@ -1,10 +1,13 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The Contact Live module', function() {
+
+  var bookId = 'A bookId';
 
   beforeEach(function() {
     module('esn.core');
@@ -14,34 +17,72 @@ describe('The Contact Live module', function() {
   });
 
   describe('The ContactLiveUpdate service', function() {
-    var liveNotificationMock, onFn, removeListenerFn;
-    var $rootScope, ContactLiveUpdate, CONTACT_WS;
-    var namespace = '/contacts';
+    var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace;
+    var $rootScope, ContactLiveUpdate, CONTACT_WS, CONTACT_EVENTS;
     var session = {};
 
     beforeEach(function() {
+      getMock = function() {};
       session = {};
-      onFn = sinon.spy();
+      onFn = function() {};
       removeListenerFn = sinon.spy();
-      liveNotificationMock = sinon.stub().returns({
-        on: onFn,
-        removeListener: removeListenerFn
-      });
+
+      liveNotificationMock = function(room, bookId) {
+        if (liveMock) {
+          liveMock(room, bookId);
+        }
+
+        return {
+          on: onFn,
+          removeListener: removeListenerFn
+        };
+      };
+
+      ContactShellBuilderMock = {
+        fromWebSocket: function() {
+          return $q.when();
+        },
+        setAddressbookCache: function() {
+        }
+      };
+
+      ContactAPIClientMock = {
+        addressbookHome: function() {
+          return {
+            addressbook: function() {
+              return {
+                vcard: function() {
+                  return {
+                    get: getMock
+                  };
+                }
+              };
+            }
+          };
+        }
+      };
 
       module(function($provide) {
         $provide.value('livenotification', liveNotificationMock);
+        $provide.value('ContactShellBuilder', ContactShellBuilderMock);
+        $provide.value('ContactAPIClient', ContactAPIClientMock);
         $provide.value('session', session);
       });
 
-      inject(function(_$rootScope_, _ContactLiveUpdate_, _CONTACT_WS_) {
+      inject(function(_$rootScope_, _ContactLiveUpdate_, _CONTACT_WS_, _CONTACT_EVENTS_) {
         $rootScope = _$rootScope_;
         ContactLiveUpdate = _ContactLiveUpdate_;
         CONTACT_WS = _CONTACT_WS_;
+        CONTACT_EVENTS = _CONTACT_EVENTS_;
+        namespace = CONTACT_WS.room;
       });
-
     });
 
     describe('The startListen fn', function() {
+
+      beforeEach(function() {
+        onFn = sinon.spy();
+      });
 
       it('should be called when user switches to contact module', function() {
         session.user = {_id: 1};
@@ -51,31 +92,147 @@ describe('The Contact Live module', function() {
         expect(onFn.callCount).to.equal(3);
       });
 
-      it('should subscribe /contacts namespace with bookId', function() {
-        var bookId = 'some book id';
+      it('should subscribe CONTACT_WS.room namespace with bookId', function() {
+        liveMock = sinon.spy();
         ContactLiveUpdate.startListen(bookId);
-        expect(liveNotificationMock.calledOnce).to.be.true;
-        expect(liveNotificationMock.calledWithExactly(namespace, bookId)).to.be.true;
+        expect(liveMock).to.have.been.called.once;
+        expect(liveMock).to.have.been.calledWith(namespace, bookId);
       });
 
       it('should make sio to listen on CONTACT_WS.events.CREATED event', function() {
-        var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
         expect(onFn.firstCall.calledWith(CONTACT_WS.events.CREATED)).to.be.true;
       });
 
       it('should make sio to listen on CONTACT_WS.events.DELETED event', function() {
-        var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
         expect(onFn.secondCall.calledWith(CONTACT_WS.events.DELETED)).to.be.true;
       });
 
       it('should make sio to listen on CONTACT_WS.events.UPDATED event', function() {
-        var bookId = 'some book id';
         ContactLiveUpdate.startListen(bookId);
         expect(onFn.thirdCall.calledWith(CONTACT_WS.events.UPDATED)).to.be.true;
       });
 
+      describe('When listening to events', function() {
+
+        var createFn, updateFn, deleteFn;
+
+        beforeEach(function() {
+          onFn = function(event, handler) {
+            switch (event) {
+              case CONTACT_WS.events.CREATED:
+                createFn = handler;
+                break;
+              case CONTACT_WS.events.UPDATED:
+                updateFn = handler;
+                break;
+              case CONTACT_WS.events.DELETED:
+                deleteFn = handler;
+                break;
+            }
+          };
+        });
+
+        describe('On CONTACT_WS.events.CREATED event', function() {
+          it('should build a shell and broadcast it to the $rootScope', function(done) {
+            var data = {id: '1'};
+            var shell = {id: '2'};
+
+            $rootScope.$on(CONTACT_EVENTS.CREATED, function(event, data) {
+              expect(data).to.deep.equal(shell);
+              done();
+            });
+
+            ContactShellBuilderMock.fromWebSocket = function() {
+              return $q.when(shell);
+            };
+
+            ContactLiveUpdate.startListen(bookId);
+            createFn(data);
+
+            $rootScope.$apply();
+            done(new Error('Should not be called'));
+          });
+
+          it('should not broadcast anything to the scope when shell can not be built', function(done) {
+            var data = {id: '1'};
+
+            $rootScope.$on(CONTACT_EVENTS.CREATED, function() {
+              done(new Error('Should not be called'));
+            });
+
+            ContactShellBuilderMock.fromWebSocket = function() {
+              return $q.reject(new Error('Fail'));
+            };
+
+            ContactLiveUpdate.startListen(bookId);
+            createFn(data);
+
+            $rootScope.$apply();
+            done();
+          });
+        });
+
+        describe('On CONTACT_WS.events.DELETED event', function() {
+          it('should broadcast the delete contact id in CONTACT_EVENTS.DELETED', function(done) {
+            var data = {contactId: '1'};
+
+            $rootScope.$on(CONTACT_EVENTS.DELETED, function(event, _data) {
+              expect(_data).to.deep.equal({id: data.contactId});
+              done();
+            });
+
+            ContactLiveUpdate.startListen(bookId);
+            deleteFn(data);
+
+            $rootScope.$apply();
+            done(new Error('Should not be called'));
+          });
+        });
+
+        describe('On CONTACT_WS.events.UPDATED event', function() {
+
+          it('should load the updated contact from API', function(done) {
+            var data = {bookId: '1', bookName: '2', contactId: '3'};
+            var contact = {id: '3'};
+            getMock = function() {
+              return $q.when(contact);
+            };
+
+            $rootScope.$on(CONTACT_EVENTS.UPDATED, function(event, _data) {
+              expect(_data).to.deep.equal(contact);
+              done();
+            });
+
+            ContactLiveUpdate.startListen(bookId);
+            updateFn(data);
+
+            $rootScope.$apply();
+            done(new Error('Should not be called'));
+          });
+
+          it('should not broadcast anything when updated contact can not be loaded from API', function(done) {
+            var data = {bookId: '1', bookName: '2', contactId: '3'};
+            var spy = sinon.spy();
+            getMock = function() {
+              spy();
+              return $q.reject(new Error('Failed'));
+            };
+
+            $rootScope.$on(CONTACT_EVENTS.UPDATED, function() {
+              done(new Error('Should not be called'));
+            });
+
+            ContactLiveUpdate.startListen(bookId);
+            updateFn(data);
+
+            $rootScope.$apply();
+            expect(spy).to.have.been.called.once;
+            done();
+          });
+        });
+      });
     });
 
     describe('The stopListen fn', function() {
