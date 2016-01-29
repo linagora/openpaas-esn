@@ -12,10 +12,10 @@ describe('The mini-calendar service', function() {
     moment.tz.setDefault('Europe/Paris'); // jshint ignore:line
   });
 
-  var fcMoment, miniCalenderLogic, $rootScope;
+  var fcMoment, miniCalenderService, $rootScope;
   beforeEach(angular.mock.inject(function(_fcMoment_, _miniCalendarService_, _$rootScope_) {
     fcMoment = _fcMoment_;
-    miniCalenderLogic = _miniCalendarService_;
+    miniCalenderService = _miniCalendarService_;
     $rootScope = _$rootScope_;
   }));
 
@@ -40,7 +40,7 @@ describe('The mini-calendar service', function() {
       //we check that for every fullCalendar.firstDay possible
       //and for each day possible in the week, the computed period is good
       forEachDayInEachPossibleWeek(function(day, startWeek, nextWeekStart) {
-        var week = miniCalenderLogic.getWeekAroundDay({firstDay: startWeek.isoWeekday()}, day);
+        var week = miniCalenderService.getWeekAroundDay({firstDay: startWeek.isoWeekday()}, day);
         expect(startWeek.isSame(week.firstWeekDay, 'day')).to.be.true;
         expect(nextWeekStart.isSame(week.nextFirstWeekDay, 'day')).to.be.true;
       });
@@ -64,12 +64,12 @@ describe('The mini-calendar service', function() {
 
     it('should iter on each day where the event is present', function() {
       event.end = fcMoment('2015-12-02T11:39:00.376Z');
-      miniCalenderLogic.forEachDayOfEvent(event, spy);
+      miniCalenderService.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledThrice;
     });
 
     it('should call callback only on start day if no end day', function() {
-      miniCalenderLogic.forEachDayOfEvent(event, spy);
+      miniCalenderService.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledOnce;
     });
 
@@ -78,7 +78,7 @@ describe('The mini-calendar service', function() {
       event.end = fcMoment('2015-12-01');
       event.allDay = true;
 
-      miniCalenderLogic.forEachDayOfEvent(event, spy);
+      miniCalenderService.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledOnce;
     });
   });
@@ -101,7 +101,7 @@ describe('The mini-calendar service', function() {
       eventSources = [];
 
       initWrapper = function() {
-        calWrapper = miniCalenderLogic.miniCalendarWrapper(calendar, eventSources);
+        calWrapper = miniCalenderService.miniCalendarWrapper(calendar, eventSources);
       };
     });
 
