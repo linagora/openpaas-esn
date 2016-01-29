@@ -230,10 +230,25 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, headerService) {
+  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient) {
+
+    var self = this;
 
     headerService.subHeader.setInjection('view-thread-subheader', $scope);
 
+    withJmapClient(function(client) {
+      client
+        .getThreads({ids: [$stateParams.threadId], fetchMessages: false})
+        .then(function(threads) {
+          return threads[0].getMessages();
+        })
+        .then(function(messages) {
+          self.thread = {
+            emails: messages,
+            subject: messages[0].subject
+          };
+        });
+    });
   })
 
   .controller('configurationController', function($scope, headerService, mailboxesService) {

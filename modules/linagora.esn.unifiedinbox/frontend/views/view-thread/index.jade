@@ -1,3 +1,20 @@
 .email-view
 
+  .block-header.visible-md.visible-lg
+    h2 {{ ::ctrl.thread.subject }}
+
+  div(ng-repeat="email in ctrl.emails")
+    ng-include(src="'/unifiedinbox/views/partials/email'")
+
+  .lv-footer
+    .modal-attachments
+      ul.actions
+        li
+          a(ng-click="ctrl.forward()", title="#{__('Forward')}")
+            i.mdi.mdi-forward
+          a(ng-click="ctrl.replyAll()", title="#{__('Reply all')}")
+            i.mdi.mdi-reply-all
+          a(ng-click="ctrl.reply()", title="#{__('Reply')}")
+            i.mdi.mdi-reply
+
   inbox-fab

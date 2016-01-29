@@ -560,6 +560,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   describe('The viewThreadController', function() {
 
     beforeEach(function() {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [{subject: 'thread subject'}];
+          }
+        }]);
+      };
     });
 
     it('should display the view-thread-subheader mobile header', function() {
@@ -570,6 +577,59 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-thread-subheader', sinon.match.any);
     });
 
+    it('should search for message ids of the given thread id', function(done) {
+      $stateParams.threadId = 'expectedThreadId';
+      jmapClient.getThreads = function(options) {
+        expect(options).to.deep.equal({ids: ['expectedThreadId'], fetchMessages: false});
+        done();
+      };
+
+      initController('viewThreadController');
+    });
+
+    it('should search messages of the getThreads reply', function(done) {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: done
+        }]);
+      };
+
+      initController('viewThreadController');
+    });
+
+    it('should assign thread.emails from the getMessages reply', function() {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [{id: 'email1', subject: 'thread subject'}];
+          }
+        }]);
+      };
+
+      var controller = initController('viewThreadController');
+
+      expect(controller.thread.emails).to.deep.equal([
+        {id: 'email1', subject: 'thread subject'}
+      ]);
+    });
+
+    it('should assign thread.subject from the first message', function() {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [
+              {id: 'email1', subject: 'thread subject1'},
+              {id: 'email2', subject: 'thread subject2'},
+              {id: 'email3', subject: 'thread subject3'}
+            ];
+          }
+        }]);
+      };
+
+      var controller = initController('viewThreadController');
+
+      expect(controller.thread.subject).to.equal('thread subject1');
+    });
   });
 
   describe('The listThreadsController', function() {
