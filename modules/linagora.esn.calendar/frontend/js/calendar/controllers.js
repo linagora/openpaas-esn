@@ -54,6 +54,14 @@ angular.module('esn.calendar')
       $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
     });
 
+    $scope.swipeLeft = calendarPromise.then.bind(calendarPromise, function(cal) {
+      cal.fullCalendar('next');
+    });
+
+    $scope.swipeRight = calendarPromise.then.bind(calendarPromise, function(cal) {
+      cal.fullCalendar('prev');
+    });
+
     $scope.eventClick = function(event) {
       $scope.event = event.clone();
       $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static', placement: 'center'});
