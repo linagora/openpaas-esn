@@ -1,7 +1,14 @@
 .email-view
+  .thread-header.visible-md.visible-lg
+    .flex-space-between.flex-vertical-centered
+      button.btn.btn-default(type='button', ui-sref="^()")
+        i.mdi.mdi-arrow-left-bold
+        | #{__(' Back')}
+      .header-label {{ ::ctrl.thread.subject }}
+      button.btn.btn-primary(type='button')
+        | #{__(' More')}
+        i.mdi.mdi-dots-vertical
 
-  .block-header.visible-md.visible-lg
-    h2 {{ ::ctrl.thread.subject }}
 
   div(ng-repeat="email in ctrl.emails")
     ng-include(src="'/unifiedinbox/views/partials/email'")
