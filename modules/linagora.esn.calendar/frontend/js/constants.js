@@ -42,7 +42,14 @@ angular.module('esn.calendar')
         week: 'week',
         day: 'day'
       },
-      handleWindowResize: false
+      handleWindowResize: false,
+      views: {
+        agendaThreeDays: {
+          type: 'agendaWeek',
+          duration: { days: 3 },
+          buttonText: '3 days'
+        }
+      }
     },
     miniCalendar: {
       defaultView: 'month',

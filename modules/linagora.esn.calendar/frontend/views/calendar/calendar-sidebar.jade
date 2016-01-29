@@ -16,6 +16,13 @@
             .media-body
               .lv-title
                 span #{__('Day')}
+        a.lv-item(href="", toggle-calendar-view="agendaThreeDays", ng-click="$hide()")
+          .media
+            .pull-left
+              i.mdi.mdi-view-day
+            .media-body
+              .lv-title
+                span #{__('3 Days')}
         a.lv-item(href="", toggle-calendar-view="agendaWeek", ng-click="$hide()")
           .media
             .pull-left
