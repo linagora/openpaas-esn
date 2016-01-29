@@ -88,7 +88,7 @@ angular.module('linagora.esn.unifiedinbox', [
         }
       })
       .state('unifiedinbox.mailbox', {
-        url: '/:mailbox',
+        url: '/messages/:mailbox',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/list-emails/index',
@@ -96,21 +96,21 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
-      .state('unifiedinbox.threads', {
-        url: '/threads/:mailbox',
-        views: {
-          'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/list-threads/index',
-            controller: 'listThreadsController as ctrl'
-          }
-        }
-      })
       .state('unifiedinbox.email', {
-        url: '/:mailbox/:emailId',
+        url: '/messages/:mailbox/:emailId',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/view-email/index',
             controller: 'viewEmailController as ctrl'
+          }
+        }
+      })
+      .state('unifiedinbox.threads', {
+        url: '/:mailbox',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/list-threads/index',
+            controller: 'listThreadsController as ctrl'
           }
         }
       });

@@ -920,7 +920,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('goToInboxController');
 
-      expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: '1' });
+      expect($state.go).to.have.been.calledWith('unifiedinbox.threads', { mailbox: '1' });
     });
 
   });
