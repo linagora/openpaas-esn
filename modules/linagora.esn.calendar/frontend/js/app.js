@@ -6,6 +6,7 @@ angular.module('esn.calendar', [
   'ui.calendar',
   'ng.deviceDetector',
   'naturalSort',
+  'ngTouch',
   'restangular',
   'mgcrea.ngStrap.datepicker',
   'mgcrea.ngStrap.aside',

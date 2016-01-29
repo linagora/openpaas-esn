@@ -303,6 +303,22 @@ describe('The calendar module controllers', function() {
       expect(updateEventsFn).to.have.been.called;
     });
 
+    it('should call fullCalendar next on swipeRight', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.swipeRight();
+      this.scope.$digest();
+      expect(fullCalendarSpy).to.have.been.calledWith('prev');
+    });
+
+    it('should call fullCalendar next on swipeLeft', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.swipeLeft();
+      this.scope.$digest();
+      expect(fullCalendarSpy).to.have.been.calledWith('next');
+    });
+
     it('The list calendars and call addEventSource for each', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.uiConfig.calendar.viewRender({});
