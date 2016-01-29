@@ -191,6 +191,7 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient) {
 
     var self = this;
+    self.mailboxId = $stateParams.mailbox;
 
     headerService.subHeader.setInjection('view-thread-subheader', $scope);
 

@@ -1,3 +1,5 @@
 .inbox-subheader.row
-  inbox-subheader-burger-button
+  inbox-subheader-back-button(ui-sref="unifiedinbox.threads({ mailbox: ctrl.mailboxId })")
   .title.ellipsis {{ ::ctrl.thread.subject }}
+  a.submit.button(href='')
+    i.mdi.mdi-dots-vertical

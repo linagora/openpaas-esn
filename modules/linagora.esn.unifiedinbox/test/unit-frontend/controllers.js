@@ -401,6 +401,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
     });
 
+    it('should have its mailboxId assigned from the stateParams', function() {
+      $stateParams.mailbox = 'expected mailbox id';
+
+      var controller = initController('viewThreadController');
+
+      expect(controller.mailboxId).to.equal('expected mailbox id');
+    });
+
     it('should display the view-thread-subheader mobile header', function() {
       headerService.subHeader.setInjection = sinon.spy();
 
