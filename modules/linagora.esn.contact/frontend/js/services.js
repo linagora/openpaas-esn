@@ -1,17 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .run(function($rootScope, ContactLiveUpdate, session) {
-    $rootScope.$on('$stateChangeSuccess', function(evt, current, currentParams, previous) {
-      if (current && current.name &&
-         (current.name === '/contact' || current.name.substring(0, 9) === '/contact/')) {
-        var bookId = session.user._id;
-        ContactLiveUpdate.startListen(bookId);
-      } else {
-        ContactLiveUpdate.stopListen();
-      }
-    });
-  })
   .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, CONTACT_ATTRIBUTES_ORDER, $dateFormatter) {
 
     function getFormattedBirthday(birthday) {

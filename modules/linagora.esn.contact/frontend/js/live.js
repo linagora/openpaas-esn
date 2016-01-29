@@ -2,6 +2,30 @@
 
 angular.module('linagora.esn.contact')
 
+  .run(function(ContactLiveUpdateInitializer) {
+    ContactLiveUpdateInitializer.start();
+  })
+
+  .factory('ContactLiveUpdateInitializer', function($rootScope, ContactLiveUpdate, session) {
+
+    function start() {
+      $rootScope.$on('$stateChangeSuccess', function(evt, current) {
+        if (current && current.name &&
+          (current.name === '/contact' || current.name.substring(0, 9) === '/contact/')) {
+          var bookId = session.user._id;
+          ContactLiveUpdate.startListen(bookId);
+        } else {
+          ContactLiveUpdate.stopListen();
+        }
+      });
+    }
+
+    return {
+      start: start
+    };
+
+  })
+
   .factory('ContactLiveUpdate', function($rootScope, $log, livenotification, ContactAPIClient, ContactShellBuilder, CONTACT_EVENTS, CONTACT_WS) {
     var sio = null;
     var listening = false;

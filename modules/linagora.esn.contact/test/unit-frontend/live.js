@@ -16,6 +16,61 @@ describe('The Contact Live module', function() {
     module('linagora.esn.contact');
   });
 
+  describe('The ContactLiveUpdateInitializer service', function() {
+
+    var ContactLiveUpdateMock, session, $rootScope;
+
+    beforeEach(function() {
+      session = {
+        user: {_id: 1}
+      };
+
+      ContactLiveUpdateMock = {
+        startListen: function() {},
+        stopListen: function() {}
+      };
+
+      module(function($provide) {
+        $provide.value('ContactLiveUpdate', ContactLiveUpdateMock);
+        $provide.value('session', session);
+      });
+
+      inject(function(_$rootScope_) {
+        $rootScope = _$rootScope_;
+      });
+    });
+
+    describe('When started', function() {
+
+      describe('The live update listener', function() {
+
+        it('should be started when the user switch into the contact module', function() {
+          session.user = {_id: 1};
+          ContactLiveUpdateMock.startListen = sinon.spy();
+          ContactLiveUpdateMock.stopListen = sinon.spy();
+
+          $rootScope.$broadcast('$stateChangeSuccess', {
+            name: '/contact'
+          });
+          expect(ContactLiveUpdateMock.startListen).to.have.been.calledWith(session.user._id);
+          expect(ContactLiveUpdateMock.stopListen).to.not.have.been.called;
+        });
+
+        it('should be stopped when user switches outside of the contact module', function() {
+          ContactLiveUpdateMock.startListen = sinon.spy();
+          ContactLiveUpdateMock.stopListen = sinon.spy();
+
+          $rootScope.$broadcast('$stateChangeSuccess', {
+            name: '/other/module/path'
+          });
+
+          expect(ContactLiveUpdateMock.startListen).to.not.have.been.called;
+          expect(ContactLiveUpdateMock.stopListen).to.have.been.called;
+        });
+      });
+    });
+  });
+
   describe('The ContactLiveUpdate service', function() {
     var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace;
     var $rootScope, ContactLiveUpdate, CONTACT_WS, CONTACT_EVENTS;
@@ -82,14 +137,6 @@ describe('The Contact Live module', function() {
 
       beforeEach(function() {
         onFn = sinon.spy();
-      });
-
-      it('should be called when user switches to contact module', function() {
-        session.user = {_id: 1};
-        $rootScope.$broadcast('$stateChangeSuccess', {
-          name: '/contact'
-        });
-        expect(onFn.callCount).to.equal(3);
       });
 
       it('should subscribe CONTACT_WS.room namespace with bookId', function() {
@@ -236,17 +283,6 @@ describe('The Contact Live module', function() {
     });
 
     describe('The stopListen fn', function() {
-
-      it('should be call when user switches to outside contact module', function() {
-        var bookId = 'some book id';
-        ContactLiveUpdate.startListen(bookId);
-
-        $rootScope.$broadcast('$stateChangeSuccess', {
-          name: '/other/module/path'
-        });
-
-        expect(removeListenerFn.callCount).to.equal(3);
-      });
 
       it('should make sio to remove CONTACT_WS.events.CREATED event listener', function() {
         var bookId = 'some book id';
