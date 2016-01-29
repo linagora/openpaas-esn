@@ -11,7 +11,7 @@
             .media-body(ng-class="::{bold: email.isUnread}")
               .lv-title.text-right.pull-right-sm
                 i.email-status-icon.mdi.mdi-attachment(ng-if='::email.hasAttachment')
-                ng-include(src="'/unifiedinbox/views/partials/email-star'")
+                email-star
                 span.date {{::email.date | date: group.dateFormat}}
               .avatarify
                 .lv-title {{::email.subject}}

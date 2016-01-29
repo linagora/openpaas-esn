@@ -9,9 +9,7 @@
         | #{__(' More')}
         i.mdi.mdi-dots-vertical
 
-
-  div(ng-repeat="email in ctrl.emails")
-    ng-include(src="'/unifiedinbox/views/partials/email'")
+  email(ng-repeat='email in ctrl.thread.emails', email='email')
 
   .lv-footer
     .modal-attachments

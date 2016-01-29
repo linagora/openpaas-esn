@@ -49,11 +49,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
-      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy(function() {
-        return $q.when({
-          mailboxIds: [1]
-        });
-      })});
+      $provide.value('jmapEmailService', jmapEmailService = {
+        setFlag: sinon.spy(function() {
+          return $q.when({
+            mailboxIds: [1]
+          });
+        })
+      });
     });
   });
 
@@ -383,176 +385,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewEmailController');
 
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-email-subheader', sinon.match.any);
-    });
-
-    describe('The moveToTrash fn', function() {
-
-      it('should call $scope.email.moveToMailboxWithRole with the "trash" role', function(done) {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function(role) {
-              expect(role).to.equal(jmap.MailboxRole.TRASH);
-
-              done();
-            }
-          }]);
-        };
-
-        initController('viewEmailController').moveToTrash();
-      });
-
-      it('should update location to the parent mailbox when the message was successfully moved', function() {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function() {
-              return $q.when();
-            }
-          }]);
-        };
-
-        initController('viewEmailController').moveToTrash();
-        scope.$digest();
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: 'chosenMailbox' });
-      });
-
-      it('should notify weakSuccess when the message was successfully moved', function(done) {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function() {
-              return $q.when();
-            }
-          }]);
-        };
-        notificationFactory.weakSuccess = function() { done(); };
-
-        initController('viewEmailController').moveToTrash();
-        scope.$digest();
-      });
-
-      it('should notify weakError when the message cannot be moved', function(done) {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function() {
-              return $q.reject('Fail');
-            }
-          }]);
-        };
-        notificationFactory.weakError = function() { done(); };
-
-        initController('viewEmailController').moveToTrash();
-        scope.$digest();
-      });
-
-    });
-
-    describe('the reply function', function() {
-      it('should leverage openEmailCustomTitle() and createReplyEmailObject()', function() {
-        newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createReplyEmailObject = sinon.spy(function() { return $q.when(); });
-
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false
-          }]);
-        };
-
-        initController('viewEmailController').reply();
-        scope.$digest();
-
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
-        expect(emailSendingService.createReplyEmailObject).to.have.been.called;
-      });
-    });
-
-    describe('the replyAll function', function() {
-      it('should leverage openEmailCustomTitle() and createReplyAllEmailObject()', function() {
-        newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createReplyAllEmailObject = sinon.spy(function() { return $q.when(); });
-
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false
-          }]);
-        };
-
-        initController('viewEmailController').replyAll();
-        scope.$digest();
-
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
-        expect(emailSendingService.createReplyAllEmailObject).to.have.been.called;
-      });
-    });
-
-    describe('the forward function', function() {
-      it('should leverage openEmailCustomTitle() and createForwardEmailObject()', function() {
-        newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createForwardEmailObject = sinon.spy(function() { return $q.when(); });
-
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false
-          }]);
-        };
-
-        initController('viewEmailController').forward();
-        scope.$digest();
-
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your forward email');
-        expect(emailSendingService.createForwardEmailObject).to.have.been.called;
-      });
-    });
-
-    describe('the markAsUnread function', function() {
-
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').markAsUnread();
-
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
-      });
-    });
-
-    describe('the markAsRead function', function() {
-
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').markAsRead();
-
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
-      });
-    });
-
-    describe('the markAsFlagged function', function() {
-
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').markAsFlagged();
-
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
-      });
-
-    });
-
-    describe('the unmarkAsFlagged function', function() {
-
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').unmarkAsFlagged();
-
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
-      });
-
-    });
-
-    describe('The setIsFlagged function', function() {
-
-      it('should call jmapEmailService.setFlag, passing the email and state arguments', function() {
-        initController('viewEmailController').setIsFlagged(null, {}, true);
-
-        expect(jmapEmailService.setFlag).to.have.been.calledWith({}, 'isFlagged', true);
-      });
-
     });
 
   });

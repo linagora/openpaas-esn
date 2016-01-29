@@ -738,4 +738,53 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       setFlag: setFlag
     };
+  })
+
+  .service('inboxEmailService', function($state, session, newComposerService, emailSendingService, asyncAction, jmap, jmapEmailService) {
+    function moveToTrash(email) {
+      asyncAction('Move of message "' + email.subject + '" to trash', function() {
+        return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
+      }).then(function() {
+        $state.go('^');
+      });
+    }
+
+    function reply(email) {
+      emailSendingService.createReplyEmailObject(email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
+    }
+
+    function replyAll(email) {
+      emailSendingService.createReplyAllEmailObject(email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
+    }
+
+    function forward(email) {
+      emailSendingService.createForwardEmailObject(email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
+    }
+
+    function markAsUnread(email) {
+      jmapEmailService.setFlag(email, 'isUnread', true);
+    }
+
+    function markAsRead(email) {
+      jmapEmailService.setFlag(email, 'isUnread', false);
+    }
+
+    function markAsFlagged(email) {
+      jmapEmailService.setFlag(email, 'isFlagged', true);
+    }
+
+    function unmarkAsFlagged(email) {
+      jmapEmailService.setFlag(email, 'isFlagged', false);
+    }
+
+    return {
+      reply: reply,
+      replyAll: replyAll,
+      forward: forward,
+      markAsUnread: markAsUnread,
+      markAsRead: markAsRead,
+      markAsFlagged: markAsFlagged,
+      unmarkAsFlagged: unmarkAsFlagged,
+      moveToTrash: moveToTrash
+    };
   });

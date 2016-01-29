@@ -2587,4 +2587,126 @@ describe('The Unified Inbox Angular module services', function() {
       });
     });
   });
+
+  describe('The inboxEmailService service', function() {
+
+    var $rootScope, $state, jmap, jmapEmailService, inboxEmailService, newComposerService, emailSendingService;
+
+    beforeEach(module(function($provide) {
+      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
+      $provide.value('withJmapClient', angular.noop);
+      $provide.value('$state', $state = { go: sinon.spy() });
+      $provide.value('newComposerService', newComposerService = { openEmailCustomTitle: sinon.spy() });
+      $provide.value('emailSendingService', emailSendingService = {
+        createReplyEmailObject: sinon.spy(function() { return $q.when(); }),
+        createReplyAllEmailObject: sinon.spy(function() { return $q.when(); }),
+        createForwardEmailObject: sinon.spy(function() { return $q.when(); })
+      });
+    }));
+
+    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxEmailService_) {
+      $rootScope = _$rootScope_;
+      jmap = _jmap_;
+      inboxEmailService = _inboxEmailService_;
+    }));
+
+    describe('The moveToTrash fn', function() {
+
+      it('should call email.moveToMailboxWithRole with the "trash" role', function(done) {
+        inboxEmailService.moveToTrash({
+          moveToMailboxWithRole: function(role) {
+            expect(role).to.equal(jmap.MailboxRole.TRASH);
+
+            done();
+          }
+        });
+      });
+
+      it('should update location to the parent mailbox when the message was successfully moved', function() {
+        inboxEmailService.moveToTrash({
+          moveToMailboxWithRole: function() { return $q.when(); }
+        });
+        $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+      });
+
+    });
+
+    describe('The reply function', function() {
+
+      it('should leverage openEmailCustomTitle() and createReplyEmailObject()', function() {
+        inboxEmailService.reply({});
+        $rootScope.$digest();
+
+        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
+        expect(emailSendingService.createReplyEmailObject).to.have.been.calledWith();
+      });
+
+    });
+
+    describe('The replyAll function', function() {
+
+      it('should leverage openEmailCustomTitle() and createReplyAllEmailObject()', function() {
+        inboxEmailService.replyAll({});
+        $rootScope.$digest();
+
+        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
+        expect(emailSendingService.createReplyAllEmailObject).to.have.been.calledWith();
+      });
+
+    });
+
+    describe('the forward function', function() {
+
+      it('should leverage openEmailCustomTitle() and createForwardEmailObject()', function() {
+        inboxEmailService.forward({});
+        $rootScope.$digest();
+
+        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your forward email');
+        expect(emailSendingService.createForwardEmailObject).to.have.been.calledWith();
+      });
+
+    });
+
+    describe('the markAsUnread function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxEmailService.markAsUnread({});
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
+      });
+    });
+
+    describe('the markAsRead function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxEmailService.markAsRead({});
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
+      });
+    });
+
+    describe('the markAsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxEmailService.markAsFlagged({});
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
+      });
+
+    });
+
+    describe('the unmarkAsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxEmailService.unmarkAsFlagged({});
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
+      });
+
+    });
+
+  });
+
 });

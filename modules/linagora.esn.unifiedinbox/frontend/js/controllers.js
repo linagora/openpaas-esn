@@ -170,54 +170,12 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, jmapEmailService, mailboxesService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
-
-    this.moveToTrash = function() {
-      asyncAction('Move of message "' + $scope.email.subject + '" to trash', function() {
-        return $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
-      }).then(function() {
-        $state.go('unifiedinbox.mailbox', { mailbox: $scope.mailbox });
-      });
-    };
-
-    this.reply = function() {
-      emailSendingService.createReplyEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
-    };
-
-    this.replyAll = function() {
-      emailSendingService.createReplyAllEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
-    };
-
-    this.forward = function() {
-      emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
-    };
-
-    this.markAsUnread = function() {
-      jmapEmailService.setFlag($scope.email, 'isUnread', true);
-    };
-
-    this.markAsRead = function() {
-      jmapEmailService.setFlag($scope.email, 'isUnread', false);
-    };
-
-    this.markAsFlagged = function() {
-      this.setIsFlagged(null, $scope.email, true);
-    };
-
-    this.unmarkAsFlagged = function() {
-      this.setIsFlagged(null, $scope.email, false);
-    };
-
-    this.setIsFlagged = function(event, email, state) {
-      jmapEmailService.setFlag(email, 'isFlagged', state);
-    };
-
-    var self = this;
 
     withJmapClient(function(client) {
       client.getMessages({
@@ -225,7 +183,7 @@ angular.module('linagora.esn.unifiedinbox')
       }).then(function(messages) {
         $scope.email = messages[0]; // We expect a single message here
 
-        self.markAsRead();
+        inboxEmailService.markAsRead($scope.email);
       });
     });
   })
