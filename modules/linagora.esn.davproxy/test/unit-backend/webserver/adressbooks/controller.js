@@ -83,6 +83,10 @@ describe('The addressbooks module', function() {
     return require('../../../../backend/webserver/addressbooks/avatarHelper')(deps);
   }
 
+  function getAvatarUrl(bookId, bookName, cardId) {
+    return ['http://localhost:8080/contact/api/contacts', bookId, bookName, cardId, 'avatar'].join('/');
+  }
+
   describe('The getContactsFromDAV function', function() {
 
     var req;
@@ -196,15 +200,18 @@ describe('The addressbooks module', function() {
     it('should have body with text avatar injected', function(done) {
       var statusCode = 200;
       var bookHome = 'book123';
+      var bookName = 'contacts';
+      var card1 = 'abc';
+      var card2 = 'xyz';
 
       var vcard1 = ['vcard', [
           ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'abc']
+          ['uid', {}, 'text', card1]
         ]
       ];
       var vcard2 = ['vcard', [
           ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz']
+          ['uid', {}, 'text', card2]
         ]
       ];
       var body = {
@@ -213,8 +220,7 @@ describe('The addressbooks module', function() {
         }
       };
       req.params.bookHome = bookHome;
-      var avatarUrl1 = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/abc/avatar';
-      var avatarUrl2 = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/xyz/avatar';
+      req.params.bookName = bookName;
 
       createListFnMock(function() {
         return q.resolve({
@@ -227,13 +233,12 @@ describe('The addressbooks module', function() {
         status: function() {
           return {
             json: function(json) {
-              expect(JSON.stringify(json)).to.contains(avatarUrl1);
-              expect(JSON.stringify(json)).to.contains(avatarUrl2);
+              expect(JSON.stringify(json)).to.contains(getAvatarUrl(bookHome, bookName, card1));
+              expect(JSON.stringify(json)).to.contains(getAvatarUrl(bookHome, bookName, card2));
               done();
             }
           };
         }
-
       });
     });
 
@@ -363,14 +368,17 @@ describe('The addressbooks module', function() {
     it('should have body with text avatar injected', function(done) {
       var statusCode = 200;
       var bookHome = 'bookHome123';
+      var bookName = 'bookName123';
+      var cardId = 'xyz';
+
       var body = ['vcard', [
           ['version', {}, 'text', '4.0'],
-          ['uid', {}, 'text', 'xyz']
+          ['uid', {}, 'text', cardId]
         ]
       ];
 
       req.params.bookHome = bookHome;
-      var avatarUrl = 'http://localhost:8080/contact/api/contacts/' + bookHome + '/xyz/avatar';
+      req.params.bookName = bookName;
 
       dependencies.contact.lib.client = function() {
         return {
@@ -399,7 +407,7 @@ describe('The addressbooks module', function() {
         status: function() {
           return {
             json: function(json) {
-              expect(JSON.stringify(json)).to.contains(avatarUrl);
+              expect(JSON.stringify(json)).to.contains(getAvatarUrl(bookHome, bookName, cardId));
               done();
             }
           };
@@ -626,7 +634,7 @@ describe('The addressbooks module', function() {
         status: function() {
           return {
             json: function() {
-              avatarHelper().injectTextAvatar(123, req.body).then(function(output) {
+              avatarHelper().injectTextAvatar(123, 456, req.body).then(function() {
                 expect(called).to.be.true;
                 done();
               });
@@ -1036,7 +1044,7 @@ describe('The addressbooks module', function() {
 
       mockery.registerMock('./avatarHelper', function() {
         return {
-          injectTextAvatar: function(bookId, vcard) {
+          injectTextAvatar: function(bookId, bookName, vcard) {
             var deferred = q.defer();
             if (vcard === 'success1') {
               setTimeout(function() {

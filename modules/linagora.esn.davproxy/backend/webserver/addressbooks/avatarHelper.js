@@ -35,19 +35,20 @@ module.exports = function(dependencies) {
     return deferred.promise;
   }
 
-  function buildTextAvatarUrl(baseUrl, addressBookId, contactId) {
+  function buildTextAvatarUrl(baseUrl, addressBookId, addressbookName, contactId) {
     return [
       baseUrl,
       'contact/api/contacts',
       addressBookId,
+      addressbookName,
       contactId,
       'avatar'
     ].join('/');
   }
 
-  function getTextAvatarUrl(addressBookId, contactId) {
+  function getTextAvatarUrl(addressBookId, addressbookName, contactId) {
     return getBaseUrl().then(function(baseUrl) {
-      return buildTextAvatarUrl(baseUrl, addressBookId, contactId);
+      return buildTextAvatarUrl(baseUrl, addressBookId, addressbookName, contactId);
     });
   }
 
@@ -57,18 +58,19 @@ module.exports = function(dependencies) {
    * the original vcardData will be resolved.
    *
    * @param  {String} addressBookId Address book ID
+   * @param  {String} addressBookName Address book name
    * @param  {Object} vcardData     vcard data in json
    * @return {Promise}              resolve vcard with avatar injected or the
    *                                  original vcard if the contact has avatar already.
    */
-  function injectTextAvatar(addressBookId, vcardData) {
+  function injectTextAvatar(addressBookId, addressbookName, vcardData) {
     try {
       var vcard = new ICAL.Component(vcardData);
 
       if (!vcard.getFirstPropertyValue('photo')) {
         var contactId = vcard.getFirstPropertyValue('uid');
 
-        return getTextAvatarUrl(addressBookId, contactId)
+        return getTextAvatarUrl(addressBookId, addressbookName, contactId)
           .then(function(avatarUrl) {
             vcard.addPropertyWithValue('photo', avatarUrl);
             return vcard.toJSON();

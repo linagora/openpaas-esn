@@ -10,7 +10,7 @@ module.exports = function(dependencies) {
 
   var router = express.Router();
 
-  router.get('/:addressBookId/:contactId/avatar',
+  router.get('/:addressBookId/:addressbookName/:contactId/avatar',
     authorizationMW.requiresAPILogin,
     tokenMiddleware.generateNewToken(),
     controller.getAvatar);
