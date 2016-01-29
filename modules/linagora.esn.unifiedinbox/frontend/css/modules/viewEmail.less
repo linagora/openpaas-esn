@@ -38,37 +38,42 @@
   }
 
   .lv-footer {
-    position: relative;
-  }
+    .flex();
+    .flex-vertical-centered();
+    .flex-space-between;
 
-  .lv-footer textarea {
-    width: 100%;
-    font-size: 13px;
-    border: 0px none;
-    padding: 10px 8px;
-    resize: none;
-    height: 60px;
-  }
+    padding: 15px 0 15px 0;
+    border-top: 1px solid lighten(@m-gray, 25%);
 
-  .lv-footer button {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    border: 0px none;
-    height: 100%;
-    width: 60px;
-    font-size: 25px;
-    background-color: #F5F5F5;
-    color: #2196F3;
-  }
+    .action {
+      .all-centered();
+      .col-xs-4();
 
-  .lv-footer button:hover {
-    background-color: #F2F2F2;
-  }
+      height: 5em;
 
-  .listview .lv-footer {
-    margin-top: 0px;
-    padding: 0px;
+      & > a {
+        .all-centered();
+        .flex-column();
+
+        color: @action-list-icon-color;
+        cursor: pointer;
+        .label {
+          color: @action-list-icon-color;
+          font-size: 120%;
+        }
+
+        & > i.mdi {
+          font-size: 3.3em;
+        }
+
+        &:hover {
+          color: darken(@action-list-icon-color, 15%);
+          .label {
+            color: darken(@action-list-icon-color, 15%);
+          }
+        }
+      }
+    }
   }
 
   .email-body {
