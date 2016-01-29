@@ -4,22 +4,37 @@
     color: @text-color;
   }
 
-  .headers {
-    font-size: 13px;
-    color: @secondaryTextColor;
+  .email-header {
+    .flex-space-between;
+    .SecondaryColor;
 
-    .mdi.mdi-clock {
-      margin-left: 5px;
+    padding: 10px;
+    font-weight: bold;
+    border: 1px darken(@body-bg, 5%) solid;
+
+    .avatarify {
+      height: 100%;
     }
 
     .line-header {
       margin-right: 5px;
       font-style: italic;
     }
-  }
 
-  .lv-avatar img {
-    margin-right: 10px;
+    .email-header-right {
+      .flex-column;
+      .aligner-items-end;
+
+      .action-item {
+        .horiz-space;
+
+        & > a > .mdi {
+          font-size: 2em;
+          vertical-align: sub;
+        }
+
+      }
+    }
   }
 
   .lv-footer {
@@ -54,10 +69,6 @@
   .listview .lv-footer {
     margin-top: 0px;
     padding: 0px;
-  }
-
-  .lv-avatar a {
-    margin-left: 5px;
   }
 
   .email-body {
@@ -132,6 +143,7 @@
       .transition(width);
       .transition-duration(200ms);
       .backface-visibility(hidden);
+
       content: "";
       width: 0;
       height: 100%;
