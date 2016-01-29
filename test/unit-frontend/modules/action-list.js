@@ -181,24 +181,28 @@ describe('directive : action-list', function() {
     expect(destroySpy).to.have.been.callCount(3);
   });
 
-  it('should call mobile template url', function() {
+  it('should call $modal with template url', function() {
     screenSize.is = function() {
       return true;
     };
-    this.initDirective('<button action-list template-mobile-url="action-list-mobile.html">Click Me</button>');
+    this.initDirective('<button action-list action-list-url="expected-url.html">Click Me</button>');
     element.click();
 
-    expect($modal).to.have.been.calledWith(sinon.match({templateUrl: 'action-list-mobile.html'}));
+    expect($modal).to.have.been.calledWith(sinon.match({
+      template: '<div class="modal"><div class="modal-dialog modal-content" ng-include="\'expected-url.html\'"></div></div>'
+    }));
   });
 
-  it('should call desktop template url', function() {
+  it('should call $popover with template url', function() {
     screenSize.is = function() {
       return false;
     };
-    this.initDirective('<button action-list template-desktop-url="toto">Click Me</button>');
+    this.initDirective('<button action-list action-list-url="expected-url.html">Click Me</button>');
     element.click();
 
-    expect($popover).to.have.been.calledWith(sinon.match.any, sinon.match({templateUrl: 'toto'}));
+    expect($popover).to.have.been.calledWith(sinon.match.any, sinon.match({
+      template: '<div class="action-list-container popover"><div class="popover-content" ng-include="\'expected-url.html\'"></div></div>'
+    }));
   });
 
   it('should call destroy on $modal or $popover after a screen resize', function() {

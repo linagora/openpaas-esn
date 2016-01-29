@@ -17,7 +17,7 @@ angular.module('esn.actionList', [])
           close();
           dialogOpened = $modal({
             scope: scope,
-            templateUrl: attrs.templateMobileUrl,
+            template: '<div class="modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
             placement: 'center'
           });
         }
@@ -29,10 +29,10 @@ angular.module('esn.actionList', [])
             trigger: 'manual',
             show: true,
             autoClose: true,
-            templateUrl: attrs.templateDesktopUrl,
+            template: '<div class="action-list-container popover"><div class="popover-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
             html: false,
-            placement: 'left-bottom',
-            animation: 'am-fade-and-slide-right'
+            placement: 'bottom-right',
+            animation: 'am-fade'
           });
         }
 
