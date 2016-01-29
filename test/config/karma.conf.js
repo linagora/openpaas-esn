@@ -38,6 +38,7 @@ module.exports = function(config) {
       'frontend/components/angular-file-upload/dist/angular-file-upload.min.js',
       'frontend/components/angular-truncate/src/truncate.js',
       'frontend/components/angular-sanitize/angular-sanitize.min.js',
+      'frontend/components/angular-touch/angular-touch.min.js',
       'frontend/components/angular-leaflet-directive/dist/angular-leaflet-directive.js',
       'frontend/components/ngGeolocation/ngGeolocation.min.js',
       'frontend/components/angular-ui-calendar/src/calendar.js',
