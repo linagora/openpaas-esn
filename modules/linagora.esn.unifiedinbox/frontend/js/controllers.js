@@ -195,6 +195,12 @@ angular.module('linagora.esn.unifiedinbox')
 
     headerService.subHeader.setInjection('view-thread-subheader', $scope);
 
+    ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+      this[action] = function() {
+        inboxThreadService[action]($scope.thread);
+      };
+    }.bind(this));
+
     withJmapClient(function(client) {
       client
         .getThreads({ids: [$stateParams.threadId], fetchMessages: false})

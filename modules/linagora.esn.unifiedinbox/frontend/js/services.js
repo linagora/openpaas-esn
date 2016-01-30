@@ -715,23 +715,20 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('jmapEmailService', function($q, jmap, mailboxesService, EMAIL_IS_UNREAD) {
-    function setFlag(email, flag, state) {
-      if (!email || !flag || !angular.isDefined(state)) {
-        throw new Error('Parameters "email", "flag" and "state" are required.');
+  .service('jmapEmailService', function($q, jmap) {
+    function setFlag(element, flag, state) {
+      if (!element || !flag || !angular.isDefined(state)) {
+        throw new Error('Parameters "element", "flag" and "state" are required.');
       }
 
-      if (email[flag] === state) {
+      if (element[flag] === state) {
         return $q.when();
       }
 
-      return email['set' + jmap.Utils.capitalize(flag)](state).then(function() {
-        email[flag] = state;
-        if (flag === EMAIL_IS_UNREAD) {
-          mailboxesService.flagIsUnreadChanged(email, state);
-        }
+      return element['set' + jmap.Utils.capitalize(flag)](state).then(function() {
+        element[flag] = state;
 
-        return email;
+        return element;
       });
     }
 
@@ -781,6 +778,40 @@ angular.module('linagora.esn.unifiedinbox')
       reply: reply,
       replyAll: replyAll,
       forward: forward,
+      markAsUnread: markAsUnread,
+      markAsRead: markAsRead,
+      markAsFlagged: markAsFlagged,
+      unmarkAsFlagged: unmarkAsFlagged,
+      moveToTrash: moveToTrash
+    };
+  })
+
+  .service('inboxThreadService', function($state, session, newComposerService, emailSendingService, asyncAction, jmap, jmapEmailService) {
+    function moveToTrash(thread) {
+      asyncAction('Move of thread "' + thread.subject + '" to trash', function() {
+        return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
+      }).then(function() {
+        $state.go('^');
+      });
+    }
+
+    function markAsRead(thread) {
+      jmapEmailService.setFlag(thread, 'isUnread', false);
+    }
+
+    function markAsUnread(thread) {
+      jmapEmailService.setFlag(thread, 'isUnread', true);
+    }
+
+    function markAsFlagged(thread) {
+      jmapEmailService.setFlag(thread, 'isFlagged', true);
+    }
+
+    function unmarkAsFlagged(thread) {
+      jmapEmailService.setFlag(thread, 'isFlagged', false);
+    }
+
+    return {
       markAsUnread: markAsUnread,
       markAsRead: markAsRead,
       markAsFlagged: markAsFlagged,

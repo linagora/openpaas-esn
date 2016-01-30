@@ -2568,24 +2568,8 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
-      it('should call mailboxesService.flagIsUnreadChanged when flag=isUnread passing the email and the correspondent state', function() {
-        var email = newEmail(true);
-
-        jmapEmailService.setFlag(email, 'isUnread', false);
-        $rootScope.$digest();
-
-        expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(email, false);
-      });
-
-      it('should not call mailboxesService.flagIsUnreadChanged when flag is not isUnread', function() {
-        var email = newEmail(true);
-
-        jmapEmailService.setFlag(email, 'isFlagged', false);
-        $rootScope.$digest();
-
-        expect(mailboxesService.flagIsUnreadChanged).to.not.have.been.called;
-      });
     });
+
   });
 
   describe('The inboxEmailService service', function() {
@@ -2703,6 +2687,85 @@ describe('The Unified Inbox Angular module services', function() {
         inboxEmailService.unmarkAsFlagged({});
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
+      });
+
+    });
+
+  });
+
+  describe('The inboxThreadService service', function() {
+
+    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService, newComposerService, emailSendingService;
+
+    beforeEach(module(function($provide) {
+      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
+      $provide.value('withJmapClient', angular.noop);
+      $provide.value('$state', $state = { go: sinon.spy() });
+    }));
+
+    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxThreadService_) {
+      $rootScope = _$rootScope_;
+      jmap = _jmap_;
+      inboxThreadService = _inboxThreadService_;
+    }));
+
+    describe('The moveToTrash fn', function() {
+
+      it('should call thread.moveToMailboxWithRole with the "trash" role', function(done) {
+        inboxThreadService.moveToTrash({
+          moveToMailboxWithRole: function(role) {
+            expect(role).to.equal(jmap.MailboxRole.TRASH);
+
+            done();
+          }
+        });
+      });
+
+      it('should update location to the parent mailbox when the message was successfully moved', function() {
+        inboxThreadService.moveToTrash({
+          moveToMailboxWithRole: function() { return $q.when(); }
+        });
+        $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+      });
+
+    });
+
+    describe('the markAsUnread function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxThreadService.markAsUnread({ id: '1' });
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith({ id: '1' }, 'isUnread', true);
+      });
+    });
+
+    describe('the markAsRead function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxThreadService.markAsRead({ id: '1' });
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith({ id: '1' }, 'isUnread', false);
+      });
+    });
+
+    describe('the markAsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxThreadService.markAsFlagged({ id: '1' });
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith({ id: '1' }, 'isFlagged', true);
+      });
+
+    });
+
+    describe('the unmarkAsFlagged function', function() {
+
+      it('should call jmapEmailService.setFlag', function() {
+        inboxThreadService.unmarkAsFlagged({ id: '1' });
+
+        expect(jmapEmailService.setFlag).to.have.been.calledWith({ id: '1' }, 'isFlagged', false);
       });
 
     });
