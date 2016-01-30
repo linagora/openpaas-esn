@@ -35,6 +35,7 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'controllers.js',
         'services.js',
         'filters.js',
+        'models.js',
         'directives/main.js',
         'directives/subheaders.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
