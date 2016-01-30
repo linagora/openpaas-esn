@@ -2695,7 +2695,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxThreadService service', function() {
 
-    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService, newComposerService, emailSendingService;
+    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService;
 
     beforeEach(module(function($provide) {
       $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });

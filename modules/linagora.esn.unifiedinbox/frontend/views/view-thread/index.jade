@@ -4,12 +4,12 @@
       button.btn.btn-default(type='button', ui-sref="^()")
         i.mdi.mdi-arrow-left-bold
         | #{__(' Back')}
-      .header-label {{ ::ctrl.thread.subject }}
+      .header-label {{ ::thread.subject }}
       button.btn.btn-primary(type='button', action-list, action-list-url='/unifiedinbox/views/view-thread/action-list.html', title="#{__('More')}")
         | #{__(' More')}
         i.mdi.mdi-dots-vertical
 
-  email(ng-repeat='email in ctrl.thread.emails', email='email')
+  email(ng-repeat='email in thread.emails', email='email')
 
   ng-include(src="'/unifiedinbox/views/partials/email-footer'")
 

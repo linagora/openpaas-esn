@@ -167,7 +167,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         return $q.when([{role: jmap.MailboxRole.UNKNOWN, name: 'a name', id: 'chosenMailbox'}]);
       };
       jmapClient.getMessageList = function() {
-        return $q.when({getMessages: angular.noop});
+        return $q.when({ getMessages: function() { return $q.when([]); } });
       };
     });
 
@@ -397,18 +397,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getThreads = function() {
         return $q.when([{
           getMessages: function() {
-            return [{subject: 'thread subject'}];
+            return [{ subject: 'thread subject' }, { id: 'email2' }];
           }
         }]);
       };
-    });
-
-    it('should have its mailboxId assigned from the stateParams', function() {
-      $stateParams.mailbox = 'expected mailbox id';
-
-      var controller = initController('viewThreadController');
-
-      expect(controller.mailboxId).to.equal('expected mailbox id');
     });
 
     it('should display the view-thread-subheader mobile header', function() {
@@ -448,9 +440,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         }]);
       };
 
-      var controller = initController('viewThreadController');
+      initController('viewThreadController');
 
-      expect(controller.thread.emails).to.deep.equal([
+      expect(scope.thread.emails).to.deep.equal([
         {id: 'email1', subject: 'thread subject'}
       ]);
     });
@@ -468,21 +460,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         }]);
       };
 
-      var controller = initController('viewThreadController');
+      initController('viewThreadController');
 
-      expect(controller.thread.subject).to.equal('thread subject1');
+      expect(scope.thread.subject).to.equal('thread subject1');
     });
 
     it('should expose a "reply" fn bound to the last email', function() {
       inboxEmailService.reply = sinon.spy();
 
-      var controller = initController('viewThreadController');
-      controller.thread.emails = [
-        {id: 'email1'},
-        {id: 'email2'}
-      ];
-
-      controller.reply();
+      initController('viewThreadController').reply();
 
       expect(inboxEmailService.reply).to.have.been.calledWith({id: 'email2'});
     });
@@ -490,13 +476,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should expose a "reply" fn bound to the last email', function() {
       inboxEmailService.replyAll = sinon.spy();
 
-      var controller = initController('viewThreadController');
-      controller.thread.emails = [
-        {id: 'email1'},
-        {id: 'email2'}
-      ];
-
-      controller.replyAll();
+      initController('viewThreadController').replyAll();
 
       expect(inboxEmailService.replyAll).to.have.been.calledWith({id: 'email2'});
     });
@@ -504,13 +484,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should expose a "forward" fn bound to the last email', function() {
       inboxEmailService.forward = sinon.spy();
 
-      var controller = initController('viewThreadController');
-      controller.thread.emails = [
-        {id: 'email1'},
-        {id: 'email2'}
-      ];
-
-      controller.forward();
+      initController('viewThreadController').forward();
 
       expect(inboxEmailService.forward).to.have.been.calledWith({id: 'email2'});
     });

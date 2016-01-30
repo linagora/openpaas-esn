@@ -1,5 +1,5 @@
 .inbox-subheader.row
-  inbox-subheader-back-button(ui-sref="unifiedinbox.threads({ mailbox: ctrl.mailboxId })")
-  .title.ellipsis {{ ::ctrl.thread.subject }}
+  inbox-subheader-back-button(ui-sref="^")
+  .title.ellipsis {{ ::thread.subject }}
   a.submit.button(href='', action-list, action-list-url="/unifiedinbox/views/view-thread/action-list.html", title="#{__('More')}")
     i.mdi.mdi-dots-vertical
