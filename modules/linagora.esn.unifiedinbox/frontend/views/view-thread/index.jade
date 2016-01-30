@@ -5,7 +5,7 @@
         i.mdi.mdi-arrow-left-bold
         | #{__(' Back')}
       .header-label {{ ::ctrl.thread.subject }}
-      button.btn.btn-primary(type='button')
+      button.btn.btn-primary(type='button', action-list, action-list-url='/unifiedinbox/views/view-thread/action-list.html', title="#{__('More')}")
         | #{__(' More')}
         i.mdi.mdi-dots-vertical
 
