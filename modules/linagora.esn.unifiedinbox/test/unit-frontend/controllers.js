@@ -291,7 +291,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         controller.openEmail({id: 'expectedId'});
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.email', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
+        expect($state.go).to.have.been.calledWith('unifiedinbox.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
       });
 
     });
@@ -617,7 +617,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       controller.openThread({id: 'expected thread id'});
 
-      expect($state.go).to.have.been.calledWith('unifiedinbox.thread', {
+      expect($state.go).to.have.been.calledWith('unifiedinbox.threads.thread', {
         mailbox: 'chosenMailbox',
         threadId: 'expected thread id'
       });

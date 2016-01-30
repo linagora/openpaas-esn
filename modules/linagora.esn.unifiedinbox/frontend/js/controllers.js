@@ -50,7 +50,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (isDraftMailbox()) {
         newComposerService.openDraft(email);
       } else {
-        $state.go('unifiedinbox.email', {
+        $state.go('unifiedinbox.messages.message', {
           mailbox: $scope.mailbox.id,
           emailId: email.id
         });
@@ -72,7 +72,7 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService) {
 
     this.openThread = function(thread) {
-      $state.go('unifiedinbox.thread', {
+      $state.go('unifiedinbox.threads.thread', {
         mailbox: $scope.mailbox.id,
         threadId: thread.id
       });
