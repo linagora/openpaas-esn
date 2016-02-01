@@ -9,8 +9,8 @@ describe('The Contacts controller module', function() {
 
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
-    sortedContacts, liveRefreshContactService, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, VcardBuilder, addressbooks, ContactShellDisplayBuilder;
+    sortedContacts, ContactLiveUpdate, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
+    ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks, ContactShellDisplayBuilder;
 
   var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
@@ -26,7 +26,7 @@ describe('The Contacts controller module', function() {
     };
 
     ContactShell =  function() {};
-    liveRefreshContactService = {
+    ContactLiveUpdate = {
       startListen: function() {},
       stopListen: function() {}
     };
@@ -156,7 +156,7 @@ describe('The Contacts controller module', function() {
     angular.mock.module('esn.core');
 
     module('linagora.esn.contact', function($provide) {
-      $provide.value('liveRefreshContactService', liveRefreshContactService);
+      $provide.value('ContactLiveUpdate', ContactLiveUpdate);
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('$location', $location);
       $provide.value('selectionService', selectionService);

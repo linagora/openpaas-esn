@@ -1,17 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .run(function($rootScope, liveRefreshContactService, session) {
-    $rootScope.$on('$stateChangeSuccess', function(evt, current, currentParams, previous) {
-      if (current && current.name &&
-         (current.name === '/contact' || current.name.substring(0, 9) === '/contact/')) {
-        var bookId = session.user._id;
-        liveRefreshContactService.startListen(bookId);
-      } else {
-        liveRefreshContactService.stopListen();
-      }
-    });
-  })
   .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, CONTACT_ATTRIBUTES_ORDER, $dateFormatter) {
 
     function getFormattedBirthday(birthday) {
@@ -214,66 +203,6 @@ angular.module('linagora.esn.contact')
       fillScopeContactData: fillScopeContactData,
       isTextAvatar: isTextAvatar
     };
-  })
-  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, ContactAPIClient, ContactShell, ContactShellBuilder, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
-    var sio = null;
-    var listening = false;
-
-    function liveNotificationHandlerOnCreate(data) {
-      ContactShellBuilder.fromWebSocket(data).then(function(shell) {
-        $rootScope.$broadcast(CONTACT_EVENTS.CREATED, shell);
-      }, function() {
-        $log.debug('Can not build the contact from websocket data');
-      });
-    }
-
-    function liveNotificationHandlerOnDelete(data) {
-      $rootScope.$broadcast(CONTACT_EVENTS.DELETED, { id: data.contactId });
-    }
-
-    function liveNotificationHandlerOnUpdate(data) {
-      ContactAPIClient
-        .addressbookHome(data.bookId)
-        .addressbook(data.bookName)
-        .vcard(data.contactId)
-        .get()
-        .then(function(updatedContact) {
-          $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, updatedContact);
-        });
-    }
-
-    function startListen(bookId) {
-      if (listening) { return; }
-
-      if (sio === null) {
-        sio = livenotification('/contacts', bookId);
-      }
-      sio.on(CONTACT_SIO_EVENTS.CREATED, liveNotificationHandlerOnCreate);
-      sio.on(CONTACT_SIO_EVENTS.DELETED, liveNotificationHandlerOnDelete);
-      sio.on(CONTACT_SIO_EVENTS.UPDATED, liveNotificationHandlerOnUpdate);
-
-      listening = true;
-      $log.debug('Start listening contact live update');
-    }
-
-    function stopListen() {
-      if (!listening) { return; }
-
-      if (sio) {
-        sio.removeListener(CONTACT_SIO_EVENTS.CREATED, liveNotificationHandlerOnCreate);
-        sio.removeListener(CONTACT_SIO_EVENTS.DELETED, liveNotificationHandlerOnDelete);
-        sio.removeListener(CONTACT_SIO_EVENTS.UPDATED, liveNotificationHandlerOnUpdate);
-      }
-
-      listening = false;
-      $log.debug('Stop listening contact live update');
-    }
-
-    return {
-      startListen: startListen,
-      stopListen: stopListen
-    };
-
   })
   .factory('deleteContact', function(
                               $rootScope,

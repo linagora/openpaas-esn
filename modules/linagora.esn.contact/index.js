@@ -43,6 +43,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         'constants.js',
         'controllers.js',
         'directives.js',
+        'live.js',
         'services.js',
         'shells/contactshell.js',
         'shells/addressbookshell.js',

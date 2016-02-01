@@ -41,8 +41,11 @@ angular.module('linagora.esn.contact')
     CANCEL_DELETE: 'contact:cancel:delete'
   })
   .constant('CONTACT_SCROLL_EVENTS', 'contact:scroll:update')
-  .constant('CONTACT_SIO_EVENTS', {
-    CREATED: 'contact:created',
-    DELETED: 'contact:deleted',
-    UPDATED: 'contact:updated'
+  .constant('CONTACT_WS', {
+    room: '/contacts',
+    events: {
+      CREATED: 'contact:created',
+      DELETED: 'contact:deleted',
+      UPDATED: 'contact:updated'
+    }
   });
