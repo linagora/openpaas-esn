@@ -16,6 +16,14 @@ angular.module('esn.calendar')
     var currentView = calendarCurrentView.get();
     $scope.homeCalendarViewMode = currentView.name || USER_UI_CONFIG.calendar.defaultView;
 
+    $scope.swipeLeft = calendarPromise.then.bind(calendarPromise, function(cal) {
+      cal.fullCalendar('next');
+    });
+
+    $scope.swipeRight = calendarPromise.then.bind(calendarPromise, function(cal) {
+      cal.fullCalendar('prev');
+    });
+
     function selectPeriod(day, calendar) {
       day = fcMoment(day).stripTime();
       calendar.fullCalendar('gotoDate', day);
