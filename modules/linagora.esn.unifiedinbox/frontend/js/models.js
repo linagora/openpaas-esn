@@ -28,7 +28,7 @@ angular.module('linagora.esn.unifiedinbox')
     function _defineFlagProperty(object, flag) {
       Object.defineProperty(object, flag, {
         get: function() {
-          return _.every(this.emails, flag);
+          return _.any(this.emails, flag);
         },
         set: function(state) {
           this.emails.forEach(function(email) {
