@@ -51,7 +51,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
-    $provide.value('autosize', autosize = { update: sinon.spy() });
+    $provide.value('autosize', autosize = sinon.spy());
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
@@ -205,6 +205,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       draftService = _draftService_;
     }));
 
+    it('should return false when isBoxed is called', function() {
+      compileDirective('<composer />');
+
+      expect($scope.isBoxed()).to.equal(false);
+    });
+
     describe('its controller', function() {
 
       var directive, ctrl;
@@ -333,6 +339,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       beforeEach(inject(function($templateCache) {
         isMobile = true;
+        autosize.update = sinon.spy();
 
         $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '{{ email.textBody }} Quote {{ email.quoted.textBody }}');
       }));
@@ -418,11 +425,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer-desktop directive', function() {
 
-    var draftService;
+    it('should return true when isBoxed is called', function() {
+      compileDirective('<composer-desktop />');
 
-    beforeEach(inject(function(_draftService_) {
-      draftService = _draftService_;
-    }));
+      expect($scope.isBoxed()).to.equal(true);
+    });
 
     it('should save draft when the composer is destroyed', function() {
       var ctrl = compileDirective('<composer-desktop />').controller('composerDesktop');

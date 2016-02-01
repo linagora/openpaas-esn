@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -119,6 +120,43 @@ describe('The UI module', function() {
       expect(dropup.hasClass('active')).to.be.true;
       element.click();
       expect(dropup.hasClass('active')).to.be.false;
+    });
+  });
+
+  describe('the autoSizeDynamic dirctive', function() {
+    var autosizeSpy;
+
+    beforeEach(module(function($provide) {
+      autosizeSpy = sinon.spy();
+      $provide.value('autosize', autosizeSpy);
+    }));
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    it('should not call the autosize service if the condition is false', function() {
+      $scope.condition = function() {return false;};
+
+      initDirective('<div auto-size-dynamic="condition()"></div>');
+
+      expect(autosizeSpy).to.have.not.been.called;
+    });
+
+    it('should not call the autosize service if no condition is given', function() {
+      initDirective('<div auto-size-dynamic></div>');
+
+      expect(autosizeSpy).to.have.not.been.called;
+    });
+
+    it('should call the autosize service if the condition is true', function() {
+      $scope.condition = function() {return true;};
+
+      initDirective('<div auto-size-dynamic="condition()"></div>');
+
+      expect(autosizeSpy).to.have.been.called;
     });
   });
 });

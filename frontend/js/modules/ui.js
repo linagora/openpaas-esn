@@ -57,4 +57,18 @@ angular.module('esn.ui', ['op.dynamicDirective'])
         };
       }
     };
+  })
+
+  .directive('autoSizeDynamic', function(autosize) {
+    return {
+      restrict: 'A',
+      scope: {
+        autoSizeDynamic: '&'
+      },
+      link: function(scope, element) {
+        if (scope.autoSizeDynamic()) {
+          autosize(element);
+        }
+      }
+    };
   });
