@@ -621,10 +621,10 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListItems directive', function() {
     var $compile, $rootScope, $scope, CONTACT_EVENTS, $timeout;
-    var addScrollingBehaviorMock, onScroll, unregister;
+    var ContactListScrollingServiceMock, onScroll, unregister;
 
     beforeEach(function() {
-      addScrollingBehaviorMock = function() {
+      ContactListScrollingServiceMock = function() {
         return {
           onScroll: onScroll,
           unregister: unregister
@@ -632,7 +632,7 @@ describe('The contact Angular module directives', function() {
       };
 
       module(function($provide) {
-        $provide.value('addScrollingBehavior', addScrollingBehaviorMock);
+        $provide.value('ContactListScrollingService', ContactListScrollingServiceMock);
       });
 
       inject(function(_$compile_, _$rootScope_, _CONTACT_EVENTS_, _$timeout_) {

@@ -46,9 +46,9 @@ describe('The Contacts ui module', function() {
     });
   });
 
-  describe('The addScrollingBehavior service', function() {
+  describe('The ContactListScrollingService service', function() {
     var $rootScope, $window, event, $scope;
-    var addScrollingBehavior, sharedContactDataService, scrollingBehavior;
+    var ContactListScrollingService, sharedContactDataService, listScroller;
     var angularFind;
     var letterOffset = 0,
       contactHeaderOffset = 0,
@@ -102,16 +102,16 @@ describe('The Contacts ui module', function() {
         }
       };
 
-      inject(function(_$rootScope_, _$window_, _addScrollingBehavior_, _CONTACT_SCROLL_EVENTS_, _sharedContactDataService_) {
+      inject(function(_$rootScope_, _$window_, _ContactListScrollingService_, _CONTACT_SCROLL_EVENTS_, _sharedContactDataService_) {
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $window = _$window_;
-        addScrollingBehavior = _addScrollingBehavior_;
+        ContactListScrollingService = _ContactListScrollingService_;
         sharedContactDataService = _sharedContactDataService_;
         event = _CONTACT_SCROLL_EVENTS_;
       });
 
-      scrollingBehavior = addScrollingBehavior(element);
+      listScroller = ContactListScrollingService(element);
       sharedContactDataService.categoryLetter = '#';
     });
 
@@ -161,7 +161,7 @@ describe('The Contacts ui module', function() {
         };
       };
 
-      scrollingBehavior.unregister();
+      listScroller.unregister();
       angular.element = angularElement;
     });
   });

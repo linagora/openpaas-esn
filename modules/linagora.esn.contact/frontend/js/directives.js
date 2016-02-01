@@ -113,7 +113,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListItems', function(addScrollingBehavior, CONTACT_EVENTS, $timeout) {
+  .directive('contactListItems', function(ContactListScrollingService, CONTACT_EVENTS, $timeout) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-items.html',
@@ -121,17 +121,17 @@ angular.module('linagora.esn.contact')
         scope.headerDisplay = {
           letterExists: false
         };
-        var scrollingBehavior = addScrollingBehavior(element);
+        var listScroller = ContactListScrollingService(element);
 
         function updateLetter() {
           //We need to wait the contact list updated
-          $timeout(scrollingBehavior.onScroll, 500);
+          $timeout(listScroller.onScroll, 500);
         }
 
         for (var event in CONTACT_EVENTS) {
           scope.$on(CONTACT_EVENTS[event], updateLetter);
         }
-        scope.$on('$destroy', scrollingBehavior.unregister);
+        scope.$on('$destroy', listScroller.unregister);
       }
     };
   })
