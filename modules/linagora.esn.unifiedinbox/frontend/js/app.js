@@ -113,6 +113,15 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'listThreadsController as ctrl'
           }
         }
+      })
+      .state('unifiedinbox.thread', {
+        url: '/:mailbox/:threadId',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/view-thread/index',
+            controller: 'viewThreadController as ctrl'
+          }
+        }
       });
 
     var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45});

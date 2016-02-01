@@ -740,4 +740,24 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
+  describe('The email directive', function() {
+
+    describe('The setIsFlagged function', function() {
+
+      it('should call email.setIsFlagged, passing the flag', function(done) {
+        var email = {
+          setIsFlagged: function(state) {
+            expect(state).to.equal(true);
+
+            done();
+          }
+        };
+
+        compileDirective('<email />').controller('email').setIsFlagged(null, email, true);
+      });
+
+    });
+
+  });
+
 });

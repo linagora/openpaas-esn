@@ -303,4 +303,33 @@ angular.module('linagora.esn.unifiedinbox')
         return emailBodyService.supportsRichtext() ? template('richtext') : template('plaintext');
       }
     };
+  })
+
+  .directive('emailStar', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/email-star.html'
+    };
+  })
+
+  .directive('email', function(inboxEmailService, jmapEmailService) {
+    return {
+      restrict: 'E',
+      controller: function($scope) {
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+          this[action] = function() {
+            inboxEmailService[action]($scope.email);
+          };
+        }.bind(this));
+
+        this.setIsFlagged = function(event, email, state) {
+          jmapEmailService.setFlag(email, 'isFlagged', state);
+        };
+      },
+      controllerAs: 'ctrl',
+      scope: {
+        email: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/email.html'
+    };
   });

@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      jmapEmailService, mailboxesService;
+      jmapEmailService, mailboxesService, inboxEmailService;
 
   beforeEach(function() {
     $stateParams = {
@@ -49,21 +49,25 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
-      $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy(function() {
-        return $q.when({
-          mailboxIds: [1]
-        });
-      })});
+      $provide.value('jmapEmailService', jmapEmailService = {
+        setFlag: sinon.spy(function() {
+          return $q.when({
+            mailboxIds: [1]
+          });
+        })
+      });
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_, _Composition_, _mailboxesService_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
+                                          _Composition_, _mailboxesService_, _inboxEmailService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
     emailSendingService = _emailSendingService_;
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
+    inboxEmailService = _inboxEmailService_;
 
     scope = $rootScope.$new();
   }));
@@ -385,176 +389,131 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-email-subheader', sinon.match.any);
     });
 
-    describe('The moveToTrash fn', function() {
+  });
 
-      it('should call $scope.email.moveToMailboxWithRole with the "trash" role', function(done) {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function(role) {
-              expect(role).to.equal(jmap.MailboxRole.TRASH);
+  describe('The viewThreadController', function() {
 
-              done();
-            }
-          }]);
-        };
-
-        initController('viewEmailController').moveToTrash();
-      });
-
-      it('should update location to the parent mailbox when the message was successfully moved', function() {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function() {
-              return $q.when();
-            }
-          }]);
-        };
-
-        initController('viewEmailController').moveToTrash();
-        scope.$digest();
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox.mailbox', { mailbox: 'chosenMailbox' });
-      });
-
-      it('should notify weakSuccess when the message was successfully moved', function(done) {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function() {
-              return $q.when();
-            }
-          }]);
-        };
-        notificationFactory.weakSuccess = function() { done(); };
-
-        initController('viewEmailController').moveToTrash();
-        scope.$digest();
-      });
-
-      it('should notify weakError when the message cannot be moved', function(done) {
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false,
-            moveToMailboxWithRole: function() {
-              return $q.reject('Fail');
-            }
-          }]);
-        };
-        notificationFactory.weakError = function() { done(); };
-
-        initController('viewEmailController').moveToTrash();
-        scope.$digest();
-      });
-
+    beforeEach(function() {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [{subject: 'thread subject'}];
+          }
+        }]);
+      };
     });
 
-    describe('the reply function', function() {
-      it('should leverage openEmailCustomTitle() and createReplyEmailObject()', function() {
-        newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createReplyEmailObject = sinon.spy(function() { return $q.when(); });
+    it('should have its mailboxId assigned from the stateParams', function() {
+      $stateParams.mailbox = 'expected mailbox id';
 
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false
-          }]);
-        };
+      var controller = initController('viewThreadController');
 
-        initController('viewEmailController').reply();
-        scope.$digest();
-
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
-        expect(emailSendingService.createReplyEmailObject).to.have.been.called;
-      });
+      expect(controller.mailboxId).to.equal('expected mailbox id');
     });
 
-    describe('the replyAll function', function() {
-      it('should leverage openEmailCustomTitle() and createReplyAllEmailObject()', function() {
-        newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createReplyAllEmailObject = sinon.spy(function() { return $q.when(); });
+    it('should display the view-thread-subheader mobile header', function() {
+      headerService.subHeader.setInjection = sinon.spy();
 
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false
-          }]);
-        };
+      initController('viewThreadController');
 
-        initController('viewEmailController').replyAll();
-        scope.$digest();
-
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
-        expect(emailSendingService.createReplyAllEmailObject).to.have.been.called;
-      });
+      expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-thread-subheader', sinon.match.any);
     });
 
-    describe('the forward function', function() {
-      it('should leverage openEmailCustomTitle() and createForwardEmailObject()', function() {
-        newComposerService.openEmailCustomTitle = sinon.spy();
-        emailSendingService.createForwardEmailObject = sinon.spy(function() { return $q.when(); });
+    it('should search for message ids of the given thread id', function(done) {
+      $stateParams.threadId = 'expectedThreadId';
+      jmapClient.getThreads = function(options) {
+        expect(options).to.deep.equal({ids: ['expectedThreadId'], fetchMessages: false});
+        done();
+      };
 
-        jmapClient.getMessages = function() {
-          return $q.when([{
-            isUnread: false
-          }]);
-        };
-
-        initController('viewEmailController').forward();
-        scope.$digest();
-
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your forward email');
-        expect(emailSendingService.createForwardEmailObject).to.have.been.called;
-      });
+      initController('viewThreadController');
     });
 
-    describe('the markAsUnread function', function() {
+    it('should search messages of the getThreads reply', function(done) {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: done
+        }]);
+      };
 
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').markAsUnread();
-
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
-      });
+      initController('viewThreadController');
     });
 
-    describe('the markAsRead function', function() {
+    it('should assign thread.emails from the getMessages reply', function() {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [{id: 'email1', subject: 'thread subject'}];
+          }
+        }]);
+      };
 
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').markAsRead();
+      var controller = initController('viewThreadController');
 
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
-      });
+      expect(controller.thread.emails).to.deep.equal([
+        {id: 'email1', subject: 'thread subject'}
+      ]);
     });
 
-    describe('the markAsFlagged function', function() {
+    it('should assign thread.subject from the first message', function() {
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [
+              {id: 'email1', subject: 'thread subject1'},
+              {id: 'email2', subject: 'thread subject2'},
+              {id: 'email3', subject: 'thread subject3'}
+            ];
+          }
+        }]);
+      };
 
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').markAsFlagged();
+      var controller = initController('viewThreadController');
 
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
-      });
-
+      expect(controller.thread.subject).to.equal('thread subject1');
     });
 
-    describe('the unmarkAsFlagged function', function() {
+    it('should expose a "reply" fn bound to the last email', function() {
+      inboxEmailService.reply = sinon.spy();
 
-      it('should call jmapEmailService.setFlag', function() {
-        initController('viewEmailController').unmarkAsFlagged();
+      var controller = initController('viewThreadController');
+      controller.thread.emails = [
+        {id: 'email1'},
+        {id: 'email2'}
+      ];
 
-        expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
-      });
+      controller.reply();
 
+      expect(inboxEmailService.reply).to.have.been.calledWith({id: 'email2'});
     });
 
-    describe('The setIsFlagged function', function() {
+    it('should expose a "reply" fn bound to the last email', function() {
+      inboxEmailService.replyAll = sinon.spy();
 
-      it('should call jmapEmailService.setFlag, passing the email and state arguments', function() {
-        initController('viewEmailController').setIsFlagged(null, {}, true);
+      var controller = initController('viewThreadController');
+      controller.thread.emails = [
+        {id: 'email1'},
+        {id: 'email2'}
+      ];
 
-        expect(jmapEmailService.setFlag).to.have.been.calledWith({}, 'isFlagged', true);
-      });
+      controller.replyAll();
 
+      expect(inboxEmailService.replyAll).to.have.been.calledWith({id: 'email2'});
     });
 
+    it('should expose a "forward" fn bound to the last email', function() {
+      inboxEmailService.forward = sinon.spy();
+
+      var controller = initController('viewThreadController');
+      controller.thread.emails = [
+        {id: 'email1'},
+        {id: 'email2'}
+      ];
+
+      controller.forward();
+
+      expect(inboxEmailService.forward).to.have.been.calledWith({id: 'email2'});
+    });
   });
 
   describe('The listThreadsController', function() {
@@ -677,6 +636,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listThreadsController');
 
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
+    });
+
+    it('should change the state to the thread view when openThread is called', function() {
+      var controller = initController('listThreadsController');
+
+      controller.openThread({id: 'expected thread id'});
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.thread', {
+        mailbox: 'chosenMailbox',
+        threadId: 'expected thread id'
+      });
     });
   });
 

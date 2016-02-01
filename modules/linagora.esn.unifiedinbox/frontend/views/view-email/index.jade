@@ -3,7 +3,7 @@
   .block-header.visible-md.visible-lg
     h2 {{::email.subject}}
     
-  ng-include(src="'/unifiedinbox/views/partials/email'")
+  email(email='email')
   
   ng-include(src="'/unifiedinbox/views/partials/email-footer'")
 

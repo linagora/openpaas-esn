@@ -65,11 +65,13 @@ angular.module('linagora.esn.unifiedinbox')
       .then(searchForMessages);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, _, withJmapClient, ElementGroupingTool, headerService, mailboxesService) {
+  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, ElementGroupingTool, headerService, mailboxesService) {
 
     this.openThread = function(thread) {
-      // This function is to be defined in INBOX-112
-      console.log(thread);
+      $state.go('unifiedinbox.thread', {
+        mailbox: $scope.mailbox.id,
+        threadId: thread.id
+      });
     };
 
     function _assignEmailAndDate(dst) {
@@ -168,54 +170,12 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, jmapEmailService, mailboxesService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
-
-    this.moveToTrash = function() {
-      asyncAction('Move of message "' + $scope.email.subject + '" to trash', function() {
-        return $scope.email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
-      }).then(function() {
-        $state.go('unifiedinbox.mailbox', { mailbox: $scope.mailbox });
-      });
-    };
-
-    this.reply = function() {
-      emailSendingService.createReplyEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
-    };
-
-    this.replyAll = function() {
-      emailSendingService.createReplyAllEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
-    };
-
-    this.forward = function() {
-      emailSendingService.createForwardEmailObject($scope.email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
-    };
-
-    this.markAsUnread = function() {
-      jmapEmailService.setFlag($scope.email, 'isUnread', true);
-    };
-
-    this.markAsRead = function() {
-      jmapEmailService.setFlag($scope.email, 'isUnread', false);
-    };
-
-    this.markAsFlagged = function() {
-      this.setIsFlagged(null, $scope.email, true);
-    };
-
-    this.unmarkAsFlagged = function() {
-      this.setIsFlagged(null, $scope.email, false);
-    };
-
-    this.setIsFlagged = function(event, email, state) {
-      jmapEmailService.setFlag(email, 'isFlagged', state);
-    };
-
-    var self = this;
 
     withJmapClient(function(client) {
       client.getMessages({
@@ -223,8 +183,36 @@ angular.module('linagora.esn.unifiedinbox')
       }).then(function(messages) {
         $scope.email = messages[0]; // We expect a single message here
 
-        self.markAsRead();
+        inboxEmailService.markAsRead($scope.email);
       });
+    });
+  })
+
+  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, inboxEmailService, _) {
+
+    var self = this;
+    self.mailboxId = $stateParams.mailbox;
+
+    headerService.subHeader.setInjection('view-thread-subheader', $scope);
+
+    withJmapClient(function(client) {
+      client
+        .getThreads({ids: [$stateParams.threadId], fetchMessages: false})
+        .then(function(threads) {
+          return threads[0].getMessages();
+        })
+        .then(function(messages) {
+          self.thread = {
+            emails: messages,
+            subject: messages[0].subject
+          };
+        });
+    });
+
+    ['reply', 'replyAll', 'forward'].forEach(function(action) {
+      self[action] = function() {
+        inboxEmailService[action](_.last(self.thread.emails));
+      };
     });
   })
 
