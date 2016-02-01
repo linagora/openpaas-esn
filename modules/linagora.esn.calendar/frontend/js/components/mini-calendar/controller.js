@@ -2,15 +2,15 @@
 
 angular.module('esn.calendar')
   .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG, CALENDAR_EVENTS,
-    uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView, keepChangeDuringGraceperiod, _) {
+        uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView, keepChangeDuringGraceperiod, uuid4, _) {
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
     var userId = session.user._id;
 
     $scope.miniCalendarConfig = angular.extend({}, USER_UI_CONFIG.calendar,
-      USER_UI_CONFIG.miniCalendar);
-    $scope.miniCalendarId = userId + 'MiniCalendar';
+        USER_UI_CONFIG.miniCalendar);
+    $scope.miniCalendarId = uuid4.generate();
     $scope.events = [];
 
     var currentView = calendarCurrentView.get();
@@ -55,10 +55,10 @@ angular.module('esn.calendar')
     //otherwise if when the directive is initialized hidden
     //when the window is enlarger and the mini-calendar appear
     //the calendar is not render
-    windowJQuery.on('resize.miniCalendarResize', windowResize);
+    windowJQuery.on('resize', windowResize);
 
     function unregisterWindowResize() {
-      windowJQuery.off('resize.miniCalendarResize');
+      windowJQuery.off('resize', windowResize);
     }
 
     var calendarResolved = false;
