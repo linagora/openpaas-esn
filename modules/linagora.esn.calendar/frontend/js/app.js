@@ -48,6 +48,14 @@ angular.module('esn.calendar', [
         }
       }
     })
+    .state('calendar.eventConsult', {
+      url: '/event-consult-form',
+      views: {
+        form: {
+          templateUrl: '/calendar/views/event-consult-form/event-consult-form'
+        }
+      }
+    })
     .state('calendar', {
       url: '/calendar',
       templateUrl: '/calendar/views/calendar/user-calendar',
