@@ -23,16 +23,15 @@ describe('The Contact Twitter services', function() {
         expect(TwitterContactHelper.isTwitterContact(null)).to.be.false;
       });
 
-      it('should return false when input shell has no social field', function() {
+      it('should return false when input shell has no addressbook field', function() {
         expect(TwitterContactHelper.isTwitterContact({})).to.be.false;
       });
 
-      it('should return true when some social is Twitter username', function() {
+      it('should return true when addressbook type is twitter', function() {
         var shell = {
-          social: [{
-            type: 'Twitter',
-            value: '@linagora'
-          }]
+          addressbook: {
+            type: 'twitter'
+          }
         };
         expect(TwitterContactHelper.isTwitterContact(shell)).to.be.true;
       });

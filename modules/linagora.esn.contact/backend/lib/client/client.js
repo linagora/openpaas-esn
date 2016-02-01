@@ -181,7 +181,8 @@ module.exports = function(dependencies, options) {
         var properties = {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
-          '{DAV:}acl': 'dav:acl'
+          '{DAV:}acl': 'dav:acl',
+          '{http://open-paas.org/contacts}type': 'type'
         };
 
         getBookUrl(function(url) {

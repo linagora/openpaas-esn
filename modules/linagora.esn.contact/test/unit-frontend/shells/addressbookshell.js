@@ -32,8 +32,10 @@ describe('The Contact Angular module AddressBookShell', function() {
       it('should fill attributes from json', function() {
         var name = 'Twitter contacts';
         var description = 'AddressBook for Twitter contacts';
+        var type = 'twitter';
         jsonInput['dav:name'] = name;
         jsonInput['carddav:description'] = description;
+        jsonInput.type = type;
         var shell = new this.AddressBookShell(jsonInput);
 
         expect(shell).to.shallowDeepEqual({
@@ -41,7 +43,8 @@ describe('The Contact Angular module AddressBookShell', function() {
           bookName: bookName,
           href: jsonInput._links.self.href,
           name: name,
-          description: description
+          description: description,
+          type: type
         });
       });
 

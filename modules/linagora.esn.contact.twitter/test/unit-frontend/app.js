@@ -10,10 +10,9 @@ describe('The contact Twitter module', function() {
     var DisplayShellProvider = {
       addDisplayShell: function(displayShell, condition) {
         var shell = {
-          social: [{
-            type: 'Twitter',
-            value: '@lina'
-          }]
+          addressbook: {
+            type: 'twitter'
+          }
         };
         expect(condition(shell)).to.equal(true);
         done();

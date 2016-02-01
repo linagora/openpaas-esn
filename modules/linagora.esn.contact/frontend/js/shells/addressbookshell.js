@@ -6,6 +6,7 @@ angular.module('linagora.esn.contact')
 
       this.name = json['dav:name'];
       this.description = json['carddav:description'];
+      this.type = json.type;
 
       var davAcl = json['dav:acl'];
       if (davAcl && davAcl.length) {
