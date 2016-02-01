@@ -184,10 +184,14 @@
   flex-wrap: wrap;
 }
 
+.flex-shrink(@shrink: 1) {
+  -webkit-flex-shrink: @shrink;
+  flex-shrink: @shrink;
+}
+
 .flex-noshrink {
   .flex();
-  -webkit-flex-shrink: 0;
-  flex-shrink: 0;
+  .flex-shrink(0);
 }
 
 .all-centered {
