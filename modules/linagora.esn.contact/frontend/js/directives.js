@@ -93,20 +93,20 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function($rootScope, toggleContactDisplayService, toggleEventService) {
+  .directive('contactListDisplayer', function($rootScope, ContactListToggleDisplayService, ContactListToggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-displayer.html',
       link: function($scope) {
 
-        $scope.displayAs = toggleContactDisplayService.getCurrentDisplay();
+        $scope.displayAs = ContactListToggleDisplayService.getCurrentDisplay();
 
-        toggleEventService.listen($scope, function(evt, value) {
+        ContactListToggleEventService.listen($scope, function(evt, value) {
           $scope.displayAs = value;
         });
 
         $scope.$on('$locationChangeStart', function() {
-          toggleContactDisplayService.setCurrentDisplay($scope.displayAs);
+          ContactListToggleDisplayService.setCurrentDisplay($scope.displayAs);
         });
 
       }
@@ -190,7 +190,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope, toggleContactDisplayService, toggleEventService) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope, ContactListToggleDisplayService, ContactListToggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
@@ -200,13 +200,13 @@ angular.module('linagora.esn.contact')
           return value === CONTACT_LIST_DISPLAY.cards;
         }
 
-        scope.toggleContactDisplay = isToggleOn(toggleContactDisplayService.getCurrentDisplay());
+        scope.toggleContactDisplay = isToggleOn(ContactListToggleDisplayService.getCurrentDisplay());
 
         scope.updateDisplay = function(toggleOn) {
-          toggleContactDisplayService.setCurrentDisplay(toggleOn ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list);
+          ContactListToggleDisplayService.setCurrentDisplay(toggleOn ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list);
         };
 
-        toggleEventService.listen(scope, function(evt, value) {
+        ContactListToggleEventService.listen(scope, function(evt, value) {
           var toggleValue = isToggleOn(value);
           if (toggleValue === scope.toggleContactDisplay) {
             return;

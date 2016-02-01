@@ -52,7 +52,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .factory('toggleEventService', function($rootScope, CONTACT_LIST_DISPLAY_EVENTS) {
+  .factory('ContactListToggleEventService', function($rootScope, CONTACT_LIST_DISPLAY_EVENTS) {
     function broadcast(value) {
       $rootScope.$broadcast(CONTACT_LIST_DISPLAY_EVENTS.toggle, value);
     }
@@ -67,7 +67,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .factory('toggleContactDisplayService', function($rootScope, $cacheFactory, toggleEventService, CONTACT_LIST_DISPLAY) {
+  .factory('ContactListToggleDisplayService', function($rootScope, $cacheFactory, ContactListToggleEventService, CONTACT_LIST_DISPLAY) {
     var CACHE_KEY = 'contact';
     var TOGGLE_KEY = 'listDisplay';
 
@@ -104,7 +104,7 @@ angular.module('linagora.esn.contact')
     function setCurrentDisplay(display) {
       _cacheValue(display);
       current = display;
-      toggleEventService.broadcast(display);
+      ContactListToggleEventService.broadcast(display);
     }
 
     return {

@@ -166,15 +166,15 @@ describe('The Contacts ui module', function() {
     });
   });
 
-  describe('The toggleContactDisplayService', function() {
+  describe('The ContactListToggleDisplayService', function() {
     var $rootScope,
       $cacheFactory,
-      toggleContactDisplayService,
-      toggleEventService,
+      ContactListToggleDisplayService,
+      ContactListToggleEventService,
       CONTACT_LIST_DISPLAY,
       CONTACT_LIST_DISPLAY_EVENTS;
 
-    var toggleEventServiceMock = {
+    var ContactListToggleEventServiceMock = {
       broadcast: function() {},
       listen: function() {}
     };
@@ -182,12 +182,12 @@ describe('The Contacts ui module', function() {
     beforeEach(function() {
 
       module(function($provide) {
-        $provide.value('toggleEventService', toggleEventServiceMock);
+        $provide.value('ContactListToggleEventService', ContactListToggleEventServiceMock);
       });
-      inject(function(_$rootScope_, _toggleContactDisplayService_, _toggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_, _$cacheFactory_) {
+      inject(function(_$rootScope_, _ContactListToggleDisplayService_, _ContactListToggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_, _$cacheFactory_) {
         $rootScope = _$rootScope_;
-        toggleContactDisplayService = _toggleContactDisplayService_;
-        toggleEventService = _toggleEventService_;
+        ContactListToggleDisplayService = _ContactListToggleDisplayService_;
+        ContactListToggleEventService = _ContactListToggleEventService_;
         CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
         CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
         $cacheFactory = _$cacheFactory_;
@@ -197,13 +197,13 @@ describe('The Contacts ui module', function() {
     describe('The getInitialDisplay function', function() {
 
       it('should return list as default value', function() {
-        expect(toggleContactDisplayService.getInitialDisplay()).to.equal(CONTACT_LIST_DISPLAY.list);
+        expect(ContactListToggleDisplayService.getInitialDisplay()).to.equal(CONTACT_LIST_DISPLAY.list);
       });
 
       it('should return the data from cache when current is not defined', function() {
         var value = CONTACT_LIST_DISPLAY.cards;
-        toggleContactDisplayService._cacheValue(value);
-        expect(toggleContactDisplayService.getInitialDisplay()).to.equal(value);
+        ContactListToggleDisplayService._cacheValue(value);
+        expect(ContactListToggleDisplayService.getInitialDisplay()).to.equal(value);
       });
 
     });
@@ -211,13 +211,13 @@ describe('The Contacts ui module', function() {
     describe('The getCurrentDisplay function', function() {
 
       it('should return list as default value when current is not defind', function() {
-        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(CONTACT_LIST_DISPLAY.list);
+        expect(ContactListToggleDisplayService.getCurrentDisplay()).to.equal(CONTACT_LIST_DISPLAY.list);
       });
 
       it('should return the current value', function() {
         var value = 'foo';
-        toggleContactDisplayService.setCurrentDisplay(value);
-        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
+        ContactListToggleDisplayService.setCurrentDisplay(value);
+        expect(ContactListToggleDisplayService.getCurrentDisplay()).to.equal(value);
       });
 
     });
@@ -225,57 +225,57 @@ describe('The Contacts ui module', function() {
     describe('The setCurrentDisplay function', function() {
       it('should cache value', function() {
         var value = 'foo';
-        toggleContactDisplayService.setCurrentDisplay(value);
-        expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
+        ContactListToggleDisplayService.setCurrentDisplay(value);
+        expect(ContactListToggleDisplayService._getCacheValue()).to.equal(value);
       });
 
       it('should cache value', function() {
         var value = 'foo';
-        toggleContactDisplayService.setCurrentDisplay(value);
-        expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
+        ContactListToggleDisplayService.setCurrentDisplay(value);
+        expect(ContactListToggleDisplayService._getCacheValue()).to.equal(value);
       });
 
       it('should set current value', function() {
         var value = 'foo';
-        toggleContactDisplayService.setCurrentDisplay(value);
-        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
+        ContactListToggleDisplayService.setCurrentDisplay(value);
+        expect(ContactListToggleDisplayService.getCurrentDisplay()).to.equal(value);
       });
 
       it('should broadcast event', function(done) {
         var value = 'foo';
-        toggleEventServiceMock.broadcast = function() {
+        ContactListToggleEventServiceMock.broadcast = function() {
           done();
         };
-        toggleContactDisplayService.setCurrentDisplay(value);
-        expect(toggleContactDisplayService.getCurrentDisplay()).to.equal(value);
+        ContactListToggleDisplayService.setCurrentDisplay(value);
+        expect(ContactListToggleDisplayService.getCurrentDisplay()).to.equal(value);
       });
 
     });
 
     describe('The _getCache function', function() {
       it('should return an object', function() {
-        expect(toggleContactDisplayService._getCache()).to.be.an.object;
+        expect(ContactListToggleDisplayService._getCache()).to.be.an.object;
       });
     });
 
     describe('The cache value functions', function() {
       it('should be able to get a cached value', function() {
         var value = 'foobar';
-        toggleContactDisplayService._cacheValue(value);
-        expect(toggleContactDisplayService._getCacheValue()).to.equal(value);
+        ContactListToggleDisplayService._cacheValue(value);
+        expect(ContactListToggleDisplayService._getCacheValue()).to.equal(value);
       });
     });
   });
 
-  describe('The toggleEventService service', function() {
+  describe('The ContactListToggleEventService service', function() {
     var $rootScope,
-      toggleEventService,
+      ContactListToggleEventService,
       CONTACT_LIST_DISPLAY_EVENTS;
 
     beforeEach(function() {
-      inject(function(_$rootScope_, _toggleEventService_, _CONTACT_LIST_DISPLAY_EVENTS_) {
+      inject(function(_$rootScope_, _ContactListToggleEventService_, _CONTACT_LIST_DISPLAY_EVENTS_) {
         $rootScope = _$rootScope_;
-        toggleEventService = _toggleEventService_;
+        ContactListToggleEventService = _ContactListToggleEventService_;
         CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
       });
     });
@@ -289,7 +289,7 @@ describe('The Contacts ui module', function() {
           done();
         });
 
-        toggleEventService.broadcast(data);
+        ContactListToggleEventService.broadcast(data);
       });
     });
 
@@ -304,7 +304,7 @@ describe('The Contacts ui module', function() {
             done();
           }
         };
-        toggleEventService.listen(scope, eventCallback);
+        ContactListToggleEventService.listen(scope, eventCallback);
       });
 
       it('should call event callback', function(done) {
@@ -314,8 +314,8 @@ describe('The Contacts ui module', function() {
           expect(data).to.equal(event);
           done();
         }
-        toggleEventService.listen(scope, callback);
-        toggleEventService.broadcast(event);
+        ContactListToggleEventService.listen(scope, callback);
+        ContactListToggleEventService.broadcast(event);
       });
     });
 
