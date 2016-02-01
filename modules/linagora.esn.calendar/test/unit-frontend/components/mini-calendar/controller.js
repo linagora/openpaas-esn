@@ -7,7 +7,7 @@ describe('The mini-calendar controller', function() {
 
   var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
     sessionMock, miniCalendarServiceMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
-    calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock;
+    calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock, uniqueId, uuid4Mock;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
@@ -39,11 +39,17 @@ describe('The mini-calendar controller', function() {
       }
     };
 
+    uniqueId = 'this is supposed to be a very unique id';
+
     miniCalendarServiceMock = {
       getWeekAroundDay: function() {
         return {firstWeekDay: null, nextFirstWeekDay: null};
       },
       miniCalendarWrapper: angular.identity
+    };
+
+    uuid4Mock = {
+      generate: sinon.stub().returns(uniqueId)
     };
 
     calendarEventSourceMock = {};
@@ -65,10 +71,10 @@ describe('The mini-calendar controller', function() {
     };
 
     uiCalendarConfigMock = {
-      calendars: {
-        userIdMiniCalendar: calendar
-      }
+      calendars: {}
     };
+
+    uiCalendarConfigMock.calendars[uniqueId] = calendar;
 
     calendarEventSourceMock = function(href) {
       expect(href).to.equals('href');
@@ -89,6 +95,7 @@ describe('The mini-calendar controller', function() {
       $provide.value('miniCalendarService', miniCalendarServiceMock);
       $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
+      $provide.value('uuid4', uuid4Mock);
       $provide.constant('USER_UI_CONFIG', USER_UI_CONFIG_MOCK);
     });
 
@@ -129,6 +136,11 @@ describe('The mini-calendar controller', function() {
       dayInWeek = fcMoment('2015-12-04');
       lastWeekDay = fcMoment('2015-12-07');
       initController();
+    });
+
+    it('should use uuid4.generate for miniCalendarId', function() {
+      expect(uuid4Mock.generate).to.have.been.calledOnce;
+      expect($scope.miniCalendarId).to.equal(uniqueId);
     });
 
     it('should select and go to the current view when initializing the mini calendar', function() {
