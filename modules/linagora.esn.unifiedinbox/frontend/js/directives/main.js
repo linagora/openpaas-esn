@@ -172,9 +172,6 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
-
-        scope.isBoxed = function() {return false;};
-
         function returnToMainLocation() {
           $state.go('unifiedinbox');
         }
@@ -233,9 +230,6 @@ angular.module('linagora.esn.unifiedinbox')
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
-
-        scope.isBoxed = function() {return true;};
-
         scope.disableSendButton = function() {
           element.find('.btn-primary').attr('disabled', 'disabled');
         };

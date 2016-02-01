@@ -1,3 +1,3 @@
-textarea.compose-body(cond-attr="!isBoxed()", cond-attr-name="auto-size", ng-model="email.textBody", ng-class="{ 'isCollapsed': isCollapsed }", placeholder="#{__('Start writing your email here')}")
+textarea.compose-body(auto-size, ng-model="email.textBody", ng-class="{ 'isCollapsed': isCollapsed }", placeholder="#{__('Start writing your email here')}")
 .edit-quoted-mail(ng-if='email.quoted && !email.isQuoting')
   a(href='', ng-click='editQuotedMail()') #{__('Edit quoted mail')}
