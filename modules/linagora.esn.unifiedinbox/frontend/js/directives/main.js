@@ -144,8 +144,9 @@ angular.module('linagora.esn.unifiedinbox')
 
           iFrameResize({
             checkOrigin: false,
-            scrolling: true,
+            scrolling: false,
             inPageLinks: true,
+            heightCalculationMethod: 'documentElementOffset',
             resizedCallback: function() {
               scope.$emit('nicescroll:resize');
             }
