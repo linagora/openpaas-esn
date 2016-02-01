@@ -19,9 +19,8 @@ tags-input {
 
   .auto-complete-match {
     .nopadding;
-
-    display: flex;
     align-items: center;
+    .flex();
 
     .row {
       margin: 0;
@@ -29,8 +28,10 @@ tags-input {
 
     img {
       .nopadding;
-
+      // Both attributes are mandatory for Firefox.
+      // Otherwise the img is distorted (width is set to 1px)
       width: 50px;
+      min-width: 50px;
     }
   }
 }
