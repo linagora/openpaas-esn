@@ -61,7 +61,9 @@ describe('The mini-calendar controller', function() {
 
     fcMethodMock = {
       select: angular.noop,
-      gotoDate: angular.noop
+      gotoDate: angular.noop,
+      prev: sinon.spy(),
+      next: sinon.spy()
     };
 
     calendar = {
@@ -126,6 +128,22 @@ describe('The mini-calendar controller', function() {
     $scope.miniCalendarConfig.viewRender();
     angular.element($window).resize();
     expect(fcMethodMock.render).to.have.been.calledOnce;
+  });
+
+  it('should call fullCalendar next on swipeRight', function() {
+    initController();
+    $scope.miniCalendarConfig.viewRender();
+    $scope.swipeRight();
+    $scope.$digest();
+    expect(fcMethodMock.prev).to.have.been.calledOnce;
+  });
+
+  it('should call fullCalendar next on swipeLeft', function() {
+    initController();
+    $scope.miniCalendarConfig.viewRender();
+    $scope.swipeLeft();
+    $scope.$digest();
+    expect(fcMethodMock.next).to.have.been.calledOnce;
   });
 
   describe('The selection of period in the mini calendar', function() {
