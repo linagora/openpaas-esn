@@ -14,5 +14,4 @@ angular.module('linagora.esn.unifiedinbox')
     templates: 'mdi mdi-email'
   })
   .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
-  .constant('EMAIL_IS_UNREAD', 'isUnread')
   .constant('MAILBOX_LEVEL_SEPARATOR', ' / ');

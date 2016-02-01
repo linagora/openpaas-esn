@@ -14,25 +14,29 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
-        client.getMessageList({
-          filter: {
-            inMailboxes: [$scope.mailbox.id]
-          },
-          collapseThreads: true,
-          fetchMessages: false,
-          position: 0,
-          limit: 100
-        }).then(function(messageList) {
-          return messageList.getMessages({
-            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
+        client
+          .getMessageList({
+            filter: {
+              inMailboxes: [$scope.mailbox.id]
+            },
+            collapseThreads: true,
+            fetchMessages: false,
+            position: 0,
+            limit: 100
+          })
+          .then(function(messageList) {
+            return messageList.getMessages({
+              properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
+            });
+          })
+          .then(function(messages) { return messages.map(Email); })
+          .then(function(emails) {
+            $scope.groupedEmails = new ElementGroupingTool($scope.mailbox.id, emails).getGroupedElements();
           });
-        }).then(function(messages) {
-          $scope.groupedEmails = new ElementGroupingTool($scope.mailbox.id, messages).getGroupedElements();
-        });
       });
     }
 
@@ -46,7 +50,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (isDraftMailbox()) {
         newComposerService.openDraft(email);
       } else {
-        $state.go('unifiedinbox.email', {
+        $state.go('unifiedinbox.messages.message', {
           mailbox: $scope.mailbox.id,
           emailId: email.id
         });
@@ -65,10 +69,10 @@ angular.module('linagora.esn.unifiedinbox')
       .then(searchForMessages);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, ElementGroupingTool, headerService, mailboxesService) {
+  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService) {
 
     this.openThread = function(thread) {
-      $state.go('unifiedinbox.thread', {
+      $state.go('unifiedinbox.threads.thread', {
         mailbox: $scope.mailbox.id,
         threadId: thread.id
       });
@@ -76,7 +80,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     function _assignEmailAndDate(dst) {
       return function(email) {
-        _.assign(_.find(dst, {id: email.threadId}), {email: email, date: email.date});
+        _.assign(_.find(dst, {id: email.threadId}), {email: Email(email), date: email.date});
       };
     }
 
@@ -170,7 +174,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, Email, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
@@ -181,17 +185,14 @@ angular.module('linagora.esn.unifiedinbox')
       client.getMessages({
         ids: [$scope.emailId]
       }).then(function(messages) {
-        $scope.email = messages[0]; // We expect a single message here
+        $scope.email = Email(messages[0]); // We expect a single message here
 
         inboxEmailService.markAsRead($scope.email);
       });
     });
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, inboxEmailService, _) {
-
-    var self = this;
-    self.mailboxId = $stateParams.mailbox;
+  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _) {
 
     headerService.subHeader.setInjection('view-thread-subheader', $scope);
 
@@ -199,21 +200,27 @@ angular.module('linagora.esn.unifiedinbox')
       client
         .getThreads({ids: [$stateParams.threadId], fetchMessages: false})
         .then(function(threads) {
-          return threads[0].getMessages();
+          $scope.thread = threads[0];
+
+          return $scope.thread.getMessages();
         })
-        .then(function(messages) {
-          self.thread = {
-            emails: messages,
-            subject: messages[0].subject
-          };
+        .then(function(messages) { return messages.map(Email); })
+        .then(function(emails) {
+          $scope.thread = new Thread($scope.thread, emails);
         });
     });
 
-    ['reply', 'replyAll', 'forward'].forEach(function(action) {
-      self[action] = function() {
-        inboxEmailService[action](_.last(self.thread.emails));
+    ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+      this[action] = function() {
+        inboxThreadService[action]($scope.thread);
       };
-    });
+    }.bind(this));
+
+    ['reply', 'replyAll', 'forward'].forEach(function(action) {
+      this[action] = function() {
+        inboxEmailService[action](_.last($scope.thread.emails));
+      };
+    }.bind(this));
   })
 
   .controller('configurationController', function($scope, headerService, mailboxesService) {
