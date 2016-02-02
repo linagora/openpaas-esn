@@ -28,10 +28,10 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.on('click', function(event) {
-          if (_.contains(attrs.ngHref, 'mailto:')) {
+          if (_.contains(attrs.ngHref, 'mailto:') || attrs.opInboxCompose) {
             event.preventDefault();
             event.stopPropagation();
-            var email = attrs.ngHref.replace(/^mailto:/, '');
+            var email = attrs.opInboxCompose ? attrs.opInboxCompose : attrs.ngHref.replace(/^mailto:/, '');
             newComposerService.openEmailCustomTitle('Sending email to: ',
               {
                 to:[{

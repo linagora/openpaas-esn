@@ -131,6 +131,21 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       );
     });
 
+    it('should call the openEmailCustomTitle fn when put email in opInboxCompose attribut', function() {
+      emailElement = compileDirective('<a op-inbox-compose="SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+        {
+          to:[{
+            email: 'SOMEONE',
+            name: 'SOMETHING'
+          }]
+        }
+      );
+    });
+
     it('should call the preventDefault and stopPropagation fn when clicked on mailto link', function() {
       emailElement = compileDirective('<a op-inbox-compose ng-href="mailto:SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
       var event = {
@@ -144,8 +159,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(event.stopPropagation).to.have.been.called;
     });
 
-    it('should not call the openEmailCustomTitle fn when the link is not mailto', function() {
-      emailElement = compileDirective('<a ng-href="tel:SOMEONE" op-inbox-compose />');
+    it('should not call the openEmailCustomTitle fn when the link does not contain mailto', function() {
+      emailElement = compileDirective('<a ng-href="tel:SOMEONE"/>');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+
+      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+    });
+
+    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribut is undefined', function() {
+      emailElement = compileDirective('<a op-inbox-compose />');
       newComposerService.openEmailCustomTitle = sinon.spy();
 
       emailElement.click();
