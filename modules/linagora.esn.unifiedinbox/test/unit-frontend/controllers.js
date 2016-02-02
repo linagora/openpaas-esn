@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      jmapEmailService, mailboxesService, inboxEmailService;
+      mailboxesService, inboxEmailService;
 
   beforeEach(function() {
     $stateParams = {
@@ -49,13 +49,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
-      $provide.value('jmapEmailService', jmapEmailService = {
-        setFlag: sinon.spy(function() {
-          return $q.when({
-            mailboxIds: [1]
-          });
-        })
-      });
     });
   });
 
@@ -162,7 +155,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The listEmailsController', function() {
 
+    var jmapMessage;
+
     beforeEach(function() {
+      jmapMessage = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
+        isFlagged: false
+      });
+      jmapMessage.setIsFlagged = sinon.stub().returns($q.when());
+
       jmapClient.getMailboxes = function() {
         return $q.when([{role: jmap.MailboxRole.UNKNOWN, name: 'a name', id: 'chosenMailbox'}]);
       };
@@ -315,15 +315,31 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         initController('listEmailsController').setIsFlagged(event);
       });
 
-      it('should call jmapEmailService.setFlag, passing the email and state arguments', function() {
+      it('should mark the email as flagged when setIsFlagged is called with true', function() {
         var event = {
           stopImmediatePropagation: angular.noop,
           preventDefault: angular.noop
         };
 
-        initController('listEmailsController').setIsFlagged(event, {}, true);
+        initController('listEmailsController').setIsFlagged(event, jmapMessage, true);
+        scope.$digest();
 
-        expect(jmapEmailService.setFlag).to.have.been.calledWith({}, 'isFlagged', true);
+        expect(jmapMessage.setIsFlagged).to.have.been.calledWith(true);
+        expect(jmapMessage.isFlagged).to.equal(true);
+      });
+
+      it('should mark the email as not flagged when setIsFlagged is called with false', function() {
+        var event = {
+          stopImmediatePropagation: angular.noop,
+          preventDefault: angular.noop
+        };
+        jmapMessage.isFlagged = true;
+
+        initController('listEmailsController').setIsFlagged(event, jmapMessage, false);
+        scope.$digest();
+
+        expect(jmapMessage.setIsFlagged).to.have.been.calledWith(false);
+        expect(jmapMessage.isFlagged).to.equal(false);
       });
 
     });
@@ -332,8 +348,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The viewEmailController', function() {
 
+    var jmapMessage;
+
     beforeEach(function() {
-      jmapClient.getMessages = function() { return $q.reject(); };
+      jmapMessage = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
+        isUnread: false
+      });
+      jmapMessage.setIsUnread = sinon.stub().returns($q.when());
+
+      jmapClient.getMessages = function() { return $q.when([jmapMessage]); };
     });
 
     it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
@@ -371,14 +394,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.$digest();
     });
 
-    it('should mark an unread email using jmapEmailService.setFlag', function() {
-      jmapClient.getMessages = function() {
-        return $q.when([{ isUnread: true }]);
-      };
+    it('should mark the email as read once it\'s loaded', function() {
+      jmapMessage.isUnread = true;
 
       initController('viewEmailController');
 
-      expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
+      expect(jmapMessage.setIsUnread).to.have.been.calledWith(false);
+      expect(jmapMessage.isUnread).to.equal(false);
     });
 
     it('should display the view-email-subheader mobile header', function() {
@@ -393,13 +415,28 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The viewThreadController', function() {
 
+    var threadId = 'thread1',
+        threadMessages;
+
     beforeEach(function() {
-      jmapClient.getThreads = function() {
-        return $q.when([{
-          getMessages: function() {
-            return [{ subject: 'thread subject' }, { id: 'email2' }];
-          }
+      var jmapThread = new jmap.Thread(jmapClient, threadId);
+      jmapThread.setIsUnread = sinon.stub().returns($q.when());
+      jmapThread.getMessages = function() {
+        return $q.when(threadMessages = [{
+          id: 'email1',
+          mailboxIds: [threadId],
+          subject: 'email subject 1',
+          isUnread: false
+        }, {
+          id: 'email2',
+          mailboxIds: [threadId],
+          subject: 'email subject 2',
+          isUnread: true
         }]);
+      };
+
+      jmapClient.getThreads = function() {
+        return $q.when([jmapThread]);
       };
     });
 
@@ -470,7 +507,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewThreadController').reply();
 
-      expect(inboxEmailService.reply).to.have.been.calledWith({id: 'email2'});
+      expect(inboxEmailService.reply).to.have.been.calledWith(threadMessages[1]);
     });
 
     it('should expose a "reply" fn bound to the last email', function() {
@@ -478,7 +515,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewThreadController').replyAll();
 
-      expect(inboxEmailService.replyAll).to.have.been.calledWith({id: 'email2'});
+      expect(inboxEmailService.replyAll).to.have.been.calledWith(threadMessages[1]);
     });
 
     it('should expose a "forward" fn bound to the last email', function() {
@@ -486,8 +523,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewThreadController').forward();
 
-      expect(inboxEmailService.forward).to.have.been.calledWith({id: 'email2'});
+      expect(inboxEmailService.forward).to.have.been.calledWith(threadMessages[1]);
     });
+
+    it('should mark the thread as read once it\'s loaded', function() {
+      initController('viewThreadController');
+
+      expect(scope.thread.setIsUnread).to.have.been.calledWith(false);
+      expect(scope.thread.emails).to.deep.equal([{
+        id: 'email1',
+        mailboxIds: [threadId],
+        subject: 'email subject 1',
+        isUnread: false
+      }, {
+        id: 'email2',
+        mailboxIds: [threadId],
+        subject: 'email subject 2',
+        isUnread: false
+      }]);
+    });
+
   });
 
   describe('The listThreadsController', function() {
