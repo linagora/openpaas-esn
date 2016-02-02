@@ -96,27 +96,27 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function($rootScope, toggleContactDisplayService, toggleEventService) {
+  .directive('contactListDisplayer', function($rootScope, ContactListToggleDisplayService, ContactListToggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-displayer.html',
       link: function($scope) {
 
-        $scope.displayAs = toggleContactDisplayService.getCurrentDisplay();
+        $scope.displayAs = ContactListToggleDisplayService.getCurrentDisplay();
 
-        toggleEventService.listen($scope, function(evt, value) {
+        ContactListToggleEventService.listen($scope, function(evt, value) {
           $scope.displayAs = value;
         });
 
         $scope.$on('$locationChangeStart', function() {
-          toggleContactDisplayService.setCurrentDisplay($scope.displayAs);
+          ContactListToggleDisplayService.setCurrentDisplay($scope.displayAs);
         });
 
       }
     };
   })
 
-  .directive('contactListItems', function(addScrollingBehavior, CONTACT_EVENTS, $timeout) {
+  .directive('contactListItems', function(ContactListScrollingService, CONTACT_EVENTS, $timeout) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-items.html',
@@ -124,17 +124,17 @@ angular.module('linagora.esn.contact')
         scope.headerDisplay = {
           letterExists: false
         };
-        var scrollingBehavior = addScrollingBehavior(element);
+        var listScroller = ContactListScrollingService(element);
 
         function updateLetter() {
           //We need to wait the contact list updated
-          $timeout(scrollingBehavior.onScroll, 500);
+          $timeout(listScroller.onScroll, 500);
         }
 
         for (var event in CONTACT_EVENTS) {
           scope.$on(CONTACT_EVENTS[event], updateLetter);
         }
-        scope.$on('$destroy', scrollingBehavior.unregister);
+        scope.$on('$destroy', listScroller.unregister);
       }
     };
   })
@@ -193,7 +193,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope, toggleContactDisplayService, toggleEventService) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope, ContactListToggleDisplayService, ContactListToggleEventService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
@@ -203,13 +203,13 @@ angular.module('linagora.esn.contact')
           return value === CONTACT_LIST_DISPLAY.cards;
         }
 
-        scope.toggleContactDisplay = isToggleOn(toggleContactDisplayService.getCurrentDisplay());
+        scope.toggleContactDisplay = isToggleOn(ContactListToggleDisplayService.getCurrentDisplay());
 
         scope.updateDisplay = function(toggleOn) {
-          toggleContactDisplayService.setCurrentDisplay(toggleOn ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list);
+          ContactListToggleDisplayService.setCurrentDisplay(toggleOn ? CONTACT_LIST_DISPLAY.cards : CONTACT_LIST_DISPLAY.list);
         };
 
-        toggleEventService.listen(scope, function(evt, value) {
+        ContactListToggleEventService.listen(scope, function(evt, value) {
           var toggleValue = isToggleOn(value);
           if (toggleValue === scope.toggleContactDisplay) {
             return;
