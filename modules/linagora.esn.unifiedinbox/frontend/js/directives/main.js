@@ -28,10 +28,10 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.on('click', function(event) {
-          if (_.contains(attrs.ngHref, 'mailto:')) {
+          if (_.contains(attrs.ngHref, 'mailto:') || attrs.opInboxCompose) {
             event.preventDefault();
             event.stopPropagation();
-            var email = attrs.ngHref.replace(/^mailto:/, '');
+            var email = attrs.opInboxCompose ? attrs.opInboxCompose : attrs.ngHref.replace(/^mailto:/, '');
             newComposerService.openEmailCustomTitle('Sending email to: ',
               {
                 to:[{
@@ -167,7 +167,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($state, $timeout, elementScrollService, emailBodyService, autosize) {
+  .directive('composer', function($state, $timeout, $window, elementScrollService, emailBodyService, autosize) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -176,8 +176,8 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.isBoxed = function() {return false;};
 
-        function returnToMainLocation() {
-          $state.go('unifiedinbox');
+        function backToLastLocation() {
+          $window.history.back();
         }
 
         function quit(action) {
@@ -195,10 +195,10 @@ angular.module('linagora.esn.unifiedinbox')
 
         var disableOnBackAutoSave = scope.$on('$stateChangeSuccess', quitAsSaveDraft);
 
-        scope.hide = quit.bind(null, returnToMainLocation);
+        scope.hide = quit.bind(null, backToLastLocation);
         scope.close = function() {
           quitAsSaveDraft();
-          returnToMainLocation();
+          backToLastLocation();
         };
 
         scope.disableSendButton = controller.hideMobileHeader;

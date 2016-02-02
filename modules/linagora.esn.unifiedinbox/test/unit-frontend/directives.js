@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
+  var $compile, $rootScope, $scope, $q, $timeout, $window, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
       isMobile, searchService, autosize;
 
@@ -54,12 +54,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('autosize', autosize = sinon.spy());
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_, _$window_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
+    $window = _$window_;
   }));
 
   beforeEach(function() {
@@ -131,6 +132,21 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       );
     });
 
+    it('should call the openEmailCustomTitle fn when put email in opInboxCompose attribut', function() {
+      emailElement = compileDirective('<a op-inbox-compose="SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+        {
+          to:[{
+            email: 'SOMEONE',
+            name: 'SOMETHING'
+          }]
+        }
+      );
+    });
+
     it('should call the preventDefault and stopPropagation fn when clicked on mailto link', function() {
       emailElement = compileDirective('<a op-inbox-compose ng-href="mailto:SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
       var event = {
@@ -144,8 +160,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(event.stopPropagation).to.have.been.called;
     });
 
-    it('should not call the openEmailCustomTitle fn when the link is not mailto', function() {
-      emailElement = compileDirective('<a ng-href="tel:SOMEONE" op-inbox-compose />');
+    it('should not call the openEmailCustomTitle fn when the link does not contain mailto', function() {
+      emailElement = compileDirective('<a ng-href="tel:SOMEONE"/>');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+
+      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+    });
+
+    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribut is undefined', function() {
+      emailElement = compileDirective('<a op-inbox-compose />');
       newComposerService.openEmailCustomTitle = sinon.spy();
 
       emailElement.click();
@@ -213,12 +238,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl;
+      var directive, ctrl, windowHistory;
 
       beforeEach(function() {
         directive = compileDirective('<composer />');
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
+        windowHistory = $window.history;
+      });
+
+      afterEach(function() {
+        $window.history = windowHistory;
       });
 
       it('should save draft when location has successfully changed', function() {
@@ -240,11 +270,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
-      it('should change state when the composer is closed', function() {
-        $state.go = sinon.spy();
+      it('should back to previous location when the composer is closed', function() {
+        $window.history.back = sinon.spy();
         $scope.close();
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect($window.history.back).to.have.been.calledOnce;
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -253,11 +282,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.not.been.called;
       });
 
-      it('should change location when the composer is hidden', function() {
-        $state.go = sinon.spy();
+      it('should back to previous location when the composer is hidden', function() {
+        $window.history.back = sinon.spy();
         $scope.hide();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect($window.history.back).to.have.been.calledOnce;
       });
 
     });
