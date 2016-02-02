@@ -20,7 +20,7 @@ angular.module('esn.calendar')
           $state.go('calendar.eventConsult');
         }
       } else {
-        $modal({scope: scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static', placement: 'center'});
+        $modal({scope: scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-view', backdrop: 'static', placement: 'center'});
       }
     };
   });

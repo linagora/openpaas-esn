@@ -13,6 +13,7 @@ angular.module('esn.calendar', [
   'materialAdmin',
   'AngularJstz',
   'angularMoment',
+  'matchMedia',
   'esn.core',
   'esn.header',
   'esn.authentication',

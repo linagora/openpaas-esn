@@ -553,6 +553,11 @@ angular.module('esn.calendar')
       return $q.when(editedEvent);
     }
 
+    function resetStoredEvents() {
+      originalEvent = {};
+      editedEvent = {};
+    }
+
     return {
       originalEvent: originalEvent,
       editedEvent: editedEvent,
@@ -562,7 +567,8 @@ angular.module('esn.calendar')
       isOrganizer: isOrganizer,
       isMajorModification: isMajorModification,
       getEditedEvent: getEditedEvent,
-      setEditedEvent: setEditedEvent
+      setEditedEvent: setEditedEvent,
+      resetStoredEvents: resetStoredEvents
     };
 
   })
