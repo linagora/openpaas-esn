@@ -59,17 +59,15 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     };
   })
 
-  .directive('condAttr', function() {
+  .directive('autoSizeDynamic', function(autosize) {
     return {
       restrict: 'A',
       scope: {
-        condAttr: '&',
-        condAttrName: '@',
-        condAttrValue: '@'
+        autoSizeDynamic: '&'
       },
       link: function(scope, element) {
-        if (scope.condAttr()) {
-          element.attr(scope.condAttrName, scope.condAttrValue || true);
+        if (scope.autoSizeDynamic()) {
+          autosize(element);
         }
       }
     };

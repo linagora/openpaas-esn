@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -122,40 +123,40 @@ describe('The UI module', function() {
     });
   });
 
-  describe('The condAttr directive', function() {
+  describe('the autoSizeDynamic dirctive', function() {
+    var autosizeSpy;
 
-    it('should do nothing when condAttr returns false', function() {
-      $scope.cond = function() {return false;};
+    beforeEach(module(function($provide) {
+      autosizeSpy = sinon.spy();
+      $provide.value('autosize', autosizeSpy);
+    }));
 
-      initDirective('<div cond-attr="cond()" cond-attr-name="custom"></div>');
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
 
-      expect(element.attr('custom')).to.not.exist;
+    it('should not call the autosize service if the condition is false', function() {
+      $scope.condition = function() {return false;};
+
+      initDirective('<div auto-size-dynamic="condition()"></div>');
+
+      expect(autosizeSpy).to.have.not.been.called;
     });
 
-    it('should add given attribute with "true" as value when condAttrValue is undefined', function() {
-      $scope.cond = function() {return true;};
+    it('should not call the autosize service if no condition is given', function() {
+      initDirective('<div auto-size-dynamic></div>');
 
-      initDirective('<div cond-attr="cond()" cond-attr-name="custom"></div>');
-
-      expect(element.attr('custom')).to.equal('true');
+      expect(autosizeSpy).to.have.not.been.called;
     });
 
-    it('should add given attribute with given value', function() {
-      $scope.cond = function() {return true;};
+    it('should call the autosize service if the condition is true', function() {
+      $scope.condition = function() {return true;};
 
-      initDirective('<div cond-attr="cond()" cond-attr-name="custom" cond-attr-value="yo lo"></div>');
+      initDirective('<div auto-size-dynamic="condition()"></div>');
 
-      expect(element.attr('custom')).to.equal('yo lo');
+      expect(autosizeSpy).to.have.been.called;
     });
-
-    it('should add given attribute with "false" as value when condAttrValue is "false"', function() {
-      $scope.cond = function() {return true;};
-
-      initDirective('<div cond-attr="cond()" cond-attr-name="custom" cond-attr-value="false"></div>');
-
-      expect(element.attr('custom')).to.equal('false');
-    });
-
   });
-
 });

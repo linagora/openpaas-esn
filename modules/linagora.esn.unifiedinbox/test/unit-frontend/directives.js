@@ -51,7 +51,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
-    $provide.value('autosize', autosize = { update: sinon.spy() });
+    $provide.value('autosize', autosize = sinon.spy());
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
@@ -339,6 +339,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       beforeEach(inject(function($templateCache) {
         isMobile = true;
+        autosize.update = sinon.spy();
 
         $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '{{ email.textBody }} Quote {{ email.quoted.textBody }}');
       }));
