@@ -72,20 +72,28 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Thread({ id: 'threadId' }, null).subject).to.equal('');
     });
 
-    it('should have isUnread=false if at least one email is read', function() {
-      expect(new Thread({}, [{ isUnread: true }, { isUnread: false }]).isUnread).to.equal(false);
+    it('should have isUnread=true if at least one email is unread', function() {
+      expect(new Thread({}, [{ isUnread: true }, { isUnread: false }]).isUnread).to.equal(true);
     });
 
     it('should have isUnread=true if all emails are unread', function() {
       expect(new Thread({}, [{ isUnread: true }, { isUnread: true }]).isUnread).to.equal(true);
     });
 
-    it('should have isFlagged=false if at least one email is not flagged', function() {
-      expect(new Thread({}, [{ isFlagged: true }, { isFlagged: false }]).isFlagged).to.equal(false);
+    it('should have isUnread=false if all emails are read', function() {
+      expect(new Thread({}, [{ isUnread: false }, { isUnread: false }]).isUnread).to.equal(false);
     });
 
-    it('should have isFlagged=true if all emails are lagged', function() {
+    it('should have isFlagged=true if at least one email is flagged', function() {
+      expect(new Thread({}, [{ isFlagged: true }, { isFlagged: false }]).isFlagged).to.equal(true);
+    });
+
+    it('should have isFlagged=true if all emails are flagged', function() {
       expect(new Thread({}, [{ isFlagged: true }, { isFlagged: true }]).isFlagged).to.equal(true);
+    });
+
+    it('should have isFlagged=false if all emails are not flagged', function() {
+      expect(new Thread({}, [{ isFlagged: false }, { isFlagged: false }]).isFlagged).to.equal(false);
     });
 
   });
