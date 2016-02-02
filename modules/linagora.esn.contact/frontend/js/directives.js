@@ -25,7 +25,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-display.html',
       link: function($scope) {
 
-        $scope.displayShell  = ContactShellDisplayBuilder.build($scope.contact);
+        $scope.displayShell = ContactShellDisplayBuilder.build($scope.contact);
         $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
         ContactsHelper.fillScopeContactData($scope, $scope.contact);
 
@@ -44,6 +44,9 @@ angular.module('linagora.esn.contact')
                     $scope.formattedBirthday);
         };
 
+        $scope.shouldDisplayWork = function() {
+          return !!($scope.contact.orgName || $scope.contact.orgRole);
+        };
       }
     };
   })
