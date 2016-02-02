@@ -207,6 +207,7 @@ angular.module('linagora.esn.unifiedinbox')
         .then(function(messages) { return messages.map(Email); })
         .then(function(emails) {
           $scope.thread = new Thread($scope.thread, emails);
+          inboxThreadService.markAsRead($scope.thread);
         });
     });
 

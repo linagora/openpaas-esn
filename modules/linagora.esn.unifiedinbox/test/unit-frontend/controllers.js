@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      jmapEmailService, mailboxesService, inboxEmailService;
+      jmapEmailService, jmapThreadService, mailboxesService, inboxEmailService;
 
   beforeEach(function() {
     $stateParams = {
@@ -55,6 +55,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             mailboxIds: [1]
           });
         })
+      });
+      $provide.value('jmapThreadService', jmapThreadService = {
+        setFlag: sinon.spy()
       });
     });
   });
@@ -488,6 +491,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(inboxEmailService.forward).to.have.been.calledWith({id: 'email2'});
     });
+
+    it('should mark a thread as read using jmapThreadService.setFlag', function() {
+      initController('viewThreadController');
+
+      expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
+    });
+
   });
 
   describe('The listThreadsController', function() {
