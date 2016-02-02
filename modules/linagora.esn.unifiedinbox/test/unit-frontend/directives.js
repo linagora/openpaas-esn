@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $q, $timeout, element, jmapClient,
+  var $compile, $rootScope, $scope, $q, $timeout, $window, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
       isMobile, searchService, autosize;
 
@@ -54,12 +54,13 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('autosize', autosize = sinon.spy());
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_, _$window_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
+    $window = _$window_;
   }));
 
   beforeEach(function() {
@@ -237,12 +238,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl;
+      var directive, ctrl, windowHistory;
 
       beforeEach(function() {
         directive = compileDirective('<composer />');
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
+        windowHistory = $window.history;
+      });
+
+      afterEach(function() {
+        $window.history = windowHistory;
       });
 
       it('should save draft when location has successfully changed', function() {
@@ -264,11 +270,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
-      it('should change state when the composer is closed', function() {
-        $state.go = sinon.spy();
+      it('should back to previous location when the composer is closed', function() {
+        $window.history.back = sinon.spy();
         $scope.close();
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect($window.history.back).to.have.been.calledOnce;
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -277,11 +282,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.not.been.called;
       });
 
-      it('should change location when the composer is hidden', function() {
-        $state.go = sinon.spy();
+      it('should back to previous location when the composer is hidden', function() {
+        $window.history.back = sinon.spy();
         $scope.hide();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect($window.history.back).to.have.been.calledOnce;
       });
 
     });
