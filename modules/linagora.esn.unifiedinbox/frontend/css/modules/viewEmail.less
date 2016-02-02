@@ -1,5 +1,33 @@
 .email-view {
 
+  .card {
+    &.iscollapsed {
+      .from span.line-header {
+        display: none;
+      }
+      .to, .cc{
+        display: none;
+      }
+      .email-header-right {
+        .actions {
+          display: none;
+        }
+        .flex-space-between.horiz-space email-star {
+          display: none;
+        }
+      }
+      .email-body, .lv-footer {
+        display: none;
+      }
+    }
+
+    &:not(.iscollapsed) {
+      .avatarify .preview.ellipsis.line-header {
+        display: none;
+      }
+    }
+  }
+
   .subject {
     color: @text-color;
   }
@@ -14,6 +42,11 @@
 
     .avatarify {
       height: 100%;
+      width: 75%;
+
+      .preview {
+        min-height: 20px;
+      }
     }
 
     .line-header {

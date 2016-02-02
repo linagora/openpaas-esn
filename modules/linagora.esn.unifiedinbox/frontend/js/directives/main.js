@@ -326,6 +326,10 @@ angular.module('linagora.esn.unifiedinbox')
         this.setIsFlagged = function(event, email, state) {
           jmapEmailService.setFlag(email, 'isFlagged', state);
         };
+
+        this.isHidden = function() {
+          return true;
+        };
       },
       controllerAs: 'ctrl',
       scope: {

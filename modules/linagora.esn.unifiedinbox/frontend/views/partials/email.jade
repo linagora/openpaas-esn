@@ -1,4 +1,4 @@
-.card
+.card(ng-class='{"iscollapsed": ctrl.isHidden()}')
 
   .email-header
 
@@ -12,6 +12,7 @@
       .cc
         span.line-header #{__('CC')}:
         emailer-group(group="::email.cc")
+      .preview.ellipsis.line-header {{::email.preview}}
 
     .email-header-right
       ul.actions
