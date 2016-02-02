@@ -3,7 +3,7 @@
 var chai = require('chai');
 var expect = chai.expect;
 
-describe('The contact importers module', function() {
+describe('The contact import registry module', function() {
 
   var deps = {
     logger: {
@@ -18,7 +18,7 @@ describe('The contact importers module', function() {
   };
 
   var getModule = function() {
-    return require('../../../backend/lib/importers')(dependencies);
+    return require('../../../backend/lib/registry')(dependencies);
   };
 
   describe('The add function', function() {

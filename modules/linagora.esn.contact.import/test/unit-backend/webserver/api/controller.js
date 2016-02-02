@@ -37,10 +37,12 @@ describe('The contact import controller', function() {
 
     it('should call importAccountContactsByJobQueue with the right parameters', function(done) {
       var lib = {
-        importAccountContactsByJobQueue: function(user, account) {
-          expect(user).to.equal(req.user);
-          expect(account).to.deep.equal(req.account);
-          done();
+        import: {
+          importAccountContactsByJobQueue: function(user, account) {
+            expect(user).to.equal(req.user);
+            expect(account).to.deep.equal(req.account);
+            done();
+          }
         }
       };
 
@@ -55,7 +57,9 @@ describe('The contact import controller', function() {
 
     it('should send back HTTP 202 immediately', function(done) {
       var lib = {
-        importAccountContactsByJobQueue: function() {}
+        import: {
+          importAccountContactsByJobQueue: function() {}
+        }
       };
 
       getController(lib).importContacts(req, {

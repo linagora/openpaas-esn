@@ -1,8 +1,9 @@
 'use strict';
 
+var importers = {};
+
 module.exports = function(dependencies) {
 
-  var importers = {};
   var logger = dependencies('logger');
 
   function add(importer) {

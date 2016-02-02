@@ -3,5 +3,10 @@
     "active": false,
     "expression": "00 00 03 * * 1-5",
     "description": "Daily Digest fires every weekday at 3:00 AM"
+  },
+  "contactsync": {
+    "active": false,
+    "expression": "00 00 00 * * *",
+    "description": "Contact Synchronization fires every day at 0:00 AM"
   }
 }

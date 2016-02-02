@@ -25,18 +25,24 @@ module.exports = function(dependencies) {
     return defer.promise;
   }
 
-  function startJob(name, data) {
-    var defer = q.defer();
-    var worker = workers.get(name);
-    if (!worker) {
-      return q.reject(new Error('Can not find worker for this job: ' + name));
+  function submitJob(workerName, jobName, data) {
+    if (!jobName) {
+      return q.reject(new Error('Cannot submit a job without jobName'));
     }
-
-    createJobByName(name).then(function() {
-      jobs.process(name, function(job, done) {
+    var worker = workers.get(workerName);
+    if (!worker) {
+      return q.reject(new Error('Can not find worker for this job: ' + workerName));
+    }
+    var defer = q.defer();
+    createJobByName(jobName).then(function() {
+      jobs.process(jobName, function(job, done) {
         worker.getWorkerFunction()(data).then(function() {
           done();
           defer.resolve(job);
+        }, function(err) {
+          logger.error('Error while running job', err);
+          done(new Error('Error while running job'));
+          defer.reject(err);
         });
       }, defer.reject);
     }, defer.reject);
@@ -59,7 +65,7 @@ module.exports = function(dependencies) {
   return {
     kue: kue,
     workers: workers,
-    startJob: startJob,
+    submitJob: submitJob,
     getJobById: getJobById
   };
 };
