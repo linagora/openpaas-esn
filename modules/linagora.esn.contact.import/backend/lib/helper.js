@@ -36,7 +36,8 @@ module.exports = function(dependencies) {
       id: id,
       'dav:name': account.data.username + ' contacts on ' + account.data.provider,
       'carddav:description': 'AddressBook for ' + account.data.username + ' ' + account.data.provider + ' contacts',
-      'dav:acl': ['dav:read']
+      'dav:acl': ['dav:read'],
+      type: account.data.provider
     };
 
     logger.debug('Creating import addressbook', addressbook);

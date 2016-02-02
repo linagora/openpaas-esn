@@ -178,6 +178,50 @@ describe('The contact import helper module', function() {
         done();
       }, done);
     });
+
+    it('should create AB with correct params', function(done) {
+      var token = {
+        token: 'MyToken'
+      };
+      var options = {
+        account: account,
+        user: user
+      };
+      deps.user = {
+        getNewToken: function(user, ttl, callback) {
+          return callback(null, token);
+        }
+      };
+      var addressbookTest = {
+        id: options.account.data.id,
+        'dav:name': account.data.username + ' contacts on ' + account.data.provider,
+        'carddav:description': 'AddressBook for ' + account.data.username + ' ' + account.data.provider + ' contacts',
+        'dav:acl': ['dav:read'],
+        type: account.data.provider
+      };
+
+      deps.contact = {
+        lib: {
+          client: function() {
+            return {
+              addressbookHome: function() {
+                return {
+                  addressbook: function() {
+                    return {
+                      create: function(addressbook) {
+                        expect(addressbook).to.deep.equal(addressbookTest);
+                        done();
+                      }
+                    };
+                  }
+                };
+              }
+            };
+          }
+        }
+      };
+      getFunction(options);
+    });
   });
 
   describe('The getImporterOptions function', function() {

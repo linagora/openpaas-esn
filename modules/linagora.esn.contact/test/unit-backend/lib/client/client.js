@@ -184,7 +184,8 @@ describe('The contact client APIs', function() {
         var PROPERTIES = {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
-          '{DAV:}acl': 'dav:acl'
+          '{DAV:}acl': 'dav:acl',
+          '{http://open-paas.org/contacts}type': 'type'
         };
 
         it('should call davClient with right parameters', function(done) {
@@ -210,11 +211,13 @@ describe('The contact client APIs', function() {
           var name = 'addressbook display name';
           var description = 'addressbook description';
           var acl = ['dav:read'];
+          var type = 'twitter';
           var response = { statusCode: 200 };
           var body = {
             '{DAV:}displayname': name,
             '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
-            '{DAV:}acl': acl
+            '{DAV:}acl': acl,
+            '{http://open-paas.org/contacts}type': type
           };
 
           mockery.registerMock('../dav-client', {
@@ -233,7 +236,8 @@ describe('The contact client APIs', function() {
               },
               'dav:name': name,
               'carddav:description': description,
-              'dav:acl': acl
+              'dav:acl': acl,
+              type: type
             });
             done();
           });
