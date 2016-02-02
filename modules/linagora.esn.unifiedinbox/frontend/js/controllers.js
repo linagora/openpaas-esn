@@ -207,6 +207,15 @@ angular.module('linagora.esn.unifiedinbox')
         .then(function(messages) { return messages.map(Email); })
         .then(function(emails) {
           $scope.thread = new Thread($scope.thread, emails);
+        })
+        .then(function() {
+          var threadIsUnread = $scope.thread.isUnread;
+
+          $scope.thread.emails.forEach(function(email, index, emails) {
+            email.isCollapsed = !email.isUnread && (threadIsUnread || index < emails.length - 1);
+          });
+        })
+        .then(function() {
           inboxThreadService.markAsRead($scope.thread);
         });
     });

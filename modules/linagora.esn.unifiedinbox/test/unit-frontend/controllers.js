@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      mailboxesService, inboxEmailService;
+      mailboxesService, inboxEmailService, _;
 
   beforeEach(function() {
     $stateParams = {
@@ -53,7 +53,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
-                                          _Composition_, _mailboxesService_, _inboxEmailService_) {
+                                          _Composition_, _mailboxesService_, _inboxEmailService_, ___) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -61,6 +61,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
     inboxEmailService = _inboxEmailService_;
+    _ = ___;
 
     scope = $rootScope.$new();
   }));
@@ -415,25 +416,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The viewThreadController', function() {
 
-    var threadId = 'thread1',
+    var jmapThread,
+        threadId = 'thread1',
         threadMessages;
 
-    beforeEach(function() {
-      var jmapThread = new jmap.Thread(jmapClient, threadId);
-      jmapThread.setIsUnread = sinon.stub().returns($q.when());
+    function mockGetThreadAndMessages(messages) {
       jmapThread.getMessages = function() {
-        return $q.when(threadMessages = [{
-          id: 'email1',
-          mailboxIds: [threadId],
-          subject: 'email subject 1',
-          isUnread: false
-        }, {
-          id: 'email2',
-          mailboxIds: [threadId],
-          subject: 'email subject 2',
-          isUnread: true
-        }]);
+        return $q.when(threadMessages = messages);
       };
+    }
+
+    beforeEach(function() {
+      jmapThread = new jmap.Thread(jmapClient, threadId);
+      jmapThread.setIsUnread = sinon.stub().returns($q.when());
+      mockGetThreadAndMessages([{
+        id: 'email1',
+        mailboxIds: [threadId],
+        subject: 'email subject 1',
+        isUnread: false
+      }, {
+        id: 'email2',
+        mailboxIds: [threadId],
+        subject: 'email subject 2',
+        isUnread: true
+      }]);
 
       jmapClient.getThreads = function() {
         return $q.when([jmapThread]);
@@ -479,7 +485,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewThreadController');
 
-      expect(scope.thread.emails).to.deep.equal([
+      expect(scope.thread.emails).to.shallowDeepEqual([
         {id: 'email1', subject: 'thread subject'}
       ]);
     });
@@ -530,7 +536,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.setIsUnread).to.have.been.calledWith(false);
-      expect(scope.thread.emails).to.deep.equal([{
+      expect(scope.thread.emails).to.shallowDeepEqual([{
         id: 'email1',
         mailboxIds: [threadId],
         subject: 'email subject 1',
@@ -541,6 +547,42 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         subject: 'email subject 2',
         isUnread: false
       }]);
+    });
+
+	it('should set isCollapsed=true for all read emails, when there is at least one unread', function() {
+      mockGetThreadAndMessages([
+        {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1', isUnread: false },
+        {id: 'email2', mailboxIds: [threadId], subject: 'thread subject2', isUnread: true },
+        {id: 'email3', mailboxIds: [threadId], subject: 'thread subject3', isUnread: false }
+      ]);
+
+      initController('viewThreadController');
+
+      expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([true, false, true]);
+    });
+
+    it('should set isCollapsed=true for all read emails except the last one, when all emails are read', function() {
+      mockGetThreadAndMessages([
+        {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1', isUnread: false },
+        {id: 'email2', mailboxIds: [threadId], subject: 'thread subject2', isUnread: false },
+        {id: 'email3', mailboxIds: [threadId], subject: 'thread subject3', isUnread: false }
+      ]);
+
+      initController('viewThreadController');
+
+      expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([true, true, false]);
+    });
+
+    it('should set isCollapsed=false for all emails except, when all emails are unread', function() {
+      mockGetThreadAndMessages([
+        {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1', isUnread: true },
+        {id: 'email2', mailboxIds: [threadId], subject: 'thread subject2', isUnread: true },
+        {id: 'email3', mailboxIds: [threadId], subject: 'thread subject3', isUnread: true }
+      ]);
+
+      initController('viewThreadController');
+
+      expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([false, false, false]);
     });
 
   });
