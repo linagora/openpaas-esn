@@ -3,5 +3,6 @@ a
   i.mdi.i-contact-list(ng-class="displayShell.getOverlayIcon()")
 a.edit-hint(ng-if='editable')
   i.mdi.mdi-camera
-  span
-    | #{__('Update Profile Picture')}
+  span(data-ng-switch='contactState')
+    span(data-ng-switch-when='edit') #{__('Update profile picture')}
+    span(data-ng-switch-when='new') #{__('Add a profile picture')}
