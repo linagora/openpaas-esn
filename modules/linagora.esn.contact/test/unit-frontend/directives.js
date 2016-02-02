@@ -399,6 +399,29 @@ describe('The contact Angular module directives', function() {
         expect(scope.hasProfileInformation()).to.be.ok;
       });
     });
+
+    describe('The shouldDisplayWork fn', function() {
+
+      beforeEach(initDirective);
+
+      it('should return falsy value if there is no work information', function() {
+        var scope = element.isolateScope();
+        expect(scope.shouldDisplayWork()).to.not.be.ok;
+      });
+
+      it('should return truthy value if there are some work information', function() {
+        var scope = element.isolateScope();
+
+        scope.contact = { orgName: 'Linagora' };
+        expect(scope.shouldDisplayWork()).to.be.ok;
+
+        scope.contact = { orgRole: 'Dev' };
+        expect(scope.shouldDisplayWork()).to.be.ok;
+
+        scope.contact = { orgName: 'Linagora', orgRole: 'Dev' };
+        expect(scope.shouldDisplayWork()).to.be.ok;
+      });
+    });
   });
 
   describe('The contactEditionForm directive', function() {

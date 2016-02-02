@@ -16,11 +16,11 @@
           li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
   .pm-body.clearfix
     data(ui-view='')
-      .pmb-block(ng-if='contact.org || contact.orgRole')
+      .pmb-block(ng-if='shouldDisplayWork()')
         .pmbb-header
           h2 
             i.mdi.mdi-briefcase.m-r-5
-            | #{__('Job')}
+            | #{__('Work')}
         .pmbb-body.p-l-30
           .pmbb-view
             dl.dl-horizontal(ng-if='contact.orgName')
@@ -68,7 +68,7 @@
                 br
                 {{address.street}}
                 br 
-                {{address.zip}} {{address.town}}
+                {{address.zip}} {{address.city}}
                 br 
                 {{address.country}}
             dl.dl-horizontal(ng-repeat='social in contact.social track by $index')
