@@ -7,6 +7,7 @@ module.exports = function(dependencies) {
   var logger = dependencies('logger');
   var webserverWrapper = dependencies('webserver-wrapper');
   var jobQueue = dependencies('jobqueue');
+  var pubsub = dependencies('pubsub').global;
 
   var webserver = require('../webserver')(dependencies);
   var importers = require('./importers')(dependencies);
@@ -34,7 +35,18 @@ module.exports = function(dependencies) {
       .then(helper.initializeAddressBook)
       .then(function(options) {
         return importer.lib.importer.importContact(options)
-          .then(helper.cleanOutdatedContacts.bind(null, options, Date.now()));
+          .then(helper.cleanOutdatedContacts.bind(null, options, Date.now()))
+          .then(function(data) {
+            data.forEach(function(item) {
+              if (!item.error) {
+                pubsub.topic('contacts:contact:delete').publish({
+                  contactId: item.cardId,
+                  bookId: options.user._id,
+                  bookName: options.addressbook.id
+                });
+              }
+            });
+          });
       });
   }
 

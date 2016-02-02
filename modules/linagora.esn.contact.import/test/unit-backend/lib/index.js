@@ -26,12 +26,22 @@ describe('The contact import backend module', function() {
       }
     }
   };
+  var pubsubMock;
 
   var type = 'twitter';
   var id = 123;
   var domainId = 456;
 
   beforeEach(function() {
+    pubsubMock = {
+      global: {
+        topic: function() {
+          return {
+            publish: function() {}
+          };
+        }
+      }
+    };
     deps = {
       logger: {
         debug: function() {},
@@ -42,7 +52,8 @@ describe('The contact import backend module', function() {
       'webserver-wrapper': {
         injectAngularModules: function() {},
         addApp: function() {}
-      }
+      },
+      pubsub: pubsubMock
     };
 
     account =  {
@@ -436,6 +447,76 @@ describe('The contact import backend module', function() {
         }
       };
       getModule().synchronizeAccountContacts(user, account);
+    });
+
+    it('should pubsub contacts:contact:delete event for removed contacts', function(done) {
+      var options = {
+        account: account,
+        user: user
+      };
+      var addressbook = {
+        id: '1',
+        name: 'MyAB'
+      };
+
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q(options);
+          },
+          initializeAddressBook: function(options) {
+            options.addressbook = addressbook;
+            return q(options);
+          },
+          cleanOutdatedContacts: function() {
+            return q.resolve([{
+              cardId: '1',
+              data: 'data'
+            }, {
+              cardId: '2',
+              error: new Error('Cannot delete this contact')
+            }, {
+              cardId: '3',
+              data: 'data'
+            }]);
+          }
+        };
+      });
+      importersMock = {
+        get: function() {
+          return {
+            lib: {
+              importer: {
+                importContact: function() {
+                  return q.resolve();
+                }
+              }
+            }
+          };
+        }
+      };
+      var publishSpy = sinon.spy();
+      pubsubMock.global.topic = function(topic) {
+        expect(topic).to.equal('contacts:contact:delete');
+        return {
+          publish: publishSpy
+        };
+      };
+      getModule().synchronizeAccountContacts(user, account).then(function() {
+        expect(publishSpy.callCount).to.equal(2);
+        expect(publishSpy).to.have.been.calledWith({
+          contactId: '1',
+          bookId: user._id,
+          bookName: addressbook.id
+        });
+        expect(publishSpy).to.have.been.calledWith({
+          contactId: '3',
+          bookId: user._id,
+          bookName: addressbook.id
+        });
+        done();
+      });
+
     });
 
   });
