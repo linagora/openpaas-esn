@@ -94,8 +94,39 @@ module.exports = function(dependencies) {
     return defer.promise;
   }
 
+  /**
+   * Remove outdated contacts from addressbook. We use `lastmodified` field of
+   * vcard to detect followings removed from user Twitter account.
+   * Note:
+   * - Sabre use `lastmodified` timestamp in seconds
+   * - Padding 1 hour is a work around for time synchronization issue.
+   * @param  {Object} options           Contains:
+   *                                    	+ user
+   *                                    	+ addressbook
+   *                                    	+ esnToken
+   * @param  {Number} lastSyncTimestamp Timestamp in miliseconds
+   * @return {Promise}                   Resolve a list of removed contact IDs
+   */
+  function cleanOutdatedContacts(options, lastSyncTimestamp) {
+    return contactModule.lib.client({ ESNToken: options.esnToken })
+      .addressbookHome(options.user._id)
+      .addressbook(options.addressbook.id)
+      .vcard()
+      .removeMultiple({
+        modifiedBefore: Math.round(lastSyncTimestamp / 1000 - 3600) // 1 hour padding
+      })
+      .then(function(ids) {
+        logger.info('Cleaned %d outdated contacts', ids.length);
+        return ids;
+      }, function(err) {
+        logger.error('Cannot clean outdated contacts due to error:', err);
+        return q.reject(err);
+      });
+  }
+
   return {
     initializeAddressBook: initializeAddressBook,
-    getImporterOptions: getImporterOptions
+    getImporterOptions: getImporterOptions,
+    cleanOutdatedContacts: cleanOutdatedContacts
   };
 };

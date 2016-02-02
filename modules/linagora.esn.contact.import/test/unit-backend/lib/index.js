@@ -20,7 +20,10 @@ describe('The contact import backend module', function() {
 
   var jobQueueMock = {
     lib: {
-      startJob: function() {}
+      startJob: function() {},
+      workers: {
+        add: function() {}
+      }
     }
   };
 
@@ -31,11 +34,15 @@ describe('The contact import backend module', function() {
   beforeEach(function() {
     deps = {
       logger: {
-        debug: console.log,
-        info: console.log,
-        error: console.log
+        debug: function() {},
+        info: function() {},
+        error: function() {}
       },
-      jobqueue: jobQueueMock
+      jobqueue: jobQueueMock,
+      'webserver-wrapper': {
+        injectAngularModules: function() {},
+        addApp: function() {}
+      }
     };
 
     account =  {
@@ -116,26 +123,69 @@ describe('The contact import backend module', function() {
       expect(angularSpy).to.have.been.calledOnce;
       expect(addAppSpy).to.have.been.calledOnce;
     });
+
+    it('should add contact sync worker to job queue', function(done) {
+
+      var importer = {
+        name: 'twitter',
+        frontend: {
+          modules: ['app.js', 'services.js'],
+          moduleName: 'linagora.esn.contact.import.twitter',
+          staticPath: '/foo/bar/baz/twitter'
+        }
+      };
+
+      jobQueueMock.lib.workers.add = function(worker) {
+        expect(worker).to.shallowDeepEqual({
+          name: 'contact-' + importer.name + '-sync',
+          getWorkerFunction: function() {}
+        });
+        done();
+      };
+
+      getModule().addImporter(importer);
+
+    });
   });
 
   describe('The importAccountContacts function', function() {
 
-    it('should reject if account is not found', function(done) {
+    var importersMock;
+
+    beforeEach(function() {
+      importersMock = {};
       mockery.registerMock('./importers', function() {
-        return {
-          get: function(type) {
-            expect(type).to.equals(account.data.provider);
-            return null;
-          }
-        };
+        return importersMock;
       });
+    });
+
+    it('should reject if importer is not found', function(done) {
+      importersMock = {
+        get: function(type) {
+          expect(type).to.equals(account.data.provider);
+          return null;
+        }
+      };
       getModule().importAccountContacts(user, account).then(done, function(err) {
         expect(err.message).to.equal('Can not find importer ' + account.data.provider);
         done();
       });
     });
 
-    it('should call importer with valid options', function(done) {
+    it('should reject if importer.lib is undefined', function(done) {
+      importersMock = {
+        get: function(type) {
+          expect(type).to.equals(account.data.provider);
+          return {};
+        }
+      };
+      getModule().importAccountContacts(user, account).then(done, function(err) {
+        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
+        done();
+      });
+    });
+
+    it('should call importer with the right parameters', function(done) {
 
       var options = {
         account: account,
@@ -157,94 +207,240 @@ describe('The contact import backend module', function() {
           }
         };
       });
-      mockery.registerMock('./importers', function() {
-        return {
-          get: function(type) {
-            expect(type).to.equals(account.data.provider);
-            return {
-              lib: {
-                importer: {
-                  importContact: function(options) {
-                    expect(options.account).to.deep.equals(account);
-                    expect(options.user).to.deep.equals(user);
-                    expect(options.addressbook).to.deep.equals(addressbook);
-                    done();
-                  }
+      importersMock = {
+        get: function(type) {
+          expect(type).to.equals(account.data.provider);
+          return {
+            lib: {
+              importer: {
+                importContact: function(options) {
+                  expect(options.account).to.deep.equals(account);
+                  expect(options.user).to.deep.equals(user);
+                  expect(options.addressbook).to.deep.equals(addressbook);
+                  done();
                 }
               }
-            };
-          }
-        };
-      });
+            }
+          };
+        }
+      };
       getModule().importAccountContacts(user, account);
     });
 
-    it('should reject if importer is undefined', function(done) {
-      mockery.registerMock('./importers', function() {
+    it('should reject if it fails to get importer options', function(done) {
+      var e = new Error('Options error');
+      importersMock = {
+        get: function() {
+          return { lib: { importer: function() {} }};
+        }
+      };
+      mockery.registerMock('./helper', function() {
         return {
-          get: function(type) {
-            expect(type).to.equals(account.data.provider);
-            return null;
+          getImporterOptions: function() {
+            return q.reject(e);
           }
         };
       });
-      getModule().importAccountContacts(user, account).then(done, function() {
+      getModule().importAccountContacts(user, account).then(done, function(err) {
+        expect(err).to.equal(e);
+        done();
+      });
+    });
+
+    it('should reject if it fails to initialize address book', function(done) {
+      var e = new Error('initialoze error');
+      importersMock = {
+        get: function() {
+          return { lib: { importer: function() {} }};
+        }
+      };
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q({});
+          },
+          initializeAddressBook: function() {
+            return q.reject(e);
+          }
+        };
+      });
+      getModule().importAccountContacts(user, account).then(done, function(err) {
+        expect(err).to.equal(e);
+        done();
+      });
+    });
+
+  });
+
+  describe('The synchronizeAccountContacts function', function() {
+    var importersMock;
+
+    beforeEach(function() {
+      importersMock = {};
+      mockery.registerMock('./importers', function() {
+        return importersMock;
+      });
+    });
+
+    it('should reject if importer is not found', function(done) {
+      importersMock = {
+        get: function(type) {
+          expect(type).to.equals(account.data.provider);
+          return null;
+        }
+      };
+      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
+        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
         done();
       });
     });
 
     it('should reject if importer.lib is undefined', function(done) {
-      mockery.registerMock('./importers', function() {
-        return {
-          get: function(type) {
-            expect(type).to.equals(account.data.provider);
-            return {};
-          }
-        };
-      });
-      getModule().importAccountContacts(user, account).then(done, function() {
+      importersMock = {
+        get: function(type) {
+          expect(type).to.equals(account.data.provider);
+          return {};
+        }
+      };
+      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
+        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
         done();
       });
     });
+
+    it('should call importer with the right parameters', function(done) {
+      var options = {
+        account: account,
+        user: user
+      };
+      var addressbook = {
+        id: '1',
+        name: 'MyAB'
+      };
+
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q(options);
+          },
+          initializeAddressBook: function(options) {
+            options.addressbook = addressbook;
+            return q(options);
+          }
+        };
+      });
+      importersMock = {
+        get: function(type) {
+          expect(type).to.equals(account.data.provider);
+          return {
+            lib: {
+              importer: {
+                importContact: function(options) {
+                  expect(options.account).to.deep.equals(account);
+                  expect(options.user).to.deep.equals(user);
+                  expect(options.addressbook).to.deep.equals(addressbook);
+                  done();
+                }
+              }
+            }
+          };
+        }
+      };
+      getModule().synchronizeAccountContacts(user, account);
+    });
+
+    it('should reject if it fails to get importer options', function(done) {
+      var e = new Error('Options error');
+      importersMock = {
+        get: function() {
+          return { lib: { importer: function() {} }};
+        }
+      };
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q.reject(e);
+          }
+        };
+      });
+      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
+        expect(err).to.equal(e);
+        done();
+      });
+    });
+
+    it('should reject if it fails to initialize address book', function(done) {
+      var e = new Error('initialoze error');
+      importersMock = {
+        get: function() {
+          return { lib: { importer: function() {} }};
+        }
+      };
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q({});
+          },
+          initializeAddressBook: function() {
+            return q.reject(e);
+          }
+        };
+      });
+      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
+        expect(err).to.equal(e);
+        done();
+      });
+    });
+
+    it('should clean outdated contacts', function(done) {
+      var options = {
+        account: account,
+        user: user
+      };
+      var addressbook = {
+        id: '1',
+        name: 'MyAB'
+      };
+
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q(options);
+          },
+          initializeAddressBook: function(options) {
+            options.addressbook = addressbook;
+            return q(options);
+          },
+          cleanOutdatedContacts: function(options, timestamp) {
+            expect(options).to.eql({
+              account: account,
+              user: user,
+              addressbook: addressbook
+            });
+            expect(timestamp).to.be.a('number');
+            done();
+          }
+        };
+      });
+      importersMock = {
+        get: function() {
+          return {
+            lib: {
+              importer: {
+                importContact: function() {
+                  return q.resolve();
+                }
+              }
+            }
+          };
+        }
+      };
+      getModule().synchronizeAccountContacts(user, account);
+    });
+
   });
 
   describe('The importAccountContactsByJobQueue function', function() {
-
-    it('should reject if helper.getImporterOptions rejects', function(done) {
-      var e = new Error('Options error');
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q.reject(e);
-          },
-          initializeAddressBook: function() {
-            return q({});
-          }
-        };
-      });
-      getModule().importAccountContactsByJobQueue(user, account).then(done, function(err) {
-        expect(err).to.equal(e);
-        done();
-      });
-    });
-
-    it('should reject if helper.initializeAddressBook rejects', function(done) {
-      var e = new Error('initialoze error');
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q({});
-          },
-          initializeAddressBook: function() {
-            return q.reject(e);
-          }
-        };
-      });
-      getModule().importAccountContactsByJobQueue(user, account).then(done, function(err) {
-        expect(err).to.equal(e);
-        done();
-      });
-    });
 
     it('should call jobqueue startJob fn with valid options', function(done) {
 
@@ -270,10 +466,11 @@ describe('The contact import backend module', function() {
       });
 
       jobQueueMock.lib.startJob = function(jobName, options) {
-        expect(jobName).to.deep.equals('contact-' + account.data.provider + '-import');
-        expect(options.account).to.deep.equals(account);
-        expect(options.user).to.deep.equals(user);
-        expect(options.addressbook).to.deep.equals(addressbook);
+        expect(jobName).to.equal('contact-' + account.data.provider + '-sync');
+        expect(options).to.eql({
+          user: user,
+          account: account
+        });
         done();
       };
 

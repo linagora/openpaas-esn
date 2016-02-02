@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The contact import helper module', function() {
 
   var deps, user, account;
+  var addressBookMock;
 
   var dependencies = function(name) {
     return deps[name];
@@ -22,11 +23,27 @@ describe('The contact import helper module', function() {
   var username = 'myusername';
 
   beforeEach(function() {
+    addressBookMock = {};
     deps = {
       logger: {
         debug: function() {},
         info: function() {},
         error: function() {}
+      },
+      contact: {
+        lib: {
+          client: function() {
+            return {
+              addressbookHome: function() {
+                return {
+                  addressbook: function() {
+                    return addressBookMock;
+                  }
+                };
+              }
+            };
+          }
+        }
       }
     };
 
@@ -55,30 +72,9 @@ describe('The contact import helper module', function() {
   });
 
   describe('The initializeAddressBook function', function() {
-    var addressBookMock;
-
     function getFunction(options) {
       return getModule().initializeAddressBook(options);
     }
-
-    beforeEach(function() {
-      addressBookMock = {};
-      deps.contact = {
-        lib: {
-          client: function(opts) {
-            return {
-              addressbookHome: function(bookHome) {
-                return {
-                  addressbook: function() {
-                    return addressBookMock;
-                  }
-                };
-              }
-            };
-          }
-        }
-      };
-    });
 
     it('should reject if user token generation fails', function(done) {
       var e = new Error('Token generation failure');
@@ -329,4 +325,28 @@ describe('The contact import helper module', function() {
       }, done);
     });
   });
+
+  describe('The cleanOutdatedContacts fn', function() {
+    it('should call contact client to remove outdated contacts', function(done) {
+      var addressbook = { id: 'contacts' };
+      var lastSyncTimestamp = 12345678;
+      var options = {
+        user: user,
+        addressbook: addressbook,
+        esnToken: '12345'
+      };
+      addressBookMock.vcard = function() {
+        return {
+          removeMultiple: function(options) {
+            expect(options.modifiedBefore).to.equal(Math.round(lastSyncTimestamp / 1000 - 3600));
+            done();
+            return q.resolve();
+          }
+        };
+      };
+
+      getModule().cleanOutdatedContacts(options, lastSyncTimestamp);
+    });
+  });
+
 });
