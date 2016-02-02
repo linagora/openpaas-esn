@@ -21,9 +21,9 @@
         strong #{__("This contact can not be edited")}
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
-    .contact-avatar
+    .contact-avatar.p-relative
       img(ng-src='{{displayShell.getAvatar(avatarSize)}}')
-    i.mdi.i-contact-mobile(ng-class="displayShell.getOverlayIcon()")
+      i.mdi.i-contact-mobile(ng-class="displayShell.getOverlayIcon()")
     .contact-error-container
       div.contact-fn
         | {{contact.displayName}}
