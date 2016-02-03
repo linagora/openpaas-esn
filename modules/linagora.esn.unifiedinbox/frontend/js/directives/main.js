@@ -316,14 +316,23 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('emailStar', function() {
+  .directive('emailStar', function(jmapEmailService) {
     return {
       restrict: 'E',
+      controller: function($scope) {
+        this.setIsFlagged = function(state) {
+          jmapEmailService.setFlag($scope.email, 'isFlagged', state);
+        };
+      },
+      controllerAs: 'ctrl',
+      scope: {
+        email: '='
+      },
       templateUrl: '/unifiedinbox/views/partials/email-star.html'
     };
   })
 
-  .directive('email', function(inboxEmailService, jmapEmailService) {
+  .directive('email', function(inboxEmailService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -332,10 +341,6 @@ angular.module('linagora.esn.unifiedinbox')
             inboxEmailService[action]($scope.email);
           };
         }.bind(this));
-
-        this.setIsFlagged = function(email, state) {
-          jmapEmailService.setFlag(email, 'isFlagged', state);
-        };
 
         this.toggleIsCollapsed = function(email) {
           email.isCollapsed = !email.isCollapsed;

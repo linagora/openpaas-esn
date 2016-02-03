@@ -14,6 +14,7 @@
             .media-body(ng-class="::{bold: thread.email.isUnread}")
               .lv-title.text-right.pull-right
                 i.email-status-icon.mdi.mdi-attachment(ng-if='::thread.email.hasAttachment')
+                email-star(email='thread.email')
                 span.date {{::thread.email.date | date: group.dateFormat}}
               .lv-title {{::thread.email.subject}}
               emailer.lv-title(emailer="::thread.email.from")

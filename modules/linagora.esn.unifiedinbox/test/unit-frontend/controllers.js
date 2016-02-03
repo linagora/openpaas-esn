@@ -297,28 +297,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
-    describe('The setIsFlagged function', function() {
-
-      it('should mark the email as flagged when setIsFlagged is called with true', function() {
-        initController('listEmailsController').setIsFlagged(jmapMessage, true);
-        scope.$digest();
-
-        expect(jmapMessage.setIsFlagged).to.have.been.calledWith(true);
-        expect(jmapMessage.isFlagged).to.equal(true);
-      });
-
-      it('should mark the email as not flagged when setIsFlagged is called with false', function() {
-        jmapMessage.isFlagged = true;
-
-        initController('listEmailsController').setIsFlagged(jmapMessage, false);
-        scope.$digest();
-
-        expect(jmapMessage.setIsFlagged).to.have.been.calledWith(false);
-        expect(jmapMessage.isFlagged).to.equal(false);
-      });
-
-    });
-
   });
 
   describe('The viewEmailController', function() {

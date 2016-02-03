@@ -14,7 +14,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, mailboxesService) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
@@ -55,10 +55,6 @@ angular.module('linagora.esn.unifiedinbox')
           emailId: email.id
         });
       }
-    };
-
-    this.setIsFlagged = function(email, state) {
-      jmapEmailService.setFlag(email, 'isFlagged', state);
     };
 
     mailboxesService
