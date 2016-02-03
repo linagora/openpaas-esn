@@ -6,6 +6,29 @@
   border: solid 1px @event-border-color;
 }
 
+.fc-view:not(.fc-month-view) {
+  .fc-event {
+    .fc-content {
+      .flex-column();
+      height: 100%;
+      .fc-time {
+        text-align: center;
+        .mdi-sync {
+          font-size: 1.1em;
+        }
+      }
+      .fc-title {
+        padding: 2px;
+        max-height: 50%;
+        overflow: hidden;
+      }
+      .fc-location {
+        .ellipsis();
+      }
+    }
+  }
+}
+
 .event-accepted {
 }
 

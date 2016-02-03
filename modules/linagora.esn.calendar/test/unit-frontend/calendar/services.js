@@ -513,7 +513,6 @@ describe('The calendar module services', function() {
       event = {
         title: 'myTitle',
         description: 'description',
-        location: 'location',
         vcalendar: vcalendar,
         attendees: [],
         isInstance: function() { return false; }
@@ -533,22 +532,9 @@ describe('The calendar module services', function() {
     }));
 
     describe('render function', function() {
-      it('should add ellipsis class to .fc-content', function() {
-        this.eventUtils.render(event, element);
-        expect(fcContent.class).to.deep.equal(['ellipsis']);
-      });
-
-      it('should add ellipsis to .fc-title if location is defined and redefined the content html', function() {
-        event.location = 'aLocation';
-        this.eventUtils.render(event, element);
-        expect(fcTitle.class).to.deep.equal(['ellipsis']);
-        expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
-      });
-
-      it('should sanitize event location and event description', function() {
+      it('should sanitize event description', function() {
         this.eventUtils.render(event, element);
         expect(sanitizeMock).to.have.been.calledWith(event.description);
-        expect(sanitizeMock).to.have.been.calledWith(event.location);
       });
 
       it('should add a title attribute if description is defined', function() {
