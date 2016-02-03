@@ -14,7 +14,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, mailboxesService) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService, JMAP_GET_MESSAGES_LIST) {
 
     function searchForMessages() {
       withJmapClient(function(client) {
@@ -23,14 +23,14 @@ angular.module('linagora.esn.unifiedinbox')
             filter: {
               inMailboxes: [$scope.mailbox.id]
             },
-            collapseThreads: true,
+            collapseThreads: false,
             fetchMessages: false,
             position: 0,
             limit: 100
           })
           .then(function(messageList) {
             return messageList.getMessages({
-              properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
+              properties: JMAP_GET_MESSAGES_LIST
             });
           })
           .then(function(messages) { return messages.map(Email); })
@@ -62,7 +62,7 @@ angular.module('linagora.esn.unifiedinbox')
       .then(searchForMessages);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService) {
+  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService, JMAP_GET_MESSAGES_LIST) {
 
     this.openThread = function(thread) {
       $state.go('unifiedinbox.threads.thread', {
@@ -95,7 +95,14 @@ angular.module('linagora.esn.unifiedinbox')
           limit: 100
         })
           .then(function(messageList) {
-            return $q.all([messageList.getThreads(), messageList.getMessages()]);
+            return $q.all([
+              messageList.getThreads({
+                fetchMessages: false
+              }),
+              messageList.getMessages(({
+                properties: JMAP_GET_MESSAGES_LIST
+              }))
+            ]);
           })
           .then(_prepareThreadsVariable)
           .then(function(threads) {
@@ -167,7 +174,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, Email, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService) {
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, Email, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService, JMAP_GET_MESSAGES_VIEW) {
 
     headerService.subHeader.setInjection('view-email-subheader', $scope);
 
@@ -176,7 +183,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     withJmapClient(function(client) {
       client.getMessages({
-        ids: [$scope.emailId]
+        ids: [$scope.emailId],
+        properties: JMAP_GET_MESSAGES_VIEW
       }).then(function(messages) {
         $scope.email = Email(messages[0]); // We expect a single message here
 
@@ -185,7 +193,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _) {
+  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
 
     headerService.subHeader.setInjection('view-thread-subheader', $scope);
 
@@ -195,7 +203,9 @@ angular.module('linagora.esn.unifiedinbox')
         .then(function(threads) {
           $scope.thread = threads[0];
 
-          return $scope.thread.getMessages();
+          return $scope.thread.getMessages({
+            properties: JMAP_GET_MESSAGES_VIEW
+          });
         })
         .then(function(messages) { return messages.map(Email); })
         .then(function(emails) {

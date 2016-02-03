@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      mailboxesService, inboxEmailService, _;
+      mailboxesService, inboxEmailService, _, JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST;
 
   beforeEach(function() {
     $stateParams = {
@@ -53,7 +53,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
-                                          _Composition_, _mailboxesService_, _inboxEmailService_, ___) {
+                                          _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
+                                          _JMAP_GET_MESSAGES_LIST_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -62,6 +63,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     mailboxesService = _mailboxesService_;
     inboxEmailService = _inboxEmailService_;
     _ = ___;
+    JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
+    JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
 
     scope = $rootScope.$new();
   }));
@@ -212,7 +215,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           filter: {
             inMailboxes: ['chosenMailbox']
           },
-          collapseThreads: true,
+          collapseThreads: false,
           fetchMessages: false,
           position: 0,
           limit: 100
@@ -228,7 +231,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var messageListResult = {
         getMessages: function(options) {
           expect(options).to.deep.equal({
-            properties: ['id', 'threadId', 'subject', 'from', 'to', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds']
+            properties: JMAP_GET_MESSAGES_LIST
           });
 
           done();
@@ -322,7 +325,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should call jmapClient.getMessages with correct arguments', function(done) {
       jmapClient.getMessages = function(options) {
         expect(options).to.deep.equal({
-          ids: ['4']
+          ids: ['4'],
+          properties: JMAP_GET_MESSAGES_VIEW
         });
 
         done();
@@ -419,7 +423,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should search messages of the getThreads reply', function(done) {
       jmapClient.getThreads = function() {
         return $q.when([{
-          getMessages: done
+          getMessages: function(data) {
+            expect(data).to.shallowDeepEqual({
+              properties: JMAP_GET_MESSAGES_VIEW
+            });
+
+            done();
+          }
         }]);
       };
 
@@ -602,8 +612,20 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should call jmapClient.getMessageList then getMessages and getThreads', function() {
       var messageListResult = {
-        getMessages: sinon.spy(function() { return [];}),
-        getThreads: sinon.spy(function() { return [];})
+        getMessages: sinon.spy(function(data) {
+          expect(data).to.deep.equal({
+            properties: JMAP_GET_MESSAGES_LIST
+          });
+
+          return [];
+        }),
+        getThreads: sinon.spy(function(data) {
+          expect(data).to.deep.equal({
+            fetchMessages: false
+          });
+
+          return [];
+        })
       };
 
       jmapClient.getMessageList = function() {
@@ -612,6 +634,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('listThreadsController');
       scope.$digest();
+
       expect(messageListResult.getMessages).to.have.been.called;
       expect(messageListResult.getThreads).to.have.been.called;
     });
