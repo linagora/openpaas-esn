@@ -13,8 +13,9 @@ angular.module('esn.ui', ['op.dynamicDirective'])
 
   .directive('fab', function(FAB_ICONS, DEFAULT_COLOR_CLASS) {
     return {
-      restrict: 'AE',
+      restrict: 'E',
       replace: true,
+      scope: true,
       templateUrl: '/views/modules/ui/fab.html',
       link: function($scope, element, attrs) {
         $scope.options = {
