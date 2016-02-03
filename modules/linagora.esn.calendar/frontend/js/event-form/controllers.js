@@ -167,6 +167,7 @@ angular.module('esn.calendar')
         _hideModal();
         return;
       }
+      _hideModal();
       $scope.restActive = true;
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.isMajorModification($scope.editedEvent, $scope.event))
@@ -212,7 +213,9 @@ angular.module('esn.calendar')
     $scope.createEvent = createEvent;
     $scope.isNew = eventUtils.isNew;
     $scope.isInvolvedInATask = eventUtils.isInvolvedInATask;
-    $scope.submit = eventUtils.isNew($scope.editedEvent) && !eventUtils.isInvolvedInATask($scope.editedEvent) ? $scope.createEvent : $scope.modifyEvent;
+    $scope.submit = function() {
+      eventUtils.isNew($scope.editedEvent) && !eventUtils.isInvolvedInATask($scope.editedEvent) ? $scope.createEvent() : $scope.modifyEvent();
+    };
     $scope.canPerformCall = canPerformCall;
     $scope.closeModal = function() {
       eventUtils.setEditedEvent($scope.editedEvent);
@@ -226,4 +229,8 @@ angular.module('esn.calendar')
       $scope.closeModal();
       $state.go('calendar.eventEdit');
     };
+
+    // Initialize the scope of the form. It creates a scope.editedEvent which allows us to
+    // rollback to scope.event in case of a Cancel.
+    $scope.initFormData();
   });

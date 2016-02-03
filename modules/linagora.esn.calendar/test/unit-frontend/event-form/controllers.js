@@ -109,77 +109,93 @@ describe('The event-form module controllers', function() {
   describe('The eventFormController controller', function() {
 
     beforeEach(function() {
-      this.controller('eventFormController', {
-        $rootScope: this.rootScope,
-        $scope: this.scope
-      });
+      this.initController = function() {
+        this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+      };
     });
 
     describe('the closeModal function', function() {
       it('should cache the editedEvent using eventService#setEditedEvent', function(done) {
+        this.scope.event = null;
+        this.eventUtils.originalEvent = null;
         this.eventUtils.setEditedEvent = function(event) {
           expect(event).to.exist;
           done();
         };
+        this.initController();
         this.scope.closeModal();
       });
     });
 
     describe('submit function', function() {
-      it('should be createEvent if the event is new', function() {
-        this.scope.editedEvent = {
+      it('should be createEvent if the event is new', function(done) {
+        this.scope.event = {
           allDay: true,
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
-          location: 'aLocation'
+          location: 'aLocation',
+          clone: function() {
+            return angular.copy(this);
+          }
         };
-        this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        expect(this.scope.submit).to.exist;
-        expect(this.scope.submit).to.deep.equal(this.scope.createEvent);
+        this.calendarServiceMock.createEvent = function() {
+          done();
+        };
+        this.initController();
+        this.scope.submit();
       });
 
-      it('should be modifyEvent if event has a gracePeriodTaskId property', function() {
-        this.scope.editedEvent = {
+      it('should be modifyEvent if event has a gracePeriodTaskId property', function(done) {
+        this.scope.event = {
+          title: 'title',
           id: '12345',
           allDay: true,
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           location: 'aLocation',
-          gracePeriodTaskId: '123456'
+          gracePeriodTaskId: '123456',
+          clone: function() {
+            return angular.copy(this);
+          }
         };
-        this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        expect(this.scope.submit).to.exist;
-        expect(this.scope.submit).to.deep.equal(this.scope.modifyEvent);
+        this.calendarServiceMock.modifyEvent = function() {
+          done();
+        };
+        this.initController();
+        this.scope.isOrganizer = true;
+        this.scope.submit();
       });
 
-      it('should be modifyEvent if event has a etag property', function() {
-        this.scope.editedEvent = {
+      it('should be modifyEvent if event has a etag property', function(done) {
+        this.scope.event = {
+          title: 'title',
           id: '12345',
           allDay: true,
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           location: 'aLocation',
-          etag: '123456'
+          etag: '123456',
+          clone: function() {
+            return angular.copy(this);
+          }
         };
-        this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        expect(this.scope.submit).to.exist;
-        expect(this.scope.submit).to.deep.equal(this.scope.modifyEvent);
+        this.calendarServiceMock.modifyEvent = function() {
+          done();
+        };
+        this.initController();
+        this.scope.isOrganizer = true;
+        this.scope.submit();
       });
     });
 
     describe('initFormData function', function() {
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.scope.event = null;
-        this.scope.initFormData();
+        this.eventUtils.originalEvent = null;
+        this.initController();
         var expected = {
           start: this.moment('2013-02-08 09:30'),
           end: this.moment('2013-02-08 10:30'),
@@ -200,7 +216,7 @@ describe('The event-form module controllers', function() {
             return angular.copy(this);
           }
         };
-        this.scope.initFormData();
+        this.initController();
         expect(this.scope.event).to.deep.equal(this.scope.event);
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
       });
@@ -219,7 +235,7 @@ describe('The event-form module controllers', function() {
             return angular.copy(this);
           }
         };
-        this.scope.initFormData();
+        this.initController();
         expect(this.scope.isOrganizer).to.equal(true);
       });
 
@@ -236,7 +252,7 @@ describe('The event-form module controllers', function() {
             return angular.copy(this);
           }
         };
-        this.scope.initFormData();
+        this.initController();
         expect(this.scope.isOrganizer).to.equal(false);
       });
     });
@@ -251,6 +267,8 @@ describe('The event-form module controllers', function() {
           this.scope.isOrganizer = true;
         });
         it('should display an error if the edited event has no title', function(done) {
+          this.scope.event = null;
+          this.eventUtils.originalEvent = null;
           var $alertMock = function(alertObject) {
             expect(alertObject.show).to.be.true;
             expect(alertObject.content).to.equal('You must define an event title');
@@ -267,29 +285,23 @@ describe('The event-form module controllers', function() {
         });
 
         it('should not send modify request if no change', function(done) {
-          this.scope.$hide = done;
-          this.controller('eventFormController', {
-            $rootScope: this.rootScope,
-            $scope: this.scope
-          });
-
           this.scope.event = {
             startDate: new Date(),
             endDate: new Date(),
             allDay: false,
-            title: 'title'
+            title: 'title',
+            clone: function() {
+              return angular.copy(this);
+            }
           };
+          this.scope.$hide = done;
+          this.initController();
+
           this.scope.editedEvent = this.scope.event;
           this.scope.modifyEvent();
         });
 
-        it('should send modify request if deep changes (attendees)', function(done) {
-          this.scope.$hide = done.bind(null, new Error('Should not be here'));
-          this.controller('eventFormController', {
-            $rootScope: this.rootScope,
-            $scope: this.scope
-          });
-
+        it('should send modify request if deep changes (attendees)', function() {
           this.scope.event = {
             startDate: new Date(),
             endDate: new Date(),
@@ -301,8 +313,13 @@ describe('The event-form module controllers', function() {
             }, {
               name: 'attendee2',
               partstart: 'ACCEPTED'
-            }]
+            }],
+            clone: function() {
+              return angular.copy(this);
+            }
           };
+          this.initController();
+
           this.scope.editedEvent = {
             startDate: new Date(),
             endDate: new Date(),
@@ -325,28 +342,28 @@ describe('The event-form module controllers', function() {
 
           this.scope.$digest();
           expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
-          done();
         });
 
         it('should not send modify request if properties not visible in the UI changed', function(done) {
-          this.scope.$hide = function() {
-            expect(event.diff).to.equal(123123);
-            expect(editedEvent.diff).to.equal(234234);
-            done();
-          };
-          this.controller('eventFormController', {
-            $rootScope: this.rootScope,
-            $scope: this.scope
-          });
-
+          var editedEvent = {};
           var event = this.scope.event = {
             startDate: new Date(),
             endDate: new Date(),
             allDay: false,
             title: 'title',
-            diff: 123123
+            diff: 123123,
+            clone: function() {
+              return angular.copy(this);
+            }
           };
-          var editedEvent = this.scope.editedEvent = angular.copy(event);
+          this.scope.$hide = function() {
+            expect(event.diff).to.equal(123123);
+            expect(editedEvent.diff).to.equal(234234);
+            done();
+          };
+          this.initController();
+
+          editedEvent = this.scope.editedEvent = angular.copy(event);
           this.scope.editedEvent.diff = 234234;
           this.scope.modifyEvent();
         });
@@ -355,8 +372,13 @@ describe('The event-form module controllers', function() {
           this.scope.event = {
             title: 'oldtitle',
             path: '/path/to/event',
-            attendees: ['user1@test.com']
+            attendees: ['user1@test.com'],
+            clone: function() {
+              return angular.copy(this);
+            }
           };
+          this.initController();
+
           this.scope.editedEvent = {
             title: 'title',
             attendees: ['user1@test.com']
@@ -373,8 +395,12 @@ describe('The event-form module controllers', function() {
           this.scope.event = {
             title: 'oldtitle',
             path: '/path/to/event',
-            etag: '123123'
+            etag: '123123',
+            clone: function() {
+              return angular.copy(this);
+            }
           };
+          this.initController();
 
           this.scope.editedEvent = {
             title: 'title',
@@ -405,10 +431,7 @@ describe('The event-form module controllers', function() {
         it('should changeParticipation with ACCEPTED', function(done) {
           var status = null;
           var self = this;
-
-          this.scope.invitedAttendee = {
-            partstat: 'ACCEPTED'
-          };
+          this.scope.event = this.eventUtils.originalEvent = null;
 
           this.scope.$hide = function() {
             expect(status).to.equal('ACCEPTED');
@@ -420,10 +443,12 @@ describe('The event-form module controllers', function() {
             status = _status_;
             return $q.when({});
           };
-          this.controller('eventFormController', {
-            $rootScope: this.rootScope,
-            $scope: this.scope
-          });
+          this.initController();
+
+          this.scope.invitedAttendee = {
+            partstat: 'ACCEPTED'
+          };
+          this.scope.isOrganizer = false;
           this.scope.modifyEvent();
           this.scope.$digest();
         });
@@ -431,10 +456,7 @@ describe('The event-form module controllers', function() {
         it('should no displayNotification if response is null', function(done) {
           var status = null;
           var self = this;
-
-          this.scope.invitedAttendee = {
-            partstat: 'DECLINED'
-          };
+          this.scope.event = this.eventUtils.originalEvent = null;
           this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
             status = _status_;
             return $q.when(null);
@@ -444,10 +466,13 @@ describe('The event-form module controllers', function() {
             expect(self.notificationFactory.weakInfo).to.have.not.been.called;
             done();
           };
-          this.controller('eventFormController', {
-            $rootScope: this.rootScope,
-            $scope: this.scope
-          });
+
+          this.initController();
+
+          this.scope.invitedAttendee = {
+            partstat: 'DECLINED'
+          };
+          this.scope.isOrganizer = false;
           this.scope.modifyEvent();
           this.scope.$digest();
         });
@@ -455,14 +480,18 @@ describe('The event-form module controllers', function() {
     });
 
     describe('createEvent function', function() {
-      it('should force title to \'No title\' if the edited event has no title', function() {
+      beforeEach(function() {
+        this.scope.event = this.eventUtils.originalEvent = null;
+        this.initController();
         this.scope.editedEvent = {};
+      });
+
+      it('should force title to \'No title\' if the edited event has no title', function() {
         this.scope.createEvent();
         expect(this.scope.editedEvent.title).to.equal('No title');
       });
 
       it('should add newAttendees from the form', function() {
-        this.scope.editedEvent = {};
         this.scope.newAttendees = ['user1@test.com', 'user2@test.com'];
         this.scope.createEvent();
         expect(this.scope.editedEvent).to.deep.equal({
@@ -478,6 +507,8 @@ describe('The event-form module controllers', function() {
 
     describe('canPerformCall function', function() {
       beforeEach(function() {
+        this.scope.event = this.eventUtils.originalEvent = null;
+        this.initController();
         this.scope.editedEvent = {
           id: 'eventId',
           start: new Date()
@@ -497,6 +528,8 @@ describe('The event-form module controllers', function() {
 
     describe('changeParticipation function', function() {
       beforeEach(function() {
+        this.scope.event = this.eventUtils.originalEvent = null;
+        this.initController();
         this.scope.editedEvent = {
           id: 'eventId',
           start: new Date(),
