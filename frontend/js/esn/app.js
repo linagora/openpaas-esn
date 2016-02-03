@@ -19,6 +19,7 @@ angular.module('esnApp', [
   'angular-nicescroll',
   'xeditable',
   'op.dynamicDirective',
+  'esn.datepickerUtils',
   'esn.core',
   'esn.member',
   'esn.header',
@@ -194,6 +195,12 @@ angular.module('esnApp', [
 
   RestangularProvider.setBaseUrl('/api');
   RestangularProvider.setFullResponse(true);
+}).config(function($provide) {
+  $provide.decorator('bsDatepickerDirective', function($delegate, bsDatepickerMobileWrapper) {
+    var directive = $delegate[0];
+    bsDatepickerMobileWrapper(directive);
+    return $delegate;
+  });
 })
 .config(function($provide) {
   $provide.decorator('clockpickerDefaultOptions', function($delegate) {

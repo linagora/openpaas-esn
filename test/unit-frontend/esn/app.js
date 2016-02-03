@@ -1,15 +1,22 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esn app', function() {
   beforeEach(angular.mock.module('esnApp'));
 
-  var location, state, rootScope, httpBackend, stateParams, clockpickerDefaultOptions;
+  var location, state, rootScope, httpBackend, stateParams, clockpickerDefaultOptions, bsDatepickerDirective, bsDatepickerMobileWrapperMock;
 
-  beforeEach(inject(function($location, $state, $rootScope, $httpBackend, $stateParams, _clockpickerDefaultOptions_) {
+  beforeEach(function() {
+    bsDatepickerMobileWrapperMock = sinon.spy();
+    angular.mock.module(function($provide) {
+      $provide.value('bsDatepickerMobileWrapper', bsDatepickerMobileWrapperMock);
+    });
+  });
+
+  beforeEach(inject(function($location, $state, $rootScope, $httpBackend, $stateParams, _clockpickerDefaultOptions_, _bsDatepickerDirective_) {
     location = $location;
     state = $state;
     rootScope = $rootScope;
@@ -17,10 +24,15 @@ describe('The esn app', function() {
     location = $location;
     stateParams = $stateParams;
     clockpickerDefaultOptions = _clockpickerDefaultOptions_;
+    bsDatepickerDirective = _bsDatepickerDirective_;
   }));
 
   it('should decorate clockpickerDefaultOptions to add nativeOnMobile', function() {
     expect(clockpickerDefaultOptions.nativeOnMobile).to.be.true;
+  });
+
+  it('should decorate bsDatepicker directive', function() {
+    expect(bsDatepickerMobileWrapperMock).to.have.been.calledWith(bsDatepickerDirective[0]);
   });
 
   describe('state provider', function() {
