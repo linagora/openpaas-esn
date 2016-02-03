@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
   .directive('eventQuickForm', function($location, $timeout, eventUtils) {
-    function link(scope, element, attrs, controller) {
+    function link(scope, element, attrs) {
       $timeout(function() {
         element.find('.title')[0].focus();
       }, 0);

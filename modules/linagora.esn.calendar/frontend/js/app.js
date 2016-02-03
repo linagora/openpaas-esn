@@ -44,8 +44,7 @@ angular.module('esn.calendar', [
             event: function(eventUtils) {
               return eventUtils.getEditedEvent();
             }
-          },
-          controller: 'eventFullFormController'
+          }
         }
       }
     })

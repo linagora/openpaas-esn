@@ -1,15 +1,15 @@
 .event-full-form-subheader.col-xs-12
   div(ng-if='isOrganizer').flex-vertical-centered.flex-space-between
     div
-      button.btn.btn-primary(ng-if='isNew(editedEvent)', type='button', ng-disabled="restActive", ng-click='goBack(submit);')
+      button.btn.btn-primary(ng-if='isNew(editedEvent)', type='button', ng-disabled="restActive", ng-click='goToCalendar(submit)')
         i.mdi.mdi-check
         | #{__('Create')}
-      button.btn.btn-primary(ng-if='!isNew(editedEvent)', type='button', ng-disabled="restActive", ng-click='goBack(submit);')
+      button.btn.btn-primary(ng-if='!isNew(editedEvent)', type='button', ng-disabled="restActive", ng-click='goToCalendar(submit)')
         i.mdi.mdi-check
         | #{__('Modify')}
-    button.btn.btn-primary.pull-right(type='button', ng-click="goBack()")
+    button.btn.btn-primary.pull-right(type='button', ng-click="goToCalendar()")
       i.mdi.mdi-close
   div(ng-if='!isOrganizer').flex-vertical-centered.flex-space-between
     span.title #{__('Consult')}
-    button.btn.btn-primary(type='button', ng-click="goBack()")
+    button.btn.btn-primary(type='button', ng-click="goToCalendar()")
       i.mdi.mdi-close
