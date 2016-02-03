@@ -11,6 +11,9 @@ angular.module('esn.desktop-utils', ['ng.deviceDetector'])
       link: function(scope, element) {
         if (!deviceDetector.isMobile()) {
           element.on('click', function(event) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+
             scope.desktopClick({ event: event });
           });
         }

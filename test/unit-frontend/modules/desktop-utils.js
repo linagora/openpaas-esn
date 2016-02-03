@@ -32,6 +32,27 @@ describe('The esn.desktop-utils angular module', function() {
 
   describe('The desktopClick directive', function() {
 
+    it('should stop immediate propagation', function(done) {
+      var event = {
+        type: 'click',
+        stopImmediatePropagation: done
+      };
+
+      compile('<div desktop-click="clicked = true" />');
+      element.triggerHandler(event);
+    });
+
+    it('should prevent default behaviour', function(done) {
+      var event = {
+        type: 'click',
+        stopImmediatePropagation: angular.noop,
+        preventDefault: done
+      };
+
+      compile('<div desktop-click="clicked = true" />');
+      element.triggerHandler(event);
+    });
+
     it('should register an on-click event listener if we are on desktop', function() {
       compile('<div desktop-click="clicked = true" />');
       element.click();

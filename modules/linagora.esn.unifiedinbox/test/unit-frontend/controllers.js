@@ -299,30 +299,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The setIsFlagged function', function() {
 
-      it('should stop immediate propagation', function(done) {
-        var event = {
-          stopImmediatePropagation: done
-        };
-
-        initController('listEmailsController').setIsFlagged(event);
-      });
-
-      it('should prevent default behaviour', function(done) {
-        var event = {
-          stopImmediatePropagation: angular.noop,
-          preventDefault: done
-        };
-
-        initController('listEmailsController').setIsFlagged(event);
-      });
-
       it('should mark the email as flagged when setIsFlagged is called with true', function() {
-        var event = {
-          stopImmediatePropagation: angular.noop,
-          preventDefault: angular.noop
-        };
-
-        initController('listEmailsController').setIsFlagged(event, jmapMessage, true);
+        initController('listEmailsController').setIsFlagged(jmapMessage, true);
         scope.$digest();
 
         expect(jmapMessage.setIsFlagged).to.have.been.calledWith(true);
@@ -330,13 +308,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should mark the email as not flagged when setIsFlagged is called with false', function() {
-        var event = {
-          stopImmediatePropagation: angular.noop,
-          preventDefault: angular.noop
-        };
         jmapMessage.isFlagged = true;
 
-        initController('listEmailsController').setIsFlagged(event, jmapMessage, false);
+        initController('listEmailsController').setIsFlagged(jmapMessage, false);
         scope.$digest();
 
         expect(jmapMessage.setIsFlagged).to.have.been.calledWith(false);
@@ -549,7 +523,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       }]);
     });
 
-	it('should set isCollapsed=true for all read emails, when there is at least one unread', function() {
+    it('should set isCollapsed=true for all read emails, when there is at least one unread', function() {
       mockGetThreadAndMessages([
         {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1', isUnread: false },
         {id: 'email2', mailboxIds: [threadId], subject: 'thread subject2', isUnread: true },

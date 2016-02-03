@@ -57,10 +57,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
     };
 
-    this.setIsFlagged = function(event, email, state) {
-      event.stopImmediatePropagation();
-      event.preventDefault();
-
+    this.setIsFlagged = function(email, state) {
       jmapEmailService.setFlag(email, 'isFlagged', state);
     };
 

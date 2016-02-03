@@ -527,7 +527,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
    * PhantomJS does not work fine with iFrame and 'load' events, thus the .skip()
    * Tests run under Chrome and Firefox, though...
    */
-  describe.skip('The htmlEmailBody directive', function() {
+  describe('The htmlEmailBody directive', function() {
 
     beforeEach(function() {
       $scope.email = {
@@ -541,7 +541,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(element.find('iframe')).to.have.length(1);
     });
 
-    it('should append a BASE tag to the iframe document\'s HEAD tag', function(done) {
+    it.skip('should append a BASE tag to the iframe document\'s HEAD tag', function(done) {
       compileDirective('<html-email-body email="email" />');
 
       element.isolateScope().$on('iframe:loaded', function(event, iFrame) {
@@ -554,7 +554,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
     });
 
-    it('should append a SCRIPT tag to the iframe document\'s BODY tag', function(done) {
+    it.skip('should append a SCRIPT tag to the iframe document\'s BODY tag', function(done) {
       compileDirective('<html-email-body email="email" />');
 
       element.isolateScope().$on('iframe:loaded', function(event, iFrame) {
@@ -567,7 +567,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
     });
 
-    it('should enable iFrame resizer on the iFrame', function(done) {
+    it.skip('should enable iFrame resizer on the iFrame', function(done) {
       iFrameResize = function(options) {
         expect(options).to.shallowDeepEqual({
           checkOrigin: false,
@@ -579,6 +579,30 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         done();
       };
       compileDirective('<html-email-body email="email" />');
+    });
+
+    it('should invoke iFrameResizer.resize when it receives an email:collapse event', function(done) {
+      iFrameResize = function() {
+        return [{
+          iFrameResizer: {
+            resize: done
+          }
+        }];
+      };
+
+      compileDirective('<html-email-body email="email" />');
+      $rootScope.$broadcast('iframe:loaded', {
+        contentDocument: {
+          body: {
+            appendChild: angular.noop
+          },
+          head: {
+            appendChild: angular.noop
+          }
+        }
+      });
+      $rootScope.$broadcast('email:collapse');
+      $timeout.flush();
     });
 
   });
@@ -783,9 +807,37 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
           }
         };
 
-        compileDirective('<email />').controller('email').setIsFlagged(null, email, true);
+        compileDirective('<email />').controller('email').setIsFlagged(email, true);
       });
 
+    });
+
+    describe('the toggleIsCollapsed function', function() {
+
+      it('should toggle the email.isCollapsed attribute', function() {
+        var email = {
+          isCollapsed: true
+        };
+
+        compileDirective('<email />').controller('email').toggleIsCollapsed(email);
+        expect(email.isCollapsed).to.equal(false);
+      });
+
+      it('should broadcast email:collapse event with the email.isCollapsed as data', function(done) {
+        var email = {
+          isCollapsed: true
+        };
+
+        var element = compileDirective('<email />');
+        var scope = element.isolateScope();
+
+        scope.$on('email:collapse', function(event, data) {
+          expect(data).to.equal(false);
+          done();
+        });
+
+        element.controller('email').toggleIsCollapsed(email);
+      });
     });
 
   });
