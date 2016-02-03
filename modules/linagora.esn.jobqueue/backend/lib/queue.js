@@ -43,6 +43,11 @@ module.exports = function(dependencies) {
           logger.error('Error while running job', err);
           done(new Error('Error while running job'));
           defer.reject(err);
+        }, function(progress) {
+          if (progress) {
+            job.log(progress.message);
+            job.progress(progress.value, 100);
+          }
         });
       }, defer.reject);
     }, defer.reject);
