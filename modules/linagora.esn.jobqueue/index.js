@@ -6,7 +6,8 @@ var Dependency = AwesomeModule.AwesomeModuleDependency;
 var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {
@@ -17,11 +18,11 @@ var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
     },
 
     deploy: function(dependencies, callback) {
+      var app = require('./backend/webserver/application')(this.lib, dependencies);
+      var modules = ['app.js', 'directives.js'];
       var webserverWrapper = dependencies('webserver-wrapper');
-      if (process.env.NODE_ENV === 'dev') {
-        webserverWrapper.addApp('jobqueueUI', this.lib.kue.app);
-      }
-
+      webserverWrapper.injectAngularModules('jobqueue', modules, 'linagora.esn.jobqueue', ['esn']);
+      webserverWrapper.addApp('jobqueue', app);
       return callback();
     },
 
