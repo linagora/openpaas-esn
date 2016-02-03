@@ -1,11 +1,18 @@
 'use strict';
 
 angular.module('esn.infinite-list', ['infinite-scroll'])
+
   .constant('defaultConfiguration', {
-    scrollDistance: '1',
-    scrollDisabled: 'false',
-    scrollImmediateCheck: 'true'
+    scrollDistance: 1,
+    scrollDisabled: false,
+    scrollImmediateCheck: 'true',
+    throttle: 250
   })
+
+  .config(function($provide, defaultConfiguration) {
+    $provide.value('THROTTLE_MILLISECONDS', defaultConfiguration.throttle);
+  })
+
   .directive('infiniteList', function(defaultConfiguration) {
     return {
       restrict: 'E',

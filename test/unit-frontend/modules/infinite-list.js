@@ -21,12 +21,11 @@ describe('The Infinite-list Angular module', function() {
 
     beforeEach(function() {
       this.checkGeneratedElement = function(element, distance, disabled, immediateCheck) {
-        var checkGeneratedAttributeValue = function(element, attrName, attrValue) {
-          expect(element.contents()[0].attributes.getNamedItem(attrName).value).to.equal(attrValue);
-        };
-        checkGeneratedAttributeValue(element, 'infinite-scroll-distance', distance);
-        checkGeneratedAttributeValue(element, 'infinite-scroll-disabled', disabled);
-        checkGeneratedAttributeValue(element, 'infinite-scroll-immediate-check', immediateCheck);
+        var scope = element.find('[infinite-scroll]').isolateScope();
+
+        expect(scope.infiniteScrollDistance).to.equal(distance);
+        expect(scope.infiniteScrollDisabled).to.equal(disabled);
+        expect(element.contents()[0].attributes.getNamedItem('infinite-scroll-immediate-check').value).to.equal(immediateCheck);
       };
     });
 
@@ -38,7 +37,7 @@ describe('The Infinite-list Angular module', function() {
 
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
-      this.checkGeneratedElement(element, '10', 'true', 'false');
+      this.checkGeneratedElement(element, 10, true, 'false');
     });
 
     it('should fill the template with default values if no values were defined in the scope', inject(function(defaultConfiguration) {
