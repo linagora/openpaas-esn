@@ -14,4 +14,6 @@ angular.module('linagora.esn.unifiedinbox')
     templates: 'mdi mdi-email'
   })
   .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
-  .constant('MAILBOX_LEVEL_SEPARATOR', ' / ');
+  .constant('MAILBOX_LEVEL_SEPARATOR', ' / ')
+  .constant('JMAP_GET_MESSAGES_LIST', ['id', 'threadId', 'subject', 'from', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds'])
+  .constant('JMAP_GET_MESSAGES_VIEW', ['id', 'threadId', 'subject', 'from', 'to', 'cc', 'bcc', 'replyTo', 'preview', 'textBody', 'htmlBody', 'date', 'isUnread', 'isFlagged', 'isDraft', 'hasAttachment', 'attachments', 'mailboxIds']);
