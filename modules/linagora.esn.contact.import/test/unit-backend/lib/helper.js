@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The contact import helper module', function() {
 
   var deps, user, account;
+  var addressBookMock;
 
   var dependencies = function(name) {
     return deps[name];
@@ -22,11 +23,27 @@ describe('The contact import helper module', function() {
   var username = 'myusername';
 
   beforeEach(function() {
+    addressBookMock = {};
     deps = {
       logger: {
-        debug: console.log,
-        info: console.log,
-        error: console.log
+        debug: function() {},
+        info: function() {},
+        error: function() {}
+      },
+      contact: {
+        lib: {
+          client: function() {
+            return {
+              addressbookHome: function() {
+                return {
+                  addressbook: function() {
+                    return addressBookMock;
+                  }
+                };
+              }
+            };
+          }
+        }
       }
     };
 
@@ -93,6 +110,34 @@ describe('The contact import helper module', function() {
       });
     });
 
+    it('should not create dupliate AB if the AB with the same ID is existing', function(done) {
+      var token = {
+        token: 'MyToken'
+      };
+      var options = {
+        account: account,
+        user: user
+      };
+      deps.user = {
+        getNewToken: function(user, ttl, callback) {
+          return callback(null, token);
+        }
+      };
+      addressBookMock = {
+        create: function() {
+          done(new Error('Should not call create fn'));
+        },
+        get: function() {
+          return q.resolve('Existing AB');
+        }
+      };
+
+      getFunction(options).then(function(data) {
+        expect(data.addressbook.id).to.equal(options.account.data.id);
+        done();
+      }, done);
+    });
+
     it('should reject if AB creation fails', function(done) {
       var token = {
         token: 'MyToken'
@@ -107,28 +152,16 @@ describe('The contact import helper module', function() {
           return callback(null, token);
         }
       };
-      deps.contact = {
-        lib: {
-          client: function(opts) {
-            expect(opts.ESNToken).to.equals(token.token);
-            return {
-              addressbookHome: function(bookHome) {
-                expect(bookHome).to.equals(user._id);
-                return {
-                  addressbook: function() {
-                    return {
-                      create: function(addressbook) {
-                        expect(addressbook.id).to.equal(options.account.data.id);
-                        return q.reject(e);
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
+      addressBookMock = {
+        create: function(addressbook) {
+          expect(addressbook.id).to.equal(options.account.data.id);
+          return q.reject(e);
+        },
+        get: function() {
+          return q.reject();
         }
       };
+
       getFunction(options).then(done, function(err) {
         expect(err).to.equal(e);
         done();
@@ -149,28 +182,16 @@ describe('The contact import helper module', function() {
           return callback(null, token);
         }
       };
-      deps.contact = {
-        lib: {
-          client: function(opts) {
-            expect(opts.ESNToken).to.equals(token.token);
-            return {
-              addressbookHome: function(bookHome) {
-                expect(bookHome).to.equals(user._id);
-                return {
-                  addressbook: function() {
-                    return {
-                      create: function(addressbook) {
-                        expect(addressbook.id).to.equal(options.account.data.id);
-                        return q.resolve({});
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
+      addressBookMock = {
+        create: function(addressbook) {
+          expect(addressbook.id).to.equal(options.account.data.id);
+          return q.resolve({});
+        },
+        get: function() {
+          return q.reject();
         }
       };
+
       getFunction(options).then(function(result) {
         expect(result.account).to.deep.equal(options.account);
         expect(result.user).to.deep.equal(options.user);
@@ -200,24 +221,13 @@ describe('The contact import helper module', function() {
         type: account.data.provider
       };
 
-      deps.contact = {
-        lib: {
-          client: function() {
-            return {
-              addressbookHome: function() {
-                return {
-                  addressbook: function() {
-                    return {
-                      create: function(addressbook) {
-                        expect(addressbook).to.deep.equal(addressbookTest);
-                        done();
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
+      addressBookMock = {
+        create: function(addressbook) {
+          expect(addressbook).to.deep.equal(addressbookTest);
+          done();
+        },
+        get: function() {
+          return q.reject();
         }
       };
       getFunction(options);
@@ -315,4 +325,28 @@ describe('The contact import helper module', function() {
       }, done);
     });
   });
+
+  describe('The cleanOutdatedContacts fn', function() {
+    it('should call contact client to remove outdated contacts', function(done) {
+      var addressbook = { id: 'contacts' };
+      var lastSyncTimestamp = 12345678;
+      var options = {
+        user: user,
+        addressbook: addressbook,
+        esnToken: '12345'
+      };
+      addressBookMock.vcard = function() {
+        return {
+          removeMultiple: function(options) {
+            expect(options.modifiedBefore).to.equal(Math.round(lastSyncTimestamp / 1000 - 3600));
+            done();
+            return q.resolve();
+          }
+        };
+      };
+
+      getModule().cleanOutdatedContacts(options, lastSyncTimestamp);
+    });
+  });
+
 });

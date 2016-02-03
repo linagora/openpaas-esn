@@ -1,6 +1,7 @@
 'use strict';
 
 var q = require('q');
+var ICAL = require('ical.js');
 var davClient = require('../dav-client').rawClient;
 var PATH = 'addressbooks';
 var DEFAULT_ADDRESSBOOK_NAME = 'contacts';
@@ -8,7 +9,7 @@ var VCARD_JSON = 'application/vcard+json';
 
 var VALID_HTTP_STATUS = {
   GET: [200],
-  PUT: [200, 201],
+  PUT: [200, 201, 204],
   POST: [200, 201],
   DELETE: [204],
   PROPFIND: [200]
@@ -30,7 +31,7 @@ module.exports = function(dependencies, options) {
       }
 
       if (status && status.indexOf(response.statusCode) < 0) {
-        logger.error('Bad HTTP status', response.statusCode);
+        logger.error('Bad HTTP status', response.statusCode, body);
         return deferred.reject(new Error('Bad response from DAV API'));
       }
 
@@ -302,10 +303,10 @@ module.exports = function(dependencies, options) {
         }
 
         /**
-         * Delete a vcard
+         * Remove a vcard
          * @return {Promise}
          */
-        function del() {
+        function remove() {
           var deferred = q.defer();
           var headers = {
             ESNToken: ESNToken
@@ -324,8 +325,45 @@ module.exports = function(dependencies, options) {
         }
 
         /**
+         * Remove multiple contacts from DAV
+         * @param  {Object} options Contains:
+         *                             	+ modifiedBefore: timestamp in seconds
+         * @return {Promise} Resolve an array of removed contacts object
+         *                           informations contains:
+         *                           		+ cardId: the contact ID,
+         *                           		+ data: object contain response and body if success
+         *                           		+ error: error if failure
+         */
+        function removeMultiple(options) {
+          if (!options || !options.hasOwnProperty('modifiedBefore')) {
+            return q.reject(new Error('options.modifiedBefore is required'));
+          }
+          var query = {
+            modifiedBefore: options.modifiedBefore
+          };
+          return list(query)
+            .then(function(data) {
+              var body = data.body;
+              if (body && body._embedded && body._embedded['dav:item']) {
+                logger.debug('Removing %s contacts from DAV', body._embedded['dav:item'].length);
+                return q.all(body._embedded['dav:item'].map(function(davItem) {
+                    var cardId = (new ICAL.Component(davItem.data)).getFirstPropertyValue('uid');
+                    return vcard(cardId).remove().then(function(data) {
+                      return { cardId: cardId, data: data };
+                    }, function(err) {
+                      logger.error('Failed to delete contact', cardId, err);
+                      return { cardId: cardId, error: err };
+                    });
+                  }));
+              } else {
+                return q.reject(new Error('Error while deleting multiple contacts'));
+              }
+            });
+        }
+
+        /**
          * Get list of vcards
-         * @param  {Object} query Contains limit, offset, sort, userId
+         * @param  {Object} query Contains limit, offset, sort, userId, modifiedBefore
          * @return {Promise}
          */
         function list(query) {
@@ -337,6 +375,7 @@ module.exports = function(dependencies, options) {
 
           getBookUrl(function(url) {
             davClient({
+              method: 'GET',
               headers: headers,
               url: url,
               json: true,
@@ -374,7 +413,8 @@ module.exports = function(dependencies, options) {
         return {
           get: get,
           create: create,
-          del: del,
+          remove: remove,
+          removeMultiple: removeMultiple,
           update: update,
           list: list,
           search: search

@@ -42,19 +42,23 @@ describe('The contact client APIs', function() {
     var CONTACT_ID = '456';
 
     function expectBookHomeURL(url) {
-      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '.json');
+      expect(url).to.equal([DAV_PREFIX, 'addressbooks', BOOK_ID + '.json'].join('/'));
     }
 
     function expectBookNameURL(url) {
-      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '.json');
+      expect(url).to.equal([DAV_PREFIX, 'addressbooks', BOOK_ID, BOOK_NAME + '.json'].join('/'));
     }
 
     function expectVCardURL(url) {
-      expect(url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + CONTACT_ID + '.vcf');
+      expect(url).to.equal([DAV_PREFIX, 'addressbooks', BOOK_ID, BOOK_NAME, CONTACT_ID + '.vcf'].join('/'));
     }
 
     function getAddressbookHome() {
       return getModule()(CLIENT_OPTIONS).addressbookHome(BOOK_ID);
+    }
+
+    function getVCardUrl(cardId) {
+      return [DAV_PREFIX, 'addressbooks', BOOK_ID, BOOK_NAME, cardId + '.vcf'].join('/');
     }
 
     describe('The addressbook fn', function() {
@@ -654,7 +658,7 @@ describe('The contact client APIs', function() {
 
         });
 
-        describe('The deleteContact fn', function() {
+        describe('The remove fn', function() {
           it('should call davClient with right parameters', function(done) {
             mockery.registerMock('../dav-client', {
               rawClient: function(options) {
@@ -668,7 +672,7 @@ describe('The contact client APIs', function() {
               }
             });
 
-            getVcard(CONTACT_ID).del();
+            getVcard(CONTACT_ID).remove();
           });
 
           it('should resolve with response and body', function(done) {
@@ -685,7 +689,7 @@ describe('The contact client APIs', function() {
               }
             });
 
-            getVcard(CONTACT_ID).del().then(function(data) {
+            getVcard(CONTACT_ID).remove().then(function(data) {
               expect(data.response).to.deep.equal(response);
               expect(data.body).to.deep.equal(body);
               done();
@@ -699,7 +703,7 @@ describe('The contact client APIs', function() {
               }
             });
 
-            getVcard(CONTACT_ID).del().then(null, function(err) {
+            getVcard(CONTACT_ID).remove().then(null, function(err) {
               expect(err).to.equal('a error');
               done();
             });
@@ -712,13 +716,199 @@ describe('The contact client APIs', function() {
               }
             });
 
-            getVcard(CONTACT_ID).del().then(null, function(err) {
+            getVcard(CONTACT_ID).remove().then(null, function(err) {
               expect(err).to.exist;
               done();
             });
           });
 
         });
+
+        describe('The removeMultiple fn', function() {
+          it('should query for contacts at first', function(done) {
+            var query = {
+              modifiedBefore: '123'
+            };
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options) {
+                expect(options).to.shallowDeepEqual({
+                  method: 'GET',
+                  json: true,
+                  headers: {
+                    ESNToken: CLIENT_OPTIONS.ESNToken
+                  },
+                  query: query
+                });
+                expectBookNameURL(options.url);
+                done();
+              }
+            });
+
+            getVcard().removeMultiple(query);
+          });
+
+          it('should remove contacts one by one', function(done) {
+            var response = {
+              statusCode: 200
+            };
+            var body = {
+              _embedded: {
+                'dav:item': [{
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '1']
+                  ], []]
+                }, {
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '2']
+                  ], []]
+                }, {
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '3']
+                  ], []]
+                }]
+              }
+            };
+
+            var callCounter = 0;
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                if (options.method === 'GET') {
+                  callback(null, response, body);
+                } else if (options.method === 'DELETE') {
+                  callCounter++;
+                  expect(options.url).to.equal(getVCardUrl(callCounter));
+                  if (callCounter === 3) {
+                    done();
+                  }
+                  callback(null, { statusCode: 204 });
+                }
+              }
+            });
+
+            getVcard().removeMultiple({ modifiedBefore: 1 }).catch(done);
+          });
+
+          it('should resolve an array of removed contact object informations', function(done) {
+            var getResponse = {
+              statusCode: 200
+            };
+            var getBody = {
+              _embedded: {
+                'dav:item': [{
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '1']
+                  ], []]
+                }, {
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '2']
+                  ], []]
+                }, {
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '3']
+                  ], []]
+                }]
+              }
+            };
+
+            var deleteResponse = { statusCode: 204 };
+
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                if (options.method === 'GET') {
+                  callback(null, getResponse, getBody);
+                } else if (options.method === 'DELETE') {
+                  callback(null, deleteResponse);
+                }
+              }
+            });
+
+            var deleteData = { response: deleteResponse };
+            getVcard().removeMultiple({ modifiedBefore: 1 }).then(function(data) {
+              expect(data).to.shallowDeepEqual([{
+                cardId: '1',
+                data: deleteData
+              }, {
+                cardId: '2',
+                data: deleteData
+              }, {
+                cardId: '3',
+                data: deleteData
+              }]);
+              done();
+            }, done);
+          });
+
+          it('should still resolve an array of removed contact object informations when some contacts are failed to remove', function(done) {
+            var getResponse = {
+              statusCode: 200
+            };
+            var getBody = {
+              _embedded: {
+                'dav:item': [{
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '1']
+                  ], []]
+                }, {
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '2']
+                  ], []]
+                }, {
+                  data: ['vcard', [
+                    ['uid', {}, 'text', '3']
+                  ], []]
+                }]
+              }
+            };
+
+            var deleteResponse = { statusCode: 204 };
+
+            var callCounter = 0;
+            mockery.registerMock('../dav-client', {
+              rawClient: function(options, callback) {
+                if (options.method === 'GET') {
+                  callback(null, getResponse, getBody);
+                } else if (options.method === 'DELETE') {
+                  callCounter++;
+                  if (callCounter === 2) {
+                    callback(null, { statusCode: 500 });
+                  } else {
+                    callback(null, { statusCode: 204 });
+                  }
+                }
+              }
+            });
+            var deleteData = { response: deleteResponse };
+            getVcard().removeMultiple({ modifiedBefore: 1 }).then(function(data) {
+              expect(data).to.shallowDeepEqual([{
+                cardId: '1',
+                data: deleteData
+              }, {
+                cardId: '2',
+                error: new Error()
+              }, {
+                cardId: '3',
+                data: deleteData
+              }]);
+              done();
+            }, done);
+          });
+
+          it('should reject when called with no options', function(done) {
+            getVcard().removeMultiple().then(done, function(err) {
+              expect(err.message).to.equal('options.modifiedBefore is required');
+              done();
+            });
+          });
+
+          it('should reject when called with options without modifiedBefore field', function(done) {
+            getVcard().removeMultiple({}).then(done, function(err) {
+              expect(err.message).to.equal('options.modifiedBefore is required');
+              done();
+            });
+          });
+
+        });
+
       });
     });
   });

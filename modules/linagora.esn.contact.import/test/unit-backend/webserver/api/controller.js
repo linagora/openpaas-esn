@@ -2,7 +2,6 @@
 
 var chai = require('chai');
 var expect = chai.expect;
-var q = require('q');
 
 describe('The contact import controller', function() {
 
@@ -36,46 +35,34 @@ describe('The contact import controller', function() {
       return require('../../../../backend/webserver/api/controller')(dependencies, lib);
     };
 
-    it('should send back HTTP 500 when import rejects', function(done) {
+    it('should call importAccountContactsByJobQueue with the right parameters', function(done) {
       var lib = {
         importAccountContactsByJobQueue: function(user, account) {
           expect(user).to.equal(req.user);
           expect(account).to.deep.equal(req.account);
-          return q.reject(new Error('Import failure'));
+          done();
         }
       };
 
       getController(lib).importContacts(req, {
-        status: function(code) {
-          expect(code).to.equal(500);
+        status: function() {
           return {
-            json: function(data) {
-              expect(data.error.code).to.equal(500);
-              expect(data.error.message).to.equal('Server Error');
-              expect(data.error.details).to.equal('Error while importing contacts');
-              done();
-            }
+            end: function() {}
           };
         }
       });
     });
 
-    it('should send back HTTP 202 when import is resolved', function(done) {
+    it('should send back HTTP 202 immediately', function(done) {
       var lib = {
-        importAccountContactsByJobQueue: function(user, account) {
-          expect(user).to.equal(req.user);
-          expect(account).to.deep.equal(req.account);
-          return q.when({});
-        }
+        importAccountContactsByJobQueue: function() {}
       };
 
       getController(lib).importContacts(req, {
         status: function(code) {
           expect(code).to.equal(202);
           return {
-            json: function() {
-              done();
-            }
+            end: done
           };
         }
       });

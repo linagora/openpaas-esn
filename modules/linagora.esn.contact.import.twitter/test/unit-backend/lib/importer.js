@@ -158,29 +158,6 @@ describe('The twitter contact importer', function() {
       mockery.registerMock('twitter-node-client', twitterClientMocks);
     });
 
-    it('should get all following ids for the first step', function(done) {
-      twitterClient.getCustomApiCall = function(value) {
-        if (value === '/friends/ids.json') {
-          done();
-        }
-      };
-      getImporter().importContact(options);
-    });
-
-    it('should get at most 18000 following ids if not done', function(done) {
-      var count = 0;
-      twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-        if (value === '/friends/ids.json') {
-          count++;
-          onSuccess(longIdList);
-        }
-      };
-      getImporter().importContact(options).then(function() {
-        expect(count).to.equal(3000);
-        done();
-      });
-    });
-
     it('should return promise reject if can not get oauth config', function(done) {
       dependencies['esn-config'] = function() {
         return {
@@ -195,22 +172,40 @@ describe('The twitter contact importer', function() {
         });
     });
 
-    it('should return promise resolved if success getting oauth config', function(done) {
-      getImporter().importContact(options).then(done);
+    it('should get following ids for the first step', function(done) {
+      twitterClient.getCustomApiCall = function(value) {
+        if (value === '/friends/ids.json') {
+          done();
+        }
+      };
+      getImporter().importContact(options);
     });
 
-    it('should lookup for following info for the 2nd step', function() {
-      var count = 0;
+    it('should lookup for following info for the 2nd step', function(done) {
       twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
         if (value === '/friends/ids.json') {
           onSuccess(followingIdList);
         }
         if (value === '/users/lookup.json') {
-          count++;
+          done();
         }
       };
-      getImporter().importContact(options).then(function() {
-        expect(count).to.equal(3);
+      getImporter().importContact(options);
+    });
+
+    it('should get at most 18000 following ids', function(done) {
+      var count = 0;
+      twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
+        if (value === '/friends/ids.json') {
+          count++;
+          onSuccess(longIdList);
+        } else {
+          onError();
+        }
+      };
+      getImporter().importContact(options).then(null, function() {
+        expect(count).to.equal(3000);
+        done();
       });
     });
 
