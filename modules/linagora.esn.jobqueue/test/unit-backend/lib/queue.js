@@ -59,8 +59,9 @@ describe('The queue lib module', function() {
     return require('../../../backend/lib/queue')(deps);
   };
 
-  describe('The startJob function', function() {
+  describe('The submitJob function', function() {
     it('should create job with correct parameters ', function(done) {
+      var workerName = 'workerName';
       var jobName = 'jobName';
       var option = {
         account: 'Name'
@@ -76,10 +77,19 @@ describe('The queue lib module', function() {
           }
         };
       };
-      getModule().startJob(jobName, option);
+      getModule().submitJob(workerName, jobName, option);
+    });
+
+    it('should reject if jobName not found', function(done) {
+      var workerName = 'workerName';
+      getModule().submitJob(workerName).then(null, function(err) {
+        expect(err.message).to.equal('Cannot submit a job without jobName');
+        done();
+      });
     });
 
     it('should reject if create job error ', function(done) {
+      var workerName = 'workerName';
       var jobName = 'jobName';
       jobMock.create = function() {
         return {
@@ -88,12 +98,14 @@ describe('The queue lib module', function() {
           }
         };
       };
-      getModule().startJob(jobName).then(null, function() {
+      getModule().submitJob(workerName, jobName).then(null, function(err) {
+        expect(err).to.exist;
         done();
       });
     });
 
     it('should get worker if succeed creating job', function(done) {
+      var workerName = 'workerName';
       jobMock = {
         create: function() {
           return {
@@ -103,13 +115,16 @@ describe('The queue lib module', function() {
           };
         }
       };
-      workersMock.get = function() {
+      workersMock.get = function(name) {
+        expect(name).to.equal(workerName);
         done();
       };
-      getModule().startJob('jobName');
+      getModule().submitJob(workerName, 'jobName');
     });
 
     it('should run job process if worker exist', function(done) {
+      var workerName = 'workerName';
+      var jobName = 'jobName';
       jobMock = {
         create: function() {
           return {
@@ -123,10 +138,12 @@ describe('The queue lib module', function() {
       workersMock.get = function() {
         return 1;
       };
-      getModule().startJob('jobName');
+      getModule().submitJob(workerName, jobName);
     });
 
     it('should run job with worker function if worker exist', function(done) {
+      var workerName = 'workerName';
+      var jobName = 'jobName';
       jobMock = {
         create: function() {
           return {
@@ -146,10 +163,12 @@ describe('The queue lib module', function() {
           }
         };
       };
-      getModule().startJob('jobName');
+      getModule().submitJob(workerName, jobName);
     });
 
     it('should reject if worker does not exist', function(done) {
+      var workerName = 'workerName';
+      var jobName = 'jobName';
       jobMock = {
         create: function() {
           return {
@@ -163,7 +182,7 @@ describe('The queue lib module', function() {
         }
       };
       workersMock.get = function() {};
-      getModule().startJob('jobName').then(null, function() {
+      getModule().submitJob(workerName, jobName).then(null, function() {
         done();
       });
     });
