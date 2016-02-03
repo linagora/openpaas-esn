@@ -54,7 +54,8 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       scope: {
-        contact: '='
+        contact: '=',
+        contactState: '@'
       },
       templateUrl: '/contact/views/partials/contact-edition-form.html',
       link: function($scope) {
@@ -162,7 +163,8 @@ angular.module('linagora.esn.contact')
         contact: '=',
         editable: '@',
         listView: '@',
-        avatarSize: '@'
+        avatarSize: '@',
+        contactState: '@'
       },
       link: function(scope) {
         scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;

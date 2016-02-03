@@ -4,7 +4,7 @@
       .row
         .col-xs-12.col-sm-4.col-sm-push-8.hidden-lg.all-centered-xs
           div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
-            contact-photo(contact='contact', editable='true', avatar-size='{{avatarSize}}')
+            contact-photo(contact='contact', editable='true', avatar-size='{{avatarSize}}', contact-state='{{contactState}}')
         .col-xs-12.col-sm-8.col-sm-pull-4.col-lg-12.col-lg-pull-0
           .fg-line
             input.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
@@ -20,7 +20,7 @@
     .col-xs-12.col-lg-5
       .row
         div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
-          contact-photo.visible-lg(contact='contact', editable='true', avatar-size='{{avatarSize}}')
+          contact-photo.visible-lg(contact='contact', editable='true', avatar-size='{{avatarSize}}', contact-state='{{contactState}}')
       .row
         label.control-label.sr-only #{__("Tags")}
         .col-sm-12
