@@ -144,7 +144,7 @@ describe('The contact import backend module', function() {
       expect(addAppSpy).to.have.been.calledOnce;
     });
 
-    it('should add contact sync worker to job queue', function(done) {
+    it('should add contact sync worker and contact import worker to job queue', function(done) {
 
       var importer = {
         name: 'twitter',
@@ -154,16 +154,22 @@ describe('The contact import backend module', function() {
           staticPath: '/foo/bar/baz/twitter'
         }
       };
-
+      var workers = [];
       jobQueueMock.lib.workers.add = function(worker) {
-        expect(worker).to.shallowDeepEqual({
-          name: 'contact-' + importer.name + '-sync',
-          getWorkerFunction: function() {}
-        });
-        done();
+        workers.push(worker);
       };
 
       getModule().addImporter(importer);
+
+      expect(workers).to.shallowDeepEqual([{
+        name: 'contact-' + importer.name + '-sync',
+        getWorkerFunction: function() {}
+      }, {
+        name: 'contact-' + importer.name + '-import',
+        getWorkerFunction: function() {}
+      }
+      ]);
+      done();
 
     });
 

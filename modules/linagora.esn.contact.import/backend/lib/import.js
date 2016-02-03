@@ -46,7 +46,7 @@ module.exports = function(dependencies) {
   }
 
   function importAccountContactsByJobQueue(user, account) {
-    var workerName = ['contact', account.data.provider, 'sync'].join('-');
+    var workerName = ['contact', account.data.provider, 'import'].join('-');
     var jobName = [workerName, user._id + '', account.data.id, Date.now()].join('-');
     return jobQueue.lib.submitJob(workerName, jobName, { user: user, account: account });
   }

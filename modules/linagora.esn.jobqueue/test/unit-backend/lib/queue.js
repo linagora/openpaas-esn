@@ -8,6 +8,9 @@ var q = require('q');
 describe('The queue lib module', function() {
 
   var deps, dependencies;
+  var workerName = 'workerName';
+  var jobName = 'jobName';
+  var error = new Error('error');
   var jobMock = {
     create: function() {
       return {
@@ -61,8 +64,6 @@ describe('The queue lib module', function() {
 
   describe('The submitJob function', function() {
     it('should create job with correct parameters ', function(done) {
-      var workerName = 'workerName';
-      var jobName = 'jobName';
       var option = {
         account: 'Name'
       };
@@ -81,7 +82,6 @@ describe('The queue lib module', function() {
     });
 
     it('should reject if jobName not found', function(done) {
-      var workerName = 'workerName';
       getModule().submitJob(workerName).then(null, function(err) {
         expect(err.message).to.equal('Cannot submit a job without jobName');
         done();
@@ -89,8 +89,6 @@ describe('The queue lib module', function() {
     });
 
     it('should reject if create job error ', function(done) {
-      var workerName = 'workerName';
-      var jobName = 'jobName';
       jobMock.create = function() {
         return {
           save: function(callback) {
@@ -105,7 +103,6 @@ describe('The queue lib module', function() {
     });
 
     it('should get worker if succeed creating job', function(done) {
-      var workerName = 'workerName';
       jobMock = {
         create: function() {
           return {
@@ -123,8 +120,6 @@ describe('The queue lib module', function() {
     });
 
     it('should run job process if worker exist', function(done) {
-      var workerName = 'workerName';
-      var jobName = 'jobName';
       jobMock = {
         create: function() {
           return {
@@ -142,8 +137,6 @@ describe('The queue lib module', function() {
     });
 
     it('should run job with worker function if worker exist', function(done) {
-      var workerName = 'workerName';
-      var jobName = 'jobName';
       jobMock = {
         create: function() {
           return {
@@ -166,9 +159,94 @@ describe('The queue lib module', function() {
       getModule().submitJob(workerName, jobName);
     });
 
+    it('should log process and call progress fn if worker function send notification', function(done) {
+      var textMessage = 'text message';
+      var job = {
+        log: function(message) {
+          expect(message).to.equal(textMessage);
+        },
+        progress: function(value) {
+          expect(value).to.equal(20);
+          done();
+        },
+        data: {
+          data: 'job data'
+        }
+      };
+      var workerFunctionMock = function() {
+        return {
+          then: function(successCallback, errorCallback, processCallback) {
+            processCallback({message: textMessage, value: 20});
+          }
+        };
+      };
+
+      jobMock = {
+        create: function() {
+          return {
+            save: function(callback) {
+              return callback();
+            }
+          };
+        },
+        process: function(name, callback) {
+          return callback(job);
+        }
+      };
+      workersMock.get = function() {
+        return {
+          getWorkerFunction: function() {
+            return workerFunctionMock;
+          }
+        };
+      };
+      getModule().submitJob(workerName, jobName);
+    });
+
+    it('should not log process nor call progress fn if worker function send undefined notification', function(done) {
+      var job = {
+        log: function() {
+          done(error);
+        },
+        progress: function() {
+          done(error);
+        },
+        data: {
+          data: 'job data'
+        }
+      };
+      var workerFunctionMock = function() {
+        return {
+          then: function(successCallback, errorCallback, processCallback) {
+            processCallback();
+          }
+        };
+      };
+
+      jobMock = {
+        create: function() {
+          return {
+            save: function(callback) {
+              return callback();
+            }
+          };
+        },
+        process: function(name, callback) {
+          return callback(job);
+        }
+      };
+      workersMock.get = function() {
+        return {
+          getWorkerFunction: function() {
+            return workerFunctionMock;
+          }
+        };
+      };
+      getModule().submitJob(workerName, jobName);
+      done();
+    });
+
     it('should reject if worker does not exist', function(done) {
-      var workerName = 'workerName';
-      var jobName = 'jobName';
       jobMock = {
         create: function() {
           return {
