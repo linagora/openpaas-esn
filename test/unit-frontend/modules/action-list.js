@@ -48,6 +48,35 @@ describe('directive : action-list', function() {
     };
   }));
 
+  it('should not propagate the click to the parent elements', function() {
+    screenSize.is = function(match) {
+      expect(match).to.equal('xs, sm');
+      return true;
+    };
+
+    this.initDirective('<div ng-click="parentClicked = true"><button action-list>Click Me</button></div>');
+    element.find('button').click();
+
+    expect($scope.parentClicked).to.equal(undefined);
+  });
+
+  it('should not run the default handlers of parent links', function(done) {
+    screenSize.is = function(match) {
+      expect(match).to.equal('xs, sm');
+      return true;
+    };
+
+    var event = {
+      type: 'click',
+      stopImmediatePropagation: angular.noop,
+      preventDefault: done
+    };
+
+    this.initDirective('<a href="/should/not/go/there"><button action-list>Click Me</button></a>');
+
+    element.find('button').triggerHandler(event);
+  });
+
   it('should open a $modal when screen size is <= sm', function() {
     screenSize.is = function(match) {
       expect(match).to.equal('xs, sm');

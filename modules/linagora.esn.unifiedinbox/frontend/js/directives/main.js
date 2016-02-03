@@ -124,7 +124,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('htmlEmailBody', function(createHtmlElement, iFrameResize) {
+  .directive('htmlEmailBody', function($timeout, createHtmlElement, iFrameResize) {
     return {
       restrict: 'E',
       scope: {
@@ -132,6 +132,8 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/partials/html-email-body.html',
       link: function(scope, element) {
+        var iFrames;
+
         element.find('iframe').load(function(event) {
           scope.$emit('iframe:loaded', event.target);
         });
@@ -142,7 +144,7 @@ angular.module('linagora.esn.unifiedinbox')
           iFrameDocument.body.appendChild(createHtmlElement('script', {src: '/components/iframe-resizer/js/iframeResizer.contentWindow.js'}));
           iFrameDocument.head.appendChild(createHtmlElement('base', {target: '_blank'}));
 
-          iFrameResize({
+          iFrames = iFrameResize({
             checkOrigin: false,
             scrolling: false,
             inPageLinks: true,
@@ -151,6 +153,14 @@ angular.module('linagora.esn.unifiedinbox')
               scope.$emit('nicescroll:resize');
             }
           }, iFrame);
+        });
+
+        scope.$on('email:collapse', function(event, isCollapsed) {
+          if (!isCollapsed) {
+            $timeout(function() {
+              iFrames[0].iFrameResizer.resize();
+            }, 0);
+          }
         });
       }
     };
@@ -323,8 +333,13 @@ angular.module('linagora.esn.unifiedinbox')
           };
         }.bind(this));
 
-        this.setIsFlagged = function(event, email, state) {
+        this.setIsFlagged = function(email, state) {
           jmapEmailService.setFlag(email, 'isFlagged', state);
+        };
+
+        this.toggleIsCollapsed = function(email) {
+          email.isCollapsed = !email.isCollapsed;
+          $scope.$broadcast('email:collapse', email.isCollapsed);
         };
       },
       controllerAs: 'ctrl',

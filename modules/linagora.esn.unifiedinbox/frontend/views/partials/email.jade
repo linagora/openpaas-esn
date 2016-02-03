@@ -1,6 +1,6 @@
-.card
+.card(ng-class='{"isCollapsed": email.isCollapsed}')
 
-  .email-header
+  .email-header.clickable(ng-click="ctrl.toggleIsCollapsed(email)")
 
     .avatarify
       .from
@@ -12,11 +12,12 @@
       .cc
         span.line-header #{__('CC')}:
         emailer-group(group="::email.cc")
+      .preview.ellipsis.line-header {{::email.preview}}
 
     .email-header-right
       ul.actions
         li.action-item
-          a(ng-click="ctrl.replyAll()" title="#{__('Reply all')}")
+          a(ng-click="ctrl.replyAll(); $event.stopPropagation()" title="#{__('Reply all')}")
             i.mdi.mdi-reply-all
         li.action-item
           a(action-list, action-list-url="/unifiedinbox/views/view-email/action-list.html" title="#{__('More')}")

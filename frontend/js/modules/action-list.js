@@ -54,7 +54,10 @@ angular.module('esn.actionList', [])
           }
         });
 
-        element.click(function() {
+        element.click(function(event) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+
           boundOpenFn();
         });
 
