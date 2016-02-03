@@ -474,14 +474,10 @@ angular.module('esn.calendar')
 
     function render(event, element) {
       var timeSpan = element.find('.fc-time span');
-
-      element.find('.fc-content').addClass('ellipsis');
+      var title = element.find('.fc-title');
 
       if (event.location) {
-        var title = element.find('.fc-title');
-        title.addClass('ellipsis');
-        var contentHtml = title.html() + ' (' + $sanitize(event.location) + ')';
-        title.html(contentHtml);
+        angular.element('<div class="fc-location">' + '(' + $sanitize(event.location) + ')' + '</div>').insertAfter(title);
       }
 
       if (event.description) {
