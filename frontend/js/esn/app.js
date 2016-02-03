@@ -195,6 +195,11 @@ angular.module('esnApp', [
   RestangularProvider.setBaseUrl('/api');
   RestangularProvider.setFullResponse(true);
 })
+.config(function($provide) {
+  $provide.decorator('clockpickerDefaultOptions', function($delegate) {
+    return angular.extend({}, {nativeOnMobile: true}, $delegate);
+  });
+})
 // don't remove $state from here or ui-router won't route...
 .run(function(session, ioConnectionManager, editableOptions, $state) {
   editableOptions.theme = 'bs3';
