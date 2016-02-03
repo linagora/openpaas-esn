@@ -467,7 +467,7 @@ describe('The contact import module', function() {
       });
 
       jobQueueMock.lib.submitJob = function(workerName, jobName, options) {
-        expect(workerName).to.equal('contact-' + account.data.provider + '-sync');
+        expect(workerName).to.equal('contact-' + account.data.provider + '-import');
         expect(options).to.eql({
           user: user,
           account: account

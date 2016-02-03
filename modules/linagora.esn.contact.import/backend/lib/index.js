@@ -33,6 +33,15 @@ module.exports = function(dependencies) {
       }
     });
 
+    jobQueue.lib.workers.add({
+      name: 'contact-' + importer.name + '-import',
+      getWorkerFunction: function() {
+        return function(data) {
+          return importModule.importAccountContacts(data.user, data.account);
+        };
+      }
+    });
+
     webserverWrapper.injectAngularModules('contact.import.' + importer.name, importer.frontend.modules, importer.frontend.moduleName, ['esn']);
     webserverWrapper.addApp('contact.import.' + importer.name, webserver.getStaticApp(importer.frontend.staticPath));
   }

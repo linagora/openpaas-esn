@@ -72,10 +72,10 @@ module.exports = function(dependencies) {
    * @param  {Object} options           Contains user from the request and token from middleware
    */
 
-  function sendFollowingsToDAV(followingIdsList, twitterClient, options) {
+  function sendFollowingsToDAV(followingIdsList, twitterClient, options, notifyProcess) {
 
     var idStack = [];
-
+    var processedStack = 0;
     followingIdsList.forEach(function(value, index) {
       var arrayIndex = Math.floor(index / MAX_ID_PER_STACK);
       if (idStack[arrayIndex]) {
@@ -85,8 +85,11 @@ module.exports = function(dependencies) {
       }
     });
 
-    return q.all(idStack.map(function(ids) {
-      return sendFollowingToDAV(twitterClient, options, ids);
+    return q.all(idStack.map(function(ids, index) {
+      return sendFollowingToDAV(twitterClient, options, ids).then(function() {
+        processedStack++;
+        notifyProcess({message: 'Imported following stack ' + index, value: Math.round(processedStack * 100 / idStack.length)});
+      });
     }));
   }
 
@@ -148,7 +151,7 @@ module.exports = function(dependencies) {
       var twitterClient = new Twitter(twitterConfig);
       getFollowingsIds(followingIdsList, twitterClient, -1)
         .then(function(followingIdsList) {
-          return sendFollowingsToDAV(followingIdsList, twitterClient, options);
+          return sendFollowingsToDAV(followingIdsList, twitterClient, options, defer.notify);
         })
         .then(defer.resolve, function(err) {
           logger.error('Error while importing Twitter followings', err);
@@ -158,7 +161,7 @@ module.exports = function(dependencies) {
             account: account.data.username,
             user: options.user
           });
-          return defer.reject(err);
+          defer.reject(err);
         });
     });
     return defer.promise;
