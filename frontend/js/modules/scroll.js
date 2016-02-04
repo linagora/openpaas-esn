@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.scroll', ['esn.header'])
+angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
   .constant('SCROLL_EVENTS', {
     RESET_SCROLL: 'scroll:reset'
   })
@@ -77,7 +77,7 @@ angular.module('esn.scroll', ['esn.header'])
     };
   })
 
-  .factory('elementScrollService', function($timeout, $window, headerService, SUB_HEADER_HEIGHT_IN_PX) {
+  .factory('elementScrollService', function($timeout, $window, headerService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
     /**
      * Auto-scroll to the end of the given element
      * @param element
@@ -101,8 +101,6 @@ angular.module('esn.scroll', ['esn.header'])
       $window.scrollTo(0, scrollY);
     }
 
-<<<<<<< Updated upstream
-=======
     function scrollToTop() {
       if (deviceDetector.isMobile()) {
         // the animation rendering is often bad with mobiles
@@ -112,9 +110,9 @@ angular.module('esn.scroll', ['esn.header'])
       }
     }
 
->>>>>>> Stashed changes
     return {
       autoScrollDown: autoScrollDown,
-      scrollDownToElement: scrollDownToElement
+      scrollDownToElement: scrollDownToElement,
+      scrollToTop: scrollToTop
     };
   });

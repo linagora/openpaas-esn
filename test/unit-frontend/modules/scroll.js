@@ -17,6 +17,7 @@ describe('The Scroll Angular module', function() {
 
       return $delegate;
     });
+
     $provide.value('headerService', {
       subHeader: {
         hasInjections: function() {
@@ -200,6 +201,36 @@ describe('The Scroll Angular module', function() {
         expect($window.scrollTo).to.have.been.calledWith(0, 100 - SUB_HEADER_HEIGHT_IN_PX);
       });
 
+    });
+
+    describe('The scrollToTop function', function() {
+
+      var $window, deviceDetector;
+
+      beforeEach(inject(function(_$window_, _deviceDetector_) {
+        $window = _$window_;
+        deviceDetector = _deviceDetector_;
+      }));
+
+      it('should scroll to top with the "scrollTo" fn on mobile"', function() {
+        deviceDetector.isMobile = sinon.stub().returns(true);
+        $window.scrollTo = sinon.spy();
+
+        elementScrollService.scrollToTop();
+
+        expect(deviceDetector.isMobile).to.have.been.called;
+        expect($window.scrollTo).to.have.been.calledWith(0, 0);
+      });
+
+      it('should scroll to top with a jquery animation on desktop"', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
+        $window.scrollTo = sinon.spy();
+
+        elementScrollService.scrollToTop();
+
+        expect(deviceDetector.isMobile).to.have.been.called;
+        expect($window.scrollTo).to.not.have.been.called;
+      });
     });
 
   });
