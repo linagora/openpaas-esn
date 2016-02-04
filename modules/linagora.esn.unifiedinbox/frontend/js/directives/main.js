@@ -59,13 +59,19 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFabScrollTop', function(elementScrollService) {
+  .directive('inboxFabScrollTop', function($window, elementScrollService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/inbox-scroll-top.html',
       link: function(scope, element) {
+
         scope.hide = element.addClass.bind(element, 'hidden');
-        scope.show = element.removeClass.bind(element, 'hidden');
+        scope.show = function() {
+          if (($window.innerHeight * 2 ) < $window.scrollY) {
+            element.removeClass('hidden');
+          }
+        };
+
         scope.hide();
 
         element.click(function(event) {
