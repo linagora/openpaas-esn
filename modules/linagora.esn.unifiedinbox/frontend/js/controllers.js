@@ -62,7 +62,10 @@ angular.module('linagora.esn.unifiedinbox')
       .then(searchForMessages);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService, JMAP_GET_MESSAGES_LIST) {
+  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
+
+    var position = 0,
+        groups = new ElementGroupingTool($stateParams.mailbox);
 
     this.openThread = function(thread) {
       $state.go('unifiedinbox.threads.thread', {
@@ -83,18 +86,33 @@ angular.module('linagora.esn.unifiedinbox')
       return data[0];
     }
 
-    function searchForThreads() {
-      withJmapClient(function(client) {
-        client.getMessageList({
+    $scope.infiniteScrollDisabled = false;
+    $scope.loadMoreElements = function() {
+      if ($scope.infiniteScrollDisabled) {
+        return;
+      }
+
+      $scope.infiniteScrollDisabled = true;
+
+      return withJmapClient(function(client) {
+        return client.getMessageList({
           filter: {
-            inMailboxes: [$scope.mailbox.id]
+            inMailboxes: [$stateParams.mailbox]
           },
+          sort: ['date desc'],
           collapseThreads: true,
+          fetchThreads: false,
           fetchMessages: false,
-          position: 0,
-          limit: 100
+          position: position,
+          limit: ELEMENTS_PER_PAGE
         })
           .then(function(messageList) {
+            if (messageList.threadIds.length < ELEMENTS_PER_PAGE) {
+              $scope.infiniteScrollCompleted = true;
+
+              return $q.reject();
+            }
+
             return $q.all([
               messageList.getThreads({
                 fetchMessages: false
@@ -106,16 +124,22 @@ angular.module('linagora.esn.unifiedinbox')
           })
           .then(_prepareThreadsVariable)
           .then(function(threads) {
-            $scope.groupedThreads = new ElementGroupingTool($scope.mailbox.id, threads).getGroupedElements();
+            groups.addAll(threads);
+          })
+          .then(function() {
+            position += ELEMENTS_PER_PAGE;
+            $scope.infiniteScrollDisabled = false;
           });
       });
-    }
+    };
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
 
     mailboxesService
       .assignMailbox($stateParams.mailbox, $scope)
-      .then(searchForThreads);
+      .then(function() {
+        $scope.groupedThreads = groups.getGroupedElements();
+      });
   })
 
   .controller('composerController', function($scope, $stateParams, headerService, Composition) {

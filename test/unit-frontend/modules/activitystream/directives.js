@@ -238,17 +238,6 @@ describe('The esn.activitystream Angular module', function() {
       };
     }]));
 
-    it('should call scope.loadMoreElements() method', function(done) {
-      this.$scope.streams = [];
-      this.$scope.stream = {_id: '123', activity_stream: {uuid: '0987654321'}};
-      var html = '<activity-stream activitystream="stream" streams="streams"></activity-stream>';
-      var element = this.$compile(html)(this.$scope);
-      this.$rootScope.$digest();
-      var scope = element.isolateScope();
-      scope.loadMoreElements = done;
-      this.$timeout.flush();
-    });
-
     describe('when "message:posted" event is emitted', function() {
       it('should do nothing if message.activitystreamUuid is not one the scope streams', function(done) {
         this.$scope.activitystream = {_id: '123', activity_stream: {uuid: '0987654321'}};

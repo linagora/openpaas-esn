@@ -20,7 +20,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.lodash-wrapper',
   'esn.settings-overlay',
   'esn.desktop-utils',
-  'esn.form.helper'
+  'esn.form.helper',
+  'esn.infinite-list'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider

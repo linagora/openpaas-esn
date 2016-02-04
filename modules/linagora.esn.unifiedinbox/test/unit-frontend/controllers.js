@@ -10,7 +10,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      mailboxesService, inboxEmailService, _, JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST;
+      mailboxesService, inboxEmailService, _, JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
+      ELEMENTS_PER_PAGE;
 
   beforeEach(function() {
     $stateParams = {
@@ -49,12 +50,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('newComposerService', newComposerService);
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
+      $provide.constant('ELEMENTS_PER_PAGE', 2);
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
                                           _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_) {
+                                          _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -65,6 +67,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     _ = ___;
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
     JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
+    ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
 
     scope = $rootScope.$new();
   }));
@@ -583,88 +586,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(scope.mailbox.name).to.equal('a name');
     });
 
-    it('should call jmapClient.getMailboxes then jmapClient.getMessageList', function(done) {
-      jmapClient.getMailboxes = sinon.stub().returns($q.when([{}]));
-      jmapClient.getMessageList = function() {
-        done();
-      };
-
-      initController('listThreadsController');
-    });
-
-    it('should call jmapClient.getMessageList with correct arguments', function(done) {
-      jmapClient.getMessageList = function(options) {
-        expect(options).to.deep.equal({
-          filter: {
-            inMailboxes: ['chosenMailbox']
-          },
-          collapseThreads: true,
-          fetchMessages: false,
-          position: 0,
-          limit: 100
-        });
-
-        done();
-      };
-
-      initController('listThreadsController');
-    });
-
-    it('should call jmapClient.getMessageList then getMessages and getThreads', function() {
-      var messageListResult = {
-        getMessages: sinon.spy(function(data) {
-          expect(data).to.deep.equal({
-            properties: JMAP_GET_MESSAGES_LIST
-          });
-
-          return [];
-        }),
-        getThreads: sinon.spy(function(data) {
-          expect(data).to.deep.equal({
-            fetchMessages: false
-          });
-
-          return [];
-        })
-      };
-
-      jmapClient.getMessageList = function() {
-        return $q.when(messageListResult);
-      };
-
-      initController('listThreadsController');
-      scope.$digest();
-
-      expect(messageListResult.getMessages).to.have.been.called;
-      expect(messageListResult.getThreads).to.have.been.called;
-    });
-
-    it('should add email and date for each thread', function() {
-      var thread1 = {id: 'thread1', messageIds: ['msg1']},
-          thread2 = {id: 'thread2', messageIds: ['msg2']};
-      var messageListResult = {
-        getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '10:00:00'}, {id: 'msg2', threadId: 'thread2', date: '12:00:00'}];}),
-        getThreads: sinon.spy(function() { return [thread1, thread2];})
-      };
-
-      jmapClient.getMessageList = function() {
-        return $q.when(messageListResult);
-      };
-
-      initController('listThreadsController');
-      scope.$digest();
-
-      expect(messageListResult.getMessages).to.have.been.called;
-      expect(messageListResult.getThreads).to.have.been.called;
-
-      expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '10:00:00'});
-      expect(thread1.date).to.equal('10:00:00');
-
-      expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '12:00:00'});
-      expect(thread2.date).to.equal('12:00:00');
-
-    });
-
     it('should build an EmailGroupingTool with the list of threads, and assign it to scope.groupedThreads', function(done) {
       initController('listThreadsController');
 
@@ -694,6 +615,116 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         threadId: 'expected thread id'
       });
     });
+
+    describe('The loadMoreElements function', function() {
+
+      function loadMoreElements() {
+        initController('listThreadsController');
+
+        var promise = scope.loadMoreElements();
+        scope.$digest();
+
+        return promise;
+      }
+
+      it('should call jmapClient.getMessageList with correct arguments', function(done) {
+        jmapClient.getMessageList = function(options) {
+          expect(options).to.deep.equal({
+            filter: {
+              inMailboxes: ['chosenMailbox']
+            },
+            collapseThreads: true,
+            fetchThreads: false,
+            fetchMessages: false,
+            sort: ['date desc'],
+            position: 0,
+            limit: ELEMENTS_PER_PAGE
+          });
+
+          done();
+        };
+
+        loadMoreElements();
+      });
+
+      it('should call jmapClient.getMessageList then getMessages and getThreads', function() {
+        var messageListResult = {
+          threadIds: [1, 2],
+          getMessages: sinon.spy(function(data) {
+            expect(data).to.deep.equal({
+              properties: JMAP_GET_MESSAGES_LIST
+            });
+
+            return [];
+          }),
+          getThreads: sinon.spy(function(data) {
+            expect(data).to.deep.equal({
+              fetchMessages: false
+            });
+
+            return [];
+          })
+        };
+
+        jmapClient.getMessageList = function() {
+          return $q.when(messageListResult);
+        };
+
+        loadMoreElements();
+
+        expect(messageListResult.getMessages).to.have.been.called;
+        expect(messageListResult.getThreads).to.have.been.called;
+      });
+
+      it('should add email and date for each thread', function() {
+        var thread1 = {id: 'thread1', messageIds: ['msg1']},
+          thread2 = {id: 'thread2', messageIds: ['msg2']};
+        var messageListResult = {
+          threadIds: [1, 2],
+          getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '10:00:00'}, {id: 'msg2', threadId: 'thread2', date: '12:00:00'}];}),
+          getThreads: sinon.spy(function() { return [thread1, thread2];})
+        };
+
+        jmapClient.getMessageList = function() {
+          return $q.when(messageListResult);
+        };
+
+        loadMoreElements();
+
+        expect(messageListResult.getMessages).to.have.been.called;
+        expect(messageListResult.getThreads).to.have.been.called;
+
+        expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '10:00:00'});
+        expect(thread1.date).to.equal('10:00:00');
+
+        expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '12:00:00'});
+        expect(thread2.date).to.equal('12:00:00');
+
+      });
+
+      it('should reject, set scope.infiniteScrollCompleted=true and not call getMessages and getThreads, when windowing is done', function(done) {
+        var messageList = {
+          threadIds: [1], // Only one result, so < limit
+          getMessages: sinon.spy(),
+          getThreads: sinon.spy()
+        };
+
+        jmapClient.getMessageList = function() {
+          return $q.when(messageList);
+        };
+
+        loadMoreElements().then(null, function() {
+          expect(scope.infiniteScrollCompleted).to.equal(true);
+          expect(messageList.getMessages).to.not.have.been.calledWith();
+          expect(messageList.getThreads).to.not.have.been.calledWith();
+
+          done();
+        });
+        scope.$digest();
+      });
+
+    });
+
   });
 
   describe('The rootController', function() {
