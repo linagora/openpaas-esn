@@ -8,7 +8,8 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     create: 'mdi mdi-plus',
     pen: 'mdi mdi-pencil',
     'new-user': 'mdi mdi-account-plus',
-    next: 'mdi mdi-arrow-right'
+    next: 'mdi mdi-arrow-right',
+    up: 'mdi mdi-arrow-up'
   })
 
   .directive('fab', function(FAB_ICONS, DEFAULT_COLOR_CLASS) {
