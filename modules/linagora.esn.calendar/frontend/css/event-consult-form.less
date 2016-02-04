@@ -1,0 +1,82 @@
+.event-consult-form {
+
+  .mdi {
+    font-size: 3em;
+  }
+
+  .btn-group-justified {
+    padding-top: 5px;
+    background-color: lighten(@body-bg, 5%);
+
+    .btn {
+      background-color: lighten(@body-bg, 5%);
+      color: @m-gray;
+    }
+
+    .btn:hover {
+      background-color: lighten(@body-bg, 5%);
+      border-bottom-color: @m-gray;
+      color: @m-gray;
+    }
+
+    .btn-primary {
+      border-bottom: 3px solid;
+      border-bottom-color: @accentColor;
+    }
+
+    .btn-primary:hover {
+      border-bottom-color: @accentColor;
+    }
+  }
+
+
+  .card {
+    margin-bottom: 0;
+
+    .card-body {
+      height: 100vh;
+
+      label {
+        font-weight: normal;
+      }
+
+      .title {
+        font-size: 1.5em;
+      }
+
+      .align {
+        .translate(0, 10px);
+      }
+
+      .attendee-list-item .attendee-avatar img {
+        width: 40px;
+        border: none;
+      }
+    }
+
+    .event-consult-form-footer {
+      position: fixed;
+      height: 30px;
+      width: 100%;
+      .PrimaryColor();
+      padding: 0 5px;
+      margin: 0;
+
+      span {
+        text-align: center;
+        padding: 6px 12px;
+      }
+
+      .btn-default {
+        .PrimaryColor();
+        box-shadow: none;
+      }
+
+      .btn.active {
+        color: @accentColor;
+        font-weight: bold;
+      }
+    }
+  }
+
+}

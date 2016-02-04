@@ -77,6 +77,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-form/services.js',
         'event-form/filters.js',
         'event-message/directives.js',
+        'event-consult-form/directives.js',
         'event-quick-form/directives.js',
         'event-full-form/directives.js'
       ];
