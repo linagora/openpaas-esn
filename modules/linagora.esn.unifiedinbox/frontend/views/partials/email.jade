@@ -1,6 +1,6 @@
 .card(ng-class='{"isCollapsed": email.isCollapsed}')
 
-  .email-header.clickable(ng-click="ctrl.toggleIsCollapsed(email)")
+  .email-header(ng-click="ctrl.toggleIsCollapsed(email)", ng-class='{"clickable": email.isCollapsed != undefined}')
 
     .avatarify
       .from
