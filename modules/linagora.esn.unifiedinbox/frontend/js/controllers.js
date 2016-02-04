@@ -88,8 +88,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.infiniteScrollDisabled = false;
     $scope.loadMoreElements = function() {
-      if ($scope.infiniteScrollDisabled) {
-        return;
+      if ($scope.infiniteScrollDisabled || $scope.infiniteScrollCompleted) {
+        return $q.reject();
       }
 
       $scope.infiniteScrollDisabled = true;
@@ -107,11 +107,6 @@ angular.module('linagora.esn.unifiedinbox')
           limit: ELEMENTS_PER_PAGE
         })
           .then(function(messageList) {
-            if (messageList.threadIds.length < ELEMENTS_PER_PAGE) {
-              $scope.infiniteScrollCompleted = true;
-
-              return $q.reject();
-            }
 
             return $q.all([
               messageList.getThreads({
@@ -125,6 +120,12 @@ angular.module('linagora.esn.unifiedinbox')
           .then(_prepareThreadsVariable)
           .then(function(threads) {
             groups.addAll(threads);
+
+            if (threads.length < ELEMENTS_PER_PAGE) {
+              $scope.infiniteScrollCompleted = true;
+
+              return $q.reject();
+            }
           })
           .then(function() {
             position += ELEMENTS_PER_PAGE;
