@@ -27,11 +27,24 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
+        var _isEmailDefinedByOpInboxCompose = function() {
+          return attrs.opInboxCompose && attrs.opInboxCompose !== 'op-inbox-compose';
+        };
+
+        var _findRecipientEmail = function() {
+          if (_.contains(attrs.ngHref, 'mailto:')) {
+            return attrs.ngHref.replace(/^mailto:/, '');
+          }
+          if (_isEmailDefinedByOpInboxCompose()) {
+            return attrs.opInboxCompose;
+          }
+        };
+
         element.on('click', function(event) {
-          if (_.contains(attrs.ngHref, 'mailto:') || attrs.opInboxCompose) {
+          var email = _findRecipientEmail();
+          if (email) {
             event.preventDefault();
             event.stopPropagation();
-            var email = attrs.opInboxCompose ? attrs.opInboxCompose : attrs.ngHref.replace(/^mailto:/, '');
             newComposerService.openEmailCustomTitle('Sending email to: ',
               {
                 to:[{
@@ -42,7 +55,6 @@ angular.module('linagora.esn.unifiedinbox')
             );
           }
         });
-
       }
     };
   })

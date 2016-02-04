@@ -132,7 +132,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       );
     });
 
-    it('should call the openEmailCustomTitle fn when put email in opInboxCompose attribut', function() {
+    it('should call the openEmailCustomTitle fn when put email in opInboxCompose attribute', function() {
       emailElement = compileDirective('<a op-inbox-compose="SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
       newComposerService.openEmailCustomTitle = sinon.spy();
 
@@ -169,13 +169,38 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
     });
 
-    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribut is undefined', function() {
+    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribute is undefined', function() {
       emailElement = compileDirective('<a op-inbox-compose />');
       newComposerService.openEmailCustomTitle = sinon.spy();
 
       emailElement.click();
 
       expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+    });
+
+    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribute is default', function() {
+      emailElement = compileDirective('<a op-inbox-compose="op-inbox-compose" />');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+
+      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+    });
+
+    it('should call the openEmailCustomTitle fn with correct email', function() {
+      emailElement = compileDirective('<a ng-href="mailto:SOMEONE" op-inbox-compose="SOMEBODY" />');
+      newComposerService.openEmailCustomTitle = sinon.spy();
+
+      emailElement.click();
+
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+        {
+          to:[{
+            email: 'SOMEONE',
+            name: 'SOMEONE'
+          }]
+        }
+      );
     });
 
     it('should it should use the email address as the display name if display name is not defined', function() {
