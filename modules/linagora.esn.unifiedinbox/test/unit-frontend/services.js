@@ -1420,6 +1420,14 @@ describe('The Unified Inbox Angular module services', function() {
       boxOverlayOpener = _boxOverlayOpener_;
     }));
 
+    beforeEach(function() {
+      $state.current = {
+        name: 'stateName'
+      };
+      $state.params = 'stateParams';
+      $state.go = sinon.spy();
+    });
+
     describe('the "open" method', function() {
 
       it('should delegate to screenSize to know if the size is "xs" or "sm"', function(done) {
@@ -1431,13 +1439,13 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should update the location if screenSize returns true', function() {
+
         screenSize.is = sinon.stub().returns(true);
-        $state.go = sinon.spy();
 
         newComposerService.open();
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: undefined});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', { email: undefined, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1466,12 +1474,11 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should update the location with the email id if screenSize returns true', function() {
         screenSize.is = sinon.stub().returns(true);
-        $state.go = sinon.spy();
 
         newComposerService.openDraft({expected: 'field'});
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
@@ -1501,12 +1508,11 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should update the location with the email id if screenSize returns true', function() {
         screenSize.is = sinon.stub().returns(true);
-        $state.go = sinon.spy();
 
         newComposerService.openEmailCustomTitle('title', {expected: 'field'});
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
       it('should delegate to boxOverlayOpener if screenSize returns false', function() {
