@@ -343,8 +343,10 @@ angular.module('linagora.esn.unifiedinbox')
         }.bind(this));
 
         this.toggleIsCollapsed = function(email) {
-          email.isCollapsed = !email.isCollapsed;
-          $scope.$broadcast('email:collapse', email.isCollapsed);
+          if (angular.isDefined(email.isCollapsed)) {
+            email.isCollapsed = !email.isCollapsed;
+            $scope.$broadcast('email:collapse', email.isCollapsed);
+          }
         };
       },
       controllerAs: 'ctrl',

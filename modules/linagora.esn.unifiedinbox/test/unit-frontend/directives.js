@@ -798,6 +798,22 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('the toggleIsCollapsed function', function() {
 
+      it('should do nothing if email.isCollapsed is not defined', function() {
+        var email = {}, spyFn = sinon.spy();
+
+        var element = compileDirective('<email />');
+        var scope = element.isolateScope();
+
+        scope.$on('email:collapse', function() {
+          spyFn();
+        });
+
+        element.controller('email').toggleIsCollapsed(email);
+
+        expect(email.isCollapsed).to.be.undefined;
+        expect(spyFn).to.not.have.been.called;
+      });
+
       it('should toggle the email.isCollapsed attribute', function() {
         var email = {
           isCollapsed: true
