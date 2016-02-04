@@ -47,6 +47,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
 
         var position = $(window).scrollTop();
         var toggled = false;
+
         $(window).scroll(function(event) {
           if (scope.disabled) {
             return;
@@ -60,6 +61,11 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
             toggled = false;
             $parse(scope[attrs.onScrollUp])();
           }
+
+          if (scroll === 0 && attrs.onScrollTop) {
+            $parse(scope[attrs.onScrollTop])();
+          }
+
           position = scroll;
         });
       }
