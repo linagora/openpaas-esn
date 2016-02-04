@@ -13,6 +13,7 @@ angular.module('esn.calendar', [
   'materialAdmin',
   'AngularJstz',
   'angularMoment',
+  'matchMedia',
   'esn.core',
   'esn.header',
   'esn.authentication',
@@ -43,8 +44,15 @@ angular.module('esn.calendar', [
             event: function(eventUtils) {
               return eventUtils.getEditedEvent();
             }
-          },
-          controller: 'eventFullFormController'
+          }
+        }
+      }
+    })
+    .state('calendar.eventConsult', {
+      url: '/event-consult-form',
+      views: {
+        form: {
+          templateUrl: '/calendar/views/event-consult-form/event-consult-form'
         }
       }
     })

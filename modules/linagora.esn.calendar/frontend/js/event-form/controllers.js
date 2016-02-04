@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
+  .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
     if (!$scope.event) {
       $scope.event = eventUtils.originalEvent;
     }
@@ -25,11 +25,21 @@ angular.module('esn.calendar')
       });
     }
 
-    this.initFormData = function() {
-      if ($scope.selectedEvent) {
-        $scope.event = $scope.selectedEvent.clone();
-        $scope.editedEvent = $scope.selectedEvent.clone();
-      } else if (!$scope.event.start) {
+    function _hideModal() {
+      if ($scope.$hide) {
+        $scope.$hide();
+      }
+    }
+
+    function _displayNotification(notificationFactoryFunction, title, content) {
+      notificationFactoryFunction(title, content);
+      _hideModal();
+    }
+
+    function initFormData() {
+      if ($scope.event) {
+        $scope.editedEvent = $scope.event.clone();
+      } else {
         $scope.event = CalendarShell.fromIncompleteShell({
           start: calendarUtils.getNewStartDate(),
           end: calendarUtils.getNewEndDate()
@@ -49,25 +59,14 @@ angular.module('esn.calendar')
           }
         });
       }
-      $scope.isOrganizer = eventUtils.isOrganizer($scope.event);
-    };
-
-    function _hideModal() {
-      if ($scope.createModal) {
-        $scope.closeModal();
-      }
+      $scope.isOrganizer = eventUtils.isOrganizer($scope.editedEvent);
     }
 
-    function _displayNotification(notificationFactoryFunction, title, content) {
-      notificationFactoryFunction(title, content);
-      _hideModal();
-    }
-
-    this.canPerformCall = function() {
+    function canPerformCall() {
       return !$scope.restActive;
-    };
+    }
 
-    this.addNewEvent = function() {
+    function createEvent() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
         $scope.editedEvent.title = EVENT_FORM.title.default;
       }
@@ -100,9 +99,9 @@ angular.module('esn.calendar')
         .finally(function() {
           $scope.restActive = false;
         });
-    };
+    }
 
-    this.deleteEvent = function() {
+    function deleteEvent() {
       if (!$scope.calendarHomeId) {
         $scope.calendarHomeId = calendarService.calendarHomeId;
       }
@@ -120,17 +119,9 @@ angular.module('esn.calendar')
         .finally(function() {
           $scope.restActive = false;
         });
-    };
+    }
 
-    this.modifyEvent = function() {
-      if ($scope.isOrganizer) {
-        modifyOrganizerEvent();
-      } else {
-        modifyAttendeeEvent();
-      }
-    };
-
-    function modifyAttendeeEvent() {
+    function _modifyAttendeeEvent() {
       var status = $scope.invitedAttendee.partstat;
 
       $scope.restActive = true;
@@ -150,7 +141,7 @@ angular.module('esn.calendar')
       });
     }
 
-    function modifyOrganizerEvent() {
+    function _modifyOrganizerEvent() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
         _displayError(new Error('You must define an event title'));
         return;
@@ -173,13 +164,11 @@ angular.module('esn.calendar')
       }
 
       if (!_hasModificationsBetween($scope.editedEvent, $scope.event)) {
-        if ($scope.createModal) {
-          $scope.createModal.hide();
-        }
+        _hideModal();
         return;
       }
-      $scope.restActive = true;
       _hideModal();
+      $scope.restActive = true;
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.isMajorModification($scope.editedEvent, $scope.event))
         .then(function(response) {
@@ -195,7 +184,15 @@ angular.module('esn.calendar')
         });
     }
 
-    this.changeParticipation = function(status) {
+    function modifyEvent() {
+      if ($scope.isOrganizer) {
+        _modifyOrganizerEvent();
+      } else {
+        _modifyAttendeeEvent();
+      }
+    }
+
+    function changeParticipation(status) {
       if ($scope.isOrganizer && !$scope.invitedAttendee) {
         var organizer = angular.copy($scope.editedEvent.organizer);
         organizer.partstat = status;
@@ -207,5 +204,33 @@ angular.module('esn.calendar')
 
       $scope.invitedAttendee.partstat = status;
       $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
+    }
+
+    $scope.initFormData = initFormData;
+    $scope.changeParticipation = changeParticipation;
+    $scope.modifyEvent = modifyEvent;
+    $scope.deleteEvent = deleteEvent;
+    $scope.createEvent = createEvent;
+    $scope.isNew = eventUtils.isNew;
+    $scope.isInvolvedInATask = eventUtils.isInvolvedInATask;
+    $scope.submit = function() {
+      eventUtils.isNew($scope.editedEvent) && !eventUtils.isInvolvedInATask($scope.editedEvent) ? $scope.createEvent() : $scope.modifyEvent();
     };
+    $scope.canPerformCall = canPerformCall;
+    $scope.closeModal = function() {
+      eventUtils.setEditedEvent($scope.editedEvent);
+      $scope.$hide();
+    };
+    $scope.goToCalendar = function(callback) {
+      (callback || angular.noop)();
+      $state.go('calendar.main');
+    };
+    $scope.goToFullForm = function() {
+      $scope.closeModal();
+      $state.go('calendar.eventEdit');
+    };
+
+    // Initialize the scope of the form. It creates a scope.editedEvent which allows us to
+    // rollback to scope.event in case of a Cancel.
+    $scope.initFormData();
   });

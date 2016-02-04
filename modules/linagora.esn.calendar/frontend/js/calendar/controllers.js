@@ -20,11 +20,11 @@ angular.module('esn.calendar')
       $q,
       $rootScope,
       $window,
-      $modal,
       $timeout,
       $log,
       $alert,
       $state,
+      openEventForm,
       keepChangeDuringGraceperiod,
       CalendarShell,
       uiCalendarConfig,
@@ -64,7 +64,7 @@ angular.module('esn.calendar')
 
     $scope.eventClick = function(event) {
       $scope.event = event.clone();
-      $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static', placement: 'center'});
+      openEventForm($scope);
     };
 
     $scope.eventDropAndResize = function(drop, event, delta) {
@@ -133,7 +133,7 @@ angular.module('esn.calendar')
         start: date.start,
         end: date.end
       });
-      $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static', placement: 'center'});
+      openEventForm($scope);
     };
 
     $scope.displayCalendarError = function(err, errorMessage) {

@@ -1,7 +1,7 @@
 //- NOTE: When adding form controls that should change the event in this form,
 //-       be sure to add them to the EVENT_MODIFY_COMPARE_KEYS constant, to
 //-       make sure they are checked during modification.
-form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }", ng-submit='submit()' back-close-modal)
+form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }", ng-submit='submit()')
   .modal-dialog
     .modal-content
       .modal-header
@@ -18,7 +18,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="!canPerformCall()")
                   i.mdi.mdi-delete
               .close-button
-                button.btn.btn-default(type='button', ng-click="closeModal()")
+                button.btn.btn-default(type='button', ng-click="$hide()")
                   i.mdi.mdi-close
       .modal-body
         .col-xs-12
@@ -59,7 +59,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="!canPerformCall()")
                   i.mdi.mdi-delete
               .close-button
-                button.btn.btn-default(type='button', ng-click="closeModal()")
+                button.btn.btn-default(type='button', ng-click="$hide()")
                   i.mdi.mdi-close
         .col-xs-12.visible-xs
           .form-group.status.row(ng-show="hasAttendees")
