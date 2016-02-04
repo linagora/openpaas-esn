@@ -214,7 +214,7 @@ module.exports = function(dependencies) {
         });
 
         q.all(dataCleanResult.map(function(result, index) {
-          return avatarHelper.injectTextAvatar(result.bookHome, result.bookName, result.body)
+          return avatarHelper.injectTextAvatar(result.bookId, result.bookName, result.body)
             .then(function(newVcard) {
               json._embedded['dav:item'][index] = {
                 _links: {
