@@ -114,37 +114,46 @@ angular.module('linagora.esn.contact')
 
       if (shell.emails) {
         shell.emails.forEach(function(data) {
-          var prop = vcard.addPropertyWithValue('email', 'mailto:' + data.value);
-          prop.setParameter('type', data.type);
+          if (data.value) {
+            var prop = vcard.addPropertyWithValue('email', 'mailto:' + data.value);
+            prop.setParameter('type', data.type);
+          }
         });
       }
 
       if (shell.tel) {
         shell.tel.forEach(function(data) {
-          var prop = vcard.addPropertyWithValue('tel', 'tel:' + data.value);
-          prop.setParameter('type', data.type);
+          if (data.value) {
+            var prop = vcard.addPropertyWithValue('tel', 'tel:' + data.value);
+            prop.setParameter('type', data.type);
+          }
         });
       }
 
       if (shell.addresses) {
         shell.addresses.forEach(function(data) {
-          var val = ['', '', data.street, data.city, '', data.zip, data.country];
-          var prop = vcard.addPropertyWithValue('adr', val);
-          prop.setParameter('type', data.type);
+          if (data.street || data.city || data.zip || data.country) {
+            var val = ['', '', data.street, data.city, '', data.zip, data.country];
+            var prop = vcard.addPropertyWithValue('adr', val);
+            prop.setParameter('type', data.type);
+          }
         });
       }
 
       if (shell.social) {
         shell.social.forEach(function(data) {
-          var prop = vcard.addPropertyWithValue('socialprofile', data.value);
-          prop.setParameter('type', data.type);
+          if (data.value) {
+            var prop = vcard.addPropertyWithValue('socialprofile', data.value);
+            prop.setParameter('type', data.type);
+          }
         });
       }
 
       if (shell.urls) {
         shell.urls.forEach(function(data) {
-
-          vcard.addPropertyWithValue('url', data.value);
+          if (data.value) {
+            vcard.addPropertyWithValue('url', data.value);
+          }
         });
       }
 
