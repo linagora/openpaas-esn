@@ -40,7 +40,7 @@ describe('The contact import cron module', function() {
     };
 
     importModuleMock = {
-      importAccountContactsByJobQueue: function() {}
+      synchronizeAccountContactsByJobQueue: function() {}
     };
     mockery.registerMock('../import', function() {
       return importModuleMock;
@@ -120,12 +120,12 @@ describe('The contact import cron module', function() {
       userModuleMock.list = function(callback) {
         callback(null, users);
       };
-      importModuleMock.importAccountContactsByJobQueue = sinon.spy();
+      importModuleMock.synchronizeAccountContactsByJobQueue = sinon.spy();
       cronModuleMock.submit = function(description, cronTime, job, onComplete, callback) {
         job(function() {
-          expect(importModuleMock.importAccountContactsByJobQueue.callCount).to.equal(2);
-          expect(importModuleMock.importAccountContactsByJobQueue).to.have.been.calledWith(user1, user1.accounts[0]);
-          expect(importModuleMock.importAccountContactsByJobQueue).to.have.been.calledWith(user2, user2.accounts[0]);
+          expect(importModuleMock.synchronizeAccountContactsByJobQueue.callCount).to.equal(2);
+          expect(importModuleMock.synchronizeAccountContactsByJobQueue).to.have.been.calledWith(user1, user1.accounts[0]);
+          expect(importModuleMock.synchronizeAccountContactsByJobQueue).to.have.been.calledWith(user2, user2.accounts[0]);
           done();
         });
 

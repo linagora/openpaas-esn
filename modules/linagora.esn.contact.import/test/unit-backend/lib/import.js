@@ -500,4 +500,65 @@ describe('The contact import module', function() {
       });
     });
   });
+
+  describe('The synchronizeAccountContactsByJobQueue function', function() {
+
+    it('should call jobqueue submitJob fn with valid options', function(done) {
+
+      var options = {
+        account: account,
+        user: user
+      };
+      var addressbook = {
+        id: '1',
+        name: 'MyAB'
+      };
+
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q(options);
+          },
+          initializeAddressBook: function(options) {
+            options.addressbook = addressbook;
+            return q(options);
+          }
+        };
+      });
+
+      jobQueueMock.lib.submitJob = function(workerName, jobName, options) {
+        expect(workerName).to.equal('contact-' + account.data.provider + '-sync');
+        expect(options).to.eql({
+          user: user,
+          account: account
+        });
+        done();
+      };
+
+      getModule().synchronizeAccountContactsByJobQueue(user, account);
+    });
+
+    it('should resolve if jobqueue submitJob resolves', function(done) {
+      var options = {
+        account: account,
+        user: user
+      };
+      mockery.registerMock('./helper', function() {
+        return {
+          getImporterOptions: function() {
+            return q({});
+          },
+          initializeAddressBook: function() {
+            return q(options);
+          }
+        };
+      });
+
+      jobQueueMock.lib.submitJob = function() {return q({});};
+      getModule().synchronizeAccountContactsByJobQueue(user, account).then(function() {
+        done();
+      });
+    });
+  });
+
 });

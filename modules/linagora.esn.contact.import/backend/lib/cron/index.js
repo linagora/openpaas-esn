@@ -69,7 +69,7 @@ module.exports = function(dependencies) {
           return q.allSettled(userAccounts.map(function(userAccount) {
             return q.allSettled(userAccount.accounts.map(function(account) {
               logger.info('Start synchronize contacts for user %s, account %s', userAccount.user._id, account.data.id);
-              return importModule.importAccountContactsByJobQueue(userAccount.user, account);
+              return importModule.synchronizeAccountContactsByJobQueue(userAccount.user, account);
             }));
           }));
         })
