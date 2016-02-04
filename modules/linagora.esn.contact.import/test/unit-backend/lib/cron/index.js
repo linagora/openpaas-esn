@@ -6,7 +6,7 @@ var sinon = require('sinon');
 var expect = chai.expect;
 
 describe('The contact import cron module', function() {
-  var deps, userModuleMock, cronModuleMock, importModuleMock, cronConfigMock;
+  var deps, userModuleMock, cronModuleMock, importModuleMock, cronConfigMock, registryMock;
 
   var dependencies = function(name) {
     return deps[name];
@@ -45,6 +45,16 @@ describe('The contact import cron module', function() {
     mockery.registerMock('../import', function() {
       return importModuleMock;
     });
+
+    registryMock = {
+      list: function() {
+        return [];
+      }
+    };
+    mockery.registerMock('../registry', function() {
+      return registryMock;
+    });
+
   });
 
   describe('The init fn', function() {
@@ -93,6 +103,11 @@ describe('The contact import cron module', function() {
 
     it('should have job to synchronize contact for each accounts of the users', function(done) {
       cronConfigMock = { active: true };
+      var importers = {};
+      importers[ACCOUNT_TYPE] = 'this is a importer';
+      registryMock.list = function() {
+        return importers;
+      };
       var user1 = {
         _id: 'user1',
         accounts: [{
@@ -126,6 +141,51 @@ describe('The contact import cron module', function() {
           expect(importModuleMock.synchronizeAccountContactsByJobQueue.callCount).to.equal(2);
           expect(importModuleMock.synchronizeAccountContactsByJobQueue).to.have.been.calledWith(user1, user1.accounts[0]);
           expect(importModuleMock.synchronizeAccountContactsByJobQueue).to.have.been.calledWith(user2, user2.accounts[0]);
+          done();
+        });
+
+      };
+      getModule().init(ACCOUNT_TYPE);
+    });
+
+    it('should have job to synchronize contact for each contact importers', function(done) {
+      cronConfigMock = { active: true };
+      var importers = {
+        twitter: 'twitter importer',
+        facebook: 'facebook importer'
+      };
+      registryMock.list = function() {
+        return importers;
+      };
+      var user = {
+        _id: 'user',
+        accounts: [{
+          data: {
+            provider: 'twitter',
+            id: 1
+          }
+        }, {
+          data: {
+            provider: 'google',
+            id: 2
+          }
+        }, {
+          data: {
+            provider: 'facebook',
+            id: 3
+          }
+        }]
+      };
+      var users = [user];
+      userModuleMock.list = function(callback) {
+        callback(null, users);
+      };
+      importModuleMock.synchronizeAccountContactsByJobQueue = sinon.spy();
+      cronModuleMock.submit = function(description, cronTime, job, onComplete, callback) {
+        job(function() {
+          expect(importModuleMock.synchronizeAccountContactsByJobQueue.callCount).to.equal(2);
+          expect(importModuleMock.synchronizeAccountContactsByJobQueue).to.have.been.calledWith(user, user.accounts[0]);
+          expect(importModuleMock.synchronizeAccountContactsByJobQueue).to.have.been.calledWith(user, user.accounts[2]);
           done();
         });
 
