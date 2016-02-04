@@ -702,11 +702,23 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       });
 
-      it('should reject, set scope.infiniteScrollCompleted=true and not call getMessages and getThreads, when windowing is done', function(done) {
+      it('should not call jmapClient.getMessageList, when windowing is done', function(done) {
+        jmapClient.getMessageList = sinon.spy();
+        scope.infiniteScrollCompleted = true;
+
+        loadMoreElements().then(null, function() {
+          expect(jmapClient.getMessageList).to.not.have.been.called;
+
+          done();
+        });
+        scope.$digest();
+      });
+
+      it('should reject, set scope.infiniteScrollCompleted=true when windowing is done', function(done) {
         var messageList = {
           threadIds: [1], // Only one result, so < limit
-          getMessages: sinon.spy(),
-          getThreads: sinon.spy()
+          getMessages: function() {return [];},
+          getThreads: function() {return [];}
         };
 
         jmapClient.getMessageList = function() {
@@ -715,8 +727,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         loadMoreElements().then(null, function() {
           expect(scope.infiniteScrollCompleted).to.equal(true);
-          expect(messageList.getMessages).to.not.have.been.calledWith();
-          expect(messageList.getThreads).to.not.have.been.calledWith();
 
           done();
         });
