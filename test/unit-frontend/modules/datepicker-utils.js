@@ -1,7 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -11,6 +10,29 @@ describe('The datepicker utils module', function() {
   beforeEach(function() {
     self = this;
     angular.mock.module('esn.datepickerUtils');
+  });
+
+  describe('the module config', function() {
+
+    beforeEach(function() {
+      this.bsDatepickerMobileWrapperMock = sinon.spy();
+      angular.mock.module(function($provide) {
+        $provide.value('bsDatepickerMobileWrapper', self.bsDatepickerMobileWrapperMock);
+      });
+    });
+
+    beforeEach(inject(function(bsDatepickerDirective, clockpickerDefaultOptions) {
+      self.bsDatepickerDirective = bsDatepickerDirective;
+      self.clockpickerDefaultOptions = clockpickerDefaultOptions;
+    }));
+
+    it('should decorate clockpickerDefaultOptions to add nativeOnMobile', function() {
+      expect(this.clockpickerDefaultOptions.nativeOnMobile).to.be.true;
+    });
+
+    it('should decorate bsDatepicker directive', function() {
+      expect(this.bsDatepickerMobileWrapperMock).to.have.been.calledWith(this.bsDatepickerDirective[0]);
+    });
   });
 
   describe('bsDatepickerMobileWrapper factory', function() {

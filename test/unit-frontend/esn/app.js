@@ -1,39 +1,22 @@
 'use strict';
 
-/* global chai, sinon: false */
+/* global chai: false */
 
 var expect = chai.expect;
 
 describe('The esn app', function() {
   beforeEach(angular.mock.module('esnApp'));
 
-  var location, state, rootScope, httpBackend, stateParams, clockpickerDefaultOptions, bsDatepickerDirective, bsDatepickerMobileWrapperMock;
+  var location, state, rootScope, httpBackend, stateParams;
 
-  beforeEach(function() {
-    bsDatepickerMobileWrapperMock = sinon.spy();
-    angular.mock.module(function($provide) {
-      $provide.value('bsDatepickerMobileWrapper', bsDatepickerMobileWrapperMock);
-    });
-  });
-
-  beforeEach(inject(function($location, $state, $rootScope, $httpBackend, $stateParams, _clockpickerDefaultOptions_, _bsDatepickerDirective_) {
+  beforeEach(inject(function($location, $state, $rootScope, $httpBackend, $stateParams) {
     location = $location;
     state = $state;
     rootScope = $rootScope;
     httpBackend = $httpBackend;
     location = $location;
     stateParams = $stateParams;
-    clockpickerDefaultOptions = _clockpickerDefaultOptions_;
-    bsDatepickerDirective = _bsDatepickerDirective_;
   }));
-
-  it('should decorate clockpickerDefaultOptions to add nativeOnMobile', function() {
-    expect(clockpickerDefaultOptions.nativeOnMobile).to.be.true;
-  });
-
-  it('should decorate bsDatepicker directive', function() {
-    expect(bsDatepickerMobileWrapperMock).to.have.been.calledWith(bsDatepickerDirective[0]);
-  });
 
   describe('state provider', function() {
     it('should load the communities page when routing to an unknown path and no continue parameter exists', function() {
@@ -59,8 +42,7 @@ describe('The esn app', function() {
       location.path('/unknown');
       location.search({continue: '/notAPage'});
       rootScope.$digest();
-      expect(location.path()).to.equal('/communities');
-      expect(stateParams).to.deep.equal({});
+      expect(location.path()).to.equal('/communities'); expect(stateParams).to.deep.equal({});
     });
   });
 });
