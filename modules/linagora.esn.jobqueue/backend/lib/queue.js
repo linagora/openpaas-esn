@@ -39,6 +39,7 @@ module.exports = function(dependencies) {
         worker.getWorkerFunction()(data).then(function() {
           done();
           defer.resolve(job);
+          logger.info('Job %s is complete', jobName);
         }, function(err) {
           logger.error('Error while running job', err);
           done(new Error('Error while running job'));

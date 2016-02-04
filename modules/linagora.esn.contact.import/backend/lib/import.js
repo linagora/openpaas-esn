@@ -51,9 +51,16 @@ module.exports = function(dependencies) {
     return jobQueue.lib.submitJob(workerName, jobName, { user: user, account: account });
   }
 
+  function synchronizeAccountContactsByJobQueue(user, account) {
+    var workerName = ['contact', account.data.provider, 'sync'].join('-');
+    var jobName = [workerName, user._id + '', account.data.id, Date.now()].join('-');
+    return jobQueue.lib.submitJob(workerName, jobName, { user: user, account: account });
+  }
+
   return {
     importAccountContacts: importAccountContacts,
     importAccountContactsByJobQueue: importAccountContactsByJobQueue,
-    synchronizeAccountContacts: synchronizeAccountContacts
+    synchronizeAccountContacts: synchronizeAccountContacts,
+    synchronizeAccountContactsByJobQueue: synchronizeAccountContactsByJobQueue
   };
 };

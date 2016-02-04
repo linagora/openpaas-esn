@@ -49,6 +49,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     },
 
     start: function(dependencies, callback) {
+      this.lib.cron.init();
       require('./backend/ws/import').init(dependencies);
       callback();
     }

@@ -173,22 +173,5 @@ describe('The contact import backend module', function() {
 
     });
 
-    it('should start cron job to synchronize contact', function(done) {
-      var importer = {
-        name: 'twitter',
-        frontend: {
-          modules: ['app.js', 'services.js'],
-          moduleName: 'linagora.esn.contact.import.twitter',
-          staticPath: '/foo/bar/baz/twitter'
-        }
-      };
-
-      cronMock.init = function(type) {
-        expect(type).to.equal(importer.name);
-        done();
-      };
-
-      getModule().addImporter(importer);
-    });
   });
 });

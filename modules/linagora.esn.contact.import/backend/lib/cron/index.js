@@ -11,6 +11,7 @@ module.exports = function(dependencies) {
   var config = dependencies('config')('cronjob');
   var cron = dependencies('cron');
   var importModule = require('../import')(dependencies);
+  var importerRegistry = require('../registry')(dependencies);
 
   function getCronExpression() {
     if (!config || !config.contactsync || !config.contactsync.expression) {
@@ -27,6 +28,10 @@ module.exports = function(dependencies) {
     return config && config.contactsync && config.contactsync.description ? config.contactsync.description : DEFAULT_DESCRIPTION;
   }
 
+  function getAllImporterTypes() {
+    return q(Object.keys(importerRegistry.list()));
+  }
+
   function getAllUsers() {
     var deferred = q.defer();
 
@@ -40,12 +45,11 @@ module.exports = function(dependencies) {
     return deferred.promise;
   }
 
-  function getUserAccountsForType(users, type) {
+  function getUserAccountsForTypes(users, types) {
     var userAccounts = [];
     users.forEach(function(user) {
       var accounts = user.accounts.filter(function(account) {
-        // TODO: should only get accounts that have been imported contacts
-        return (account.data && account.data.provider === type);
+        return (account.data && types.indexOf(account.data.provider) > -1);
       });
       if (accounts.length > 0) {
         userAccounts.push({
@@ -57,19 +61,20 @@ module.exports = function(dependencies) {
     return q(userAccounts);
   }
 
-  function createContactSyncJob(type) {
+  function createContactSyncJob() {
     var job = function(callback) {
-      getAllUsers()
-        .then(function(users) {
-          logger.debug('Fetched %d users', users.length);
-          return getUserAccountsForType(users, type);
+      q.all([getAllUsers(), getAllImporterTypes()])
+        .then(function(data) {
+          var users = data[0];
+          var importerTypes = data[1];
+          logger.debug('Fetched %d users and %d importer(s)', users.length, importerTypes.length);
+          return getUserAccountsForTypes(users, importerTypes);
         })
         .then(function(userAccounts) {
-          logger.info('Synchronizing contacts for %d users', userAccounts.length);
           return q.allSettled(userAccounts.map(function(userAccount) {
             return q.allSettled(userAccount.accounts.map(function(account) {
               logger.info('Start synchronize contacts for user %s, account %s', userAccount.user._id, account.data.id);
-              return importModule.importAccountContactsByJobQueue(userAccount.user, account);
+              return importModule.synchronizeAccountContactsByJobQueue(userAccount.user, account);
             }));
           }));
         })
@@ -77,7 +82,7 @@ module.exports = function(dependencies) {
     };
 
     var onComplete = function() {
-      logger.info('Contact Synchronization job has been complete');
+      logger.info('Contact Synchronization job has been completed');
     };
 
     var deferred = q.defer();
@@ -92,12 +97,12 @@ module.exports = function(dependencies) {
     return deferred.promise;
   }
 
-  function init(accountType) {
+  function init() {
     if (!isActive()) {
       logger.info('Contact Synchronization is not active');
       return q.reject(new Error('Contact Synchronization is not active'));
     }
-    return createContactSyncJob(accountType);
+    return createContactSyncJob();
   }
 
   return {

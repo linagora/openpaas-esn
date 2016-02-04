@@ -11,10 +11,6 @@ module.exports = function(dependencies) {
   var importModule = require('./import')(dependencies);
   var cron = require('./cron')(dependencies);
 
-  function startContactSyncCronJob(importer) {
-    return cron.init(importer.name);
-  }
-
   function addImporter(importer) {
     if (!importer) {
       logger.error('Can not add empty importer');
@@ -22,7 +18,6 @@ module.exports = function(dependencies) {
     }
     importerRegistry.add(importer);
     logger.debug('Adding the %s importer', importer.name);
-    startContactSyncCronJob(importer);
 
     jobQueue.lib.workers.add({
       name: 'contact-' + importer.name + '-sync',
