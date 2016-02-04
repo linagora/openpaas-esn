@@ -28,6 +28,37 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     };
   })
 
+  .directive('fabScrollTop', function($window, elementScrollService) {
+    return {
+      restrict: 'E',
+      template: '<fab icon="up" scroll-listener data-on-scroll-down="hide" data-on-scroll-top="hide" data-on-scroll-up="show" />',
+      link: function(scope, element) {
+
+        function _scrollIsTwiceScreenHeight() {
+          return ($window.innerHeight * 2) < $window.scrollY;
+        }
+
+        scope.hide = element.addClass.bind(element, 'hidden');
+        scope.show = function() {
+          if (_scrollIsTwiceScreenHeight()) {
+            element.removeClass('hidden');
+          }
+        };
+
+        scope.hide();
+
+        element.click(function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          elementScrollService.scrollToTop();
+          scope.hide();
+        });
+
+      }
+    };
+  })
+
   .directive('dynamicFabDropup', function() {
     return {
       restrict: 'E',

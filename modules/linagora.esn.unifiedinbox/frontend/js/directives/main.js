@@ -59,33 +59,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFabScrollTop', function($window, elementScrollService) {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/partials/inbox-scroll-top.html',
-      link: function(scope, element) {
-
-        scope.hide = element.addClass.bind(element, 'hidden');
-        scope.show = function() {
-          if (($window.innerHeight * 2 ) < $window.scrollY) {
-            element.removeClass('hidden');
-          }
-        };
-
-        scope.hide();
-
-        element.click(function(event) {
-          event.stopPropagation();
-          event.preventDefault();
-
-          elementScrollService.scrollToTop();
-          scope.hide();
-        });
-
-      }
-    };
-  })
-
   .directive('inboxFab', function($timeout, boxOverlayService) {
     return {
       restrict: 'E',

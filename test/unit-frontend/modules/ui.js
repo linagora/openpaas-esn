@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The UI module', function() {
 
-  var $compile, $rootScope, $scope, element;
+  var $window, $compile, $rootScope, $scope, element;
 
   function initDirective(html) {
     element = $compile(html)($scope);
@@ -15,6 +15,7 @@ describe('The UI module', function() {
   }
 
   beforeEach(module('esn.ui'));
+  beforeEach(module('esn.scroll'));
   beforeEach(module('jadeTemplates'));
 
   describe('The fab directive', function() {
@@ -65,6 +66,84 @@ describe('The UI module', function() {
       initDirective('<fab></fab>');
 
       expect(element[0].type).to.equal('button');
+    });
+  });
+
+  describe('The fabScrollTop directive', function() {
+
+    var elementScrollService;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$window_, _elementScrollService_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $window = _$window_;
+      elementScrollService = _elementScrollService_;
+
+      elementScrollService.scrollToTop = sinon.spy();
+      $scope = $rootScope.$new();
+    }));
+
+    it('should add "hidden" class when linked', function() {
+      initDirective('<fab-scroll-top></fab-scroll-top>');
+
+      expect(element.hasClass('hidden')).to.equal(true);
+    });
+
+    it('should remove "hidden" class when show is called and vertical scroll is twice the screen size', function() {
+      $window.innerHeight = 100;
+      $window.scrollY = 250;
+      initDirective('<fab-scroll-top></fab-scroll-top>');
+
+      $scope.show();
+
+      expect(element.hasClass('hidden')).to.equal(false);
+    });
+
+    it('should not remove "hidden" class when show is called but vertical scroll is not twice the screen size', function() {
+      $window.innerHeight = 100;
+      $window.scrollY = 150;
+      initDirective('<fab-scroll-top></fab-scroll-top>');
+
+      $scope.show();
+
+      expect(element.hasClass('hidden')).to.equal(true);
+    });
+
+    it('should add "hidden" class when hide is called', function() {
+      $window.innerHeight = 100;
+      $window.scrollY = 250;
+      initDirective('<fab-scroll-top></fab-scroll-top>');
+
+      $scope.show();
+      $scope.hide();
+
+      expect(element.hasClass('hidden')).to.equal(true);
+    });
+
+    it('should stop event propagation on click', function() {
+      initDirective('<fab-scroll-top></fab-scroll-top>');
+
+      var event = {
+        type: 'click',
+        stopPropagation: sinon.spy(),
+        preventDefault: sinon.spy()
+      };
+      element.triggerHandler(event);
+
+      expect(event.stopPropagation).to.have.been.called;
+      expect(event.preventDefault).to.have.been.called;
+    });
+
+    it('should call scrollToTop then hide the button on click', function() {
+      $window.innerHeight = 100;
+      $window.scrollY = 250;
+      initDirective('<fab-scroll-top></fab-scroll-top>');
+      $scope.show();
+
+      element.triggerHandler({type: 'click'});
+
+      expect(elementScrollService.scrollToTop).to.have.been.called;
+      expect(element.hasClass('hidden')).to.equal(true);
     });
   });
 
