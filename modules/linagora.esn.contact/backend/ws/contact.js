@@ -9,7 +9,7 @@ var contactNamespace;
 
 function init(dependencies) {
   var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub').local;
+  var pubsub = dependencies('pubsub').global;
   var io = dependencies('wsserver').io;
 
   function synchronizeContactLists(event, data) {
