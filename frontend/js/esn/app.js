@@ -19,6 +19,7 @@ angular.module('esnApp', [
   'angular-nicescroll',
   'xeditable',
   'op.dynamicDirective',
+  'esn.datepickerUtils',
   'esn.core',
   'esn.member',
   'esn.header',

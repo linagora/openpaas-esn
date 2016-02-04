@@ -42,8 +42,7 @@ describe('The esn app', function() {
       location.path('/unknown');
       location.search({continue: '/notAPage'});
       rootScope.$digest();
-      expect(location.path()).to.equal('/communities');
-      expect(stateParams).to.deep.equal({});
+      expect(location.path()).to.equal('/communities'); expect(stateParams).to.deep.equal({});
     });
   });
 });

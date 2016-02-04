@@ -11,7 +11,7 @@ angular.module('esn.calendar')
 
       scope.getMinDate = function() {
         if (scope.event.start) {
-          return fcMoment(scope.event.start).subtract(1, 'days');
+          return fcMoment(scope.event.start).subtract(1, 'days').format('YYYY-MM-DD');
         }
         return null;
       };
@@ -45,6 +45,8 @@ angular.module('esn.calendar')
         scope.event.end = end;
         scope.diff = scope.event.end.diff(scope.event.start);
       };
+
+      scope.today = fcMoment().format('YYYY-MM-DD');
 
       scope.onStartDateChange = function() {
         if (!scope.event.start) {
