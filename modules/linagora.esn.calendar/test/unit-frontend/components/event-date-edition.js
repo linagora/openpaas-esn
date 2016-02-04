@@ -143,8 +143,7 @@ describe('The event-date-edition component', function() {
         };
         this.initDirective(this.$scope);
         this.$scope.$digest();
-        var isSame = this.fcMoment('2013-02-07 09:30').isSame(this.eleScope.getMinDate());
-        expect(isSame).to.be.true;
+        expect(this.eleScope.getMinDate()).to.equal('2013-02-07');
       });
     });
 
