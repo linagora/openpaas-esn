@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .directive('miniCalendar', function() {
+  .directive('miniCalendar', function(miniCalendarService) {
     return {
       restrict: 'E',
       replace: true,
@@ -10,10 +10,13 @@ angular.module('esn.calendar')
       scope: {
         calendarId: '='
       },
-      controller: 'miniCalendarController'
+      controller: 'miniCalendarController',
+      link: function(scope) {
+        miniCalendarService.miniCalendarDesktopId = scope.miniCalendarId;
+      }
     };
   })
-  .directive('miniCalendarMobile', function($window, CALENDAR_EVENTS) {
+  .directive('miniCalendarMobile', function($window, CALENDAR_EVENTS, miniCalendarService) {
     return {
       restrict: 'E',
       replace: true,
@@ -23,6 +26,7 @@ angular.module('esn.calendar')
       },
       controller: 'miniCalendarController',
       link: function(scope, element) {
+        miniCalendarService.miniCalendarMobileId = scope.miniCalendarId;
 
         scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
           // initial-state is invisible and height: 0 so that the mini-calendar is not

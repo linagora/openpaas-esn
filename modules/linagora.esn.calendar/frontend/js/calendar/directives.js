@@ -124,4 +124,36 @@ angular.module('esn.calendar')
       replace: true,
       template: applicationMenuTemplateBuilder('/#/calendar', 'mdi-calendar', 'Calendar')
     };
+  })
+
+  .directive('calendarDateIndicator', function(uiCalendarConfig, calendarService, miniCalendarService, CALENDAR_EVENTS) {
+    function link(scope) {
+      var miniCalendarIsShown = false;
+
+      function _calendarDateIndicator(event, view) {
+        scope.dateIndicator = view.title;
+      }
+
+      _calendarDateIndicator(null, uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
+
+      scope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, _calendarDateIndicator);
+      scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, function(event, view) {
+        if (miniCalendarIsShown) {
+          _calendarDateIndicator(event, view || uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
+        }
+      });
+      scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+        miniCalendarIsShown = !miniCalendarIsShown;
+        if (miniCalendarIsShown) {
+          _calendarDateIndicator(event, uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
+        } else {
+          _calendarDateIndicator(event, uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
+        }
+      });
+    }
+    return {
+      restrict: 'A',
+      scope: true,
+      link: link
+    };
   });

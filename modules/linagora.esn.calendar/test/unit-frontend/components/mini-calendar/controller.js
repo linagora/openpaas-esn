@@ -121,6 +121,14 @@ describe('The mini-calendar controller', function() {
     $rootScope.$destroy();
   });
 
+  it('should $rootScope.broadcast the view on viewRender call', function() {
+    var handler = sinon.spy();
+    $scope.$on('calendar:mini:viewchange', handler);
+    initController();
+    $scope.miniCalendarConfig.viewRender('aView');
+    expect(handler).to.have.been.calledWith(sinon.match.any, 'aView');
+  });
+
   it('should call render on window resize if viewRender was never called', function() {
     fcMethodMock.render = sinon.stub();
     initController();

@@ -112,7 +112,8 @@ angular.module('esn.calendar')
     },
     MINI_CALENDAR: {
       DATE_CHANGE: 'calendar:mini:dateChange',
-      TOGGLE: 'calendar:mini:toggle'
+      TOGGLE: 'calendar:mini:toggle',
+      VIEW_CHANGE: 'calendar:mini:viewchange'
     },
     WS: {
       EVENT_CREATED: 'calendar:ws:event:created',

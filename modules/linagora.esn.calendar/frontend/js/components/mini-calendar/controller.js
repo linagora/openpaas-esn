@@ -70,12 +70,13 @@ angular.module('esn.calendar')
     }
 
     var calendarResolved = false;
-    $scope.miniCalendarConfig.viewRender = function() {
+    $scope.miniCalendarConfig.viewRender = function(view) {
       if (!calendarResolved) {
         calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.miniCalendarId]);
         unregisterWindowResize();
         calendarResolved = true;
       }
+      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, view);
     };
 
     $scope.miniCalendarConfig.eventClick = function(event) {
