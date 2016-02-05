@@ -49,11 +49,35 @@ describe('The event-form module services', function() {
       this.$state.go = sinon.spy();
       this.eventUtils.isOrganizer = sinon.stub().returns(true);
 
-      this.openEventForm({});
+      this.openEventForm({event: {}});
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.not.been.called;
       expect(this.$state.go).to.have.been.calledWith('calendar.eventEdit');
       expect(this.eventUtils.isOrganizer).to.have.been.called;
+    });
+
+    it('should call $state to calendar.eventEdit if screensize is xs or sm and scope is undefined', function() {
+      this.screenSize.is = sinon.stub().returns(true);
+      this.$state.go = sinon.spy();
+      this.eventUtils.isOrganizer = sinon.stub().returns(true);
+
+      this.openEventForm(null);
+      expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+      expect(this.$modal).to.have.not.been.called;
+      expect(this.$state.go).to.have.been.calledWith('calendar.eventEdit');
+      expect(this.eventUtils.isOrganizer).to.have.not.been.called;
+    });
+
+    it('should call $state to calendar.eventEdit if screensize is xs or sm and scope is defined but not scope.event', function() {
+      this.screenSize.is = sinon.stub().returns(true);
+      this.$state.go = sinon.spy();
+      this.eventUtils.isOrganizer = sinon.stub().returns(true);
+
+      this.openEventForm({event: null});
+      expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+      expect(this.$modal).to.have.not.been.called;
+      expect(this.$state.go).to.have.been.calledWith('calendar.eventEdit');
+      expect(this.eventUtils.isOrganizer).to.have.not.been.called;
     });
 
     it('should call $state to calendar.eventConsult if screensize is xs or sm and not isOrganizer', function() {
@@ -61,7 +85,7 @@ describe('The event-form module services', function() {
       this.$state.go = sinon.spy();
       this.eventUtils.isOrganizer = sinon.stub().returns(false);
 
-      this.openEventForm({});
+      this.openEventForm({event: {}});
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.not.been.called;
       expect(this.$state.go).to.have.been.calledWith('calendar.eventConsult');

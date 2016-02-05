@@ -37,7 +37,7 @@ angular.module('esn.calendar')
     }
 
     function initFormData() {
-      if ($scope.event) {
+      if ($scope.event && $scope.event.clone) {
         $scope.editedEvent = $scope.event.clone();
       } else {
         $scope.event = CalendarShell.fromIncompleteShell({

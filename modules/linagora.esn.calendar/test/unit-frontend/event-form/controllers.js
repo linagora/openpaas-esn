@@ -192,6 +192,19 @@ describe('The event-form module controllers', function() {
     });
 
     describe('initFormData function', function() {
+      it('should initialize the scope with a default event if $scope.event.clone does not exist', function() {
+        this.scope.event = {};
+        this.eventUtils.originalEvent = null;
+        this.initController();
+        var expected = {
+          start: this.moment('2013-02-08 09:30'),
+          end: this.moment('2013-02-08 10:30'),
+          allDay: false
+        };
+        expect(this.scope.event).to.contain.all.keys(expected);
+        expect(this.scope.editedEvent).to.contain.all.keys(expected);
+      });
+
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.scope.event = null;
         this.eventUtils.originalEvent = null;

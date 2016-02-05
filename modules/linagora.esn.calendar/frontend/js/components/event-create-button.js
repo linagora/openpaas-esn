@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventCreateButton', function() {
+  .directive('eventCreateButton', function(openEventForm, eventUtils) {
     return {
       restrict: 'E',
       replace: true,
@@ -9,6 +9,9 @@ angular.module('esn.calendar')
         community: '=',
         user: '='
       },
-      templateUrl: '/calendar/views/components/event-create-button.html'
+      templateUrl: '/calendar/views/components/event-create-button.html',
+      link: function(scope) {
+        scope.openEventForm = openEventForm;
+      }
     };
   });
