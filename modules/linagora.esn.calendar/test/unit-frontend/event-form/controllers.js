@@ -118,15 +118,19 @@ describe('The event-form module controllers', function() {
     });
 
     describe('the closeModal function', function() {
-      it('should cache the editedEvent using eventService#setEditedEvent', function(done) {
+      it('should cache the editedEvent using eventService#setEditedEvent', function() {
         this.scope.event = null;
         this.eventUtils.originalEvent = null;
-        this.eventUtils.setEditedEvent = function(event) {
-          expect(event).to.exist;
-          done();
-        };
+        this.eventUtils.getNewAttendees = sinon.stub().returns(['anAttendee']);
+        this.eventUtils.setNewAttendees = sinon.spy();
+        this.eventUtils.setEditedEvent = sinon.spy();
+        this.scope.$hide = sinon.spy();
         this.initController();
         this.scope.closeModal();
+
+        expect(this.eventUtils.setEditedEvent).to.have.been.calledWith(sinon.match.defined);
+        expect(this.eventUtils.setNewAttendees).to.have.been.calledWith(['anAttendee']);
+        expect(this.scope.$hide).to.have.been.called;
       });
     });
 

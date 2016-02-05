@@ -47,7 +47,7 @@ angular.module('esn.calendar')
         $scope.editedEvent = $scope.event.clone();
       }
 
-      $scope.newAttendees = [];
+      $scope.newAttendees = eventUtils.getNewAttendees();
 
       $scope.invitedAttendee = null;
       $scope.hasAttendees = !!$scope.editedEvent.attendees;
@@ -219,6 +219,7 @@ angular.module('esn.calendar')
     $scope.canPerformCall = canPerformCall;
     $scope.closeModal = function() {
       eventUtils.setEditedEvent($scope.editedEvent);
+      eventUtils.setNewAttendees($scope.newAttendees);
       $scope.$hide();
     };
     $scope.goToCalendar = function(callback) {
