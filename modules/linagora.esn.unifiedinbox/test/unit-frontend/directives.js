@@ -248,11 +248,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $state;
+    var draftService, $state, $stateParams;
 
-    beforeEach(inject(function(_$state_, _draftService_) {
+    beforeEach(inject(function(_$state_, _draftService_, _$stateParams_) {
       $state = _$state_;
       draftService = _draftService_;
+      $stateParams = _$stateParams_;
     }));
 
     it('should return false when isBoxed is called', function() {
@@ -263,17 +264,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl, windowHistory;
+      var directive, ctrl;
 
       beforeEach(function() {
+        $stateParams.previousState = {
+          name: 'previousStateName',
+          params: 'previousStateParams'
+        };
         directive = compileDirective('<composer />');
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
-        windowHistory = $window.history;
-      });
-
-      afterEach(function() {
-        $window.history = windowHistory;
+        $state.go = sinon.spy();
       });
 
       it('should save draft when location has successfully changed', function() {
@@ -283,6 +284,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should save draft only once when close is called, then location has successfully changed', function() {
+
         $scope.close();
         $rootScope.$broadcast('$stateChangeSuccess');
 
@@ -295,10 +297,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
-      it('should back to previous location when the composer is closed', function() {
-        $window.history.back = sinon.spy();
+      it('should back to previous state with correct parameters when the composer is closed', function() {
         $scope.close();
-        expect($window.history.back).to.have.been.calledOnce;
+        expect($state.go).to.have.been.calledOnce;
+        expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -307,11 +309,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(ctrl.saveDraft).to.have.not.been.called;
       });
 
-      it('should back to previous location when the composer is hidden', function() {
-        $window.history.back = sinon.spy();
+      it('should back to previous state with correct parameters when the composer is hidden', function() {
         $scope.hide();
 
-        expect($window.history.back).to.have.been.calledOnce;
+        expect($state.go).to.have.been.calledOnce;
+        expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
       });
 
     });

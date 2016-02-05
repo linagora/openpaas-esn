@@ -189,7 +189,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($state, $timeout, $window, elementScrollService, emailBodyService, autosize) {
+  .directive('composer', function($state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -199,7 +199,7 @@ angular.module('linagora.esn.unifiedinbox')
         scope.isBoxed = function() {return false;};
 
         function backToLastLocation() {
-          $window.history.back();
+          $state.go($stateParams.previousState.name, $stateParams.previousState.params);
         }
 
         function quit(action) {
