@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.scroll', ['esn.header'])
+angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
   .constant('SCROLL_EVENTS', {
     RESET_SCROLL: 'scroll:reset'
   })
@@ -38,37 +38,40 @@ angular.module('esn.scroll', ['esn.header'])
       }
     };
   })
-  .directive('scrollListener', function(SCROLL_DIFF_DELTA) {
-    function link(scope) {
-      var position = $(window).scrollTop();
-      var toggled = false;
-      $(window).scroll(function(event) {
-        if (scope.disabled) {
-          return;
-        }
-        var scroll = $(window).scrollTop();
-        var diff = scroll - position;
-        if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
-          toggled = true;
-          scope.onScrollDown();
-        } else if (diff < 0 && toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
-          toggled = false;
-          scope.onScrollUp();
-        }
-        position = scroll;
-      });
-    }
 
+  .directive('scrollListener', function($parse, SCROLL_DIFF_DELTA) {
     return {
       restrict: 'A',
-      scope: {
-        onScrollDown: '=',
-        onScrollUp: '=',
-        disabled: '=?'
-      },
-      link: link
+      scope: true,
+      link: function(scope, element, attrs) {
+
+        var position = $(window).scrollTop();
+        var toggled = false;
+
+        $(window).scroll(function(event) {
+          if (scope.disabled) {
+            return;
+          }
+          var scroll = $(window).scrollTop();
+          var diff = scroll - position;
+          if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
+            toggled = true;
+            $parse(scope[attrs.onScrollDown])();
+          } else if (diff < 0 && toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
+            toggled = false;
+            $parse(scope[attrs.onScrollUp])();
+          }
+
+          if (scroll === 0 && attrs.onScrollTop) {
+            $parse(scope[attrs.onScrollTop])();
+          }
+
+          position = scroll;
+        });
+      }
     };
   })
+
   .directive('resizeScrollbar', function() {
     return {
       restrict: 'A',
@@ -80,7 +83,7 @@ angular.module('esn.scroll', ['esn.header'])
     };
   })
 
-  .factory('elementScrollService', function($timeout, $window, headerService, SUB_HEADER_HEIGHT_IN_PX) {
+  .factory('elementScrollService', function($timeout, $window, headerService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
     /**
      * Auto-scroll to the end of the given element
      * @param element
@@ -104,8 +107,18 @@ angular.module('esn.scroll', ['esn.header'])
       $window.scrollTo(0, scrollY);
     }
 
+    function scrollToTop() {
+      if (deviceDetector.isMobile()) {
+        // the animation rendering is often bad with mobiles
+        $window.scrollTo(0, 0);
+      } else {
+        $('html, body').animate({ scrollTop: 0 });
+      }
+    }
+
     return {
       autoScrollDown: autoScrollDown,
-      scrollDownToElement: scrollDownToElement
+      scrollDownToElement: scrollDownToElement,
+      scrollToTop: scrollToTop
     };
   });

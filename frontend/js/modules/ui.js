@@ -8,13 +8,15 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     create: 'mdi mdi-plus',
     pen: 'mdi mdi-pencil',
     'new-user': 'mdi mdi-account-plus',
-    next: 'mdi mdi-arrow-right'
+    next: 'mdi mdi-arrow-right',
+    up: 'mdi mdi-arrow-up'
   })
 
   .directive('fab', function(FAB_ICONS, DEFAULT_COLOR_CLASS) {
     return {
-      restrict: 'AE',
+      restrict: 'E',
       replace: true,
+      scope: true,
       templateUrl: '/views/modules/ui/fab.html',
       link: function($scope, element, attrs) {
         $scope.options = {
@@ -22,6 +24,37 @@ angular.module('esn.ui', ['op.dynamicDirective'])
           color: attrs.color || DEFAULT_COLOR_CLASS,
           type: attrs.type || 'button'
         };
+      }
+    };
+  })
+
+  .directive('fabScrollTop', function($window, elementScrollService) {
+    return {
+      restrict: 'E',
+      template: '<fab icon="up" scroll-listener data-on-scroll-down="hide" data-on-scroll-top="hide" data-on-scroll-up="show" />',
+      link: function(scope, element) {
+
+        function _scrollIsTwiceScreenHeight() {
+          return ($window.innerHeight * 2) < $window.scrollY;
+        }
+
+        scope.hide = element.addClass.bind(element, 'hidden');
+        scope.show = function() {
+          if (_scrollIsTwiceScreenHeight()) {
+            element.removeClass('hidden');
+          }
+        };
+
+        scope.hide();
+
+        element.click(function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          elementScrollService.scrollToTop();
+          scope.hide();
+        });
+
       }
     };
   })
