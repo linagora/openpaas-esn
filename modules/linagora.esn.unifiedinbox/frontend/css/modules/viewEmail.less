@@ -2,21 +2,13 @@
 
   .card {
     &.isCollapsed {
-      .from span.line-header {
-        display: none;
-      }
-      .to, .cc{
-        display: none;
-      }
-      .email-header-right {
-        .actions {
-          display: none;
-        }
-        .flex-space-between.horiz-space email-star {
-          display: none;
-        }
-      }
-      .email-body, .lv-footer {
+      .from span.line-header,
+      .to,
+      .cc,
+      .email-header-right .actions,
+      .email-header-right .flex-space-between.horiz-space email-star,
+      .email-body,
+      .lv-footer {
         display: none;
       }
     }
@@ -37,8 +29,8 @@
     .SecondaryColor;
 
     padding: 10px;
-    font-weight: bold;
-    border: 1px darken(@body-bg, 5%) solid;
+    background-color: lighten(@body-bg, 5%);
+    border-bottom: 1px @body-bg solid;
 
     .avatarify {
       height: 100%;
@@ -46,6 +38,7 @@
 
       .preview {
         min-height: 20px;
+        color: lighten(@secondaryTextColor, 20%);
       }
     }
 
