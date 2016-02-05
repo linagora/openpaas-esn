@@ -450,6 +450,61 @@ describe('ContactShell Builders', function() {
 
         compareShell(shell, ical);
       });
+
+      it('should not add email in vcard when it does not have value', function() {
+        var shell = {
+          id: '00000000-0000-4000-a000-000000000000',
+          emails: [{ type: 'Home'}]
+        };
+
+        var vcard = VcardBuilder.toVcard(shell);
+        var email = vcard.getFirstProperty('email');
+        expect(email).is.null;
+      });
+
+      it('should not add telephone in vcard when it does not have value', function() {
+        var shell = {
+          id: '00000000-0000-4000-a000-000000000000',
+          tel: [{ type: 'Home'}]
+        };
+
+        var vcard = VcardBuilder.toVcard(shell);
+        var tel = vcard.getFirstProperty('tel');
+        expect(tel).is.null;
+      });
+
+      it('should not add addresse in vcard when it does not have value', function() {
+        var shell = {
+          id: '00000000-0000-4000-a000-000000000000',
+          addresses: [{ type: 'Home'}]
+        };
+
+        var vcard = VcardBuilder.toVcard(shell);
+        var addresses = vcard.getFirstProperty('adr');
+        expect(addresses).is.null;
+      });
+
+      it('should not add socialprofile in vcard when it does not have value', function() {
+        var shell = {
+          id: '00000000-0000-4000-a000-000000000000',
+          social: [{ type: 'Home'}]
+        };
+
+        var vcard = VcardBuilder.toVcard(shell);
+        var social = vcard.getFirstProperty('socialprofile');
+        expect(social).is.null;
+      });
+
+      it('should not add url in vcard when it does not have value', function() {
+        var shell = {
+          id: '00000000-0000-4000-a000-000000000000',
+          urls: []
+        };
+
+        var vcard = VcardBuilder.toVcard(shell);
+        var url = vcard.getFirstProperty('url');
+        expect(url).is.null;
+      });
     });
 
     describe('The toJSON function', function() {

@@ -3,21 +3,11 @@
     .col-xs-4.col-sm-3(ng-if="isMultiTypeField()")
       .fg-line
         .select
-          select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
-    div(ng-class="isMultiTypeField() ? 'col-xs-8 col-sm-9' : 'col-xs-12'")
-      .fg-line(resetable-input)
-        input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='item.value', ng-model-options='{updateOn:"blur", allowInvalid: true}', ng-change='verifyRemove($index)', autocapitalize='{{autocapitalize}}')
-        i.clickable.invisible.mdi.mdi-minus-circle-outline.button-remove(ng-click="deleteField($index)")
-.multi-input-next(ng-if="showNextField || content.length === 0")
-  .form-group
-    .col-xs-4.col-sm-3(ng-if="isMultiTypeField()")
-      .fg-line
-        .select
-          select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
+          select.form-control.multi-input-type(ng-init="item.type = item.type || types[0]" ng-model='item.type', ng-options='type for type in types')
     div(ng-class="isMultiTypeField() ? 'col-xs-8 col-sm-9' : 'col-xs-12'")
       .fg-line
-        input.form-control.multi-input-text.input-next(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-change='verifyNew()', ng-model-options="{allowInvalid: true}", autocapitalize='{{autocapitalize}}')
-        i.clickable.mdi.mdi-minus-circle-outline.button-remove(ng-show="content.length > 0", ng-click="hideNextField()")
+        input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='item.value', ng-change='verifyNew($index)', ng-model-options="{allowInvalid: true}", autocapitalize='{{autocapitalize || "on"}}', ng-focus="onFocusFn($index)", ng-blur="hideDeleteButton($index)")
+        i.clickable.mdi.mdi-minus-circle-outline.button-remove(ng-show="showDeleteButtonArray[$index]", ng-click="deleteField($index)")
 .multi-input-button.clickable(ng-if="showAddButton" ng-click="addField()")
   .form-group
     .flex-vertical-centered.m-t-10(ng-class="isMultiTypeField() ? 'col-xs-8 col-xs-offset-4 col-sm-9 col-sm-offset-3' : 'col-xs-12'")

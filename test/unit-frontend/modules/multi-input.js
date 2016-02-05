@@ -12,496 +12,169 @@ describe('The multi-input Angular module', function() {
     module('jadeTemplates');
   });
 
-  describe('The multiInputGroupAddress directive', function() {
-
-    var element;
-
-    beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, $controller) {
-      this.$rootScope = _$rootScope_;
-      this.$scope = this.$rootScope.$new();
-      this.$compile = _$compile_;
-      this.$timeout = _$timeout_;
-      this.initDirective = function(scope) {
-        var html = '<multi-input-group-address multi-input-model="contact.addresses", multi-input-types="[]"></multi-input-group-address>';
-        var element = this.$compile(html)(scope);
-        scope.$digest();
-        this.eleScope = element.isolateScope();
-        this.eleScope.types = ['Home', 'Work', 'Other'];
-        $controller('MultiInputGroupController', {
-          $scope: this.eleScope
-        });
-        return element;
-      };
-    }));
-
-    it('should load the existing content in inputs if there is', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.content.length).to.be.equal(2);
-      expect(this.eleScope.showNextField).to.be.false;
-    });
-    it('should display a blank input if there is no existing content', function() {
-      this.$scope.contact = {
-        addresses: []
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.content.length).to.be.equal(0);
-      expect(this.eleScope.showNextField).to.be.true;
-    });
-    it('should display an "add a field button" when there is existing content', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.showAddButton).to.be.true;
-    });
-    it('should not display an "add a field button" when there is no existing content', function() {
-      this.$scope.contact = {
-        addresses: []
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.showAddButton).to.be.false;
-    });
-    it('should add a blank field on click on "add a field" button', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      expect(this.eleScope.showAddButton).to.be.false;
-      expect(this.eleScope.showNextField).to.be.true;
-    });
-    it('should set the focus on the newly created street field', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      expect(this.eleScope.showAddButton).to.be.false;
-      expect(this.eleScope.showNextField).to.be.true;
-      var spy = sinon.spy(element.find('.input-next')[0], 'focus');
-      this.$timeout.flush();
-      expect(spy).to.have.been.calledOnce;
-    });
-    it('should display an "add a field" button when the at least one of the new inputs is not empty', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      expect(this.eleScope.showAddButton).to.be.false;
-      expect(this.eleScope.showNextField).to.be.true;
-      this.eleScope.newItem = {
-        type: 'Other',
-        street: 'a',
-        zip: '',
-        city: '',
-        country: ''
-      };
-      this.eleScope.verifyNew();
-      expect(this.eleScope.showAddButton).to.be.true;
-    });
-    it('should not display an "add a field" button when the all the new input are empty', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      expect(this.eleScope.showAddButton).to.be.false;
-      expect(this.eleScope.showNextField).to.be.true;
-      this.eleScope.newItem = {
-        type: 'Other',
-        street: '',
-        zip: '',
-        city: '',
-        country: ''
-      };
-      this.eleScope.verifyNew();
-      expect(this.eleScope.showAddButton).to.be.false;
-    });
-    it('should remove existing input when user empty all the fields', function() {
-      this.$scope.contact = {
-        addresses: [
-          {type: 'Home',
-            street: 'Somewhere over the rainbow',
-            zip: '777',
-            city: 'Yolopolis',
-            country: 'Yololand'},
-          {type: 'Home',
-            street: 'Somewhere else',
-            zip: '666',
-            city: 'Satantown',
-            country: 'Hell'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      this.eleScope.content = [
-        {type: 'Home',
-          street: '',
-          zip: '',
-          city: '',
-          country: ''},
-        {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
-      ];
-      this.eleScope.verifyRemove(0);
-      expect(this.eleScope.content).to.deep.equal([
-        {type: 'Home',
-          street: 'Somewhere else',
-          zip: '666',
-          city: 'Satantown',
-          country: 'Hell'}
-      ]);
-    });
-  });
-  describe('The multiInputGroup directive', function() {
-
-    var element;
-
-    beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, $controller) {
-      this.$rootScope = _$rootScope_;
-      this.$scope = this.$rootScope.$new();
-      this.$compile = _$compile_;
-      this.$timeout = _$timeout_;
-      var defaultDirective = '<multi-input-group multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="email", multi-input-placeholder="Email"></multi-input-group>';
-
-      this.initDirective = function(scope, directive) {
-        var html = directive || defaultDirective;
-        var element = this.$compile(html)(scope);
-        scope.$digest();
-        this.eleScope = element.isolateScope();
-        this.eleScope.types = ['Home', 'Work', 'Other'];
-        $controller('MultiInputGroupController', {
-          $scope: this.eleScope
-        });
-        return element;
-      };
-    }));
-
-    it('should load the existing content in inputs if there is', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.content.length).to.be.equal(2);
-      expect(this.eleScope.showNextField).to.be.false;
-    });
-
-    it('should display a blank input if there is no existing content', function() {
-      this.$scope.contact = {
-        emails: []
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.content.length).to.be.equal(0);
-      expect(this.eleScope.showNextField).to.be.true;
-    });
-
-    it('should display an "add a field button" when there is existing content', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.showAddButton).to.be.true;
-    });
-
-    it('should have inputs ignoring built-in HTML5 type validator', function() {
-      this.$scope.contact = {
-        emails: [{
-          type: 'Home',
-          value: 'home@mail.com'
-        }]
-      };
-      var element = this.initDirective(this.$scope);
-      this.eleScope.showNextField = true;
-      this.eleScope.$digest();
-
-      var itemInput = element.find('input');
-      itemInput.val('this_is_an_invalid_email_1');
-      itemInput.triggerHandler('input');
-      itemInput.triggerHandler('blur');
-      expect(this.eleScope.content[0].value).to.equal('this_is_an_invalid_email_1');
-
-      var nextItemInput = element.find('input[ng-model="newItem.value"]');
-      nextItemInput.val('this_is_an_invalid_email_2');
-      nextItemInput.triggerHandler('input');
-      expect(this.eleScope.content[1].value).to.equal('this_is_an_invalid_email_2');
-    });
-
-    it('should not display an "add a field button" when there is no existing content', function() {
-      this.$scope.contact = {
-        emails: []
-      };
-      this.initDirective(this.$scope);
-      expect(this.eleScope.showAddButton).to.be.false;
-    });
-
-    it('should add a blank field on click on "add a field" button', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      expect(this.eleScope.showAddButton).to.be.false;
-      expect(this.eleScope.showNextField).to.be.true;
-    });
-
-    it('should set the focus on the newly created street field', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      expect(this.eleScope.showAddButton).to.be.false;
-      expect(this.eleScope.showNextField).to.be.true;
-      var spy = sinon.spy(element.find('.input-next')[0], 'focus');
-      this.$timeout.flush();
-      expect(spy).to.have.been.calledOnce;
-    });
-
-    it('should display an "add a field" button when the new input is not empty', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      this.eleScope.newItem = {
-        type: 'Other',
-        value: 'other@mail.com'
-      };
-      this.eleScope.verifyNew();
-      expect(this.eleScope.showAddButton).to.be.true;
-    });
-
-    it('should not display an "add a field" button when the new input is empty', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      element.find('.multi-input-button').click();
-      this.eleScope.newItem = {
-        type: 'Other',
-        value: ''
-      };
-      this.eleScope.verifyNew();
-      expect(this.eleScope.showAddButton).to.be.false;
-    });
-
-    it('should remove existing input when user empty it', function() {
-      this.$scope.contact = {
-        emails: [
-          {type: 'Home',
-            value: 'home@mail.com'},
-          {type: 'Work',
-            value: 'work@mail.com'}
-        ]
-      };
-      element = this.initDirective(this.$scope);
-      this.eleScope.content = [
-        {type: 'Home',
-          value: ''},
-        {type: 'Work',
-          value: 'work@mail.com'}
-      ];
-      this.eleScope.verifyRemove(0);
-      expect(this.eleScope.content).to.deep.equal([
-        {type: 'Work',
-          value: 'work@mail.com'}
-      ]);
-    });
-
-    it('should hide the type select option when no types specified', function() {
-      this.$scope.contact = { emails: [] };
-      element = this.initDirective(this.$scope);
-
-      this.eleScope.types = null;
-      this.eleScope.$digest();
-
-      expect(this.eleScope.isMultiTypeField()).to.be.false;
-      expect(element.html()).to.not.have.string('select');
-    });
-
-    it('should not hide the type select option when types is specified', function() {
-      this.$scope.contact = { emails: [] };
-      element = this.initDirective(this.$scope);
-
-      this.eleScope.types = ['Work'];
-      this.eleScope.$digest();
-
-      expect(this.eleScope.isMultiTypeField()).to.be.true;
-      expect(element.html()).to.have.string('select');
-    });
-
-    it('should set autocapitalize from input', function() {
-      this.$scope.contact = { emails: [] };
-      var directive = '<multi-input-group multi-input-autocapitalize="off", multi-input-model="contact.emails", multi-input-types="[]", multi-input-texttype="text", multi-input-placeholder="Email"></multi-input-group>';
-      element = this.initDirective(this.$scope, directive);
-      this.eleScope.$digest();
-      expect(this.eleScope.autocapitalize).to.equal('off');
-    });
-
-    it('should add new content as soon as the next field has content', function() {
-      this.$scope.contact = {
-        emails: []
-      };
-      var element = this.initDirective(this.$scope);
-      this.eleScope.showNextField = true;
-      this.eleScope.$digest();
-
-      var email = 'alice@mail.com';
-      var nextItemInput = element.find('input[ng-model="newItem.value"]');
-      nextItemInput.val(email);
-      nextItemInput.triggerHandler('input');
-      expect(this.eleScope.content[0].value).to.equal(email);
-    });
-
-    it('should not hide next field when it is blur', function() {
-      this.$scope.contact = {
-        emails: [{
-          type: 'Work',
-          value: 'alice@mail.com'
-        }]
-      };
-      var element = this.initDirective(this.$scope);
-      this.eleScope.showNextField = true;
-      this.eleScope.$digest();
-      expect(element.find('.multi-input-next').length).to.equal(1);
-
-      var nextItemInput = element.find('input[ng-model="newItem.value"]');
-      nextItemInput.triggerHandler('input');
-      nextItemInput.triggerHandler('blur');
-
-      expect(element.find('.multi-input-next').length).to.equal(1);
-    });
-  });
-
   describe('The MultiInputGroupController controller', function() {
 
-    var MultiInputGroupController, $scope;
+    var $scope, $rootScope, $controller, ctrl;
+    var multiInputService, timeout;
 
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _multiInputService_, _$timeout_) {
+      $rootScope = _$rootScope_;
+      $controller = _$controller_;
+      multiInputService = _multiInputService_;
+      timeout = _$timeout_;
       $scope = $rootScope.$new();
-      MultiInputGroupController = $controller('MultiInputGroupController', { $scope: $scope });
+      ctrl = $controller('MultiInputGroupController', {
+        $scope: $scope,
+        $timeout: timeout,
+        multiInputService: multiInputService
+      });
+      $scope.$digest();
+      $scope.types = [''];
     }));
 
-    describe('The _updateTypes fn', function() {
+    it('should init content value if it is undefined', function() {
+      expect($scope.content).to.deep.equal([{}]);
+    });
 
-      it('should update the type when types are specified', function() {
-        $scope.types = ['Work'];
-        $scope.newItem = {};
-        $scope.$digest();
-        expect($scope.newItem.type).to.equal('Work');
+    it('should init showDeleteButton array', function() {
+      expect($scope.showDeleteButtonArray).to.deep.equal([]);
+    });
+
+    describe('The onFocusFn fn', function() {
+
+      it('should insert true value in showDeleteButton if it is undefined', function() {
+        $scope.onFocusFn(1);
+        expect($scope.showDeleteButtonArray[1]).is.true;
       });
 
-      it('should not update the type when no types specified', function() {
-        $scope.types = [];
-        $scope.newItem = {};
-        $scope.$digest();
-        expect($scope.newItem.type).to.not.be.defined;
+      it('should insert true value in showAddButton', function() {
+        $scope.onFocusFn(1);
+        expect($scope.showAddButton).is.true;
+      });
+
+      it('should insert true value in showDeleteButton', function() {
+        $scope.showDeleteButtonArray[2] = false;
+        $scope.onFocusFn(2);
+        expect($scope.showDeleteButtonArray[2]).is.true;
       });
 
     });
 
+    describe('The hideDeleteButton fn', function() {
+
+      it('should insert false value in showDeleteButton if it is true', function() {
+        $scope.showDeleteButtonArray[2] = true;
+        $scope.hideDeleteButton(2);
+        timeout.flush();
+        expect($scope.showDeleteButtonArray[2]).is.false;
+      });
+
+    });
+
+    describe('The verifyNew fn', function() {
+
+      it('should affect true value to showAddButton', function() {
+        $scope.showAddButton = false;
+        $scope.verifyNew();
+        expect($scope.showAddButton).is.true;
+      });
+
+      it('should call onFocusFn fn with correct params', function() {
+        $scope.onFocusFn = sinon.spy();
+        $scope.verifyNew(123);
+        expect($scope.onFocusFn).have.been.calledWith(123);
+
+      });
+    });
+
+    describe('The addField fn', function() {
+
+      it('should affect false value to showAddButton', function() {
+        $scope.showAddButton = true;
+        ctrl.addField();
+        expect($scope.showAddButton).is.false;
+      });
+
+      it('should add one field scope content', function() {
+        $scope.content = [];
+        ctrl.addField();
+        expect($scope.content).to.deep.equal([{
+          value: '',
+          type: ''
+        }]);
+      });
+
+      it('should call focusLastItem with correct value', function() {
+        $scope.content = [];
+        multiInputService.focusLastItem = sinon.spy();
+        ctrl.addField('element');
+        expect(multiInputService.focusLastItem).have.been.calledWith('element', '.multi-input-content .multi-input-text');
+      });
+    });
+
+    describe('The deleteField fn', function() {
+
+      it('should affect false value to showAddButton if content is empty after remove item', function() {
+        $scope.content = [];
+        $scope.showAddButton = true;
+        ctrl.deleteField();
+        expect($scope.showAddButton).is.false;
+      });
+
+      it('should remove one item scope content', function() {
+        $scope.content = ['1', '2', '3'];
+        ctrl.deleteField(null, 1);
+        expect($scope.content).to.deep.equal(['1', '3']);
+      });
+
+      it('should call focusLastItem with correct value', function() {
+        $scope.content = [];
+        multiInputService.focusLastItem = sinon.spy();
+        ctrl.deleteField('element', 1);
+        expect(multiInputService.focusLastItem).have.been.calledWith('element', '.multi-input-content .multi-input-text');
+      });
+    });
+
+    describe('The isMultiTypeField fn', function() {
+
+      it('should return correct value', function() {
+        expect($scope.isMultiTypeField()).is.true;
+        $scope.types = null;
+        expect($scope.isMultiTypeField()).is.false;
+      });
+    });
   });
 
+  describe('The multiInputService factory', function() {
+
+    var $rootScope;
+    var multiInputService, timeout;
+
+    beforeEach(angular.mock.inject(function(_$rootScope_, _multiInputService_, _$timeout_) {
+      $rootScope = _$rootScope_;
+      multiInputService = _multiInputService_;
+      timeout = _$timeout_;
+    }));
+
+    describe('The focusLastItem fn', function() {
+
+      it('should focus on the last field', function(done) {
+        var className = 'class';
+        var element = {
+          find: function(element) {
+            expect(element).to.equal(className);
+            return {
+              last: function() {
+                return {
+                  focus: done
+                };
+              }
+            };
+          }
+        };
+        multiInputService.focusLastItem(element, className);
+        timeout.flush();
+      });
+    });
+  });
 });
