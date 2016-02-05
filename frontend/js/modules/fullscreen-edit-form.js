@@ -8,7 +8,7 @@ angular.module('esn.fullscreen-edit-form', ['esn.scroll', 'ui.router'])
       link: function($scope, element, attrs) {
 
         function updatePlaceholderAndShownTags() {
-          var DANGER_ZONE_WIDTH_RATIO = 0.75,
+          var DANGER_ZONE_WIDTH_RATIO = 0.95,
               tagList = element.find('.tag-list'),
               tags = tagList.find('.tag-item');
 

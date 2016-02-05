@@ -411,10 +411,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('newComposerService', function($state, screenSize, boxOverlayOpener) {
+  .service('newComposerService', function($state, boxOverlayOpener, deviceDetector) {
 
-    function choseByScreenSize(small, others) {
-      screenSize.is('xs,sm') ? small() : others();
+    function choseByPlatform(small, others) {
+      deviceDetector.isMobile() ? small() : others();
     }
 
     function newMobileComposer(email) {
@@ -447,16 +447,16 @@ angular.module('linagora.esn.unifiedinbox')
 
     return {
       open: function() {
-        choseByScreenSize(newMobileComposer, newBoxedComposer);
+        choseByPlatform(newMobileComposer, newBoxedComposer);
       },
       openDraft: function(email) {
-        choseByScreenSize(
+        choseByPlatform(
           newMobileComposer.bind(this, email),
           newBoxedDraftComposer.bind(this, email)
         );
       },
       openEmailCustomTitle: function(title, email) {
-        choseByScreenSize(
+        choseByPlatform(
           newMobileComposer.bind(this, email),
           newBoxedComposerCustomTitle.bind(this, title, email)
         );

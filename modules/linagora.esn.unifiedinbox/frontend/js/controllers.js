@@ -331,4 +331,5 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.composition = $stateParams.composition;
 
     headerService.subHeader.setInjection('fullscreen-edit-form-subheader', $scope);
+    headerService.subHeader.setVisibleMD();
   });

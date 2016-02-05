@@ -86,6 +86,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     beforeEach(inject(function() {
       draftService.startDraft = sinon.spy();
+      headerService.subHeader.setVisibleMD = angular.noop;
 
       scope.hide = sinon.spy();
       scope.disableSendButton = sinon.spy();
@@ -984,6 +985,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The recipientsFullscreenEditFormController', function() {
 
+    beforeEach(function() {
+      headerService.subHeader.setVisibleMD = sinon.spy();
+    });
+
     it('should go to unifiedinbox.compose if $stateParams.rcpt is not defined', function() {
       $state.go = sinon.spy();
 
@@ -1017,6 +1022,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('recipientsFullscreenEditFormController');
 
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('fullscreen-edit-form-subheader', sinon.match.any);
+    });
+
+    it('should call headerService.subHeader.setVisibleMD', function() {
+      initController('recipientsFullscreenEditFormController');
+
+      expect(headerService.subHeader.setVisibleMD).to.have.been.called;
     });
 
   });

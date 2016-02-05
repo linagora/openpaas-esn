@@ -144,7 +144,7 @@ describe('The fullscreen-edit-form Angular module', function() {
         ' <div class="tag-list" style="position: absolute; width: 100px;">' +
         '   <div class="tag-item" style="position: absolute; left: 0;">' +
         '   </div>' +
-        '   <div class="tag-item" style="position: absolute; left: 80px;">' +
+        '   <div class="tag-item" style="position: absolute; left: 96px;">' +
         '   </div>' +
         '   <div class="tag-item" style="position: absolute; left: 200px;">' +
         '   </div>' +
@@ -172,7 +172,7 @@ describe('The fullscreen-edit-form Angular module', function() {
       $timeout.flush();
 
       expect(element.find('.tag1').hasClass('hide')).to.equal(false);
-      expect(element.find('.tag2').hasClass('hide')).to.equal(true);
+      expect(element.find('.tag2').hasClass('hide')).to.equal(false);
       expect(element.find('.tag3').hasClass('hide')).to.equal(true);
     });
 
