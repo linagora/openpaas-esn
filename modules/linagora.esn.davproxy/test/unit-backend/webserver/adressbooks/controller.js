@@ -1027,12 +1027,14 @@ describe('The addressbooks module', function() {
       var user = {_id: '123'};
       var limit = 2;
       var page = 3;
+      var bookId = BOOK_HOME;
+      var bookName = BOOK_NAME;
 
-      var successContact1 = { contactId: 1, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 200 }, body: 'success1' };
-      var notFoundContact = { contactId: 2, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 404 }, body: 'not found' };
-      var notIncludedFoundContact = { contactId: 3, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 199 }, body: 'not included' };
-      var errorContact = { contactId: 4, bookId: BOOK_HOME, bookName: BOOK_NAME, err: 'some error' };
-      var successContact2 = { contactId: 5, bookId: BOOK_HOME, bookName: BOOK_NAME, response: { statusCode: 200 }, body: 'success2' };
+      var successContact1 = { contactId: 1, bookId: bookId, bookName: bookName, response: { statusCode: 200 }, body: 'success1' };
+      var notFoundContact = { contactId: 2, bookId: bookId, bookName: bookName, response: { statusCode: 404 }, body: 'not found' };
+      var notIncludedFoundContact = { contactId: 3, bookId: bookId, bookName: bookName, response: { statusCode: 199 }, body: 'not included' };
+      var errorContact = { contactId: 4, bookId: bookId, bookName: bookName, err: 'some error' };
+      var successContact2 = { contactId: 5, bookId: bookId, bookName: bookName, response: { statusCode: 200 }, body: 'success2' };
 
       createSearchFnMock(function() {
         return q.resolve({
@@ -1044,14 +1046,16 @@ describe('The addressbooks module', function() {
 
       mockery.registerMock('./avatarHelper', function() {
         return {
-          injectTextAvatar: function(bookId, bookName, vcard) {
+          injectTextAvatar: function(_bookId, _bookName, _vcard) {
+            expect(_bookId).to.equal(bookId);
+            expect(_bookName).to.equal(bookName);
             var deferred = q.defer();
-            if (vcard === 'success1') {
+            if (_vcard === 'success1') {
               setTimeout(function() {
-                deferred.resolve(vcard);
+                deferred.resolve(_vcard);
               }, 1);
             } else {
-              deferred.resolve(vcard);
+              deferred.resolve(_vcard);
             }
             return deferred.promise;
           }
@@ -1060,7 +1064,7 @@ describe('The addressbooks module', function() {
 
       var controller = getController();
       var req = {
-        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME },
+        params: { bookHome: bookId, bookName: bookName },
         query: {
           search: search,
           page: page,
@@ -1087,14 +1091,14 @@ describe('The addressbooks module', function() {
                   'dav:item': [{
                     _links: {
                       self: {
-                        href: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact1.contactId + '.vcf'].join('/')
+                        href: [req.davserver, 'addressbooks', bookId, bookName, successContact1.contactId + '.vcf'].join('/')
                       }
                     },
                     data: successContact1.body
                   }, {
                     _links: {
                       self: {
-                        href: [req.davserver, 'addressbooks', BOOK_HOME, BOOK_NAME, successContact2.contactId + '.vcf'].join('/')
+                        href: [req.davserver, 'addressbooks', bookId, bookName, successContact2.contactId + '.vcf'].join('/')
                       }
                     },
                     data: successContact2.body
