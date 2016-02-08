@@ -495,7 +495,7 @@ describe('The calendar core module', function() {
               attendeeEmail: attendeeEmail,
               calendarURI: 'calendarURI',
               organizerEmail: organizer.preferredEmail,
-              event: ics
+              uid: '123123'
             });
           }
 

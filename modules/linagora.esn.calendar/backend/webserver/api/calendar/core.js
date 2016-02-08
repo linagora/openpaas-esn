@@ -318,7 +318,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
         var jwtPayload = {
           attendeeEmail: attendeeEmail,
           organizerEmail: organizer.preferredEmail,
-          event: ics,
+          uid: event.uid,
           calendarURI: calendarURI
         };
         return generateActionLinks(baseUrl, jwtPayload).then(function(links) {

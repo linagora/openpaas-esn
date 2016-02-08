@@ -8,8 +8,8 @@ function decodeJWT(req, res, next) {
   if (!payload.calendarURI) {
     badRequest = 'Calendar ID is required';
   }
-  if (!payload.event) {
-    badRequest = 'Event is required';
+  if (!payload.uid) {
+    badRequest = 'Event uid is required';
   }
   if (!payload.attendeeEmail) {
     badRequest = 'Attendee email is required';

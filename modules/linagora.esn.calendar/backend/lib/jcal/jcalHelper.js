@@ -140,6 +140,7 @@ function jcal2content(icalendar, baseUrl) {
 
   var content = {
     method: method,
+    uid: vevent.getFirstPropertyValue('uid'),
     sequence: vevent.getFirstPropertyValue('sequence'),
     summary: vevent.getFirstPropertyValue('summary'),
     location: vevent.getFirstPropertyValue('location'),

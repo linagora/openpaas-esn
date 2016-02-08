@@ -8,6 +8,8 @@ var calendar,
     arrayHelpers,
     logger;
 
+var MAX_TRY_NUMBER = 12;
+
 function dispatchEvent(req, res) {
   if (!req.user) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
@@ -74,25 +76,44 @@ function inviteAttendees(req, res) {
   });
 }
 
-function changeParticipation(req, res) {
-  var ESNToken = req.token && req.token.token ? req.token.token : '';
-  var icalendar = ICAL.parse(req.eventPayload.event);
-  var vcalendar = new ICAL.Component(icalendar);
-  var vevent = vcalendar.getFirstSubcomponent('vevent');
-  var hasAttendee = jcalHelper.getAttendeesEmails(icalendar).indexOf(req.eventPayload.attendeeEmail) !== -1;
-  if (!hasAttendee) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Attendee does not exist.'}});
+function tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTry) {
+  numTry = numTry ? numTry + 1 : 1;
+  if (numTry > MAX_TRY_NUMBER) {
+    return res.status(500).json({error: {code: 500, message:'Exceeded max number of try for atomic update of event'}});
   }
-  var attendee = jcalHelper.getVeventAttendeeByMail(vevent, req.eventPayload.attendeeEmail);
-  attendee.setParameter('partstat', req.eventPayload.action);
 
-  var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarURI, vevent.getFirstPropertyValue('uid') + '.ics'].join('/'));
-  request({method: 'PUT', headers: {ESNToken: ESNToken}, body: vcalendar.toJSON(), url: url, json: true}, function(err, response) {
+  request({method: 'GET', url: url, headers: {ESNToken: ESNToken}}, function(err, response) {
     if (err || response.statusCode < 200 || response.statusCode >= 300) {
       return res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err ? err.message : response.body}});
     }
-    return res.status(200).end();
+    var icalendar = new ICAL.parse(response.body);
+    var vcalendar = new ICAL.Component(icalendar);
+    var vevent = vcalendar.getFirstSubcomponent('vevent');
+
+    var hasAttendee = jcalHelper.getAttendeesEmails(icalendar).indexOf(attendeeEmail) !== -1;
+    if (!hasAttendee) {
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Attendee does not exist.'}});
+    }
+    var attendee = jcalHelper.getVeventAttendeeByMail(vevent, attendeeEmail);
+    attendee.setParameter('partstat', action);
+    request({method: 'PUT', headers: {ESNToken: ESNToken, 'If-Match': response.headers.etag}, body: vcalendar.toJSON(), url: url, json: true}, function(err, response) {
+      if (!err && response.statusCode === 412) {
+        tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTry++);
+      } else if (err || response.statusCode < 200 || response.statusCode >= 300) {
+        res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err ? err.message : response.body}}).end();
+      } else {
+        return res.status(200).end();
+      }
+    });
   });
+}
+
+function changeParticipation(req, res) {
+  var ESNToken = req.token && req.token.token ? req.token.token : '';
+  var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarURI, req.eventPayload.uid + '.ics'].join('/'));
+  var action = req.eventPayload.action;
+
+  tryUpdateParticipation(url, ESNToken, res, req.eventPayload.attendeeEmail, action);
 }
 
 module.exports = function(dependencies) {

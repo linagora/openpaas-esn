@@ -63,6 +63,7 @@ describe('jcalHelper', function() {
         method: 'REQUEST',
         sequence: 0,
         summary: 'Démo OPENPAAS',
+        uid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c',
         start: {
           date: '06/12/2015',
           time: '1:00 PM',
@@ -147,6 +148,7 @@ describe('jcalHelper', function() {
         method: 'CANCEL',
         sequence: 0,
         summary: 'Démo OPENPAAS',
+        uid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c',
         start: {
           date: '06/12/2015',
           time: '1:00 PM',
@@ -185,6 +187,7 @@ describe('jcalHelper', function() {
         method: 'REQUEST',
         sequence: 0,
         summary: 'Démo OPENPAAS',
+        uid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c',
         start: {
           date: '06/12/2015'
         },
