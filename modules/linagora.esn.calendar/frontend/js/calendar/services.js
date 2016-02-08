@@ -471,6 +471,7 @@ angular.module('esn.calendar')
   .service('eventUtils', function(session, ICAL, $q, calendarService, $sanitize) {
     var originalEvent = {};
     var editedEvent = {};
+    var newAttendees = [];
 
     function render(event, element) {
       var timeSpan = element.find('.fc-time span');
@@ -542,8 +543,12 @@ angular.module('esn.calendar')
       return !newEvent.start.isSame(oldEvent.start) || !newEvent.end.isSame(oldEvent.end);
     }
 
-    function setEditedEvent(event) {
-      editedEvent = event;
+    function getNewAttendees(attendees) {
+      return newAttendees;
+    }
+
+    function setNewAttendees(attendees) {
+      newAttendees = attendees;
     }
 
     function getEditedEvent() {
@@ -553,9 +558,14 @@ angular.module('esn.calendar')
       return $q.when(editedEvent);
     }
 
+    function setEditedEvent(event) {
+      editedEvent = event;
+    }
+
     function resetStoredEvents() {
       originalEvent = {};
       editedEvent = {};
+      newAttendees = [];
     }
 
     return {
@@ -568,6 +578,8 @@ angular.module('esn.calendar')
       isMajorModification: isMajorModification,
       getEditedEvent: getEditedEvent,
       setEditedEvent: setEditedEvent,
+      getNewAttendees: getNewAttendees,
+      setNewAttendees: setNewAttendees,
       resetStoredEvents: resetStoredEvents
     };
 
