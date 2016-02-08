@@ -14,7 +14,7 @@ angular.module('esn.calendar')
   .factory('openEventForm', function($state, $modal, screenSize, eventUtils) {
     return function openEventForm(scope) {
       if (screenSize.is('xs, sm')) {
-        if (eventUtils.isOrganizer(scope.event)) {
+        if (!scope || !scope.event || eventUtils.isOrganizer(scope.event)) {
           $state.go('calendar.eventEdit');
         } else {
           $state.go('calendar.eventConsult');
