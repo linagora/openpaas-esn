@@ -89,7 +89,8 @@
     "angular-ui-router": "0.2.15",
     "ui-router-extras": "0.1.0",
     "angular-media-queries": "0.4.1",
-    "jquery.focus": "linagora/jquery.focus#bowerified"
+    "jquery.focus": "linagora/jquery.focus#bowerified",
+    "angular-component": "https://github.com/toddmotto/angular-component.git#~0.0.7"
   },
   "resolutions": {
     "jquery": "2.1.1",
