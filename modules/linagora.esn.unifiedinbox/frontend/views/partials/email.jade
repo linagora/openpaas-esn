@@ -4,13 +4,13 @@
 
     .avatarify
       .from
-        span.line-header #{__('From')}:
+        label.line-header #{__('From')}:
         emailer(emailer="::email.from")
       .to
-        span.line-header #{__('To')}:
+        label.line-header #{__('To')}:
         emailer-group(group="::email.to")
       .cc
-        span.line-header #{__('CC')}:
+        label.line-header #{__('CC')}:
         emailer-group(group="::email.cc")
       .preview.ellipsis.line-header {{::email.preview}}
 
