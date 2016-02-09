@@ -19,7 +19,7 @@ function _injectAllConf(files) {
     var file = dataPath + '/' + filename;
     if (fs.statSync(file).isFile()) {
       var key = filename.slice(filename.lastIndexOf('/') + 1, filename.lastIndexOf('.'));
-      var conf = fs.readJsonSync(file);
+      var conf = require(dataPath + '/' + key)();
       console.log('[INFO] Inject conf', key);
       console.log(JSON.stringify(conf, null, 2));
       promises.push(_injectConf(key, conf));
@@ -32,14 +32,10 @@ module.exports = function() {
   console.log('[INFO] ESN Configuration');
   var deferred = q.defer();
   var readdir = q.denodeify(fs.readdir);
-  var dbConf = fs.readJsonSync(dbPath);
-  mongoose.connect(dbConf.connectionString);
-  mongoose.connection.on('connected', function() {
-    readdir(dataPath)
-      .then(function(files) {
-        return q.allSettled(_injectAllConf(files));
-      })
-      .then(deferred.resolve);
-  });
+
+  readdir(dataPath).then(function(files) {
+    return q.allSettled(_injectAllConf(files));
+  }).then(deferred.resolve, deferred.reject);
+
   return deferred.promise;
 };
