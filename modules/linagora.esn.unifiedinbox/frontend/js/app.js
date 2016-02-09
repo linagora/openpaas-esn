@@ -39,7 +39,7 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.compose', {
         url: '/compose',
         views: {
-          'main@unifiedinbox': {
+          'root@unifiedinbox': {
             template: '<composer />'
           }
         },
@@ -48,7 +48,7 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.compose.recipients', {
         url: '/:rcpt',
         views: {
-          'main@unifiedinbox': {
+          'root@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/composer/fullscreen-edit-form/index',
             controller: 'recipientsFullscreenEditFormController'
           }

@@ -248,18 +248,25 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $state, $stateParams;
+    var draftService, $state, $stateParams, headerService;
 
-    beforeEach(inject(function(_$state_, _draftService_, _$stateParams_) {
+    beforeEach(inject(function(_$state_, _draftService_, _$stateParams_, _headerService_) {
       $state = _$state_;
       draftService = _draftService_;
       $stateParams = _$stateParams_;
+      headerService = _headerService_;
     }));
 
     it('should return false when isBoxed is called', function() {
       compileDirective('<composer />');
 
       expect($scope.isBoxed()).to.equal(false);
+    });
+
+    it('should call headerService.subHeader.setVisibleMD', function() {
+      headerService.subHeader.setVisibleMD = sinon.spy();
+      compileDirective('<composer />');
+      expect(headerService.subHeader.setVisibleMD).to.have.been.called;
     });
 
     describe('its controller', function() {
@@ -325,9 +332,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       beforeEach(inject(function(_headerService_) {
         headerService = _headerService_;
 
-        mainHeader = compileDirective('<main-header/>');
         ctrl = compileDirective('<composer/>').controller('composer');
         ctrl.saveDraft = angular.noop;
+        mainHeader = compileDirective('<main-header/>');
       }));
 
       it('should bind the send button to the scope method', function() {

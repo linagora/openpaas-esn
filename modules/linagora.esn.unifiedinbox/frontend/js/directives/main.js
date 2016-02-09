@@ -189,7 +189,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams) {
+  .directive('composer', function($state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams, headerService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -197,6 +197,8 @@ angular.module('linagora.esn.unifiedinbox')
       link: function(scope, element, attrs, controller) {
 
         scope.isBoxed = function() {return false;};
+
+        headerService.subHeader.setVisibleMD();
 
         function backToLastLocation() {
           $state.go($stateParams.previousState.name, $stateParams.previousState.params);

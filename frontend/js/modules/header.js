@@ -8,9 +8,11 @@ angular.module('esn.header', ['esn.sidebar'])
 
   .constant('SUB_HEADER_HAS_INJECTION_EVENT', 'sub-header:hasInjection')
 
+  .constant('SUB_HEADER_VISIBLE_MD_EVENT', 'sub-header:visibleMd')
+
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 
-  .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
+  .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
 
     function buildDynamicDirective(directiveName, scope) {
       return new dynamicDirectiveService.DynamicDirective(true, directiveName, {scope: scope});
@@ -21,12 +23,12 @@ angular.module('esn.header', ['esn.sidebar'])
       dynamicDirectiveService.addInjection(MAIN_HEADER, directive);
     }
 
-    function hasSubHeaderGotInjections() {
-      return dynamicDirectiveService.getInjections(SUB_HEADER, {}).length > 0;
-    }
-
     function hasMainHeaderGotInjections() {
       return dynamicDirectiveService.getInjections(MAIN_HEADER, {}).length > 0;
+    }
+
+    function hasSubHeaderGotInjections() {
+      return dynamicDirectiveService.getInjections(SUB_HEADER, {}).length > 0;
     }
 
     function addSubHeaderInjection(directiveName, scope) {
@@ -49,6 +51,10 @@ angular.module('esn.header', ['esn.sidebar'])
       dynamicDirectiveService.resetInjections(SUB_HEADER);
     }
 
+    function setVisibleMD() {
+      $rootScope.$broadcast(SUB_HEADER_VISIBLE_MD_EVENT, true);
+    }
+
     return {
       mainHeader: {
         addInjection: addMainHeaderInjection,
@@ -59,7 +65,8 @@ angular.module('esn.header', ['esn.sidebar'])
         addInjection: addSubHeaderInjection,
         setInjection: setSubHeaderInjection,
         resetInjections: resetSubHeaderInjection,
-        hasInjections: hasSubHeaderGotInjections
+        hasInjections: hasSubHeaderGotInjections,
+        setVisibleMD: setVisibleMD
       },
       resetAllInjections: function() {
         resetMainHeaderInjection();
@@ -76,7 +83,7 @@ angular.module('esn.header', ['esn.sidebar'])
     };
   })
 
-  .directive('mainHeader', function($rootScope, deviceDetector, headerService, dynamicDirectiveService, Fullscreen, SUB_HEADER_HAS_INJECTION_EVENT) {
+  .directive('mainHeader', function($rootScope, deviceDetector, headerService, dynamicDirectiveService, Fullscreen, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
     return {
       restrict: 'E',
       replace: true,
@@ -108,6 +115,14 @@ angular.module('esn.header', ['esn.sidebar'])
 
         scope.$on(SUB_HEADER_HAS_INJECTION_EVENT, function(event, hasInjections) {
           scope.hasSubHeaderGotInjections = hasInjections;
+        });
+
+        scope.$on(SUB_HEADER_VISIBLE_MD_EVENT, function(event, visibleMd) {
+          scope.subHeaderVisibleMd = visibleMd;
+        });
+
+        scope.$on('$stateChangeSuccess', function() {
+          scope.subHeaderVisibleMd = false;
         });
       }
     };

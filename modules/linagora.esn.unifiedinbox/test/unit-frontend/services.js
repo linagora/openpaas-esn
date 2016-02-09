@@ -1410,11 +1410,11 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The newComposerService ', function() {
 
-    var $state, $timeout, newComposerService, screenSize, boxOverlayOpener;
+    var $state, $timeout, newComposerService, deviceDetector, boxOverlayOpener;
 
-    beforeEach(inject(function(_$state_, _$timeout_, _newComposerService_, _screenSize_, _boxOverlayOpener_) {
+    beforeEach(inject(function(_$state_, _$timeout_, _newComposerService_, _deviceDetector_, _boxOverlayOpener_) {
       newComposerService = _newComposerService_;
-      screenSize = _screenSize_;
+      deviceDetector = _deviceDetector_;
       $state = _$state_;
       $timeout = _$timeout_;
       boxOverlayOpener = _boxOverlayOpener_;
@@ -1430,17 +1430,14 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the "open" method', function() {
 
-      it('should delegate to screenSize to know if the size is "xs" or "sm"', function(done) {
-        screenSize.is = function(size) {
-          expect(size).to.equal('xs,sm');
-          done();
-        };
+      it('should delegate to deviceDetector to know if the device is mobile or not', function(done) {
+        deviceDetector.isMobile = done;
         newComposerService.open();
       });
 
-      it('should update the location if screenSize returns true', function() {
-
-        screenSize.is = sinon.stub().returns(true);
+      it('should update the location if deviceDetector returns true', function() {
+        deviceDetector.isMobile = sinon.stub().returns(true);
+        $state.go = sinon.spy();
 
         newComposerService.open();
         $timeout.flush();
@@ -1448,8 +1445,8 @@ describe('The Unified Inbox Angular module services', function() {
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', { email: undefined, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
-      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
-        screenSize.is = sinon.stub().returns(false);
+      it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
         newComposerService.open();
@@ -1464,16 +1461,14 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the "openDraft" method', function() {
 
-      it('should delegate to screenSize to know if the size is "xs" or "sm"', function(done) {
-        screenSize.is = function(size) {
-          expect(size).to.equal('xs,sm');
-          done();
-        };
+      it('should delegate to deviceDetector to know if device is mobile or not', function(done) {
+        deviceDetector.isMobile = done;
         newComposerService.openDraft({id: 'value'});
       });
 
-      it('should update the location with the email id if screenSize returns true', function() {
-        screenSize.is = sinon.stub().returns(true);
+      it('should update the location with the email id if deviceDetector returns true', function() {
+        deviceDetector.isMobile = sinon.stub().returns(true);
+        $state.go = sinon.spy();
 
         newComposerService.openDraft({expected: 'field'});
         $timeout.flush();
@@ -1481,8 +1476,8 @@ describe('The Unified Inbox Angular module services', function() {
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
-      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
-        screenSize.is = sinon.stub().returns(false);
+      it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
         newComposerService.openDraft({email: 'object'});
@@ -1498,16 +1493,14 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('the "openEmailCustomTitle" method', function() {
 
-      it('should delegate to screenSize to know if the size is "xs"', function(done) {
-        screenSize.is = function(size) {
-          expect(size).to.equal('xs,sm');
-          done();
-        };
+      it('should delegate to deviceDetector to know if the device is mobile', function(done) {
+        deviceDetector.isMobile = done;
         newComposerService.openEmailCustomTitle('title', {id: 'value'});
       });
 
-      it('should update the location with the email id if screenSize returns true', function() {
-        screenSize.is = sinon.stub().returns(true);
+      it('should update the location with the email id if deviceDetector returns true', function() {
+        deviceDetector.isMobile = sinon.stub().returns(true);
+        $state.go = sinon.spy();
 
         newComposerService.openEmailCustomTitle('title', {expected: 'field'});
         $timeout.flush();
@@ -1515,8 +1508,8 @@ describe('The Unified Inbox Angular module services', function() {
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
-      it('should delegate to boxOverlayOpener if screenSize returns false', function() {
-        screenSize.is = sinon.stub().returns(false);
+      it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
         newComposerService.openEmailCustomTitle('title', {email: 'object'});
