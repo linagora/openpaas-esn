@@ -54,12 +54,27 @@ angular.module('esn.calendar')
       $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
     });
 
-    $scope.swipeLeft = calendarPromise.then.bind(calendarPromise, function(cal) {
+    var prev = calendarPromise.then.bind(calendarPromise, function(cal) {
+      cal.fullCalendar('prev');
+    });
+
+    var next  = calendarPromise.then.bind(calendarPromise, function(cal) {
       cal.fullCalendar('next');
     });
 
-    $scope.swipeRight = calendarPromise.then.bind(calendarPromise, function(cal) {
-      cal.fullCalendar('prev');
+    $scope.swipeLeft = next;
+    $scope.swipeRight = prev;
+
+    var miniCalendarHidden = true;
+
+    $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+      miniCalendarHidden = !miniCalendarHidden;
+    });
+
+    $rootScope.$on(CALENDAR_EVENTS.VIEW_TRANSLATION, function(event, action) {
+      if (miniCalendarHidden) {
+        (action === 'prev' ? prev : next)();
+      }
     });
 
     $scope.eventClick = function(event) {

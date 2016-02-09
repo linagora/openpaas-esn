@@ -118,6 +118,18 @@ angular.module('esn.calendar')
     };
   })
 
+  .directive('calendarViewTranslation', function($rootScope, CALENDAR_EVENTS) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        element.click(function() {
+          var action = attrs.calendarViewTranslation;
+          $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+        });
+      }
+    };
+  })
+
   .directive('applicationMenuCalendar', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
