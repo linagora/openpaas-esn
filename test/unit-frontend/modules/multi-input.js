@@ -32,8 +32,17 @@ describe('The multi-input Angular module', function() {
       $scope.types = [''];
     }));
 
-    it('should init content value if it is undefined', function() {
+    it('should init content value if inputValue is undefined', function() {
       expect($scope.content).to.deep.equal([{}]);
+    });
+
+    it('should affect content value if inputValue is defined', function() {
+      $scope.inputValue = [{value: 'current Value'}];
+      $controller('MultiInputGroupController', {
+        $scope: $scope
+      });
+      $scope.$digest();
+      expect($scope.content).to.deep.equal([{value: 'current Value'}]);
     });
 
     it('should init showDeleteButton array', function() {
@@ -72,18 +81,32 @@ describe('The multi-input Angular module', function() {
     });
 
     describe('The verifyNew fn', function() {
+      beforeEach(function() {
+        $scope.content = [{value: ''}];
+        $scope.inputValue = [{value: ''}];
+      });
 
       it('should affect true value to showAddButton', function() {
         $scope.showAddButton = false;
-        $scope.verifyNew();
+        $scope.verifyNew(0);
         expect($scope.showAddButton).is.true;
       });
 
       it('should call onFocusFn fn with correct params', function() {
         $scope.onFocusFn = sinon.spy();
-        $scope.verifyNew(123);
-        expect($scope.onFocusFn).have.been.calledWith(123);
+        $scope.verifyNew(0);
+        expect($scope.onFocusFn).have.been.calledWith(0);
+      });
 
+      it('should splice inputValue array if content is empty', function() {
+        $scope.verifyNew(0);
+        expect($scope.inputValue).to.deep.equal([]);
+      });
+
+      it('should update inputValue if content is not empty', function() {
+        $scope.content = [{street: 'my street'}];
+        $scope.verifyNew(0);
+        expect($scope.inputValue).to.deep.equal($scope.content);
       });
     });
 
@@ -113,11 +136,14 @@ describe('The multi-input Angular module', function() {
     });
 
     describe('The deleteField fn', function() {
+      beforeEach(function() {
+        $scope.inputValue = [];
+      });
 
       it('should affect false value to showAddButton if content is empty after remove item', function() {
         $scope.content = [];
         $scope.showAddButton = true;
-        ctrl.deleteField();
+        ctrl.deleteField(null, 0);
         expect($scope.showAddButton).is.false;
       });
 
@@ -132,6 +158,13 @@ describe('The multi-input Angular module', function() {
         multiInputService.focusLastItem = sinon.spy();
         ctrl.deleteField('element', 1);
         expect(multiInputService.focusLastItem).have.been.calledWith('element', '.multi-input-content .multi-input-text');
+      });
+
+      it('should remove one item scope inputValue if exist', function() {
+        $scope.content = [];
+        $scope.inputValue = ['1', '2', '3'];
+        ctrl.deleteField(null, 1);
+        expect($scope.inputValue).to.deep.equal(['1', '3']);
       });
     });
 
