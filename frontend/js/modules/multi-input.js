@@ -16,7 +16,7 @@ angular.module('esn.multi-input', [])
 
   .controller('MultiInputGroupController', function($scope, $timeout, multiInputService) {
     $scope.showDeleteButtonArray = [];
-    $scope.content = $scope.content && $scope.content.length ? $scope.content :  [{}];
+    $scope.content = $scope.inputValue && $scope.inputValue.length ? angular.copy($scope.inputValue) :  [{}];
 
     $scope.onFocusFn = function(id) {
       $scope.showAddButton = true;
@@ -31,9 +31,19 @@ angular.module('esn.multi-input', [])
       }, 200);
     };
 
+    function hasValueInput(content) {
+      return content.value || content.street || content.zip || content.city || content.country;
+    }
+
     $scope.verifyNew = function(id) {
       $scope.showAddButton = true;
       $scope.onFocusFn(id);
+
+      if (hasValueInput($scope.content[id])) {
+        $scope.inputValue[id] = $scope.content[id];
+      } else {
+        $scope.inputValue.splice(id, 1);
+      }
     };
 
     this.addField = function(element) {
@@ -47,8 +57,11 @@ angular.module('esn.multi-input', [])
 
     this.deleteField = function(element, id) {
       $scope.content.splice(id, 1);
+      if ($scope.inputValue[id]) {
+        $scope.inputValue.splice(id, 1);
+      }
       if ($scope.content.length === 0) {
-        $scope.content = [{type: $scope.types[0]}];
+        $scope.content = [{type: $scope.types ? $scope.types[0] : ''}];
         $scope.showAddButton = false;
       }
       multiInputService.focusLastItem(element, '.multi-input-content .multi-input-text');
@@ -63,7 +76,7 @@ angular.module('esn.multi-input', [])
     return {
       restrict: 'E',
       scope: {
-        content: '=multiInputModel',
+        inputValue: '=multiInputModel',
         types: '=multiInputTypes',
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder',
@@ -82,7 +95,7 @@ angular.module('esn.multi-input', [])
     return {
       restrict: 'E',
       scope: {
-        content: '=multiInputModel',
+        inputValue: '=multiInputModel',
         types: '=multiInputTypes',
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder'
