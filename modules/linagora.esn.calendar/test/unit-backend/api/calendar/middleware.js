@@ -40,7 +40,7 @@ describe('The calendar middlewares', function() {
       this.check400(req, done);
     });
 
-    it('should send 400 if req has no event', function(done) {
+    it('should send 400 if req has no uid', function(done) {
       var req = {
         user: {
           calendarURI: 'calendarURI',
@@ -113,7 +113,7 @@ describe('The calendar middlewares', function() {
       var req = {
         user: {
           calendarURI: 'calendarURI',
-          event: 'event',
+          uid: 'uid',
           attendeeEmail: 'attendeeEmail',
           action: 'action',
           organizerEmail: 'organizerEmail'
@@ -148,7 +148,7 @@ describe('The calendar middlewares', function() {
       var req = {
         user: {
           calendarURI: 'calendarURI',
-          event: 'event',
+          uid: 'uid',
           attendeeEmail: 'attendeeEmail',
           action: 'action',
           organizerEmail: 'organizerEmail'
