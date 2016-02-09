@@ -1,3 +1,19 @@
+.attendee-list-item {
+  height: 50px;
+  margin-left: 5px;
+
+  img {
+    height: 40px;
+    width: 40px;
+  }
+
+  span {
+    position: absolute;
+    bottom: 15px;
+    left: 60px;
+  }
+}
+
 .attendee-avatar {
   .checkbox {
     position: absolute;
@@ -11,9 +27,11 @@
 }
 
 @media (min-width: @screen-sm-min) {
-  .attendee-avatar {
-    .checkbox {
-      bottom: -2px;
+  .attendee-list-item {
+    .attendee-avatar {
+      .checkbox {
+        bottom: -2px;
+      }
     }
   }
 }
