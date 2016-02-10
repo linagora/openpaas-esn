@@ -130,24 +130,26 @@ angular.module('esn.calendar')
     function link(scope) {
       var miniCalendarIsShown = false;
 
-      function _calendarDateIndicator(event, view) {
+      function _calendarDateIndicator(view) {
         scope.dateIndicator = view.title;
       }
 
-      _calendarDateIndicator(null, uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
+      _calendarDateIndicator(uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
 
-      scope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, _calendarDateIndicator);
+      scope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) {
+        _calendarDateIndicator(view);
+      });
       scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, function(event, view) {
         if (miniCalendarIsShown) {
-          _calendarDateIndicator(event, view || uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
+          _calendarDateIndicator(view || uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
         }
       });
       scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         miniCalendarIsShown = !miniCalendarIsShown;
         if (miniCalendarIsShown) {
-          _calendarDateIndicator(event, uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
+          _calendarDateIndicator(uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
         } else {
-          _calendarDateIndicator(event, uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
+          _calendarDateIndicator(uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
         }
       });
     }
