@@ -60,6 +60,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
+      scope: true,
       templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
       link: link
     };
@@ -73,6 +74,7 @@ angular.module('esn.calendar')
   .directive('autoSizeAndUpdate', function($timeout, autosize) {
     return {
       restrict: 'A',
+      scope: true,
       link: function(scope, element) {
         if (element[0]) {
           autosize(element);
@@ -87,6 +89,7 @@ angular.module('esn.calendar')
   .directive('toggleCalendarView', function(uiCalendarConfig, calendarService) {
     return {
       restrict: 'A',
+      scope: true,
       link: function(scope, element, attrs) {
         element.on('click', function() {
           uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('changeView', attrs.toggleCalendarView);
@@ -98,6 +101,7 @@ angular.module('esn.calendar')
   .directive('toggleCalendarToday', function(uiCalendarConfig, calendarService) {
     return {
       restrict: 'A',
+      scope: true,
       link: function(scope, element, attrs) {
         element.on('click', function() {
           uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('today');
@@ -109,6 +113,7 @@ angular.module('esn.calendar')
   .directive('toggleMiniCalendar', function($rootScope, CALENDAR_EVENTS) {
     return {
       restrict: 'A',
+      scope: true,
       link: function(scope, element) {
         element.click(function() {
           element.toggleClass('toggled');
@@ -121,6 +126,7 @@ angular.module('esn.calendar')
   .directive('calendarViewTranslation', function($rootScope, CALENDAR_EVENTS) {
     return {
       restrict: 'A',
+      scope: true,
       link: function(scope, element, attrs) {
         element.click(function() {
           var action = attrs.calendarViewTranslation;
