@@ -34,9 +34,29 @@ mongoose.connection.on('disconnected', function(e) {
   connected = false;
 });
 
-var getTimeout = function() {
+var getTimeout = function getTimeout() {
   return process.env.MONGO_TIMEOUT || 10000;
 };
+
+function getHost() {
+  return process.env.MONGO_HOST || 'localhost';
+}
+
+function getPort() {
+  return process.env.MONGO_PORT || '27017';
+}
+
+function getDbName() {
+  return process.env.MONGO_DBNAME || 'esn';
+}
+
+function getUsername() {
+  return process.env.MONGO_USERNAME;
+}
+
+function getPassword() {
+  return process.env.MONGO_PASSWORD;
+}
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
@@ -86,6 +106,10 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   }
 
   return 'mongodb:' + url.format(connectionHash);
+}
+
+function getDefaultConnectionString() {
+  return getConnectionString(getHost(), getPort(), getDbName(), getUsername(), getPassword());
 }
 
 function getDbConfigurationFile() {
@@ -184,9 +208,14 @@ function getConnectionStringAndOptions() {
   } catch (e) {
     return false;
   }
-  if (!dbConfig || !dbConfig.connectionString) {
+  if (!dbConfig) {
     return false;
   }
+
+  if (!dbConfig.connectionString) {
+    dbConfig.connectionString = getDefaultConnectionString();
+  }
+
   var options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
   return {url: dbConfig.connectionString, options: options};
 }
