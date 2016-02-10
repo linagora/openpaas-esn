@@ -477,7 +477,7 @@ angular.module('esn.calendar')
       var title = element.find('.fc-title');
 
       if (event.location) {
-        angular.element('<div class="fc-location">' + '(' + $sanitize(event.location) + ')' + '</div>').insertAfter(title);
+        title.append(angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + $sanitize(event.location) + '</div>'));
       }
 
       if (event.description) {
