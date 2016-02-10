@@ -13,10 +13,12 @@
     "awesome-sessionstore": "git+https://ci.open-paas.org/stash/scm/or/awesome-sessionstore.git",
     "bcrypt-nodejs": "~0.0.3",
     "body-parser": "~1.2.0",
+    "bson": "^0.2.8",
     "busboy": "^0.2.9",
     "canvas": "1.2.3",
     "charAPI": "git+https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "chokidar": "~0.8.1",
+    "commander": "^2.9.0",
     "composable-middleware": "^0.3.0",
     "connect-dynamic-middleware": "~0.1.0",
     "connect-flash": "0.1.1",
@@ -47,6 +49,7 @@
     "ldapauth-fork": "~2.2.12",
     "less": "^2.5.0",
     "less-middleware": "^1.0.3",
+    "mailparser": "~0.4.1",
     "moment": "^2.10.3",
     "moment-timezone": "^0.4.1",
     "mongoconfig": "~1.0.0",
@@ -78,8 +81,6 @@
     "twitter-node-client": "git+https://github.com/linagora/TwitterJSClient.git",
     "valid-url": "^1.0.9",
     "winston": "1.0.1",
-    "bson": "^0.2.8",
-    "mailparser": "~0.4.1",
     "xml2js": "^0.4.3"
   },
   "devDependencies": {
@@ -141,6 +142,10 @@
   },
   "scripts": {
     "postinstall": "./node_modules/bower/bin/bower install --allow-root"
+  },
+  "bin": {
+    "openpaas-cli": "./bin/cli.js",
+    "openpaas-esn": "./bin/openpaas.js"
   },
   "author": "",
   "license": "AGPLv3"

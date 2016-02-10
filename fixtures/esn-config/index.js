@@ -3,11 +3,9 @@
 var q = require('q');
 var fs = require('fs-extra');
 var path = require('path');
-var mongoose = require('mongoose');
 var core = require('../../backend/core/');
 var esnconfig = core['esn-config'];
 var dataPath = path.resolve(__dirname + '/data');
-var dbPath = path.resolve(__dirname + '/../config/data/db.json');
 
 function _injectConf(key, conf) {
   return q.ninvoke(esnconfig(key), 'store', conf);
