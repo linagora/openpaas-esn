@@ -3,7 +3,7 @@
 var async = require('async');
 var q = require('q');
 var jcal2content = require('../../../lib/jcal/jcalHelper').jcal2content;
-var urlBuilder = require('url');
+var urljoin = require('url-join');
 var extend = require('extend');
 var eventMessage,
     i18n,
@@ -164,7 +164,7 @@ function generateActionLink(baseUrl, jwtPayload, action) {
     if (err) {
       return deferred.reject(err);
     }
-    return deferred.resolve(urlBuilder.resolve(baseUrl, '/calendar/api/calendars/event/participation/?jwt=' + token));
+    return deferred.resolve(urljoin(baseUrl, '/calendar/api/calendars/event/participation/?jwt=' + token));
   });
   return deferred.promise;
 }

@@ -348,7 +348,7 @@ describe('The calendar core module', function() {
 
       this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       this.module.generateActionLinks(baseUrl, payload).then(function(links) {
-        var linkStart = baseUrl + '/calendar/api/calendars/event/participation/?jwt=token';
+        var linkStart = baseUrl + '/calendar/api/calendars/event/participation?jwt=token';
         expect(links).to.deep.equal({
           yes: linkStart + 'ACCEPTED',
           no: linkStart + 'DECLINED',
@@ -619,9 +619,9 @@ describe('The calendar core module', function() {
           expect(options).to.shallowDeepEqual(expectedOptions);
           expect(options.filter).is.a.function;
           expect(content.baseUrl).to.deep.equal('http://localhost:8888');
-          expect(content.yes).to.equal('http://localhost:8888/calendar/api/calendars/event/participation/?jwt=token');
-          expect(content.no).to.equal('http://localhost:8888/calendar/api/calendars/event/participation/?jwt=token');
-          expect(content.maybe).to.equal('http://localhost:8888/calendar/api/calendars/event/participation/?jwt=token');
+          expect(content.yes).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+          expect(content.no).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+          expect(content.maybe).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
           return q();
         };
 
