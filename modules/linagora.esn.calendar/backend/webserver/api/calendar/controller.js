@@ -1,7 +1,7 @@
 'use strict';
 
 var request = require('request');
-var urlBuilder = require('url');
+var urljoin = require('url-join');
 var ICAL = require('ical.js');
 var jcalHelper = require('../../../lib/jcal/jcalHelper.js');
 var calendar,
@@ -110,7 +110,7 @@ function tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTr
 
 function changeParticipation(req, res) {
   var ESNToken = req.token && req.token.token ? req.token.token : '';
-  var url = urlBuilder.resolve(req.davserver, ['calendars', req.user._id, req.eventPayload.calendarURI, req.eventPayload.uid + '.ics'].join('/'));
+  var url = urljoin(req.davserver, 'calendars', req.user._id, req.eventPayload.calendarURI, req.eventPayload.uid + '.ics');
   var action = req.eventPayload.action;
 
   tryUpdateParticipation(url, ESNToken, res, req.eventPayload.attendeeEmail, action);

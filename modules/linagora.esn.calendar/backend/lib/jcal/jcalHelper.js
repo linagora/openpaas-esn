@@ -2,7 +2,7 @@
 
 var ICAL = require('ical.js');
 var moment = require('moment-timezone');
-var url = require('url');
+var urljoin = require('url-join');
 
 function _getEmail(attendee) {
   return attendee.getFirstValue().replace(/^MAILTO:/i, '');
@@ -135,7 +135,7 @@ function jcal2content(icalendar, baseUrl) {
   organizer = {
     cn: cn,
     email: mail,
-    avatar: url.resolve(baseUrl, 'api/avatars?objectType=user&email=' + mail)
+    avatar: urljoin(baseUrl, 'api/avatars?objectType=user&email=' + mail)
   };
 
   var content = {
