@@ -9,18 +9,29 @@ angular.module('esn.calendar')
    *   * The consult form: this is a desktop and mobile view of an consult form for events.
    * Note that mobile devices have only access to the full form and the consult form.
    * This service will open the correct form corresponding to the event and the screen size.
-   * Event is stored in scope.event.
    */
   .factory('openEventForm', function($state, $modal, screenSize, eventUtils) {
-    return function openEventForm(scope) {
+    return function openEventForm(event) {
+      eventUtils.setEditedEvent(event || {});
       if (screenSize.is('xs, sm')) {
-        if (!scope || !scope.event || eventUtils.isOrganizer(scope.event)) {
+        if (!event || eventUtils.isOrganizer(event)) {
           $state.go('calendar.eventEdit');
         } else {
           $state.go('calendar.eventConsult');
         }
       } else {
-        $modal({scope: scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-view', backdrop: 'static', placement: 'center'});
+        $modal({
+          templateUrl: '/calendar/views/event-quick-form/event-quick-form-view',
+          resolve: {
+            event: function(eventUtils) {
+              return eventUtils.getEditedEvent();
+            }
+          },
+          controller: function($scope, event) {
+            $scope.event = event;
+          },
+          backdrop: 'static',
+          placement: 'center'});
       }
     };
   });

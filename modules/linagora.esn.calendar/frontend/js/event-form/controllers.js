@@ -3,13 +3,6 @@
 angular.module('esn.calendar')
 
   .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
-    if (!$scope.event) {
-      $scope.event = eventUtils.originalEvent;
-    }
-    if (!$scope.editedEvent) {
-      $scope.editedEvent = eventUtils.editedEvent;
-    }
-
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
 
@@ -37,21 +30,10 @@ angular.module('esn.calendar')
     }
 
     function initFormData() {
-      if ($scope.event && $scope.event.clone) {
-        $scope.editedEvent = $scope.event.clone();
-      } else {
-        $scope.event = CalendarShell.fromIncompleteShell({
-          start: calendarUtils.getNewStartDate(),
-          end: calendarUtils.getNewEndDate()
-        });
-        $scope.editedEvent = $scope.event.clone();
-      }
-
+      $scope.editedEvent = $scope.event.clone();
       $scope.newAttendees = eventUtils.getNewAttendees();
-
       $scope.invitedAttendee = null;
       $scope.hasAttendees = !!$scope.editedEvent.attendees;
-
       if ($scope.hasAttendees) {
         $scope.editedEvent.attendees.forEach(function(attendee) {
           if (attendee.email in session.user.emailMap) {
@@ -217,17 +199,14 @@ angular.module('esn.calendar')
       eventUtils.isNew($scope.editedEvent) && !eventUtils.isInvolvedInATask($scope.editedEvent) ? $scope.createEvent() : $scope.modifyEvent();
     };
     $scope.canPerformCall = canPerformCall;
-    $scope.closeModal = function() {
-      eventUtils.setEditedEvent($scope.editedEvent);
-      eventUtils.setNewAttendees($scope.newAttendees);
-      $scope.$hide();
-    };
     $scope.goToCalendar = function(callback) {
       (callback || angular.noop)();
       $state.go('calendar.main');
     };
     $scope.goToFullForm = function() {
-      $scope.closeModal();
+      eventUtils.setEditedEvent($scope.editedEvent);
+      eventUtils.setNewAttendees($scope.newAttendees);
+      _hideModal();
       $state.go('calendar.eventEdit');
     };
 

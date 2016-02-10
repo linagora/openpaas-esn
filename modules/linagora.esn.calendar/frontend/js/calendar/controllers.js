@@ -63,8 +63,7 @@ angular.module('esn.calendar')
     });
 
     $scope.eventClick = function(event) {
-      $scope.event = event.clone();
-      openEventForm($scope);
+      openEventForm(event.clone());
     };
 
     $scope.eventDropAndResize = function(drop, event, delta) {
@@ -129,11 +128,11 @@ angular.module('esn.calendar')
     $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize.bind(null, true);
     $scope.uiConfig.calendar.select = function(start, end) {
       var date = calendarUtils.getDateOnCalendarSelect(start, end);
-      $scope.event = CalendarShell.fromIncompleteShell({
+      var event = CalendarShell.fromIncompleteShell({
         start: date.start,
         end: date.end
       });
-      openEventForm($scope);
+      openEventForm(event);
     };
 
     $scope.displayCalendarError = function(err, errorMessage) {

@@ -9,6 +9,9 @@ angular.module('esn.calendar')
     }
 
     return {
+      scope: {
+        event: '='
+      },
       restrict: 'E',
       replace: true,
       controller: 'eventFormController',
