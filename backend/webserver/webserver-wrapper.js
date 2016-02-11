@@ -20,6 +20,16 @@ function WebServerWrapper(server) {
     webserver.addCSSInjection(namespace, asArray(css), asArray(innerApps));
   };
 
+  /**
+  * inject less files.
+  * This allows your less files to use the OpenPaaS @variables and mixins.
+  *
+  * 2 forms:
+  * - a filename '/path/to/some/file.less'
+  * - an object with properties {filename: String, priority: Number}
+  *
+  * Default priority is 0, higher priority is included first.
+  */
   this.injectLess = function injectLess(namespace, less, innerApps) {
     css.addLessInjection(namespace, asArray(less), asArray(innerApps));
   };

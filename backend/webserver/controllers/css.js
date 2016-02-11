@@ -12,7 +12,7 @@ function getFilesList(injections, appName) {
       return;
     }
     moduleInjections[appName].less.forEach(function(filePath) {
-      list.push(filePath);
+      list.push(filePath.filename);
     });
   });
   return list;
