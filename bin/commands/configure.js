@@ -25,7 +25,6 @@ module.exports.createCommand = function(command) {
     .option('-p, --port <port>', 'database port to connect to')
     .option('-db, --database <database>', 'database name to connect to')
     .action(function(cmd) {
-      console.log('EXEC ME')
       exec(cmd.host, cmd.port, cmd.database).then(function() {
         console.log('Configured');
       }, function(err) {

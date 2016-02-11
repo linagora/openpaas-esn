@@ -6,15 +6,10 @@ var mongoose = require('mongoose');
 
 function connect(config) {
   var defer = q.defer();
-  mongoose.connect(config.connectionString);
-  mongoose.connection.on('connected', function() {
+  mongoose.connect(config.connectionString, function() {
+    console.log('CONNECTED');
     console.log('Connected to MongoDB at', config.connectionString);
     defer.resolve();
-  });
-
-  mongoose.connection.on('error', function(err) {
-    console.log('Error', err);
-    defer.reject(err);
   });
 
   return defer.promise;
@@ -30,7 +25,7 @@ module.exports.connectFromFileConfig = function() {
 module.exports.disconnect = function() {
   var defer = q.defer();
   console.log('Disconnecting from MongoDB');
-  mongoose.connection.disconnect(function() {
+  mongoose.disconnect(function() {
     defer.resolve();
   });
   return defer.promise;
