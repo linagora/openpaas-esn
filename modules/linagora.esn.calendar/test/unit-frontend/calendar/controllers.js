@@ -10,8 +10,10 @@ describe('The calendar module controllers', function() {
   var liveNotification;
   var fullCalendarSpy;
   var createCalendarSpy;
+  var self;
 
   beforeEach(function() {
+    self = this;
     event = {};
     fullCalendarSpy = sinon.spy();
     createCalendarSpy = sinon.spy();
@@ -30,6 +32,25 @@ describe('The calendar module controllers', function() {
         return eventSource;
       })
     };
+
+    this.CalendarShellConstMock = function(vcalendar, event) {
+      this.etag = event.etag;
+      this.path = event.path;
+      this.end = self.fcMoment();
+      this.clone = function() {
+        return this;
+      };
+    };
+
+    this.CalendarShellMock = function() {
+      return self.CalendarShellConstMock.apply(this, arguments);
+    };
+
+    this.CalendarShellMock.from = sinon.spy(function(event, extendedProp) {
+      return angular.extend({}, event, extendedProp);
+    });
+
+    this.CalendarShellMock.fromIncompleteShell = sinon.spy();
 
     this.calendarServiceMock = {
       calendarId: '1234',
@@ -88,8 +109,10 @@ describe('The calendar module controllers', function() {
     this.gracePeriodService = {};
     this.headerServiceMock = {};
     this.userMock = {};
+    this.eventUtilsMock = {
+      applyReply: sinon.spy()
+    };
 
-    var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
       $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
@@ -102,9 +125,11 @@ describe('The calendar module controllers', function() {
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('headerService', self.headerServiceMock);
+      $provide.value('eventUtils', self.eventUtilsMock);
       $provide.value('user', self.userMock);
       $provide.value('keepChangeDuringGraceperiod', self.keepChangeDuringGraceperiodMock);
       $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
+      $provide.value('CalendarShell', self.CalendarShellMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -502,7 +527,6 @@ describe('The calendar module controllers', function() {
     });
 
     it('should initialize a listener on CALENDAR_EVENTS.WS.EVENT_CREATED ws event', function(done) {
-      var self = this;
       liveNotification = function(namespace) {
         expect(namespace).to.equal('/calendars');
         return {
@@ -561,11 +585,11 @@ describe('The calendar module controllers', function() {
 
     describe('the eventDropAndResize listener', function() {
       it('should call calendarService.modifyEvent with scope.event.path if it exists', function(done) {
-        var event = this.CalendarShell.fromIncompleteShell({
+        var event = {
           path: 'aPath',
           etag: 'anEtag',
           end: this.fcMoment()
-        });
+        };
         this.scope.event = event;
         this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
           expect(path).to.equal(event.path);
@@ -577,11 +601,11 @@ describe('The calendar module controllers', function() {
       });
 
       it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event when the drap and drop if reverted ', function(done) {
-        var event = this.CalendarShell.fromIncompleteShell({
+        var event = {
           path: 'aPath',
           etag: 'anEtag',
           end: this.fcMoment()
-        });
+        };
 
         this.scope.event = event;
 
@@ -603,13 +627,12 @@ describe('The calendar module controllers', function() {
 
       it('should compute the event before the resize and pass it to calendarService.modifyEvent', function(done) {
         var origEnd = this.fcMoment('2016-01-10 12:00');
-        var eventData = {
+        var event = {
           path: 'aPath',
           etag: 'anEtag',
           end: this.fcMoment(origEnd)
         };
 
-        var event = this.CalendarShell.fromIncompleteShell(eventData);
         this.scope.event = event;
         var delta = this.fcMoment.duration(1, 'hours');
 
@@ -625,14 +648,13 @@ describe('The calendar module controllers', function() {
       it('should compute the event before the drop and pass it calendarService.modifyEvent', function(done) {
         var origEnd = this.fcMoment('1997-08-13 10:00');
         var origStart = this.fcMoment('1997-08-13 11:00');
-        var eventData = {
+        var event = {
           path: 'aPath',
           etag: 'anEtag',
           start: this.fcMoment(origStart),
           end: this.fcMoment(origEnd)
         };
 
-        var event = this.CalendarShell.fromIncompleteShell(eventData);
         this.scope.event = event;
         var delta = this.fcMoment.duration(1, 'hours');
 
@@ -647,13 +669,17 @@ describe('The calendar module controllers', function() {
       });
 
       it('should call calendarService.modifyEvent with a built path if scope.event.path does not exist', function(done) {
-        var event = this.CalendarShell.fromIncompleteShell({
+        var event = {
           etag: 'anEtag',
-          end: this.fcMoment()
-        });
+          end: this.fcMoment(),
+          clone: function() {
+            return event;
+          }
+        };
         var calendarHomeId = 'calendarHomeId';
         this.scope.calendarHomeId = calendarHomeId;
         this.scope.event = event;
+
         this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
           expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
           expect(etag).to.equal(event.etag);
@@ -683,7 +709,7 @@ describe('The calendar module controllers', function() {
         this.controller('calendarController', {$scope: this.scope});
         var date = this.fcMoment('2015-01-13');
         var first = true;
-        var self = this;
+        self = this;
         var spy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy(function(name, newDate) {
           if (name === 'getView') {
             if (first) {
@@ -710,15 +736,15 @@ describe('The calendar module controllers', function() {
 
     });
 
-    describe.skip('the ws event listener', function() {
+    describe('the ws event listener', function() {
 
-      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener;
+      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener;
 
       beforeEach(function() {
-        var self = this;
         liveNotification = function(namespace) {
           expect(namespace).to.equal('/calendars');
           return {
+            removeListener: sinon.spy(),
             on: function(event, handler) {
               switch (event) {
                 case self.CALENDAR_EVENTS.WS.EVENT_CREATED:
@@ -729,6 +755,15 @@ describe('The calendar module controllers', function() {
                   break;
                 case self.CALENDAR_EVENTS.WS.EVENT_DELETED:
                   wsEventDeleteListener = handler;
+                  break;
+                case self.CALENDAR_EVENTS.WS.EVENT_REQUEST:
+                  wsEventRequestListener = handler;
+                  break;
+                case self.CALENDAR_EVENTS.WS.EVENT_REPLY:
+                  wsEventReplyListener = handler;
+                  break;
+                case self.CALENDAR_EVENTS.WS.EVENT_CANCEL:
+                  wsEventCancelListener = handler;
                   break;
               }
             }
@@ -745,97 +780,139 @@ describe('The calendar module controllers', function() {
         });
       });
 
-      it('should add the event when event created', function(done) {
+      it('should add  the event on EVENT_CREATED', function() {
         var event = {id: 'anId'};
+        var path = 'path';
+        var etag = 'etag';
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
 
-        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
-          expect(event).to.equal('renderEvent');
-          expect(data.id).to.equal('anId');
-          done();
-        };
-        wsEventCreateListener(event);
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventCreateListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
       });
 
-      it('should add the event when modified event', function(done) {
-        var newEvent = {id: 'anId'};
-        var called = 0;
-
-        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
-          called++;
-          if (called === 1) {
-            expect(event).to.equal('clientEvents');
-            expect(data).to.equal('anId');
-            return [{
-              _allDay: '_allDay',
-              _end: '_end',
-              _id: '_id',
-              _start: '_start',
-              start: 'start',
-              end: 'end'
-            }];
-          } else {
-            expect(event).to.equal('updateEvent');
-            expect(data).to.deep.equal({
-              id: 'anId',
-              _allDay: '_allDay',
-              _end: '_end',
-              _id: '_id',
-              _start: '_start',
-              start: 'start',
-              end: 'end'
-            });
-            done();
-          }
-        };
-
-        wsEventModifyListener(newEvent);
-      });
-
-      it('should transform start and end date if allday is true when modified event', function(done) {
-        var newEvent = {id: 'anId', allDay: true};
-        var called = 0;
-
-        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
-          called++;
-          if (called === 1) {
-            expect(event).to.equal('clientEvents');
-            expect(data).to.equal('anId');
-            return [{
-              _allDay: '_allDay',
-              _end: '_end',
-              _id: '_id',
-              _start: '_start',
-              start: this.moment('2013-03-07T07:00:00-08:00'),
-              end: this.moment('2013-03-07T07:00:00-08:00')
-            }];
-          } else {
-            expect(event).to.equal('updateEvent');
-            expect(data).to.deep.equal({
-              _allDay: '_allDay',
-              _end: '_end',
-              _id: '_id',
-              _start: '_start',
-              start: '2013-03-07',
-              end: '2013-03-07',
-              id: 'anId',
-              allDay: true
-            });
-            done();
-          }
-        };
-
-        wsEventModifyListener(newEvent);
-      });
-
-      it('should remove the event when receiving event:deleted', function(done) {
+      it('should add the event on EVENT_REQUEST if not already there', function() {
         var event = {id: 'anId'};
+        var path = 'path';
+        var etag = 'etag';
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
 
-        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(wsevent, data) {
-          expect(wsevent).to.equal('removeEvents');
-          expect(data).to.equal(event.id);
-          done();
-        };
-        wsEventDeleteListener(event);
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventRequestListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+      });
+
+      it('should replace the event on EVENT_REQUEST if already there', function() {
+        var event = {id: 'anId'};
+        var path = 'path';
+        var etag = 'etag';
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
+        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventRequestListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
+        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+      });
+
+      it('should replace the event EVENT_UPDATED', function() {
+        var event = {id: 'anId'};
+        var path = 'path';
+        var etag = 'etag';
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
+        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventModifyListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
+        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+      });
+
+      it('should replace the event EVENT_REPLY', function() {
+        var event = {id: 'anId'};
+        var reply = {id: 'anId', reply: true};
+        var path = 'path';
+        var etag = 'etag';
+        this.CalendarShellMock.from = sinon.stub().returns(reply);
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
+        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventReplyListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event);
+        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
+        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+        expect(this.eventUtilsMock.applyReply).to.have.been.calledWith(event, reply);
+        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+      });
+
+      it('should remove the event on EVENT_DELETED', function() {
+        var event = {id: 'anId'};
+        var path = 'path';
+        var etag = 'etag';
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
+        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventDeleteListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+      });
+
+      it('should remove the event on EVENT_CANCEL', function() {
+        var event = {id: 'anId'};
+        var path = 'path';
+        var etag = 'etag';
+        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
+        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventCancelListener({event: event, eventPath: path, etag: etag});
+        this.scope.$digest();
+        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+      });
+
+      it('should transform start and end date if allday is true when modified event', function() {
+        var event = {id: 'anId', allDay: true};
+
+        var fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
+
+        fullCalendarSpy.withArgs('clientEvents').returns([{
+          _allDay: '_allDay',
+          _end: '_end',
+          _id: '_id', _start: '_start',
+          start: self.fcMoment('2013-03-07T07:00:00-08:00'),
+          end: self.fcMoment('2013-03-07T07:00:00-08:00')
+        }]);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        wsEventModifyListener({event: event});
+        this.scope.$digest();
+        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
+        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match({
+          _allDay: true,
+          _end: '_end',
+          _id: '_id',
+          _start: '_start',
+          id: 'anId',
+          allDay: true
+        }));
       });
 
     });

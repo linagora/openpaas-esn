@@ -11,8 +11,7 @@ angular.module('esn.calendar')
             callback(events.filter(function(calendarShell) {
               return !calendarShell.status || calendarShell.status !== 'CANCELLED';
             }));
-          },
-          function(err) {
+          }, function(err) {
             callback([]);
             $log.error(err);
             if (errorCallback) {
@@ -229,20 +228,8 @@ angular.module('esn.calendar')
                   // Unfortunately, sabredav doesn't support Prefer:
                   // return=representation on the PUT request,
                   // so we have to retrieve the event again for the etag.
-                  return getEvent(eventPath).then(function(shell) {
-                    gracePeriodService.remove(taskId);
-                    calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                    calendarEventEmitter.websocket.emitCreatedEvent(shell);
-                    return shell;
-                  }, function(response) {
-                    if (response.status === 404) {
-                      // Silently fail here because it is due to
-                      // the task being cancelled by another method.
-                      return;
-                    } else {
-                      return response;
-                    }
-                  });
+                  gracePeriodService.remove(taskId);
+                  return event;
                 }
               })
               .catch($q.reject);
@@ -385,20 +372,8 @@ angular.module('esn.calendar')
             return $q.when(false);
           });
         } else if (gracePeriodService.hasTask(taskId)) {
-          return getEvent(path).then(function(shell) {
-            gracePeriodService.remove(taskId);
-            calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
-            calendarEventEmitter.websocket.emitUpdatedEvent(shell);
-            return shell;
-          }, function(response) {
-            if (response.status === 404) {
-              // Silently fail here because it is due to
-              // the task being cancelled by another method.
-              return;
-            } else {
-              return response;
-            }
-          });
+          gracePeriodService.remove(taskId);
+          return event;
         }
       })
       .catch($q.reject);
@@ -566,6 +541,18 @@ angular.module('esn.calendar')
       newAttendees = [];
     }
 
+    function applyReply(originalEvent, reply) {
+      reply.vcalendar.getFirstSubcomponent('vevent').getAllProperties('attendee').forEach(function(replyAttendee) {
+        originalEvent.vcalendar.getFirstSubcomponent('vevent').getAllProperties('attendee').forEach(function(attendee) {
+          if (replyAttendee.getFirstValue() === attendee.getFirstValue()) {
+            attendee.setParameter('partstat', replyAttendee.getParameter('partstat'));
+          }
+        });
+      });
+
+      return originalEvent;
+    }
+
     return {
       editedEvent: editedEvent,
       render: render,
@@ -577,7 +564,8 @@ angular.module('esn.calendar')
       setEditedEvent: setEditedEvent,
       getNewAttendees: getNewAttendees,
       setNewAttendees: setNewAttendees,
-      resetStoredEvents: resetStoredEvents
+      resetStoredEvents: resetStoredEvents,
+      applyReply: applyReply
     };
 
   })

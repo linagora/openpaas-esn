@@ -1,7 +1,6 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mockery = require('mockery');
 
 describe('The calendar WS events module', function() {
 
@@ -72,154 +71,25 @@ describe('The calendar WS events module', function() {
       });
 
       it('should return the message from the pubsub', function(done) {
+        var event = {
+          event: 'ICS',
+          eventPath: 'calendar/123/events/1213.ics',
+          websocketEvent: 'calendar:ws:event:created'
+        };
+
         this.helper.getUserSocketsFromNamespace = function(userId) {
           expect(userId).to.equal('123');
           var socket = {
-            emit: function(event, ics) {
-              expect(event).to.equal('calendar:ws:event:created');
-              expect(ics).to.equal('ICS');
+            emit: function(wsEvent, _event) {
+              expect(wsEvent).to.equal('calendar:ws:event:created');
+              expect(_event).to.equal(event);
               done();
             }
           };
           return [socket];
         };
 
-        this.pubsub_callback({
-          target: {
-            _id: '123'
-          },
-          event: 'ICS',
-          websocketEvent: 'calendar:ws:event:created'
-        });
-      });
-    });
-
-    it('should register a listener to the websocket "calendar:ws:event:updated" event', function() {
-      var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
-      mod.init(this.moduleHelpers.dependencies);
-      expect(this.socketListeners['calendar:ws:event:updated']).to.exist;
-    });
-
-    it('should register a listener to the websocket "calendar:ws:event:created" event', function() {
-      var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
-      mod.init(this.moduleHelpers.dependencies);
-      expect(this.socketListeners['calendar:ws:event:created']).to.exist;
-    });
-
-    it('should register a listener to the websocket "calendar:ws:event:deleted" event', function() {
-      var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
-      mod.init(this.moduleHelpers.dependencies);
-      expect(this.socketListeners['calendar:ws:event:deleted']).to.exist;
-    });
-
-    describe('websocket listeners', function() {
-
-      var calendarShell = {
-        vcalendar: 'jcal',
-        etag: '12345'
-      };
-      var organizerEmail = 'organizer@lost.com';
-      var organizer = {_id: 'organizer'};
-      var emails = ['johndoe@lost.com', 'janedoe@lost.com'];
-      var johnDoe = {_id: 'johndoe'};
-
-      beforeEach(function() {
-        mockery.registerMock('../lib/jcal/jcalHelper', {
-          getAttendeesEmails: function(jcal) {
-            expect(jcal).to.deep.equal(calendarShell.vcalendar);
-            return emails;
-          },
-          getOrganizerEmail: function(jcal) {
-            expect(jcal).to.deep.equal(calendarShell.vcalendar);
-            return organizerEmail;
-          }
-        });
-
-        this.userModule.findByEmail = function(email, callback) {
-          if (email === organizerEmail) {
-            return callback(null, organizer);
-          } else if (email === emails[0]) {
-            return callback(null, johnDoe);
-          } else if (email === emails[1]) {
-            return callback(new Error('User not found'));
-          } else {
-            return new Error('Should not have searched for this user');
-          }
-        };
-      });
-
-      describe('calendar:ws:event:updated websocket listener', function() {
-
-        it('should publish to the global pubsub for the organizer mail and each attendee mail in the received jcal object', function(done) {
-          var sentToGlobal = 0;
-          this.pubsub.local = {
-            topic: function(event) {
-              expect(event).to.equal('calendar:event:updated');
-              return {
-                forward: function(global, data) {
-                  if (sentToGlobal === 0) {
-                    expect(data).to.deep.equal({
-                      target: johnDoe,
-                      event: calendarShell,
-                      websocketEvent: 'calendar:ws:event:updated'
-                    });
-
-                    sentToGlobal++;
-                  } else if (sentToGlobal === 1) {
-                    expect(data).to.deep.equal({
-                      target: organizer,
-                      event: calendarShell,
-                      websocketEvent: 'calendar:ws:event:updated'
-                    });
-                    done();
-                  }
-                }
-              };
-            }
-          };
-
-          var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
-          mod.init(this.moduleHelpers.dependencies);
-          this.socketListeners['calendar:ws:event:updated'](calendarShell);
-        });
-
-      });
-
-      describe('calendar:ws:event:deleted websocket listener', function() {
-
-        it('should publish to the global pubsub for the organizer mail and each attendee mail in the received jcal object', function(done) {
-          var sentToGlobal = 0;
-          this.pubsub.local = {
-            topic: function(event) {
-              expect(event).to.equal('calendar:event:updated');
-              return {
-                forward: function(global, data) {
-                  if (sentToGlobal === 0) {
-                    expect(data).to.deep.equal({
-                      target: johnDoe,
-                      event: calendarShell,
-                      websocketEvent: 'calendar:ws:event:deleted'
-                    });
-
-                    sentToGlobal++;
-                  } else if (sentToGlobal === 1) {
-                    expect(data).to.deep.equal({
-                      target: organizer,
-                      event: calendarShell,
-                      websocketEvent: 'calendar:ws:event:deleted'
-                    });
-                    done();
-                  }
-                }
-              };
-            }
-          };
-
-          var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
-          mod.init(this.moduleHelpers.dependencies);
-          this.socketListeners['calendar:ws:event:deleted'](calendarShell);
-        });
-
+        this.pubsub_callback(event);
       });
     });
 
