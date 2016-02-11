@@ -158,14 +158,16 @@ angular.module('linagora.esn.contact')
       }
 
       if (shell.birthday) {
+        var bdayProperty = new ICAL.Property('bday');
         if (shell.birthday instanceof Date) {
           var value = ICAL.Time.fromJSDate(shell.birthday);
-
           value.isDate = true;
-          vcard.addPropertyWithValue('bday', value);
+          bdayProperty.setValue(value);
         } else {
-          vcard.addPropertyWithValue('bday', shell.birthday).setParameter('VALUE', 'TEXT');
+          bdayProperty.resetType('text');
+          bdayProperty.setValue(shell.birthday);
         }
+        vcard.addProperty(bdayProperty);
       }
 
       if (shell.nickname) {

@@ -441,14 +441,11 @@ describe('ContactShell Builders', function() {
           id: '00000000-0000-4000-a000-000000000000',
           birthday: 'not sure about the birthday'
         };
-        var ical = {
-          version: 'VERSION:4.0',
-          uid: 'UID:00000000-0000-4000-a000-000000000000',
-          fn: 'FN:not sure about the birthday',
-          bday: 'BDAY;VALUE=TEXT:not sure about the birthday'
-        };
 
-        compareShell(shell, ical);
+        var vcard = VcardBuilder.toVcard(shell);
+        var birthday = vcard.getFirstProperty('bday');
+        expect(birthday.type).to.equal('text');
+        expect(birthday.getFirstValue()).to.equal('not sure about the birthday');
       });
 
       it('should not add email in vcard when it does not have value', function() {
