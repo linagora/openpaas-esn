@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventCreateButton', function(openEventForm, eventUtils) {
+  .directive('eventCreateButton', function(openEventForm, CalendarShell, calendarUtils) {
     return {
       restrict: 'E',
       replace: true,
@@ -11,7 +11,12 @@ angular.module('esn.calendar')
       },
       templateUrl: '/calendar/views/components/event-create-button.html',
       link: function(scope) {
-        scope.openEventForm = openEventForm;
+        scope.openEventForm = function() {
+          openEventForm(CalendarShell.fromIncompleteShell({
+            start: calendarUtils.getNewStartDate(),
+            end: calendarUtils.getNewEndDate()
+          }));
+        };
       }
     };
   });

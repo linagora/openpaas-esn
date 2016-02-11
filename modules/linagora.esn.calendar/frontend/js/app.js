@@ -39,11 +39,14 @@ angular.module('esn.calendar', [
       url: '/event-full-form',
       views: {
         form: {
-          templateUrl: '/calendar/views/event-full-form/event-full-form-view',
+          template: '<event-full-form event="event"/>',
           resolve: {
             event: function(eventUtils) {
               return eventUtils.getEditedEvent();
             }
+          },
+          controller: function($scope, event) {
+            $scope.event = event;
           }
         }
       }
@@ -132,7 +135,7 @@ angular.module('esn.calendar', [
       url: '/:calendar_id/:event_id',
       views: {
         form: {
-          templateUrl: '/calendar/views/event-full-form/event-full-form-view',
+          template: '<event-full-form event="event"/>',
           resolve: {
             event: function($stateParams, $state, pathBuilder, calendarService, notificationFactory) {
               var eventPath = pathBuilder.forEventId($stateParams.calendar_id, $stateParams.event_id);
@@ -142,7 +145,9 @@ angular.module('esn.calendar', [
               });
             }
           },
-          controller: 'eventFullFormController'
+          controller: function($scope, event) {
+            $scope.event = event;
+          }
         }
       }
     });

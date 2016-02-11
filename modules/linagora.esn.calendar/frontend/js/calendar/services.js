@@ -469,7 +469,6 @@ angular.module('esn.calendar')
   })
 
   .service('eventUtils', function(session, ICAL, $q, calendarService, $sanitize) {
-    var originalEvent = {};
     var editedEvent = {};
     var newAttendees = [];
 
@@ -563,13 +562,11 @@ angular.module('esn.calendar')
     }
 
     function resetStoredEvents() {
-      originalEvent = {};
       editedEvent = {};
       newAttendees = [];
     }
 
     return {
-      originalEvent: originalEvent,
       editedEvent: editedEvent,
       render: render,
       isNew: isNew,

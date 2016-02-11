@@ -24,6 +24,8 @@ describe('The event-full-form Angular module directives', function() {
       $controllerProvider.register('eventFormController', self.eventFormControllerMock);
       $provide.value('headerService', self.headerServiceMock);
       $provide.value('eventUtils', self.eventUtilsMock);
+      $provide.factory('eventDateEditionDirective', function() { return {}; });
+      $provide.factory('eventRecurrenceEditionDirective', function() { return {}; });
     });
   });
 
@@ -32,13 +34,6 @@ describe('The event-full-form Angular module directives', function() {
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
     this.fcMoment = fcMoment;
-
-    this.$scope.editedEvent = {
-      allDay: true,
-      start: this.fcMoment('2013-02-08 12:30'),
-      end: this.fcMoment('2013-02-08 13:30'),
-      location: 'aLocation'
-    };
 
     this.initDirective = function(scope) {
       var html = '<event-full-form/>';
