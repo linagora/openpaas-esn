@@ -39,13 +39,13 @@ Note: If your have an error saying that the linagora/esn-base can not be found, 
 Then you can run:
 
 ``` sh
-INIT_DB=true DOCKER_IP=192.168.99.100 docker-compose up
+PROVISION=true DOCKER_IP=192.168.99.100 docker-compose up
 ```
 
 Where environment variables are:
 
 - DOCKER_IP: This is required to set the IP you use to access to docker-machine (192.168.99.100 is the docker-machine ip on OS X for example). If not set, the webserver may not provide some assets correctly.
-- INIT_DB (Required on first launch): Tell OpenPaaS to initialize configuration and provision some users/domains/communities so that once launched, you can log in into OpenPaaS.
+- PROVISION (Required on first launch): Tell OpenPaaS to initialize configuration and provision some users/domains/communities so that once launched, you can log in into OpenPaaS.
 
 ## Dev
 

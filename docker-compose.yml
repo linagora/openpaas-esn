@@ -3,7 +3,7 @@ services:
   esn:
     build: .
     container_name: esn
-    command: [node, ./bin/openpaas]
+    command: ["sh", "start.sh"]
     ports:
      - "8080:8080"
     links:
@@ -12,10 +12,11 @@ services:
       - sabre
       - elasticsearch
     environment:
-      - INIT_DB=${INIT_DB}
+      - PROVISION=${PROVISION}
       - MONGO_HOST=esn_mongo
       - MONGO_PORT=27017
       - MONGO_DBNAME=esn_docker
+      - MONGO_TIMEOUT=100000
       - REDIS_HOST=esn_redis
       - REDIS_PORT=6379
       - WEB_HOST=${DOCKER_IP}
