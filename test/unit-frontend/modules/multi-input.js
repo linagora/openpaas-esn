@@ -36,6 +36,10 @@ describe('The multi-input Angular module', function() {
       expect($scope.content).to.deep.equal([{}]);
     });
 
+    it('should init inputValue value if inputValue is undefined', function() {
+      expect($scope.inputValue).to.deep.equal([]);
+    });
+
     it('should affect content value if inputValue is defined', function() {
       $scope.inputValue = [{value: 'current Value'}];
       $controller('MultiInputGroupController', {
