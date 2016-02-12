@@ -69,7 +69,9 @@ describe('The esn.header Angular module', function() {
   });
 
   describe('The mainHeader directive', function() {
-    var hasInjectionsSpy = sinon.spy();
+
+    var hasInjectionsSpy = sinon.spy(),
+        screenSizeMedia, screenSizeCallback;
 
     beforeEach(module(function($provide) {
       $provide.provider('sidebarDirective', function() {
@@ -77,6 +79,13 @@ describe('The esn.header Angular module', function() {
       });
       $provide.provider('apiNotificationDirective', function() {
         this.$get = function() { return {}; };
+      });
+      $provide.value('screenSize', {
+        on: function(media, callback) {
+          screenSizeMedia = media;
+          screenSizeCallback = callback;
+          return true;
+        }
       });
       $provide.value('headerService', {
         subHeader: {
@@ -116,6 +125,26 @@ describe('The esn.header Angular module', function() {
       this.$scope.$broadcast('$stateChangeSuccess');
 
       expect(this.$scope.subHeaderVisibleMd).to.be.false;
+    });
+
+    describe('the enableScrollListener var', function() {
+
+      it('should be called with xs and sm size when the directive is linked', function() {
+        expect(screenSizeMedia).to.equal('xs,sm');
+        expect(this.$scope.enableScrollListener).to.equal(true);
+      });
+
+      it('should set enableScrollListener to false when screenSize update to not match media', function() {
+        screenSizeCallback(false);
+        expect(this.$scope.enableScrollListener).to.equal(false);
+      });
+
+      it('should set enableScrollListener to true when screenSize update to match media', function() {
+        screenSizeCallback(false);
+        screenSizeCallback(true);
+        expect(this.$scope.enableScrollListener).to.equal(true);
+      });
+
     });
 
     describe('the hideEventListener', function() {

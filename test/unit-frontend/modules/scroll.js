@@ -28,6 +28,33 @@ describe('The Scroll Angular module', function() {
     $provide.value('SUB_HEADER_HEIGHT_IN_PX', SUB_HEADER_HEIGHT_IN_PX);
   }));
 
+  describe('The scrollListener directive', function() {
+
+    var $scope, element;
+
+    beforeEach(function() {
+      module('esn.scroll');
+    });
+
+    beforeEach(inject(function($compile, $rootScope) {
+      $scope = $rootScope.$new();
+      $scope.setToDOM = true;
+
+      element = $compile('<div scroll-listener ng-if="setToDOM" on-destroy="destroyed" on-scroll-top="onTop"></div>')($scope);
+      $scope.$digest();
+    }));
+
+    it('should call on-destroy when the directive is removed from the DOM', function() {
+      $scope.destroyed = sinon.spy();
+
+      $scope.setToDOM = false;
+      $scope.$digest();
+
+      expect($scope.destroyed).to.have.been.calledOnce;
+    });
+
+  });
+
   describe('The keepScrollPosition directive', function() {
     var $location;
     var $timeout;
