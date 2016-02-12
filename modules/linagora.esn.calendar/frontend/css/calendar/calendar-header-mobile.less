@@ -25,3 +25,13 @@
     font-weight: bold;
   }
 }
+
+@swipe-arrows-max: 767px;
+
+@media (max-width: @swipe-arrows-max) {
+  .calendar-header-mobile {
+    a[calendar-view-translation] {
+      display: none;
+    }
+  }
+}
