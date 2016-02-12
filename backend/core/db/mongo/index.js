@@ -14,25 +14,18 @@ var configurationWatcher = require('./file-watcher');
 var initialized = false;
 var connected = false;
 
-function onConnectError(err) {
-  logger.error('Failed to connect to MongoDB:', err.message);
+function forceReconnect() {
+  if (process.env.MONGO_FORCE_RECONNECT) {
+    return process.env.MONGO_FORCE_RECONNECT;
+  }
+
+  var defaultConfig = config('default');
+  return !!(defaultConfig.db && defaultConfig.db.forceReconnectOnDisconnect);
 }
 
-mongoose.connection.on('error', function(e) {
-  onConnectError(e);
-  initialized = false;
-});
-
-mongoose.connection.on('connected', function(e) {
-  logger.debug('mongoose connected event');
-  connected = true;
-  topic.publish();
-});
-
-mongoose.connection.on('disconnected', function(e) {
-  logger.debug('mongoose disconnected event');
-  connected = false;
-});
+function onConnectError(err) {
+  logger.error('Failed to connect to MongoDB:', err);
+}
 
 var getTimeout = function getTimeout() {
   return process.env.MONGO_TIMEOUT || 10000;
@@ -273,6 +266,26 @@ module.exports.isInitalized = function() {
 module.exports.isConnected = function() {
   return connected;
 };
+
+mongoose.connection.on('error', function(e) {
+  onConnectError(e);
+  initialized = false;
+});
+
+mongoose.connection.on('connected', function(e) {
+  logger.debug('Connected to MongoDB', e);
+  connected = true;
+  topic.publish();
+});
+
+mongoose.connection.on('disconnected', function() {
+  logger.debug('Connection to MongoDB has been lost');
+  connected = false;
+  if (forceReconnect()) {
+    logger.debug('Reconnecting to MongoDB');
+    mongooseConnect();
+  }
+});
 
 // load models
 var models = {};

@@ -1,6 +1,7 @@
 'use strict';
 
 var mockery = require('mockery');
+var sinon = require('sinon');
 var expect = require('chai').expect;
 
 describe('The Core DB Mongo module', function() {
@@ -66,6 +67,60 @@ describe('The Core DB Mongo module', function() {
       events.connected();
     });
 
+    describe('The reconnect event', function() {
+
+      var events;
+      var mongoose;
+      var forceReconnect;
+
+      beforeEach(function() {
+        mongoose = this.helpers.requireFixture('mongoose').mongoose();
+        mongoose.connect = sinon.spy();
+        events = {};
+        mongoose.connection.on = function(evt, callback) {
+          events[evt] = callback;
+        };
+        mockery.registerMock('mongoose', mongoose);
+        var configMock = function() {
+          return {
+            db: {
+              forceReconnectOnDisconnect: forceReconnect
+            }
+          };
+        };
+
+        var core = {
+          config: configMock,
+          logger: this.helpers.requireFixture('logger-noop')(),
+          pubsub: {
+            local: {
+              topic: function() {
+                return {
+                  publish: function() {
+                  }
+                };
+              }
+            }
+          }
+        };
+        mockery.registerMock('../../../core', core);
+      });
+
+      it('should reconnect when disconnected and configured to reconnect', function() {
+        forceReconnect = true;
+        this.helpers.requireBackend('core').db.mongo;
+        events.disconnected();
+        expect(mongoose.connect).to.have.been.calledOnce;
+      });
+
+      it('should not reconnect when disconnected and configured to reconnect', function() {
+        forceReconnect = false;
+        this.helpers.requireBackend('core').db.mongo;
+        events.disconnected();
+        expect(mongoose.connect).to.not.have.been.called;
+      });
+    });
+
     describe('isConnected() method', function() {
       it('should be false', function() {
         this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
@@ -95,7 +150,7 @@ describe('The Core DB Mongo module', function() {
         expect(this.mongo.isConnected()).to.be.true;
       });
 
-      it('should be true after a connected and then a disconnected event', function() {
+      it('should be false after a connected and then a disconnected event', function() {
         this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
         var events = {};
         this.mongoose.connection.on = function(evt, callback) {

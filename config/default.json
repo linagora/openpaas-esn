@@ -24,7 +24,8 @@
     "port": 8080
   },
   "db": {
-    "reconnectOnConfigurationChange": true
+    "reconnectOnConfigurationChange": true,
+    "forceReconnectOnDisconnect": true
   },
   "log": {
     "file": {
