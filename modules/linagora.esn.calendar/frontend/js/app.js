@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar', [
-  'ui.router',
+  'esn.router',
   'uuid4',
   'ui.calendar',
   'ng.deviceDetector',

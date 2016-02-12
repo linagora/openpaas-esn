@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.appstore', [
-  'ui.router',
+  'esn.router',
   'esn.community',
   'mgcrea.ngStrap.alert',
   'mgcrea.ngStrap.modal',

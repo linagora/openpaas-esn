@@ -19,6 +19,7 @@ describe('The esn app', function() {
   }));
 
   describe('state provider', function() {
+
     it('should load the communities page when routing to an unknown path and no continue parameter exists', function() {
       httpBackend.expectGET('/views/esn/partials/communities').respond(200);
       location.path('/unknown');
@@ -44,5 +45,15 @@ describe('The esn app', function() {
       rootScope.$digest();
       expect(location.path()).to.equal('/communities'); expect(stateParams).to.deep.equal({});
     });
+
+    it('should accept to have a trailing slash in the url, even when the state did not set it explicitly', function() {
+      httpBackend.expectGET('/views/esn/partials/communities').respond(200);
+
+      location.path('/communities/');
+      rootScope.$digest();
+
+      expect(location.path()).to.equal('/communities/');
+    });
+
   });
 });

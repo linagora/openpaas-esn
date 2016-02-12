@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.fullscreen-edit-form', ['esn.scroll', 'ui.router'])
+angular.module('esn.fullscreen-edit-form', ['esn.scroll', 'esn.router'])
 
   .directive('fullscreenEdit', function($timeout) {
     return {
