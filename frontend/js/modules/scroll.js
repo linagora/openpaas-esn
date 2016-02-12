@@ -49,9 +49,6 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
         var toggled = false;
 
         $(window).scroll(function(event) {
-          if (scope.disabled) {
-            return;
-          }
           var scroll = $(window).scrollTop();
           var diff = scroll - position;
           if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
