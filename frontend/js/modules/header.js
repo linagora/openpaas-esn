@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.header', ['esn.sidebar'])
+angular.module('esn.header', ['esn.sidebar', 'matchMedia'])
 
   .constant('MAIN_HEADER', 'main-header-middle-content')
 
@@ -83,12 +83,12 @@ angular.module('esn.header', ['esn.sidebar'])
     };
   })
 
-  .directive('mainHeader', function($rootScope, deviceDetector, headerService, dynamicDirectiveService, Fullscreen, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
+  .directive('mainHeader', function($rootScope, screenSize, headerService, dynamicDirectiveService, Fullscreen, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/header/header.html',
-      link: function(scope, element, attrs) {
+      link: function(scope, element) {
         scope.$on('header:hide', function() {
           element.addClass('hidden');
         });
@@ -109,7 +109,9 @@ angular.module('esn.header', ['esn.sidebar'])
           element.find('#header').removeClass('hide-top');
         };
 
-        scope.disableScrollListener = !deviceDetector.isMobile();
+        scope.enableScrollListener = screenSize.on('xs,sm', function(isMatching) {
+          scope.enableScrollListener = isMatching;
+        }, scope);
 
         scope.hasSubHeaderGotInjections = headerService.subHeader.hasInjections();
 

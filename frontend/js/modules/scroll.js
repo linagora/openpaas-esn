@@ -45,10 +45,10 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
       scope: true,
       link: function(scope, element, attrs) {
 
-        var position = $(window).scrollTop();
-        var toggled = false;
+        var position = $(window).scrollTop(),
+            toggled = false;
 
-        $(window).scroll(function(event) {
+        var scrollHandler = function() {
           var scroll = $(window).scrollTop();
           var diff = scroll - position;
           if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
@@ -64,6 +64,13 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
           }
 
           position = scroll;
+        };
+
+        $(window).scroll(scrollHandler);
+
+        scope.$on('$destroy', function() {
+          $(window).off('scroll', scrollHandler);
+          $parse(scope[attrs.onDestroy])();
         });
       }
     };
