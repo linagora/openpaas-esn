@@ -9,14 +9,16 @@ infinite-list.list-emails
         .lv-item.media(ng-repeat="thread in group.elements")
           div.clickable(ng-click="ctrl.openThread(thread)")
             .badge-container
-              .badge(ng-hide='thread.messageIds.length < 2') {{ thread.messageIds.length }}
               i.mdi.mdi-email
             .media-body(ng-class="::{bold: thread.email.isUnread}")
-              .lv-title.text-right.pull-right
-                i.email-status-icon.mdi.mdi-attachment(ng-if='::thread.email.hasAttachment')
-                email-star(email='thread.email')
-                span.date {{::thread.email.date | date: group.dateFormat}}
-              .lv-title {{::thread.email.subject}}
+              .flex-space-between
+                .flex-start.ellipsis
+                  .lv-title {{::thread.email.subject}}
+                  .badge-number(ng-if='thread.messageIds.length > 1') ({{ thread.messageIds.length }})
+                .date-container
+                  i.email-status-icon.mdi.mdi-attachment(ng-if='::thread.email.hasAttachment')
+                  email-star(email='thread.email')
+                  span.date {{::thread.email.date | date: group.dateFormat}}
               emailer.lv-title(emailer="::thread.email.from")
               .clearfix
             .lv-small.preview {{::thread.email.preview}}
