@@ -105,6 +105,7 @@ angular.module('esn.calendar')
     ITEM_MODIFICATION: 'calendar:itemModification',
     ITEM_REMOVE: 'calendar:itemRemove',
     REVERT_MODIFICATION: 'calendar:revertModification',
+    VIEW_TRANSLATION: 'calendar:viewTranslation',
     CALENDARS: {
       ADD: 'calendar:calendars:add',
       REMOVE: 'calendar:calendars:remove',

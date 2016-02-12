@@ -6,9 +6,16 @@
           i.mdi.mdi-dots-vertical
       span.date-indicator(calendar-date-indicator) {{dateIndicator}}
     .right.flex
+      a(calendar-view-translation='prev')
+        button.btn.btn-primary.waves-effect
+          i.mdi.mdi-chevron-left
+      a(calendar-view-translation='next')
+        button.btn.btn-primary.waves-effect
+          i.mdi.mdi-chevron-right
       a(toggle-calendar-today)
         button.btn.btn-primary.waves-effect
           i.mdi.mdi-calendar-today
       a(toggle-mini-calendar)
         button.btn.btn-primary.waves-effect
           i.mdi.mdi-menu-down
+

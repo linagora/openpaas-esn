@@ -138,6 +138,24 @@ describe('The mini-calendar controller', function() {
     expect(fcMethodMock.render).to.have.been.calledOnce;
   });
 
+  it('should change view on VIEW_TRANSLATION only when mobile mini calendar is displayed', function() {
+    initController();
+    ['prev', 'next'].forEach(function(action) {
+      $scope.miniCalendarConfig.viewRender();
+
+      $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+
+      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+      $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+
+      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+      $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+
+      $rootScope.$digest();
+      expect(fcMethodMock[action]).to.have.been.calledOnce;
+    });
+  });
+
   it('should call fullCalendar next on swipeRight', function() {
     initController();
     $scope.miniCalendarConfig.viewRender();

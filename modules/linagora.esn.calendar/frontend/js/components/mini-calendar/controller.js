@@ -16,12 +16,27 @@ angular.module('esn.calendar')
     var currentView = calendarCurrentView.get();
     $scope.homeCalendarViewMode = currentView.name || USER_UI_CONFIG.calendar.defaultView;
 
-    $scope.swipeLeft = calendarPromise.then.bind(calendarPromise, function(cal) {
+    var prev = calendarPromise.then.bind(calendarPromise, function(cal) {
+      cal.fullCalendar('prev');
+    });
+
+    var next = calendarPromise.then.bind(calendarPromise, function(cal) {
       cal.fullCalendar('next');
     });
 
-    $scope.swipeRight = calendarPromise.then.bind(calendarPromise, function(cal) {
-      cal.fullCalendar('prev');
+    $scope.swipeLeft = next;
+    $scope.swipeRight = prev;
+
+    var miniCalendarDisplay = false;
+
+    $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+      miniCalendarDisplay = !miniCalendarDisplay;
+    });
+
+    $rootScope.$on(CALENDAR_EVENTS.VIEW_TRANSLATION, function(event, action) {
+      if (miniCalendarDisplay) {
+        (action === 'prev' ? prev : next)();
+      }
     });
 
     function selectPeriod(day, calendar) {

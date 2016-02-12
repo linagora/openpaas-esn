@@ -405,6 +405,33 @@ describe('The calendar module controllers', function() {
       uiCalendarDiv.remove();
     });
 
+    it('should change view on VIEW_TRANSLATION only when mobile mini calendar is hidden', function() {
+      this.controller('calendarController', {$scope: this.scope});
+
+      this.scope.uiConfig.calendar.viewRender({});
+
+      var fcMethodMock = {
+      };
+
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(action) {
+        (fcMethodMock[action] || angular.noop)();
+      };
+
+      ['prev', 'next'].forEach(function(action) {
+        fcMethodMock[action] = sinon.spy();
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+
+        this.scope.$digest();
+        expect(fcMethodMock[action]).to.have.been.calleTwice;
+      }, this);
+    });
+
     it('should resize the calendar height once when the window is resized', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$digest();
