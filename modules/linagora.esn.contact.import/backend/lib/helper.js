@@ -99,21 +99,20 @@ module.exports = function(dependencies) {
    * vcard to detect followings removed from user Twitter account.
    * Note:
    * - Sabre use `lastmodified` timestamp in seconds
-   * - Padding 1 hour is a work around for time synchronization issue.
    * @param  {Object} options           Contains:
    *                                    	+ user
    *                                    	+ addressbook
    *                                    	+ esnToken
-   * @param  {Number} lastSyncTimestamp Timestamp in miliseconds
+   * @param  {Number} contactSyncTimeStamp Timestamp in miliseconds
    * @return {Promise}                   Resolve a list of removed contact IDs
    */
-  function cleanOutdatedContacts(options, lastSyncTimestamp) {
+  function cleanOutdatedContacts(options, contactSyncTimeStamp) {
     return contactModule.lib.client({ ESNToken: options.esnToken })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)
       .vcard()
       .removeMultiple({
-        modifiedBefore: Math.round(lastSyncTimestamp / 1000 - 3600) // 1 hour padding
+        modifiedBefore: Math.round(contactSyncTimeStamp / 1000)
       })
       .then(function(ids) {
         logger.info('Cleaned %d outdated contacts', ids.length);

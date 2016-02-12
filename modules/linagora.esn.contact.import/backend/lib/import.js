@@ -21,6 +21,7 @@ module.exports = function(dependencies) {
   }
 
   function synchronizeAccountContacts(user, account) {
+    var contactSyncTimeStamp = Date.now();
     var importer = importerRegistry.get(account.data.provider);
     if (!importer || !importer.lib || !importer.lib.importer) {
       return q.reject(new Error('Can not find importer ' + account.data.provider));
@@ -30,7 +31,7 @@ module.exports = function(dependencies) {
       .then(helper.initializeAddressBook)
       .then(function(options) {
         return importer.lib.importer.importContact(options)
-          .then(helper.cleanOutdatedContacts.bind(null, options, Date.now()))
+          .then(helper.cleanOutdatedContacts.bind(null, options, contactSyncTimeStamp))
           .then(function(data) {
             data.forEach(function(item) {
               if (!item.error) {

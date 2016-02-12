@@ -324,6 +324,7 @@ describe('The contact import module', function() {
     });
 
     it('should clean outdated contacts', function(done) {
+      var contactSyncTimeStamp;
       var options = {
         account: account,
         user: user
@@ -349,6 +350,7 @@ describe('The contact import module', function() {
               addressbook: addressbook
             });
             expect(timestamp).to.be.a('number');
+            expect(contactSyncTimeStamp < timestamp).is.true;
             done();
           }
         };
@@ -366,6 +368,7 @@ describe('The contact import module', function() {
           };
         }
       };
+      contactSyncTimeStamp = Date.now();
       getModule().synchronizeAccountContacts(user, account);
     });
 
