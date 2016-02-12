@@ -1,5 +1,7 @@
 div
-  header#header(scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show', disabled='disableScrollListener')
+  header#header
+    div(ng-if='::(!disableScrollListener)', scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show')
+
     div.header-inner.flex-vertical-centered.flex-space-between
       ul.list-inline.all-centered
         li.logo
