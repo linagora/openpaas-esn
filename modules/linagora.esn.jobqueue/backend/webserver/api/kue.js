@@ -8,7 +8,9 @@ module.exports = function(lib, dependencies) {
 
   var app = express();
   app.use(authorizationMW.requiresAPILogin);
-  app.use('/ui', lib.kue.app);
+  lib.initJobQueue().then(function() {
+    app.use('/ui', lib.kue.app);
+  });
 
   return app;
 };

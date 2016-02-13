@@ -7,37 +7,54 @@ var q = require('q');
 
 describe('The queue lib module', function() {
 
-  var deps, dependencies;
+  var deps, dependencies, jobMock, workersMock, kueMock, pubsubMock;
   var workerName = 'workerName';
   var jobName = 'jobName';
+  var redisConfig = {
+    port: '12345',
+    host: 'my-host'
+  };
   var error = new Error('error');
-  var jobMock = {
-    create: function() {
-      return {
-        save: function() {}
-      };
-    },
-    process: function() {}
-  };
-
-  var workersMock = {
-    add: function() {},
-    get: function() {},
-    list: function() {}
-  };
-
-  var kueMock = {
-    Job: {
-      get: function() {
-        return q([]);
-      }
-    },
-    createQueue: function() {
-      return jobMock;
-    }
-  };
 
   beforeEach(function() {
+
+    pubsubMock = {
+      local: {
+        topic: function() {
+          return {
+            subscribe: function(callback) {
+              return callback(redisConfig);
+            }
+          };
+        }
+      }
+    };
+
+    jobMock = {
+      create: function() {
+        return {
+          save: function() {}
+        };
+      },
+      process: function() {}
+    };
+
+    workersMock = {
+      add: function() {},
+      get: function() {},
+      list: function() {}
+    };
+
+    kueMock = {
+      Job: {
+        get: function() {
+          return q([]);
+        }
+      },
+      createQueue: function() {
+        return jobMock;
+      }
+    };
 
     dependencies = {
       logger: {
@@ -45,7 +62,8 @@ describe('The queue lib module', function() {
         error: function() {},
         debug: function() {},
         warn: function() {}
-      }
+      },
+      pubsub: pubsubMock
     };
 
     deps = function(name) {
@@ -61,6 +79,31 @@ describe('The queue lib module', function() {
   var getModule = function() {
     return require('../../../backend/lib/queue')(deps);
   };
+
+  describe('The initJobQueue function', function() {
+
+    it('should creatQueue with correct params when receive redis config', function(done) {
+      kueMock.createQueue = function(options) {
+        expect(options).to.deep.equal({ redis: redisConfig });
+        done();
+      };
+
+      getModule().initJobQueue();
+    });
+
+    it('should resolve jobs immediately if queue is created', function(done) {
+      var queueModule = getModule();
+      queueModule.initJobQueue().then(function() {
+        kueMock.createQueue = function() {
+          done(error);
+        };
+        queueModule.initJobQueue().then(function(jobs) {
+          expect(jobs).to.deep.equal(jobMock);
+          done();
+        });
+      });
+    });
+  });
 
   describe('The submitJob function', function() {
     it('should create job with correct parameters ', function(done) {
