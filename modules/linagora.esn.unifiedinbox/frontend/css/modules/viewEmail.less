@@ -29,7 +29,7 @@
     .SecondaryColor;
 
     padding: 10px;
-    background-color: lighten(@body-bg, 5%);
+    background-color: @lightenBgColor;
     border-bottom: 1px @body-bg solid;
 
     .avatarify {
@@ -113,81 +113,63 @@
   }
 
   .attachments {
-    border: 1px solid @secondaryTextColor;
-    border-radius: 5px;
+    .flex-start;
+    .flex-wrap;
 
-    .title {
-      font-size: 13px;
-      display: block;
+    padding: 5px;
+    border: none;
+
+    .attachment {
+      .flex-start;
+
+      position: relative;
+      border-radius: 4px;
+      margin: 5px;
+      height: 60px;
+      width: 300px;
+      color: lighten(@secondaryTextColor, 10%);
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+
+      &:hover {
+        color: @secondaryTextColor;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+
+        .icon {
+          background-color: lighten(@body-bg, 2%);
+        }
+      }
+
+      .icon {
+        .flex-vertical-centered;
+        .flex-horizontal-centered;
+
+        background-color: @lightenBgColor;
+
+        img {
+          z-index: 1;
+          margin: 5px;
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      .metadata {
+        .flex-column;
+        .flex-horizontal-centered;
+
+        text-align: left;
+        overflow: hidden;
+        margin: 0 5px;
+        z-index: 1;
+
+        .name {
+          font-size: 1.2em;
+          line-height: 1.2em;
+          font-weight: bold;
+        }
+      }
+
     }
   }
 
-  .attachment {
-
-    animation: fadeIn 0.5s;
-    -webkit-animation: fadeIn 0.5s;
-
-    background-color: @primaryColor;
-    color: @textPrimaryColor;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-    position: relative;
-    margin: 5px;
-    height: 64px;
-    display: inline-block;
-    width: 95%;
-    max-width: 300px;
-
-    .icon {
-      position: absolute;
-      top: 8px;
-      left: 5px;
-      width: 48px;
-      height: 48px;
-    }
-
-    .metadata {
-      overflow: hidden;
-      color: rgba(255, 255, 255, 0.9);
-      padding-top: 16px;
-      padding-left: 55px;
-
-      & > h2 {
-        margin: 0;
-        line-height: 100%;
-        font-size: 14px;
-        font-weight: 300;
-        color: @textPrimaryColor;
-      }
-
-      & > small {
-        margin-bottom: 2px;
-        display: block;
-      }
-
-      & > h2,
-      & > small {
-        .text-overflow();
-      }
-    }
-
-    &:before {
-      .transition(width);
-      .transition-duration(200ms);
-      .backface-visibility(hidden);
-
-      content: "";
-      width: 0;
-      height: 100%;
-      background: rgba(0,0,0,0.1);
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-
-    &:hover {
-      &:before {
-        width: 58px;
-      }
-    }
-  }
 }
