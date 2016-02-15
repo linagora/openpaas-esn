@@ -1,7 +1,59 @@
-.row
+.row.event-consult-form
   .col-xs-12
+    .btn-group.btn-group-justified
+      .btn-group
+        .btn.btn-default(type="button", ng-click="getMainView()", ng-class="{'btn-primary': selectedTab === 'main', 'bold': selectedTab === 'main'}")
+          | Main
+      .btn-group
+        .btn.btn-default(type="button", ng-click="getAttendeesView()", ng-class="{'btn-primary': selectedTab === 'attendees', 'bold': selectedTab === 'attendees'}")
+          | Attendees
+      .btn-group
+        .btn.btn-default(type="button", ng-click="getMoreView()", ng-class="{'btn-primary': selectedTab === 'more', 'bold': selectedTab === 'more'}")
+          | More
     .card
-      .card-header
-        p Header
       .card-body.card-padding
-        p Body
+        div(ng-show="selectedTab === 'main'")
+          form.form.readonly(role="form", aria-hidden="true")
+            .row
+              .col-xs-12
+                .row
+                  .col-xs-12
+                    .form-group
+                      .fg-line
+                        label.title.ellipsis {{event.title}}
+
+                event-date-consultation(event="event")
+
+                .row(ng-if='event.location')
+                  .col-xs-12
+                    .form-group
+                      .input-group
+                        span.input-group-addon
+                          i.mdi.mdi-map-marker
+                        .ellipsis.centered-cell
+                          span {{event.location}}
+
+                .row(ng-if='event.description')
+                  .col-xs-12
+                    .form-group
+                      .input-group
+                        span.input-group-addon.textarea-icon.vertical-top
+                          i.mdi.mdi-format-align-justify
+                        .description
+                          span {{event.description}}
+
+        div(ng-show="selectedTab === 'attendees'")
+          .row
+            .col-xs-12.nopadding
+              attendees-list(ng-if='event.attendees.length', attendees='event.attendees', read-only='true', mode='consult')
+
+        div(ng-show="selectedTab === 'more'")
+
+      .row.event-consult-form-footer.form-group
+        span.col-xs-5 #{__('Will you attend?')}
+        .col-xs-2
+          button.btn.btn-default(type='button', ng-click='modifyEventParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
+        .col-xs-3
+          button.btn.btn-default(type='button', ng-click='modifyEventParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE"}') #{__('Maybe')}
+        .col-xs-2
+          button.btn.btn-default(type='button', ng-click='modifyEventParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}

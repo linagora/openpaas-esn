@@ -55,7 +55,15 @@ angular.module('esn.calendar', [
       url: '/event-consult-form',
       views: {
         form: {
-          templateUrl: '/calendar/views/event-consult-form/event-consult-form'
+          template: '<event-consult-form event="event"/>',
+          resolve: {
+            event: function(eventUtils) {
+              return eventUtils.getEditedEvent();
+            }
+          },
+          controller: function($scope, event) {
+            $scope.event = event;
+          }
         }
       }
     })

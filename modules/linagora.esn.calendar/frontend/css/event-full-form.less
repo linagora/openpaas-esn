@@ -65,9 +65,7 @@
     }
 
     .attendees-list {
-      .col-xs-12 {
-        .FormMargin();
-      }
+      .FormMargin();
 
       .attendee-avatar {
         .checkbox {
@@ -75,6 +73,10 @@
         }
         height: 45px;
         width: 45px;
+      }
+
+      .undecided-category {
+        .FormMargin();
       }
 
       .undecided {
@@ -111,6 +113,9 @@
 
     .card-body {
       padding: 10px 0;
+      .row {
+        margin: 0;
+      }
     }
 
     &.readonly {

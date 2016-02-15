@@ -9,7 +9,8 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/components/attendees-list.html',
       scope: {
         attendees: '=',
-        readOnly: '='
+        readOnly: '=',
+        mode: '@'
       },
       link: function(scope) {
         scope.attendeeClickedCount = 0;
