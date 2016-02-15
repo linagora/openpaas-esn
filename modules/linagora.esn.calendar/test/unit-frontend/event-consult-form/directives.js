@@ -117,8 +117,8 @@ describe('The event-consult-form Angular module directives', function() {
             location: 'aLocation'
           };
           var isolateScope = this.initDirective(this.$scope);
-          expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D hh:mm'));
-          expect(isolateScope.end).to.equal(this.$scope.event.end.format('hh:mm'));
+          expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D hh:mma'));
+          expect(isolateScope.end).to.equal(this.$scope.event.end.format('hh:mma'));
         });
       });
 
@@ -131,8 +131,8 @@ describe('The event-consult-form Angular module directives', function() {
             location: 'aLocation'
           };
           var isolateScope = this.initDirective(this.$scope);
-          expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D hh:mm'));
-          expect(isolateScope.end).to.equal(this.$scope.event.end.format('MMMM D hh:mm'));
+          expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D hh:mma'));
+          expect(isolateScope.end).to.equal(this.$scope.event.end.format('MMMM D hh:mma'));
         });
       });
     });
