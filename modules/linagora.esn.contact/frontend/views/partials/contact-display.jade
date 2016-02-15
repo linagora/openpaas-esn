@@ -6,7 +6,7 @@
           img(ng-src="{{displayShell.getAvatar(avatarSize)}}" fallback-src="{{displayShell.getDefaultAvatar()}}")
         i.mdi.i-contact-show(ng-class="displayShell.getOverlayIcon()")
       .pmo-stat
-        h2.m-0.c-white
+        h2.m-0.c-white.break-word
           |{{contact.displayName}}
         |{{contact.job_title}}
       .pmo-block(ng-if='contact.tags.length!==0')
@@ -125,5 +125,5 @@
             i.mdi.mdi-comment-account.m-r-5
             | #{__('Comments')}
         .pmbb-body.p-l-30
-          .pmbb-view
+          .pmbb-view.break-word
             | {{contact.notes}}
