@@ -141,7 +141,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective
           });
           return response.data;
         }, function(error) {
-          $log('Error while searching users: ' + error);
+          $log.error('Error while searching users:', error);
           return $q.when([]);
         });
       }
