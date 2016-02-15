@@ -88,7 +88,7 @@ module.exports = function(config) {
       '/contact/images/': 'modules/linagora.esn.contact/frontend/images/'
     },
 
-    logLevel: 'error',
+    logLevel: config.LOG_ERROR,
     frameworks: ['mocha'],
     colors: true,
     singleRun: true,

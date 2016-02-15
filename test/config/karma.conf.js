@@ -84,7 +84,7 @@ module.exports = function(config) {
       '/images/': 'http://localhost:9876/images/'
     },
 
-    logLevel: 'error',
+    logLevel: config.LOG_ERROR,
     frameworks: ['mocha'],
     colors: true,
     singleRun: true,
