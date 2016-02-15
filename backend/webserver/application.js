@@ -16,7 +16,11 @@ application.set('view engine', 'jade');
 
 if (process.env.NODE_ENV !== 'test') {
   var morgan = require('morgan');
-  application.use(morgan());
+  if (process.env.NODE_ENV === 'dev') {
+    application.use(morgan('dev'));
+  } else {
+    application.use(morgan());
+  }
 }
 
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
