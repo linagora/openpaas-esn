@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.project', [
-  'ui.router',
+  'esn.router',
   'restangular',
   'esn.avatar',
   'esn.session',

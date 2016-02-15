@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.unifiedinbox', [
-  'ui.router',
+  'esn.router',
   'esn.jmap-client-wrapper',
   'angularMoment',
   'esn.notification',

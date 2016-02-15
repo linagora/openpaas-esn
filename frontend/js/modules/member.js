@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.member', ['ui.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
+angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
   .config(function(dynamicDirectiveServiceProvider) {
     var profile = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', profile);

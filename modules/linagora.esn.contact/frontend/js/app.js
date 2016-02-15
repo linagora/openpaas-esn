@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
-  'ui.router',
+  'esn.router',
   'restangular',
   'esn.alphalist',
   'mgcrea.ngStrap.datepicker',
