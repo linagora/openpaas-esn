@@ -338,7 +338,7 @@ describe('The contact import helper module', function() {
       addressBookMock.vcard = function() {
         return {
           removeMultiple: function(options) {
-            expect(options.modifiedBefore).to.equal(Math.round(lastSyncTimestamp / 1000 - 3600));
+            expect(options.modifiedBefore).to.equal(Math.round(lastSyncTimestamp / 1000));
             done();
             return q.resolve();
           }
