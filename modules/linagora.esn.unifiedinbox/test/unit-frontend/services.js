@@ -1521,6 +1521,19 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
+      it('should use the default title if none given', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.openEmailCustomTitle(null, { email: 'object' });
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          title: 'Compose an email',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+          email: { email: 'object' }
+        });
+      });
+
     });
 
   });

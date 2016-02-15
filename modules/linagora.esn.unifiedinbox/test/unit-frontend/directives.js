@@ -122,7 +122,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       newComposerService.openEmailCustomTitle = sinon.spy();
 
       emailElement.click();
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
         {
           to:[{
             email: 'SOMEONE',
@@ -137,7 +137,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       newComposerService.openEmailCustomTitle = sinon.spy();
 
       emailElement.click();
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
         {
           to:[{
             email: 'SOMEONE',
@@ -193,7 +193,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
         {
           to:[{
             email: 'SOMEONE',
@@ -209,7 +209,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Sending email to: ',
+      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
         {
           to:[{
             email: 'SOMEONE',

@@ -45,7 +45,8 @@ angular.module('linagora.esn.unifiedinbox')
           if (email) {
             event.preventDefault();
             event.stopPropagation();
-            newComposerService.openEmailCustomTitle('Sending email to: ',
+
+            newComposerService.openEmailCustomTitle(null, // To use the default title
               {
                 to:[{
                   email: email,
