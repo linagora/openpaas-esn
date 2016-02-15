@@ -2,9 +2,9 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
 
   .compose-header
     .row
-      .picture.col-sm-1
+      .picture.col-xs-1
         img(ng-controller='avatarController' ng-src='{{avatarURL}}')
-      .recipients.col-xs-11.col-sm-10
+      .recipients.col-xs-10
         .form-group
           label.col-xs-1.control-label(for="to") #{__('To')}
           .col-xs-10

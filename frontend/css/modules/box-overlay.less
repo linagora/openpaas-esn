@@ -9,22 +9,45 @@
   position: fixed;
   right: 0;
   bottom: 0;
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: 400px;
+  right: 100px;
   z-index: @overlayContainerZIndex;
+
+  &.maximized {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: @overlayContainerMaximizedZIndex;
+
+    background-color: rgba(0, 0, 0, 0.3);
+
+    .box-overlay-open.minimized {
+      .toggle-minimize {
+        display: none;
+      }
+    }
+
+  }
 }
 
 .box-overlay-open {
   .flex-column;
 
-  position: absolute;
-  left: 0;
-  top: @header-height;
-  width: 100%;
-  height: ~"calc(100% - @{header-height})";
+  left: auto;
+  top: auto;
+  bottom: 0;
+  width: 400px;
+  height: 400px;
+  float: right;
+  margin: 0 10px 0 0;
+  overflow: hidden;
+  position: relative;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   z-index: @overlayBoxZIndex;
 
-  border: none;
 
   >.panel-heading {
     .flex-shrink(0);
@@ -61,6 +84,19 @@
     }
   }
 
+  &.maximized {
+    position: absolute;
+    width: 90%;
+    left: 5%;
+
+    // Following rules are not as % to support iPad.
+    // In such case, % values will be calculated against
+    // the whole page size instead of the screen size.
+    height: auto;
+    top: 30px;
+    bottom: 50px;
+  }
+
   .close {
     margin-left: 10px;
     font-size: 21.5px;
@@ -69,59 +105,5 @@
   .toggle-minimize {
     .rotateZ3d(0deg);
     transition: transform 0.1s ease-out;
-  }
-}
-
-/* Small devices (tablets, 768px and up) */
-@media (min-width: @screen-sm-min) {
-
-  .box-overlay-container {
-    width: auto;
-    height: 400px;
-    right: 100px;
-
-    &.maximized {
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: @overlayContainerMaximizedZIndex;
-
-      background-color: rgba(0, 0, 0, 0.3);
-
-      .box-overlay-open.minimized {
-        .toggle-minimize {
-          display: none;
-        }
-      }
-
-    }
-  }
-
-  .box-overlay-open {
-    left: auto;
-    top: auto;
-    bottom: 0;
-    width: 400px;
-    height: 400px;
-    float: right;
-    margin: 0 10px 0 0;
-    overflow: hidden;
-    position: relative;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-
-    &.maximized {
-      position: absolute;
-      width: 90%;
-      left: 5%;
-
-      // Following rules are not as % to support iPad.
-      // In such case, % values will be calculated against
-      // the whole page size instead of the screen size.
-      height: auto;
-      top: 30px;
-      bottom: 50px;
-    }
   }
 }
