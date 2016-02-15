@@ -180,8 +180,7 @@ angular.module('linagora.esn.unifiedinbox')
       toolbar: [
         ['style', ['bold', 'italic', 'underline', 'strikethrough']],
         ['textsize', ['fontsize']],
-        ['alignment', ['paragraph', 'ul', 'ol']],
-        ['fullscreen', ['esnFullscreen']]
+        ['alignment', ['paragraph', 'ul', 'ol']]
       ]
     };
 
