@@ -37,8 +37,8 @@ services:
       - "6379:6379"
 
   mongo:
-    image: mongo:2.6.11
-    #image: linagora/esn-mongo
+    #image: mongo:2.6.5
+    image: linagora/esn-mongo
     ports:
       - "27017:27017"
     environment:

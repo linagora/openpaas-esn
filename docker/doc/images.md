@@ -3,7 +3,7 @@
 We currently use several official images, and some custom ones:
 
 - Redis: redis:latest
-- MongoDB: mongo:2.6.6
+- MongoDB: linagora/esn-mongo
 - Apache Cassandra: cassandra:2.2.3
 - Apache James: linagora/james-project
 - Elastic Search: linagora/esn-elasticsearch and elasticsearch:1.5.2

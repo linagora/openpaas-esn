@@ -22,12 +22,12 @@ RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Cache NPM install of package.json has not been changed
 # cf http://www.clock.co.uk/blog/a-guide-on-how-to-cache-npm-install-with-docker
-ADD package.json /var/www/package.json
+COPY package.json /var/www/package.json
 RUN cd /var/www && npm install --production
 RUN npm install -g bower
 
 # Cache bower
-ADD bower.json /var/www/bower.json
+COPY bower.json /var/www/bower.json
 RUN cd /var/www && bower install --allow-root
 
 WORKDIR /var/www

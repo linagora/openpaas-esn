@@ -10,9 +10,9 @@ MAINTAINER Linagora Folks
 
 WORKDIR /var/www
 
-ADD . /var/www
-COPY ./docker/config/docker-db.json config/db.json
-COPY ./docker/scripts/start.sh start.sh
+COPY . /var/www
+RUN cp /var/www/docker/config/docker-db.json /var/www/config/db.json
+RUN cp /var/www/docker/scripts/start.sh /var/www/start.sh
 RUN ln -s /var/www/bower_components/ /var/www/frontend/components
 
 EXPOSE 8080
