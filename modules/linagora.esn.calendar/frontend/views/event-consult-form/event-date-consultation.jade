@@ -1,14 +1,14 @@
 .row.event-date-consultation
-  .col-xs-2
-    i.mdi.mdi-clock
-  .col-xs-4.nopadding.date
-    span {{start}}
-  .col-xs-1.to
-    | #{__('To')}
-  .col-xs-4.nopadding.date
-    span {{end}}
-  .col-xs-12.allday(ng-if='event.allDay')
-    .checkbox
-      label
-        input(type="checkbox", ng-model='event.allDay', ng-disabled="disabled")
-        i.input-helper #{__('All day')}
+  .col-xs-12
+    .flex-space-between.flex-vertical-centered
+      i.mdi.mdi-clock
+      .date
+        span {{start}}
+      .to(ng-if='!event.allDay')
+        | #{__('To')}
+      .separator(ng-if='event.allDay')
+        | -
+      .date
+        span {{end}}
+      .allday(ng-if='event.allDay')
+        | #{__('All day')}

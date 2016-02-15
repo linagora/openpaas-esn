@@ -75,11 +75,11 @@ angular.module('esn.calendar')
       },
       link: function(scope) {
         if (!scope.event.allDay) {
-          scope.start = scope.event.start.format('MMMM D hh:mm');
+          scope.start = scope.event.start.format('MMMM D hh:mma');
           if (scope.event.start.isSame(scope.event.end, 'day')) {
-            scope.end = scope.event.end.format('hh:mm');
+            scope.end = scope.event.end.format('hh:mma');
           } else {
-            scope.end = scope.event.end.format('MMMM D hh:mm');
+            scope.end = scope.event.end.format('MMMM D hh:mma');
           }
         } else {
           scope.start = scope.event.start.format('MMMM D');
