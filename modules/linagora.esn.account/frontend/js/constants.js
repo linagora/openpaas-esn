@@ -18,6 +18,13 @@ angular.module('linagora.esn.account')
   .constant('OAUTH_UNKNOWN_MESSAGE', 'Unknown OAuth message')
   .constant('IMPORT_URI', 'import')
   .constant('SUPPORTED_ACCOUNTS', ['oauth'])
-  .constant('ACCOUNT_TYPES', {
-    twitter: 'twitter'
+  .constant('SUPPORTED_ACCOUNT_TYPES', {
+    twitter: 'twitter',
+    google: 'google'
+  })
+  .constant('OAUTH_SOCIAL_MESSAGES', {
+    denied: 'You denied access to your social account',
+    error: 'An error occured while accessing to your social account',
+    updated: 'Your social account has been updated',
+    created: 'Your social account has been successfully linked'
   });

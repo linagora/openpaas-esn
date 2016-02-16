@@ -52,4 +52,32 @@ angular.module('linagora.esn.account')
         account: '='
       }
     };
+  })
+
+  .directive('accountMenuItem', function(oauthStrategyRegistry) {
+    function link(scope, elem, attr) {
+      scope.openAccount = oauthStrategyRegistry.get(attr.type);
+    }
+    return {
+      replace: true,
+      restrict: 'E',
+      scope: {},
+      templateUrl: function(elem, attr) {
+        return '/account/views/providers/' + attr.type + '/add-account-item.html';
+      },
+      link: link
+    };
+  })
+
+  .directive('socialAccount', function() {
+    return {
+      replace: true,
+      restrict: 'E',
+      scope: {
+        account: '='
+      },
+      templateUrl: function(elem, attr) {
+        return '/account/views/providers/' + attr.type + '/account.html';
+      }
+    };
   });

@@ -1,6 +1,14 @@
 'use strict';
 
-angular.module('linagora.esn.account', ['esn.router', 'restangular', 'op.dynamicDirective', 'esn.core', 'esn.ui', 'linagora.esn.oauth', 'linagora.esn.contact.import'])
+angular.module('linagora.esn.account', [
+  'esn.router',
+  'restangular',
+  'esn.lodash-wrapper',
+  'op.dynamicDirective',
+  'esn.core',
+  'esn.ui',
+  'linagora.esn.oauth',
+  'linagora.esn.contact.import'])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider.state('/accounts', {
       url: '/accounts',
@@ -22,4 +30,22 @@ angular.module('linagora.esn.account', ['esn.router', 'restangular', 'op.dynamic
 
     var account = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-account', {priority: -5});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', account);
+  })
+  .run(function(dynamicDirectiveService, accountMessageRegistry, FAB_ANCHOR_POINT, SUPPORTED_ACCOUNT_TYPES, socialHelper, _) {
+    _.forIn(SUPPORTED_ACCOUNT_TYPES, function(item) {
+      var options = {
+        attributes: [
+          {
+            name: 'type',
+            value: item
+          }
+        ]
+      };
+      var directive = new dynamicDirectiveService.DynamicDirective(
+        function() {
+          return true;
+        }, 'account-menu-item', options);
+      dynamicDirectiveService.addInjection(FAB_ANCHOR_POINT, directive);
+      accountMessageRegistry.register(item, socialHelper.getAccountMessages(item));
+    });
   });

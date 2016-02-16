@@ -8,13 +8,17 @@ describe('The Account Angular Services', function() {
 
   beforeEach(function() {
     module('esn.core');
+    module('linagora.esn.account');
   });
 
   describe('The displayAccountMessage service', function() {
     var accountMessageRegistry, displayAccountMessageLevel, alertMock;
 
     beforeEach(function() {
-      accountMessageRegistry = {};
+      accountMessageRegistry = {
+        register: function() {}
+      };
+      displayAccountMessageLevel = function() {};
       angular.mock.module(function($provide) {
         $provide.value('accountMessageRegistry', accountMessageRegistry);
         $provide.value('displayAccountMessageLevel', displayAccountMessageLevel);
@@ -22,7 +26,6 @@ describe('The Account Angular Services', function() {
           return alertMock(options);
         });
       });
-      module('linagora.esn.account');
     });
 
     beforeEach(angular.mock.inject(function($rootScope, displayAccountMessage, accountMessageRegistry, $alert, displayAccountMessageLevel) {
@@ -62,7 +65,6 @@ describe('The Account Angular Services', function() {
 
     beforeEach(function() {
       accountMessageRegistry = {};
-      module('linagora.esn.account');
     });
 
     beforeEach(angular.mock.inject(function($rootScope, displayAccountMessageLevel, OAUTH_MESSAGE_LEVELS) {
@@ -97,10 +99,6 @@ describe('The Account Angular Services', function() {
   });
 
   describe('The accountMessageRegistry service', function() {
-
-    beforeEach(function() {
-      module('linagora.esn.account');
-    });
 
     beforeEach(angular.mock.inject(function(accountMessageRegistry, $rootScope, OAUTH_DEFAULT_MESSAGES, OAUTH_UNKNOWN_MESSAGE) {
       this.$rootScope = $rootScope;
@@ -165,10 +163,6 @@ describe('The Account Angular Services', function() {
 
   describe('The accountService service', function() {
 
-    beforeEach(function() {
-      module('linagora.esn.account');
-    });
-
     beforeEach(angular.mock.inject(function(accountService, $httpBackend, $rootScope) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
@@ -190,6 +184,28 @@ describe('The Account Angular Services', function() {
         this.accountService.getAccounts(options);
         this.$rootScope.$apply();
         this.$httpBackend.flush();
+      });
+    });
+  });
+
+  describe('The socialHelper service', function() {
+
+    beforeEach(angular.mock.inject(function(socialHelper, $rootScope) {
+      this.$rootScope = $rootScope;
+      this.$scope = $rootScope.$new();
+      this.socialHelper = socialHelper;
+    }));
+
+    describe('The socialHelper function', function() {
+      it('should translate OAUTH_SOCIAL_MESSAGES correctly', function() {
+        var expectedResult = {
+          denied: 'You denied access to your google account',
+          error: 'An error occured while accessing to your google account',
+          updated: 'Your google account has been updated',
+          created: 'Your google account has been successfully linked'
+        };
+        var message = this.socialHelper.getAccountMessages('google');
+        expect(message).to.deep.equal(expectedResult);
       });
     });
   });
