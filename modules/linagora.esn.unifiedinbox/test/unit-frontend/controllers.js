@@ -11,7 +11,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
       mailboxesService, inboxEmailService, _, JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
-      ELEMENTS_PER_PAGE;
+      ELEMENTS_PER_PAGE, windowMock;
 
   beforeEach(function() {
     $stateParams = {
@@ -32,6 +32,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     $state = {
       go: sinon.spy()
     };
+    windowMock = {
+      open: sinon.spy()
+    };
     $modal = sinon.spy();
 
     angular.mock.module('esn.core');
@@ -41,6 +44,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient = {};
       $provide.value('withJmapClient', function(callback) {
         return callback(jmapClient);
+      });
+      $provide.decorator('$window', function($delegate) {
+        return angular.extend($delegate, windowMock);
       });
       $provide.value('$stateParams', $stateParams);
       $provide.value('notificationFactory', notificationFactory);
@@ -1028,6 +1034,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('recipientsFullscreenEditFormController');
 
       expect(headerService.subHeader.setVisibleMD).to.have.been.called;
+    });
+
+  });
+
+  describe('The attachmentController', function() {
+
+    describe('the download function', function() {
+
+      it('should call $window.open', function() {
+        initController('attachmentController').download({url: 'url'});
+
+        expect(windowMock.open).to.have.been.calledWith('url');
+      });
     });
 
   });

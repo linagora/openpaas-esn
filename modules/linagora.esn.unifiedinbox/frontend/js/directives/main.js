@@ -180,6 +180,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('attachmentDownloadAction', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl:'/unifiedinbox/views/attachment/attachment-download-action.html'
+    };
+  })
+
   .directive('inboxAttachment', function() {
     return {
       restrict: 'E',
@@ -187,7 +195,9 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         attachment: '='
       },
-      templateUrl: '/unifiedinbox/views/partials/inbox-attachment.html'
+      controller: 'attachmentController',
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/attachment/inbox-attachment.html'
     };
   })
 

@@ -331,4 +331,10 @@ angular.module('linagora.esn.unifiedinbox')
 
     headerService.subHeader.setInjection('fullscreen-edit-form-subheader', $scope);
     headerService.subHeader.setVisibleMD();
+  })
+
+  .controller('attachmentController', function($window) {
+    this.download = function(attachment) {
+      $window.open(attachment.url);
+    };
   });

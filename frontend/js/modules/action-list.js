@@ -3,10 +3,11 @@
 angular.module('esn.actionList', [])
 
   .directive('actionList', function($modal, $popover, screenSize) {
+    var dialogOpened;
+
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
-        var dialogOpened;
         function close() {
           if (dialogOpened) {
             dialogOpened.destroy();

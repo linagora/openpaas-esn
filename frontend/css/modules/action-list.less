@@ -1,4 +1,5 @@
-@action-list-icon-color: #4C4C4C;
+@action-list-icon-color: lighten(@secondaryTextColor, 10%);
+@action-list-icon-color-dark: darken(@action-list-icon-color, 30%);
 
 .action-list {
   .flex();
@@ -30,9 +31,9 @@
       }
 
       &:hover {
-        color: darken(@action-list-icon-color, 15%);
+        color: @action-list-icon-color-dark;
         .label {
-          color: darken(@action-list-icon-color, 15%);
+          color: @action-list-icon-color-dark;
         }
       }
     }
@@ -50,5 +51,9 @@
     // Without a fixed width there, the action-list can be rendered too tight
     max-width: 300px;
     width: 300px;
+
+    .popover-content {
+      padding: 4px 9px;
+    }
   }
 }

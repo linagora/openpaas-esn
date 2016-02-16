@@ -204,6 +204,11 @@
   flex-shrink: @shrink;
 }
 
+.flex-grow(@grow: 1) {
+  -webkit-flex-grow: @grow;
+  flex-grow: @grow;
+}
+
 .flex-noshrink {
   .flex();
   .flex-shrink(0);
