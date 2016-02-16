@@ -2,33 +2,50 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .service('jmapClientProvider', function($q, $http, $log, jmap, dollarHttpTransport, dollarQPromiseProvider) {
+  .factory('getJmapConfig', function($http, $q) {
+    var config;
 
-    var deferred = $q.defer();
+    return function() {
+      if (config) {
+        return $q.when(config);
+      }
 
-    $q.all([
-      $http.get('/unifiedinbox/api/inbox/jmap-config'),
-      $http.post('/api/jwt/generate')
-    ]).then(function(responses) {
-      deferred.resolve(new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-        .withAPIUrl(responses[0].data.api)
-        .withAuthenticationToken('Bearer ' + responses[1].data));
+      return $http.get('/unifiedinbox/api/inbox/jmap-config').then(function(resp) {
+        config = resp.data;
+        return config;
+      });
+    };
+  })
+
+  .factory('generateJwtToken', function($http, $q, $log, _) {
+    return function() {
+      return $http.post('/api/jwt/generate').then(_.property('data'));
+    };
+  })
+
+  .service('jmapClientProvider', function($q, $http, $log, jmap, dollarHttpTransport, dollarQPromiseProvider, getJmapConfig, generateJwtToken) {
+    var promise = $q.all([getJmapConfig(), generateJwtToken()]).then(function(data) {
+      return {
+        jmapConfig: data[0],
+        jmapClient: new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+          .withAPIUrl(data[0].api)
+          .withAuthenticationToken('Bearer ' + data[1])
+      };
     }, function(err) {
-      deferred.reject(new Error(err));
-    });
-
-    deferred.promise.catch(function(err) {
       $log.error('Cannot build the jmap-client', err);
+      return $q.reject(err);
     });
 
     return {
-      promise: deferred.promise
+      promise: promise
     };
   })
 
   .factory('withJmapClient', function(jmapClientProvider) {
     return function(callback) {
-      return jmapClientProvider.promise.then(callback, callback.bind(null, null));
+      return jmapClientProvider.promise.then(function(data) {
+        return callback(data.jmapClient, data.jmapConfig);
+      }, callback.bind(null, null, null));
     };
   })
 
@@ -134,7 +151,50 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, $http, emailService, deviceDetector, jmap, _, emailBodyService) {
+  .factory('sendEmail', function($http, $q, $log, getJmapConfig, withJmapClient, jmapHelper) {
+    return function(email) {
+      return withJmapClient(function(client, config) {
+        if (config.isJmapSendingEnabled) {
+          return client.send(jmapHelper.toOutboundMessage(client, email));
+        } else {
+          return $http.post('/unifiedinbox/api/inbox/sendemail', email);
+        }
+      });
+    };
+  })
+
+  .factory('jmapHelper', function(jmap, session, emailBodyService) {
+    function _mapToNameEmailTuple(recipients) {
+      return (recipients || []).map(function(recipient) {
+        return {
+          name: recipient.name,
+          email: recipient.email
+        };
+      });
+    }
+
+    function toOutboundMessage(jmapClient, emailState) {
+      var message = {
+        from: new jmap.EMailer({
+          email: session.user.preferredEmail,
+          name: session.user.name
+        }),
+        subject: emailState.subject,
+        to: _mapToNameEmailTuple(emailState.to),
+        cc: _mapToNameEmailTuple(emailState.cc),
+        bcc: _mapToNameEmailTuple(emailState.bcc)
+      };
+      message[emailBodyService.bodyProperty] = emailState[emailBodyService.bodyProperty];
+
+      return new jmap.OutboundMessage(jmapClient, message);
+    }
+
+    return {
+      toOutboundMessage: toOutboundMessage
+    };
+  })
+
+  .factory('emailSendingService', function($q, $http, emailService, deviceDetector, jmap, _, emailBodyService, sendEmail) {
 
     /**
      * Set the recipient.email and recipient.name fields to recipient.displayName if they are undefined.
@@ -211,22 +271,6 @@ angular.module('linagora.esn.unifiedinbox')
      */
     function noRecipient(email) {
       return _countRecipients(email) === 0;
-    }
-
-    /**
-     * This method MUST be modified in the future to leverage a send function provided by JMAPClient
-     * The code here MUST not be clean so as to be changed in the future
-     */
-    function sendEmail(email) {
-      var defer = $q.defer();
-      $http.post('/unifiedinbox/api/inbox/sendemail', email)
-        .success(function(data) {
-          defer.resolve(data);
-        })
-        .error(function(reason) {
-          defer.reject(reason);
-        });
-      return defer.promise;
     }
 
     function prefixSubject(subject, prefix) {
@@ -341,7 +385,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _) {
+  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _, jmapHelper) {
 
     function haveDifferentRecipients(left, right) {
       return _.xor(_.map(left, 'email'), _.map(right, 'email')).length > 0;
@@ -349,15 +393,6 @@ angular.module('linagora.esn.unifiedinbox')
 
     function haveDifferentBodies(original, newest) {
       return trim(original[emailBodyService.bodyProperty]) !== trim(newest[emailBodyService.bodyProperty]);
-    }
-
-    function mapToNameEmailTuple(recipients) {
-      return (recipients || []).map(function(recipient) {
-        return {
-          name: recipient.name,
-          email: recipient.email
-        };
-      });
     }
 
     function trim(value) {
@@ -387,20 +422,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       return asyncJmapAction('Saving your email as draft', function(client) {
-        var draft = {
-          from: new jmap.EMailer({
-            email: session.user.preferredEmail,
-            name: session.user.name
-          }),
-          subject: newEmailState.subject,
-          to: mapToNameEmailTuple(newEmailState.to),
-          cc: mapToNameEmailTuple(newEmailState.cc),
-          bcc: mapToNameEmailTuple(newEmailState.bcc)
-        };
-
-        draft[emailBodyService.bodyProperty] = newEmailState[emailBodyService.bodyProperty];
-
-        return client.saveAsDraft(new jmap.OutboundMessage(client, draft));
+        return client.saveAsDraft(jmapHelper.toOutboundMessage(client, newEmailState));
       });
     };
 
