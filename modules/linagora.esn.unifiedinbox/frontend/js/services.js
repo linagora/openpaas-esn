@@ -412,6 +412,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('newComposerService', function($state, boxOverlayOpener, deviceDetector) {
+    var defaultTitle = 'Compose an email';
 
     function choseByPlatform(small, others) {
       deviceDetector.isMobile() ? small() : others();
@@ -428,7 +429,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     function newBoxedComposer() {
       boxOverlayOpener.open({
-        title: 'Compose an email',
+        title: defaultTitle,
         templateUrl: '/unifiedinbox/views/composer/box-compose.html'
       });
     }
@@ -458,7 +459,7 @@ angular.module('linagora.esn.unifiedinbox')
       openEmailCustomTitle: function(title, email) {
         choseByPlatform(
           newMobileComposer.bind(this, email),
-          newBoxedComposerCustomTitle.bind(this, title, email)
+          newBoxedComposerCustomTitle.bind(this, title || defaultTitle, email)
         );
       }
     };
