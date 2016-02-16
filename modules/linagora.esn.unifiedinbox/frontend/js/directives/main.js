@@ -154,12 +154,13 @@ angular.module('linagora.esn.unifiedinbox')
         scope.$on('iframe:loaded', function(event, iFrame) {
           var iFrameDocument = iFrame.contentDocument;
 
-          iFrameDocument.body.appendChild(createHtmlElement('script', {src: '/components/iframe-resizer/js/iframeResizer.contentWindow.js'}));
-          iFrameDocument.head.appendChild(createHtmlElement('base', {target: '_blank'}));
+          iFrameDocument.body.appendChild(createHtmlElement('script', { src: '/components/iframe-resizer/js/iframeResizer.contentWindow.js' }));
+          iFrameDocument.body.appendChild(createHtmlElement('script', { src: '/unifiedinbox/js/helpers/load-images-async.js' }));
+          iFrameDocument.head.appendChild(createHtmlElement('base', { target: '_blank' }));
 
           iFrames = iFrameResize({
             checkOrigin: false,
-            scrolling: false,
+            scrolling: true,
             inPageLinks: true,
             heightCalculationMethod: 'documentElementOffset',
             resizedCallback: function() {
