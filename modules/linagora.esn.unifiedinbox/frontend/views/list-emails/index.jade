@@ -8,15 +8,18 @@
       .lv-body
         .lv-item.media(ng-repeat="email in group.elements")
           div.clickable(ng-click="ctrl.openEmail(email)")
+            .list-image.avatarify
+              //- empty img tag, to force the avatar display
+              img
             .media-body(ng-class="::{bold: email.isUnread}")
-              .lv-title.text-right.pull-right-sm
-                i.email-status-icon.mdi.mdi-attachment(ng-if='::email.hasAttachment')
-                email-star(email='email')
-                span.date {{::email.date | date: group.dateFormat}}
-              .avatarify
-                .lv-title {{::email.subject}}
+              .flex-space-between
+                .lv-title.ellipsis {{::email.subject}}
+                .date-container {{::email.date | date: group.dateFormat}}
+              .flex-space-between
                 emailer.lv-title(emailer="::email.from")
-                .clearfix
+                .indicators
+                  i.email-status-icon.mdi.mdi-attachment(ng-if='::email.hasAttachment')
+                  email-star(email='email')
             .lv-small.preview {{::email.preview}}
 
   inbox-fab
