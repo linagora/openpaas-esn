@@ -36,6 +36,22 @@ describe('The event-date-edition component', function() {
       expect(this.eleScope.diff).to.deep.equal(3600000);
     });
 
+    it('should clone event start and end on input blur', function() {
+      this.$scope.event = {
+        start: this.fcMoment('2016-02-16 17:30'),
+        end: this.fcMoment('2016-02-16 18:30')
+      };
+      var element = this.initDirective(this.$scope);
+      var startBeforeBlur = this.$scope.event.start;
+      var endBeforeBlur = this.$scope.event.end;
+      var input = element.find('input');
+      input.blur();
+      expect(this.$scope.event.start).to.not.equal(startBeforeBlur);
+      expect(this.$scope.event.end).to.not.equal(endBeforeBlur);
+      expect(this.$scope.event.start.isSame(startBeforeBlur)).to.be.true;
+      expect(this.$scope.event.end.isSame(endBeforeBlur)).to.be.true;
+    });
+
     describe('scope.setEventDates', function() {
       it('should stripTime scope.event.allDay is true and add a day', function() {
         this.$scope.event = {
