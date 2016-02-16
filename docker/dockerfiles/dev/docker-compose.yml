@@ -1,0 +1,37 @@
+version: '2'
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: linagora/esn-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - REPLICATE_NAME=esn
+      - OPLOG_SIZE=128
+
+  elasticsearch:
+    image: linagora/esn-elasticsearch:latest
+    ports:
+      - "9200:9200"
+
+  sabre:
+    image: linagora/esn-sabre
+    ports:
+      - "8001:80"
+    links:
+      - mongo
+    environment:
+      - HAS_OWN_MONGO=true
+      - SABRE_MONGO_HOST=mongo
+      - SABRE_MONGO_PORT=27017
+      - ESN_MONGO_HOST=mongo
+      - ESN_MONGO_PORT=27017
+      - ESN_MONGO_DBNAME=esn_docker
+      - ESN_HOST=esn
+      - ESN_PORT=8080
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
