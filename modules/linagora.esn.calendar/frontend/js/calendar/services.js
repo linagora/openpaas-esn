@@ -358,7 +358,7 @@ angular.module('esn.calendar')
         gracePeriodLiveNotification.registerListeners(taskId, function() {
           gracePeriodService.remove(taskId);
           notifyService({
-            message: 'Could not modify the event, it may have been modified by an external source. Please refresh your calendar.'
+            message: 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.'
           }, {
             type: 'danger',
             placement: {
