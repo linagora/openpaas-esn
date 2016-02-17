@@ -32,10 +32,7 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
         'constants.js',
         'controllers.js',
         'directives.js',
-        'services.js',
-        'providers/twitter/twitter.js',
-        'providers/twitter/constants.js',
-        'providers/twitter/directives.js'
+        'services.js'
       ];
 
       var webserverWrapper = dependencies('webserver-wrapper');

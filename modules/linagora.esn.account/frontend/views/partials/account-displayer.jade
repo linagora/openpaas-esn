@@ -1,2 +1,3 @@
 div(ng-switch='account.provider')
-  twitter-account(ng-switch-when='twitter', account='account')
+  social-account(ng-switch-when='twitter', type='twitter', account='account')
+  social-account(ng-switch-when='google', type='google', account='account')

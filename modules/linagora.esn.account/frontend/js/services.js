@@ -62,4 +62,17 @@ angular.module('linagora.esn.account')
         animation: 'am-flip-x'
       });
     };
+  })
+
+  .factory('socialHelper', function(OAUTH_SOCIAL_MESSAGES, _) {
+    function getAccountMessages(type) {
+      var message = {};
+      _.forIn(OAUTH_SOCIAL_MESSAGES, function(value, key) {
+        message[key] = value.replace('social', type);
+      });
+      return message;
+    }
+    return {
+      getAccountMessages: getAccountMessages
+    };
   });
