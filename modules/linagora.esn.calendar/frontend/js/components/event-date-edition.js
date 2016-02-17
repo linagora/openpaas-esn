@@ -4,9 +4,20 @@ angular.module('esn.calendar')
   .directive('eventDateEdition', function(fcMoment) {
     function link(scope) {
       scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
-      scope.dateOnBlur = scope.dateOnBlur || function() {};
-      scope.allDayOnChange = scope.allDayOnChange || function() {};
 
+      function cloneDates() {
+        //this is used to re-update views from the model in case the view is cleared
+        scope.event.start = scope.event.start.clone();
+        scope.event.end = scope.event.end.clone();
+      }
+      scope._dateOnBlur = function() {
+        cloneDates();
+        if (angular.isFunction(scope.dateOnBlur)) {
+          scope.dateOnBlur.apply(this, arguments);
+        }
+      };
+
+      scope.allDayOnChange = scope.allDayOnChange || function() {};
       scope.allDay = scope.event.allDay;
 
       scope.getMinDate = function() {
