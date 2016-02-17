@@ -65,6 +65,7 @@
     "passport-local": "^1.0.0",
     "passport-oauth2-client-password": "~0.1.1",
     "passport-twitter": "1.0.3",
+    "passport-google-oauth": "1.0.0",
     "q": "~1.0.0",
     "randomstring": "~1.0.3",
     "recaptcha": "~1.2.0",

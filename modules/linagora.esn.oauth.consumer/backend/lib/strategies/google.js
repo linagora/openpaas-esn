@@ -2,7 +2,8 @@
 
 var OAUTH_CONFIG_KEY = 'oauth';
 var passport = require('passport');
-var TwitterStrategy = require('passport-twitter').Strategy;
+var refresh = require('passport-oauth2-refresh');
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 module.exports = function(dependencies) {
 
@@ -18,32 +19,30 @@ module.exports = function(dependencies) {
         return callback(err);
       }
 
-      if (!oauth || !oauth.twitter || !oauth.twitter.consumer_key || !oauth.twitter.consumer_secret) {
-        return callback(new Error('Twitter OAuth is not configured'));
+      if (!oauth || !oauth.google || !oauth.google.client_id || !oauth.google.client_secret) {
+        return callback(new Error('Google OAuth is not configured'));
       }
-
-      passport.use('twitter-authz', new TwitterStrategy({
-          consumerKey: oauth.twitter.consumer_key,
-          consumerSecret: oauth.twitter.consumer_secret,
+      var strategy = new GoogleStrategy({
+          clientID: oauth.google.client_id,
+          clientSecret: oauth.google.client_secret,
+          callbackURL: '/oauth/google/connect/callback',
           passReqToCallback: true
         },
-        function(req, token, tokenSecret, profile, callback) {
-
+        function(req, accessToken, refreshToken, profile, callback) {
           if (!req.user) {
             logger.error('Not Logged in');
-            logger.debug('TODO: Add authenticate based on twitter account data and local user data');
-            return callback(new Error('Can not authorize twitter without being logged in'));
+            return callback(new Error('Can not authorize without being logged in'));
           }
 
           var account = {
             type: 'oauth',
             data: {
-              provider: 'twitter',
+              provider: 'google',
               id: profile.id,
-              username: profile.username,
+              username: profile.displayName,
               display_name: profile.displayName,
-              token: token,
-              token_secret: tokenSecret
+              token: accessToken,
+              refreshToken: refreshToken
             }
           };
 
@@ -58,7 +57,9 @@ module.exports = function(dependencies) {
             req.user = result.user;
             return callback(null, req.user);
           });
-        }));
+        });
+      passport.use('google-authz', strategy);
+      refresh.use('google-authz', strategy);
 
       callback();
     });
@@ -68,3 +69,4 @@ module.exports = function(dependencies) {
     configure: configure
   };
 };
+
