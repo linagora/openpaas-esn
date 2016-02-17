@@ -232,14 +232,14 @@ describe('The esn.activitystream Angular module', function() {
         expect(this.api).to.respondTo('get');
       });
 
-      it('should send a request GET /activitystreams/:uuid', function() {
-        this.$httpBackend.expectGET('/activitystreams/test').respond([]);
+      it('should send a request GET /api/activitystreams/:uuid', function() {
+        this.$httpBackend.expectGET('/api/activitystreams/test').respond([]);
         this.api.get('test');
         this.$httpBackend.flush();
       });
 
-      it('should send a request GET /activitystreams/:uuid, allowing passing some options', function() {
-        this.$httpBackend.expectGET('/activitystreams/test?before=someID&limit=30').respond([]);
+      it('should send a request GET /api/activitystreams/:uuid, allowing passing some options', function() {
+        this.$httpBackend.expectGET('/api/activitystreams/test?before=someID&limit=30').respond([]);
         this.api.get('test', {before: 'someID', limit: 30});
         this.$httpBackend.flush();
       });
@@ -521,16 +521,7 @@ describe('The esn.activitystream Angular module', function() {
           $provide.value('restcursor', self.restcursor);
           $provide.value('activitystreamOriginDecorator', self.activitystreamOriginDecorator);
         });
-        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
-          Restangular.setFullResponse(true);
-          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3&ids%5B%5D=msg4&ids%5B%5D=msg5')
-          .respond([
-              {_id: 'msg3', content: 'message msg3'},
-              {_id: 'msg1', content: 'message msg1'},
-              {_id: 'msg2', content: 'message msg2'},
-              {_id: 'msg4', content: 'message msg4'},
-              {_id: 'msg5', content: 'message msg5'}
-            ]);
+        inject(function(activityStreamUpdates, $rootScope) {
           activityStreamUpdates('0987654321', scope).then(
             function() {
               expect(scope.threads).to.have.length(5);
@@ -545,7 +536,7 @@ describe('The esn.activitystream Angular module', function() {
           ).catch(function(err) {
             throw err;
           });
-          $httpBackend.flush();
+          $rootScope.$digest();
         });
       });
 
@@ -577,15 +568,7 @@ describe('The esn.activitystream Angular module', function() {
           $provide.value('restcursor', self.restcursor);
           $provide.value('activitystreamOriginDecorator', self.activitystreamOriginDecorator);
         });
-        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
-          Restangular.setFullResponse(true);
-          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3&ids%5B%5D=msg5')
-          .respond([
-            {_id: 'msg1', contgent: 'message msg1'},
-            {_id: 'msg5', contgent: 'message msg5'},
-            {_id: 'msg3', contgent: 'message msg3'},
-            {_id: 'msg2', contgent: 'message msg2'}
-          ]);
+        inject(function(activityStreamUpdates, $rootScope) {
           activityStreamUpdates('0987654321', scope).then(
             function() {
               expect(scope.threads).to.have.length(4);
@@ -599,7 +582,7 @@ describe('The esn.activitystream Angular module', function() {
           ).catch(function(err) {
             throw err;
           });
-          $httpBackend.flush();
+          $rootScope.$digest();
         });
       });
 
@@ -669,24 +652,7 @@ describe('The esn.activitystream Angular module', function() {
           $provide.value('restcursor', self.restcursor);
           $provide.value('activitystreamOriginDecorator', self.activitystreamOriginDecorator);
         });
-        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
-          Restangular.setFullResponse(true);
-          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3&ids%5B%5D=msg4&ids%5B%5D=msg18&ids%5B%5D=msg14')
-          .respond([
-            {_id: 'msg1', contgent: 'message msg1'},
-            {_id: 'msg3', contgent: 'message msg3'},
-            {_id: 'msg2', contgent: 'message msg2'},
-            {_id: 'msg4', contgent: 'message msg4'},
-            {_id: 'msg14', contgent: 'message msg14'},
-            {_id: 'msg18', contgent: 'message msg18'}
-          ]);
-          $httpBackend.expectGET('/messages?ids%5B%5D=msg14&ids%5B%5D=msg2&ids%5B%5D=msg18')
-          .respond([
-            {_id: 'msg2', contgent: 'message msg2'},
-            {_id: 'msg14', contgent: 'message msg14'},
-            {_id: 'msg18', contgent: 'message msg18'}
-          ]);
-
+        inject(function(activityStreamUpdates, $rootScope) {
           activityStreamUpdates('0987654321', scope).then(
             function() {
               expect(scope.threads).to.have.length(6);
@@ -702,7 +668,7 @@ describe('The esn.activitystream Angular module', function() {
           ).catch(function(err) {
             throw err;
           });
-          $httpBackend.flush();
+          $rootScope.$digest();
         });
       });
     });

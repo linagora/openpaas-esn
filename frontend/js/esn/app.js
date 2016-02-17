@@ -70,7 +70,7 @@ angular.module('esnApp', [
   'esn.actionList',
   'esn.application-menu',
   'esn.router'
-].concat(angularInjections)).config(function(RestangularProvider, routeResolver, $urlRouterProvider, $stateProvider) {
+].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
   $urlRouterProvider.otherwise(function($injector, $location) {
@@ -194,8 +194,6 @@ angular.module('esnApp', [
     }
   });
 
-  RestangularProvider.setBaseUrl('/api');
-  RestangularProvider.setFullResponse(true);
 })
 // don't remove $state from here or ui-router won't route...
 .run(function(session, ioConnectionManager, editableOptions, $state) {

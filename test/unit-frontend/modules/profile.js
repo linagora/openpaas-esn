@@ -20,8 +20,8 @@ describe('The Profile Angular module', function() {
         this.fieldValue = 'fieldValue';
       }));
 
-      it('should send a request to /user/profile/fieldName', function() {
-        this.$httpBackend.expectPUT('/user/profile/' + this.fieldName).respond();
+      it('should send a request to /api/user/profile/fieldName', function() {
+        this.$httpBackend.expectPUT('/api/user/profile/' + this.fieldName).respond();
         this.profileAPI.updateProfileField(this.fieldName, this.fieldValue);
         this.$httpBackend.flush();
       });

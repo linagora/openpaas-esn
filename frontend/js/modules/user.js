@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('esn.user', ['restangular', 'esn.object-type'])
-  .run(function(objectTypeResolver, userAPI, Restangular) {
+angular.module('esn.user', ['esn.http', 'esn.object-type'])
+  .run(function(objectTypeResolver, userAPI, esnRestangular) {
     objectTypeResolver.register('user', userAPI.user);
-    Restangular.extendModel('users', function(model) {
+    esnRestangular.extendModel('users', function(model) {
       model.url = function(user) {
         return '/#/profile/' + user._id || user;
       };
@@ -19,23 +19,23 @@ angular.module('esn.user', ['restangular', 'esn.object-type'])
       return model;
     });
   })
-  .factory('userAPI', function(Restangular) {
+  .factory('userAPI', function(esnRestangular) {
 
     function currentUser() {
-      return Restangular.one('user').get();
+      return esnRestangular.one('user').get();
     }
 
     function user(uuid) {
-      return Restangular.one('users', uuid).get();
+      return esnRestangular.one('users', uuid).get();
     }
 
     function getCommunities() {
-      return Restangular.one('user').all('communities').getList();
+      return esnRestangular.one('user').all('communities').getList();
     }
 
     function getActivityStreams(options) {
       options = options || {};
-      return Restangular.one('user').all('activitystreams').getList(options);
+      return esnRestangular.one('user').all('activitystreams').getList(options);
     }
 
     return {

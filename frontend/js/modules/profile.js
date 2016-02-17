@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.session'])
+angular.module('esn.profile', ['esn.http', 'openpaas-logo', 'esn.user', 'esn.session'])
   .config(function(dynamicDirectiveServiceProvider) {
     var profile = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-profile', {priority: 20});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', profile);
@@ -138,12 +138,12 @@ angular.module('esn.profile', ['restangular', 'openpaas-logo', 'esn.user', 'esn.
 
   })
 
-  .factory('profileAPI', function(Restangular) {
+  .factory('profileAPI', function(esnRestangular) {
     function updateProfileField(fieldName, fieldValue) {
       var payload = {
         value: fieldValue
       };
-      return Restangular.one('user/profile', fieldName).customPUT(payload);
+      return esnRestangular.one('user/profile', fieldName).customPUT(payload);
     }
 
     return {

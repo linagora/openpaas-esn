@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('esn.company', ['restangular'])
-.factory('companyAPI', function(Restangular) {
+angular.module('esn.company', ['esn.http'])
+.factory('companyAPI', function(esnRestangular) {
   function search(searchQuery) {
-    return Restangular.all('companies').getList(searchQuery);
+    return esnRestangular.all('companies').getList(searchQuery);
   }
 
   return {

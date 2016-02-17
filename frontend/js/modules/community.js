@@ -5,7 +5,7 @@ angular.module('esn.community', [
   'esn.session',
   'esn.user',
   'esn.avatar',
-  'restangular',
+  'esn.http',
   'mgcrea.ngStrap.alert',
   'mgcrea.ngStrap.tooltip',
   'angularFileUpload',
@@ -26,10 +26,10 @@ angular.module('esn.community', [
     var community = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-community', {priority: 30});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', community);
   })
-  .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
+  .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, esnRestangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);
     objectTypeAdapter.register('community', communityAdapterService);
-    Restangular.extendModel('communities', function(model) {
+    esnRestangular.extendModel('communities', function(model) {
       return communityAdapterService(model);
     });
     ASTrackerSubscriptionService.register('community', {get: communityAPI.get});
@@ -44,24 +44,24 @@ angular.module('esn.community', [
       return community;
     };
   })
-  .factory('communityAPI', function(Restangular, $http, $upload) {
+  .factory('communityAPI', function(esnRestangular, $http, $upload) {
 
     function list(domain, options) {
       var query = options || {};
       query.domain_id = domain;
-      return Restangular.all('communities').getList(query);
+      return esnRestangular.all('communities').getList(query);
     }
 
     function get(id) {
-      return Restangular.one('communities', id).get();
+      return esnRestangular.one('communities', id).get();
     }
 
     function del(id) {
-      return Restangular.one('communities', id).remove();
+      return esnRestangular.one('communities', id).remove();
     }
 
     function create(body) {
-      return Restangular.all('communities').post(body);
+      return esnRestangular.all('communities').post(body);
     }
 
     function uploadAvatar(id, blob, mime) {
@@ -76,7 +76,7 @@ angular.module('esn.community', [
     }
 
     function getMember(id, member) {
-      return Restangular.one('communities', id).one('members', member).get();
+      return esnRestangular.one('communities', id).one('members', member).get();
     }
 
     return {

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.collaboration', ['restangular', 'esn.notification'])
+angular.module('esn.collaboration', ['esn.http', 'esn.notification'])
   .factory('collaborationService', function() {
 
     function isManager(collaboration, user) {
@@ -11,43 +11,43 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       isManager: isManager
     };
   })
-  .factory('collaborationAPI', function(Restangular) {
+  .factory('collaborationAPI', function(esnRestangular) {
     function getWhereMember(tuple) {
-      return Restangular.all('collaborations/membersearch').getList(tuple);
+      return esnRestangular.all('collaborations/membersearch').getList(tuple);
     }
 
     function getMembers(objectType, id, options) {
-      return Restangular.one('collaborations').one(objectType, id).all('members').getList(options);
+      return esnRestangular.one('collaborations').one(objectType, id).all('members').getList(options);
     }
 
     function getMember(objectType, id, member) {
-      return Restangular.one('collaborations').one(objectType, id).one('members', member).get();
+      return esnRestangular.one('collaborations').one(objectType, id).one('members', member).get();
     }
 
     function getInvitablePeople(objectType, id, options) {
       var query = options || {};
-      return Restangular.one('collaborations').one(objectType, id).all('invitablepeople').getList(query);
+      return esnRestangular.one('collaborations').one(objectType, id).all('invitablepeople').getList(query);
     }
 
     function requestMembership(objectType, id, member) {
-      return Restangular.one('collaborations').one(objectType, id).one('membership', member).put();
+      return esnRestangular.one('collaborations').one(objectType, id).one('membership', member).put();
     }
 
     function cancelRequestMembership(objectType, id, member) {
-      return Restangular.one('collaborations').one(objectType, id).one('membership', member).remove();
+      return esnRestangular.one('collaborations').one(objectType, id).one('membership', member).remove();
     }
 
     function join(objectType, id, member) {
-      return Restangular.one('collaborations').one(objectType, id).one('members', member).put();
+      return esnRestangular.one('collaborations').one(objectType, id).one('members', member).put();
     }
 
     function leave(objectType, id, member) {
-      return Restangular.one('collaborations').one(objectType, id).one('members', member).remove();
+      return esnRestangular.one('collaborations').one(objectType, id).one('members', member).remove();
     }
 
     function getRequestMemberships(objectType, id, options) {
       var query = options || {};
-      return Restangular.one('collaborations').one(objectType, id).all('membership').getList(query);
+      return esnRestangular.one('collaborations').one(objectType, id).all('membership').getList(query);
     }
 
     return {

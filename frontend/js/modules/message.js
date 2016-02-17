@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'restangular', 'mgcrea.ngStrap',
+angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
   .controller('messageEditionController', function($scope) {
@@ -888,13 +888,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       deleteAttachments: deleteAttachments
     };
   })
-  .factory('messageAPI', function(Restangular) {
+  .factory('messageAPI', function(esnRestangular) {
 
     function get(options) {
       if (angular.isString(options)) {
-        return Restangular.one('messages', options).get();
+        return esnRestangular.one('messages', options).get();
       }
-      return Restangular.all('messages').getList(options);
+      return esnRestangular.all('messages').getList(options);
     }
 
     function post(objectType, data, targets, attachments) {
@@ -908,7 +908,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         payload.object.attachments = attachments;
       }
 
-      return Restangular.all('messages').post(payload);
+      return esnRestangular.all('messages').post(payload);
     }
 
     function addComment(objectType, data, inReplyTo, attachments) {
@@ -921,7 +921,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         payload.object.attachments = attachments;
       }
 
-      return Restangular.all('messages').post(payload);
+      return esnRestangular.all('messages').post(payload);
     }
 
     function share(id, resource, targets) {
@@ -929,7 +929,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         resource: resource,
         target: targets
       };
-      return Restangular.one('messages', id).all('shares').post(payload);
+      return esnRestangular.one('messages', id).all('shares').post(payload);
     }
 
     return {

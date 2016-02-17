@@ -1,18 +1,19 @@
 'use strict';
 
 angular.module('esn.project')
-.run(function(objectTypeResolver, objectTypeAdapter, projectAPI, projectAdapterService, Restangular) {
+.run(function(objectTypeResolver, objectTypeAdapter, projectAPI, projectAdapterService) {
   objectTypeResolver.register('project', projectAPI.get);
   objectTypeAdapter.register('project', projectAdapterService);
-  Restangular.extendModel('project', function(model) {
-    return projectAdapterService(model);
-  });
 })
-.factory('ProjectRestangular', function(Restangular) {
-  return Restangular.withConfig(function(RestangularConfigurer) {
+.factory('ProjectRestangular', function(Restangular, projectAdapterService) {
+  var projectRestangular = Restangular.withConfig(function(RestangularConfigurer) {
     RestangularConfigurer.setBaseUrl('/project/api');
     RestangularConfigurer.setFullResponse(true);
   });
+  projectRestangular.extendModel('project', function(model) {
+    return projectAdapterService(model);
+  });
+  return projectRestangular;
 })
 .factory('projectAdapterService', function() {
   return function(project) {

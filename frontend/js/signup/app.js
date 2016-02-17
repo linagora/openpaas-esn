@@ -4,10 +4,10 @@ var angularInjections = angularInjections || [];
 
 angular.module('signupApp', [
   'esn.invitation',
-  'restangular',
+  'esn.http',
   'ngRoute'
   ].concat(angularInjections))
-  .config(function($routeProvider, RestangularProvider) {
+  .config(function($routeProvider) {
 
     $routeProvider.when('/', {
       templateUrl: '/views/signup/partials/create',
@@ -36,6 +36,4 @@ angular.module('signupApp', [
         }
       }
     });
-
-    RestangularProvider.setBaseUrl('/api');
   });

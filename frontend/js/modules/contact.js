@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
+angular.module('esn.contact', ['esn.http', 'openpaas-logo', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
   .controller('contactsController', function($scope, contactAPI, session, $alert, usSpinnerService, user) {
     var spinnerKey = 'addressbooksSpinner';
     var contactsSpinnerKey = 'contactsSpinner';
@@ -181,30 +181,30 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
       });
     };
   })
-  .factory('contactAPI', function(Restangular) {
+  .factory('contactAPI', function(esnRestangular) {
     return {
       startGoogleImport: function() {
-        return Restangular.oneUrl('googlers', '/api/contacts/google/oauthurl').get();
+        return esnRestangular.oneUrl('googlers', '/api/contacts/google/oauthurl').get();
       },
       getContacts: function(options) {
-        return Restangular.all('contacts').getList(options);
+        return esnRestangular.all('contacts').getList(options);
       },
       getAddressBooks: function(options) {
-        return Restangular.all('addressbooks').getList(options);
+        return esnRestangular.all('addressbooks').getList(options);
       },
       getContactInvitations: function(contact) {
         var id = contact._id || contact;
-        return Restangular.one('contacts/' + id + '/invitations').getList();
+        return esnRestangular.one('contacts/' + id + '/invitations').getList();
       },
       getInvitations: function(options) {
-        return Restangular.all('contacts/invitations').getList(options);
+        return esnRestangular.all('contacts/invitations').getList(options);
       },
       sendInvitation: function(contact, domain) {
         var id = contact._id || contact;
         var body = {
           domain: domain._id || domain
         };
-        return Restangular.one('contacts/' + id + '/invitations').customPOST(body);
+        return esnRestangular.one('contacts/' + id + '/invitations').customPOST(body);
       }
     };
   });

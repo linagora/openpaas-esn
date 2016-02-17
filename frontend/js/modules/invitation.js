@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
+angular.module('esn.invitation', ['esn.http', 'esn.form.helper'])
 .controller('signup', function($scope, $location, invitationAPI) {
     $scope.settings = { firstname: '', lastname: '', email: ''};
     $scope.signupButton = {
@@ -107,18 +107,18 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
       );
     };
   })
-.factory('invitationAPI', function(Restangular) {
+.factory('invitationAPI', function(esnRestangular) {
 
   function get(id) {
-    return Restangular.one('invitations', id).get();
+    return esnRestangular.one('invitations', id).get();
   }
 
   function create(settings) {
-    return Restangular.all('invitations').post(settings);
+    return esnRestangular.all('invitations').post(settings);
   }
 
   function finalize(id, settings) {
-    return Restangular.one('invitations', id).customPUT(settings);
+    return esnRestangular.one('invitations', id).customPUT(settings);
   }
 
   return {

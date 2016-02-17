@@ -976,26 +976,26 @@ describe('The esn.message Angular module', function() {
     }));
 
     describe('get() method', function() {
-      it('should issue a GET /messages/:uuid if a string is given as argument', function() {
-        this.$httpBackend.expectGET('/messages/MSG1').respond({});
+      it('should issue a GET /api/messages/:uuid if a string is given as argument', function() {
+        this.$httpBackend.expectGET('/api/messages/MSG1').respond({});
         this.api.get('MSG1');
         this.$httpBackend.flush();
       });
 
-      it('should issue a GET /messages if an object is given as argument', function() {
-        this.$httpBackend.expectGET('/messages').respond([]);
+      it('should issue a GET /api/messages if an object is given as argument', function() {
+        this.$httpBackend.expectGET('/api/messages').respond([]);
         this.api.get({});
         this.$httpBackend.flush();
       });
 
       it('should allow passing parameters given as argument', function() {
-        this.$httpBackend.expectGET('/messages?foo=bar&test=true').respond([]);
+        this.$httpBackend.expectGET('/api/messages?foo=bar&test=true').respond([]);
         this.api.get({test: true, foo: 'bar'});
         this.$httpBackend.flush();
       });
 
       it('should tokenize array like parameters', function() {
-        this.$httpBackend.expectGET('/messages?test%5B%5D=foo&test%5B%5D=bar').respond([]);
+        this.$httpBackend.expectGET('/api/messages?test%5B%5D=foo&test%5B%5D=bar').respond([]);
         this.api.get({'test[]': ['foo', 'bar']});
         this.$httpBackend.flush();
       });
@@ -1021,12 +1021,12 @@ describe('The esn.message Angular module', function() {
           ]
         };
 
-        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.$httpBackend.expectPOST('/api/messages', message).respond();
         this.api.post(message.object.objectType, message.object, message.targets);
         this.$httpBackend.flush();
       });
 
-      it('should send a POST request to /messages with attachments', function() {
+      it('should send a POST request to /api/messages with attachments', function() {
         var attachments = [{id: 1}, {id: 2}];
         var object = {
           objectType: 'whatsup',
@@ -1045,12 +1045,12 @@ describe('The esn.message Angular module', function() {
         };
         message.object.attachments = attachments;
 
-        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.$httpBackend.expectPOST('/api/messages', message).respond();
         this.api.post(object.objectType, object, targets, attachments);
         this.$httpBackend.flush();
       });
 
-      it('should send a POST request to /messages without attachments when format is wrong', function() {
+      it('should send a POST request to /api/messages without attachments when format is wrong', function() {
         var attachments = {id: 1};
         var object = {
           objectType: 'whatsup',
@@ -1068,7 +1068,7 @@ describe('The esn.message Angular module', function() {
           targets: targets
         };
 
-        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.$httpBackend.expectPOST('/api/messages', message).respond();
         this.api.post(object.objectType, object, targets, attachments);
         this.$httpBackend.flush();
       });
@@ -1076,7 +1076,7 @@ describe('The esn.message Angular module', function() {
 
     describe('addComment method', function() {
 
-      it('should send a POST request to /messages', function() {
+      it('should send a POST request to /api/messages', function() {
         var message = {
           object: {
             objectType: 'whatsup',
@@ -1090,12 +1090,12 @@ describe('The esn.message Angular module', function() {
           ]
         };
 
-        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.$httpBackend.expectPOST('/api/messages', message).respond();
         this.api.addComment(message.object.objectType, message.object, message.inReplyTo);
         this.$httpBackend.flush();
       });
 
-      it('should send a POST request to /messages with attachments', function() {
+      it('should send a POST request to /api/messages with attachments', function() {
         var attachments = [{id: 1}, {id: 2}];
         var object = {
           objectType: 'whatsup',
@@ -1114,13 +1114,13 @@ describe('The esn.message Angular module', function() {
         };
         message.object.attachments = attachments;
 
-        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.$httpBackend.expectPOST('/api/messages', message).respond();
         this.api.addComment(object.objectType, object, inReplyTo, attachments);
         this.$httpBackend.flush();
       });
     });
 
-    it('should send a POST request to /messages without attachments when format is wrong', function() {
+    it('should send a POST request to /api/messages without attachments when format is wrong', function() {
       var attachments = {id: 1};
       var object = {
         objectType: 'whatsup',
@@ -1138,7 +1138,7 @@ describe('The esn.message Angular module', function() {
         inReplyTo: inReplyTo
       };
 
-      this.$httpBackend.expectPOST('/messages', message).respond();
+      this.$httpBackend.expectPOST('/api/messages', message).respond();
       this.api.addComment(object.objectType, object, inReplyTo, attachments);
       this.$httpBackend.flush();
     });

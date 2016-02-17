@@ -11,12 +11,9 @@ describe('The esn.contact Angular module', function() {
     beforeEach(function() {
       angular.mock.module('esn.contact');
     });
-    beforeEach(inject(function(contactAPI, $httpBackend, Restangular) {
+    beforeEach(inject(function(contactAPI, $httpBackend) {
       this.api = contactAPI;
       this.$httpBackend = $httpBackend;
-      // The full response configuration option has to be set at the application level
-      // It is set here to get the same behavior
-      Restangular.setFullResponse(true);
     }));
 
     describe('startGoogleImport method', function() {
@@ -28,92 +25,92 @@ describe('The esn.contact Angular module', function() {
     });
 
     describe('getContacts method', function() {
-      it('should send a request GET /contacts', function() {
-        this.$httpBackend.expectGET('/contacts').respond(200, []);
+      it('should send a request GET /api/contacts', function() {
+        this.$httpBackend.expectGET('/api/contacts').respond(200, []);
         this.api.getContacts();
         this.$httpBackend.flush();
       });
 
-      it('should send a request GET /contacts with the right options', function() {
+      it('should send a request GET /api/contacts with the right options', function() {
         var options = {
           limit: 100,
           offset: 25,
           address_books_id: ['id1', 'id2']
         };
-        this.$httpBackend.expectGET('/contacts?address_books_id=id1&address_books_id=id2&limit=100&offset=25').respond(200, []);
+        this.$httpBackend.expectGET('/api/contacts?address_books_id=id1&address_books_id=id2&limit=100&offset=25').respond(200, []);
         this.api.getContacts(options);
         this.$httpBackend.flush();
       });
     });
 
     describe('getAddressBooks method', function() {
-      it('should send a request GET /addressbooks', function() {
-        this.$httpBackend.expectGET('/addressbooks').respond(200, []);
+      it('should send a request GET /api/addressbooks', function() {
+        this.$httpBackend.expectGET('/api/addressbooks').respond(200, []);
         this.api.getAddressBooks();
         this.$httpBackend.flush();
       });
 
-      it('should send a request GET /addressbooks with the right options', function() {
+      it('should send a request GET /api/addressbooks with the right options', function() {
         var options = {
           limit: 100,
           offset: 25
         };
-        this.$httpBackend.expectGET('/addressbooks?limit=100&offset=25').respond(200, []);
+        this.$httpBackend.expectGET('/api/addressbooks?limit=100&offset=25').respond(200, []);
         this.api.getAddressBooks(options);
         this.$httpBackend.flush();
       });
     });
 
     describe('getContactInvitations method', function() {
-      it('should send a request GET /contacts/:id/invitations from id', function() {
+      it('should send a request GET /api/contacts/:id/invitations from id', function() {
         var id = 123;
-        this.$httpBackend.expectGET('/contacts/' + id + '/invitations').respond(200, []);
+        this.$httpBackend.expectGET('/api/contacts/' + id + '/invitations').respond(200, []);
         this.api.getContactInvitations(id);
         this.$httpBackend.flush();
       });
 
-      it('should send a request GET /contacts/:id/invitations from hash', function() {
+      it('should send a request GET /api/contacts/:id/invitations from hash', function() {
         var options = {
           _id: 123
         };
-        this.$httpBackend.expectGET('/contacts/' + options._id + '/invitations').respond(200, []);
+        this.$httpBackend.expectGET('/api/contacts/' + options._id + '/invitations').respond(200, []);
         this.api.getContactInvitations(options);
         this.$httpBackend.flush();
       });
     });
 
     describe('getInvitations method', function() {
-      it('should send a request GET /contacts/invitations', function() {
-        this.$httpBackend.expectGET('/contacts/invitations').respond(200, []);
+      it('should send a request GET /api/contacts/invitations', function() {
+        this.$httpBackend.expectGET('/api/contacts/invitations').respond(200, []);
         this.api.getInvitations();
         this.$httpBackend.flush();
       });
     });
 
     describe('sendInvitation method', function() {
-      it('should send a request POST /contacts/:id/invitations from ID', function() {
+      it('should send a request POST /api/contacts/:id/invitations from ID', function() {
         var contact = 123;
         var domain = 456;
-        this.$httpBackend.expectPOST('/contacts/' + contact + '/invitations').respond(200, []);
+        this.$httpBackend.expectPOST('/api/contacts/' + contact + '/invitations').respond(200, []);
         this.api.sendInvitation(contact, domain);
         this.$httpBackend.flush();
       });
 
-      it('should send a request POST /contacts/:id/invitations from hash', function() {
+      it('should send a request POST /api/contacts/:id/invitations from hash', function() {
         var contact = {_id: 123};
         var domain = 456;
-        this.$httpBackend.expectPOST('/contacts/' + contact._id + '/invitations').respond(200, []);
+        this.$httpBackend.expectPOST('/api/contacts/' + contact._id + '/invitations').respond(200, []);
         this.api.sendInvitation(contact, domain);
         this.$httpBackend.flush();
       });
 
-      it('should send a request POST /contacts/:id/invitations with domain in body', function() {
+      it('should send a request POST /api/contacts/:id/invitations with domain in body', function() {
         var contact = {_id: 123};
         var domain = 456;
         var body = {
           domain: domain
         };
-        this.$httpBackend.expectPOST('/contacts/' + contact._id + '/invitations', body).respond(200, []);
+        this.$httpBackend.expectPOST('/api/contacts/' + contact._id + '/invitations', body).respond(200, []);
         this.api.sendInvitation(contact, domain);
         this.$httpBackend.flush();
       });

@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('esn.feedback', ['restangular'])
-  .factory('feedbackAPI', function(Restangular) {
+angular.module('esn.feedback', ['esn.http'])
+  .factory('feedbackAPI', function(esnRestangular) {
 
     /**
      * Post the content of a feedback
@@ -9,7 +9,7 @@ angular.module('esn.feedback', ['restangular'])
      * @param {string} content - the feedback content
      */
     function post(content) {
-      return Restangular.one('feedback').customPOST({ content: content });
+      return esnRestangular.one('feedback').customPOST({ content: content });
     }
 
     return {

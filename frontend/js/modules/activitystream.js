@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.activitystream', [
-  'restangular',
+  'esn.http',
   'esn.message',
   'esn.rest.helper',
   'esn.session',

@@ -220,13 +220,12 @@ describe('The esn.activitystream Angular module', function() {
       angular.mock.module('esn.activitystream');
       angular.mock.module('esn.collaboration');
     });
-    beforeEach(inject(['$compile', '$rootScope', '$timeout', '$httpBackend', 'Restangular', function($c, $r, $t, $h, R) {
+    beforeEach(inject(['$compile', '$rootScope', '$timeout', '$httpBackend', function($c, $r, $t, $h) {
       this.$compile = $c;
       this.$rootScope = $r;
       this.$scope = this.$rootScope.$new();
       this.$timeout = $t;
       this.$httpBackend = $h;
-      R.setFullResponse(true);
 
       this.initASDirective = function() {
         var html = '<activity-stream activitystream="activitystream" streams="streams"></activity-stream>';
@@ -345,7 +344,7 @@ describe('The esn.activitystream Angular module', function() {
         var scope = this.initASDirective();
         this.$timeout.flush();
 
-        this.$httpBackend.expectGET('/messages/msg2').respond({
+        this.$httpBackend.expectGET('/api/messages/msg2').respond({
           _id: 'msg2',
           responses: [
             {_id: 'cmt2'},
@@ -369,7 +368,7 @@ describe('The esn.activitystream Angular module', function() {
         var scope = this.initASDirective();
         this.$timeout.flush();
 
-        this.$httpBackend.expectGET('/messages/msg2').respond({
+        this.$httpBackend.expectGET('/api/messages/msg2').respond({
           _id: 'msg2',
           responses: [
             {_id: 'cmt2'},

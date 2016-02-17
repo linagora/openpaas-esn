@@ -24,8 +24,8 @@ describe('The Invitation Angular module', function() {
         };
       }));
 
-      it('should send a request to /invitations/:id', function() {
-        this.$httpBackend.expectGET('/invitations/' + this.invitationId).respond(this.response);
+      it('should send a request to /api/invitations/:id', function() {
+        this.$httpBackend.expectGET('/api/invitations/' + this.invitationId).respond(this.response);
         this.invitationAPI.get(this.invitationId);
         this.$httpBackend.flush();
       });
@@ -51,8 +51,8 @@ describe('The Invitation Angular module', function() {
         this.response = {};
       }));
 
-      it('should send a request to /invitations', function() {
-        this.$httpBackend.expectPOST('/invitations').respond(this.response);
+      it('should send a request to /api/invitations', function() {
+        this.$httpBackend.expectPOST('/api/invitations').respond(this.response);
         this.invitationAPI.create(this.data);
         this.$httpBackend.flush();
       });
@@ -82,8 +82,8 @@ describe('The Invitation Angular module', function() {
         this.response = {};
       }));
 
-      it('should send a JSON PUT to /invitations/:uuid', function() {
-        this.$httpBackend.expectPUT('/invitations/' + this.uuid, this.data).respond(this.response);
+      it('should send a JSON PUT to /api/invitations/:uuid', function() {
+        this.$httpBackend.expectPUT('/api/invitations/' + this.uuid, this.data).respond(this.response);
         this.invitationAPI.finalize(this.uuid, this.data);
         this.$httpBackend.flush();
       });

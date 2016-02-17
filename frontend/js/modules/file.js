@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.file', ['angularFileUpload', 'restangular'])
+angular.module('esn.file', ['angularFileUpload', 'esn.http'])
   .constant('FILES_API_URL', '/api/files')
   .factory('fileUploadService', function($q, $timeout, $log, fileAPIService, FILES_API_URL) {
 
@@ -122,7 +122,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       get: get
     };
   })
-  .factory('fileAPIService', function($upload, Restangular) {
+  .factory('fileAPIService', function($upload, esnRestangular) {
     function uploadBlob(url, blob, mime, size, canceler) {
       return $upload.http({
         method: 'POST',
@@ -151,7 +151,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
     }
 
     function remove(parameter, id) {
-      return Restangular.one(parameter, id).remove();
+      return esnRestangular.one(parameter, id).remove();
     }
 
     return {

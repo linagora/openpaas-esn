@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.application', ['restangular', 'op.dynamicDirective'])
+angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
   .config(function(dynamicDirectiveServiceProvider) {
     var application = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-application', {priority: 5});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', application);
@@ -67,26 +67,26 @@ angular.module('esn.application', ['restangular', 'op.dynamicDirective'])
       template: applicationMenuTemplateBuilder('/#/applications', 'mdi-apps', 'Applications')
     };
   })
-  .factory('applicationAPI', function(Restangular) {
+  .factory('applicationAPI', function(esnRestangular) {
 
     function get(id) {
-      return Restangular.one('oauth/clients', id).get();
+      return esnRestangular.one('oauth/clients', id).get();
     }
 
     function create(client) {
-      return Restangular.all('oauth/clients').post(client);
+      return esnRestangular.all('oauth/clients').post(client);
     }
 
     function list() {
-      return Restangular.all('oauth/clients').getList();
+      return esnRestangular.all('oauth/clients').getList();
     }
 
     function remove(id) {
-      return Restangular.one('oauth/clients', id).remove();
+      return esnRestangular.one('oauth/clients', id).remove();
     }
 
     function created() {
-      return Restangular.one('user/oauth/clients').getList();
+      return esnRestangular.one('user/oauth/clients').getList();
     }
 
     return {

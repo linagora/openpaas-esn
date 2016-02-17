@@ -84,9 +84,9 @@ describe('The Application Angular module', function() {
         this.response = [];
       }));
 
-      it('should send a request to /oauth/clients/:id', function() {
+      it('should send a request to /api/oauth/clients/:id', function() {
         var id = 123;
-        this.$httpBackend.expectGET('/oauth/clients/' + id).respond(this.response);
+        this.$httpBackend.expectGET('/api/oauth/clients/' + id).respond(this.response);
         this.applicationAPI.get(id);
         this.$httpBackend.flush();
       });
@@ -105,8 +105,8 @@ describe('The Application Angular module', function() {
         this.response = [];
       }));
 
-      it('should send a request to /oauth/clients', function() {
-        this.$httpBackend.expectGET('/oauth/clients').respond(this.response);
+      it('should send a request to /api/oauth/clients', function() {
+        this.$httpBackend.expectGET('/api/oauth/clients').respond(this.response);
         this.applicationAPI.list();
         this.$httpBackend.flush();
       });
@@ -125,8 +125,8 @@ describe('The Application Angular module', function() {
         this.response = [];
       }));
 
-      it('should send a request to /user/oauth/clients', function() {
-        this.$httpBackend.expectGET('/user/oauth/clients').respond(this.response);
+      it('should send a request to /api/user/oauth/clients', function() {
+        this.$httpBackend.expectGET('/api/user/oauth/clients').respond(this.response);
         this.applicationAPI.created();
         this.$httpBackend.flush();
       });
@@ -145,8 +145,8 @@ describe('The Application Angular module', function() {
         this.response = [];
       }));
 
-      it('should send a POST request to /oauth/clients', function() {
-        this.$httpBackend.expectPOST('/oauth/clients').respond(this.response);
+      it('should send a POST request to /api/oauth/clients', function() {
+        this.$httpBackend.expectPOST('/api/oauth/clients').respond(this.response);
         this.applicationAPI.create({});
         this.$httpBackend.flush();
       });
@@ -165,9 +165,9 @@ describe('The Application Angular module', function() {
         this.response = [];
       }));
 
-      it('should send a DELETE request to /oauth/clients', function() {
+      it('should send a DELETE request to /api/oauth/clients', function() {
         var id = 123;
-        this.$httpBackend.expectDELETE('/oauth/clients/' + id).respond(this.response);
+        this.$httpBackend.expectDELETE('/api/oauth/clients/' + id).respond(this.response);
         this.applicationAPI.remove(id);
         this.$httpBackend.flush();
       });
