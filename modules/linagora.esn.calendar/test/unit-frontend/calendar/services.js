@@ -60,7 +60,7 @@ describe('The calendar module services', function() {
     });
 
     it('should use the correct path', function(done) {
-      angular.mock.inject(function(calendarEventSource, $httpBackend, fcMoment) {
+      angular.mock.inject(function(calendarEventSource, $httpBackend, fcMoment, CalendarShell) {
         this.$httpBackend = $httpBackend;
         this.calendarEventSource = calendarEventSource;
         this.fcMoment = fcMoment;
@@ -525,11 +525,45 @@ describe('The calendar module services', function() {
       element.innerElements['.fc-title'] = fcTitle;
     });
 
-    beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment) {
+    beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell) {
       this.eventUtils = eventUtils;
       this.$rootScope = $rootScope;
       this.fcMoment = fcMoment;
+      this.CalendarShell = CalendarShell;
     }));
+
+    describe('applyReply', function() {
+      it('should update reply\'s attendee participation without modifying other', function() {
+        var origEvent = this.CalendarShell.fromIncompleteShell({title: 'second world war'});
+        origEvent.attendees = [{
+          email: 'winston.churchill@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }, {
+          email: 'philippe.petain@demo.open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        }];
+
+        var reply = this.CalendarShell.fromIncompleteShell({title: 'second world war'});
+
+        reply.attendees = [{
+          email: 'philippe.petain@demo.open-paas.org',
+          partstat: 'DECLINED'
+        }];
+
+        this.eventUtils.applyReply(origEvent, reply);
+        expect(origEvent.attendees).to.shallowDeepEqual({
+          0: {
+            email: 'winston.churchill@demo.open-paas.org',
+            partstat: 'ACCEPTED'
+          },
+          1: {
+            email: 'philippe.petain@demo.open-paas.org',
+            partstat: 'DECLINED'
+          },
+          length: 2
+        });
+      });
+    });
 
     describe('render function', function() {
       it('should sanitize event description', function() {
@@ -1162,44 +1196,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should silently fail if the response of getEvent is 404 and the task is not cancelled', function(done) {
-        var vcalendar = new ICAL.Component('vcalendar');
-        var vevent = new ICAL.Component('vevent');
-        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
-        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
-        vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
-        vevent.addPropertyWithValue('summary', 'test event');
-        vcalendar.addSubcomponent(vevent);
-        var event = new this.CalendarShell(vcalendar);
-
-        this.gracePeriodService.grace = function() {
-          return $q.when({
-            cancelled: false
-          });
-        };
-
-        var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal('event:created');
-          expect(data).to.deep.equal(vcalendar);
-        });
-        this.socketEmit = socketEmitSpy;
-
-        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
-        this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(404);
-        emitMessage = null;
-
-        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
-          function(response) {
-            expect(socketEmitSpy).to.not.have.been.called;
-            expect(response).to.not.exist;
-            done();
-          }
-        );
-
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
-      });
-
       it('should succeed when everything is correct', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
@@ -1242,12 +1238,11 @@ describe('The calendar module services', function() {
         var self = this;
         this.calendarService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true }).then(
           function(shell) {
-            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
+            expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(shell.title).to.equal('test event');
             expect(shell.etag).to.equal(etag);
             expect(shell.path).to.equal(path);
             expect(shell.vcalendar.toJSON()).to.deep.equal(vcalendar.toJSON());
-            expect(socketEmitSpy).to.have.been.called;
             done();
           }
         );
@@ -1457,9 +1452,7 @@ describe('The calendar module services', function() {
       });
 
       it('should succeed on 202', function(done) {
-        var headers = { ETag: 'changed-etag' };
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000').respond(202, { id: '123456789' });
-        this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
 
         this.gracePeriodService.grace = function() {
           return $q.when({
@@ -1471,19 +1464,12 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        var socketEmitSpy = sinon.spy(function(event, data) {
-          expect(event).to.equal(this.CALENDAR_EVENTS.WS.EVENT_UPDATED);
-        });
-        this.socketEmit = socketEmitSpy;
-
         var self = this;
         this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
           function(shell) {
             expect(shell.title).to.equal('test event');
-            expect(shell.etag).to.equal('changed-etag');
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(shell.path).to.equal('/path/to/uid.ics');
-            expect(socketEmitSpy).to.have.been.called;
             done();
           }, unexpected.bind(null, done)
         );

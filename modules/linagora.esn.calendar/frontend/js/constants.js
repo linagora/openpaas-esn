@@ -119,6 +119,9 @@ angular.module('esn.calendar')
     WS: {
       EVENT_CREATED: 'calendar:ws:event:created',
       EVENT_UPDATED: 'calendar:ws:event:updated',
-      EVENT_DELETED: 'calendar:ws:event:deleted'
+      EVENT_REQUEST: 'calendar:ws:event:request',
+      EVENT_CANCEL: 'calendar:ws:event:cancel',
+      EVENT_DELETED: 'calendar:ws:event:deleted',
+      EVENT_REPLY: 'calendar:ws:event:reply'
     }
   });

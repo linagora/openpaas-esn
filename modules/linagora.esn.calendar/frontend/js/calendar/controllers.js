@@ -184,10 +184,11 @@ angular.module('esn.calendar')
       return event;
     }
 
-    function _modifiedCalendarItem(newEvent) {
+    function _modifiedOrCreatedCalendarItem(newEvent) {
       calendarPromise.then(function(calendar) {
-        var event = calendar.fullCalendar('clientEvents', newEvent.id)[0];
+        var event = (calendar.fullCalendar('clientEvents', newEvent.id) || [])[0];
         if (!event) {
+          calendar.fullCalendar('renderEvent', newEvent);
           return;
         }
 
@@ -217,7 +218,7 @@ angular.module('esn.calendar')
 
     var unregisterFunctions = [
       $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, function(event, data) {
-        _modifiedCalendarItem(_withBackgroundColor(data));
+        _modifiedOrCreatedCalendarItem(_withBackgroundColor(data));
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
         calendarPromise.then(function(calendar) {
@@ -248,27 +249,47 @@ angular.module('esn.calendar')
       })
     ];
 
-    function liveNotificationHandlerOnCreate(msg) {
-      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('renderEvent', _withBackgroundColor(CalendarShell.fromJSON(msg)));
+    function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
+      _modifiedOrCreatedCalendarItem(_withBackgroundColor(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath})));
     }
 
-    function liveNotificationHandlerOnUpdate(msg) {
-      _modifiedCalendarItem(_withBackgroundColor(CalendarShell.fromJSON(msg)));
+    function liveNotificationHandlerOnReply(msg) {
+      calendarPromise.then(function(calendar) {
+        var reply = CalendarShell.from(msg.event);
+        var event = calendar.fullCalendar('clientEvents', reply.id)[0];
+
+        eventUtils.applyReply(event, reply);
+
+        if (!event.source) {
+          calendar.fullCalendar('removeEvents', event.id);
+          calendar.fullCalendar('renderEvent', event);
+        } else {
+          calendar.fullCalendar('updateEvent', event);
+        }
+      });
     }
 
-    function liveNotificationHandlerOnDelete(msg) {
-      uiCalendarConfig.calendars[$scope.calendarHomeId].fullCalendar('removeEvents', CalendarShell.fromJSON(msg).id);
+    function liveNotificationHandlerOnDeleteAndCancel(msg) {
+      calendarPromise.then(function(calendar) {
+        calendar.fullCalendar('removeEvents', CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}).id);
+      });
     }
 
     var sio = livenotification('/calendars');
-    sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnReply);
 
     $scope.$on('$destroy', function() {
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnReply);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
       unregisterFunctions.forEach(function(unregisterFunction) {
         unregisterFunction();
       });
