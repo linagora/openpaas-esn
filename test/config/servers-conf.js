@@ -1,47 +1,64 @@
 'use strict';
 
 var tmp = 'tmp';
+var DEFAULT_PORTS = {
+  express: 23455,
+  mongo: 23456,
+  redis: 23457,
+  ldap: 23458,
+  elasticsearch: 23459
+};
+
+var images = require('../../docker/images.json');
+var host = process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+var dbName = 'tests';
+var mongoPort = process.env.PORT_MONGODB || DEFAULT_PORTS.mongo;
 
 module.exports = {
   tmp: tmp,
 
+  default_ports: DEFAULT_PORTS,
+
+  host: host,
+
   express: {
-    port: process.env.PORT_EXPRESS || 23455
+    port: process.env.PORT_EXPRESS || DEFAULT_PORTS.express
   },
 
   mongodb: {
     cmd: process.env.CMD_MONGODB || 'mongod',
-    port: process.env.PORT_MONGODB || 23456,
+    port: mongoPort,
     interval_replica_set: process.env.MONGODB_INTERVAL_REPLICA_SET || 1000,
     tries_replica_set: process.env.MONGODB_TRIES_REPLICA_SET || 20,
+    connectionString: 'mongodb://' + host + ':' + mongoPort + '/' + dbName,
     replicat_set_name: 'rs',
-    dbname: 'tests',
+    dbname: dbName,
     dbpath: tmp + '/mongo/',
     logpath: '',
     elasticsearch: {
       rivers: ['users', 'domains', 'messages', 'communities']
     },
     container: {
-      image: 'mongo:2.6.6',
+      image: images.mongodb,
       name: 'mongo_for_esn_test'
     }
   },
 
   redis: {
     cmd: process.env.CMD_REDIS || 'redis-server',
-    port: process.env.PORT_REDIS || 23457,
+    port: process.env.PORT_REDIS || DEFAULT_PORTS.redis,
     conf_file: '',
     log_path: '',
     pwd: '',
     container: {
-      image: 'redis:latest',
+      image: images.redis,
       name: 'redis_for_esn_test'
     }
   },
 
   ldap: {
     cmd: 'node ./test/inmemory-ldap.js',
-    port: process.env.PORT_LDAP || 23458,
+    port: process.env.PORT_LDAP || DEFAULT_PORTS.ldap,
     suffix: 'o=rse',
     ldapadmin: 'cn=root',
     pwd: 'secret'
@@ -49,7 +66,7 @@ module.exports = {
 
   elasticsearch: {
     cmd: process.env.CMD_ELASTICSEARCH || 'elasticsearch',
-    port: process.env.PORT_ELASTICSEARCH || 23459,
+    port: process.env.PORT_ELASTICSEARCH || DEFAULT_PORTS.elasticsearch,
     communication_port: process.env.COMMUNICATION_PORT_ELASTICSEARCH || 23460,
     interval_index: process.env.ELASTICSEARCH_INTERVAL_INDEX || 1000,
     tries_index: process.env.ELASTICSEARCH_TRIES_INDEX || 20,
@@ -58,7 +75,7 @@ module.exports = {
     work_path: tmp + '/elasticsearch/work',
     logs_path: tmp + '/elasticsearch/logs',
     container: {
-      image: 'linagora/esn-elasticsearch:latest',
+      image: images.elasticsearch,
       name: 'elasticsearch_for_esn_test'
     }
   }

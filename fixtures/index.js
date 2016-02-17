@@ -12,9 +12,11 @@
 var copyFileConfig = require('./config');
 var setEsnConfig = require('./esn-config');
 var populateDb = require('./populate');
+var db = require('./db');
 
 module.exports = function(done) {
   copyFileConfig()
+    .then(db.connectFromFileConfig)
     .then(setEsnConfig)
     .then(populateDb)
     .then(function() {
@@ -26,5 +28,6 @@ module.exports = function(done) {
       console.log('[ERROR] Cannot inject fixtures, aborting...');
       console.log('[ERROR] ', err.message);
       done(false);
-    });
+    })
+    .finally(db.disconnect);
 };

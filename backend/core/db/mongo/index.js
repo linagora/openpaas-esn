@@ -14,29 +14,42 @@ var configurationWatcher = require('./file-watcher');
 var initialized = false;
 var connected = false;
 
-function onConnectError(err) {
-  logger.error('Failed to connect to MongoDB:', err.message);
+function forceReconnect() {
+  if (process.env.MONGO_FORCE_RECONNECT) {
+    return process.env.MONGO_FORCE_RECONNECT;
+  }
+
+  var defaultConfig = config('default');
+  return !!(defaultConfig.db && defaultConfig.db.forceReconnectOnDisconnect);
 }
 
-mongoose.connection.on('error', function(e) {
-  onConnectError(e);
-  initialized = false;
-});
+function onConnectError(err) {
+  logger.error('Failed to connect to MongoDB:', err);
+}
 
-mongoose.connection.on('connected', function(e) {
-  logger.debug('mongoose connected event');
-  connected = true;
-  topic.publish();
-});
-
-mongoose.connection.on('disconnected', function(e) {
-  logger.debug('mongoose disconnected event');
-  connected = false;
-});
-
-var getTimeout = function() {
+var getTimeout = function getTimeout() {
   return process.env.MONGO_TIMEOUT || 10000;
 };
+
+function getHost() {
+  return process.env.MONGO_HOST || 'localhost';
+}
+
+function getPort() {
+  return process.env.MONGO_PORT || '27017';
+}
+
+function getDbName() {
+  return process.env.MONGO_DBNAME || 'esn';
+}
+
+function getUsername() {
+  return process.env.MONGO_USERNAME;
+}
+
+function getPassword() {
+  return process.env.MONGO_PASSWORD;
+}
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
@@ -86,6 +99,10 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   }
 
   return 'mongodb:' + url.format(connectionHash);
+}
+
+function getDefaultConnectionString() {
+  return getConnectionString(getHost(), getPort(), getDbName(), getUsername(), getPassword());
 }
 
 function getDbConfigurationFile() {
@@ -184,9 +201,14 @@ function getConnectionStringAndOptions() {
   } catch (e) {
     return false;
   }
-  if (!dbConfig || !dbConfig.connectionString) {
+  if (!dbConfig) {
     return false;
   }
+
+  if (!dbConfig.connectionString) {
+    dbConfig.connectionString = getDefaultConnectionString();
+  }
+
   var options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
   return {url: dbConfig.connectionString, options: options};
 }
@@ -244,6 +266,26 @@ module.exports.isInitalized = function() {
 module.exports.isConnected = function() {
   return connected;
 };
+
+mongoose.connection.on('error', function(e) {
+  onConnectError(e);
+  initialized = false;
+});
+
+mongoose.connection.on('connected', function(e) {
+  logger.debug('Connected to MongoDB', e);
+  connected = true;
+  topic.publish();
+});
+
+mongoose.connection.on('disconnected', function() {
+  logger.debug('Connection to MongoDB has been lost');
+  connected = false;
+  if (forceReconnect()) {
+    logger.debug('Reconnecting to MongoDB');
+    mongooseConnect();
+  }
+});
 
 // load models
 var models = {};

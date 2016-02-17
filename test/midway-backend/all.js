@@ -15,15 +15,16 @@ before(function() {
   chai.use(require('chai-as-promised'));
   var basePath = path.resolve(__dirname + '/../..');
   var tmpPath = path.resolve(basePath, testConfig.tmp);
+  var host = testConfig.host;
   this.testEnv = {
     serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
     fixtures: path.resolve(__dirname + '/fixtures'),
-    mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
-    redisUrl: 'redis://localhost:' + testConfig.redis.port,
+    mongoUrl: 'mongodb://' + host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
+    redisUrl: 'redis://' + host + ':' + testConfig.redis.port,
     writeDBConfigFile: function() {
-      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname, connectionOptions: {auto_reconnect: false}}));
+      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://' + host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname, connectionOptions: {auto_reconnect: false}}));
     },
     removeDBConfigFile: function() {
       fs.unlinkSync(tmpPath + '/db.json');
