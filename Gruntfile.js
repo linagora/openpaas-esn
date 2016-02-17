@@ -17,6 +17,14 @@ module.exports = function(grunt) {
   var command = gruntfileUtils.command();
   var runGrunt = gruntfileUtils.runGrunt();
 
+  function readDockerCert(name) {
+    try {
+      return grunt.file.read(process.env.DOCKER_CERT_PATH + '/' + name, 'utf-8');
+    } catch (e) {
+      return '';
+    }
+  }
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
@@ -92,12 +100,24 @@ module.exports = function(grunt) {
       elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.')
     },
     container: {
+      options: {
+        localhost: {
+          socketPath: '/var/run/docker.sock'
+        },
+        remote: {
+          host: process.env.DOCKER_HOST || '192.168.99.100',
+          port: process.env.DOCKER_PORT || 2376,
+          ca: readDockerCert('ca.pem'),
+          cert: readDockerCert('cert.pem'),
+          key: readDockerCert('key.pem'),
+          pass: process.env.DOCKER_CERT_PASS || 'mypass'
+        }
+      },
       redis: container.newContainer(
         servers.redis.container.image,
         servers.redis.container.name,
         { PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] } },
-        null,
-        /on port/, 'Redis server is started.'),
+        null, null, 'Redis server is started.'),
       mongo: container.newContainer(
         servers.mongodb.container.image,
         servers.mongodb.container.name,

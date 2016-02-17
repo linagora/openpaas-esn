@@ -8,219 +8,7 @@ var MongoClient = require('mongodb').MongoClient;
 var Server = require('mongodb').Server;
 var request = require('superagent');
 var extend = require('extend');
-
-var ELASTICSEARCH_SETTINGS = {
-  settings: {
-    analysis: {
-      filter: {
-        nGram_filter: {
-          type: 'nGram',
-          min_gram: 1,
-          max_gram: 20,
-          token_chars: [
-            'letter',
-            'digit',
-            'punctuation',
-            'symbol'
-          ]
-        }
-      },
-      analyzer: {
-        nGram_analyzer: {
-          type: 'custom',
-          tokenizer: 'whitespace',
-          filter: [
-            'lowercase',
-            'asciifolding',
-            'nGram_filter'
-          ]
-        },
-        whitespace_analyzer: {
-          type: 'custom',
-          tokenizer: 'whitespace',
-          filter: [
-            'lowercase',
-            'asciifolding'
-          ]
-        }
-      }
-    }
-  },
-  mappings: {
-    users: {
-      properties: {
-        firstname: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer',
-          fields: {
-            sort: {
-              type: 'string',
-              index: 'not_analyzed'
-            }
-          }
-        },
-        lastname: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
-        },
-        accounts: {
-          type: 'nested',
-          include_in_parent: true,
-          properties: {
-            emails: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-var ELASTICSEARCH_CONTACTS_SETTINGS = {
-  settings: {
-    analysis: {
-      filter: {
-        nGram_filter: {
-          type: 'nGram',
-          min_gram: 1,
-          max_gram: 20,
-          token_chars: [
-            'letter',
-            'digit',
-            'punctuation',
-            'symbol'
-          ]
-        }
-      },
-      analyzer: {
-        nGram_analyzer: {
-          type: 'custom',
-          tokenizer: 'whitespace',
-          filter: [
-            'lowercase',
-            'asciifolding',
-            'nGram_filter'
-          ]
-        },
-        whitespace_analyzer: {
-          type: 'custom',
-          tokenizer: 'whitespace',
-          filter: [
-            'lowercase',
-            'asciifolding'
-          ]
-        }
-      }
-    }
-  },
-  mappings: {
-    contacts: {
-      properties: {
-        fn: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer',
-          fields: {
-            sort: {
-              type: 'string',
-              index: 'not_analyzed'
-            }
-          }
-        },
-        name: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
-        },
-        firstName: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
-        },
-        lastName: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
-        },
-        emails: {
-          properties: {
-            type: {type: 'string', index: 'no'},
-            value: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            }
-          }
-        },
-        org: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
-        },
-        urls: {
-          properties: {
-            type: {type: 'string', index: 'no'},
-            value: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            }
-          }
-        },
-        socialprofiles: {
-          properties: {
-            type: {type: 'string', index: 'no'},
-            value: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            }
-          }
-        },
-        nickname: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
-        },
-        addresses: {
-          properties: {
-            full: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            },
-            type: {type: 'string', index: 'no'},
-            street: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            },
-            city: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            },
-            zip: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            },
-            country: {
-              type: 'string',
-              index_analyzer: 'nGram_analyzer',
-              search_analyzer: 'whitespace_analyzer'
-            }
-          }
-        }
-      }
-    }
-  }
-};
+var EsnConfig = require('esn-elasticsearch-configuration');
 
 var RIVER_SETTINGS = function(servers, collection) {
   return {
@@ -325,7 +113,7 @@ GruntfileUtils.prototype.container = function container() {
   var grunt = this.grunt;
   return {
     newContainer: function(image, name, startContainerOptions, command, regex, info) {
-      return {
+      var result = {
         Image: image,
         Cmd: command,
         name: name,
@@ -333,10 +121,15 @@ GruntfileUtils.prototype.container = function container() {
           tasks: {
             async: false
           },
-          startContainerOptions: startContainerOptions,
-          matchOutput: _taskSuccessIfMatch(grunt, regex, info)
+          startContainerOptions: startContainerOptions
         }
       };
+
+      if (regex) {
+        result.options.matchOutput = _taskSuccessIfMatch(grunt, regex, info);
+      }
+
+      return result;
     }
   };
 };
@@ -439,7 +232,7 @@ GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
     var command = this.args[0];
 
     var _doReplSet = function() {
-      var client = new MongoClient(new Server('localhost', servers.mongodb.port), {native_parser: true});
+      var client = new MongoClient(new Server(servers.host, servers.mongodb.port), {native_parser: true});
       client.open(function(err, mongoClient) {
         if (err) {
           grunt.log.error('MongoDB - Error when open a mongodb connection : ' + err);
@@ -518,24 +311,11 @@ GruntfileUtils.prototype.setupElasticsearchUsersIndex = function() {
 
   return function() {
     var done = this.async();
-    var elasticsearchURL = 'http://localhost:' + servers.elasticsearch.port;
-
-    function _doRequest() {
-      request
-        .put(elasticsearchURL + '/' + 'users.idx')
-        .set('Content-Type', 'application/json')
-        .send(ELASTICSEARCH_SETTINGS)
-        .end(function(res) {
-          if (res.status === 200) {
-            grunt.log.write('Elasticsearch settings are successfully added');
-            done(true);
-          } else {
-            done(new Error('Error HTTP status : ' + res.status + ', expected status code 200 Ok !'));
-          }
-        });
-    }
-
-    _doRequest();
+    var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
+    esnConf.createIndex('users').then(function() {
+      grunt.log.write('Elasticsearch users settings are successfully added');
+      done(true);
+    }, done);
   };
 };
 
@@ -545,24 +325,11 @@ GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
 
   return function() {
     var done = this.async();
-    var elasticsearchURL = 'http://localhost:' + servers.elasticsearch.port;
-
-    function _doRequest() {
-      request
-        .put(elasticsearchURL + '/' + 'contacts.idx')
-        .set('Content-Type', 'application/json')
-        .send(ELASTICSEARCH_CONTACTS_SETTINGS)
-        .end(function(res) {
-          if (res.status === 200) {
-            grunt.log.write('Elasticsearch settings are successfully added');
-            done(true);
-          } else {
-            done(new Error('Error HTTP status : ' + res.status + ', expected status code 200 Ok !'));
-          }
-        });
-    }
-
-    _doRequest();
+    var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
+    esnConf.createIndex('contacts').then(function() {
+      grunt.log.write('Elasticsearch contacts settings are successfully added');
+      done(true);
+    }, done);
   };
 };
 
@@ -572,14 +339,14 @@ GruntfileUtils.prototype.setupElasticsearchMongoRiver = function setupElasticsea
 
   return function() {
     var done = this.async();
-    var elasticsearchURL = 'http://localhost:' + servers.elasticsearch.port;
+    var elasticsearchURL = 'http://' + servers.host + ':' + servers.elasticsearch.port;
     var functionsArray = [];
     var command = this.args[0];
 
     // Use default port if run inside a docker container
     if (command === 'docker') {
       servers = extend(true, servers);
-      servers.mongodb.port = 27017;
+      servers.mongodb.port = servers.mongodb.port;
       servers.mongodb.ip = 'mongo';
     } else {
       servers.mongodb.ip = '127.0.0.1';

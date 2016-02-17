@@ -234,7 +234,7 @@ module.exports = function(mixin, testEnv) {
      */
     checkDocumentsIndexed: function(index, type, ids, callback) {
       var request = require('superagent');
-      var elasticsearchURL = 'localhost:' + testEnv.serversConfig.elasticsearch.port;
+      var elasticsearchURL = testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port;
 
       async.each(ids, function(id, callback) {
 
@@ -283,7 +283,7 @@ module.exports = function(mixin, testEnv) {
     saveTestConfiguration: function(callback) {
       mixin.mongo.saveDoc('configuration', {
         _id: 'elasticsearch',
-        host: 'localhost:' + testEnv.serversConfig.elasticsearch.port
+        host: testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port
       }, callback);
     }
   };
@@ -392,6 +392,7 @@ module.exports = function(mixin, testEnv) {
     publishConfiguration: function() {
       var pubsub = mixin.requireBackend('core/pubsub');
       pubsub.local.topic('redis:configurationAvailable').publish({
+        host: testEnv.serversConfig.host,
         port: testEnv.serversConfig.redis.port
       });
     }
