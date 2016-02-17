@@ -18,7 +18,7 @@
               .flex-space-between
                 emailer.lv-title(emailer="::email.from")
                 .indicators
-                  i.email-status-icon.mdi.mdi-attachment(ng-if='::email.hasAttachment')
+                  i.email-status-icon.mdi.mdi-paperclip(ng-if='::email.hasAttachment')
                   email-star(email='email')
             .lv-small.preview {{::email.preview}}
 
