@@ -21,8 +21,8 @@ describe('The esn.user-notification Angular module', function() {
         expect(this.api).to.respondTo('setRead');
       });
 
-      it('should send a request PUT /user/notifications/123456789/read', function() {
-        this.$httpBackend.expectPUT('/user/notifications/123456789/read').respond([]);
+      it('should send a request PUT /api/user/notifications/123456789/read', function() {
+        this.$httpBackend.expectPUT('/api/user/notifications/123456789/read').respond([]);
         this.api.setRead(123456789, true);
         this.$httpBackend.flush();
       });
@@ -33,8 +33,8 @@ describe('The esn.user-notification Angular module', function() {
         expect(this.api).to.respondTo('setAcknowledged');
       });
 
-      it('should send a request PUT /user/notifications/123456789/acknowledged', function() {
-        this.$httpBackend.expectPUT('/user/notifications/123456789/acknowledged').respond([]);
+      it('should send a request PUT /api/user/notifications/123456789/acknowledged', function() {
+        this.$httpBackend.expectPUT('/api/user/notifications/123456789/acknowledged').respond([]);
         this.api.setAcknowledged(123456789, true);
         this.$httpBackend.flush();
       });
@@ -45,8 +45,8 @@ describe('The esn.user-notification Angular module', function() {
         expect(this.api).to.respondTo('getUnreadCount');
       });
 
-      it('should send a request GET /user/notifications/unread', function() {
-        this.$httpBackend.expectGET('/user/notifications/unread').respond([]);
+      it('should send a request GET /api/user/notifications/unread', function() {
+        this.$httpBackend.expectGET('/api/user/notifications/unread').respond([]);
         this.api.getUnreadCount();
         this.$httpBackend.flush();
       });
@@ -193,14 +193,14 @@ describe('The esn.user-notification Angular module', function() {
 
     describe('list fn', function() {
 
-      it('should send a request to /user/notifications', function() {
-        this.$httpBackend.expectGET('/user/notifications').respond([]);
+      it('should send a request to /api/user/notifications', function() {
+        this.$httpBackend.expectGET('/api/user/notifications').respond([]);
         this.userNotificationAPI.list();
         this.$httpBackend.flush();
       });
 
-      it('should send a request to /user/notifications?limit=10&offset=2&read=false', function() {
-        this.$httpBackend.expectGET('/user/notifications?limit=10&offset=2&read=false').respond([]);
+      it('should send a request to /api/user/notifications?limit=10&offset=2&read=false', function() {
+        this.$httpBackend.expectGET('/api/user/notifications?limit=10&offset=2&read=false').respond([]);
         var options = {
           limit: 10,
           offset: 2,

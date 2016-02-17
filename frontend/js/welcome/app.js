@@ -6,12 +6,12 @@ angular.module('welcomeApp', [
     'esn.login',
     'esn.invitation',
     'esn.company',
-    'restangular',
+    'esn.http',
     'ngRoute',
     'materialAdmin',
     'esn.ui'
   ].concat(angularInjections))
-  .config(function($routeProvider, RestangularProvider) {
+  .config(function($routeProvider) {
 
     $routeProvider.when('/signup/:id', {
       templateUrl: '/views/modules/invitation/finalize',
@@ -50,6 +50,4 @@ angular.module('welcomeApp', [
         return '/?continue=' + path;
       }
     });
-
-    RestangularProvider.setBaseUrl('/api');
   });

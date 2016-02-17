@@ -20,24 +20,23 @@ describe('The esn.activitystreams-tracker Angular module', function() {
   });
 
   describe('ASTrackerAPI service', function() {
-    beforeEach(angular.mock.inject(function(ASTrackerAPI, $httpBackend, Restangular) {
+    beforeEach(angular.mock.inject(function(ASTrackerAPI, $httpBackend) {
       this.ASTrackerAPI = ASTrackerAPI;
       this.$httpBackend = $httpBackend;
       this.activityStreamUuid = '123456789';
-      Restangular.setFullResponse(true);
     }));
 
     describe('getActivityStreams() function', function() {
-      it('should send a GET to /user/activitystreams?domainid=:id&member=true', function() {
-        this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, []);
+      it('should send a GET to /api/user/activitystreams?domainid=:id&member=true', function() {
+        this.$httpBackend.expectGET('/api/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, []);
         this.ASTrackerAPI.getActivityStreams(domainId);
         this.$httpBackend.flush();
       });
     });
 
     describe('getUnreadCount() function', function() {
-      it('should send a GET to /activitystreams/:uuid/unreadcount', function() {
-        this.$httpBackend.expectGET('/activitystreams/' + this.activityStreamUuid + '/unreadcount').respond(200, {});
+      it('should send a GET to /api/activitystreams/:uuid/unreadcount', function() {
+        this.$httpBackend.expectGET('/api/activitystreams/' + this.activityStreamUuid + '/unreadcount').respond(200, {});
         this.ASTrackerAPI.getUnreadCount(this.activityStreamUuid);
         this.$httpBackend.flush();
       });
@@ -45,18 +44,17 @@ describe('The esn.activitystreams-tracker Angular module', function() {
   });
 
   describe('AStrackerHelpers service', function() {
-    beforeEach(angular.mock.inject(function(AStrackerHelpers, $httpBackend, Restangular) {
+    beforeEach(angular.mock.inject(function(AStrackerHelpers, $httpBackend) {
       this.AStrackerHelpers = AStrackerHelpers;
       this.$httpBackend = $httpBackend;
       this.activityStreamUuid1 = '12345678';
       this.activityStreamUuid2 = '123456789';
-      Restangular.setFullResponse(true);
     }));
 
     describe('getActivityStreamsWithUnreadCount function', function() {
 
       it('should receive an error if the HTTP call to /user/activitystreams?domainid=:id&member=true fails', function() {
-        this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(404, {});
+        this.$httpBackend.expectGET('/api/user/activitystreams?domainid=' + domainId + '&member=true').respond(404, {});
         this.AStrackerHelpers.getActivityStreamsWithUnreadCount('community', function(err, activityStreamsWithUnreadCount) {
           expect(err).to.exist;
           expect(activityStreamsWithUnreadCount).to.not.exist;
@@ -65,7 +63,7 @@ describe('The esn.activitystreams-tracker Angular module', function() {
       });
 
       it('should receive an error if the HTTP status code is not 20X for /activitystreams/:uuid/unreadcount', function() {
-        this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, [
+        this.$httpBackend.expectGET('/api/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, [
           {
             uuid: this.activityStreamUuid1,
             target: {
@@ -83,11 +81,11 @@ describe('The esn.activitystreams-tracker Angular module', function() {
             }
           }
         ]);
-        this.$httpBackend.expectGET('/activitystreams/' + this.activityStreamUuid1 + '/unreadcount').respond(200, {
+        this.$httpBackend.expectGET('/api/activitystreams/' + this.activityStreamUuid1 + '/unreadcount').respond(200, {
           _id: this.activityStreamUuid1,
           unread_count: 2
         });
-        this.$httpBackend.expectGET('/activitystreams/' + this.activityStreamUuid2 + '/unreadcount').respond(404, {});
+        this.$httpBackend.expectGET('/api/activitystreams/' + this.activityStreamUuid2 + '/unreadcount').respond(404, {});
         this.AStrackerHelpers.getActivityStreamsWithUnreadCount('community', function(err, activityStreamsWithUnreadCount) {
           expect(err).to.exist;
           expect(activityStreamsWithUnreadCount).to.not.exist;
@@ -95,8 +93,8 @@ describe('The esn.activitystreams-tracker Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should send a GET to /user/activitystreams?domainid=:id&member=true and 2 GET to /activitystreams/:uuid/unreadcount', function() {
-        this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, [
+      it('should send a GET to /api/user/activitystreams?domainid=:id&member=true and 2 GET to /activitystreams/:uuid/unreadcount', function() {
+        this.$httpBackend.expectGET('/api/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, [
           {
             uuid: this.activityStreamUuid1,
             target: {
@@ -114,11 +112,11 @@ describe('The esn.activitystreams-tracker Angular module', function() {
             }
           }
         ]);
-        this.$httpBackend.expectGET('/activitystreams/' + this.activityStreamUuid1 + '/unreadcount').respond(200, {
+        this.$httpBackend.expectGET('/api/activitystreams/' + this.activityStreamUuid1 + '/unreadcount').respond(200, {
           _id: this.activityStreamUuid1,
           unread_count: 2
         });
-        this.$httpBackend.expectGET('/activitystreams/' + this.activityStreamUuid2 + '/unreadcount').respond(200, {
+        this.$httpBackend.expectGET('/api/activitystreams/' + this.activityStreamUuid2 + '/unreadcount').respond(200, {
           _id: this.activityStreamUuid2,
           unread_count: 4
         });
@@ -522,7 +520,9 @@ describe('The esn.activitystreams-tracker Angular module', function() {
         }
       };
 
-      this.rootScope = {};
+      this.rootScope = {
+        $watch: function() {}
+      };
 
       angular.mock.module(function($provide) {
         $provide.value('livenotification', self.livenotification);

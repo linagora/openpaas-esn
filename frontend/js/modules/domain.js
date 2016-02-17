@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user'])
+angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user'])
   .config(function(dynamicDirectiveServiceProvider) {
     var invitation = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitation);
   })
-  .factory('domainAPI', function(Restangular) {
+  .factory('domainAPI', function(esnRestangular) {
 
     /**
      * Get the list of members of a domain.
@@ -14,7 +14,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective
      * @param {Hash} options - Hash with limit (int), offset (int) and search (string)
      */
     function getMembers(id, options) {
-      return Restangular.one('domains', id).getList('members', options);
+      return esnRestangular.one('domains', id).getList('members', options);
     }
 
     /**
@@ -24,7 +24,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective
      * @param {Array} emails - Array of emails (string)
      */
     function inviteUsers(id, emails) {
-      return Restangular.one('domains', id).customPOST(emails, 'invitations');
+      return esnRestangular.one('domains', id).customPOST(emails, 'invitations');
     }
 
     /**
@@ -34,7 +34,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective
     * @param {String} id - The domain id
     */
     function isManager(id) {
-      return Restangular.one('domains', id).one('manager').get();
+      return esnRestangular.one('domains', id).one('manager').get();
     }
 
     /**
@@ -44,7 +44,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'op.dynamicDirective
     * @param {String} id - The domain id
     */
     function get(id) {
-      return Restangular.one('domains', id).get();
+      return esnRestangular.one('domains', id).get();
     }
 
     return {

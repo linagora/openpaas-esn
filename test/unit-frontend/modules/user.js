@@ -16,9 +16,9 @@ describe('The User Angular module', function() {
         this.userAPI = userAPI;
       }));
 
-      it('should send a request to /users/:uuid', function() {
+      it('should send a request to /api/users/:uuid', function() {
         var uuid = 123456789;
-        this.$httpBackend.expectGET('/users/' + uuid).respond(this.response);
+        this.$httpBackend.expectGET('/api/users/' + uuid).respond(this.response);
         this.userAPI.user(uuid);
         this.$httpBackend.flush();
       });
@@ -36,8 +36,8 @@ describe('The User Angular module', function() {
         this.userAPI = userAPI;
       }));
 
-      it('should send a request to /user', function() {
-        this.$httpBackend.expectGET('/user').respond(this.response);
+      it('should send a request to /api/user', function() {
+        this.$httpBackend.expectGET('/api/user').respond(this.response);
         this.userAPI.currentUser();
         this.$httpBackend.flush();
       });
@@ -56,8 +56,8 @@ describe('The User Angular module', function() {
         Restangular.setFullResponse(true);
       }));
 
-      it('should send a GET request to /user/communities', function() {
-        this.$httpBackend.expectGET('/user/communities').respond(200, []);
+      it('should send a GET request to /api/user/communities', function() {
+        this.$httpBackend.expectGET('/api/user/communities').respond(200, []);
         this.userAPI.getCommunities();
         this.$httpBackend.flush();
       });

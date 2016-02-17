@@ -10,18 +10,15 @@ describe('The Domain Angular module', function() {
   describe('domainAPI service', function() {
 
     describe('inviteUsers() method', function() {
-      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend) {
         this.domainAPI = domainAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
-        // The full response configuration option has to be set at the application level
-        // It is set here to get the same behavior
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a POST to /domains/:uuid/invitations', function() {
+      it('should send a POST to /api/domains/:uuid/invitations', function() {
         var users = ['foo@bar.com', 'baz@bar.com', 'qux@bar.com', 'yolo@bar.com'];
-        this.$httpBackend.expectPOST('/domains/' + this.domainId + '/invitations', users).respond(202);
+        this.$httpBackend.expectPOST('/api/domains/' + this.domainId + '/invitations', users).respond(202);
         this.domainAPI.inviteUsers(this.domainId, users);
         this.$httpBackend.flush();
       });
@@ -34,40 +31,36 @@ describe('The Domain Angular module', function() {
 
     describe('getMembers() method', function() {
 
-      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend) {
         this.domainAPI = domainAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.response = [{name: 'MyDomain', company_name: 'MyAwesomeCompany'}];
         this.headers = {'x-esn-items-count': this.response.length};
-
-        // The full response configuration option has to be set at the application level
-        // It is set here to get the same behavior
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a request to /domains/:uuid', function() {
-        this.$httpBackend.expectGET('/domains/' + this.domainId + '/members').respond(200, this.response, this.headers);
+      it('should send a request to /api/domains/:uuid', function() {
+        this.$httpBackend.expectGET('/api/domains/' + this.domainId + '/members').respond(200, this.response, this.headers);
         this.domainAPI.getMembers(this.domainId);
         this.$httpBackend.flush();
       });
 
-      it('should send a request to /domains/:uuid/members?limit=10&offset=20', function() {
+      it('should send a request to /api/domains/:uuid/members?limit=10&offset=20', function() {
         var query = {limit: 10, offset: 20};
-        this.$httpBackend.expectGET('/domains/' + this.domainId + '/members?limit=' + query.limit + '&offset=20').respond(200, this.response, this.headers);
+        this.$httpBackend.expectGET('/api/domains/' + this.domainId + '/members?limit=' + query.limit + '&offset=20').respond(200, this.response, this.headers);
         this.domainAPI.getMembers(this.domainId, query);
         this.$httpBackend.flush();
       });
 
-      it('should send a request to /domains/:uuid?search=foo+bar', function() {
+      it('should send a request to /api/domains/:uuid?search=foo+bar', function() {
         var query = {search: 'foo bar'};
-        this.$httpBackend.expectGET('/domains/' + this.domainId + '/members?search=foo+bar').respond(200, this.response, this.headers);
+        this.$httpBackend.expectGET('/api/domains/' + this.domainId + '/members?search=foo+bar').respond(200, this.response, this.headers);
         this.domainAPI.getMembers(this.domainId, query);
         this.$httpBackend.flush();
       });
 
       it('should be able to get the count header from the response', function(done) {
-        this.$httpBackend.expectGET('/domains/' + this.domainId + '/members').respond(200, this.response, this.headers);
+        this.$httpBackend.expectGET('/api/domains/' + this.domainId + '/members').respond(200, this.response, this.headers);
         var self = this;
         this.domainAPI.getMembers(this.domainId, {}).then(
           function(data) {
@@ -91,19 +84,15 @@ describe('The Domain Angular module', function() {
 
     describe('isManager() method', function() {
 
-      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend) {
         this.domainAPI = domainAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.response = {name: 'MyDomain', company_name: 'MyAwesomeCompany'};
-
-        // The full response configuration option has to be set at the application level
-        // It is set here to get the same behavior
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a request to /domains/:uuid/manager', function() {
-        this.$httpBackend.expectGET('/domains/' + this.domainId + '/manager').respond(200, this.response);
+      it('should send a request to /api/domains/:uuid/manager', function() {
+        this.$httpBackend.expectGET('/api/domains/' + this.domainId + '/manager').respond(200, this.response);
         this.domainAPI.isManager(this.domainId);
         this.$httpBackend.flush();
       });
@@ -111,19 +100,15 @@ describe('The Domain Angular module', function() {
 
     describe('get() method', function() {
 
-      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend) {
         this.domainAPI = domainAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.response = {name: 'MyDomain', company_name: 'MyAwesomeCompany'};
-
-        // The full response configuration option has to be set at the application level
-        // It is set here to get the same behavior
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a request to /domains/:uuid', function() {
-        this.$httpBackend.expectGET('/domains/' + this.domainId).respond(200, this.response);
+      it('should send a request to /api/domains/:uuid', function() {
+        this.$httpBackend.expectGET('/api/domains/' + this.domainId).respond(200, this.response);
         this.domainAPI.get(this.domainId);
         this.$httpBackend.flush();
       });

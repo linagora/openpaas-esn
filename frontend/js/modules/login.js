@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
+angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
   .directive('esnLoginAutofill', function() {
     return {
       restrict: 'A',
@@ -73,10 +73,10 @@ angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
       return loginErrorService.getError() && $location.path() !== '/' && !$scope.loginTask.running && !$scope.loginIn;
     };
   })
-  .factory('loginAPI', function(Restangular) {
+  .factory('loginAPI', function(esnRestangular) {
 
     function login(credentials) {
-      return Restangular.all('login').post(credentials);
+      return esnRestangular.all('login').post(credentials);
     }
 
     return {

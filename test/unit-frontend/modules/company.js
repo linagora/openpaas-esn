@@ -17,8 +17,8 @@ describe('The Company Angular module', function() {
         this.response = [];
       }));
 
-      it('should send a request to /companies?name=:name', function() {
-        this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(this.response);
+      it('should send a request to /api/companies?name=:name', function() {
+        this.$httpBackend.expectGET('/api/companies?name=' + this.companyName).respond(this.response);
         this.companyAPI.search({name: this.companyName});
         this.$httpBackend.flush();
       });
@@ -45,7 +45,7 @@ describe('The Company Angular module', function() {
     });
 
     it('should set an ajax error when REST request is going on', function() {
-      this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(this.response);
+      this.$httpBackend.expectGET('/api/companies?name=' + this.companyName).respond(this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
@@ -55,7 +55,7 @@ describe('The Company Angular module', function() {
     });
 
     it('should call the companyAPI get() method', function() {
-      this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(this.response);
+      this.$httpBackend.expectGET('/api/companies?name=' + this.companyName).respond(this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       input.val(this.companyName);
@@ -64,7 +64,7 @@ describe('The Company Angular module', function() {
     });
 
     it('should remove the ajax error and set a unique=true error when the company already exists', function() {
-      this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(this.response);
+      this.$httpBackend.expectGET('/api/companies?name=' + this.companyName).respond(this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
@@ -77,7 +77,7 @@ describe('The Company Angular module', function() {
     });
 
     it('should remove the ajax error and set a unique=undefined error when the company does not exist', function() {
-      this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(404, this.response);
+      this.$httpBackend.expectGET('/api/companies?name=' + this.companyName).respond(404, this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();

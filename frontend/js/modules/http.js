@@ -2,19 +2,18 @@
 
 angular.module('esn.http', ['restangular'])
 
-  .config(function($httpProvider) {
-    $httpProvider.interceptors.push('redirectWhenNotAuthInterceptor');
-  })
-
-  .run(function(Restangular, httpErrorHandler) {
-    Restangular.setErrorInterceptor(function(response) {
-      if (response.status === 401) {
-        httpErrorHandler.redirectToLogin();
-      }
-      return true;
+  .factory('esnRestangular', function(Restangular, httpErrorHandler) {
+    return Restangular.withConfig(function(RestangularConfigurer) {
+      RestangularConfigurer.setFullResponse(true);
+      RestangularConfigurer.setBaseUrl('/api');
+      RestangularConfigurer.setErrorInterceptor(function(response) {
+        if (response.status === 401) {
+          httpErrorHandler.redirectToLogin();
+        }
+        return true;
+      });
     });
   })
-
   .factory('redirectWhenNotAuthInterceptor', function($q, httpErrorHandler) {
     return {
       responseError: function(rejection) {

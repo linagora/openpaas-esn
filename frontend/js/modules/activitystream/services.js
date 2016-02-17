@@ -1,17 +1,17 @@
 'use strict';
 
 angular.module('esn.activitystream')
-.factory('activitystreamAPI', function(Restangular) {
+.factory('activitystreamAPI', function(esnRestangular) {
   function get(id, options) {
-    return Restangular.all('activitystreams/' + id).getList(options);
+    return esnRestangular.all('activitystreams/' + id).getList(options);
   }
 
   function getResource(id) {
-    return Restangular.all('activitystreams/' + id).one('resource').get();
+    return esnRestangular.all('activitystreams/' + id).one('resource').get();
   }
 
   function getUnreadCount(id) {
-    return Restangular.one('activitystreams', id).one('unreadcount').get();
+    return esnRestangular.one('activitystreams', id).one('unreadcount').get();
   }
 
   return {

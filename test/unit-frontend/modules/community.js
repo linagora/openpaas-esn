@@ -10,23 +10,22 @@ describe('The Community Angular module', function() {
   describe('communityAPI service', function() {
 
     describe('list() function', function() {
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
         this.communityAPI = communityAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.userId = '123';
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a GET to /communities?domain_id=:id', function() {
-        this.$httpBackend.expectGET('/communities?domain_id=' + this.domainId).respond(200, []);
+      it('should send a GET to /api/communities?domain_id=:id', function() {
+        this.$httpBackend.expectGET('/api/communities?domain_id=' + this.domainId).respond(200, []);
         this.communityAPI.list(this.domainId);
         this.$httpBackend.flush();
       });
 
-      it('should send a GET to /communities?creator=:user_id&domain_id=:id', function() {
+      it('should send a GET to /api/communities?creator=:user_id&domain_id=:id', function() {
         var options = {creator: this.userId};
-        this.$httpBackend.expectGET('/communities?creator=' + this.userId + '&domain_id=' + this.domainId).respond(200, []);
+        this.$httpBackend.expectGET('/api/communities?creator=' + this.userId + '&domain_id=' + this.domainId).respond(200, []);
         this.communityAPI.list(this.domainId, options);
         this.$httpBackend.flush();
       });
@@ -39,17 +38,16 @@ describe('The Community Angular module', function() {
 
     describe('get() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
         this.communityAPI = communityAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.communityId = '123';
         this.response = {_id: 123, title: 'Node.js'};
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a GET request to /communities/:uuid', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId).respond(200, this.response, this.headers);
+      it('should send a GET request to /api/communities/:uuid', function() {
+        this.$httpBackend.expectGET('/api/communities/' + this.communityId).respond(200, this.response, this.headers);
         this.communityAPI.get(this.communityId);
         this.$httpBackend.flush();
       });
@@ -62,16 +60,15 @@ describe('The Community Angular module', function() {
 
     describe('del() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
         this.communityAPI = communityAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.communityId = '123';
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a DEL request to /communities/:uuid', function() {
-        this.$httpBackend.expectDELETE('/communities/' + this.communityId).respond(204);
+      it('should send a DEL request to /api/communities/:uuid', function() {
+        this.$httpBackend.expectDELETE('/api/communities/' + this.communityId).respond(204);
         this.communityAPI.del(this.communityId);
         this.$httpBackend.flush();
       });
@@ -84,17 +81,16 @@ describe('The Community Angular module', function() {
 
     describe('create() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
         this.communityAPI = communityAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
         this.communityId = '123';
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a POST request to /communities', function() {
+      it('should send a POST request to /api/communities', function() {
         var community = {};
-        this.$httpBackend.expectPOST('/communities', community).respond(202);
+        this.$httpBackend.expectPOST('/api/communities', community).respond(202);
         this.communityAPI.create(community);
         this.$httpBackend.flush();
       });
@@ -107,16 +103,15 @@ describe('The Community Angular module', function() {
 
     describe('getMember() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
         this.communityAPI = communityAPI;
         this.$httpBackend = $httpBackend;
         this.communityId = '123';
         this.userId = '456';
-        Restangular.setFullResponse(true);
       }));
 
-      it('should send a GET request to /communities/:id/members/:user', function() {
-        this.$httpBackend.expectGET('/communities/' + this.communityId + '/members/' + this.userId).respond(200, {});
+      it('should send a GET request to /api/communities/:id/members/:user', function() {
+        this.$httpBackend.expectGET('/api/communities/' + this.communityId + '/members/' + this.userId).respond(200, {});
         this.communityAPI.getMember(this.communityId, this.userId);
         this.$httpBackend.flush();
       });
@@ -482,14 +477,13 @@ describe('The Community Angular module', function() {
       });
     });
 
-    beforeEach(inject(['$compile', '$rootScope', '$httpBackend', 'Restangular', function($c, $r, $h, Restangular) {
+    beforeEach(inject(['$compile', '$rootScope', '$httpBackend', function($c, $r, $h) {
       this.$compile = $c;
       this.$rootScope = $r;
       this.$httpBackend = $h;
       this.title = 'fakeTitle';
       this.emptyResponse = [];
       this.response = [{_id: '1234'}];
-      Restangular.setFullResponse(true);
     }]));
 
     afterEach(function() {
@@ -497,7 +491,7 @@ describe('The Community Angular module', function() {
     });
 
     it('should have $pending.unique set when REST request is going on', function() {
-      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      this.$httpBackend.expectGET('/api/communities?title=' + this.title).respond(this.emptyResponse);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
@@ -507,7 +501,7 @@ describe('The Community Angular module', function() {
     });
 
     it('should call the companyAPI get() method after a one second delay', function() {
-      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      this.$httpBackend.expectGET('/api/communities?title=' + this.title).respond(this.emptyResponse);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       input.val(this.title);
@@ -516,7 +510,7 @@ describe('The Community Angular module', function() {
     });
 
     it('should remove the ajax error and set a unique=true error when the community already exists', function() {
-      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.response);
+      this.$httpBackend.expectGET('/api/communities?title=' + this.title).respond(this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
@@ -529,7 +523,7 @@ describe('The Community Angular module', function() {
     });
 
     it('should remove the ajax error and set a unique=undefined error when the community does not exist', function() {
-      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      this.$httpBackend.expectGET('/api/communities?title=' + this.title).respond(this.emptyResponse);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();

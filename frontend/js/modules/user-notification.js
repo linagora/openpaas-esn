@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.user-notification',
-  ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core', 'esn.object-type', 'esn.session', 'esn.collaboration'])
+  ['esn.http', 'esn.paginate', 'esn.websocket', 'esn.core', 'esn.object-type', 'esn.session', 'esn.collaboration'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 75)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -520,27 +520,27 @@ angular.module('esn.user-notification',
         }
       };
     })
-  .factory('userNotificationAPI', function(Restangular) {
+  .factory('userNotificationAPI', function(esnRestangular) {
     function list(options) {
-      return Restangular.one('user').all('notifications').getList(options);
+      return esnRestangular.one('user').all('notifications').getList(options);
     }
 
     function setRead(id, read) {
-      return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
+      return esnRestangular.one('user').one('notifications', id).one('read').customPUT({value: read});
     }
 
     function setAllRead(ids, read) {
-      var request = Restangular.one('user').one('notifications').one('read');
+      var request = esnRestangular.one('user').one('notifications').one('read');
       request.value = read;
       return request.put({ ids: ids });
     }
 
     function setAcknowledged(id, acknowledged) {
-      return Restangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
+      return esnRestangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
     }
 
     function getUnreadCount() {
-      return Restangular.one('user').one('notifications').one('unread').get();
+      return esnRestangular.one('user').one('notifications').one('unread').get();
     }
 
     return {
