@@ -52,6 +52,7 @@ module.exports = function(dependencies) {
           }
         } else {
           error = {error: {code: response.statusCode, message: http.STATUS_CODES[response.statusCode], details: response.statusMessage}};
+          logger.error('Error from remote service : ', response.body);
           if (options.onError) {
             return options.onError(response, body, req, res, callback.bind(null, error, response));
           }
