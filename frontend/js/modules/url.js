@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('esn.url', [])
+angular.module('esn.url', ['esn.ui'])
+
   .factory('urlUtils', function($window) {
 
     // Add / Update a key-value pair in the URL query parameters
@@ -26,4 +27,10 @@ angular.module('esn.url', [])
       updateUrlParameter: updateUrlParameter
     };
 
+  })
+
+  .factory('absoluteUrl', function(createHtmlElement) {
+    return function(url) {
+      return createHtmlElement('a', { href: url }).href;
+    };
   });

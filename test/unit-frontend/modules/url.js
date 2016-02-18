@@ -69,4 +69,18 @@ describe('The esn.url Angular module', function() {
 
   });
 
+  describe('The absoluteUrl factory', function() {
+
+    var absoluteUrl;
+
+    beforeEach(inject(function(_absoluteUrl_) {
+      absoluteUrl = _absoluteUrl_;
+    }));
+
+    it('should return an absolute URL', function() {
+      expect(absoluteUrl('/test')).to.match(/http[s]?:\/\/.+?\/test/);
+    });
+
+  });
+
 });
