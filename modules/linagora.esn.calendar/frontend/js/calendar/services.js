@@ -306,8 +306,7 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Modify an event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
-     * period service.
+     * Modify an event in the calendar defined by its path.
      * @param  {String}            path              the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
      * @param  {CalendarShell}     event             the event from fullcalendar. It is used in case of rollback.
      * @param  {CalendarShell}     oldEvent          the event from fullcalendar. It is used in case of rollback.
@@ -319,6 +318,10 @@ angular.module('esn.calendar')
     function modifyEvent(path, event, oldEvent, etag, hasSignificantChange, onCancel) {
       if (hasSignificantChange) {
         event.changeParticipation('NEEDS-ACTION');
+        // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
+        // see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
+        // The calendar client is in charge to handle the SEQUENCE incrementation
+        event.sequence = event.sequence + 1;
       }
 
       if (!etag) {
@@ -329,24 +332,17 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var instance;
+      var instance, master;
 
       return event.getModifiedMaster().then(function(masterShell) {
         instance = event;
-        event = masterShell;
-        return flushTasksForEvent(event);
+        master = masterShell;
+        return flushTasksForEvent(master);
       }).then(function() {
-        // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
-        // see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
-        // The calendar client is in charge to handle the SEQUENCE incrementation
-        if (hasSignificantChange) {
-          event.sequence = event.sequence + 1;
-        }
-      }).then(function() {
-        return eventAPI.modify(path, event.vcalendar, etag);
+        return eventAPI.modify(path, master.vcalendar, etag);
       }).then(function(id) {
         taskId = id;
-        keepChangeDuringGraceperiod.registerUpdate(event);
+        keepChangeDuringGraceperiod.registerUpdate(master);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
       }).then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
@@ -368,7 +364,7 @@ angular.module('esn.calendar')
         var task = data;
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {
-            keepChangeDuringGraceperiod.deleteRegistration(event);
+            keepChangeDuringGraceperiod.deleteRegistration(master);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
 
             (onCancel || angular.noop)();
@@ -535,10 +531,7 @@ angular.module('esn.calendar')
     }
 
     function getEditedEvent() {
-      if (!isNew(editedEvent) && editedEvent.isInstance()) {
-        return calendarService.getEvent(editedEvent.path);
-      }
-      return $q.when(editedEvent);
+      return editedEvent;
     }
 
     function setEditedEvent(event) {

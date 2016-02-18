@@ -817,45 +817,6 @@ describe('The calendar module services', function() {
         expect(this.eventUtils.isNew({etag: '123'})).to.be.false;
       });
     });
-
-    describe('getEditedEvent function', function() {
-      it('should return a promise of editedEvent var if it is new', function(done) {
-        var event = {allDay: false};
-        this.eventUtils.setEditedEvent(event);
-        this.eventUtils.getEditedEvent().then(function(e) {
-          expect(e).to.deep.equal(event);
-          done();
-        }, done);
-        this.$rootScope.$apply();
-      });
-
-      it('should return a promise of editedEvent var if it is not a recurrent event', function(done) {
-        var event = {id: '123', isInstance: function() { return false; }};
-        this.eventUtils.setEditedEvent(event);
-        this.eventUtils.getEditedEvent().then(function(e) {
-          expect(e).to.deep.equal(event);
-          done();
-        }, done);
-        this.$rootScope.$apply();
-      });
-
-      it('should return calendarService.getEvent if editedEvent var is a recurrent event', function(done) {
-        var event = {etag: '123', id: '123', isInstance: function() { return true; }, path: '/calendars/event'};
-        this.eventUtils.setEditedEvent(event);
-
-        var eventFromServer = {id: 'anEvent'};
-        calendarService.getEvent = function(path) {
-          expect(path).to.equal(event.path);
-          return $q.when(eventFromServer);
-        };
-
-        this.eventUtils.getEditedEvent().then(function(e) {
-          expect(e).to.deep.equal(eventFromServer);
-          done();
-        }, done);
-        this.$rootScope.$apply();
-      });
-    });
   });
 
   describe('The calendarService service', function() {
