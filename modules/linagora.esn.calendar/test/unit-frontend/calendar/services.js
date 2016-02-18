@@ -755,7 +755,7 @@ describe('The calendar module services', function() {
   });
 
   describe('The calendarService service', function() {
-    var ICAL, moment, emitMessage, CalendarCollectionShellMock, keepChangeDuringGraceperiodMock, flushContext;
+    var ICAL, moment, emitMessage, CalendarCollectionShellMock, CalendarCollectionShellFuncMock, keepChangeDuringGraceperiodMock, flushContext;
 
     beforeEach(function() {
       var self = this;
@@ -822,6 +822,10 @@ describe('The calendar module services', function() {
         self.modalCreated = true;
       };
 
+      CalendarCollectionShellMock = function() {
+        return CalendarCollectionShellFuncMock.apply(this, arguments);
+      };
+
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
@@ -832,9 +836,7 @@ describe('The calendar module services', function() {
         $provide.value('gracePeriodService', self.gracePeriodService);
         $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
         $provide.value('$modal', self.$modal);
-        $provide.value('CalendarCollectionShell', function() {
-          return CalendarCollectionShellMock.apply(this, arguments);
-        });
+        $provide.value('CalendarCollectionShell', CalendarCollectionShellMock);
         $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
       });
     });
@@ -885,7 +887,7 @@ describe('The calendar module services', function() {
         };
 
         var calendarCollection = {};
-        CalendarCollectionShellMock = sinon.spy(function(davCal) {
+        CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
           expect(davCal).to.deep.equal(response._embedded['dav:calendar'][0]);
           return calendarCollection;
         });
@@ -895,7 +897,7 @@ describe('The calendar module services', function() {
         this.calendarService.listCalendars('homeId').then(function(calendars) {
           expect(calendars).to.have.length(1);
           expect(calendars[0]).to.equal(calendarCollection);
-          expect(CalendarCollectionShellMock).to.have.been.called;
+          expect(CalendarCollectionShellFuncMock).to.have.been.called;
           done();
         });
 
@@ -904,7 +906,7 @@ describe('The calendar module services', function() {
       });
     });
 
-    describe('The create calendar fn', function() {
+    describe('The get calendar fn', function() {
       it('should wrap the received dav:calendar in a CalendarCollectionShell', function(done) {
 
         var response = {
@@ -921,7 +923,7 @@ describe('The calendar module services', function() {
         };
 
         var calendarCollection = {};
-        CalendarCollectionShellMock = sinon.spy(function(davCal) {
+        CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
           expect(davCal).to.deep.equal(response);
           return calendarCollection;
         });
@@ -930,12 +932,88 @@ describe('The calendar module services', function() {
 
         this.calendarService.getCalendar('homeId', 'id').then(function(calendar) {
           expect(calendar).to.equal(calendarCollection);
-          expect(CalendarCollectionShellMock).to.have.been.called;
+          expect(CalendarCollectionShellFuncMock).to.have.been.called;
           done();
         });
 
         this.$httpBackend.flush();
 
+      });
+    });
+
+    describe('The create calendar fn', function() {
+      it('should send a post request to the correct URL', function() {
+        var calendar = {id: 'calId'};
+
+        CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+        this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
+
+        var promiseSpy = sinon.spy();
+        this.calendarService.createCalendar('homeId', calendar).then(promiseSpy);
+
+        this.$httpBackend.flush();
+        this.$rootScope.$digest();
+
+        expect(promiseSpy).to.have.been.calledWith(calendar);
+        expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(calendar);
+      });
+
+      it('should emit a CALENDAR_EVENTS.CALENDARS.ADD event', function() {
+        var calendar = {id: 'calId'};
+
+        CalendarCollectionShellMock.toDavCalendar = angular.identity;
+
+        this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
+
+        var onSpy = sinon.spy();
+        var unregister = this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.ADD, onSpy);
+
+        this.calendarService.createCalendar('homeId', calendar);
+
+        this.$httpBackend.flush();
+        this.$rootScope.$digest();
+
+        expect(onSpy).to.have.been.calledWith(sinon.match.any, calendar);
+        unregister();
+      });
+    });
+
+    describe('The modify calendar fn', function() {
+      it('should send a put request to the correct URL and return resulting calendar', function() {
+        var calendar = {id: 'calId'};
+
+        CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+        this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/calId.json').respond(204, {});
+
+        var promiseSpy = sinon.spy();
+        this.calendarService.modifyCalendar('homeId', calendar).then(promiseSpy);
+
+        this.$httpBackend.flush();
+        this.$rootScope.$digest();
+
+        expect(promiseSpy).to.have.been.calledWith(calendar);
+        expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(calendar);
+      });
+
+      it('should emit a CALENDAR_EVENTS.CALENDARS.UPDATE event', function() {
+        var calendar = {id: 'calId'};
+
+        CalendarCollectionShellMock.toDavCalendar = angular.identity;
+
+        this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/calId.json').respond(204, calendar);
+
+        var onSpy = sinon.spy();
+        var unregister = this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.MODIFY, onSpy);
+
+        this.calendarService.modifyCalendar('homeId', calendar);
+
+        this.$httpBackend.flush();
+        this.$rootScope.$digest();
+
+        expect(onSpy).to.have.been.calledWith(sinon.match.any, calendar);
+        unregister();
       });
     });
 

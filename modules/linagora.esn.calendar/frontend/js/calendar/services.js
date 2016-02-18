@@ -59,7 +59,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, $rootScope, keepChangeDuringGraceperiod, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
+  .factory('calendarService', function($q, $rootScope, keepChangeDuringGraceperiod, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_EVENTS, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
 
     /**
      * List all calendars in the calendar home.
@@ -101,7 +101,8 @@ angular.module('esn.calendar')
     function createCalendar(calendarHomeId, calendar) {
       return calendarAPI.createCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function(response) {
-          return response;
+          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+          return calendar;
         })
         .catch($q.reject);
     }
@@ -115,7 +116,8 @@ angular.module('esn.calendar')
     function modifyCalendar(calendarHomeId, calendar) {
       return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function(response) {
-          return response;
+          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, calendar);
+          return calendar;
         })
         .catch($q.reject);
     }
