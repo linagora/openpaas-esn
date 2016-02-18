@@ -21,7 +21,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/messageEdition.html'
     };
   })
-  .controller('messageController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
+  .controller('messageController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper,
+                                            backgroundProcessorService, notificationFactory, fileUploadService, DEFAULT_FILE_TYPE) {
 
     $scope.rows = 1;
     $scope.position = {};
@@ -102,7 +103,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         var attachmentsModel = attachments.map(function(attachment) {
           var type = attachment.file.type;
           if (!type || type.length === 0) {
-            type = 'application/octet-stream';
+            type = DEFAULT_FILE_TYPE;
           }
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
@@ -196,7 +197,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       });
     };
   })
-  .controller('messageCommentController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
+  .controller('messageCommentController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper,
+                                                   backgroundProcessorService, notificationFactory, fileUploadService, DEFAULT_FILE_TYPE) {
     $scope.attachments = [];
     $scope.uploadService = null;
     $scope.commentContent = '';
@@ -210,9 +212,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       }
     };
 
-    $scope.shrink = function() {
-      return;
-    };
+    $scope.shrink = function() {};
 
     $scope.onFileSelect = function($files) {
       $scope.expand();
@@ -279,7 +279,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         var attachmentsModel = attachments.map(function(attachment) {
           var type = attachment.file.type;
           if (!type || type.length === 0) {
-            type = 'application/octet-stream';
+            type = DEFAULT_FILE_TYPE;
           }
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });

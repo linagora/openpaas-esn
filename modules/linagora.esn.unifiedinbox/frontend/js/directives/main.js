@@ -206,6 +206,7 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
+      controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
 
         scope.isBoxed = function() {return false;};
@@ -286,6 +287,7 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
       controller: 'composerController',
+      controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
         var initAttachmentZone = function() {
           var attachment = createHtmlElement('div', { 'composer-attachments': 'composer-attachments', class: 'summernote-attachments-zone'});

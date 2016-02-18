@@ -64,4 +64,52 @@ describe('The esn.file module', function() {
       expect(extension('foo/bar')).to.be.undefined;
     });
   });
+
+  describe('The xhrWithUploadProgress factory', function() {
+
+    var xhrWithUploadProgress;
+
+    beforeEach(inject(function(_xhrWithUploadProgress_) {
+      xhrWithUploadProgress = _xhrWithUploadProgress_;
+    }));
+
+    it('should return a function', function() {
+      expect(xhrWithUploadProgress()).to.be.a('function');
+    });
+
+    it('should return a function that when invoked, returns a XHR object', function() {
+      expect(xhrWithUploadProgress()()).to.be.a('XMLHttpRequest');
+    });
+  });
+
+  describe('The xhrWithUploadProgress (with mocks) factory', function() {
+
+    var xhrWithUploadProgress, XMLHttpRequestMock;
+
+    beforeEach(module(function($provide) {
+      $provide.value('XMLHttpRequest', function() { return XMLHttpRequestMock; });
+    }));
+
+    beforeEach(inject(function(_xhrWithUploadProgress_) {
+      xhrWithUploadProgress = _xhrWithUploadProgress_;
+    }));
+
+    it('should register an upload progress listener', function(done) {
+      var callback = {};
+
+      XMLHttpRequestMock = {
+        upload: {
+          addEventListener: function(name, listener) {
+            expect(name).to.equal('progress');
+            expect(listener).to.equal(callback);
+
+            done();
+          }
+        }
+      };
+
+      xhrWithUploadProgress(callback)();
+    });
+  });
+
 });

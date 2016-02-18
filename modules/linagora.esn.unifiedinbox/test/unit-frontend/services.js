@@ -3043,4 +3043,105 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The attachmentUploadService service', function() {
+
+    var $rootScope, attachmentUploadService, file = { name: 'n', size: 1, type: 'type'};
+
+    beforeEach(module(function($provide) {
+      $provide.value('withJmapClient', function(callback) {
+        return callback(null, { uploadUrl: 'http://jmap' });
+      });
+
+      $.mockjaxSettings.logging = false;
+    }));
+
+    beforeEach(inject(function(_$rootScope_, _attachmentUploadService_) {
+      $rootScope = _$rootScope_;
+      attachmentUploadService = _attachmentUploadService_;
+    }));
+
+    afterEach(function() {
+      $.mockjax.clear();
+    });
+
+    it('should POST the file, passing the content type and resolve on success', function(done) {
+      $.mockjax(function(options) {
+        return {
+          url: 'http://jmap',
+          data: file,
+          type: 'POST',
+          response: function() {
+            expect(options.headers['Content-Type']).to.equal(file.type);
+
+            this.responseText = { a: 'b' };
+          }
+        };
+      });
+
+      attachmentUploadService
+        .uploadFile(null, file, file.type, file.size, null, null)
+        .then(function(data) {
+          expect(data).to.deep.equal({ a: 'b' });
+
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should reject on error', function(done) {
+      $.mockjax({
+        url: 'http://jmap',
+        response: function() {
+          this.status = 500;
+        }
+      });
+
+      attachmentUploadService
+        .uploadFile(null, file, file.type, file.size, null, null)
+        .then(null, function(err) {
+          expect(err.xhr.status).to.equal(500);
+
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should reject on timeout', function(done) {
+      $.mockjax({
+        url: 'http://jmap',
+        isTimeout: true
+      });
+
+      attachmentUploadService
+        .uploadFile(null, file, file.type, file.size, null, null)
+        .then(null, function(err) {
+          expect(err.error).to.equal('timeout');
+
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should abort the request when the canceler resolves', function(done) {
+      $.mockjax({
+        url: 'http://jmap',
+        responseTime: 10000
+      });
+
+      attachmentUploadService
+        .uploadFile(null, file, file.type, file.size, null, $q.when())
+        .then(done, function(err) {
+          expect(err.error).to.equal('abort');
+
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+  });
+
 });
