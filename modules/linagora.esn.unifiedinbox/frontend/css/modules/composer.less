@@ -53,12 +53,14 @@ composer, composer-desktop {
       }
 
       .more-recipients {
+        .rotateZ3d(0deg);
+
         font-size: 2em;
         cursor: pointer;
         padding-left: 0;
         text-align: end;
-        .rotateZ3d(0deg);
         transition: transform 0.2s ease-out;
+
         a > i {
           font-size: 0.6em;
         }
@@ -173,8 +175,22 @@ composer, composer-desktop {
       background-color: lighten(@primaryColor, 10%);
     }
 
-    .compose-buttons {
+    .compose-footer {
       .align-self(flex-end);
+
+      margin-right: 5px;
+
+      .btn {
+        box-shadow: none;
+      }
+
+      .mdi-paperclip {
+        font-size: 1.5em;
+      }
+
+      .mdi-send {
+        margin-left: 5px;
+      }
     }
   }
 }
