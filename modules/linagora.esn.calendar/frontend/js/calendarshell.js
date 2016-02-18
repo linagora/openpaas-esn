@@ -64,6 +64,9 @@ angular.module('esn.calendar')
       get status() { return this.vevent.getFirstPropertyValue('status'); },
       set status(value) { this.vevent.updatePropertyWithValue('status', value); },
 
+      get sequence() { return this.vevent.getFirstPropertyValue('sequence') || 0; },
+      set sequence(value) { this.vevent.updatePropertyWithValue('sequence', value); },
+
       get start() {
         if (!this.__start) {
           this.__start = fcMoment(this.vevent.getFirstPropertyValue('dtstart'));

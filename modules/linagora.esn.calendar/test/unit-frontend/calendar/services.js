@@ -666,7 +666,7 @@ describe('The calendar module services', function() {
       });
     });
 
-    describe('isMajorModification function', function() {
+    describe('hasSignificantChange function', function() {
       it('should return true when the events do not have the same start date', function() {
         var newEvent = {
           start: this.fcMoment('2015-01-01 09:00:00'),
@@ -676,7 +676,7 @@ describe('The calendar module services', function() {
           start: this.fcMoment('2015-01-01 08:00:00'),
           end: this.fcMoment('2015-01-01 10:00:00')
         };
-        expect(this.eventUtils.isMajorModification(newEvent, oldEvent)).to.be.true;
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
       });
 
       it('should return true when the events do not have the same end date', function() {
@@ -688,19 +688,123 @@ describe('The calendar module services', function() {
           start: this.fcMoment('2015-01-01 09:00:00'),
           end: this.fcMoment('2015-01-01 11:00:00')
         };
-        expect(this.eventUtils.isMajorModification(newEvent, oldEvent)).to.be.true;
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
       });
 
-      it('should return false when the events have the same start and end dates', function() {
+      it('should return true when the events do not have the same due property', function() {
         var newEvent = {
           start: this.fcMoment('2015-01-01 09:00:00'),
-          end: this.fcMoment('2015-01-01 10:00:00')
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due1'
         };
         var oldEvent = {
           start: this.fcMoment('2015-01-01 09:00:00'),
-          end: this.fcMoment('2015-01-01 10:00:00')
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due2'
         };
-        expect(this.eventUtils.isMajorModification(newEvent, oldEvent)).to.be.false;
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same rrule', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 2
+          }
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          }
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same exdate', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ]
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-03 11:00:00')
+          ]
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same status', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'REFUSED'
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'ACCEPTED'
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return false when the events are the same', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'ACCEPTED'
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'ACCEPTED'
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.false;
       });
     });
 
@@ -1623,7 +1727,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should reset the attendees participation if majorModification parameter is true', function(done) {
+      it('should reset the attendees participation if hasSignificantChange parameter is true', function(done) {
         var headers = { ETag: 'changed-etag' };
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', function(data) {
           var vcalendar = new ICAL.Component(JSON.parse(data));
@@ -1631,6 +1735,35 @@ describe('The calendar module services', function() {
           vevent.getAllProperties('attendee').forEach(function(att) {
             expect(att.getParameter('partstat')).to.equal('NEEDS-ACTION');
           });
+          return true;
+        }).respond(202, { id: '123456789' });
+        this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: false
+          });
+        };
+
+        this.gracePeriodService.remove = function(taskId) {
+          expect(taskId).to.equal('123456789');
+        };
+
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, null, 'etag', true).then(
+          function() {
+            done();
+          }, unexpected.bind(null, done)
+        );
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should raise the sequence if hasSignificantChange parameter is true', function(done) {
+        var headers = { ETag: 'changed-etag' };
+        this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', function(data) {
+          var vcalendar = new ICAL.Component(JSON.parse(data));
+          var vevent = vcalendar.getFirstSubcomponent('vevent');
+          expect(vevent.getFirstPropertyValue('sequence')).to.equal(1);
           return true;
         }).respond(202, { id: '123456789' });
         this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);

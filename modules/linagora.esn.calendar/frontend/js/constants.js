@@ -97,6 +97,11 @@ angular.module('esn.calendar')
    */
   .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description'])
 
+  /**
+   * see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
+   */
+  .constant('SIGNIFICANT_CHANGE_KEYS', ['start', 'end', 'duration', 'due', 'rrule', 'rdate', 'exdate', 'status'])
+
   .constant('CALENDAR_MODIFY_COMPARE_KEYS', ['name'])
 
   .constant('MASTER_EVENT_CACHE_TTL', 300000)

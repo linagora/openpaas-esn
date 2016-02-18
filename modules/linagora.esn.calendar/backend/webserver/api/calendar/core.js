@@ -250,7 +250,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
       var template = 'event.invitation';
       switch (method) {
         case 'REQUEST':
-          if (event.sequence) {
+          if (event.sequence > 0) {
             subject = i18n.__('Event %s from %s updated', event.summary, userDisplayName(organizer));
             template = 'event.update';
             inviteMessage = i18n.__('has updated a meeting!');

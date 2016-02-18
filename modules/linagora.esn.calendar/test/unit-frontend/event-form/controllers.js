@@ -233,7 +233,7 @@ describe('The event-form module controllers', function() {
 
     describe('modifyEvent function', function() {
       beforeEach(function() {
-        this.eventUtils.isMajorModification = function() {};
+        this.eventUtils.hasSignificantChange = function() {};
       });
 
       describe('as an organizer', function() {

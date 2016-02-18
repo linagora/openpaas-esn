@@ -152,7 +152,7 @@ angular.module('esn.calendar')
       _hideModal();
       $scope.restActive = true;
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
-      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.isMajorModification($scope.editedEvent, $scope.event))
+      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventUtils.hasSignificantChange($scope.event, $scope.editedEvent))
         .then(function(response) {
           if (response) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');
