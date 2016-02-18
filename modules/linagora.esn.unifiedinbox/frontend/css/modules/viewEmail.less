@@ -93,9 +93,9 @@
         }
 
         &:hover {
-          color: darken(@action-list-icon-color, 15%);
+          color: @action-list-icon-color-dark;
           .label {
-            color: darken(@action-list-icon-color, 15%);
+            color: @action-list-icon-color-dark;
           }
         }
       }
@@ -122,7 +122,7 @@
     border: none;
 
     .attachment {
-      .flex-start;
+      .flex-space-between;
 
       position: relative;
       border-radius: 4px;
@@ -141,34 +141,44 @@
         }
       }
 
-      .icon {
-        .flex-vertical-centered;
-        .flex-horizontal-centered;
+        .icon {
+          .all-centered;
 
-        background-color: @lightenBgColor;
+          background-color: @lightenBgColor;
 
-        img {
+          img {
+            z-index: 1;
+            margin: 5px;
+            width: 40px;
+            height: 40px;
+          }
+        }
+
+        .metadata {
+          .flex-column;
+          .flex-horizontal-centered;
+          .flex-grow;
+
+          text-align: left;
+          overflow: hidden;
+          margin: 0 5px;
           z-index: 1;
-          margin: 5px;
-          width: 40px;
-          height: 40px;
+
+          .name {
+            font-size: 1.2em;
+            line-height: 1.2em;
+            font-weight: bold;
+          }
         }
-      }
 
-      .metadata {
-        .flex-column;
-        .flex-horizontal-centered;
+      .actions {
+        .all-centered;
 
-        text-align: left;
-        overflow: hidden;
-        margin: 0 5px;
-        z-index: 1;
-
-        .name {
-          font-size: 1.2em;
-          line-height: 1.2em;
-          font-weight: bold;
+        .mdi {
+          font-size: 2em;
+          vertical-align: sub;
         }
+
       }
 
     }

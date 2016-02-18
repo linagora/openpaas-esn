@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $q, $timeout, $window, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      isMobile, searchService, autosize;
+      isMobile, searchService, autosize, windowMock;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -23,6 +23,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   beforeEach(module(function($provide) {
     isMobile = false;
+    windowMock = {
+      open: sinon.spy()
+    };
 
     $provide.constant('MAILBOX_ROLE_ICONS_MAPPING', {
       testrole: 'testclass',
@@ -46,6 +49,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('elementScrollService', elementScrollService = {
       autoScrollDown: sinon.spy(),
       scrollDownToElement: sinon.spy()
+    });
+    $provide.decorator('$window', function($delegate) {
+      return angular.extend($delegate, windowMock);
     });
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
@@ -892,6 +898,20 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         compileDirective('<email-star email="email" />').controller('emailStar').setIsFlagged(true);
       });
 
+    });
+
+  });
+
+  describe('The inboxAttachment directive', function() {
+
+    it('should call $window.open once clicked', function() {
+      $scope.attachment = {
+        url: 'url'
+      };
+
+      compileDirective('<inbox-attachment attachment="attachment"/>').click();
+
+      expect(windowMock.open).to.have.been.calledWith('url');
     });
 
   });
