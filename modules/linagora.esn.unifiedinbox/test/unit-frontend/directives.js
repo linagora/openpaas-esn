@@ -916,4 +916,76 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
+  describe('The emailBodyAttachments directive', function() {
+
+    var elementScrollService;
+
+    beforeEach(inject(function(_elementScrollService_) {
+      elementScrollService = _elementScrollService_;
+
+      elementScrollService.scrollDownToElement = sinon.spy();
+    }));
+
+    function emitAddEvent() {
+      $scope.$broadcast('composer:attachment:add');
+      $scope.$digest();
+    }
+
+    function expectScrollToAttachmentNamed(expectedName, callIndex) {
+      var callIndexArgs = elementScrollService.scrollDownToElement.args[callIndex];
+      expect(callIndexArgs[0].attr('name')).to.equal(expectedName);
+    }
+
+    it('should not try to scroll when there is no attachment', function() {
+      $scope.attachments = [];
+      compileDirective('<email-body-attachments />');
+
+      emitAddEvent();
+
+      expect(elementScrollService.scrollDownToElement).to.not.have.been.called;
+    });
+
+    it('should scroll to the only attachment when there is only one', function() {
+      $scope.attachments = [{height:64, id:'2'}];
+      compileDirective('<email-body-attachments />');
+
+      emitAddEvent();
+
+      expect(elementScrollService.scrollDownToElement).to.have.been.calledOnce;
+      expectScrollToAttachmentNamed('attachment-0', 0);
+    });
+
+    it('should scroll to the last attachment when there are many', function() {
+      $scope.attachments = [{height:64, id:'2'}, {height:65, id:'3'}, {height:66, id:'4'}];
+      compileDirective('<email-body-attachments />');
+
+      emitAddEvent();
+
+      expect(elementScrollService.scrollDownToElement).to.have.been.calledOnce;
+      expectScrollToAttachmentNamed('attachment-2', 0);
+    });
+
+    it('should scroll to the last attachment every time that there is a new one', function() {
+      $scope.attachments = [{height:64, id:'2'}];
+      compileDirective('<email-body-attachments />');
+
+      emitAddEvent();
+
+      $scope.attachments.push({height:65, id:'3'});
+      $scope.$digest();
+      emitAddEvent();
+
+      $scope.attachments.push({height:66, id:'4'});
+      $scope.attachments.push({height:67, id:'5'});
+      $scope.$digest();
+      emitAddEvent();
+
+      expect(elementScrollService.scrollDownToElement).to.have.been.calledThrice;
+      expectScrollToAttachmentNamed('attachment-0', 0);
+      expectScrollToAttachmentNamed('attachment-1', 1);
+      expectScrollToAttachmentNamed('attachment-3', 2);
+    });
+
+  });
+
 });

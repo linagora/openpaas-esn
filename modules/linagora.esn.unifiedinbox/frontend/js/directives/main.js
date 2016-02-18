@@ -342,6 +342,28 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('emailBodyAttachments', function(_, elementScrollService) {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: '/unifiedinbox/views/composer/editor/attachments.html',
+      link: function(scope, element) {
+
+        scope.$on('composer:attachment:add', function() {
+          scrollToLastAttachment();
+        });
+
+        function scrollToLastAttachment() {
+          var lastAttachment = _.last(element.find('.attachment'));
+          if (lastAttachment) {
+            elementScrollService.scrollDownToElement(angular.element(lastAttachment));
+          }
+        }
+
+      }
+    };
+  })
+
   .directive('emailStar', function(jmapEmailService) {
     return {
       restrict: 'E',
