@@ -12,13 +12,6 @@
   margin-right: 2px;
 }
 
-.avatarify {
-  @media (min-width: @screen-md-min) {
-    padding-left: 50px;
-    background: ~"url('/images/user.png') no-repeat center left/40px";
-  }
-}
-
 .emailer {
   display: inline-block;
 
@@ -41,7 +34,7 @@
     font-size: 20px;
     vertical-align: middle;
 
-    margin-right: 10px;
+    margin-left: 10px;
 
     &.mdi-star {
       color: @primaryColor;
@@ -54,6 +47,22 @@
     &.mdi-star-off {
       color: @m-gray;
     }
+  }
+
+  .list-image {
+    float: left;
+    height: 40px;
+  }
+
+  .avatarify {
+    @media (min-width: @screen-md-min) {
+      padding-left: 50px;
+      background: ~"url('/images/user.png') no-repeat center left/40px";
+    }
+  }
+
+  .indicators {
+    margin-top: 5px;
   }
 }
 
