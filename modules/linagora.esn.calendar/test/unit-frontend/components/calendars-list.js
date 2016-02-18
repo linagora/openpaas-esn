@@ -43,9 +43,8 @@ describe('The calendar-lists component', function() {
     })];
     this.initDirective(this.$scope);
 
-    this.eleScope.calendars.forEach(function(calendar) {
-      expect(calendar.toggled).to.be.true;
-    });
+    expect(this.eleScope.hiddenCalendars).to.deep.equal({});
+
     expect(this.eleScope.onEditClick).to.exist;
   });
 
@@ -59,7 +58,7 @@ describe('The calendar-lists component', function() {
     it('should toggle calendar.toggled and emit the calendar into CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW', function() {
       var toggleSpy = sinon.spy();
       this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
-        expect(data.href).to.equal('href');
+        expect(data.calendar.href).to.equal('href');
         toggleSpy();
       });
       this.$scope.calendars = [this.CalendarCollectionShell.from({
@@ -76,7 +75,7 @@ describe('The calendar-lists component', function() {
       })];
       this.initDirective(this.$scope);
       this.eleScope.toggleCalendar(this.eleScope.calendars[0]);
-      expect(this.eleScope.calendars[0].toggled).to.be.false;
+      expect(this.eleScope.hiddenCalendars[this.eleScope.calendars[0].id]).to.be.true;
       expect(toggleSpy).to.have.been.calledOnce;
     });
   });

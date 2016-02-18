@@ -10,31 +10,19 @@ angular.module('esn.calendar')
   .directive('calendarsList', function(session, calendarService, CalendarCollectionShell, uuid4, CALENDAR_EVENTS) {
     function link(scope) {
       scope.onEditClick = scope.onEditClick || angular.noop;
+      scope.hiddenCalendars = {};
 
-      function cloneCalendar(calendar) {
-        return {
-          href: calendar.href,
-          name: calendar.name,
-          color: calendar.color,
-          description: calendar.description,
-          id: calendar.id,
-          toggled: true
-        };
-      }
-
-      if (!scope._calendars && !angular.isArray(scope._calendars)) {
+      if (!scope.calendars && !angular.isArray(scope.calendars)) {
         session.ready.then(function() {
           calendarService.listCalendars(session.user._id).then(function(calendars) {
-            scope.calendars = calendars.map(cloneCalendar);
+            scope.calendars = calendars;
           });
         });
-      } else {
-        scope.calendars = scope._calendars.map(cloneCalendar);
       }
 
       scope.toggleCalendar = function(calendar)  {
-        calendar.toggled = !calendar.toggled;
-        scope.$emit(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, calendar);
+        var hidden = scope.hiddenCalendars[calendar.id] = !scope.hiddenCalendars[calendar.id];
+        scope.$emit(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {calendar: calendar, hidden: hidden});
       };
     }
 
@@ -43,7 +31,7 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/components/calendars-list.html',
       scope: {
-        _calendars: '=?calendars',
+        calendars: '=?calendars',
         onEditClick: '=?'
       },
       link: link

@@ -230,12 +230,12 @@ angular.module('esn.calendar')
           calendar.fullCalendar('renderEvent', _withBackgroundColor(data));
         });
       }),
-      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, calendar) {
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
         calendarPromise.then(function(cal) {
-          if (calendar.toggled) {
-            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+          if (data.hidden) {
+            cal.fullCalendar('removeEventSource', $scope.eventSourcesMap[data.calendar.href]);
           } else {
-            cal.fullCalendar('removeEventSource', $scope.eventSourcesMap[calendar.href]);
+            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[data.calendar.href]);
           }
         });
       }),
@@ -244,6 +244,16 @@ angular.module('esn.calendar')
           var view = calendar.fullCalendar('getView');
           if (newDate && !newDate.isBetween(view.start, view.end)) {
             calendar.fullCalendar('gotoDate', newDate);
+          }
+        });
+      }),
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) {
+        $scope.calendars.push(calendar);
+      }),
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.UPDATE, function(event, calendar) {
+        $scope.calendars.forEach(function(cal, index) {
+          if (calendar.id === cal.id) {
+            $scope.calendars[index] = calendar;
           }
         });
       })

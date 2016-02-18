@@ -12,9 +12,9 @@
         .media
           .pull-left(ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-label(ng-style="{'color': calendar.color}")
-          .pull-left(ng-if="calendar.toggled", ng-click="toggleCalendar(calendar)")
+          .pull-left(ng-if="!hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-checkbox-marked-outline
-          .pull-left(ng-if="!calendar.toggled", ng-click="toggleCalendar(calendar)")
+          .pull-left(ng-if="hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-checkbox-blank-outline
           .pull-right.hidden-xs(ui-sref='calendar.edit({id: calendar.id})' ui-sref-opts='{id: calendar.id}')
               i.mdi.mdi-settings
