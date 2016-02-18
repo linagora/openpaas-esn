@@ -23,7 +23,6 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .filter('emailerList', function($filter) {
-
     return function(array, prefix) {
       array = array || [];
 
@@ -37,5 +36,25 @@ angular.module('linagora.esn.unifiedinbox')
         result = prefix + result;
       }
       return result;
+    };
+  })
+
+  .filter('inlineImages', function(_) {
+    return function(text, attachments) {
+      if (!angular.isArray(attachments) || attachments.length === 0) {
+        return text;
+      }
+
+      return text.replace(/src=["']cid:([^]+?)["']/gim, function(match, cid) {
+        var attachment = _.find(attachments, { cid: cid });
+
+        return attachment ? 'src="' + attachment.url + '"' : match;
+      });
+    };
+  })
+
+  .filter('loadImagesAsync', function() {
+    return function(text) {
+      return text.replace(/<img([^]*?)src=["']([^]+?)["']/gim, '<img$1src="/images/throbber-amber.svg" data-async-src="$2"');
     };
   });
