@@ -59,7 +59,25 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, $rootScope, keepChangeDuringGraceperiod, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_EVENTS, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
+  .factory('calendarService', function(
+    $q,
+    $rootScope,
+    $modal,
+    keepChangeDuringGraceperiod,
+    CalendarShell,
+    CalendarCollectionShell,
+    calendarAPI,
+    eventAPI,
+    calendarEventEmitter,
+    eventUtils,
+    calendarUtils,
+    gracePeriodService,
+    gracePeriodLiveNotification,
+    notifyService,
+    ICAL,
+    CALENDAR_GRACE_DELAY,
+    CALENDAR_EVENTS,
+    CALENDAR_ERROR_DISPLAY_DELAY) {
 
     /**
      * List all calendars in the calendar home.
@@ -311,12 +329,11 @@ angular.module('esn.calendar')
      * @param  {CalendarShell}     event             the event from fullcalendar. It is used in case of rollback.
      * @param  {CalendarShell}     oldEvent          the event from fullcalendar. It is used in case of rollback.
      * @param  {String}            etag              the etag
-     * @param  {boolean}           hasSignificantChange it is used to reset invited attendees status to 'NEEDS-ACTION'
      * @param  {Function}          onCancel          callback called in case of rollback, ie when we cancel the task
      * @return {Mixed}                               the new event wrap into a CalendarShell if it works, the http response otherwise.
      */
-    function modifyEvent(path, event, oldEvent, etag, hasSignificantChange, onCancel) {
-      if (hasSignificantChange) {
+    function modifyEvent(path, event, oldEvent, etag, onCancel) {
+      if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
         // see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
@@ -376,7 +393,7 @@ angular.module('esn.calendar')
           });
         } else if (gracePeriodService.hasTask(taskId)) {
           gracePeriodService.remove(taskId);
-          return event;
+          return master;
         }
       })
       .catch($q.reject);
@@ -446,7 +463,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventUtils', function($q, $sanitize, ICAL, session, calendarService, SIGNIFICANT_CHANGE_KEYS) {
+  .service('eventUtils', function($q, $sanitize, session, SIGNIFICANT_CHANGE_KEYS) {
     var editedEvent = {};
     var newAttendees = [];
 

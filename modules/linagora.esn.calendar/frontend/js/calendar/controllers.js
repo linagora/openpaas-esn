@@ -102,10 +102,10 @@ angular.module('esn.calendar')
         $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
       }
 
-      calendarService.modifyEvent(path, newEvent, oldEvent, newEvent.etag, delta.milliseconds !== 0, revertFunc)
+      calendarService.modifyEvent(path, newEvent, oldEvent, newEvent.etag, revertFunc)
         .then(function(response) {
           if (response) {
-            notificationFactory.weakInfo('Calendar - ', event.title + ' has been modified.');
+            notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
           }
         });
     };

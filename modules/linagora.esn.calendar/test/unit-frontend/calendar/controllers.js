@@ -666,7 +666,7 @@ describe('The calendar module controllers', function() {
           done();
         });
 
-        this.calendarServiceMock.modifyEvent = function(path, e, _oldEvent, etag, delta, revertFunc) {
+        this.calendarServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) {
           oldEvent = _oldEvent;
           revertFunc();
           return $q.when({});
@@ -687,7 +687,7 @@ describe('The calendar module controllers', function() {
         this.scope.event = event;
         var delta = this.fcMoment.duration(1, 'hours');
 
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, _delta, revertFunc) {
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, revertFunc) {
           expect(oldEvent.end.add(delta).isSame(origEnd)).to.be.true;
           done();
         };
@@ -709,7 +709,7 @@ describe('The calendar module controllers', function() {
         this.scope.event = event;
         var delta = this.fcMoment.duration(1, 'hours');
 
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, _delta, revertFunc) {
+        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, revertFunc) {
           expect(oldEvent.end.add(delta).isSame(origEnd)).to.be.true;
           expect(oldEvent.start.add(delta).isSame(origStart)).to.be.true;
           done();
