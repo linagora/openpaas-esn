@@ -5,7 +5,10 @@
 var expect = chai.expect;
 
 describe('The calendar module directives', function() {
+  var self;
+
   beforeEach(function() {
+    self = this;
     module('jadeTemplates');
     angular.mock.module('linagora.esn.graceperiod', 'esn.calendar', 'angular-nicescroll');
   });
@@ -17,7 +20,9 @@ describe('The calendar module directives', function() {
 
     beforeEach(function() {
       calendarServiceMock = {
-        listCalendars: angular.identity.bind(null, [])
+        listCalendars: function() {
+          return self.$q.when([]);
+        }
       };
 
       angular.mock.module('ui.calendar', function($provide) {
@@ -25,10 +30,11 @@ describe('The calendar module directives', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
+    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, $q) {
       this.$compile = _$compile_;
       this.$rootScope = _$rootScope_;
       this.$scope = this.$rootScope.$new();
+      this.$q = $q;
 
       this.initDirective = function(scope) {
         var element = this.$compile('<calendar-left-pane/>')(scope);

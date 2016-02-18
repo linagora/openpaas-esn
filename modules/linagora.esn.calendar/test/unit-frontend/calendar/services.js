@@ -4,9 +4,13 @@
 /* global sinon: false */
 /* global _: false */
 
-var expect = chai.expect;
+var self, expect = chai.expect;
 
 describe('The calendar module services', function() {
+
+  beforeEach(function() {
+    self = this;
+  });
 
   describe('The request factory', function() {
     beforeEach(function() {
@@ -49,7 +53,6 @@ describe('The calendar module services', function() {
         }
       };
 
-      var self = this;
       angular.mock.module('linagora.esn.graceperiod');
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
@@ -178,10 +181,8 @@ describe('The calendar module services', function() {
   });
 
   describe('The keepChangeDuringGraceperiod service', function() {
-    var self;
 
     beforeEach(function() {
-      self = this;
 
       this.originalCallback = sinon.spy();
       this.events = [{id: 1, title: 'should not be replaced'}, {id:2, title: 'to be replaced'}];
@@ -350,14 +351,11 @@ describe('The calendar module services', function() {
 
   describe('The calendarUtils service', function() {
 
-    var self;
-
     beforeEach(function() {
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       this.fcMomentMock = null;
 
-      self = this;
       angular.mock.module(function($provide) {
         $provide.decorator('fcMoment', function($delegate) {
           return function() {
@@ -823,7 +821,6 @@ describe('The calendar module services', function() {
     var ICAL, moment, emitMessage, CalendarCollectionShellMock, CalendarCollectionShellFuncMock, keepChangeDuringGraceperiodMock, flushContext;
 
     beforeEach(function() {
-      var self = this;
       this.tokenAPI = {
         _token: '123',
         getNewToken: function() {
@@ -906,7 +903,7 @@ describe('The calendar module services', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, _ICAL_, CalendarShell, fcMoment, _moment_, CALENDAR_EVENTS) {
+    beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, _ICAL_, CalendarShell, fcMoment, _moment_, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.$rootScope.$emit = function(message) {
@@ -918,6 +915,7 @@ describe('The calendar module services', function() {
       ICAL = _ICAL_;
       moment = _moment_;
       this.CALENDAR_EVENTS = CALENDAR_EVENTS;
+      this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
     }));
 
     afterEach(function() {
@@ -925,9 +923,10 @@ describe('The calendar module services', function() {
     });
 
     describe('The listCalendars fn', function() {
-      it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
+      var response;
 
-        var response = {
+      beforeEach(function() {
+        response = {
           _links: {
             self: {
               href:'\/calendars\/56698ca29e4cf21f66800def.json'
@@ -950,8 +949,10 @@ describe('The calendar module services', function() {
             ]
           }
         };
+      });
 
-        var calendarCollection = {};
+      it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
+        var calendarCollection = {id: this.DEFAULT_CALENDAR_ID};
         CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
           expect(davCal).to.deep.equal(response._embedded['dav:calendar'][0]);
           return calendarCollection;
@@ -967,7 +968,20 @@ describe('The calendar module services', function() {
         });
 
         this.$httpBackend.flush();
+      });
 
+      it('should cache calendars', function() {
+        CalendarCollectionShellFuncMock = angular.identity;
+
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond(response);
+
+        this.calendarService.listCalendars('homeId').then(function(calendars) {
+          self.calendarService.listCalendars('homeId').then(function(calendars2) {
+            expect(calendars).to.equal(calendars2);
+          });
+        });
+
+        this.$httpBackend.flush();
       });
     });
 
@@ -1024,23 +1038,30 @@ describe('The calendar module services', function() {
         expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(calendar);
       });
 
-      it('should emit a CALENDAR_EVENTS.CALENDARS.ADD event', function() {
-        var calendar = {id: 'calId'};
+      it('should sync cache of list calendars', function(done) {
+        CalendarCollectionShellFuncMock = angular.identity;
 
-        CalendarCollectionShellMock.toDavCalendar = angular.identity;
-
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded:{
+          'dav:calendar': [{id:1}, {id:2}]
+        }});
         this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
 
-        var onSpy = sinon.spy();
-        var unregister = this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.ADD, onSpy);
-
-        this.calendarService.createCalendar('homeId', calendar);
+        this.calendarService.listCalendars('homeId').then(function(calendars) {
+          var calendar = {id: 'calId'};
+          CalendarCollectionShellMock.toDavCalendar = angular.identity;
+          self.calendarService.createCalendar('homeId', calendar).then(function() {
+            self.calendarService.listCalendars('homeId').then(function(calendar) {
+              expect(calendar).to.shallowDeepEqual({
+                length: 3,
+                2: {id: 'calId'}
+              });
+              done();
+            });
+          });
+        });
 
         this.$httpBackend.flush();
         this.$rootScope.$digest();
-
-        expect(onSpy).to.have.been.calledWith(sinon.match.any, calendar);
-        unregister();
       });
     });
 
@@ -1062,23 +1083,30 @@ describe('The calendar module services', function() {
         expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(calendar);
       });
 
-      it('should emit a CALENDAR_EVENTS.CALENDARS.UPDATE event', function() {
-        var calendar = {id: 'calId'};
+      it('should sync cache of list calendars', function(done) {
+        CalendarCollectionShellFuncMock = angular.identity;
 
-        CalendarCollectionShellMock.toDavCalendar = angular.identity;
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded:{
+          'dav:calendar': [{id:1}, {id:'events', selected: true}]
+        }});
+        this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/events.json').respond(204, {});
 
-        this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/calId.json').respond(204, calendar);
-
-        var onSpy = sinon.spy();
-        var unregister = this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.MODIFY, onSpy);
-
-        this.calendarService.modifyCalendar('homeId', calendar);
+        this.calendarService.listCalendars('homeId').then(function(calendars) {
+          var calendar = {id: 'events', name: 'modified cal'};
+          CalendarCollectionShellMock.toDavCalendar = angular.identity;
+          self.calendarService.modifyCalendar('homeId', calendar).then(function() {
+            self.calendarService.listCalendars('homeId').then(function(calendar) {
+              expect(calendar).to.shallowDeepEqual({
+                length: 2,
+                1: {id: 'events', name: 'modified cal', selected: true}
+              });
+              done();
+            });
+          });
+        });
 
         this.$httpBackend.flush();
         this.$rootScope.$digest();
-
-        expect(onSpy).to.have.been.calledWith(sinon.match.any, calendar);
-        unregister();
       });
     });
 
@@ -1378,7 +1406,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
         this.calendarService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true }).then(
           function(shell) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
@@ -1424,7 +1451,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
         this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
@@ -1528,7 +1554,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
         this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
@@ -1609,7 +1634,6 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        var self = this;
         this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
           function(shell) {
             expect(shell.title).to.equal('test event');
@@ -1669,6 +1693,7 @@ describe('The calendar module services', function() {
           'If-Match': 'etag',
           Accept: 'application/json, text/plain, */*'
         };
+
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', this.vcalendar.toJSON(), requestHeaders).respond(202, { id: '123456789' }, { ETag: 'changed-etag' });
         this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, this.vcalendar.toJSON());
 
@@ -1773,7 +1798,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
         this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag').then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
@@ -1883,7 +1907,6 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
         this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag').then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
@@ -1966,7 +1989,6 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
-        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
@@ -2001,7 +2023,6 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
-        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
@@ -2080,7 +2101,6 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
-        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
@@ -2117,7 +2137,6 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
-        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
@@ -2151,7 +2170,6 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: taskId});
 
-        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);

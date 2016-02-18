@@ -153,9 +153,10 @@ angular.module('esn.calendar')
 
     $scope.eventSourcesMap = {};
     $scope.eventSources = [];
+
     calendarService.listCalendars($scope.calendarHomeId)
       .then(function(calendars) {
-        $scope.calendars = calendars;
+        $scope.calendars = calendars || [];
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
             events: keepChangeDuringGraceperiod.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),

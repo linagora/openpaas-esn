@@ -108,6 +108,8 @@ angular.module('esn.calendar')
 
   .constant('MASTER_EVENT_CACHE_TTL', 300000)
 
+  .constant('DEFAULT_CALENDAR_ID', 'events')
+
   .constant('CALENDAR_EVENTS', {
     CALENDAR_HEIGHT: 'calendar:height',
     EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',

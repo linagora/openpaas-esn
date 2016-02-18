@@ -79,21 +79,28 @@ angular.module('esn.calendar')
     CALENDAR_EVENTS,
     CALENDAR_ERROR_DISPLAY_DELAY) {
 
+    var calendarsCache = {};
+    var promiseCache = {};
+
     /**
      * List all calendars in the calendar home.
      * @param  {String}     calendarHomeId  The calendar home id
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
     function listCalendars(calendarHomeId) {
-      return calendarAPI.listCalendars(calendarHomeId)
+      promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId)
         .then(function(calendars) {
           var vcalendars = [];
           calendars.forEach(function(calendar) {
-            vcalendars.push(new CalendarCollectionShell(calendar));
+            var vcal = new CalendarCollectionShell(calendar);
+            vcalendars.push(vcal);
           });
-          return vcalendars;
+          calendarsCache[calendarHomeId] = vcalendars;
+          return calendarsCache[calendarHomeId];
         })
         .catch($q.reject);
+
+      return promiseCache[calendarHomeId];
     }
 
     /**
@@ -119,14 +126,13 @@ angular.module('esn.calendar')
     function createCalendar(calendarHomeId, calendar) {
       return calendarAPI.createCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function(response) {
-          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+          (calendarsCache[calendarHomeId] || []).push(calendar);
           return calendar;
         })
         .catch($q.reject);
     }
 
-    /**
-     * Modify a calendar in the calendar home defined by its id.
+    /** * Modify a calendar in the calendar home defined by its id.
      * @param  {String}                   calendarHomeId the id of the calendar in which we will create a new calendar
      * @param  {CalendarCollectionShell}  calendar       the calendar to create
      * @return {Object}                                  the http response
@@ -134,6 +140,12 @@ angular.module('esn.calendar')
     function modifyCalendar(calendarHomeId, calendar) {
       return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function(response) {
+          (calendarsCache[calendarHomeId] || []).forEach(function(cal, index) {
+            if (calendar.id === cal.id) {
+              calendar.selected = calendarsCache[calendarHomeId][index].selected;
+              calendarsCache[calendarHomeId][index] = calendar;
+            }
+          });
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, calendar);
           return calendar;
         })
