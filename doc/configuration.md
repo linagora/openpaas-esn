@@ -201,5 +201,9 @@ Tell to the ESN instances where is the JMAP API that will be used by the Unified
 
     {
       "_id": "jmap",
-      "api": "https://jmap-server/jmap/"
+      "api": "https://jmap-server/jmap/",
+      "isJmapSendingEnabled": false
     }
+
+Set `isJmapSendingEnabled` to `true` to use JMAP to send email, if not, it will
+use the default mailer of ESN
