@@ -48,7 +48,7 @@ angular.module('esn.calendar')
         }
         calendarService.modifyCalendar(calendarService.calendarHomeId, shell)
           .then(function() {
-            notificationFactory.weakInfo('New calendar - ', $scope.calendar.name + ' has been modified.');
+            notificationFactory.weakInfo('Calendar - ', $scope.calendar.name + ' has been modified.');
             $state.go('calendar.main');
           });
       }
