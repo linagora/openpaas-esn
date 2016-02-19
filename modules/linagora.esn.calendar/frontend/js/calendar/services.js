@@ -669,7 +669,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarCurrentView', function($location, fcMoment, CALENDAR_AVAILABLE_VIEWS) {
+  .factory('calendarCurrentView', function($location, screenSize, fcMoment, CALENDAR_AVAILABLE_VIEWS) {
 
     function save(view) {
       var firstDayOfView = view.name === 'month' ? fcMoment(view.start).add(7, 'days').startOf('month') : view.start;
@@ -683,8 +683,11 @@ angular.module('esn.calendar')
       var view = {};
       var getParam = $location.search();
 
-      if (CALENDAR_AVAILABLE_VIEWS.indexOf(getParam.viewMode) !== -1) {
+      if (getParam.viewMode && CALENDAR_AVAILABLE_VIEWS.indexOf(getParam.viewMode) !== -1) {
         view.name = getParam.viewMode;
+      } else if (screenSize.is('xs, sm')) {
+        // on mobile we force the 'agendaThreeDays' view
+        view.name = CALENDAR_AVAILABLE_VIEWS[3];
       }
 
       var day = fcMoment(getParam.start);
