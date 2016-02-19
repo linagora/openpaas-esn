@@ -6,11 +6,11 @@ angular.module('esn.calendar')
 
     $scope.calendars = calendars;
 
-    $scope.modify = function(cal) {
-      $state.go('calendar.edit', {id: cal.id});
+    $scope.modify = function(calendar) {
+      $state.go('calendar.edit', {calendarId: calendar.id});
     };
 
-    $scope.add = function(cal) {
+    $scope.add = function() {
       $state.go('calendar.add');
     };
 

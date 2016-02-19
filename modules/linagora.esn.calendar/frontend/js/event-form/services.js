@@ -10,14 +10,14 @@ angular.module('esn.calendar')
    * Note that mobile devices have only access to the full form and the consult form.
    * This service will open the correct form corresponding to the event and the screen size.
    */
-  .factory('openEventForm', function($state, $modal, screenSize, eventUtils) {
+  .factory('openEventForm', function($state, $modal, screenSize, calendarService, eventUtils) {
     return function openEventForm(event) {
-      eventUtils.setEditedEvent(event || {});
+      eventUtils.setEditedEvent(event);
       if (screenSize.is('xs, sm')) {
-        if (!event || eventUtils.isOrganizer(event)) {
-          $state.go('calendar.eventEdit');
+        if (eventUtils.isOrganizer(event)) {
+          $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: event.id});
         } else {
-          $state.go('calendar.eventConsult');
+          $state.go('calendar.event.consult', {calendarId: calendarService.calendarHomeId, eventId: event.id});
         }
       } else {
         $modal({
