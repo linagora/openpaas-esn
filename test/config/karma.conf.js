@@ -12,7 +12,6 @@ module.exports = function(config) {
 
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-ui-router/release/angular-ui-router.js',
-      'frontend/components/ui-router-extras/release/ct-ui-router-extras.min.js',
       'frontend/components/angular-animate/angular-animate.js',
       'frontend/components/angular-strap/dist/angular-strap.js',
       'frontend/components/angular-strap/dist/angular-strap.tpl.js',
