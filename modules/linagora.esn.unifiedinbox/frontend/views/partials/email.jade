@@ -24,7 +24,7 @@
             i.mdi.mdi-view-module
       .flex-space-between.horiz-space
         email-star(email='::email')
-        span.date {{::email.date | date:'short' }}
+        span.action-item.date {{::email.date | date:'short' }}
 
   .email-body
     html-email-body(ng-if="email.htmlBody", email="::email")
