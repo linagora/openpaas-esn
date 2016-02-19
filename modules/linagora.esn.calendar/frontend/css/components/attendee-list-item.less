@@ -3,8 +3,8 @@
   margin-left: 5px;
 
   img {
-    height: 40px;
-    width: 40px;
+    height: 45px;
+    width: 45px !important; /* override material-admin  */
   }
 
   span {
@@ -17,22 +17,12 @@
 .attendee-avatar {
   .checkbox {
     position: absolute;
-    bottom: -22px;
-    right: -20px;
+    top: 24px;
+    left: 36px;
   }
   img {
     border: 1px solid black;
     border-radius: 2px;
-  }
-}
-
-@media (min-width: @screen-sm-min) {
-  .attendee-list-item {
-    .attendee-avatar {
-      .checkbox {
-        bottom: -2px;
-      }
-    }
   }
 }
 
