@@ -115,7 +115,9 @@ angular.module('esn.calendar', [
             event: function($stateParams, $state, pathBuilder, calendarService, eventUtils, notificationFactory) {
               var eventPath = pathBuilder.forEventId($stateParams.calendarId, $stateParams.eventId);
               return eventUtils.getEditedEvent() || calendarService.getEvent(eventPath).catch(function(error) {
-                notificationFactory.weakError('Cannot display this event.', error.statusText);
+                if (error.status !== 404) {
+                  notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
+                }
                 $state.go('calendar.main');
               });
             }
