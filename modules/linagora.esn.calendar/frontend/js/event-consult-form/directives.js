@@ -87,17 +87,4 @@ angular.module('esn.calendar')
         }
       }
     };
-  })
-
-  .directive('attendeeListItemConsult', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/event-consult-form/attendee-list-item-consult.html',
-      scope: {
-        attendee: '=',
-        readOnly: '=',
-        mode: '='
-      }
-    };
   });

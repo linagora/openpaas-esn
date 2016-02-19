@@ -25,4 +25,15 @@ angular.module('esn.calendar')
         readOnly: '='
       }
     };
+  })
+
+  .directive('attendeeListItemConsult', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/components/attendee-list-item-consult.html',
+      scope: {
+        attendee: '='
+      }
+    };
   });
