@@ -561,6 +561,20 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       }));
     });
 
+    it('should expose an onInit function to the scope', function() {
+      compileDirective('<composer-desktop />');
+
+      expect($scope.onInit).to.be.a('function');
+    });
+
+    it('should add a new composer-desktop-attachments element', function() {
+      var element = compileDirective('<composer-desktop />');
+      expect(element.find('[composer-attachments]')).to.have.length(0);
+
+      $timeout.flush();
+      expect(element.find('[composer-attachments]')).to.have.length(1);
+    });
+
   });
 
   /**
@@ -916,13 +930,16 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
-  describe('The emailBodyAttachments directive', function() {
+  describe('The composerAttachments directive', function() {
 
     var elementScrollService;
 
+    beforeEach(function() {
+      $scope.email = {};
+    });
+
     beforeEach(inject(function(_elementScrollService_) {
       elementScrollService = _elementScrollService_;
-
       elementScrollService.scrollDownToElement = sinon.spy();
     }));
 
@@ -937,8 +954,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     }
 
     it('should not try to scroll when there is no attachment', function() {
-      $scope.attachments = [];
-      compileDirective('<email-body-attachments />');
+      $scope.email.attachments = [];
+      compileDirective('<composer-attachments />');
 
       emitAddEvent();
 
@@ -946,8 +963,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should scroll to the only attachment when there is only one', function() {
-      $scope.attachments = [{height:64, id:'2'}];
-      compileDirective('<email-body-attachments />');
+      $scope.email.attachments = [{height:64, id:'2'}];
+      compileDirective('<composer-attachments />');
 
       emitAddEvent();
 
@@ -956,8 +973,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should scroll to the last attachment when there are many', function() {
-      $scope.attachments = [{height:64, id:'2'}, {height:65, id:'3'}, {height:66, id:'4'}];
-      compileDirective('<email-body-attachments />');
+      $scope.email.attachments = [{height:64, id:'2'}, {height:65, id:'3'}, {height:66, id:'4'}];
+      compileDirective('<composer-attachments />');
 
       emitAddEvent();
 
@@ -966,17 +983,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should scroll to the last attachment every time that there is a new one', function() {
-      $scope.attachments = [{height:64, id:'2'}];
-      compileDirective('<email-body-attachments />');
+      $scope.email.attachments = [{height:64, id:'2'}];
+      compileDirective('<composer-attachments />');
 
       emitAddEvent();
 
-      $scope.attachments.push({height:65, id:'3'});
+      $scope.email.attachments.push({height:65, id:'3'});
       $scope.$digest();
       emitAddEvent();
 
-      $scope.attachments.push({height:66, id:'4'});
-      $scope.attachments.push({height:67, id:'5'});
+      $scope.email.attachments.push({height:66, id:'4'});
+      $scope.email.attachments.push({height:67, id:'5'});
       $scope.$digest();
       emitAddEvent();
 

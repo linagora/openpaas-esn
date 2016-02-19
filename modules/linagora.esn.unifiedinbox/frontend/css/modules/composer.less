@@ -1,4 +1,5 @@
 @autocompleteFontSize: 10px;
+@attachments-zone-min-height: 20px;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
@@ -229,14 +230,26 @@ composer {
 
 }
 
+.summernote-attachments-zone {
+  min-height: @attachments-zone-min-height;
+}
+
 composer-desktop {
 
   .compose {
 
     .note-editor {
 
-      .note-editable {
+      .note-editing-area {
         .fill-parent-block;
+
+        top: 40px;
+        overflow: auto;
+
+        .note-editable {
+          min-height: ~'calc(100% - @{attachments-zone-min-height})';
+          overflow: hidden;
+        }
       }
 
     }
