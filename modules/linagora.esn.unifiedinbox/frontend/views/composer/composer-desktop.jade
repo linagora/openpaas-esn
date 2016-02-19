@@ -25,6 +25,8 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
 
   email-body-editor
 
-  .btn-group.compose-buttons(role="group", aria-label="label")
+  .compose-footer
+    button.btn.btn-default(type="button")
+      i.mdi.mdi-paperclip
     button.btn.btn-primary(type="submit", value="submit") #{__('Send')}
-      i.mdi.mdi-send
+        i.mdi.mdi-send

@@ -346,7 +346,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       it('should bind the send button to the scope method', function() {
         $scope.send = sinon.spy();
 
-        mainHeader.find('.inbox-subheader.composer .submit.button').click();
+        mainHeader.find('.inbox-subheader.composer .send').click();
 
         expect($scope.send).to.have.been.called;
       });
