@@ -6,7 +6,7 @@ module.exports = function(router, dependencies) {
 
   var authorizationMW = dependencies('authorizationMW');
   var logger = dependencies('logger');
-  var controller = require('./controller')(dependencies);
+  var controller = require('../controller')(dependencies);
 
   router.get('/twitter/connect',
     authorizationMW.requiresAPILogin,
@@ -28,6 +28,6 @@ module.exports = function(router, dependencies) {
         next();
       })(req, res, next);
     },
-    controller.callback
+    controller.finalizeWorkflow.bind(null, 'twitter')
   );
 };

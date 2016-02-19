@@ -6,15 +6,19 @@ var expect = chai.expect;
 
 describe('The OAuth Angular Services', function() {
 
-  var $window;
+  var $window, lodash;
 
   beforeEach(function() {
     $window = {
       location: {}
     };
+    lodash = {
+      forIn: angular.noop
+    };
     module('esn.core');
     module('linagora.esn.oauth', function($provide) {
       $provide.value('$window', $window);
+      $provide.value('_', lodash);
     });
   });
 
