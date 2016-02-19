@@ -1,3 +1,9 @@
+infinite-list.list-emails {
+  .lv-body .lv-item {
+    padding: 7px 10px;
+  }
+}
+
 .ellipsis .badge-number {
   padding-left: 5px;
   color: lighten(@text-color, 30%);
@@ -6,4 +12,10 @@
 .date-container {
   .flex-noshrink();
   padding-left: 15px;
+}
+
+@media (min-width: @screen-sm-min) {
+  infinite-list.list-emails .lv-body .lv-item {
+    padding: 17px 20px;
+  }
 }
