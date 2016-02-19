@@ -174,24 +174,29 @@ describe('The Unified Inbox Angular module filters', function() {
 
   describe('The loadImagesAsync filter', function() {
 
-    it('should do the magic', function() {
-      expect($filter('loadImagesAsync')(
+    it('should transform the "img" tags so that they load asynchronously, using AsyncImageLoader', function() {
+      var dom = angular.element($filter('loadImagesAsync')(
         '<html>' +
         '  <body>' +
-        '    <img alt="1" src="http://attach.1" />' +
-        '    <img src="http://attach.2" alt="2" />' +
-        '    <img \n src="http://attach.3.with.newLine" />' +
+        '    <p>' +
+        '      <img alt="1" src="http://attach.1" />' +
+        '      <img src="http://attach.2" alt="2" />' +
+        '      <img \n src="http://attach.3.with.newLine" />' +
+        '    </p>' +
         '  </body>' +
         '</html>'
-      )).to.equal(
-        '<html>' +
-        '  <body>' +
-        '    <img alt="1" src="/images/throbber-amber.svg" data-async-src="http://attach.1" />' +
-        '    <img src="/images/throbber-amber.svg" data-async-src="http://attach.2" alt="2" />' +
-        '    <img \n src="/images/throbber-amber.svg" data-async-src="http://attach.3.with.newLine" />' +
-        '  </body>' +
-        '</html>'
-      );
+      ));
+
+      function checkImg(origSrc) {
+        var img = dom.find('img[data-async-src="' + origSrc + '"]');
+
+        expect(img.attr('src')).to.match(/http[s]?:\/\/.+\/throbber-amber.svg/);
+        expect(img.attr('data-async-src')).to.equal(origSrc);
+      }
+
+      checkImg('http://attach.1');
+      checkImg('http://attach.2');
+      checkImg('http://attach.3.with.newLine');
     });
 
   });

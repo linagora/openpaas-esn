@@ -104,4 +104,10 @@ angular.module('esn.ui', ['op.dynamicDirective'])
         }
       }
     };
+  })
+
+  .factory('createHtmlElement', function() {
+    return function(tag, attributes) {
+      return angular.extend(document.createElement(tag), attributes || {});
+    };
   });

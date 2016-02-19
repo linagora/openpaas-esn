@@ -145,12 +145,6 @@ angular.module('linagora.esn.unifiedinbox')
     return ElementGroupingTool;
   })
 
-  .factory('createHtmlElement', function() {
-    return function(tag, attributes) {
-      return angular.extend(document.createElement(tag), attributes || {});
-    };
-  })
-
   .factory('sendEmail', function($http, $q, $log, getJmapConfig, withJmapClient, jmapHelper) {
     return function(email) {
       return withJmapClient(function(client, config) {

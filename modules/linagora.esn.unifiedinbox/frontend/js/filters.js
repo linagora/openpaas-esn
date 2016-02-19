@@ -53,8 +53,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .filter('loadImagesAsync', function() {
+  .filter('loadImagesAsync', function(absoluteUrl) {
+    var throbberUrl = absoluteUrl('/images/throbber-amber.svg');
+
     return function(text) {
-      return text.replace(/<img([^]*?)src=["']([^]+?)["']/gim, '<img$1src="/images/throbber-amber.svg" data-async-src="$2"');
+      return text.replace(/<img([^]*?)src=["']([^]+?)["']/gim, '<img$1src="' + throbberUrl + '" data-async-src="$2"');
     };
   });
