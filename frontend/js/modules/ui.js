@@ -108,6 +108,12 @@ angular.module('esn.ui', ['op.dynamicDirective'])
 
   .factory('createHtmlElement', function() {
     return function(tag, attributes) {
-      return angular.extend(document.createElement(tag), attributes || {});
+      var element = document.createElement(tag);
+
+      angular.forEach(attributes, function(value, key) {
+        element.setAttribute(key, value);
+      });
+
+      return element;
     };
   });

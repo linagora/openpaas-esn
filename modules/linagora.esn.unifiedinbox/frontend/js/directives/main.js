@@ -264,12 +264,36 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composerDesktop', function($timeout) {
+  .directive('composerAttachments', function(_, elementScrollService) {
+    return {
+      restrict: 'AE',
+      scope: true,
+      templateUrl: '/unifiedinbox/views/attachment/composer-attachments.html',
+      link: function(scope, element) {
+
+        scope.$on('composer:attachment:add', function() {
+          var lastAttachment = _.last(element.find('.attachment'));
+          if (lastAttachment) {
+            elementScrollService.scrollDownToElement(angular.element(lastAttachment));
+          }
+        });
+      }
+    };
+  })
+
+  .directive('composerDesktop', function($timeout, $compile, createHtmlElement) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
       controller: 'composerController',
       link: function(scope, element, attrs, controller) {
+        var initAttachmentZone = function() {
+          var attachment = createHtmlElement('div', { 'composer-attachments': 'composer-attachments', class: 'summernote-attachments-zone'});
+
+          $timeout(function() {
+            element.find('.note-editable').after($compile(attachment)(scope));
+          }, 0);
+        };
 
         scope.isBoxed = function() {return true;};
 
@@ -280,6 +304,8 @@ angular.module('linagora.esn.unifiedinbox')
         scope.enableSendButton = function() {
           element.find('.btn-primary').removeAttr('disabled');
         };
+
+        scope.onInit = initAttachmentZone;
 
         // The onChange callback will be initially called by summernote when it is initialized
         // either with an empty body (compose from scratch) or with an existing body (reply, forward, etc.)

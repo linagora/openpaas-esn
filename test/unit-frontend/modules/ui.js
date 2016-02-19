@@ -259,6 +259,13 @@ describe('The UI module', function() {
       expect(createHtmlElement('div', {}).attributes).to.have.length(0);
     });
 
+    it('should add classes in the resulting element', function() {
+      expect(createHtmlElement('div', { class: 'classA classB'}).attributes[0]).to.shallowDeepEqual({
+        name: 'class',
+        value: 'classA classB'
+      });
+    });
+
     it('should merge attributes in the resulting element', function() {
       expect(createHtmlElement('script', { type: 'text/javascript' }).attributes[0]).to.shallowDeepEqual({
         name: 'type',

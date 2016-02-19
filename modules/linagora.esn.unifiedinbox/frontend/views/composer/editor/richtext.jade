@@ -1,1 +1,1 @@
-summernote.compose-body(ng-model="email.htmlBody", on-change="onChange(contents)", config="summernoteOptions", ng-class="{ 'isCollapsed': isCollapsed }", placeholder="#{__('Start writing your email here')}")
+summernote.compose-body(ng-model="email.htmlBody", on-init= "onInit()", on-change="onChange(contents)", config="summernoteOptions", ng-class="{ 'isCollapsed': isCollapsed }", placeholder="#{__('Start writing your email here')}")
