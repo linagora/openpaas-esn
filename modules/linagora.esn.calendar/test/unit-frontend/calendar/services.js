@@ -666,7 +666,7 @@ describe('The calendar module services', function() {
       });
     });
 
-    describe('isMajorModification function', function() {
+    describe('hasSignificantChange function', function() {
       it('should return true when the events do not have the same start date', function() {
         var newEvent = {
           start: this.fcMoment('2015-01-01 09:00:00'),
@@ -676,7 +676,7 @@ describe('The calendar module services', function() {
           start: this.fcMoment('2015-01-01 08:00:00'),
           end: this.fcMoment('2015-01-01 10:00:00')
         };
-        expect(this.eventUtils.isMajorModification(newEvent, oldEvent)).to.be.true;
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
       });
 
       it('should return true when the events do not have the same end date', function() {
@@ -688,19 +688,123 @@ describe('The calendar module services', function() {
           start: this.fcMoment('2015-01-01 09:00:00'),
           end: this.fcMoment('2015-01-01 11:00:00')
         };
-        expect(this.eventUtils.isMajorModification(newEvent, oldEvent)).to.be.true;
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
       });
 
-      it('should return false when the events have the same start and end dates', function() {
+      it('should return true when the events do not have the same due property', function() {
         var newEvent = {
           start: this.fcMoment('2015-01-01 09:00:00'),
-          end: this.fcMoment('2015-01-01 10:00:00')
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due1'
         };
         var oldEvent = {
           start: this.fcMoment('2015-01-01 09:00:00'),
-          end: this.fcMoment('2015-01-01 10:00:00')
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due2'
         };
-        expect(this.eventUtils.isMajorModification(newEvent, oldEvent)).to.be.false;
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same rrule', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 2
+          }
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          }
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same exdate', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ]
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-03 11:00:00')
+          ]
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same status', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'REFUSED'
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'ACCEPTED'
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      });
+
+      it('should return false when the events are the same', function() {
+        var newEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'ACCEPTED'
+        };
+        var oldEvent = {
+          start: this.fcMoment('2015-01-01 09:00:00'),
+          end: this.fcMoment('2015-01-01 11:00:00'),
+          due: 'due',
+          rrule: {
+            frequency: 1
+          },
+          exdate: [
+            this.fcMoment('2015-01-02 11:00:00')
+          ],
+          status: 'ACCEPTED'
+        };
+        expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.false;
       });
     });
 
@@ -711,45 +815,6 @@ describe('The calendar module services', function() {
 
       it('should return false if event.etag is defined', function() {
         expect(this.eventUtils.isNew({etag: '123'})).to.be.false;
-      });
-    });
-
-    describe('getEditedEvent function', function() {
-      it('should return a promise of editedEvent var if it is new', function(done) {
-        var event = {allDay: false};
-        this.eventUtils.setEditedEvent(event);
-        this.eventUtils.getEditedEvent().then(function(e) {
-          expect(e).to.deep.equal(event);
-          done();
-        }, done);
-        this.$rootScope.$apply();
-      });
-
-      it('should return a promise of editedEvent var if it is not a recurrent event', function(done) {
-        var event = {id: '123', isInstance: function() { return false; }};
-        this.eventUtils.setEditedEvent(event);
-        this.eventUtils.getEditedEvent().then(function(e) {
-          expect(e).to.deep.equal(event);
-          done();
-        }, done);
-        this.$rootScope.$apply();
-      });
-
-      it('should return calendarService.getEvent if editedEvent var is a recurrent event', function(done) {
-        var event = {etag: '123', id: '123', isInstance: function() { return true; }, path: '/calendars/event'};
-        this.eventUtils.setEditedEvent(event);
-
-        var eventFromServer = {id: 'anEvent'};
-        calendarService.getEvent = function(path) {
-          expect(path).to.equal(event.path);
-          return $q.when(eventFromServer);
-        };
-
-        this.eventUtils.getEditedEvent().then(function(e) {
-          expect(e).to.deep.equal(eventFromServer);
-          done();
-        }, done);
-        this.$rootScope.$apply();
       });
     });
   });
@@ -1509,6 +1574,8 @@ describe('The calendar module services', function() {
         this.event = new this.CalendarShell(this.vcalendar, {
           path: '/path/to/uid.ics'
         });
+        this.oldEvent = this.event.clone();
+        this.oldEvent.start = this.event.start.clone().add(1, 'hour');
 
         flushContext = {
           id: this.event.id
@@ -1518,7 +1585,7 @@ describe('The calendar module services', function() {
       it('should fail if status is not 202', function(done) {
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000').respond(200);
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, null, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(200);
             done();
@@ -1615,7 +1682,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, null, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
           function(shell) { done(); }, unexpected.bind(null, done)
         );
 
@@ -1623,7 +1690,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should reset the attendees participation if majorModification parameter is true', function(done) {
+      it('should reset the attendees participation if hasSignificantChange parameter is true', function(done) {
         var headers = { ETag: 'changed-etag' };
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', function(data) {
           var vcalendar = new ICAL.Component(JSON.parse(data));
@@ -1645,7 +1712,36 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, null, 'etag', true).then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.oldEvent, 'etag').then(
+          function() {
+            done();
+          }, unexpected.bind(null, done)
+        );
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should raise the sequence if hasSignificantChange parameter is true', function(done) {
+        var headers = { ETag: 'changed-etag' };
+        this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000', function(data) {
+          var vcalendar = new ICAL.Component(JSON.parse(data));
+          var vevent = vcalendar.getFirstSubcomponent('vevent');
+          expect(vevent.getFirstPropertyValue('sequence')).to.equal(1);
+          return true;
+        }).respond(202, { id: '123456789' });
+        this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: false
+          });
+        };
+
+        this.gracePeriodService.remove = function(taskId) {
+          expect(taskId).to.equal('123456789');
+        };
+
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.oldEvent, 'etag').then(
           function() {
             done();
           }, unexpected.bind(null, done)
@@ -1678,7 +1774,7 @@ describe('The calendar module services', function() {
         emitMessage = null;
 
         var self = this;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag').then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(socketEmitSpy).to.have.not.been.called;
@@ -1709,7 +1805,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), { ETag: 'etag' });
 
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag', true, done);
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', done);
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -1728,7 +1824,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
         var event = this.event;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, null, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag').then(
           function() {
             expect(keepChangeDuringGraceperiodMock.registerUpdate).to.have.been.calledWith(event);
             done();
@@ -1752,7 +1848,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
         var event = this.event;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, null, 'etag');
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag');
 
         keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
           expect(_event).to.equal(event);
@@ -1788,7 +1884,7 @@ describe('The calendar module services', function() {
         emitMessage = null;
 
         var self = this;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag').then(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(errorSpy).to.have.been.called;
@@ -1809,7 +1905,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, null, 'etag');
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag');
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();

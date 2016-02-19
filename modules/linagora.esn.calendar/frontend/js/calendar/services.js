@@ -59,7 +59,25 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($q, $rootScope, keepChangeDuringGraceperiod, CalendarShell, CalendarCollectionShell, calendarAPI, eventAPI, calendarEventEmitter, calendarUtils, gracePeriodService, gracePeriodLiveNotification, $modal, ICAL, CALENDAR_GRACE_DELAY, CALENDAR_EVENTS, CALENDAR_ERROR_DISPLAY_DELAY, notifyService) {
+  .factory('calendarService', function(
+    $q,
+    $rootScope,
+    $modal,
+    keepChangeDuringGraceperiod,
+    CalendarShell,
+    CalendarCollectionShell,
+    calendarAPI,
+    eventAPI,
+    calendarEventEmitter,
+    eventUtils,
+    calendarUtils,
+    gracePeriodService,
+    gracePeriodLiveNotification,
+    notifyService,
+    ICAL,
+    CALENDAR_GRACE_DELAY,
+    CALENDAR_EVENTS,
+    CALENDAR_ERROR_DISPLAY_DELAY) {
 
     /**
      * List all calendars in the calendar home.
@@ -241,8 +259,7 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Remove an event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
-     * period service.
+     * Remove an event in the calendar defined by its path.
      * @param  {String}        eventPath the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
      * @param  {CalendarShell} event     The event from fullcalendar. It is used in case of rollback.
      * @param  {String}        etag      The etag
@@ -307,19 +324,21 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Remove an event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
-     * period service.
+     * Modify an event in the calendar defined by its path.
      * @param  {String}            path              the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
      * @param  {CalendarShell}     event             the event from fullcalendar. It is used in case of rollback.
      * @param  {CalendarShell}     oldEvent          the event from fullcalendar. It is used in case of rollback.
      * @param  {String}            etag              the etag
-     * @param  {boolean}           majorModification it is used to reset invited attendees status to 'NEEDS-ACTION'
      * @param  {Function}          onCancel          callback called in case of rollback, ie when we cancel the task
      * @return {Mixed}                               the new event wrap into a CalendarShell if it works, the http response otherwise.
      */
-    function modifyEvent(path, event, oldEvent, etag, majorModification, onCancel) {
-      if (majorModification) {
+    function modifyEvent(path, event, oldEvent, etag, onCancel) {
+      if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
+        // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
+        // see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
+        // The calendar client is in charge to handle the SEQUENCE incrementation
+        event.sequence = event.sequence + 1;
       }
 
       if (!etag) {
@@ -330,18 +349,17 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var master, instance;
+      var instance, master;
 
       return event.getModifiedMaster().then(function(masterShell) {
-        master = masterShell;
         instance = event;
-        return flushTasksForEvent(masterShell);
+        master = masterShell;
+        return flushTasksForEvent(master);
       }).then(function() {
-        event = master;
-        return eventAPI.modify(path, event.vcalendar, etag);
+        return eventAPI.modify(path, master.vcalendar, etag);
       }).then(function(id) {
         taskId = id;
-        keepChangeDuringGraceperiod.registerUpdate(event);
+        keepChangeDuringGraceperiod.registerUpdate(master);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
       }).then(function() {
         gracePeriodLiveNotification.registerListeners(taskId, function() {
@@ -363,7 +381,7 @@ angular.module('esn.calendar')
         var task = data;
         if (task.cancelled) {
           return gracePeriodService.cancel(taskId).then(function() {
-            keepChangeDuringGraceperiod.deleteRegistration(event);
+            keepChangeDuringGraceperiod.deleteRegistration(master);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
 
             (onCancel || angular.noop)();
@@ -375,7 +393,7 @@ angular.module('esn.calendar')
           });
         } else if (gracePeriodService.hasTask(taskId)) {
           gracePeriodService.remove(taskId);
-          return event;
+          return master;
         }
       })
       .catch($q.reject);
@@ -445,7 +463,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventUtils', function(session, ICAL, $q, calendarService, $sanitize) {
+  .service('eventUtils', function($q, $sanitize, session, SIGNIFICANT_CHANGE_KEYS) {
     var editedEvent = {};
     var newAttendees = [];
 
@@ -515,8 +533,10 @@ angular.module('esn.calendar')
       return !organizerMail || (organizerMail in session.user.emailMap);
     }
 
-    function isMajorModification(newEvent, oldEvent) {
-      return !newEvent.start.isSame(oldEvent.start) || !newEvent.end.isSame(oldEvent.end);
+    function hasSignificantChange(oldEvent, newEvent) {
+      return SIGNIFICANT_CHANGE_KEYS.some(function(key) {
+        return !angular.equals(oldEvent[key], newEvent[key]);
+      });
     }
 
     function getNewAttendees(attendees) {
@@ -528,10 +548,7 @@ angular.module('esn.calendar')
     }
 
     function getEditedEvent() {
-      if (!isNew(editedEvent) && editedEvent.isInstance()) {
-        return calendarService.getEvent(editedEvent.path);
-      }
-      return $q.when(editedEvent);
+      return editedEvent;
     }
 
     function setEditedEvent(event) {
@@ -561,7 +578,7 @@ angular.module('esn.calendar')
       isNew: isNew,
       isInvolvedInATask: isInvolvedInATask,
       isOrganizer: isOrganizer,
-      isMajorModification: isMajorModification,
+      hasSignificantChange: hasSignificantChange,
       getEditedEvent: getEditedEvent,
       setEditedEvent: setEditedEvent,
       getNewAttendees: getNewAttendees,
