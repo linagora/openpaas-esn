@@ -568,11 +568,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should add a new composer-desktop-attachments element', function() {
-      var element = compileDirective('<composer-desktop />');
-      expect(element.find('[composer-attachments]')).to.have.length(0);
-
-      $timeout.flush();
-      expect(element.find('[composer-attachments]')).to.have.length(1);
+      expect(compileDirective('<composer-desktop />').find('composer-attachments')).to.have.length(1);
     });
 
   });
@@ -932,75 +928,23 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composerAttachments directive', function() {
 
-    var elementScrollService;
+    it('should focus the body when clicked, on desktop', function() {
+      compileDirective('<composer-desktop />');
 
-    beforeEach(function() {
-      $scope.email = {};
+      element.find('.attachments-zone').click();
+      $timeout.flush();
+
+      expect(document.activeElement).to.equal(element.find('.note-editable').get(0));
     });
 
-    beforeEach(inject(function(_elementScrollService_) {
-      elementScrollService = _elementScrollService_;
-      elementScrollService.scrollDownToElement = sinon.spy();
-    }));
+    it('should focus the body when clicked, on mobile', function() {
+      isMobile = true;
+      compileDirective('<composer />');
 
-    function emitAddEvent() {
-      $scope.$broadcast('composer:attachment:add');
-      $scope.$digest();
-    }
+      element.find('.attachments-zone').click();
+      $timeout.flush();
 
-    function expectScrollToAttachmentNamed(expectedName, callIndex) {
-      var callIndexArgs = elementScrollService.scrollDownToElement.args[callIndex];
-      expect(callIndexArgs[0].attr('name')).to.equal(expectedName);
-    }
-
-    it('should not try to scroll when there is no attachment', function() {
-      $scope.email.attachments = [];
-      compileDirective('<composer-attachments />');
-
-      emitAddEvent();
-
-      expect(elementScrollService.scrollDownToElement).to.not.have.been.called;
-    });
-
-    it('should scroll to the only attachment when there is only one', function() {
-      $scope.email.attachments = [{height:64, id:'2'}];
-      compileDirective('<composer-attachments />');
-
-      emitAddEvent();
-
-      expect(elementScrollService.scrollDownToElement).to.have.been.calledOnce;
-      expectScrollToAttachmentNamed('attachment-0', 0);
-    });
-
-    it('should scroll to the last attachment when there are many', function() {
-      $scope.email.attachments = [{height:64, id:'2'}, {height:65, id:'3'}, {height:66, id:'4'}];
-      compileDirective('<composer-attachments />');
-
-      emitAddEvent();
-
-      expect(elementScrollService.scrollDownToElement).to.have.been.calledOnce;
-      expectScrollToAttachmentNamed('attachment-2', 0);
-    });
-
-    it('should scroll to the last attachment every time that there is a new one', function() {
-      $scope.email.attachments = [{height:64, id:'2'}];
-      compileDirective('<composer-attachments />');
-
-      emitAddEvent();
-
-      $scope.email.attachments.push({height:65, id:'3'});
-      $scope.$digest();
-      emitAddEvent();
-
-      $scope.email.attachments.push({height:66, id:'4'});
-      $scope.email.attachments.push({height:67, id:'5'});
-      $scope.$digest();
-      emitAddEvent();
-
-      expect(elementScrollService.scrollDownToElement).to.have.been.calledThrice;
-      expectScrollToAttachmentNamed('attachment-0', 0);
-      expectScrollToAttachmentNamed('attachment-1', 1);
-      expectScrollToAttachmentNamed('attachment-3', 2);
+      expect(document.activeElement).to.equal(element.find('textarea.compose-body').get(0));
     });
 
   });

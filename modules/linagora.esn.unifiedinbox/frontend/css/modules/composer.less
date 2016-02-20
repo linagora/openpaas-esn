@@ -1,5 +1,6 @@
 @autocompleteFontSize: 10px;
-@attachments-zone-min-height: 20px;
+@attachments-zone-min-height: 80px;
+@composer-header-min-height: 65px;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
@@ -12,6 +13,7 @@ composer, composer-desktop {
     .flex-shorthand(1);
 
     .compose-header {
+      min-height: @composer-header-min-height;
       background-color: @body-bg;
 
       .row {
@@ -20,7 +22,7 @@ composer, composer-desktop {
 
       input {
         background-color: inherit;
-        height: 25px;
+        height: 27px;
       }
 
       .form-group {
@@ -206,7 +208,7 @@ composer {
       // This will make the textarea wide enough to overflow the screen,
       // but be short enough so that when it is focused, the automatic scroll when the
       // virtual keyboard appears does not hide the caret.
-      min-height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
+      min-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{composer-header-min-height} - @{attachments-zone-min-height})";
       overflow: auto;
     }
 
@@ -230,8 +232,9 @@ composer {
 
 }
 
-.summernote-attachments-zone {
+.attachments-zone {
   min-height: @attachments-zone-min-height;
+  background-color: @m-white;
 }
 
 composer-desktop {
