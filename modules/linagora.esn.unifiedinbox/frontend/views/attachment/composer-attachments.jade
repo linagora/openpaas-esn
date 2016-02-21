@@ -1,6 +1,7 @@
 .attachments-zone(ng-click="focusEmailBody()")
   .attachments(ng-if="email.attachments.length > 0")
     .clickable.attachment(ng-repeat="attachment in email.attachments | orderBy:'-'", ng-if="::!attachment.isInline", name="attachment-{{$index}}")
+      .progress(ng-if="attachment.upload.uploading", ng-style="{ width: attachment.upload.progress + '%' }")
       .icon
         img(fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png")
       .metadata
