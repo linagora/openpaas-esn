@@ -200,7 +200,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           blobId: 'unknownBlobId',
           name: 'name',
           size: 1,
-          type: 'type'
+          type: 'type',
+          status: 'uploading'
         });
       });
 
@@ -239,7 +240,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           blobId: '1234',
           name: 'name',
           size: 1,
-          type: DEFAULT_FILE_TYPE
+          type: DEFAULT_FILE_TYPE,
+          status: 'uploaded'
         });
       });
 
@@ -260,7 +262,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         $rootScope.$digest();
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          error: 'WTF'
+          error: 'WTF',
+          status: 'error'
         });
       });
 

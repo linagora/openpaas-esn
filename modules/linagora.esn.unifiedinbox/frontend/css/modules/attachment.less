@@ -1,3 +1,5 @@
+@attachment-error-color: rgba(255, 0, 0, 0.6);
+
 .email-view, .attachments-zone {
 
   .attachments {
@@ -19,9 +21,17 @@
       color: lighten(@secondaryTextColor, 10%);
       box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 
+      &.error {
+        box-shadow: 0 0 3px @attachment-error-color;
+      }
+
       &:hover {
         color: @secondaryTextColor;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+
+        &.error {
+          box-shadow: 0 0 5px @attachment-error-color;
+        }
 
         .icon {
           background-color: lighten(@body-bg, 2%);

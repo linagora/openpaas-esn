@@ -182,14 +182,17 @@ angular.module('linagora.esn.unifiedinbox')
               size: file.size,
               type: file.type || DEFAULT_FILE_TYPE
             }), {
-              upload: uploadTask
+              upload: uploadTask,
+              status: 'uploading'
             });
 
           $scope.email.attachments.push(attachment);
 
           uploadTask.defer.promise.then(function(task) {
+            attachment.status = 'uploaded';
             attachment.blobId = task.response.blobId;
           }, function(err) {
+            attachment.status = 'error';
             attachment.error = err;
           });
         });
