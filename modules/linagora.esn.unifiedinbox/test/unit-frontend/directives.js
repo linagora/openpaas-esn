@@ -947,6 +947,23 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(document.activeElement).to.equal(element.find('textarea.compose-body').get(0));
     });
 
+    it('should not focus the body when an attachment is removed', function() {
+      $scope.email = {
+        attachments: [{
+          blobId: '1',
+          upload: {
+            cancel: angular.noop
+          }
+        }]
+      };
+      compileDirective('<composer-desktop />');
+
+      element.find('.attachment[name="attachment-0"] .cancel').click();
+
+      expect($scope.email.attachments).to.deep.equal([]);
+      expect(document.activeElement).to.not.equal(element.find('.note-editable').get(0));
+    });
+
   });
 
 });

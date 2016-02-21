@@ -9,3 +9,5 @@
       .metadata
         .name.ellipsis {{ ::attachment.name }}
         .size {{ ::attachment.size | bytes }}
+      .actions
+        i.mdi.mdi-close.cancel(ng-click="$event.stopPropagation(); ctrl.removeAttachment(attachment)")

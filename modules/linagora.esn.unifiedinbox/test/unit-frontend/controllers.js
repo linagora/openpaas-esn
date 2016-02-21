@@ -269,6 +269,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
+    describe('The removeAttachment function', function() {
+
+      it('should cancel an ongoing upload', function(done) {
+        var attachment = { upload: { cancel: done } };
+        scope.email.attachments = [attachment];
+
+        initController('composerController').removeAttachment(attachment);
+      });
+
+      it('should remove the attachment from the email', function() {
+        var attachment = { blobId: 'willBeRemoved', upload: { cancel: angular.noop } };
+        scope.email.attachments = [attachment, { blobId: '1' }];
+
+        initController('composerController').removeAttachment(attachment);
+
+        expect(scope.email.attachments).to.deep.equal([{ blobId: '1' }]);
+      });
+
+    });
+
   });
 
   describe('The listEmailsController', function() {
