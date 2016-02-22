@@ -200,7 +200,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           blobId: 'unknownBlobId',
           name: 'name',
           size: 1,
-          type: 'type'
+          type: 'type',
+          status: 'uploading'
         });
       });
 
@@ -239,7 +240,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           blobId: '1234',
           name: 'name',
           size: 1,
-          type: DEFAULT_FILE_TYPE
+          type: DEFAULT_FILE_TYPE,
+          status: 'uploaded'
         });
       });
 
@@ -260,8 +262,29 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         $rootScope.$digest();
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          error: 'WTF'
+          error: 'WTF',
+          status: 'error'
         });
+      });
+
+    });
+
+    describe('The removeAttachment function', function() {
+
+      it('should cancel an ongoing upload', function(done) {
+        var attachment = { upload: { cancel: done } };
+        scope.email.attachments = [attachment];
+
+        initController('composerController').removeAttachment(attachment);
+      });
+
+      it('should remove the attachment from the email', function() {
+        var attachment = { blobId: 'willBeRemoved', upload: { cancel: angular.noop } };
+        scope.email.attachments = [attachment, { blobId: '1' }];
+
+        initController('composerController').removeAttachment(attachment);
+
+        expect(scope.email.attachments).to.deep.equal([{ blobId: '1' }]);
       });
 
     });

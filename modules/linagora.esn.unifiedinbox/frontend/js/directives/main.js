@@ -260,42 +260,32 @@ angular.module('linagora.esn.unifiedinbox')
             });
         };
 
+        scope.focusEmailBody = function() {
+          $timeout(function() {
+            element.find('.compose-body').focusEnd();
+          }, 0);
+        };
+
         controller.showMobileHeader();
       }
     };
   })
 
-  .directive('composerAttachments', function(_, elementScrollService) {
+  .directive('composerAttachments', function() {
     return {
       restrict: 'AE',
       scope: true,
-      templateUrl: '/unifiedinbox/views/attachment/composer-attachments.html',
-      link: function(scope, element) {
-
-        scope.$on('composer:attachment:add', function() {
-          var lastAttachment = _.last(element.find('.attachment'));
-          if (lastAttachment) {
-            elementScrollService.scrollDownToElement(angular.element(lastAttachment));
-          }
-        });
-      }
+      templateUrl: '/unifiedinbox/views/attachment/composer-attachments.html'
     };
   })
 
-  .directive('composerDesktop', function($timeout, $compile, createHtmlElement) {
+  .directive('composerDesktop', function($timeout, $compile) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
       controller: 'composerController',
       controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
-        var initAttachmentZone = function() {
-          var attachment = createHtmlElement('div', { 'composer-attachments': 'composer-attachments', class: 'summernote-attachments-zone'});
-
-          $timeout(function() {
-            element.find('.note-editable').after($compile(attachment)(scope));
-          }, 0);
-        };
 
         scope.isBoxed = function() {return true;};
 
@@ -307,7 +297,20 @@ angular.module('linagora.esn.unifiedinbox')
           element.find('.btn-primary').removeAttr('disabled');
         };
 
-        scope.onInit = initAttachmentZone;
+        scope.onInit = function() {
+          element
+            .find('.note-editable')
+            .after($compile('<composer-attachments></composer-attachments>')(scope));
+        };
+
+        scope.focusEmailBody = function() {
+          $timeout(function() {
+            // `focusEnd` does not explicitely call `focus` so the contentEditable is not focused on Firefox
+            // while it works fine on Chrome. thus the double `focus` call.
+            element.find('.summernote').summernote('focus');
+            element.find('.note-editable').focusEnd();
+          }, 0);
+        };
 
         // The onChange callback will be initially called by summernote when it is initialized
         // either with an empty body (compose from scratch) or with an existing body (reply, forward, etc.)

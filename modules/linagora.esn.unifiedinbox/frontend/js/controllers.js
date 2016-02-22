@@ -144,7 +144,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('composerController', function($scope, $stateParams, headerService, Composition, jmap, withJmapClient,
-                                             fileUploadService, attachmentUploadService, DEFAULT_FILE_TYPE) {
+                                             fileUploadService, attachmentUploadService, _, DEFAULT_FILE_TYPE) {
 
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
@@ -182,18 +182,26 @@ angular.module('linagora.esn.unifiedinbox')
               size: file.size,
               type: file.type || DEFAULT_FILE_TYPE
             }), {
-              upload: uploadTask
+              upload: uploadTask,
+              status: 'uploading'
             });
 
           $scope.email.attachments.push(attachment);
 
           uploadTask.defer.promise.then(function(task) {
+            attachment.status = 'uploaded';
             attachment.blobId = task.response.blobId;
           }, function(err) {
+            attachment.status = 'error';
             attachment.error = err;
           });
         });
       });
+    };
+
+    this.removeAttachment = function(attachment) {
+      attachment.upload.cancel();
+      _.pull($scope.email.attachments, attachment);
     };
 
     if ($stateParams.composition) {
