@@ -147,6 +147,7 @@ angular.module('linagora.esn.unifiedinbox')
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inBackground,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
+
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
     };
@@ -157,7 +158,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     this.saveDraft = function() {
-      $scope.composition.saveDraft();
+      return $scope.composition.saveDraft();
     };
 
     this.showMobileHeader = function() {
@@ -193,7 +194,7 @@ angular.module('linagora.esn.unifiedinbox')
           attachment.error = err;
         }, function(uploadTask) {
           attachment.upload.progress = uploadTask.progress;
-        });
+        }).then($scope.composition.saveDraft);
 
         return attachment;
       };

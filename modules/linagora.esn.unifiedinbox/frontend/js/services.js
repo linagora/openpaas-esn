@@ -432,7 +432,6 @@ angular.module('linagora.esn.unifiedinbox')
       if (!this.needToBeSaved(newEmailState)) {
         return $q.reject();
       }
-
       return asyncJmapAction('Saving your email as draft', function(client) {
         return client.saveAsDraft(jmapHelper.toOutboundMessage(client, newEmailState));
       });
@@ -521,23 +520,33 @@ angular.module('linagora.esn.unifiedinbox')
       return preparingEmail;
     }
 
-    function makeDestroyMethod(message) {
+    function Composition(message) {
+      this.email = prepareEmail(message);
+      this.updateOriginalJmapMessage(message);
+    }
+
+    Composition.prototype.updateOriginalJmapMessage = function(message) {
       if (message instanceof jmap.Message) {
-        return message.destroy;
+        this.destroyOriginalJmapMessage = message.destroy.bind(message);
       }
       if (message instanceof jmap.CreateMessageAck) {
-        return message._jmap.destroyMessage.bind(message._jmap, message.id);
+        this.destroyOriginalJmapMessage = message._jmap.destroyMessage.bind(message._jmap, message.id);
       }
-    }
-
-    function Composition(message) {
-      this.destroyOriginalJmapMessage = makeDestroyMethod(message);
-      this.email = prepareEmail(message);
-      this.draft = draftService.startDraft(this.email);
-    }
+      this.draft = draftService.startDraft(prepareEmail(message));
+    };
 
     Composition.prototype.saveDraft = function() {
-      return this.draft.save(this.email).then(this.destroyOriginalDraft.bind(this));
+      var self = this;
+      var savingEmailState = angular.copy(this.email);
+
+      return self.draft.save(self.email)
+        .then(self.destroyOriginalDraft.bind(self))
+        .then(function(createMessageAck) {
+          delete savingEmailState.id;
+          self.updateOriginalJmapMessage(angular.extend(createMessageAck, savingEmailState));
+
+          return createMessageAck;
+        });
     };
 
     Composition.prototype.getEmail = function() {
