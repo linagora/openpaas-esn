@@ -1,5 +1,9 @@
 .groupedEmails {
 
+  .listview .lv-item {
+    padding: 7px 10px;
+  }
+
   .preview {
     margin-top: 5px;
   }
@@ -7,5 +11,11 @@
   .badge-container .mdi {
     font-size: 3em;
     color: darken(@m-gray, 20%);
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .groupedEmails .listview .lv-item {
+    padding: 17px 20px;
   }
 }
