@@ -104,7 +104,7 @@ angular.module('esn.calendar')
    */
   .constant('SIGNIFICANT_CHANGE_KEYS', ['start', 'end', 'duration', 'due', 'rrule', 'rdate', 'exdate', 'status'])
 
-  .constant('CALENDAR_MODIFY_COMPARE_KEYS', ['name'])
+  .constant('CALENDAR_MODIFY_COMPARE_KEYS', ['name', 'color'])
 
   .constant('MASTER_EVENT_CACHE_TTL', 300000)
 
