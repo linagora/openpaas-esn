@@ -199,6 +199,12 @@
   flex-wrap: wrap;
 }
 
+.flex-flow(@flow) {
+  .flex();
+  -webkit-flex-flow: @flow;
+  flex-flow: @flow;
+}
+
 .flex-shrink(@shrink: 1) {
   -webkit-flex-shrink: @shrink;
   flex-shrink: @shrink;
