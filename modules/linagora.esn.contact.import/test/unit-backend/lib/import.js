@@ -18,13 +18,36 @@ describe('The contact import module', function() {
     return require('../../../backend/lib/import')(dependencies);
   };
 
-  var jobQueueMock, pubsubMock;
-
+  var jobQueueMock, pubsubMock, contactModuleMock, contactClientMock;
   var type = 'twitter';
   var id = 123;
   var domainId = 456;
 
   beforeEach(function() {
+    contactClientMock = {
+      create: function() {
+        return q([]);
+      }
+    };
+    contactModuleMock = {
+      lib: {
+        client: function() {
+          return {
+            addressbookHome: function() {
+              return {
+                addressbook: function() {
+                  return {
+                    vcard: function() {
+                      return contactClientMock;
+                    }
+                  };
+                }
+              };
+            }
+          };
+        }
+      }
+    };
     pubsubMock = {
       global: {
         topic: function() {
@@ -53,7 +76,8 @@ describe('The contact import module', function() {
         injectAngularModules: function() {},
         addApp: function() {}
       },
-      pubsub: pubsubMock
+      pubsub: pubsubMock,
+      contact: contactModuleMock
     };
 
     account =  {
@@ -564,4 +588,122 @@ describe('The contact import module', function() {
     });
   });
 
+  describe('The createContact fn', function() {
+    var vcardMock, optionsMock, vcarJson;
+    var error = new Error('an error');
+    beforeEach(function() {
+      vcarJson = { uid: 1 };
+      vcardMock = {
+        getFirstPropertyValue: function() { return 1; },
+        toJSON: function() { return vcarJson; }
+      };
+      optionsMock = {
+        addressbook: {
+          id: 1234
+        },
+        account: {
+          type: 'oauth',
+          data: {
+            username: 'linagora',
+            provider: 'twitter',
+            token: 456,
+            token_secret: 'abc'
+          }
+        },
+        esnToken: 123,
+        user: {
+          _id: 'myId',
+          accounts: [
+            {
+              type: 'oauth',
+              data: {
+                provider: 'twitter',
+                token: 456,
+                token_secret: 'abc'
+              }
+            }
+          ]
+        }
+      };
+    });
+
+    it('should reject IMPORT_CONTACT_CLIENT_ERROR error when contact client reject', function(done) {
+
+      contactClientMock.create = function() {
+        return q.reject(error);
+      };
+      getModule().createContact(vcardMock, optionsMock).then(null, function(err) {
+        expect(err).to.deep.equal({
+          type: 'contact:import:contact:error',
+          errorObject: error
+        });
+        done();
+      });
+    });
+
+    it('should publish correct object when contact client resolve', function(done) {
+      contactClientMock.create = function() {
+        return q.resolve({});
+      };
+      deps.pubsub.global.topic = function(topic) {
+        expect(topic).to.equal('contacts:contact:add');
+        return {
+          publish: function(data) {
+            expect(data).to.deep.eql({
+              contactId: vcarJson.uid,
+              bookHome: optionsMock.user._id,
+              bookName: optionsMock.addressbook.id,
+              bookId: optionsMock.user._id,
+              vcard: vcarJson,
+              user: { _id: optionsMock.user._id }
+            });
+            done();
+          }
+        };
+      };
+      getModule().createContact(vcardMock, optionsMock);
+    });
+  });
+
+  describe('The buildErrorMessage fn', function() {
+    var error, type;
+    var CONTACT_IMPORT_ERROR = require('../../../backend/constants').CONTACT_IMPORT_ERROR;
+
+    beforeEach(function() {
+      error = { statusCode: 400 };
+      type = 'type';
+    });
+
+    it('should build correct error object', function() {
+
+      expect(getModule().buildErrorMessage(type, error)).to.deep.equal({
+        type: type,
+        errorObject: error
+      });
+
+      type = CONTACT_IMPORT_ERROR.API_CLIENT_ERROR;
+      expect(getModule().buildErrorMessage(type, error)).to.deep.equal({
+        type: CONTACT_IMPORT_ERROR.ACCOUNT_ERROR,
+        errorObject: error
+      });
+
+      error.statusCode = 500;
+      expect(getModule().buildErrorMessage(type, error)).to.deep.equal({
+        type: type,
+        errorObject: error
+      });
+
+      error.statusCode = 401;
+      expect(getModule().buildErrorMessage(type, error)).to.deep.equal({
+        type: CONTACT_IMPORT_ERROR.ACCOUNT_ERROR,
+        errorObject: error
+      });
+
+      error.statusCode = 403;
+      expect(getModule().buildErrorMessage(type, error)).to.deep.equal({
+        type: CONTACT_IMPORT_ERROR.ACCOUNT_ERROR,
+        errorObject: error
+      });
+    });
+  });
 });

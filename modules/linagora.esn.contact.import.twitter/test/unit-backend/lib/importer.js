@@ -18,12 +18,6 @@ describe('The twitter contact importer', function() {
     }
   };
 
-  var contactClientMock = {
-    create: function() {
-      return q([]);
-    }
-  };
-
   beforeEach(function() {
     dependencies = {
       'esn-config': function() {
@@ -53,31 +47,22 @@ describe('The twitter contact importer', function() {
           }
         }
       },
-      contact: {
-        lib: {
-          client: function() {
-            return {
-              addressbookHome: function() {
-                return {
-                  addressbook: function() {
-                    return {
-                      vcard: function() {
-                        return contactClientMock;
-                      }
-                    };
-                  }
-                };
-              }
-            };
-          }
-        }
-      },
       'contact-import': {
         constants: {
           CONTACT_IMPORT_ERROR: {
             ACCOUNT_ERROR: 'contact:import:account:error',
             API_CLIENT_ERROR: 'contact:import:api:error',
             CONTACT_CLIENT_ERROR: 'contact:import:contact:error'
+          }
+        },
+        lib: {
+          import: {
+            buildErrorMessage: function() {
+              return {};
+            },
+            createContact: function() {
+              return q.resolve({});
+            }
           }
         }
       }
@@ -140,19 +125,7 @@ describe('The twitter contact importer', function() {
           }
         },
         esnToken: 123,
-        user: {
-          _id: 'myId',
-          accounts: [
-            {
-              type: 'oauth',
-              data: {
-                provider: 'twitter',
-                token: 456,
-                token_secret: 'abc'
-              }
-            }
-          ]
-        }
+        user: { _id: 'myId' }
       };
 
       mockery.registerMock('twitter-node-client', twitterClientMocks);
@@ -209,7 +182,7 @@ describe('The twitter contact importer', function() {
       });
     });
 
-    it('should create contact then pubsub when following info is received', function(done) {
+    it('should create contact when following info is received', function(done) {
       var count = 0;
       twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
         if (value === '/friends/ids.json') {
@@ -218,197 +191,15 @@ describe('The twitter contact importer', function() {
         if (value === '/users/lookup.json') {
           onSuccess(JSON.stringify(followingInfoList));
         }
-
       };
 
-      dependencies.pubsub.global.topic = function() {
-        return {
-          publish: function() {
-            count++;
-            if (count === 3) {
-              done();
-            }
-          }
-        };
+      dependencies['contact-import'].lib.import.createContact = function() {
+        count++;
+        if (count === 3) {
+          done();
+        }
       };
-
       getImporter().importContact(options);
     });
-
-    describe('Error handlers', function() {
-      var CONTACT_IMPORT_ERROR;
-      beforeEach(function() {
-        CONTACT_IMPORT_ERROR = dependencies['contact-import'].constants.CONTACT_IMPORT_ERROR;
-      });
-
-      it('should pubsub CONTACT_CLIENT_ERROR when contact client reject', function(done) {
-        twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-          if (value === '/friends/ids.json') {
-            onSuccess(followingIdList);
-          }
-          if (value === '/users/lookup.json') {
-            onSuccess(JSON.stringify(followingInfoList));
-          }
-        };
-        contactClientMock.create = function() {
-          return q.reject(new Error('an error'));
-        };
-        dependencies.pubsub.global.topic = function(topic) {
-          expect(topic).to.equal(CONTACT_IMPORT_ERROR.CONTACT_CLIENT_ERROR);
-          return {
-            publish: function(data) {
-              expect(data).to.eql({
-                type: CONTACT_IMPORT_ERROR.CONTACT_CLIENT_ERROR,
-                provider: options.account.data.provider,
-                account: options.account.data.username,
-                user: options.user
-              });
-              done();
-            }
-          };
-        };
-        getImporter().importContact(options);
-      });
-
-      it('should pubsub ACCOUNT_ERROR when Twitter client return 400 error while getting following IDs', function(done) {
-        twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-          if (value === '/friends/ids.json') {
-            onError({
-              statusCode: 400
-            });
-          }
-          if (value === '/users/lookup.json') {
-            onSuccess(JSON.stringify(followingInfoList));
-          }
-        };
-        dependencies.pubsub.global.topic = function(topic) {
-          expect(topic).to.equal(CONTACT_IMPORT_ERROR.ACCOUNT_ERROR);
-          return {
-            publish: function(data) {
-              expect(data).to.eql({
-                type: CONTACT_IMPORT_ERROR.ACCOUNT_ERROR,
-                provider: options.account.data.provider,
-                account: options.account.data.username,
-                user: options.user
-              });
-              done();
-            }
-          };
-        };
-        getImporter().importContact(options);
-      });
-
-      it('should pubsub ACCOUNT_ERROR when Twitter client return 401 error while getting following IDs', function(done) {
-        twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-          if (value === '/friends/ids.json') {
-            onError({
-              statusCode: 401
-            });
-          }
-          if (value === '/users/lookup.json') {
-            onSuccess(JSON.stringify(followingInfoList));
-          }
-        };
-        dependencies.pubsub.global.topic = function(topic) {
-          expect(topic).to.equal(CONTACT_IMPORT_ERROR.ACCOUNT_ERROR);
-          return {
-            publish: function(data) {
-              expect(data).to.eql({
-                type: CONTACT_IMPORT_ERROR.ACCOUNT_ERROR,
-                provider: options.account.data.provider,
-                account: options.account.data.username,
-                user: options.user
-              });
-              done();
-            }
-          };
-        };
-        getImporter().importContact(options);
-      });
-
-      it('should pubsub ACCOUNT_ERROR when Twitter client return 403 error while getting following IDs', function(done) {
-        twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-          if (value === '/friends/ids.json') {
-            onError({
-              statusCode: 403
-            });
-          }
-          if (value === '/users/lookup.json') {
-            onSuccess(JSON.stringify(followingInfoList));
-          }
-        };
-        dependencies.pubsub.global.topic = function(topic) {
-          expect(topic).to.equal(CONTACT_IMPORT_ERROR.ACCOUNT_ERROR);
-          return {
-            publish: function(data) {
-              expect(data).to.eql({
-                type: CONTACT_IMPORT_ERROR.ACCOUNT_ERROR,
-                provider: options.account.data.provider,
-                account: options.account.data.username,
-                user: options.user
-              });
-              done();
-            }
-          };
-        };
-        getImporter().importContact(options);
-      });
-
-      it('should pubsub API_CLIENT_ERROR when Twitter client return other errors while getting following IDs', function(done) {
-        twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-          if (value === '/friends/ids.json') {
-            onError({
-              statusCode: 503
-            });
-          }
-          if (value === '/users/lookup.json') {
-            onSuccess(JSON.stringify(followingInfoList));
-          }
-        };
-        dependencies.pubsub.global.topic = function(topic) {
-          expect(topic).to.equal(CONTACT_IMPORT_ERROR.API_CLIENT_ERROR);
-          return {
-            publish: function(data) {
-              expect(data).to.eql({
-                type: CONTACT_IMPORT_ERROR.API_CLIENT_ERROR,
-                provider: options.account.data.provider,
-                account: options.account.data.username,
-                user: options.user
-              });
-              done();
-            }
-          };
-        };
-        getImporter().importContact(options);
-      });
-
-      it('should pubsub API_CLIENT_ERROR when Twitter client failed to reach API endpoint while getting following IDs', function(done) {
-        twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-          if (value === '/friends/ids.json') {
-            onError(new Error('some error'));
-          }
-          if (value === '/users/lookup.json') {
-            onSuccess(JSON.stringify(followingInfoList));
-          }
-        };
-        dependencies.pubsub.global.topic = function(topic) {
-          expect(topic).to.equal(CONTACT_IMPORT_ERROR.API_CLIENT_ERROR);
-          return {
-            publish: function(data) {
-              expect(data).to.eql({
-                type: CONTACT_IMPORT_ERROR.API_CLIENT_ERROR,
-                provider: options.account.data.provider,
-                account: options.account.data.username,
-                user: options.user
-              });
-              done();
-            }
-          };
-        };
-        getImporter().importContact(options);
-      });
-
-    });
-
   });
 });
