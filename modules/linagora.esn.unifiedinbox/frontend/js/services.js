@@ -858,7 +858,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('attachmentUploadService', function($q, $rootScope, $timeout, xhrWithUploadProgress, withJmapClient) {
+  .service('attachmentUploadService', function($q, $rootScope, inBackground, xhrWithUploadProgress, withJmapClient) {
     function in$Apply(fn) {
       return function(value) {
         if ($rootScope.$$phase) {
@@ -896,7 +896,7 @@ angular.module('linagora.esn.unifiedinbox')
           canceler.then(request.abort);
         }
 
-        return defer.promise;
+        return inBackground(defer.promise);
       });
     }
 

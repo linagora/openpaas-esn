@@ -1,6 +1,6 @@
 .attachments-zone(ng-click="focusEmailBody()")
   .attachments(ng-if="email.attachments.length > 0")
-    .clickable.attachment(ng-repeat="attachment in email.attachments | orderBy:'-'", ng-if="::!attachment.isInline", ng-class="{ error: attachment.error }", name="attachment-{{$index}}")
+    .clickable.attachment(ng-click="$event.stopPropagation()", ng-repeat="attachment in email.attachments | orderBy:'-'", ng-if="::!attachment.isInline", ng-class="{ error: attachment.error }", name="attachment-{{$index}}")
       .progress(ng-if="attachment.status === 'uploading'", ng-style="{ width: attachment.upload.progress + '%' }")
       .icon(ng-switch='attachment.status')
         img(ng-switch-when="error", src="/images/exclamation.svg")
@@ -8,6 +8,9 @@
         img(ng-switch-when="uploaded", fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png")
       .metadata
         .name.ellipsis {{ ::attachment.name }}
-        .size {{ ::attachment.size | bytes }}
+        .secondary-metadata(ng-switch="attachment.status")
+          .retry(ng-switch-when="error") #{__('Upload failed')}.
+            a(href="", ng-click="attachment.startUpload()") #{__('Retry')}
+          .size(ng-switch-default) {{ ::attachment.size | bytes }}
       .actions
         i.mdi.mdi-close.cancel(ng-click="$event.stopPropagation(); ctrl.removeAttachment(attachment)")

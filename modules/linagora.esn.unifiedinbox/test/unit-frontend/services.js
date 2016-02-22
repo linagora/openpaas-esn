@@ -3107,7 +3107,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The attachmentUploadService service', function() {
 
-    var $rootScope, attachmentUploadService, file = { name: 'n', size: 1, type: 'type'};
+    var $rootScope, backgroundProcessorService, attachmentUploadService, file = { name: 'n', size: 1, type: 'type'};
 
     beforeEach(module(function($provide) {
       $provide.value('withJmapClient', function(callback) {
@@ -3117,9 +3117,12 @@ describe('The Unified Inbox Angular module services', function() {
       $.mockjaxSettings.logging = false;
     }));
 
-    beforeEach(inject(function(_$rootScope_, _attachmentUploadService_) {
+    beforeEach(inject(function(_$rootScope_, _attachmentUploadService_, _backgroundProcessorService_) {
       $rootScope = _$rootScope_;
       attachmentUploadService = _attachmentUploadService_;
+      backgroundProcessorService = _backgroundProcessorService_;
+
+      sinon.spy(backgroundProcessorService, 'add');
     }));
 
     afterEach(function() {
@@ -3202,6 +3205,19 @@ describe('The Unified Inbox Angular module services', function() {
         });
 
       $rootScope.$digest();
+    });
+
+    it('should upload the file in background', function() {
+      $.mockjax({
+        url: 'http://jmap',
+        type: 'POST',
+        responseText: {a: 'b'}
+      });
+
+      attachmentUploadService.uploadFile(null, file, file.type, file.size, null, null);
+      $rootScope.$digest();
+
+      expect(backgroundProcessorService.add).to.have.been.calledWith();
     });
 
   });

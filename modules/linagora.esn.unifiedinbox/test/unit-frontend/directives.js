@@ -959,8 +959,27 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       compileDirective('<composer-desktop />');
 
       element.find('.attachment[name="attachment-0"] .cancel').click();
+      $timeout.flush();
 
       expect($scope.email.attachments).to.deep.equal([]);
+      expect(document.activeElement).to.not.equal(element.find('.note-editable').get(0));
+    });
+
+    it('should not focus the body when an attachment upload is retried', function() {
+      $scope.email = {
+        attachments: [{
+          blobId: '1',
+          status: 'error',
+          upload: {
+            cancel: angular.noop
+          }
+        }]
+      };
+      compileDirective('<composer-desktop />');
+
+      element.find('.attachment[name="attachment-0"] .retry').click();
+      $timeout.flush();
+
       expect(document.activeElement).to.not.equal(element.find('.note-editable').get(0));
     });
 

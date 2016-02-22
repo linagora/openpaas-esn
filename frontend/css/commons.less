@@ -437,6 +437,11 @@
   bottom: 0;
 }
 
+.z-index-on-top(@index) {
+  z-index: @index;
+  -webkit-transform: translate3d(0,0,0); // https://css-tricks.com/forums/topic/safari-for-ios-z-index-ordering-bug-while-scrolling-a-page-with-a-fixed-element/
+}
+
 @media (max-width: @screen-xs-max) {
   .no-padding-xs {
     padding:0 !important; /* Needed to override bootsrap */

@@ -168,30 +168,37 @@ angular.module('linagora.esn.unifiedinbox')
       headerService.subHeader.resetInjections();
     };
 
-    function _uploadAttachments($files) {
-      return withJmapClient(function(client) {
-        return $q.all($files.map(function(file) {
-          var uploadTask = fileUploadService.get(attachmentUploadService).addFile(file, true),
-            attachment = angular.extend(new jmap.Attachment(client, 'unknownBlobId', {
-              name: file.name,
-              size: file.size,
-              type: file.type || DEFAULT_FILE_TYPE
-            }), {
-              upload: uploadTask,
-              status: 'uploading'
-            });
-
-          $scope.email.attachments.push(attachment);
-
-          return uploadTask.defer.promise.then(function(task) {
-            attachment.status = 'uploaded';
-            attachment.blobId = task.response.blobId;
-          }, function(err) {
-            attachment.status = 'error';
-            attachment.error = err;
-          });
-        }));
+    function newAttachment(client, file) {
+      var attachment = new jmap.Attachment(client, 'unknownBlobId', {
+        name: file.name,
+        size: file.size,
+        type: file.type || DEFAULT_FILE_TYPE
       });
+
+      attachment.startUpload = function() {
+        var uploadTask = fileUploadService.get(attachmentUploadService).addFile(file, true);
+
+        attachment.upload = {
+          progress: 0,
+          cancel: uploadTask.cancel
+        };
+        attachment.status = 'uploading';
+
+        uploadTask.defer.promise.then(function(task) {
+          attachment.status = 'uploaded';
+          attachment.error = null;
+          attachment.blobId = task.response.blobId;
+        }, function(err) {
+          attachment.status = 'error';
+          attachment.error = err;
+        }, function(uploadTask) {
+          attachment.upload.progress = uploadTask.progress;
+        });
+
+        return attachment;
+      };
+
+      return attachment;
     }
 
     this.onAttachmentsSelect = function($files) {
@@ -200,7 +207,12 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       $scope.email.attachments = $scope.email.attachments || [];
-      inBackground(_uploadAttachments($files));
+
+      withJmapClient(function(client) {
+        $files.forEach(function(file) {
+          $scope.email.attachments.push(newAttachment(client, file).startUpload());
+        });
+      });
     };
 
     this.removeAttachment = function(attachment) {
