@@ -1,35 +1,32 @@
 'use strict';
 
 angular.module('esn.background', [])
-  .service('backgroundProcessorService', function($log, $q) {
+  .service('backgroundProcessorService', function() {
 
     var tasks = [];
 
-    function add(task, done, fail) {
+    function add(task) {
       if (!task) {
         return;
       }
 
-      done = done || function(result) {
-        $log.info('Task is done', result);
-      };
+      tasks.push(task);
 
-      fail = fail || function(err) {
-        $log.info('Task error', err);
-      };
-
-      var promise = $q.when(task).then(done, fail).finally(function() {
+      task.finally(function() {
         tasks.splice(tasks.indexOf(task), 1);
       });
 
-      tasks.push(task);
-      var defer = $q.defer();
-      $q.when(promise).then(defer.resolve, defer.reject);
-      return defer.promise;
+      return task;
     }
 
     return {
       add: add,
       tasks: tasks
+    };
+  })
+
+  .factory('inBackground', function(backgroundProcessorService) {
+    return function(task) {
+      return backgroundProcessorService.add(task);
     };
   });
