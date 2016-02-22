@@ -1,7 +1,8 @@
-.calendar-header-mobile
-  .row
-    .col-xs-2
-      a(href='', ng-click='cancel()')
+.calendars-edit-header
+  .flex-start.flex-vertical-centered
+    .col-xs-2.nopadding
+      button.btn.btn-primary(ng-click='cancel()')
         i.mdi.mdi-reply
-    .col-xs-8.text-center
-      a #{__('Configuration')}
+    .col-xs-8.nopadding
+      span.all-centered
+        | #{__('Configuration')}
