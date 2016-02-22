@@ -11,7 +11,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
       mailboxesService, inboxEmailService, _, JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
-      ELEMENTS_PER_PAGE, windowMock;
+      ELEMENTS_PER_PAGE, DEFAULT_FILE_TYPE, windowMock, fileUploadMock;
 
   beforeEach(function() {
     $stateParams = {
@@ -42,8 +42,16 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {};
+      fileUploadMock = {
+        addFile: function() {
+          return {
+            defer: $q.defer()
+          };
+        }
+      };
+
       $provide.value('withJmapClient', function(callback) {
-        return callback(jmapClient);
+        return callback(jmapClient, { uploadUrl: 'http://jmap' });
       });
       $provide.decorator('$window', function($delegate) {
         return angular.extend($delegate, windowMock);
@@ -57,12 +65,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('headerService', headerService);
       $provide.value('$state', $state);
       $provide.constant('ELEMENTS_PER_PAGE', 2);
+      $provide.value('fileUploadService', {
+        get: function() {
+          return fileUploadMock;
+        }
+      });
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
                                           _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_) {
+                                          _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -74,6 +87,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
     JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
     ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
+    DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
 
     scope = $rootScope.$new();
   }));
@@ -163,6 +177,93 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(scope.composition).to.be.an.instanceof(Composition);
       expect(scope.email).to.be.a('object');
+    });
+
+    describe('The onAttachmentsSelect function', function() {
+
+      it('should do nothing if no files are given', function() {
+        initController('composerController').onAttachmentsSelect();
+
+        expect(scope.email.attachments).to.equal(undefined);
+      });
+
+      it('should do nothing if files is zerolength', function() {
+        initController('composerController').onAttachmentsSelect([]);
+
+        expect(scope.email.attachments).to.equal(undefined);
+      });
+
+      it('should put the attachment in the scope, with an unknown blobId', function() {
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1, type: 'type' }]);
+
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({
+          blobId: 'unknownBlobId',
+          name: 'name',
+          size: 1,
+          type: 'type'
+        });
+      });
+
+      it('should put the attachment in the scope, with a default file type', function() {
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({
+          blobId: 'unknownBlobId',
+          name: 'name',
+          size: 1,
+          type: DEFAULT_FILE_TYPE
+        });
+      });
+
+      it('should set the blobId when upload succeeds', function() {
+        fileUploadMock = {
+          addFile: function() {
+            var defer = $q.defer();
+
+            defer.resolve({
+              response: {
+                blobId: '1234'
+              }
+            });
+
+            return {
+              defer: defer
+            };
+          }
+        };
+
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({
+          blobId: '1234',
+          name: 'name',
+          size: 1,
+          type: DEFAULT_FILE_TYPE
+        });
+      });
+
+      it('should set attachment.error if upload fails', function() {
+        fileUploadMock = {
+          addFile: function() {
+            var defer = $q.defer();
+
+            defer.reject('WTF');
+
+            return {
+              defer: defer
+            };
+          }
+        };
+
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({
+          error: 'WTF'
+        });
+      });
+
     });
 
   });

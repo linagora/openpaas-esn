@@ -840,4 +840,51 @@ angular.module('linagora.esn.unifiedinbox')
       unmarkAsFlagged: unmarkAsFlagged,
       moveToTrash: moveToTrash
     };
+  })
+
+  .service('attachmentUploadService', function($q, $rootScope, $timeout, xhrWithUploadProgress, withJmapClient) {
+    function in$Apply(fn) {
+      return function(value) {
+        if ($rootScope.$$phase) {
+          return fn(value);
+        }
+
+        return $rootScope.$apply(function() {
+          fn(value);
+        });
+      };
+    }
+
+    function uploadFile(url, file, type, size, options, canceler) {
+      return withJmapClient(function(client, config) {
+        var defer = $q.defer(),
+            request = $.ajax({
+              type: 'POST',
+              url: config.uploadUrl,
+              contentType: type,
+              data: file,
+              processData: false,
+              dataType: 'json',
+              success: in$Apply(defer.resolve),
+              error: function(xhr, status, error) {
+                in$Apply(defer.reject)({
+                  xhr: xhr,
+                  status: status,
+                  error: error
+                });
+              },
+              xhr: xhrWithUploadProgress(in$Apply(defer.notify))
+            });
+
+        if (canceler) {
+          canceler.then(request.abort);
+        }
+
+        return defer.promise;
+      });
+    }
+
+    return {
+      uploadFile: uploadFile
+    };
   });

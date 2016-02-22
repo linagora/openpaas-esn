@@ -1,10 +1,13 @@
 'use strict';
 
 angular.module('esn.file', ['angularFileUpload', 'esn.http'])
-  .constant('FILES_API_URL', '/api/files')
-  .factory('fileUploadService', function($q, $timeout, $log, fileAPIService, FILES_API_URL) {
 
-    function get() {
+  .constant('FILES_API_URL', '/api/files')
+  .constant('DEFAULT_FILE_TYPE', 'application/octet-stream')
+
+  .factory('fileUploadService', function($q, $timeout, $log, fileAPIService, FILES_API_URL, DEFAULT_FILE_TYPE) {
+
+    function get(uploader) {
       var date = Date.now();
       var tracker = [];
       var processed = 0;
@@ -78,24 +81,23 @@ angular.module('esn.file', ['angularFileUpload', 'esn.http'])
         task.uploading = true;
         task.progress = 0;
 
-        task.uploader = fileAPIService.uploadFile(FILES_API_URL, task.file, task.file.type, task.file.size, {}, task.canceler.promise)
-          .success(function(response) {
+        task.uploader = (uploader || fileAPIService).uploadFile(FILES_API_URL, task.file, task.file.type || DEFAULT_FILE_TYPE, task.file.size, {}, task.canceler.promise)
+          .then(function(response) {
             task.progress = 100;
             task.uploaded = true;
             task.response = response;
+
             return task.defer.resolve(task);
-          })
-          .error(function(err) {
-            return task.defer.reject(err);
-          })
-          .progress(function(evt) {
+          }, task.defer.reject, function(evt) {
             task.progress = parseInt(100.0 * evt.loaded / evt.total);
+
+            return task.defer.notify(task);
           })
           .finally(function() {
-          $timeout(function() {
-            task.uploading = false;
-          }, 1500);
-        });
+            $timeout(function() {
+              task.uploading = false;
+            }, 1500);
+          });
 
         return task.uploader;
       }
@@ -972,5 +974,22 @@ angular.module('esn.file', ['angularFileUpload', 'esn.http'])
   .filter('extension', function(contentTypeService) {
     return function(contentType) {
       return contentTypeService.getExtension(contentType);
+    };
+  })
+
+  // Is here to be mocked
+  .service('XMLHttpRequest', function() {
+    return window.XMLHttpRequest;
+  })
+
+  .factory('xhrWithUploadProgress', function(XMLHttpRequest) {
+    return function(callback) {
+      return function() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', callback);
+
+        return xhr;
+      };
     };
   });

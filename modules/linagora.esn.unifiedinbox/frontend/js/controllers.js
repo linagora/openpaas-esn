@@ -143,7 +143,8 @@ angular.module('linagora.esn.unifiedinbox')
       });
   })
 
-  .controller('composerController', function($scope, $stateParams, headerService, Composition) {
+  .controller('composerController', function($scope, $stateParams, headerService, Composition, jmap, withJmapClient,
+                                             fileUploadService, attachmentUploadService, DEFAULT_FILE_TYPE) {
 
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
@@ -164,6 +165,35 @@ angular.module('linagora.esn.unifiedinbox')
 
     this.hideMobileHeader = function() {
       headerService.subHeader.resetInjections();
+    };
+
+    this.onAttachmentsSelect = function($files) {
+      if (!$files || $files.length === 0) {
+        return;
+      }
+
+      $scope.email.attachments = $scope.email.attachments || [];
+
+      withJmapClient(function(client) {
+        $files.forEach(function(file) {
+          var uploadTask = fileUploadService.get(attachmentUploadService).addFile(file, true),
+            attachment = angular.extend(new jmap.Attachment(client, 'unknownBlobId', {
+              name: file.name,
+              size: file.size,
+              type: file.type || DEFAULT_FILE_TYPE
+            }), {
+              upload: uploadTask
+            });
+
+          $scope.email.attachments.push(attachment);
+
+          uploadTask.defer.promise.then(function(task) {
+            attachment.blobId = task.response.blobId;
+          }, function(err) {
+            attachment.error = err;
+          });
+        });
+      });
     };
 
     if ($stateParams.composition) {
