@@ -1986,8 +1986,8 @@ describe('The Unified Inbox Angular module services', function() {
         .calledWith({ obj: 'expected', bcc: [], cc: [], to: [] });
     });
 
-    it('should save the draft when saveDraft is called', function() {
-      var saveSpy = sinon.stub().returns($q.when({}));
+    it('should save the draft when saveDraft is called', function(done) {
+      var saveSpy = sinon.stub().returns($q.when({expected: 'return'}));
       draftService.startDraft = function() {
         return {
           save: saveSpy
@@ -1996,10 +1996,15 @@ describe('The Unified Inbox Angular module services', function() {
 
       var composition = new Composition({obj: 'expected'});
       composition.getEmail().test = 'tested';
-      composition.saveDraft();
+      var promise = composition.saveDraft();
 
-      expect(saveSpy).to.have.been
-        .calledWith({obj: 'expected', test: 'tested', bcc: [], cc: [], to: [] });
+      promise.then(function(value) {
+        expect(value).to.deep.equal({expected: 'return'});
+        expect(saveSpy).to.have.been
+          .calledWith({obj: 'expected', test: 'tested', bcc: [], cc: [], to: [] });
+        done();
+      })
+      $timeout.flush();
     });
 
     it('should not try to destroy the original draft, when saveDraft is called and the original is not a jmap.Message', function() {

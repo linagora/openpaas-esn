@@ -530,7 +530,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     Composition.prototype.saveDraft = function() {
-      this.draft.save(this.email).then(this.destroyOriginalDraft.bind(this));
+      return this.draft.save(this.email).then(this.destroyOriginalDraft.bind(this));
     };
 
     Composition.prototype.getEmail = function() {
@@ -586,10 +586,11 @@ angular.module('linagora.esn.unifiedinbox')
       });
     };
 
-    Composition.prototype.destroyOriginalDraft = function() {
+    Composition.prototype.destroyOriginalDraft = function(createMessageAck) {
       if (this.originalJmapMessage) {
         this.originalJmapMessage.destroy();
       }
+      return createMessageAck;
     };
 
     return Composition;
