@@ -69,6 +69,8 @@ angular.module('esn.calendar')
     }
   })
 
+  .constant('CALENDAR_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays'])
+
   .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
   .constant('CALENDAR_DEDAULT_EVENT_COLOR', '#2196f3')

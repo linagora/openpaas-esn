@@ -67,16 +67,6 @@ angular.module('esn.calendar')
 
     var miniCalendarHidden = true;
 
-    $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
-      miniCalendarHidden = !miniCalendarHidden;
-    });
-
-    $rootScope.$on(CALENDAR_EVENTS.VIEW_TRANSLATION, function(event, action) {
-      if (miniCalendarHidden) {
-        (action === 'prev' ? prev : next)();
-      }
-    });
-
     $scope.eventClick = function(event) {
       openEventForm(event.clone());
     };
@@ -255,6 +245,14 @@ angular.module('esn.calendar')
             $scope.calendars[index] = calendar;
           }
         });
+      }),
+      $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+        miniCalendarHidden = !miniCalendarHidden;
+      }),
+      $rootScope.$on(CALENDAR_EVENTS.VIEW_TRANSLATION, function(event, action) {
+        if (miniCalendarHidden) {
+          (action === 'prev' ? prev : next)();
+        }
       })
     ];
 

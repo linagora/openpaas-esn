@@ -2377,19 +2377,26 @@ describe('The calendar module services', function() {
   });
 
   describe('The calendarCurrentView factory', function() {
+    var locationMock, screenSizeMock, fcMoment, calendarCurrentView, CALENDAR_AVAILABLE_VIEWS;
 
-    var locationMock, fcMoment, calendarCurrentView;
     beforeEach(function() {
       locationMock = {};
+      screenSizeMock = {
+        is: function() {
+          return false;
+        }
+      };
       angular.mock.module('esn.calendar');
 
       angular.mock.module(function($provide) {
         $provide.value('$location', locationMock);
+        $provide.value('screenSize', screenSizeMock);
       });
 
-      angular.mock.inject(function(_fcMoment_, _calendarCurrentView_) {
+      angular.mock.inject(function(_fcMoment_, _calendarCurrentView_, _CALENDAR_AVAILABLE_VIEWS_) {
         fcMoment = _fcMoment_;
         calendarCurrentView = _calendarCurrentView_;
+        CALENDAR_AVAILABLE_VIEWS = _CALENDAR_AVAILABLE_VIEWS_;
       });
     });
 
@@ -2436,7 +2443,7 @@ describe('The calendar module services', function() {
     describe('the get function', function() {
 
       it('should return valid view name from get param', function() {
-        ['agendaWeek', 'agendaDay', 'month'].forEach(function(name) {
+        CALENDAR_AVAILABLE_VIEWS.forEach(function(name) {
           locationMock.search = sinon.stub().returns({viewMode: name});
 
           var view = calendarCurrentView.get();
@@ -2468,6 +2475,16 @@ describe('The calendar module services', function() {
         var view = calendarCurrentView.get();
         expect(locationMock.search).to.have.been.calledOnce;
         expect(view.start).to.be.undefined;
+      });
+
+      it('should force 3days view on mobile if viewMode is not defined', function() {
+        locationMock.search = sinon.stub().returns({});
+        screenSizeMock.is = sinon.stub().returns(true);
+
+        var view = calendarCurrentView.get();
+        expect(locationMock.search).to.have.been.calledOnce;
+        expect(screenSizeMock.is).to.have.been.calledWith('xs, sm');
+        expect(view.name).to.equal('agendaThreeDays');
       });
     });
 
