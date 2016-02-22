@@ -10,6 +10,16 @@ var Domain = mongoose.model('Domain');
 var Community = mongoose.model('Community');
 var User = mongoose.model('User');
 
+var constants = require('../../backend/core/user/constants');
+var ESPlugin = require('../../backend/core/db/mongo/plugins/elasticsearch');
+var denormalize = require('../../backend/core/user/search').denormalize;
+
+User.schema.plugin(ESPlugin({
+  denormalize: denormalize,
+  type: constants.ELASTICSEARCH.type,
+  index: constants.ELASTICSEARCH.index
+}));
+
 var ADMIN_OBJECT = {
   firstname: 'admin',
   lastname: 'admin',
