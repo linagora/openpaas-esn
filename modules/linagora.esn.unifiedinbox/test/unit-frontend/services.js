@@ -1373,6 +1373,57 @@ describe('The Unified Inbox Angular module services', function() {
         })).to.equal(true);
       });
 
+      it('should return true if an attachment is added', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text'
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1'}]
+        })).to.equal(true);
+      });
+
+      it('should return true if new has difference into attachments', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1'}]
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1'}, {blobId: '2'}]
+        })).to.equal(true);
+      });
+
+      it('should not compare attributes that are not definied in ATTACHMENTS_ATTRIBUTES', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1', name: 'name 1'}, {blobId: '2', name: 'name 2'}]
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1', name: 'name 1'}, {blobId: '2', name: 'name 2', notTested: 'notTested'}]
+        })).to.equal(false);
+      });
+
+      it('should compare attributes that are definied in ATTACHMENTS_ATTRIBUTES', function() {
+        var draft = draftService.startDraft({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1', name: 'name 1'}, {blobId: '2', name: 'name 2'}]
+        });
+        expect(draft.needToBeSaved({
+          subject: 'yo',
+          htmlBody: 'text',
+          attachments: [{blobId: '1', name: 'name 1'}, {blobId: '2', name: 'name 2', size: 'new size'}]
+        })).to.equal(true);
+      });
+
       it('should return true if new has difference into cc recipients only', function() {
         var draft = draftService.startDraft({
           subject: 'yo',

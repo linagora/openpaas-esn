@@ -176,7 +176,8 @@ angular.module('linagora.esn.unifiedinbox')
         subject: emailState.subject,
         to: _mapToNameEmailTuple(emailState.to),
         cc: _mapToNameEmailTuple(emailState.cc),
-        bcc: _mapToNameEmailTuple(emailState.bcc)
+        bcc: _mapToNameEmailTuple(emailState.bcc),
+        attachments: emailState.attachments
       };
       message[emailBodyService.bodyProperty] = emailState[emailBodyService.bodyProperty];
 
@@ -379,7 +380,13 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _, jmapHelper) {
+  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _, jmapHelper, ATTACHMENTS_ATTRIBUTES) {
+
+    function _keepSomeAttributes(array, attibutes) {
+      return _.map(array, function(data) {
+        return _.pick(data, attibutes);
+      });
+    }
 
     function haveDifferentRecipients(left, right) {
       return _.xor(_.map(left, 'email'), _.map(right, 'email')).length > 0;
@@ -387,6 +394,10 @@ angular.module('linagora.esn.unifiedinbox')
 
     function haveDifferentBodies(original, newest) {
       return trim(original[emailBodyService.bodyProperty]) !== trim(newest[emailBodyService.bodyProperty]);
+    }
+
+    function haveDifferentAttachments(original, newest) {
+      return !_.isEqual(_keepSomeAttributes(original, ATTACHMENTS_ATTRIBUTES), _keepSomeAttributes(newest, ATTACHMENTS_ATTRIBUTES));
     }
 
     function trim(value) {
@@ -406,7 +417,8 @@ angular.module('linagora.esn.unifiedinbox')
         haveDifferentBodies(original, newest) ||
         haveDifferentRecipients(original.to, newest.to) ||
         haveDifferentRecipients(original.cc, newest.cc) ||
-        haveDifferentRecipients(original.bcc, newest.bcc)
+        haveDifferentRecipients(original.bcc, newest.bcc) ||
+        haveDifferentAttachments(original.attachments, newest.attachments)
       );
     };
 
