@@ -18,9 +18,7 @@ infinite-list.list-emails
                 .date-container {{::thread.email.date | date: group.dateFormat}}
               .flex-space-between
                 emailer.lv-title(emailer="::thread.email.from")
-                .indicators
-                  i.email-status-icon.mdi.mdi-paperclip(ng-if='::thread.email.hasAttachment')
-                  email-star(email='thread.email')
+                inbox-indicators(item="thread.email")
             .lv-small.preview {{::thread.email.preview}}
 
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')

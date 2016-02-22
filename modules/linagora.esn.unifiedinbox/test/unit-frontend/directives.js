@@ -892,11 +892,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   });
 
-  describe('The emailStar directive', function() {
+  describe('The inboxStar directive', function() {
 
     describe('The setIsFlagged function', function() {
 
-      it('should call email.setIsFlagged, passing the flag', function(done) {
+      it('should call item.setIsFlagged, passing the flag', function(done) {
         $scope.email = {
           setIsFlagged: function(state) {
             expect(state).to.equal(true);
@@ -905,7 +905,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
           }
         };
 
-        compileDirective('<email-star email="email" />').controller('emailStar').setIsFlagged(true);
+        compileDirective('<inbox-star item="email" />').controller('inboxStar').setIsFlagged(true);
       });
 
     });

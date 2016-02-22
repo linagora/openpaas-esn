@@ -373,19 +373,19 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('emailStar', function(jmapEmailService) {
+  .directive('inboxStar', function(jmapEmailService) {
     return {
       restrict: 'E',
       controller: function($scope) {
         this.setIsFlagged = function(state) {
-          jmapEmailService.setFlag($scope.email, 'isFlagged', state);
+          jmapEmailService.setFlag($scope.item, 'isFlagged', state);
         };
       },
       controllerAs: 'ctrl',
       scope: {
-        email: '='
+        item: '='
       },
-      templateUrl: '/unifiedinbox/views/partials/email-star.html'
+      templateUrl: '/unifiedinbox/views/partials/inbox-star.html'
     };
   })
 
@@ -411,5 +411,15 @@ angular.module('linagora.esn.unifiedinbox')
         email: '='
       },
       templateUrl: '/unifiedinbox/views/partials/email.html'
+    };
+  })
+
+  .directive('inboxIndicators', function() {
+    return {
+      restrict: 'E',
+      templateUrl:'/unifiedinbox/views/partials/inbox-indicators.html',
+      scope: {
+        item: '='
+      }
     };
   });
