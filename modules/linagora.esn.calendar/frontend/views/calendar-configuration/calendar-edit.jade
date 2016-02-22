@@ -9,9 +9,14 @@
         input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="calendar.name", maxlength="255")
         span.help-block(ng-show="calendar.name.length < 1")
           | #{__('Please input a name if you want to save this edition')}
-      .form-group.fg-line
+      .form-group.flex.aligner-items-end
         .field-name #{__('Color')}
-        input.form-control(type="text", ng-model="calendar.color")
+        .color-picker-container(calendar-color-picker-toggler, ng-model="calendar.color")
+          // .select > .form-control is mandatory here for the select-like behavior
+          // of material-admin
+          .select
+            .form-control
+          i.color-picker-value(ng-style="{'background-color': calendar.color}")
       .visible-xs
         span.pull-right
           button.btn.btn-default.btn-sm.m-t-10(ng-if="!newCalendar", type="button", ng-click="openDeleteConfirmationDialog()") #{__('Delete')}

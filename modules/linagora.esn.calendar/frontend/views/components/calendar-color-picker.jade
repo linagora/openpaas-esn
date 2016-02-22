@@ -1,0 +1,11 @@
+.modal.calendar-color-picker
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Pick a color')}
+      .modal-body
+        .square-box(ng-repeat="color in colorKeys", class="{{color}}", ng-class="{selected: isSelected(color)}", ng-click="select(color)")
+          .color-box(ng-style="{'background-color': CALENDAR_LIST_OF_COLORS[color]}")
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-danger(type="button", ng-click="set(); $hide()") #{__('Set')}

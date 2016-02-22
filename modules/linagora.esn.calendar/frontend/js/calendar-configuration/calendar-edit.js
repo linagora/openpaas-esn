@@ -54,6 +54,23 @@ angular.module('esn.calendar')
       }
     };
 
+    $scope.openColorPicker = function() {
+      $scope.colorPicker = $modal({
+        title: 'Pick a color',
+        contentTemplate: '<calendar-color-picker ng-model="calendar.color"/>',
+        resolve: {
+          event: function(eventUtils) {
+            return eventUtils.getEditedEvent();
+          }
+        },
+        controller: function($scope, event) {
+          $scope.event = event;
+        },
+        backdrop: 'static',
+        placement: 'center'
+      });
+    };
+
     $scope.openDeleteConfirmationDialog = function() {
       $scope.modal = $modal({scope: $scope, templateUrl: '/calendar/views/calendar-configuration/calendar-edit-delete-confirmation.html', backdrop: 'static', placement: 'center'});
     };
