@@ -4,29 +4,37 @@ var utils = require('./utils');
 var pubsub = require('../pubsub').global;
 var logger = require('../logger');
 
-module.exports.addListener = function(options) {
+function index(data, options, callback) {
+  var indexOptions = {
+    denormalize: options.denormalize || function(data) {return data;},
+    index: options.index,
+    type: options.type,
+    data: data
+  };
+  utils.indexData(indexOptions, function(err, result) {
+    if (err) {
+      return logger.error('Error while adding data in index', err);
+    }
+    logger.debug('Document indexed');
+    if (callback) {
+      callback(err, result);
+    }
+  });
+}
+module.exports.index = index;
 
-  function index(data) {
-    var indexOptions = {
-      denormalize: options.denormalize || function(data) {return data;},
-      index: options.index,
-      type: options.type,
-      data: data
-    };
-    utils.indexData(indexOptions, function(err) {
-      if (err) {
-        return logger.error('Error while adding data in index', err);
-      }
-      logger.debug('Document indexed');
+function addListener(options) {
+
+  if (options.events.add) {
+    pubsub.topic(options.events.add).subscribe(function(data) {
+      index(data, options);
     });
   }
 
-  if (options.events.add) {
-    pubsub.topic(options.events.add).subscribe(index);
-  }
-
   if (options.events.update) {
-    pubsub.topic(options.events.update).subscribe(index);
+    pubsub.topic(options.events.update).subscribe(function(data) {
+      index(data, options);
+    });
   }
 
   if (options.events.remove) {
@@ -43,4 +51,5 @@ module.exports.addListener = function(options) {
       });
     });
   }
-};
+}
+module.exports.addListener = addListener;

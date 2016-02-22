@@ -1,19 +1,28 @@
 'use strict';
 
 var utils = require('./utils');
+var CONSTANTS = require('./constants');
+var mongooseHelper = require('../../helpers/mongoose');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
 
 function getIndexName() {
-  return 'users.idx';
+  return CONSTANTS.ELASTICSEARCH.index;
 }
 module.exports.getIndexName = getIndexName;
 
 function getTypeName() {
-  return 'users';
+  return CONSTANTS.ELASTICSEARCH.type;
 }
 module.exports.getTypeName = getTypeName;
+
+function denormalize(user) {
+  var document = mongooseHelper.userToJSON(user);
+  document.id = document._id;
+  return document;
+}
+module.exports.denormalize = denormalize;
 
 /**
  * Search users in a domain by using a filter.
