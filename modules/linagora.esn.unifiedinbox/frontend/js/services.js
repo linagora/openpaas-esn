@@ -521,10 +521,17 @@ angular.module('linagora.esn.unifiedinbox')
       return preparingEmail;
     }
 
-    function Composition(message) {
+    function makeDestroyMethod(message) {
       if (message instanceof jmap.Message) {
-        this.originalJmapMessage = message;
+        return message.destroy;
       }
+      if (message instanceof jmap.CreateMessageAck) {
+        return message._jmap.destroyMessage.bind(message._jmap, message.id);
+      }
+    }
+
+    function Composition(message) {
+      this.destroyOriginalJmapMessage = makeDestroyMethod(message);
       this.email = prepareEmail(message);
       this.draft = draftService.startDraft(this.email);
     }
@@ -587,8 +594,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     Composition.prototype.destroyOriginalDraft = function(createMessageAck) {
-      if (this.originalJmapMessage) {
-        this.originalJmapMessage.destroy();
+      if (this.destroyOriginalJmapMessage) {
+        this.destroyOriginalJmapMessage();
       }
       return createMessageAck;
     };

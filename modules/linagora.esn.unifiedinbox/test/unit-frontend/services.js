@@ -2040,6 +2040,25 @@ describe('The Unified Inbox Angular module services', function() {
       expect(message.destroy).to.have.been.calledOnce;
     });
 
+    it('should destroy the original draft when saveDraft is called, when the original is a jmap.CreateMessageAck', function() {
+      draftService.startDraft = function() {
+        return {
+          save: sinon.stub().returns($q.when({}))
+        };
+      };
+
+      var ack = new jmap.CreateMessageAck({destroyMessage: sinon.spy()}, {
+        id: 'expected id',
+        blobId: 'any',
+        size: 5
+      });
+
+      new Composition(ack).saveDraft();
+      $timeout.flush();
+
+      expect(ack._jmap.destroyMessage).to.have.been.calledWith('expected id');
+    });
+
     it('"canBeSentOrNotify" fn should returns false when the email has no recipient', function() {
       var email = {
         to: [],
