@@ -17,9 +17,7 @@
                 .date-container {{::email.date | date: group.dateFormat}}
               .flex-space-between
                 emailer.lv-title(emailer="::email.from")
-                .indicators
-                  i.email-status-icon.mdi.mdi-paperclip(ng-if='::email.hasAttachment')
-                  email-star(email='email')
+                inbox-indicators(item="email")
             .lv-small.preview {{::email.preview}}
 
   inbox-fab
