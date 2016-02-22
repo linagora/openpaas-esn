@@ -17,7 +17,7 @@
       border-radius: 4px;
       margin: 5px;
       height: 60px;
-      width: 300px;
+      width: ~"calc(100% - 10px)";
       color: lighten(@secondaryTextColor, 10%);
       box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 
@@ -94,4 +94,14 @@
     }
   }
 
+}
+
+// We cannot use @screen-sm-min because we changed breakpoints so that XS=SM
+// There's no breakpoint at 768px anymore
+@media (min-width: 769px) {
+  .email-view, .attachments-zone {
+    .attachments .attachment {
+      width: 300px;
+    }
+  }
 }
