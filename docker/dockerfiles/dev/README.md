@@ -9,5 +9,7 @@ This folder contains a collection of Docker files which may be used to ease ESN 
 A compose file to launch Redis, Mongodb, Elasticsearch and SabreDAV.
 
 ```bash
-docker-compose -f ./docker/dockerfiles/dev/docker-compose.yml up
+ESN_HOST=<YOUR_ESN_IP> docker-compose -f ./docker/dockerfiles/dev/docker-compose.yml up
 ```
+
+Check the complete documentation on [../../doc/dev.md](../../doc/dev.md)
