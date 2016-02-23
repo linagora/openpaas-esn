@@ -87,7 +87,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .controller('eventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM) {
+  .controller('eventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM, DEFAULT_CALENDAR_ID) {
 
     function _initFormData() {
       $scope.event = CalendarShell.fromIncompleteShell({
@@ -128,7 +128,7 @@ angular.module('esn.calendar')
 
       var event = $scope.event;
       var calendarHomeId = $scope.calendarHomeId || calendarService.calendarHomeId;
-      var path = '/calendars/' + calendarHomeId + '/events';
+      var path = '/calendars/' + calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
       $scope.restActive = true;
       calendarService.createEvent(calendarHomeId, path, event, { graceperiod: false })
         .then(function(response) {

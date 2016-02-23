@@ -390,57 +390,6 @@ describe('The calendar module controllers', function() {
       expect(called).to.equal(1);
     });
 
-    it('should modify good calendar in scope.calendars on CALENDAR_EVENTS.CALENDARS.MODIFY', function() {
-      this.controller('calendarController', {$scope: this.scope});
-
-      this.scope.uiConfig.calendar.viewRender({});
-      this.scope.$digest();
-
-      this.rootScope.$emit(this.CALENDAR_EVENTS.CALENDARS.UPDATE, {
-        id: 'id2',
-        color: 'red',
-        href: 'href2'
-      });
-
-      expect(this.scope.calendars).to.deep.equals([{
-        href: 'href',
-        id: 'id',
-        color: 'color'
-      },
-      {
-        href: 'href2',
-        id: 'id2',
-        color: 'red'
-      }]);
-    });
-
-    it('should add calendar in scope.calendars on CALENDAR_EVENTS.CALENDARS.ADD', function() {
-      this.controller('calendarController', {$scope: this.scope});
-
-      this.scope.uiConfig.calendar.viewRender({});
-      this.scope.$digest();
-
-      this.rootScope.$emit(this.CALENDAR_EVENTS.CALENDARS.ADD, {
-        id: 'id3',
-        color: 'pink',
-        href: 'href3'
-      });
-
-      expect(this.scope.calendars).to.deep.equals([{
-        href: 'href',
-        id: 'id',
-        color: 'color'
-      }, {
-        href: 'href2',
-        id: 'id2',
-        color: 'color2'
-      }, {
-        href: 'href3',
-        id: 'id3',
-        color: 'pink'
-      }]);
-    });
-
     it('should emit removeEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and eventData.hidden is true', function() {
       this.controller('calendarController', {$scope: this.scope});
       var called = 0;

@@ -38,7 +38,8 @@ angular.module('esn.calendar')
       calendarCurrentView,
       CALENDAR_EVENTS,
       MAX_CALENDAR_RESIZE_HEIGHT,
-      CALENDAR_DEDAULT_EVENT_COLOR) {
+      CALENDAR_DEDAULT_EVENT_COLOR,
+      DEFAULT_CALENDAR_ID) {
 
     var windowJQuery = angular.element($window);
 
@@ -72,7 +73,7 @@ angular.module('esn.calendar')
     };
 
     $scope.eventDropAndResize = function(drop, event, delta) {
-      var path = event.path || '/calendars/' + $scope.calendarHomeId + '/events';
+      var path = event.path || '/calendars/' + $scope.calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
       var newEvent = new CalendarShell(event.vcalendar, {
         etag: event.etag,
         path: event.path,
@@ -153,9 +154,10 @@ angular.module('esn.calendar')
 
     $scope.eventSourcesMap = {};
     $scope.eventSources = [];
+
     calendarService.listCalendars($scope.calendarHomeId)
       .then(function(calendars) {
-        $scope.calendars = calendars;
+        $scope.calendars = calendars || [];
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
             events: keepChangeDuringGraceperiod.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),

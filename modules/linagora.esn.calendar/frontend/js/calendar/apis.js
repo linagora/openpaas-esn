@@ -6,7 +6,7 @@ angular.module('esn.calendar')
   .constant('CALENDAR_CONTENT_TYPE_HEADER', 'application/calendar+json')
   .constant('CALENDAR_PREFER_HEADER', 'return=representation')
 
-  .factory('pathBuilder', function() {
+  .factory('pathBuilder', function(DEFAULT_CALENDAR_ID) {
     function rootPath() {
       return '/calendars';
     }
@@ -19,8 +19,8 @@ angular.module('esn.calendar')
       return rootPath() + '/' + calendarHomeId + '/' + calendarId + '.json';
     }
 
-    function forEventId(calendarId, eventId) {
-      return (rootPath() + '/' + calendarId + '/events').replace(/\/$/, '') + '/' + eventId + '.ics';
+    function forEventId(calendarHomeId, eventId) {
+      return (rootPath() + '/' + calendarHomeId + '/' + DEFAULT_CALENDAR_ID).replace(/\/$/, '') + '/' + eventId + '.ics';
     }
 
     return {

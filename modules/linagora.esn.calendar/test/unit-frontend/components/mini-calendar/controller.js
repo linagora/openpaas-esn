@@ -118,7 +118,7 @@ describe('The mini-calendar controller', function() {
   }));
 
   afterEach(function() {
-    $rootScope.$destroy();
+    $scope.$destroy();
   });
 
   it('should $rootScope.broadcast the view on viewRender call', function() {

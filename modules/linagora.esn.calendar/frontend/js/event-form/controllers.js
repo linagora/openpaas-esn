@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS) {
+  .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
 
@@ -151,7 +151,7 @@ angular.module('esn.calendar')
       }
       _hideModal();
       $scope.restActive = true;
-      var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/events';
+      var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + DEFAULT_CALENDAR_ID;
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag)
         .then(function(response) {
           if (response) {

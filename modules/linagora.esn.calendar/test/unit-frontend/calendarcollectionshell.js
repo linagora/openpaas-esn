@@ -5,13 +5,13 @@ var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
 
-  beforeEach(function() {
-    angular.mock.module('esn.calendar');
+  beforeEach(function() { angular.mock.module('esn.calendar');
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(CalendarCollectionShell) {
+    angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID) {
       this.CalendarCollectionShell = CalendarCollectionShell;
+      this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
     });
   });
 
@@ -27,6 +27,14 @@ describe('CalendarCollectionShell factory', function() {
         'apple:color': 'color',
         'caldav:description': 'description',
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe'
+      });
+    });
+
+    it('should set selected on calendar with DEFAULT_CALENDAR_ID', function() {
+      expect(this.CalendarCollectionShell.from({
+        href: '/calendars/56095ccccbd51b7318ce6d0c/' + this.DEFAULT_CALENDAR_ID + '.json'
+      })).to.shallowDeepEqual({
+        selected: true
       });
     });
 
