@@ -2000,12 +2000,12 @@ describe('The Unified Inbox Angular module services', function() {
         .calledWith({ obj: 'expected', bcc: [], cc: [], to: [] });
     });
 
-    it('should save the draft when saveDraft is called', function(done) {
+    function saveDraftTest(compositionMethod, done) {
       var composition = new Composition({});
       composition.email.htmlBody = 'modified';
       composition.email.to.push({email: '1@linagora.com'});
 
-      composition.saveDraft().then(function(ack) {
+      composition[compositionMethod]().then(function(ack) {
         expect(ack).to.deep.equal(firstSaveAck);
         expect(jmapClient.saveAsDraft.getCall(0).args[0]).to.shallowDeepEqual({
           htmlBody: 'modified',
@@ -2014,6 +2014,14 @@ describe('The Unified Inbox Angular module services', function() {
         });
       }).then(done, done);
       $timeout.flush();
+    }
+
+    it('should save the draft when saveDraft is called', function(done) {
+      saveDraftTest('saveDraft', done);
+    });
+
+    it('should save the draft silently when saveDraftSilently is called', function(done) {
+      saveDraftTest('saveDraftSilently', done);
     });
 
     it('should not try to destroy the original draft, when saveDraft is called and the original is not a jmap.Message', function() {
@@ -2751,6 +2759,10 @@ describe('The Unified Inbox Angular module services', function() {
       return $q.when();
     }
 
+    function qReject() {
+      return $q.reject();
+    }
+
     beforeEach(module(function($provide) {
       notification = {
         close: sinon.spy()
@@ -2793,7 +2805,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should close the strongInfo notification when action rejects', function() {
-      asyncAction('Test', function() { return $q.reject(); });
+      asyncAction('Test', qReject);
       $rootScope.$digest();
 
       expect(notification.close).to.have.been.calledWith();
@@ -2807,7 +2819,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should notify weakError when action rejects', function() {
-      asyncAction('Test', function() { return $q.reject(); });
+      asyncAction('Test', qReject);
       $rootScope.$digest();
 
       expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
@@ -2831,6 +2843,26 @@ describe('The Unified Inbox Angular module services', function() {
         }, function(result) {
           expect(result).to.equal('Bouh !');
 
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should not notify when options has silent', function() {
+      asyncAction('Test', qNoop, {silent: true});
+      $rootScope.$digest();
+
+      expect(notificationFactory.strongInfo).to.not.have.been.called;
+      expect(notificationFactory.weakSuccess).to.not.have.been.called;
+    });
+
+    it('should notify error even when options has silent', function(done) {
+      asyncAction('Test', qReject, {silent: true})
+        .then(function() {
+          done('The promise should not be resolved !');
+        }, function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
           done();
         });
 

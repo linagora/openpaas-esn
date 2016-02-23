@@ -210,7 +210,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl = initController('composerController');
 
         scope.composition = {
-          saveDraft: sinon.spy()
+          saveDraftSilently: sinon.stub().returns($q.when(new jmap.CreateMessageAck({destroyMessage: sinon.spy()}, {
+            id: 'expected id',
+            blobId: 'any',
+            size: 5
+          })))
         };
       });
 
@@ -273,7 +277,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.composition.saveDraft).to.have.been.calledTwice;
+        expect(scope.composition.saveDraftSilently).to.have.been.calledTwice;
       });
 
       it('should set attachment.error if upload fails', function() {

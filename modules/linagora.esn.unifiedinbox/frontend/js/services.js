@@ -50,12 +50,14 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('asyncAction', function($q, $log, notificationFactory) {
-    return function(message, action) {
-      var notification = notificationFactory.strongInfo('', message + ' in progress...');
+    return function(message, action, options) {
+
+      var isSilent = (options && options.silent),
+          notification = isSilent ? undefined : notificationFactory.strongInfo('', message + ' in progress...');
 
       return action()
         .then(function(value) {
-          notificationFactory.weakSuccess('', message + ' succeeded');
+          !isSilent && notificationFactory.weakSuccess('', message + ' succeeded');
 
           return value;
         }, function(err) {
@@ -65,16 +67,16 @@ angular.module('linagora.esn.unifiedinbox')
           return $q.reject(err);
         })
         .finally(function() {
-          notification.close();
+          notification && notification.close();
         });
     };
   })
 
   .factory('asyncJmapAction', function(asyncAction, withJmapClient) {
-    return function(message, action) {
+    return function(message, action, options) {
       return asyncAction(message, function() {
         return withJmapClient(action);
-      });
+      }, options);
     };
   })
 
@@ -428,13 +430,13 @@ angular.module('linagora.esn.unifiedinbox')
       );
     };
 
-    Draft.prototype.save = function(newEmailState) {
+    Draft.prototype.save = function(newEmailState, options) {
       if (!this.needToBeSaved(newEmailState)) {
         return $q.reject();
       }
       return asyncJmapAction('Saving your email as draft', function(client) {
         return client.saveAsDraft(jmapHelper.toOutboundMessage(client, newEmailState));
-      });
+      }, options);
     };
 
     return {
@@ -535,11 +537,11 @@ angular.module('linagora.esn.unifiedinbox')
       this.draft = draftService.startDraft(prepareEmail(message));
     };
 
-    Composition.prototype.saveDraft = function() {
+    Composition.prototype.saveDraft = function(options) {
       var self = this;
       var savingEmailState = angular.copy(this.email);
 
-      return self.draft.save(self.email)
+      return self.draft.save(self.email, options)
         .then(self.destroyOriginalDraft.bind(self))
         .then(function(createMessageAck) {
           delete savingEmailState.id;
@@ -547,6 +549,10 @@ angular.module('linagora.esn.unifiedinbox')
 
           return createMessageAck;
         });
+    };
+
+    Composition.prototype.saveDraftSilently = function() {
+      return this.saveDraft({silent: true});
     };
 
     Composition.prototype.getEmail = function() {
