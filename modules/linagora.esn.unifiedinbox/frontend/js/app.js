@@ -22,7 +22,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.desktop-utils',
   'esn.form.helper',
   'esn.infinite-list',
-  'esn.url'
+  'esn.url',
+  'esn.background'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider

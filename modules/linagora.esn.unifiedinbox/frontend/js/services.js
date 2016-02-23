@@ -145,8 +145,8 @@ angular.module('linagora.esn.unifiedinbox')
     return ElementGroupingTool;
   })
 
-  .factory('sendEmail', function($http, $q, $log, getJmapConfig, withJmapClient, jmapHelper) {
-    return function(email) {
+  .factory('sendEmail', function($http, inBackground, withJmapClient, jmapHelper) {
+    function sendEmail(email) {
       return withJmapClient(function(client, config) {
         if (config.isJmapSendingEnabled) {
           return client.send(jmapHelper.toOutboundMessage(client, email));
@@ -154,6 +154,10 @@ angular.module('linagora.esn.unifiedinbox')
           return $http.post('/unifiedinbox/api/inbox/sendemail', email);
         }
       });
+    }
+
+    return function(email) {
+      return inBackground(sendEmail(email));
     };
   })
 
