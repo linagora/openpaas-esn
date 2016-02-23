@@ -464,8 +464,8 @@ angular.module('esn.calendar')
   })
 
   .service('eventUtils', function($q, $sanitize, session, SIGNIFICANT_CHANGE_KEYS) {
-    var editedEvent = null;
-    var newAttendees = null;
+    var editedEvent = {};
+    var newAttendees = [];
 
     function render(event, element) {
       var timeSpan = element.find('.fc-time span');
@@ -556,8 +556,8 @@ angular.module('esn.calendar')
     }
 
     function resetStoredEvents() {
-      editedEvent = null;
-      newAttendees = null;
+      editedEvent = {};
+      newAttendees = [];
     }
 
     function applyReply(originalEvent, reply) {

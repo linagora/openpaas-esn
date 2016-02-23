@@ -207,7 +207,7 @@ angular.module('esn.calendar')
       eventUtils.setEditedEvent($scope.editedEvent);
       eventUtils.setNewAttendees($scope.newAttendees);
       _hideModal();
-      $state.go('calendar.event', {calendarId: calendarService.calendarHomeId, event: true, eventId: $scope.editedEvent.id});
+      $state.go('calendar.eventEdit');
     };
 
     // Initialize the scope of the form. It creates a scope.editedEvent which allows us to
