@@ -8,6 +8,7 @@
   .fg-line.pl-body {
     .flex-start;
     .flex-wrap;
+    .flex-column;
   }
 
   .trash {
@@ -39,5 +40,13 @@
 
 @media (min-width: @screen-sm-min) {
   .attendees-list {
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .attendees-list {
+    .fg-line.pl-body {
+      .flex-row;
+    }
   }
 }
