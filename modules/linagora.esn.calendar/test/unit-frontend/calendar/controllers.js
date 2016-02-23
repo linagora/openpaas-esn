@@ -166,6 +166,33 @@ describe('The calendar module controllers', function() {
     liveNotification = null;
   });
 
+  describe('The userCalendarController controller', function() {
+    it('should inject both header and subheader', function() {
+      this.headerServiceMock.mainHeader = {
+        addInjection: sinon.spy()
+      };
+      this.headerServiceMock.subHeader = {
+        addInjection: sinon.spy()
+      };
+      this.controller('userCalendarController', {$scope: this.scope});
+      expect(this.headerServiceMock.mainHeader.addInjection).to.have.been.calledOnce;
+      expect(this.headerServiceMock.subHeader.addInjection).to.have.been.calledOnce;
+    });
+
+    it('should not modify constant UI_USER_CONFIG but clone it before modifying it', function() {
+      this.headerServiceMock.mainHeader = {
+        addInjection: function() {}
+      };
+      this.headerServiceMock.subHeader = {
+        addInjection: function() {}
+      };
+      this.headerServiceMock.resetAllInjections = sinon.spy();
+      this.controller('userCalendarController', {$scope: this.scope});
+      expect(this.scope.uiConfig).to.be.defined;
+      expect(this.scope.uiConfig).to.not.equals(this.USER_UI_CONFIG);
+    });
+  });
+
   describe('The calendarController controller', function() {
 
     beforeEach(function() {

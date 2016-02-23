@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar', [
+  'esn.router',
   'uuid4',
   'ui.calendar',
   'ng.deviceDetector',
@@ -13,7 +14,6 @@ angular.module('esn.calendar', [
   'AngularJstz',
   'angularMoment',
   'matchMedia',
-  'esn.router',
   'esn.core',
   'esn.header',
   'esn.authentication',
@@ -46,6 +46,7 @@ angular.module('esn.calendar', [
     })
     .state('calendar.main', {
       url: '',
+      sticky: true,
       views: {
         content: {
           template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
