@@ -162,11 +162,6 @@ angular.module('esn.calendar')
       })
       .catch($scope.displayCalendarError);
 
-    function _withBackgroundColor(event) {
-      event.backgroundColor = CALENDAR_DEDAULT_EVENT_COLOR;
-      return event;
-    }
-
     function _modifiedOrCreatedCalendarItem(newEvent) {
       calendarPromise.then(function(calendar) {
         var event = (calendar.fullCalendar('clientEvents', newEvent.id) || [])[0];
@@ -201,7 +196,9 @@ angular.module('esn.calendar')
 
     var unregisterFunctions = [
       $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, function(event, data) {
-        _modifiedOrCreatedCalendarItem(_withBackgroundColor(data));
+        calendarService.listCalendars($scope.calendarHomeId).then(function(calendars) {
+          _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(data, calendars));
+        });
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
         calendarPromise.then(function(calendar) {
@@ -209,8 +206,11 @@ angular.module('esn.calendar')
         });
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
-        calendarPromise.then(function(calendar) {
-          calendar.fullCalendar('renderEvent', _withBackgroundColor(data));
+        $q.all({
+          calendar: calendarPromise,
+          calendars: calendarService.listCalendars($scope.calendarHomeId)
+        }).then(function(resolved) {
+          resolved.calendar.fullCalendar('renderEvent', eventUtils.setBackgroundColor(data, resolved.calendars));
         });
       }),
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
@@ -251,21 +251,26 @@ angular.module('esn.calendar')
     ];
 
     function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
-      _modifiedOrCreatedCalendarItem(_withBackgroundColor(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath})));
+      calendarService.listCalendars($scope.calendarHomeId).then(function(calendars) {
+        _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}), calendars));
+      });
     }
 
     function liveNotificationHandlerOnReply(msg) {
-      calendarPromise.then(function(calendar) {
+      $q.all({
+        calendar: calendarPromise,
+        calendars: calendarService.listCalendars($scope.calendarHomeId)
+      }).then(function(resolved) {
         var reply = CalendarShell.from(msg.event);
-        var event = calendar.fullCalendar('clientEvents', reply.id)[0];
+        var event = eventUtils.setBackgroundColor(resolved.calendar.fullCalendar('clientEvents', reply.id)[0], resolved.calendars);
 
         eventUtils.applyReply(event, reply);
 
         if (!event.source) {
-          calendar.fullCalendar('removeEvents', event.id);
-          calendar.fullCalendar('renderEvent', event);
+          resolved.calendar.fullCalendar('removeEvents', event.id);
+          resolved.calendar.fullCalendar('renderEvent', event);
         } else {
-          calendar.fullCalendar('updateEvent', event);
+          resolved.calendar.fullCalendar('updateEvent', event);
         }
       });
     }

@@ -49,6 +49,10 @@ angular.module('esn.calendar')
       get uid() { return this.vevent.getFirstPropertyValue('uid'); },
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
 
+      get calendarId() {
+        return this.path && (this.path.match(new RegExp('/([^/]+)/[^/]+?/?$')) || [])[1];
+      },
+
       get title() { return this.vevent.getFirstPropertyValue('summary'); },
       set title(value) { this.vevent.updatePropertyWithValue('summary', value); },
 

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, session, SIGNIFICANT_CHANGE_KEYS) {
+angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, session, SIGNIFICANT_CHANGE_KEYS, CALENDAR_DEDAULT_EVENT_COLOR, _) {
   var editedEvent = null;
   var newAttendees = null;
 
@@ -109,6 +109,11 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
     return originalEvent;
   }
 
+  function setBackgroundColor(event, calendars) {
+    event.backgroundColor = (_.find(calendars, {id: event.calendarId}) || {color: CALENDAR_DEDAULT_EVENT_COLOR}).color;
+    return event;
+  }
+
   return {
     editedEvent: editedEvent,
     render: render,
@@ -120,6 +125,7 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
     setEditedEvent: setEditedEvent,
     getNewAttendees: getNewAttendees,
     setNewAttendees: setNewAttendees,
+    setBackgroundColor: setBackgroundColor,
     resetStoredEvents: resetStoredEvents,
     applyReply: applyReply
   };

@@ -2,7 +2,23 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, openEventForm, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
+  .controller('eventFormController', function(
+        $scope,
+        $alert,
+        $state,
+        CalendarShell,
+        calendarUtils,
+        calendarService,
+        eventUtils,
+        session,
+        notificationFactory,
+        openEventForm,
+        EVENT_FORM,
+        EVENT_MODIFY_COMPARE_KEYS,
+        CALENDAR_EVENTS,
+        DEFAULT_CALENDAR_ID,
+        _) {
+
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
 
@@ -41,6 +57,9 @@ angular.module('esn.calendar')
           }
         });
       }
+      calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
+        $scope.calendar = _.find(calendars, 'selected');
+      });
       $scope.isOrganizer = eventUtils.isOrganizer($scope.editedEvent);
     }
 
@@ -65,11 +84,10 @@ angular.module('esn.calendar')
 
       var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
       $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
-      var calendarId = 'events';
-      var path = '/calendars/' + $scope.calendarHomeId + '/' + calendarId;
+      var path = '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
       $scope.restActive = true;
       _hideModal();
-      calendarService.createEvent(calendarId, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
+      calendarService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');
@@ -153,7 +171,7 @@ angular.module('esn.calendar')
       }
       _hideModal();
       $scope.restActive = true;
-      var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + DEFAULT_CALENDAR_ID;
+      var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {

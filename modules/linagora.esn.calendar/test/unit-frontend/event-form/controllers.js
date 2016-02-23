@@ -20,15 +20,30 @@ describe('The event-form module controllers', function() {
       }
     };
 
+    this.calendars = [{
+      href: 'href',
+      id: 'id',
+      color: 'color',
+      selected: true
+    }, {
+      href: 'href2',
+      id: 'id2',
+      color: 'color2'
+    }];
+
     this.calendarServiceMock = {
       calendarId: '1234',
-      createEvent: function() {
+      createEvent: sinon.spy(function() {
         return $q.when({});
-      },
+      }),
+      listCalendars: sinon.spy(function() {
+        return $q.when(self.calendars);
+      }),
       modifyEvent: function(path, e) {
         event = e;
         return $q.when();
-      }
+      },
+      calendarHomeId: 'calendarHomeId'
     };
 
     this.calendarShellMock = {
@@ -83,7 +98,7 @@ describe('The event-form module controllers', function() {
 
     this.openEventForm = sinon.spy();
     this.$state = {
-      is: angular.noop
+      is: sinon.stub().returns('to be or not to be')
     };
 
     var self = this;
@@ -121,6 +136,8 @@ describe('The event-form module controllers', function() {
           $rootScope: this.rootScope,
           $scope: this.scope
         });
+
+        this.rootScope.$digest();
       };
     });
 
@@ -200,6 +217,16 @@ describe('The event-form module controllers', function() {
         this.initController();
         expect(this.scope.event).to.deep.equal(this.scope.event);
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
+      });
+
+      it('should select the selected calendar from calendarService.listCalendars', function() {
+        this.scope.event = {
+          clone: function() {
+            return angular.copy(this);
+          }
+        };
+        this.initController();
+        expect(this.scope.calendar).to.equal(this.calendars[0]);
       });
 
       it('should detect if organizer', function() {
@@ -317,6 +344,7 @@ describe('The event-form module controllers', function() {
 
         it('should send modify request if deep changes (attendees)', function() {
           this.scope.event = {
+            id: 'eventId',
             startDate: new Date(),
             endDate: new Date(),
             allDay: false,
@@ -335,6 +363,7 @@ describe('The event-form module controllers', function() {
           this.initController();
 
           this.scope.editedEvent = {
+            id: 'eventId',
             startDate: new Date(),
             endDate: new Date(),
             allDay: false,
@@ -355,7 +384,12 @@ describe('The event-form module controllers', function() {
           this.scope.modifyEvent();
 
           this.scope.$digest();
-          expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
+
+          var calendarId = this.calendars[0].id;
+          var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
+
+          expect(this.$state.is).to.have.been.called;
+          expect(this.calendarServiceMock.modifyEvent).to.have.been.calledWith(expectedPath, this.scope.editedEvent, this.scope.event, this.scope.etag, sinon.match.any, {graceperiod: true, notifyFullcalendar: this.$state.is()});
         });
 
         it('should not send modify request if properties not visible in the UI changed', function(done) {
@@ -504,6 +538,7 @@ describe('The event-form module controllers', function() {
     describe('createEvent function', function() {
       beforeEach(function() {
         this.scope.event = {
+          id: 'eventId',
           clone: function() {
             return angular.copy(this);
           }
@@ -547,9 +582,18 @@ describe('The event-form module controllers', function() {
         this.calendarServiceMock.createEvent = function() {
           return $q.when(false);
         };
+
         this.scope.createEvent();
         this.scope.$digest();
         expect(this.openEventForm).to.have.been.called;
+      });
+
+      it('should call calendarService.createEvent with the correct parameters', function() {
+        this.scope.createEvent();
+        var calendarId = this.calendars[0].id;
+        var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
+        expect(this.$state.is).to.have.been.called;
+        expect(this.calendarServiceMock.createEvent).to.have.been.calledWith(calendarId, expectedPath, this.scope.editedEvent, {graceperiod: true, notifyFullcalendar: this.$state.is()});
       });
     });
 
