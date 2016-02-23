@@ -22,8 +22,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarEventEmitter', function($rootScope, $q, socket, CALENDAR_EVENTS) {
-    var websocket = socket('/calendars');
+  .factory('calendarEventEmitter', function($rootScope, CALENDAR_EVENTS) {
 
     return {
       activitystream: {
@@ -43,17 +42,6 @@ angular.module('esn.calendar')
         },
         emitModifiedEvent: function(shell) {
           $rootScope.$emit(CALENDAR_EVENTS.ITEM_MODIFICATION, shell);
-        }
-      },
-      websocket: {
-        emitCreatedEvent: function(shell) {
-          websocket.emit(CALENDAR_EVENTS.WS.EVENT_CREATED, shell);
-        },
-        emitRemovedEvent: function(shell) {
-          websocket.emit(CALENDAR_EVENTS.WS.EVENT_DELETED, shell);
-        },
-        emitUpdatedEvent: function(shell) {
-          websocket.emit(CALENDAR_EVENTS.WS.EVENT_UPDATED, shell);
         }
       }
     };
@@ -327,7 +315,6 @@ angular.module('esn.calendar')
         } else {
           if (gracePeriodService.hasTask(taskId)) {
             gracePeriodService.remove(taskId);
-            calendarEventEmitter.websocket.emitRemovedEvent(event);
           }
           return $q.when(true);
         }
@@ -441,7 +428,6 @@ angular.module('esn.calendar')
 
               if (emitEvents) {
                 calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                calendarEventEmitter.websocket.emitUpdatedEvent(shell);
               }
               return shell;
             });
