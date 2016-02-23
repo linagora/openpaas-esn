@@ -20,18 +20,14 @@ describe('The event-form module services', function() {
       });
     });
     this.$state = {};
-    this.calendarService = {
-      calendarHomeId: '123'
-    };
 
-    angular.mock.module('linagora.esn.graceperiod', 'esn.calendar');
+    angular.mock.module('esn.calendar');
     var self = this;
     angular.mock.module(function($provide) {
       $provide.value('screenSize', self.screenSize);
       $provide.value('eventUtils', self.eventUtils);
       $provide.value('$modal', self.$modal);
       $provide.value('$state', self.$state);
-      $provide.value('calendarService', self.calendarService);
     });
   });
 
@@ -55,11 +51,23 @@ describe('The event-form module services', function() {
       this.$state.go = sinon.spy();
       this.eventUtils.isOrganizer = sinon.stub().returns(true);
 
-      this.openEventForm({id: '456'});
+      this.openEventForm({event: {}});
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.not.been.called;
-      expect(this.$state.go).to.have.been.calledWith('calendar.event', {calendarId: '123', event: true, eventId: '456'});
+      expect(this.$state.go).to.have.been.calledWith('calendar.eventEdit');
       expect(this.eventUtils.isOrganizer).to.have.been.called;
+    });
+
+    it('should call $state to calendar.eventEdit if screensize is xs or sm and event is undefined', function() {
+      this.screenSize.is = sinon.stub().returns(true);
+      this.$state.go = sinon.spy();
+      this.eventUtils.isOrganizer = sinon.stub().returns(true);
+
+      this.openEventForm(null);
+      expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+      expect(this.$modal).to.have.not.been.called;
+      expect(this.$state.go).to.have.been.calledWith('calendar.eventEdit');
+      expect(this.eventUtils.isOrganizer).to.have.not.been.called;
     });
 
     it('should call $state to calendar.eventConsult if screensize is xs or sm and not isOrganizer', function() {
@@ -70,7 +78,7 @@ describe('The event-form module services', function() {
       this.openEventForm({});
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.not.been.called;
-      expect(this.$state.go).to.have.been.calledWith('calendar.event.details');
+      expect(this.$state.go).to.have.been.calledWith('calendar.eventConsult');
       expect(this.eventUtils.isOrganizer).to.have.been.called;
     });
   });

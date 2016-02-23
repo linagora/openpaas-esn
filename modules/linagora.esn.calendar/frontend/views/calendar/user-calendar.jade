@@ -3,9 +3,4 @@
     .col-xs-12
       span.calendar-error-message {{alertMessage}}
   .row
-    .calendar-view
-      .col-md-3.col-lg-2.hidden-xs.hidden-sm
-        calendar-left-pane
-      .col-xs-12.col-md-9.col-lg-10
-        .ui-view(name='content')
-  event-create-button(ng-show="$state.includes('calendar.main')")
+    calendar-view(calendar-home-id='calendarHomeId', ui-config='uiConfig')
