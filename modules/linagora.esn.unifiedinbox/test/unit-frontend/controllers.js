@@ -10,8 +10,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      mailboxesService, inboxEmailService, _, JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
-      ELEMENTS_PER_PAGE, DEFAULT_FILE_TYPE, windowMock, fileUploadMock;
+      mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, jmapConfig;
+  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
+      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -19,9 +20,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       emailId: '4'
     };
     notificationFactory = {
-      weakSuccess: angular.noop,
-      weakError: angular.noop,
-      strongInfo: function() { return { close: angular.noop }; }
+      weakSuccess: sinon.spy(),
+      weakError: sinon.spy(),
+      strongInfo: function() { return { close: sinon.spy() }; }
     };
     headerService = {
       subHeader: {
@@ -42,6 +43,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {};
+      jmapConfig = {
+        uploadUrl: 'http://jmap',
+        maxSizeUpload: DEFAULT_MAX_SIZE_UPLOAD
+      };
       fileUploadMock = {
         addFile: function() {
           return {
@@ -51,7 +56,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       $provide.value('withJmapClient', function(callback) {
-        return callback(jmapClient, { uploadUrl: 'http://jmap' });
+        return callback(jmapClient, jmapConfig);
       });
       $provide.decorator('$window', function($delegate) {
         return angular.extend($delegate, windowMock);
@@ -75,7 +80,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
                                           _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_) {
+                                          _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_,
+                                          _DEFAULT_MAX_SIZE_UPLOAD_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -88,6 +94,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
     ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
+    DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
 
     scope = $rootScope.$new();
   }));
@@ -216,6 +223,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         });
       });
 
+      it('should put the attachment in the scope, if the file size is exactly the limit', function() {
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
+
+        expect(scope.email.attachments.length).to.equal(1);
+      });
+
       it('should set the blobId when upload succeeds', function() {
         fileUploadMock = {
           addFile: function() {
@@ -265,6 +278,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           error: 'WTF',
           status: 'error'
         });
+      });
+
+      it('should notify and not add the attachment if file is larger that the default limit', function() {
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD + 1 }]);
+
+        expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 20MB limit');
+        expect(scope.email.attachments).to.deep.equal([]);
+      });
+
+      it('should notify and not add the attachment if file is larger that a configured limit', function() {
+        jmapConfig.maxSizeUpload = 1024 * 1024; // 1MB
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1024 * 1024 * 2 }]);
+
+        expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 1MB limit');
+        expect(scope.email.attachments).to.deep.equal([]);
       });
 
       describe('The attachment.startUpload function', function() {

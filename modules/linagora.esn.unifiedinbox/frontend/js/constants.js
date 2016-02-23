@@ -18,4 +18,5 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('JMAP_GET_MESSAGES_LIST', ['id', 'threadId', 'subject', 'from', 'preview', 'date', 'isUnread', 'isFlagged', 'hasAttachment', 'mailboxIds'])
   .constant('JMAP_GET_MESSAGES_VIEW', ['id', 'threadId', 'subject', 'from', 'to', 'cc', 'bcc', 'replyTo', 'preview', 'textBody', 'htmlBody', 'date', 'isUnread', 'isFlagged', 'isDraft', 'hasAttachment', 'attachments', 'mailboxIds'])
   .constant('ELEMENTS_PER_PAGE', 20)
-  .constant('ATTACHMENTS_ATTRIBUTES', ['blobId', 'isInline', 'name', 'size', 'type']);
+  .constant('ATTACHMENTS_ATTRIBUTES', ['blobId', 'isInline', 'name', 'size', 'type'])
+  .constant('DEFAULT_MAX_SIZE_UPLOAD', 20971520);

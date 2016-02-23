@@ -143,10 +143,10 @@ angular.module('linagora.esn.unifiedinbox')
       });
   })
 
-  .controller('composerController', function($scope, $stateParams, $q, headerService,
-                                            Composition, jmap, withJmapClient, fileUploadService,
+  .controller('composerController', function($scope, $stateParams, $q, headerService, notificationFactory,
+                                            Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inBackground,
-                                            DEFAULT_FILE_TYPE) {
+                                            DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
     };
@@ -208,8 +208,15 @@ angular.module('linagora.esn.unifiedinbox')
 
       $scope.email.attachments = $scope.email.attachments || [];
 
-      withJmapClient(function(client) {
+      withJmapClient(function(client, config) {
+        var maxSizeUpload = config.maxSizeUpload || DEFAULT_MAX_SIZE_UPLOAD,
+            humanReadableMaxSizeUpload = $filter('bytes')(maxSizeUpload);
+
         $files.forEach(function(file) {
+          if (file.size > maxSizeUpload) {
+            return notificationFactory.weakError('', 'File ' + file.name + ' ignored as its size exceeds the ' + humanReadableMaxSizeUpload + ' limit');
+          }
+
           $scope.email.attachments.push(newAttachment(client, file).startUpload());
         });
       });
