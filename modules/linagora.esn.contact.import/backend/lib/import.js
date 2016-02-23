@@ -89,7 +89,7 @@ module.exports = function(dependencies) {
       .create(jsonCard)
       .then(function() {
         pubsub.topic('contacts:contact:add').publish({
-          contactId: contactId, 
+          contactId: contactId,
           bookHome: options.user._id + '',
           bookName: options.addressbook.id,
           bookId: options.user._id + '',
