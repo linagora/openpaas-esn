@@ -133,7 +133,9 @@ module.exports = function(mixin, testEnv) {
     }
 
     function createUsers() {
+      var domainModule = require('../backend/core/user/domain');
       var User = require('mongoose').model('User');
+      require('../backend/core/db/mongo/plugins/helpers').applyPlugins();
       return q.all(deployment.users.map(function(user) {
         return q.npost(new User(user), 'save').spread(function(u) {
           return u;
@@ -142,7 +144,7 @@ module.exports = function(mixin, testEnv) {
       .then(function(users) {
         return q.all(
           users.map(function(u) {
-            return q.ninvoke(u, 'joinDomain', deployment.models.domain)
+            return q.ninvoke(domainModule, 'joinDomain', u, deployment.models.domain)
             .then(function() {
               return q(u);
             });
@@ -183,13 +185,25 @@ module.exports = function(mixin, testEnv) {
       }, q(true));
     }
 
-    createDomain(deployment)
-    .then(createUsers)
-    .then(updateDomainAdministrator)
-    .then(createCommunities)
-    .then(createProjects)
-    .then(function() { return q(deployment.models); })
-    .nodeify(callback);
+    function setupConfiguration() {
+      var defer = q.defer();
+      mixin.elasticsearch.saveTestConfiguration(function(err) {
+        if (err) {
+          return defer.reject(err);
+        }
+        return defer.resolve(true);
+      });
+      return defer.promise;
+    }
+
+    setupConfiguration()
+      .then(createDomain(deployment))
+      .then(createUsers)
+      .then(updateDomainAdministrator)
+      .then(createCommunities)
+      .then(createProjects)
+      .then(function() { return q(deployment.models); })
+      .nodeify(callback);
   };
 
   api.getCommunity = function(id, done) {

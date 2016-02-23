@@ -16,7 +16,7 @@ describe('The ES listeners module', function() {
         pubsubMock = {};
         mockery.registerMock('./utils', {});
         mockery.registerMock('../pubsub', {
-          global: pubsubMock
+          local: pubsubMock
         });
       });
 
@@ -94,7 +94,7 @@ describe('The ES listeners module', function() {
         };
 
         mockery.registerMock('../pubsub', {
-          global: pubsubMock
+          local: pubsubMock
         });
       });
 

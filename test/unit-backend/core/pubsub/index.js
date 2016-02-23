@@ -3,40 +3,22 @@
 var chai = require('chai');
 var expect = chai.expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 
-describe('The pubsub index.js', function() {
-  var called, mock, stub;
+describe('The pubsub module', function() {
 
-  before(function() {
-    mock = {
-      init: function() {
-        called = true;
-      }
-    };
-    stub = {
-      init: function() {}
-    };
-  });
-
-  beforeEach(function() {
-    called = false;
-  });
-
-  it('should initialize activitystreams pubsub', function() {
-    mockery.registerMock('../activitystreams/pubsub', mock);
-    mockery.registerMock('../notification/pubsub', stub);
+  it('should initialize module pubsubs', function() {
+    var asSpy = {init: sinon.spy()};
+    var nSpy = {init: sinon.spy()};
+    var esSpy = {init: sinon.spy()};
+    mockery.registerMock('../activitystreams/pubsub', asSpy);
+    mockery.registerMock('../notification/pubsub', nSpy);
+    mockery.registerMock('../elasticsearch/pubsub', esSpy);
 
     var module = this.helpers.requireBackend('core/pubsub');
     module.init();
-    expect(called).to.be.true;
-  });
-
-  it('should initialize notification pubsub', function() {
-    mockery.registerMock('../activitystreams/pubsub', stub);
-    mockery.registerMock('../notification/pubsub', mock);
-
-    var module = this.helpers.requireBackend('core/pubsub');
-    module.init();
-    expect(called).to.be.true;
+    expect(asSpy.init).to.have.been.called;
+    expect(nSpy.init).to.have.been.called;
+    expect(esSpy.init).to.have.been.called;
   });
 });

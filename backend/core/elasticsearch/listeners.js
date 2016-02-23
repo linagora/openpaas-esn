@@ -1,7 +1,7 @@
 'use strict';
 
 var utils = require('./utils');
-var pubsub = require('../pubsub').global;
+var pubsub = require('../pubsub').local;
 var logger = require('../logger');
 
 function index(data, options, callback) {

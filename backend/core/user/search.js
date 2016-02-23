@@ -20,6 +20,7 @@ module.exports.getTypeName = getTypeName;
 function denormalize(user) {
   var document = mongooseHelper.userToJSON(user);
   document.id = document._id;
+  delete document.password;
   return document;
 }
 module.exports.denormalize = denormalize;

@@ -2,7 +2,7 @@
 
 var util = require('util');
 var esnConfig = require('../../core')['esn-config'];
-var pubsub = require('../../core/pubsub').global;
+var pubsub = require('../../core/pubsub').local;
 var logger = require('../logger');
 var authToken = require('../auth/token');
 var extend = require('extend');

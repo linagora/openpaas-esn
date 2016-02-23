@@ -4,8 +4,8 @@ var CONSTANTS = require('./constants');
 var elasticsearchListener = require('../elasticsearch/listeners');
 var userSearch = require('./search');
 
-function register() {
-  elasticsearchListener.addListener({
+function getOptions() {
+  return {
     events: {
       add: CONSTANTS.EVENTS.userCreated,
       update: CONSTANTS.EVENTS.userUpdated,
@@ -14,6 +14,11 @@ function register() {
     denormalize: userSearch.denormalize,
     type: CONSTANTS.ELASTICSEARCH.type,
     index: CONSTANTS.ELASTICSEARCH.index
-  });
+  };
+}
+module.exports.getOptions = getOptions;
+
+function register() {
+  elasticsearchListener.addListener(getOptions());
 }
 module.exports.register = register;

@@ -1501,7 +1501,6 @@ describe('The collaborations API', function() {
       describe('when admin refuses a join request', function() {
         it('should add a usernotification for the user', function(done) {
           var self = this;
-          var mongoose = require('mongoose');
           var maxtries = 10, currenttry = 0;
 
           function checkusernotificationexists() {
@@ -1510,7 +1509,7 @@ describe('The collaborations API', function() {
             }
             currenttry++;
 
-            var UN = mongoose.model('Usernotification');
+            var UN = self.mongoose.model('Usernotification');
             UN.find(
               {
                 category: 'collaboration:membership:refused',
@@ -1548,7 +1547,6 @@ describe('The collaborations API', function() {
 
         it('should remove the attendee usernotification', function(done) {
           var self = this;
-          var mongoose = require('mongoose');
           var maxtries = 10, currenttry = 0;
 
           function checkusernotificationexists(callback) {
@@ -1557,7 +1555,7 @@ describe('The collaborations API', function() {
             }
             currenttry++;
 
-            var UN = mongoose.model('Usernotification');
+            var UN = self.mongoose.model('Usernotification');
             UN.find(
               {
                 category: 'collaboration:membership:invite',
@@ -1580,7 +1578,7 @@ describe('The collaborations API', function() {
             }
             currenttry++;
 
-            var UN = mongoose.model('Usernotification');
+            var UN = self.mongoose.model('Usernotification');
             UN.find(
               {
                 category: 'collaboration:membership:invite',
@@ -2505,7 +2503,6 @@ describe('The collaborations API', function() {
       describe('when admin refuses a join request', function() {
         it.skip('should add a usernotification for the user', function(done) {
           var self = this;
-          var mongoose = require('mongoose');
           var maxtries = 10, currenttry = 0;
 
           function checkusernotificationexists() {
@@ -2514,7 +2511,7 @@ describe('The collaborations API', function() {
             }
             currenttry++;
 
-            var UN = mongoose.model('Usernotification');
+            var UN = self.mongoose.model('Usernotification');
             UN.find(
               {
                 category: 'collaboration:membership:refused',
@@ -2552,7 +2549,6 @@ describe('The collaborations API', function() {
 
         it('should remove the attendee usernotification', function(done) {
           var self = this;
-          var mongoose = require('mongoose');
           var maxtries = 10, currenttry = 0;
 
           function checkusernotificationexists(callback) {
@@ -2561,7 +2557,7 @@ describe('The collaborations API', function() {
             }
             currenttry++;
 
-            var UN = mongoose.model('Usernotification');
+            var UN = self.mongoose.model('Usernotification');
             UN.find(
               {
                 category: 'collaboration:membership:invite',
@@ -2584,7 +2580,7 @@ describe('The collaborations API', function() {
             }
             currenttry++;
 
-            var UN = mongoose.model('Usernotification');
+            var UN = self.mongoose.model('Usernotification');
             UN.find(
               {
                 category: 'collaboration:membership:invite',

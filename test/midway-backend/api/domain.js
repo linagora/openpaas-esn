@@ -20,13 +20,16 @@ describe('The domain API', function() {
 
   beforeEach(function(done) {
     helpers = this.helpers;
-    this.mongoose = require('mongoose');
-    this.testEnv.initCore(function() {
+    var self = this;
+    self.mongoose = require('mongoose');
+
+    self.testEnv.initCore(function() {
       app = helpers.requireBackend('webserver/application');
       Domain = helpers.requireBackend('core/db/mongo/models/domain');
       Invitation = helpers.requireBackend('core/db/mongo/models/invitation');
       pubsubLocal = helpers.requireBackend('core/pubsub').local;
       utils = helpers.requireBackend('webserver/controllers/utils');
+      helpers.requireBackend('core/elasticsearch/pubsub').init();
 
       helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         expect(err).to.not.exist;
