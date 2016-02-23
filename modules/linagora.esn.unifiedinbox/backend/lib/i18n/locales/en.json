@@ -28,5 +28,7 @@
   "Star": "Star",
   "Unstar": "Unstar",
   "Edit quoted mail": "Edit quoted mail",
-  "Forwarded message": "Forwarded message"
+  "Forwarded message": "Forwarded message",
+  "Retry": "Retry",
+  "Upload failed": "Upload failed"
 }

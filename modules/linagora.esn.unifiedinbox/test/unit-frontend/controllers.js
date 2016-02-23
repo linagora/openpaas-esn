@@ -267,17 +267,32 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         });
       });
 
-      it('should run in background', function() {
-        var backgroundProcessorService;
-        angular.mock.inject(function(_backgroundProcessorService_) {
-          backgroundProcessorService = _backgroundProcessorService_;
-          sinon.spy(backgroundProcessorService, 'add');
+      describe('The attachment.startUpload function', function() {
+
+        it('should restore upload and status properties of the attachment', function() {
+          fileUploadMock = {
+            addFile: function() {
+              var defer = $q.defer();
+
+              defer.reject('WTF');
+
+              return {
+                defer: defer
+              };
+            }
+          };
+
+          initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+          $rootScope.$digest();
+
+          var attachment = scope.email.attachments[0];
+
+          attachment.startUpload();
+
+          expect(attachment.upload.progress).to.equal(0);
+          expect(attachment.status).to.equal('uploading');
         });
 
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
-        $rootScope.$digest();
-
-        expect(backgroundProcessorService.add).to.have.been.calledOnce;
       });
 
     });
