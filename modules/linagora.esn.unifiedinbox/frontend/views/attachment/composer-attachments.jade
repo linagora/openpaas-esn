@@ -5,7 +5,7 @@
       .icon(ng-switch='attachment.status')
         img(ng-switch-when="error", src="/images/exclamation.svg")
         img(ng-switch-when="uploading", src="/images/upload.svg")
-        img(ng-switch-when="uploaded", fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png")
+        img(ng-switch-default, fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png")
       .metadata
         .name.ellipsis {{ ::attachment.name }}
         .size {{ ::attachment.size | bytes }}
