@@ -267,6 +267,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         });
       });
 
+      it('should run in background', function() {
+        var backgroundProcessorService;
+        angular.mock.inject(function(_backgroundProcessorService_) {
+          backgroundProcessorService = _backgroundProcessorService_;
+          sinon.spy(backgroundProcessorService, 'add');
+        });
+
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(backgroundProcessorService.add).to.have.been.calledOnce;
+      });
+
     });
 
     describe('The removeAttachment function', function() {

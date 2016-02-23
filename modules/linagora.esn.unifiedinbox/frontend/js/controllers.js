@@ -143,9 +143,10 @@ angular.module('linagora.esn.unifiedinbox')
       });
   })
 
-  .controller('composerController', function($scope, $stateParams, headerService, Composition, jmap, withJmapClient,
-                                             fileUploadService, attachmentUploadService, _, DEFAULT_FILE_TYPE) {
-
+  .controller('composerController', function($scope, $stateParams, $q, headerService,
+                                            Composition, jmap, withJmapClient, fileUploadService,
+                                            attachmentUploadService, _, inBackground,
+                                            DEFAULT_FILE_TYPE) {
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
     };
@@ -167,15 +168,9 @@ angular.module('linagora.esn.unifiedinbox')
       headerService.subHeader.resetInjections();
     };
 
-    this.onAttachmentsSelect = function($files) {
-      if (!$files || $files.length === 0) {
-        return;
-      }
-
-      $scope.email.attachments = $scope.email.attachments || [];
-
-      withJmapClient(function(client) {
-        $files.forEach(function(file) {
+    function _uploadAttachments($files) {
+      return withJmapClient(function(client) {
+        return $q.all($files.map(function(file) {
           var uploadTask = fileUploadService.get(attachmentUploadService).addFile(file, true),
             attachment = angular.extend(new jmap.Attachment(client, 'unknownBlobId', {
               name: file.name,
@@ -188,15 +183,24 @@ angular.module('linagora.esn.unifiedinbox')
 
           $scope.email.attachments.push(attachment);
 
-          uploadTask.defer.promise.then(function(task) {
+          return uploadTask.defer.promise.then(function(task) {
             attachment.status = 'uploaded';
             attachment.blobId = task.response.blobId;
           }, function(err) {
             attachment.status = 'error';
             attachment.error = err;
           });
-        });
+        }));
       });
+    }
+
+    this.onAttachmentsSelect = function($files) {
+      if (!$files || $files.length === 0) {
+        return;
+      }
+
+      $scope.email.attachments = $scope.email.attachments || [];
+      inBackground(_uploadAttachments($files));
     };
 
     this.removeAttachment = function(attachment) {
