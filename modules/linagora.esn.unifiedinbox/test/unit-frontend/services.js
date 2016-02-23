@@ -1102,6 +1102,21 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
+      it('should not include attachments in the replayAll email', function(done) {
+        email = {
+          from: {email: 'from@linagora.com', name: 'linagora'},
+          attachments: [{attachment: 'A'}, {attachment: 'B'}]
+        };
+
+        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+
+        emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
+          expect(email.attachments).to.be.undefined;
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
     });
 
     describe('The createReplyEmailObject function', function() {
@@ -1157,6 +1172,18 @@ describe('The Unified Inbox Angular module services', function() {
 
         emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should not include attachments in the replay email', function(done) {
+        email = {
+          attachments: [{attachment: 'A'}, {attachment: 'B'}]
+        };
+
+        emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
+          expect(email.attachments).to.be.undefined;
         }).then(done, done);
 
         $rootScope.$digest();
@@ -1223,6 +1250,18 @@ describe('The Unified Inbox Angular module services', function() {
 
         emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should include attachments in the forwarded email', function() {
+        email = {
+          attachments: [{attachment: 'A'}, {attachment: 'B'}]
+        };
+
+        emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
+          expect(email.attachments).to.shallowDeepEqual([{attachment: 'A'}, {attachment: 'B'}]);
         }).then(done, done);
 
         $rootScope.$digest();

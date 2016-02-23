@@ -342,7 +342,7 @@ angular.module('linagora.esn.unifiedinbox')
       return email;
     }
 
-    function createQuotedEmail(subjectPrefix, recipients, templateName,  email, sender) {
+    function _createQuotedEmail(subjectPrefix, recipients, templateName, includeAttachments, email, sender) {
       var newRecipients = recipients ? recipients(email, sender) : {},
           newEmail = {
             from: getEmailAddress(sender),
@@ -354,6 +354,8 @@ angular.module('linagora.esn.unifiedinbox')
             isQuoting: false,
             quoteTemplate: templateName
           };
+
+      includeAttachments && (newEmail.attachments = email.attachments);
 
       if (!emailBodyService.supportsRichtext()) {
         return $q.when(newEmail);
@@ -374,9 +376,9 @@ angular.module('linagora.esn.unifiedinbox')
       getReplyRecipients: getReplyRecipients,
       getReplyAllRecipients: getReplyAllRecipients,
       showReplyAllButton: showReplyAllButton,
-      createReplyAllEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients, 'default'),
-      createReplyEmailObject: createQuotedEmail.bind(null, 'Re: ', getReplyRecipients, 'default'),
-      createForwardEmailObject: createQuotedEmail.bind(null, 'Fw: ', null, 'forward')
+      createReplyAllEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients, 'default', false),
+      createReplyEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyRecipients, 'default', false),
+      createForwardEmailObject: _createQuotedEmail.bind(null, 'Fw: ', null, 'forward', true)
     };
   })
 
