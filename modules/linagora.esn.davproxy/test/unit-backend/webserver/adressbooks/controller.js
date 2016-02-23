@@ -7,10 +7,17 @@ var q = require('q');
 
 describe('The addressbooks module', function() {
 
-  var deps, dependencies;
+  var deps, dependencies, contactVcardMock;
   var endpoint = 'http://devhost:98298';
 
   beforeEach(function() {
+    contactVcardMock = {
+      get: function() {},
+      create: function() {},
+      update: function() {},
+      del: function() {},
+      list: function() {}
+    };
     dependencies = {
       'esn-config': function() {
         return {
@@ -39,6 +46,7 @@ describe('The addressbooks module', function() {
       config: function() {
         return {};
       },
+
       contact: {
         lib: {
           client: function() {
@@ -48,18 +56,7 @@ describe('The addressbooks module', function() {
                   addressbook: function() {
                     return {
                       vcard: function() {
-                        return {
-                          get: function() {
-                          },
-                          create: function() {
-                          },
-                          update: function() {
-                          },
-                          del: function() {
-                          },
-                          list: function() {
-                          }
-                        };
+                        return contactVcardMock;
                       }
                     };
                   }
@@ -125,6 +122,13 @@ describe('The addressbooks module', function() {
     it('should call contact client with right parameters', function(done) {
       req.params.bookHome = 'home';
       req.params.bookName = 'name';
+      contactVcardMock = {
+        list: function(query) {
+          expect(query).to.eql(req.query);
+          done();
+          return q.resolve();
+        }
+      };
       dependencies.contact.lib.client = function(options) {
         expect(options.ESNToken).to.equal(req.token.token);
         return {
@@ -135,13 +139,7 @@ describe('The addressbooks module', function() {
                 expect(bookName).to.equal(req.params.bookName);
                 return {
                   vcard: function() {
-                    return {
-                      list: function(query) {
-                        expect(query).to.eql(req.query);
-                        done();
-                        return q.resolve();
-                      }
-                    };
+                    return contactVcardMock;
                   }
 
                 };
@@ -262,6 +260,12 @@ describe('The addressbooks module', function() {
       req.params.bookHome = 'home';
       req.params.bookName = 'name';
       req.params.contactId = '456';
+      contactVcardMock = {
+        get: function() {
+          done();
+          return q.resolve();
+        }
+      };
       dependencies.contact.lib.client = function(options) {
         expect(options.ESNToken).to.equal(req.token.token);
         return {
@@ -273,12 +277,7 @@ describe('The addressbooks module', function() {
                 return {
                   vcard: function(contactId) {
                     expect(contactId).to.equal(req.params.contactId);
-                    return {
-                      get: function() {
-                        done();
-                        return q.resolve();
-                      }
-                    };
+                    return contactVcardMock;
                   }
                 };
               }
@@ -291,6 +290,11 @@ describe('The addressbooks module', function() {
     });
 
     it('should send back HTTP 500 if contact client reject promise', function(done) {
+      contactVcardMock = {
+        get: function() {
+          return q.reject();
+        }
+      };
       dependencies.contact.lib.client = function() {
         return {
           addressbookHome: function() {
@@ -298,11 +302,7 @@ describe('The addressbooks module', function() {
               addressbook: function() {
                 return {
                   vcard: function() {
-                    return {
-                      get: function() {
-                        return q.reject();
-                      }
-                    };
+                    return contactVcardMock;
                   }
                 };
               }
@@ -325,10 +325,19 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should send back client response status code and body', function(done) {
+    it('should send back client response etag header, status code and body', function(done) {
       var statusCode = 200;
+      var etag = '12345';
       var body = {foo: 'bar'};
 
+      contactVcardMock = {
+        get: function() {
+          return q.resolve({
+            response: {statusCode: statusCode, headers: { etag: etag }},
+            body: body
+          });
+        }
+      };
       dependencies.contact.lib.client = function() {
         return {
           addressbookHome: function() {
@@ -336,14 +345,7 @@ describe('The addressbooks module', function() {
               addressbook: function() {
                 return {
                   vcard: function() {
-                    return {
-                      get: function() {
-                        return q.resolve({
-                          response: {statusCode: statusCode},
-                          body: body
-                        });
-                      }
-                    };
+                    return contactVcardMock;
                   }
                 };
               }
@@ -353,6 +355,10 @@ describe('The addressbooks module', function() {
       };
 
       getController().getContact(req, {
+        set: function(name, value) {
+          expect(name).to.equal('ETag');
+          expect(value).to.equal(etag);
+        },
         status: function(code) {
           expect(code).to.equal(statusCode);
           return {
@@ -380,6 +386,14 @@ describe('The addressbooks module', function() {
       req.params.bookHome = bookHome;
       req.params.bookName = bookName;
 
+      contactVcardMock = {
+        get: function() {
+          return q.resolve({
+            response: {statusCode: statusCode, headers: { etag: 'etag' }},
+            body: body
+          });
+        }
+      };
       dependencies.contact.lib.client = function() {
         return {
           addressbookHome: function() {
@@ -387,14 +401,7 @@ describe('The addressbooks module', function() {
               addressbook: function() {
                 return {
                   vcard: function() {
-                    return {
-                      get: function() {
-                        return q.resolve({
-                          response: {statusCode: statusCode},
-                          body: body
-                        });
-                      }
-                    };
+                    return contactVcardMock;
                   }
                 };
               }
@@ -404,6 +411,7 @@ describe('The addressbooks module', function() {
       };
 
       getController().getContact(req, {
+        set: function() {},
         status: function() {
           return {
             json: function(json) {
@@ -438,6 +446,13 @@ describe('The addressbooks module', function() {
     });
 
     it('should call contact client with right parameters on creation', function(done) {
+      contactVcardMock = {
+        create: function(contact) {
+          expect(contact).to.eql(req.body);
+          done();
+          return q.resolve();
+        }
+      };
       dependencies.contact.lib.client = function(options) {
         expect(options.ESNToken).to.equal(req.token.token);
         return {
@@ -449,13 +464,7 @@ describe('The addressbooks module', function() {
                 return {
                   vcard: function(contactId) {
                     expect(contactId).to.equal(req.params.contactId);
-                    return {
-                      create: function(contact) {
-                        expect(contact).to.eql(req.body);
-                        done();
-                        return q.resolve();
-                      }
-                    };
+                    return contactVcardMock;
                   }
                 };
               }
@@ -584,6 +593,39 @@ describe('The addressbooks module', function() {
       });
     });
 
+    it('should not remove if-match header when updating contact', function(done) {
+      req.headers = {
+        'if-match': 123
+      };
+      req.user = { _id: '111' };
+      req.body = { fn: 'abc' };
+      req.params.contactId = req.params.cardId;
+
+      dependencies.pubsub.global.topic = function() {
+        return {
+          publish: function() {
+            expect(req.headers['if-match']).to.equal(123);
+            done();
+          }
+        };
+      };
+
+      mockery.registerMock('../proxy', function() {
+        return function() {
+          return {
+            handle: function(options) {
+              options.onSuccess(null, null, req, null, function() {});
+              return function() {};
+            }
+          };
+        };
+      });
+
+      getController().updateContact(req, {
+        json: function() {}
+      });
+    });
+
     it('should publish a "contacts:contact:add" event if request is a creation', function(done) {
       var statusCode = 200;
       req.user = {_id: 1};
@@ -607,6 +649,14 @@ describe('The addressbooks module', function() {
         };
       };
 
+      contactVcardMock = {
+        create: function() {
+          return q.resolve({
+            response: {statusCode: statusCode},
+            body: req.body
+          });
+        }
+      };
       dependencies.contact.lib.client = function() {
         return {
           addressbookHome: function() {
@@ -614,14 +664,7 @@ describe('The addressbooks module', function() {
               addressbook: function() {
                 return {
                   vcard: function() {
-                    return {
-                      create: function() {
-                        return q.resolve({
-                          response: {statusCode: statusCode},
-                          body: req.body
-                        });
-                      }
-                    };
+                    return contactVcardMock;
                   }
                 };
               }
