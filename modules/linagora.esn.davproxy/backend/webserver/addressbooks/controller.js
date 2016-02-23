@@ -46,7 +46,7 @@ module.exports = function(dependencies) {
           error: {
             code: 500,
             message: 'Server Error',
-            details: 'Error while getting contacts from DAV server'
+            details: err || 'Error while getting contacts from DAV server'
           }
         });
       });
@@ -64,6 +64,7 @@ module.exports = function(dependencies) {
       .get()
       .then(function(data) {
         avatarHelper.injectTextAvatar(req.params.bookHome, req.params.bookName, data.body).then(function(newBody) {
+          res.set('ETag', data.response.headers.etag);
           return res.status(data.response.statusCode).json(newBody);
         });
       }, function(err) {
@@ -71,7 +72,7 @@ module.exports = function(dependencies) {
           error: {
             code: 500,
             message: 'Server Error',
-            details: 'Error while getting contact from DAV server'
+            details: err || 'Error while getting contact from DAV server'
           }
         });
       });
@@ -81,20 +82,13 @@ module.exports = function(dependencies) {
     var headers = req.headers || {};
     headers.ESNToken = req.token && req.token.token ? req.token.token : '';
 
-    var create = true;
-    if (headers['if-match']) {
-      create = false;
-    }
-
-    delete headers['if-match'];
-
     // Workaround to avoid frontend accidentally save text avatar to backend
     req.body = avatarHelper.removeTextAvatar(req.body);
     // Since req.body has been modified so contentLength will not be the same
     // Delete it to avoid issule relating to contentLength while sending request
     delete headers['content-length'];
 
-    if (create) {
+    if (!headers['if-match']) {
       contactModule.lib.client({ ESNToken: headers.ESNToken })
         .addressbookHome(req.params.bookHome)
         .addressbook(req.params.bookName)
