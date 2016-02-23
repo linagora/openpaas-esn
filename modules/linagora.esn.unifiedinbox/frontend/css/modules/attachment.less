@@ -38,23 +38,12 @@
         }
       }
 
-      .progress {
-        position: absolute;
-
-        width: 0;
-        height: 100%;
-        z-index: 1;
-        background-color: lighten(@body-bg, 2%);
-      }
-
       .icon {
         .all-centered;
 
         background-color: @lightenBgColor;
 
         img {
-          .z-index-on-top(2);
-
           margin: 5px;
           width: 40px;
           height: 40px;
@@ -65,7 +54,6 @@
         .flex-column;
         .flex-horizontal-centered;
         .flex-grow;
-        .z-index-on-top(2);
 
         text-align: left;
         overflow: hidden;
@@ -87,7 +75,6 @@
 
       .actions {
         .all-centered;
-        .z-index-on-top(2);
 
         .mdi {
           font-size: 2em;
@@ -103,6 +90,39 @@
     }
   }
 
+}
+
+.attachments-zone {
+  .attachments {
+    .attachment {
+
+      .progress {
+        position: absolute;
+
+        width: 0;
+        height: 100%;
+        z-index: 1;
+        background-color: lighten(@body-bg, 2%);
+      }
+
+      .icon {
+
+        img {
+          .z-index-on-top(2);
+        }
+
+      }
+
+      .metadata {
+        .z-index-on-top(2);
+      }
+
+      .actions {
+        .z-index-on-top(2);
+      }
+
+    }
+  }
 }
 
 // We cannot use @screen-sm-min because we changed breakpoints so that XS=SM
