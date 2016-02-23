@@ -16,7 +16,9 @@ describe('The esn.http Angular module', function() {
 
     var windowMock, locationMock;
     beforeEach(module(function($provide) {
-      windowMock = {};
+      windowMock = {
+        addEventListener: angular.noop
+      };
       locationMock = {
         url: function() {}
       };

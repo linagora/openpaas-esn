@@ -482,7 +482,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The sendEmail service', function() {
 
-    var $httpBackend, $rootScope, sendEmail;
+    var $httpBackend, $rootScope, sendEmail, backgroundProcessorService;
 
     var jmapConfigMock;
     var jmapClientMock;
@@ -501,12 +501,23 @@ describe('The Unified Inbox Angular module services', function() {
         $provide.value('jmapHelper', jmapHelperMock);
       });
 
-      angular.mock.inject(function(_$httpBackend_, _$rootScope_, _sendEmail_) {
+      angular.mock.inject(function(_$httpBackend_, _$rootScope_, _sendEmail_, _backgroundProcessorService_) {
         $httpBackend = _$httpBackend_;
         $rootScope = _$rootScope_;
         sendEmail = _sendEmail_;
+        backgroundProcessorService = _backgroundProcessorService_;
       });
 
+    });
+
+    it('should be called as a background task', function() {
+      sinon.spy(backgroundProcessorService, 'add');
+      $httpBackend.expectPOST('/unifiedinbox/api/inbox/sendemail').respond(200);
+
+      sendEmail();
+      $httpBackend.flush();
+
+      expect(backgroundProcessorService.add).to.have.been.calledOnce;
     });
 
     describe('Use SMTP', function() {
