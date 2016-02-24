@@ -17,7 +17,7 @@ form.form-horizontal.compose.ng-cloak.subheader-margin
             recipients-auto-complete(ui-sref='.recipients({ rcpt: "bcc", composition: composition })', ng-model="email.bcc", template="fullscreen-recipients-auto-complete")
       .more-recipients.col-xs-1(ng-class="{ 'isCollapsed': isCollapsed }")
         span(ng-click="isCollapsed = !isCollapsed")
-            i.mdi.mdi-chevron-up
+          i.mdi(ng-class="isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up'")
 
     input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}", ng-model="email.subject")
 
