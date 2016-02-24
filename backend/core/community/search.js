@@ -1,12 +1,18 @@
 'use strict';
 
 var elastic = require('../elasticsearch');
+var CONSTANTS = require('./constants');
+var mongooseHelper = require('../../helpers/mongoose');
 
 var defaultLimit = 50;
 var defaultOffset = 0;
 
-var INDEX = 'communities.idx';
-var TYPE = 'communities';
+function denormalize(community) {
+  var document = mongooseHelper.communityToJSON(community);
+  document.id = document._id;
+  return document;
+}
+module.exports.denormalize = denormalize;
 
 /**
  * Search communities in the given domains where the title match the query.search terms.
@@ -52,8 +58,8 @@ module.exports.find = function(domains, query, callback) {
     };
 
     client.search({
-      index: INDEX,
-      type: TYPE,
+      index: CONSTANTS.ELASTICSEARCH.index,
+      type: CONSTANTS.ELASTICSEARCH.type,
       from: query.offset,
       size: query.limit,
       body: elasticsearchQuery

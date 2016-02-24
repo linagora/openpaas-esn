@@ -4,7 +4,7 @@ var mockery = require('mockery');
 var chai = require('chai');
 var expect = chai.expect;
 
-describe('The user search module', function() {
+describe('The community search module', function() {
 
   describe('The denormalize function', function() {
 
@@ -14,14 +14,14 @@ describe('The user search module', function() {
     });
 
     it('should set the document.id', function() {
-      var user = {_id: 1};
+      var community = {_id: 1};
       mockery.registerMock('../../helpers/mongoose', {
-        userToJSON: function(user) {
-          return user;
+        communityToJSON: function(community) {
+          return community;
         }
       });
-      var document = this.helpers.rewireBackend('core/user/search').denormalize(user);
-      expect(document.id).to.equal(user.id);
+      var document = this.helpers.requireBackend('core/community/search').denormalize(community);
+      expect(document.id).to.equal(community.id);
     });
   });
 });

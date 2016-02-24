@@ -36,7 +36,7 @@ module.exports = {
     dbpath: tmp + '/mongo/',
     logpath: '',
     elasticsearch: {
-      rivers: ['domains', 'messages', 'communities']
+      rivers: ['domains', 'messages']
     },
     container: {
       image: images.mongodb,

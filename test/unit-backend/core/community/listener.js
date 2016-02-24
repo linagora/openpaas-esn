@@ -4,7 +4,7 @@ var mockery = require('mockery');
 var chai = require('chai');
 var expect = chai.expect;
 
-describe('The user listener module', function() {
+describe('The community listener module', function() {
 
   describe('The register function', function() {
 
@@ -22,7 +22,7 @@ describe('The user listener module', function() {
       mockery.registerMock('./search', {
         denormalize: function() {}
       });
-      this.helpers.requireBackend('core/user/listener').register();
+      this.helpers.requireBackend('core/community/listener').register();
     });
   });
 });

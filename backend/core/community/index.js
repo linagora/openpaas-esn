@@ -7,11 +7,10 @@ var logger = require('../logger');
 var permission = require('./permission');
 var collaborationModule = require('../collaboration');
 var tuple = require('../tuple');
+var pubsub = require('../pubsub').local;
+var CONSTANTS = require('./constants');
 
-var communityObjectType = 'community';
-
-var DEFAULT_LIMIT = 50;
-var DEFAULT_OFFSET = 0;
+var communityObjectType = CONSTANTS.OBJECT_TYPE;
 
 var MEMBERSHIP_TYPE_REQUEST = 'request';
 var MEMBERSHIP_TYPE_INVITATION = 'invitation';
@@ -58,6 +57,7 @@ module.exports.save = function(community, callback) {
       } else {
         logger.info('Error while trying to add a new community:', err.message);
       }
+      pubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
       return callback(err, response);
     });
   });
@@ -137,7 +137,7 @@ module.exports.getMembers = function(community, query, callback) {
   Community.findById(id, function(err, community) {
     if (err) { return callback(err); }
 
-    var members = community.members.slice().splice(query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT);
+    var members = community.members.slice().splice(query.offset || CONSTANTS.DEFAULT_OFFSET, query.limit || CONSTANTS.DEFAULT_LIMIT);
     var memberIds = members.map(function(member) { return member.member.id; });
     User.find({_id: {$in: memberIds}}, function(err, users) {
       if (err) { return callback(err); }
