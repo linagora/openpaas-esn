@@ -22,7 +22,7 @@
         li.action-item
           a(action-list, action-list-url="/unifiedinbox/views/view-email/action-list.html" title="#{__('More')}")
             i.mdi.mdi-view-module
-      .flex-space-between.horiz-space
+      .flex-space-between.flex-vertical-centered.horiz-space
         inbox-star(item='::email')
         span.action-item.date {{::email.date | date:'short' }}
 
