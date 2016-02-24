@@ -746,6 +746,9 @@ angular.module('esn.calendar')
     var ADD = 'add';
 
     function deleteRegistration(event) {
+      if (!changes[event.id]) {
+        return;
+      }
       $timeout.cancel(changes[event.id].expirationPromise);
       delete(changes[event.id]);
     }
@@ -760,6 +763,10 @@ angular.module('esn.calendar')
       };
 
       return undo;
+    }
+
+    function resetChange() {
+      changes = {};
     }
 
     function applyUpdatedAndDeleteEvent(events) {
@@ -807,7 +814,8 @@ angular.module('esn.calendar')
       registerDelete: saveChange.bind(null, DELETE),
       registerUpdate: saveChange.bind(null, UPDATE),
       deleteRegistration: deleteRegistration,
-      wrapEventSource: wrapEventSource
+      wrapEventSource: wrapEventSource,
+      resetChange: resetChange
     };
   })
 

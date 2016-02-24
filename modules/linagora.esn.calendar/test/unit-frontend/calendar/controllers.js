@@ -30,7 +30,8 @@ describe('The calendar module controllers', function() {
     this.keepChangeDuringGraceperiodMock = {
       wrapEventSource: sinon.spy(function(id, eventSource) {
         return eventSource;
-      })
+      }),
+      resetChange: angular.noop
     };
 
     this.CalendarShellConstMock = function(vcalendar, event) {
@@ -196,6 +197,14 @@ describe('The calendar module controllers', function() {
       this.controller('calendarController', {$scope: this.scope});
       expect(event).to.equal('beforeunload');
       expect(handler).to.equal('aHandler');
+    });
+
+    it('should keepChangeDuringGraceperiod.resetChange $on(\'$destroy\')', function() {
+      this.gracePeriodService.flushAllTasks = angular.noop;
+      this.keepChangeDuringGraceperiodMock.resetChange = sinon.spy();
+      this.controller('calendarController', {$scope: this.scope});
+      this.scope.$destroy();
+      expect(this.keepChangeDuringGraceperiodMock.resetChange).to.have.been.called;
     });
 
     it('should be created and its scope initialized', function() {

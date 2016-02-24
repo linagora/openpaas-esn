@@ -295,6 +295,7 @@ angular.module('esn.calendar')
         unregisterFunction();
       });
       gracePeriodService.flushAllTasks();
+      keepChangeDuringGraceperiod.resetChange();
       windowJQuery.off('resize', $scope.resizeCalendarHeight);
     });
 
