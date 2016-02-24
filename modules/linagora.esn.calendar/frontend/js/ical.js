@@ -8,7 +8,8 @@ angular.module('esn.ical', [])
     partstat: {
       needsaction: 'NEEDS-ACTION',
       accepted: 'ACCEPTED',
-      declined: 'DECLINED'
+      declined: 'DECLINED',
+      tentative: 'TENTATIVE'
     },
     rsvp: {
       true: 'TRUE',
