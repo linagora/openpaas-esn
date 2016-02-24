@@ -343,6 +343,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(scope.email.attachments).to.deep.equal([{ blobId: '1' }]);
       });
 
+      it('should remove attachments that do not have upload attributes', function() {
+        var attachment = { blobId: 'willBeRemoved'};
+        scope.email.attachments = [attachment, { blobId: '1' }];
+
+        initController('composerController').removeAttachment(attachment);
+
+        expect(scope.email.attachments).to.deep.equal([{ blobId: '1' }]);
+      });
+
     });
 
   });
