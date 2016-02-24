@@ -1770,9 +1770,20 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The newComposerService ', function() {
 
-    var $state, $timeout, newComposerService, deviceDetector, boxOverlayOpener;
+    var $rootScope, $state, $timeout, newComposerService, deviceDetector, boxOverlayOpener;
 
-    beforeEach(inject(function(_$state_, _$timeout_, _newComposerService_, _deviceDetector_, _boxOverlayOpener_) {
+    beforeEach(module(function($provide) {
+      $provide.value('withJmapClient', function(callback) {
+        return callback({
+          getMessages: function() {
+            return $q.when([{ id: 'id' }]);
+          }
+        }, { url: 'http://jmap' });
+      });
+    }));
+
+    beforeEach(inject(function(_$rootScope_, _$state_, _$timeout_, _newComposerService_, _deviceDetector_, _boxOverlayOpener_) {
+      $rootScope = _$rootScope_;
       newComposerService = _newComposerService_;
       deviceDetector = _deviceDetector_;
       $state = _$state_;
@@ -1823,29 +1834,32 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should delegate to deviceDetector to know if device is mobile or not', function(done) {
         deviceDetector.isMobile = done;
-        newComposerService.openDraft({id: 'value'});
+
+        newComposerService.openDraft('id');
+        $rootScope.$digest();
       });
 
       it('should update the location with the email id if deviceDetector returns true', function() {
         deviceDetector.isMobile = sinon.stub().returns(true);
         $state.go = sinon.spy();
 
-        newComposerService.openDraft({expected: 'field'});
-        $timeout.flush();
+        newComposerService.openDraft('id');
+        $rootScope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: { id: 'id' }, previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
       it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.openDraft({email: 'object'});
+        newComposerService.openDraft('id');
+        $rootScope.$digest();
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           title: 'Continue your draft',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email: {email: 'object'}
+          email:  { id: 'id' }
         });
       });
 

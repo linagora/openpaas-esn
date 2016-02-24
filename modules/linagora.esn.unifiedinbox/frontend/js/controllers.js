@@ -40,15 +40,11 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function isDraftMailbox() {
-      return $scope.mailbox.role === jmap.MailboxRole.DRAFTS;
-    }
-
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
 
     this.openEmail = function(email) {
-      if (isDraftMailbox()) {
-        newComposerService.openDraft(email);
+      if (email.isDraft) {
+        newComposerService.openDraft(email.id);
       } else {
         $state.go('unifiedinbox.messages.message', {
           mailbox: $scope.mailbox.id,
@@ -62,21 +58,26 @@ angular.module('linagora.esn.unifiedinbox')
       .then(searchForMessages);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool, headerService, mailboxesService, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
+  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool,
+                                                headerService, mailboxesService, newComposerService, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
 
     var position = 0,
         groups = new ElementGroupingTool($stateParams.mailbox);
 
     this.openThread = function(thread) {
-      $state.go('unifiedinbox.threads.thread', {
-        mailbox: $scope.mailbox.id,
-        threadId: thread.id
-      });
+      if (thread.email.isDraft) {
+        newComposerService.openDraft(thread.email.id);
+      } else {
+        $state.go('unifiedinbox.threads.thread', {
+          mailbox: $scope.mailbox.id,
+          threadId: thread.id
+        });
+      }
     };
 
     function _assignEmailAndDate(dst) {
       return function(email) {
-        _.assign(_.find(dst, {id: email.threadId}), {email: Email(email), date: email.date});
+        _.assign(_.find(dst, { id: email.threadId }), { email: Email(email), date: email.date });
       };
     }
 
@@ -109,12 +110,8 @@ angular.module('linagora.esn.unifiedinbox')
           .then(function(messageList) {
 
             return $q.all([
-              messageList.getThreads({
-                fetchMessages: false
-              }),
-              messageList.getMessages(({
-                properties: JMAP_GET_MESSAGES_LIST
-              }))
+              messageList.getThreads({ fetchMessages: false }),
+              messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST })
             ]);
           })
           .then(_prepareThreadsVariable)
