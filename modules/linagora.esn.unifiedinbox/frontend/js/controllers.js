@@ -142,8 +142,9 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('composerController', function($scope, $stateParams, $q, headerService, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
-                                            attachmentUploadService, _, inBackground,
+                                            attachmentUploadService, _,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
+
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
     };
@@ -154,7 +155,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     this.saveDraft = function() {
-      $scope.composition.saveDraft();
+      return $scope.composition.saveDraft();
     };
 
     this.showMobileHeader = function() {
@@ -190,7 +191,7 @@ angular.module('linagora.esn.unifiedinbox')
           attachment.error = err;
         }, function(uploadTask) {
           attachment.upload.progress = uploadTask.progress;
-        });
+        }).then($scope.composition.saveDraftSilently.bind($scope.composition));
 
         return attachment;
       };

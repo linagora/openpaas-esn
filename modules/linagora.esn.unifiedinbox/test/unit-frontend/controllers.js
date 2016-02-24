@@ -188,48 +188,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The onAttachmentsSelect function', function() {
 
-      it('should do nothing if no files are given', function() {
-        initController('composerController').onAttachmentsSelect();
+      var ctrl;
 
-        expect(scope.email.attachments).to.equal(undefined);
-      });
-
-      it('should do nothing if files is zerolength', function() {
-        initController('composerController').onAttachmentsSelect([]);
-
-        expect(scope.email.attachments).to.equal(undefined);
-      });
-
-      it('should put the attachment in the scope, with an unknown blobId', function() {
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1, type: 'type' }]);
-
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: 'unknownBlobId',
-          name: 'name',
-          size: 1,
-          type: 'type',
-          status: 'uploading'
-        });
-      });
-
-      it('should put the attachment in the scope, with a default file type', function() {
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
-
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: 'unknownBlobId',
-          name: 'name',
-          size: 1,
-          type: DEFAULT_FILE_TYPE
-        });
-      });
-
-      it('should put the attachment in the scope, if the file size is exactly the limit', function() {
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
-
-        expect(scope.email.attachments.length).to.equal(1);
-      });
-
-      it('should set the blobId when upload succeeds', function() {
+      beforeEach(function() {
         fileUploadMock = {
           addFile: function() {
             var defer = $q.defer();
@@ -246,7 +207,60 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }
         };
 
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl = initController('composerController');
+
+        scope.composition = {
+          saveDraftSilently: sinon.stub().returns($q.when(new jmap.CreateMessageAck({destroyMessage: sinon.spy()}, {
+            id: 'expected id',
+            blobId: 'any',
+            size: 5
+          })))
+        };
+      });
+
+      it('should do nothing if no files are given', function() {
+        ctrl.onAttachmentsSelect();
+
+        expect(scope.email.attachments).to.equal(undefined);
+      });
+
+      it('should do nothing if files is zerolength', function() {
+        ctrl.onAttachmentsSelect([]);
+
+        expect(scope.email.attachments).to.equal(undefined);
+      });
+
+      it('should put the attachment in the scope, with an unknown blobId', function() {
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1, type: 'type' }]);
+
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({
+          blobId: 'unknownBlobId',
+          name: 'name',
+          size: 1,
+          type: 'type',
+          status: 'uploading'
+        });
+      });
+
+      it('should put the attachment in the scope, with a default file type', function() {
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({
+          blobId: 'unknownBlobId',
+          name: 'name',
+          size: 1,
+          type: DEFAULT_FILE_TYPE
+        });
+      });
+
+      it('should put the attachment in the scope, if the file size is exactly the limit', function() {
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
+
+        expect(scope.email.attachments.length).to.equal(1);
+      });
+
+      it('should set the blobId when upload succeeds', function() {
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({
@@ -256,6 +270,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           type: DEFAULT_FILE_TYPE,
           status: 'uploaded'
         });
+      });
+
+      it('should save the composition each time that and upload succeeds', function() {
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.composition.saveDraftSilently).to.have.been.calledTwice;
       });
 
       it('should set attachment.error if upload fails', function() {
@@ -271,7 +293,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }
         };
 
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({

@@ -1916,10 +1916,23 @@ describe('The Unified Inbox Angular module services', function() {
 
     var Composition, draftService, emailSendingService, session, $timeout, Offline,
         notificationFactory, closeNotificationSpy, notificationTitle, notificationText,
-        jmap, $rootScope;
+        jmap, jmapClient, firstSaveAck, $rootScope;
 
     beforeEach(module(function($provide) {
-      $provide.constant('withJmapClient', function() {});
+      jmapClient = {
+        destroyMessage: sinon.spy(),
+        saveAsDraft: sinon.spy(function() {
+          return $q.when(firstSaveAck = new jmap.CreateMessageAck(jmapClient, {
+            id: 'expected id',
+            blobId: 'any',
+            size: 5
+          }));
+        })
+      };
+
+      $provide.value('withJmapClient', function(callback) {
+        return callback(jmapClient);
+      });
     }));
 
     beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
@@ -1938,6 +1951,7 @@ describe('The Unified Inbox Angular module services', function() {
       notificationTitle = '';
       notificationText = '';
 
+      emailSendingService.sendEmail = sinon.stub().returns($q.when());
       closeNotificationSpy = sinon.spy();
 
       notificationFactory.weakSuccess = function(callTitle, callText) {
@@ -2000,53 +2014,135 @@ describe('The Unified Inbox Angular module services', function() {
         .calledWith({ obj: 'expected', bcc: [], cc: [], to: [] });
     });
 
-    it('should save the draft when saveDraft is called', function() {
-      var saveSpy = sinon.stub().returns($q.when({}));
-      draftService.startDraft = function() {
-        return {
-          save: saveSpy
-        };
-      };
+    function saveDraftTest(compositionMethod, done) {
+      var composition = new Composition({});
+      composition.email.htmlBody = 'modified';
+      composition.email.to.push({email: '1@linagora.com'});
 
-      var composition = new Composition({obj: 'expected'});
-      composition.getEmail().test = 'tested';
-      composition.saveDraft();
+      composition[compositionMethod]().then(function(ack) {
+        expect(ack).to.deep.equal(firstSaveAck);
+        expect(jmapClient.saveAsDraft.getCall(0).args[0]).to.shallowDeepEqual({
+          htmlBody: 'modified',
+          to: [{email: '1@linagora.com'}],
+          bcc: [], cc: []
+        });
+      }).then(done, done);
+      $timeout.flush();
+    }
 
-      expect(saveSpy).to.have.been
-        .calledWith({obj: 'expected', test: 'tested', bcc: [], cc: [], to: [] });
+    it('should save the draft when saveDraft is called', function(done) {
+      saveDraftTest('saveDraft', done);
+    });
+
+    it('should save the draft silently when saveDraftSilently is called', function(done) {
+      saveDraftTest('saveDraftSilently', done);
     });
 
     it('should not try to destroy the original draft, when saveDraft is called and the original is not a jmap.Message', function() {
-      draftService.startDraft = function() {
-        return {
-          save: sinon.stub().returns($q.when({}))
-        };
-      };
-
       var message = { destroy: sinon.spy() };
+      var composition = new Composition(message);
+      composition.email.htmlBody = 'modified';
 
-      new Composition(message).saveDraft();
+      composition.saveDraft();
       $timeout.flush();
 
       expect(message.destroy).to.have.not.been.called;
     });
 
     it('should destroy the original draft when saveDraft is called, when the original is a jmap.Message', function() {
-      draftService.startDraft = function() {
-        return {
-          save: sinon.stub().returns($q.when({}))
-        };
-      };
-
-      var message = new jmap.Message(null, 'id', 'threadId', ['box1'], {
+      var message = new jmap.Message(jmapClient, 'id', 'threadId', ['box1'], {
         to: [{displayName: '1', email: '1@linagora.com'}]
       });
       message.destroy = sinon.spy();
+      var composition = new Composition(message);
+      composition.email.htmlBody = 'modified';
 
-      new Composition(message).saveDraft();
+      composition.saveDraft();
       $timeout.flush();
 
       expect(message.destroy).to.have.been.calledOnce;
+    });
+
+    it('should destroy the original draft when saveDraft is called, when the original is a jmap.CreateMessageAck', function() {
+      var ack = new jmap.CreateMessageAck(jmapClient, {
+        id: 'the ack id',
+        blobId: 'any',
+        size: 5
+      });
+
+      var composition = new Composition(ack);
+      composition.email.htmlBody = 'modified';
+
+      composition.saveDraft();
+      $timeout.flush();
+
+      expect(jmapClient.destroyMessage).to.have.been.calledWith('the ack id');
+    });
+
+    it('should renew the original jmap message with the ack id when saveDraft is called', function(done) {
+      var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
+      message.destroy = sinon.spy();
+
+      var composition = new Composition(message);
+      composition.email.htmlBody = 'new content';
+
+      composition.saveDraft().then(function() {
+        expect(message.destroy).to.have.been.calledOnce;
+        expect(composition.draft.originalEmailState.id).to.equal('expected id');
+      }).then(done, done);
+
+      $timeout.flush();
+    });
+
+    it('should renew the original jmap message with the second ack id when saveDraft is called twice', function(done) {
+      var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
+      message.destroy = sinon.spy();
+      var secondSaveAck = new jmap.CreateMessageAck(jmapClient, {
+        id: 'another id',
+        blobId: 'any',
+        size: 5
+      });
+
+      var composition = new Composition(message);
+      composition.email.htmlBody = 'new content';
+
+      composition.saveDraft().then(function() {
+        composition.email.htmlBody = 'content modified';
+        jmapClient.saveAsDraft = sinon.stub().returns($q.when(secondSaveAck));
+
+        composition.saveDraft().then(function() {
+          expect(jmapClient.destroyMessage).to.have.been.calledWith('expected id');
+          expect(composition.draft.originalEmailState.id).to.equal('another id');
+          expect(composition.draft.originalEmailState.htmlBody).to.equal('content modified');
+        }).then(done, done);
+
+      });
+
+      $timeout.flush();
+    });
+
+    it('should update the original message in the composition, with the email state used to save the draft', function(done) {
+      var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
+      message.destroy = sinon.spy();
+
+      var composition = new Composition(message);
+      composition.email.htmlBody = 'saving body';
+      composition.email.to = [{displayName: '1', email: 'saving@domain.org'}];
+
+      jmapClient.saveAsDraft = sinon.spy(function() {
+        composition.email.htmlBody = 'modified body since save has been called';
+        composition.email.to.push({email: 'modified@domain.org'});
+
+        return $q.when(firstSaveAck);
+      });
+
+      composition.saveDraft().then(function() {
+        expect(composition.draft.originalEmailState.id).to.equal('expected id');
+        expect(composition.draft.originalEmailState.htmlBody).to.equal('saving body');
+        expect(composition.draft.originalEmailState.to).to.shallowDeepEqual([{email: 'saving@domain.org'}]);
+      }).then(done, done);
+
+      $timeout.flush();
     });
 
     it('"canBeSentOrNotify" fn should returns false when the email has no recipient', function() {
@@ -2079,8 +2175,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should successfully send an email even if only bcc is used', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
       var email = {
         destroy: angular.noop,
         to: [],
@@ -2095,7 +2189,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should assign email.from using the session before sending', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
       session.user = 'yolo';
 
       var email = {
@@ -2116,8 +2209,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should not try to destroy the original message, when it is not a jmap.Message', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
       var message = {
         destroy: sinon.spy(),
         to: [{displayName: '1', email: '1@linagora.com'}],
@@ -2131,8 +2222,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should destroy the original draft, when it is a jmap.Message', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
       var message = new jmap.Message(null, 'id', 'threadId', ['box1'], {
         to: [{displayName: '1', email: '1@linagora.com'}]
       });
@@ -2145,8 +2234,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should quote the original email if current email is not already quoting', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
       new Composition({
         to: [{ email: 'A@A.com' }],
         quoteTemplate: 'default',
@@ -2168,8 +2255,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should not quote the original email if current email is already quoting', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
       new Composition({
         to: [{ email: 'A@A.com' }],
         quoteTemplate: 'default',
@@ -2194,8 +2279,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('"send" fn should not quote the original email if there is no original email', function() {
-      emailSendingService.sendEmail = sinon.stub().returns($q.when());
-
       new Composition({
         to: [{ email: 'A@A.com' }],
         textBody: 'Body'
@@ -2690,6 +2773,10 @@ describe('The Unified Inbox Angular module services', function() {
       return $q.when();
     }
 
+    function qReject() {
+      return $q.reject();
+    }
+
     beforeEach(module(function($provide) {
       notification = {
         close: sinon.spy()
@@ -2732,7 +2819,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should close the strongInfo notification when action rejects', function() {
-      asyncAction('Test', function() { return $q.reject(); });
+      asyncAction('Test', qReject);
       $rootScope.$digest();
 
       expect(notification.close).to.have.been.calledWith();
@@ -2746,7 +2833,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should notify weakError when action rejects', function() {
-      asyncAction('Test', function() { return $q.reject(); });
+      asyncAction('Test', qReject);
       $rootScope.$digest();
 
       expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
@@ -2770,6 +2857,26 @@ describe('The Unified Inbox Angular module services', function() {
         }, function(result) {
           expect(result).to.equal('Bouh !');
 
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should not notify when options has silent', function() {
+      asyncAction('Test', qNoop, {silent: true});
+      $rootScope.$digest();
+
+      expect(notificationFactory.strongInfo).to.not.have.been.called;
+      expect(notificationFactory.weakSuccess).to.not.have.been.called;
+    });
+
+    it('should notify error even when options has silent', function(done) {
+      asyncAction('Test', qReject, {silent: true})
+        .then(function() {
+          done('The promise should not be resolved !');
+        }, function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
           done();
         });
 
