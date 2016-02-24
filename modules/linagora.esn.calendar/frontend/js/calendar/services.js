@@ -281,6 +281,9 @@ angular.module('esn.calendar')
               .catch($q.reject);
           }
         })
+        .finally(function() {
+          event.gracePeriodTaskId = undefined;
+        })
         .catch($q.reject);
     }
 
@@ -334,6 +337,9 @@ angular.module('esn.calendar')
         })
         .then(function(task) {
           return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+        })
+        .finally(function() {
+          event.gracePeriodTaskId = undefined;
         })
         .catch($q.reject);
     }
@@ -405,6 +411,9 @@ angular.module('esn.calendar')
         })
         .then(function(task) {
           return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+        })
+        .finally(function() {
+          event.gracePeriodTaskId = undefined;
         })
         .catch($q.reject);
     }
