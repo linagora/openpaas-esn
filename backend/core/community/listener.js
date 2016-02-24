@@ -2,7 +2,7 @@
 
 var CONSTANTS = require('./constants');
 var elasticsearchListener = require('../elasticsearch/listeners');
-var communitiesSearch = require('./search');
+var denormalize = require('./denormalize');
 
 function getOptions() {
   return {
@@ -11,7 +11,7 @@ function getOptions() {
       update: CONSTANTS.EVENTS.communityUpdated,
       remove: CONSTANTS.EVENTS.communityDeleted
     },
-    denormalize: communitiesSearch.denormalize,
+    denormalize: denormalize,
     type: CONSTANTS.ELASTICSEARCH.type,
     index: CONSTANTS.ELASTICSEARCH.index
   };

@@ -19,9 +19,7 @@ describe('The community listener module', function() {
           expect(options.index).to.exist;
         }
       });
-      mockery.registerMock('./search', {
-        denormalize: function() {}
-      });
+      mockery.registerMock('./denormalize', function() {});
       this.helpers.requireBackend('core/community/listener').register();
     });
   });

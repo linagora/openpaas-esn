@@ -19,9 +19,8 @@ describe('The user listener module', function() {
           expect(options.index).to.exist;
         }
       });
-      mockery.registerMock('./search', {
-        denormalize: function() {}
-      });
+      mockery.registerMock('./denormalize', function() {});
+
       this.helpers.requireBackend('core/user/listener').register();
     });
   });

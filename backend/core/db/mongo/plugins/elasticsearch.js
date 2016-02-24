@@ -11,8 +11,9 @@ module.exports = function(indexerOptions) {
       elasticSearch.index(this, indexerOptions, function(err, result) {
         if (err) {
           logger.error('Error while indexing', err);
+        } else {
+          logger.debug('Index result', result);
         }
-        logger.debug('Index result', result);
       });
     });
   };

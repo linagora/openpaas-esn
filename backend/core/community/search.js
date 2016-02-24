@@ -2,17 +2,9 @@
 
 var elastic = require('../elasticsearch');
 var CONSTANTS = require('./constants');
-var mongooseHelper = require('../../helpers/mongoose');
 
 var defaultLimit = 50;
 var defaultOffset = 0;
-
-function denormalize(community) {
-  var document = mongooseHelper.communityToJSON(community);
-  document.id = document._id;
-  return document;
-}
-module.exports.denormalize = denormalize;
 
 /**
  * Search communities in the given domains where the title match the query.search terms.

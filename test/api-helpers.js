@@ -59,6 +59,7 @@ module.exports = function(mixin, testEnv) {
     }
     var deployment = fixtures[name]();
     require(testEnv.basePath + '/backend/core').db.mongo;
+    require(testEnv.basePath + '/backend/core/elasticsearch/pubsub').init();
 
     deployment.models = {};
 

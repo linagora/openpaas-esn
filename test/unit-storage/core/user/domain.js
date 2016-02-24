@@ -25,6 +25,8 @@ describe('The user domain module', function() {
           _id: 'elasticsearch',
           host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
         }, function(err) {
+          self.User = self.helpers.requireBackend('core/db/mongo/models/user');
+          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
           done(err);
         });
       });
@@ -35,8 +37,7 @@ describe('The user domain module', function() {
     });
 
     it('should return users which belong to the given domain when calling getUsersList', function(done) {
-      var User = this.helpers.requireBackend('core/db/mongo/models/user');
-      var userFixtures = this.helpers.requireFixture('models/users.js')(User);
+      var userFixtures = this.helpers.requireFixture('models/users.js')(this.User);
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
@@ -73,7 +74,6 @@ describe('The user domain module', function() {
     });
 
     it('should return an array which contains the last 2 elements when calling getUsersList with offset option = 2 on domain members = 4', function(done) {
-      this.helpers.requireBackend('core/db/mongo/models/user');
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
@@ -92,7 +92,6 @@ describe('The user domain module', function() {
     });
 
     it('should return the users which belong to a domain and which contain the search term', function(done) {
-      this.helpers.requireBackend('core/db/mongo/models/user');
       var userDomain = this.helpers.requireBackend('core/user/domain');
       var self = this;
 
@@ -119,7 +118,6 @@ describe('The user domain module', function() {
     });
 
     it('should return an error when calling getUsersList with a null domain', function(done) {
-      this.helpers.requireBackend('core/db/mongo/models/user');
       this.helpers.requireBackend('core/db/mongo/models/domain');
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
@@ -155,6 +153,7 @@ describe('The user domain module', function() {
 
           User = self.helpers.requireBackend('core/db/mongo/models/user');
           Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
             if (err) { return done(err); }
@@ -396,8 +395,8 @@ describe('The user domain module', function() {
 
           User = self.helpers.requireBackend('core/db/mongo/models/user');
           Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
-
           userDomain = self.helpers.requireBackend('core/user/domain');
+          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases_extra', function(err, models) {
             if (err) { return done(err); }
@@ -504,6 +503,7 @@ describe('The user domain module', function() {
           User = self.helpers.requireBackend('core/db/mongo/models/user');
           Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
           Community = self.helpers.requireBackend('core/db/mongo/models/community');
+          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
           self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
             if (err) {
@@ -571,6 +571,7 @@ describe('The user domain module', function() {
       User = this.helpers.requireBackend('core/db/mongo/models/user');
       userDomain = this.helpers.requireBackend('core/user/domain');
       Community = this.helpers.requireBackend('core/db/mongo/models/community');
+      this.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
       this.mongoose = require('mongoose');
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {

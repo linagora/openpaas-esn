@@ -13,9 +13,10 @@ function index(data, options, callback) {
   };
   utils.indexData(indexOptions, function(err, result) {
     if (err) {
-      return logger.error('Error while adding data in index', err);
+      logger.error('Error while adding data in index', err);
+    } else {
+      logger.debug('Document indexed');
     }
-    logger.debug('Document indexed');
     if (callback) {
       callback(err, result);
     }

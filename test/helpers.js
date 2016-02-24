@@ -246,7 +246,6 @@ module.exports = function(mixin, testEnv) {
               .get(elasticsearchURL + '/' + index + '/' + type + '/_search?q=_id:' + id)
               .end(function(res) {
                 if (res.status === 200 && res.body.hits.total === 1) {
-                  console.log(JSON.stringify(res.body.hits.hits));
                   finish = true;
                   return callback();
                 }

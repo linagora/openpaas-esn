@@ -2,7 +2,6 @@
 
 var utils = require('./utils');
 var CONSTANTS = require('./constants');
-var mongooseHelper = require('../../helpers/mongoose');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -16,14 +15,6 @@ function getTypeName() {
   return CONSTANTS.ELASTICSEARCH.type;
 }
 module.exports.getTypeName = getTypeName;
-
-function denormalize(user) {
-  var document = mongooseHelper.userToJSON(user);
-  document.id = document._id;
-  delete document.password;
-  return document;
-}
-module.exports.denormalize = denormalize;
 
 /**
  * Search users in a domain by using a filter.
