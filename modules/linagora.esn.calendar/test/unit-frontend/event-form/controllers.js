@@ -184,6 +184,7 @@ describe('The event-form module controllers', function() {
         this.scope.event = {
           title: 'title',
           id: '12345',
+          calendarId: 'id',
           allDay: true,
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
@@ -219,7 +220,7 @@ describe('The event-form module controllers', function() {
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
       });
 
-      it('should select the selected calendar from calendarService.listCalendars', function() {
+      it('should select the selected calendar from calendarService.listCalendars if new event', function() {
         this.scope.event = {
           clone: function() {
             return angular.copy(this);
@@ -227,6 +228,18 @@ describe('The event-form module controllers', function() {
         };
         this.initController();
         expect(this.scope.calendar).to.equal(this.calendars[0]);
+      });
+
+      it('should select the calendar of the event from calendarService.listCalendars if not new event', function() {
+        this.scope.event = {
+          etag: 'i am not a new event',
+          calendarId: 'id2',
+          clone: function() {
+            return angular.copy(this);
+          }
+        };
+        this.initController();
+        expect(this.scope.calendar).to.equal(this.calendars[1]);
       });
 
       it('should detect if organizer', function() {

@@ -58,7 +58,8 @@ angular.module('esn.calendar')
         });
       }
       calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
-        $scope.calendar = _.find(calendars, 'selected');
+        $scope.calendars = calendars;
+        $scope.calendar = eventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
       });
       $scope.isOrganizer = eventUtils.isOrganizer($scope.editedEvent);
     }
