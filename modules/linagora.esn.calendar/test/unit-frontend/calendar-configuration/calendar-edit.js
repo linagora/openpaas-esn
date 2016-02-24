@@ -107,6 +107,7 @@ describe('The calendarEditionController controller', function() {
         this.$scope.calendar.color = 'aColor';
         this.$scope.calendar.name = 'aName';
         this.$scope.oldCalendar.name = 'aName';
+        this.$scope.oldCalendar.color = 'aColor';
         this.$scope.newCalendar = false;
         this.$scope.submit();
         expect(this.stateMock.go).to.have.been.called;
