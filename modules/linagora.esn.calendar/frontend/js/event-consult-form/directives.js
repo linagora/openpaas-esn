@@ -83,7 +83,7 @@ angular.module('esn.calendar')
           }
         } else {
           scope.start = scope.event.start.format('MMMM D');
-          scope.end = scope.event.end.format('MMMM D');
+          scope.end = scope.event.end.clone().subtract(1, 'day').format('MMMM D');
         }
       }
     };
