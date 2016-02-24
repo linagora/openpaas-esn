@@ -18,7 +18,15 @@ Please check [docker.com](http://docker.com) for installation instructions.
 ### With docker-compose
 
 docker-compose is the simplest way to run a distributed application, so you can launch the OpenPaaS platform in a single command.
-The docker-compose descriptor can be found at the root or the current repository (docker-compose.yml).
+
+There are two ways to run the OpenPaaS platform with docker-compose:
+
+1. Build required containers yourself from sources.
+2. Run from Docker Hub containers which are available from https://hub.docker.com/u/linagora/
+
+**Build required containers yourself from sources**
+
+The default docker-compose descriptor can be found at the root or the current repository (check the docker-compose.yml file).
 
 You have to build the container before to launch OpenPaaS. Go to the top repository folder then:
 
@@ -34,11 +42,16 @@ Then you can run:
 PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose up
 ```
 
-Where environment variables are:
+**Run from Docker Hub containers (ie build nothing)**
 
-- DOCKER_IP: This is required to set the IP you use to access to docker-machine (192.168.99.100 is the docker-machine ip on OS X for example, type 'docker-machine ip default' to get yours).
-If not set, the webserver may not provide some assets correctly.
-- PROVISION (Required on first launch): Tell OpenPaaS to initialize configuration and provision some users/domains/communities so that once launched, you can log in into OpenPaaS.
+```bash
+PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml up
+```
+
+In both cases, environment variables are defined like:
+
+- PROVISION (Required on first launch only): Tell OpenPaaS to initialize configuration and provision some users/domains/communities so that once launched, you can log in into OpenPaaS.
+- DOCKER_IP: localhost (or 127.0.0.1) on Linux-based system or the docker-machine IP on OS X and Windows (default machine is accessible at 192.168.99.100, type 'docker-machine ip default' to check the value). It is required to set this IP so that the configuration is generated from the right value. If not set, the webserver may not provide some assets correctly.
 
 Launching the platform may take some time (1-2 minutes), grab a coffee and be ready for the next steps!
 
@@ -90,8 +103,8 @@ password: secret
 docker-compose restart james
 ```
 
-Note that this will not append the container logs to the main docker-compose logs, so you can get them by running 'docker-compose logs -f esn_james' 
- 
+Note that this will not append the container logs to the main docker-compose logs, so you can get them by running 'docker-compose logs -f esn_james'
+
 - **http://<YOUR_DOCKER_IP>:8080 unreachable**. The ESN to MongoDB connection may fail in some condition. Try to relaunch the ESN service:
 
 ```
