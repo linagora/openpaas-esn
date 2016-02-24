@@ -463,27 +463,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       }));
 
       it('should call newComposerService.openDraft if mailbox has the draft role', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([{role: jmap.MailboxRole.DRAFTS, name: 'my drafts'}]);
-        };
         newComposerService.openDraft = sinon.spy();
 
-        var controller = initController('listEmailsController');
+        initController('listEmailsController').openEmail({ id: 'id', isDraft: true });
 
-        controller.openEmail({email: 'object'});
-
-        expect(newComposerService.openDraft).to.have.been.calledWith({email: 'object'});
+        expect(newComposerService.openDraft).to.have.been.calledWith('id');
       });
 
       it('should change state if mailbox has not the draft role', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([{role: jmap.MailboxRole.INBOX, name: 'my box', id: 'chosenMailbox'}]);
-        };
         $state.go = sinon.spy();
 
-        var controller = initController('listEmailsController');
-
-        controller.openEmail({id: 'expectedId'});
+        initController('listEmailsController').openEmail({id: 'expectedId'});
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
       });
@@ -792,15 +782,25 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
     });
 
-    it('should change the state to the thread view when openThread is called', function() {
-      var controller = initController('listThreadsController');
+    describe('The openThread function', function() {
 
-      controller.openThread({id: 'expected thread id'});
+      it('should change the state to the thread view if thread.email is not a draft', function() {
+        initController('listThreadsController').openThread({ id: 'expected thread id', email: { isDraft: false } });
 
-      expect($state.go).to.have.been.calledWith('unifiedinbox.threads.thread', {
-        mailbox: 'chosenMailbox',
-        threadId: 'expected thread id'
+        expect($state.go).to.have.been.calledWith('unifiedinbox.threads.thread', {
+          mailbox: 'chosenMailbox',
+          threadId: 'expected thread id'
+        });
       });
+
+      it('should open the composer if thread.email is a draft', function() {
+        newComposerService.openDraft = sinon.spy();
+
+        initController('listThreadsController').openThread({ id: 'expected thread id', email: { id: 'id', isDraft: true } });
+
+        expect(newComposerService.openDraft).to.have.been.calledWith('id');
+      });
+
     });
 
     describe('The loadMoreElements function', function() {

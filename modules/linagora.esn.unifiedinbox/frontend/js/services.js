@@ -445,11 +445,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('newComposerService', function($state, boxOverlayOpener, deviceDetector) {
+  .service('newComposerService', function($state, withJmapClient, boxOverlayOpener, deviceDetector, notificationFactory, JMAP_GET_MESSAGES_VIEW) {
     var defaultTitle = 'Compose an email';
 
-    function choseByPlatform(small, others) {
-      deviceDetector.isMobile() ? small() : others();
+    function choseByPlatform(mobile, others) {
+      deviceDetector.isMobile() ? mobile() : others();
     }
 
     function newMobileComposer(email) {
@@ -480,22 +480,32 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function openEmailCustomTitle(title, email) {
+      choseByPlatform(
+        newMobileComposer.bind(null, email),
+        newBoxedComposerCustomTitle.bind(null, title || defaultTitle, email)
+      );
+    }
+
+    function openDraft(emailId) {
+      withJmapClient(function(client) {
+        client
+          .getMessages({ ids: [emailId], properties: JMAP_GET_MESSAGES_VIEW })
+          .then(function(messages) {
+            var email = messages[0];
+
+            choseByPlatform(
+              newMobileComposer.bind(this, email),
+              newBoxedDraftComposer.bind(this, email)
+            );
+          });
+      });
+    }
+
     return {
-      open: function() {
-        choseByPlatform(newMobileComposer, newBoxedComposer);
-      },
-      openDraft: function(email) {
-        choseByPlatform(
-          newMobileComposer.bind(this, email),
-          newBoxedDraftComposer.bind(this, email)
-        );
-      },
-      openEmailCustomTitle: function(title, email) {
-        choseByPlatform(
-          newMobileComposer.bind(this, email),
-          newBoxedComposerCustomTitle.bind(this, title || defaultTitle, email)
-        );
-      }
+      open: choseByPlatform.bind(null, newMobileComposer, newBoxedComposer),
+      openDraft: openDraft,
+      openEmailCustomTitle: openEmailCustomTitle
     };
   })
 
