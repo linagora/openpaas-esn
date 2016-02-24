@@ -19,10 +19,31 @@
     }
   }
 
-  .date-indicator {
-    text-transform: uppercase;
-    color: @m-white;
-    font-weight: bold;
+  a {
+    background: red;
+  }
+
+  .left {
+    .flex-start;
+    .flex-vertical-centered;
+
+    .date-indicator {
+      text-transform: uppercase;
+      color: @m-white;
+      font-weight: bold;
+    }
+  }
+
+  .mdi-calendar-today {
+    margin-left: 3px;
+  }
+
+  .btn {
+    padding: 6px 8px;
+
+    &.mini-calendar-caret {
+      padding: 6px 0px;
+    }
   }
 }
 
