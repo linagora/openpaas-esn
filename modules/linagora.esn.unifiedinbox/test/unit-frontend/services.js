@@ -1283,7 +1283,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The draftService service', function() {
 
-    var draftService, session, notificationFactory, jmapClient, emailBodyService, $rootScope;
+    var draftService, session, notificationFactory, jmap, jmapClient, emailBodyService, $rootScope;
 
     beforeEach(module(function($provide) {
       jmapClient = {};
@@ -1303,10 +1303,11 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('emailBodyService', emailBodyService);
     }));
 
-    beforeEach(inject(function(_draftService_, _session_, _$rootScope_) {
+    beforeEach(inject(function(_draftService_, _session_, _$rootScope_, _jmap_) {
       draftService = _draftService_;
       session = _session_;
       $rootScope = _$rootScope_;
+      jmap = _jmap_;
     }));
 
     describe('The needToBeSaved method', function() {
@@ -1766,6 +1767,44 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    describe('The destroy method', function() {
+
+      it('should do nothing when the draft has been created from an object', function(done) {
+        draftService.startDraft({}).destroy().then(done);
+
+        $rootScope.$digest();
+      });
+
+      it('should call message.destroy when the draft has been created from a jmap.Message', function(done) {
+        var message = new jmap.Message(jmapClient, 'id', 'threadId', ['box1'], {
+          to: [{displayName: '1', email: '1@linagora.com'}]
+        });
+        message.destroy = sinon.stub().returns($q.when());
+
+        draftService.startDraft(message).destroy()
+          .then(function() {
+            expect(message.destroy).to.have.been.calledOnce;
+          }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should call client.destroyMessage when the draft has been created from a jmap.CreateMessageAck', function() {
+        jmapClient.destroyMessage = sinon.stub().returns($q.when());
+        var ack = new jmap.CreateMessageAck(jmapClient, {
+          id: 'the ack id',
+          blobId: 'any',
+          size: 5
+        });
+
+        draftService.startDraft(ack).destroy();
+
+        $rootScope.$digest();
+        expect(jmapClient.destroyMessage).to.have.been.calledWith('the ack id');
+      });
+
+    });
+
   });
 
   describe('The newComposerService ', function() {
@@ -1920,7 +1959,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     beforeEach(module(function($provide) {
       jmapClient = {
-        destroyMessage: sinon.spy(),
+        destroyMessage: sinon.spy(function() { return $q.when(); }),
         saveAsDraft: sinon.spy(function() {
           return $q.when(firstSaveAck = new jmap.CreateMessageAck(jmapClient, {
             id: 'expected id',
@@ -2038,50 +2077,9 @@ describe('The Unified Inbox Angular module services', function() {
       saveDraftTest('saveDraftSilently', done);
     });
 
-    it('should not try to destroy the original draft, when saveDraft is called and the original is not a jmap.Message', function() {
-      var message = { destroy: sinon.spy() };
-      var composition = new Composition(message);
-      composition.email.htmlBody = 'modified';
-
-      composition.saveDraft();
-      $timeout.flush();
-
-      expect(message.destroy).to.have.not.been.called;
-    });
-
-    it('should destroy the original draft when saveDraft is called, when the original is a jmap.Message', function() {
-      var message = new jmap.Message(jmapClient, 'id', 'threadId', ['box1'], {
-        to: [{displayName: '1', email: '1@linagora.com'}]
-      });
-      message.destroy = sinon.spy();
-      var composition = new Composition(message);
-      composition.email.htmlBody = 'modified';
-
-      composition.saveDraft();
-      $timeout.flush();
-
-      expect(message.destroy).to.have.been.calledOnce;
-    });
-
-    it('should destroy the original draft when saveDraft is called, when the original is a jmap.CreateMessageAck', function() {
-      var ack = new jmap.CreateMessageAck(jmapClient, {
-        id: 'the ack id',
-        blobId: 'any',
-        size: 5
-      });
-
-      var composition = new Composition(ack);
-      composition.email.htmlBody = 'modified';
-
-      composition.saveDraft();
-      $timeout.flush();
-
-      expect(jmapClient.destroyMessage).to.have.been.calledWith('the ack id');
-    });
-
     it('should renew the original jmap message with the ack id when saveDraft is called', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
-      message.destroy = sinon.spy();
+      message.destroy = sinon.stub().returns($q.when());
 
       var composition = new Composition(message);
       composition.email.htmlBody = 'new content';
@@ -2096,7 +2094,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should renew the original jmap message with the second ack id when saveDraft is called twice', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
-      message.destroy = sinon.spy();
+      message.destroy = sinon.stub().returns($q.when());
       var secondSaveAck = new jmap.CreateMessageAck(jmapClient, {
         id: 'another id',
         blobId: 'any',
@@ -2123,7 +2121,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should update the original message in the composition, with the email state used to save the draft', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
-      message.destroy = sinon.spy();
+      message.destroy = sinon.stub().returns($q.when());
 
       var composition = new Composition(message);
       composition.email.htmlBody = 'saving body';
@@ -2225,7 +2223,7 @@ describe('The Unified Inbox Angular module services', function() {
       var message = new jmap.Message(null, 'id', 'threadId', ['box1'], {
         to: [{displayName: '1', email: '1@linagora.com'}]
       });
-      message.destroy = sinon.spy();
+      message.destroy = sinon.stub().returns($q.when());
 
       new Composition(message).send();
       $timeout.flush();
