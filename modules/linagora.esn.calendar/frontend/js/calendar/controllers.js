@@ -7,14 +7,6 @@ angular.module('esn.calendar')
     $scope.uiConfig = COMMUNITY_UI_CONFIG;
   })
 
-  .controller('userCalendarController', function($scope, user, headerService, USER_UI_CONFIG) {
-    $scope.calendarHomeId = user._id;
-    $scope.uiConfig = angular.copy(USER_UI_CONFIG);
-
-    headerService.mainHeader.addInjection('calendar-header-content');
-    headerService.subHeader.addInjection('calendar-header-mobile');
-  })
-
   .controller('calendarController', function(
       $scope,
       $q,
@@ -93,9 +85,9 @@ angular.module('esn.calendar')
         $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
       }
 
-      calendarService.modifyEvent(path, newEvent, oldEvent, newEvent.etag, revertFunc)
-        .then(function(response) {
-          if (response) {
+      calendarService.modifyEvent(path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
+        .then(function(completed) {
+          if (completed) {
             notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
           }
         });
@@ -303,6 +295,7 @@ angular.module('esn.calendar')
         unregisterFunction();
       });
       gracePeriodService.flushAllTasks();
+      keepChangeDuringGraceperiod.resetChange();
       windowJQuery.off('resize', $scope.resizeCalendarHeight);
     });
 

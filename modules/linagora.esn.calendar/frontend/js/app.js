@@ -1,7 +1,6 @@
 'use strict';
 
 angular.module('esn.calendar', [
-  'esn.router',
   'uuid4',
   'ui.calendar',
   'ng.deviceDetector',
@@ -14,6 +13,7 @@ angular.module('esn.calendar', [
   'AngularJstz',
   'angularMoment',
   'matchMedia',
+  'esn.router',
   'esn.core',
   'esn.header',
   'esn.authentication',
@@ -35,42 +35,9 @@ angular.module('esn.calendar', [
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
       }
     })
-    .state('calendar.eventEdit', {
-      url: '/event-full-form',
-      views: {
-        form: {
-          template: '<event-full-form event="event"/>',
-          resolve: {
-            event: function(eventUtils) {
-              return eventUtils.getEditedEvent();
-            }
-          },
-          controller: function($scope, event) {
-            $scope.event = event;
-          }
-        }
-      }
-    })
-    .state('calendar.eventConsult', {
-      url: '/event-consult-form',
-      views: {
-        form: {
-          template: '<event-consult-form event="event"/>',
-          resolve: {
-            event: function(eventUtils) {
-              return eventUtils.getEditedEvent();
-            }
-          },
-          controller: function($scope, event) {
-            $scope.event = event;
-          }
-        }
-      }
-    })
     .state('calendar', {
       url: '/calendar',
       templateUrl: '/calendar/views/calendar/user-calendar',
-      controller: 'userCalendarController',
       abstract: true,
       resolve: {
         user: routeResolver.session('user')
@@ -79,30 +46,29 @@ angular.module('esn.calendar', [
     })
     .state('calendar.main', {
       url: '',
-      sticky: true,
       views: {
-        calendar: {
-          templateUrl: '/calendar/views/calendar/main-view-calendar'
+        content: {
+          template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
+          controller: function($scope, user, headerService, USER_UI_CONFIG) {
+            $scope.calendarHomeId = user._id;
+            $scope.uiConfig = angular.copy(USER_UI_CONFIG);
+
+            headerService.mainHeader.addInjection('calendar-header-content');
+            headerService.subHeader.addInjection('calendar-header-mobile');
+          }
         }
-      },
-      onReactivate: function(headerService, $timeout) {
-        //$timeout needed otherwise it run before $scope.destroy of previous view's controller
-        $timeout(function() {
-          headerService.mainHeader.addInjection('calendar-header-content');
-          headerService.subHeader.addInjection('calendar-header-mobile');
-        });
       }
     })
     .state('calendar.edit', {
-      url: '/edit/:id',
+      url: '/edit/:calendarId',
       views: {
-        form: {
+        content: {
           templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
           controller: 'calendarEditionController',
           resolve: {
             calendar: function($stateParams, calendarService, session) {
               return session.ready.then(function() {
-                return calendarService.getCalendar(session.user._id, $stateParams.id);
+                return calendarService.getCalendar(session.user._id, $stateParams.calendarId);
               });
             }
           }
@@ -112,7 +78,7 @@ angular.module('esn.calendar', [
     .state('calendar.add', {
       url: '/add',
       views: {
-        form: {
+        content: {
           templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
           controller: 'calendarEditionController',
           resolve: {
@@ -124,11 +90,11 @@ angular.module('esn.calendar', [
       }
     })
     .state('calendar.list', {
-      url: '/edits',
+      url: '/list',
       views: {
-        form: {
-          controller: 'calendarsEditionController',
+        content: {
           templateUrl: 'calendar/views/calendar-configuration/calendars-edit',
+          controller: 'calendarsEditionController',
           resolve: {
             calendars: function(session, calendarService) {
               return session.ready.then(function() {
@@ -140,19 +106,41 @@ angular.module('esn.calendar', [
       }
     })
     .state('calendar.event', {
-      url: '/:calendar_id/:event_id',
+      url: '/:calendarId/event/:eventId',
+      abstract: true,
       views: {
-        form: {
-          template: '<event-full-form event="event"/>',
-          resolve: {
-            event: function($stateParams, $state, pathBuilder, calendarService, notificationFactory) {
-              var eventPath = pathBuilder.forEventId($stateParams.calendar_id, $stateParams.event_id);
-              return calendarService.getEvent(eventPath).catch(function(error) {
-                notificationFactory.weakError('Cannot display this event.', error.statusText);
-                $state.go('calendar.main');
-              });
+        content: {
+          template: '<div ui-view="content"/>'
+        }
+      },
+      resolve: {
+        event: function($stateParams, $state, pathBuilder, calendarService, eventUtils, notificationFactory) {
+          var eventPath = pathBuilder.forEventId($stateParams.calendarId, $stateParams.eventId);
+          return eventUtils.getEditedEvent() || calendarService.getEvent(eventPath).catch(function(error) {
+            if (error.status !== 404) {
+              notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
             }
-          },
+            $state.go('calendar.main');
+          });
+        }
+      }
+    })
+    .state('calendar.event.form', {
+      url: '/form',
+      views: {
+        content: {
+          template: '<event-full-form event="event"/>',
+          controller: function($scope, event) {
+            $scope.event = event;
+          }
+        }
+      }
+    })
+    .state('calendar.event.consult', {
+      url: '/consult',
+      views: {
+        content: {
+          template: '<event-consult-form event="event"/>',
           controller: function($scope, event) {
             $scope.event = event;
           }

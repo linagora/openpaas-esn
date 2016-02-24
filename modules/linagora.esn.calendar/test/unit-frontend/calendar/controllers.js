@@ -30,7 +30,8 @@ describe('The calendar module controllers', function() {
     this.keepChangeDuringGraceperiodMock = {
       wrapEventSource: sinon.spy(function(id, eventSource) {
         return eventSource;
-      })
+      }),
+      resetChange: angular.noop
     };
 
     this.CalendarShellConstMock = function(vcalendar, event) {
@@ -166,33 +167,6 @@ describe('The calendar module controllers', function() {
     liveNotification = null;
   });
 
-  describe('The userCalendarController controller', function() {
-    it('should inject both header and subheader', function() {
-      this.headerServiceMock.mainHeader = {
-        addInjection: sinon.spy()
-      };
-      this.headerServiceMock.subHeader = {
-        addInjection: sinon.spy()
-      };
-      this.controller('userCalendarController', {$scope: this.scope});
-      expect(this.headerServiceMock.mainHeader.addInjection).to.have.been.calledOnce;
-      expect(this.headerServiceMock.subHeader.addInjection).to.have.been.calledOnce;
-    });
-
-    it('should not modify constant UI_USER_CONFIG but clone it before modifying it', function() {
-      this.headerServiceMock.mainHeader = {
-        addInjection: function() {}
-      };
-      this.headerServiceMock.subHeader = {
-        addInjection: function() {}
-      };
-      this.headerServiceMock.resetAllInjections = sinon.spy();
-      this.controller('userCalendarController', {$scope: this.scope});
-      expect(this.scope.uiConfig).to.be.defined;
-      expect(this.scope.uiConfig).to.not.equals(this.USER_UI_CONFIG);
-    });
-  });
-
   describe('The calendarController controller', function() {
 
     beforeEach(function() {
@@ -223,6 +197,14 @@ describe('The calendar module controllers', function() {
       this.controller('calendarController', {$scope: this.scope});
       expect(event).to.equal('beforeunload');
       expect(handler).to.equal('aHandler');
+    });
+
+    it('should keepChangeDuringGraceperiod.resetChange $on(\'$destroy\')', function() {
+      this.gracePeriodService.flushAllTasks = angular.noop;
+      this.keepChangeDuringGraceperiodMock.resetChange = sinon.spy();
+      this.controller('calendarController', {$scope: this.scope});
+      this.scope.$destroy();
+      expect(this.keepChangeDuringGraceperiodMock.resetChange).to.have.been.called;
     });
 
     it('should be created and its scope initialized', function() {

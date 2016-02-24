@@ -16,7 +16,7 @@
             i.mdi.mdi-checkbox-marked-outline
           .pull-left(ng-if="hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
             i.mdi.mdi-checkbox-blank-outline
-          .pull-right.hidden-xs(ui-sref='calendar.edit({id: calendar.id})' ui-sref-opts='{id: calendar.id}')
+          .pull-right.hidden-xs(ui-sref='calendar.edit({calendarId: calendar.id})' ui-sref-opts='{calendarId: calendar.id}')
               i.mdi.mdi-settings
           .media-body.hidden-lg(ng-click="toggleCalendar(calendar)")
             .lv-title
