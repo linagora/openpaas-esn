@@ -13,5 +13,6 @@
     .listview.p-t-5
       .lv-body
         .lv-item.clickable(ui-sref="unifiedinbox.configuration")
-          i.inbox-icon.mdi.mdi-settings
-          | #{__('Configuration')}
+          .badge-container
+            i.inbox-icon.mdi.mdi-settings
+          span #{__('Configuration')}

@@ -1,7 +1,8 @@
 .inbox-main-content.configuration.card
   .clickable(ui-sref='unifiedinbox.configuration.folders-add')
-    i.inbox-icon.mdi.mdi-plus
-    | #{__('New')}
+    .badge-container
+      i.inbox-icon.mdi.mdi-plus
+    span #{__('New')}
   hr
   .mailboxes-list
     mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.configuration.folders-edit({ mailbox: mailbox.id})")
