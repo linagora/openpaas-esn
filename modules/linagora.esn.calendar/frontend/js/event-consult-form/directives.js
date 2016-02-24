@@ -10,11 +10,35 @@ angular.module('esn.calendar')
     MORE: 'more'
   })
 
-  .directive('eventConsultForm', function($timeout, $state, $window, headerService, CONSULT_FORM_FOOTER_HEIGHT, CONSULT_FORM_TABS) {
-    function link(scope, element) {
+  .directive('eventConsultForm', function(headerService) {
+    function link(scope) {
       headerService.subHeader.resetInjections();
       headerService.subHeader.addInjection('event-consult-form-subheader', scope);
 
+      scope.$on('$destroy', function() {
+        headerService.subHeader.resetInjections();
+      });
+
+      scope.modifyEventParticipation = function(partstat) {
+        scope.changeParticipation(partstat);
+        scope.modifyEvent();
+      };
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        event: '='
+      },
+      controller: 'eventFormController',
+      template: '<div><event-consult-form-body/></div>',
+      link: link
+    };
+  })
+
+  .directive('eventConsultFormBody', function($window, CONSULT_FORM_FOOTER_HEIGHT, CONSULT_FORM_TABS) {
+    function link(scope, element) {
       scope.selectedTab = CONSULT_FORM_TABS.MAIN;
       scope.getMainView = function() {
         scope.selectedTab = CONSULT_FORM_TABS.MAIN;
@@ -26,11 +50,6 @@ angular.module('esn.calendar')
         scope.selectedTab = CONSULT_FORM_TABS.MORE;
       };
 
-      scope.modifyEventParticipation = function(partstat) {
-        scope.changeParticipation(partstat);
-        scope.modifyEvent();
-      };
-
       var windowJquery = angular.element($window);
       function setFooterTop() {
         var footerTop = windowJquery.height() - CONSULT_FORM_FOOTER_HEIGHT;
@@ -40,7 +59,6 @@ angular.module('esn.calendar')
       setFooterTop();
 
       scope.$on('$destroy', function() {
-        headerService.subHeader.resetInjections();
         windowJquery.off('resize', setFooterTop);
       });
     }
@@ -48,10 +66,6 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      scope: {
-        event: '='
-      },
-      controller: 'eventFormController',
       templateUrl: '/calendar/views/event-consult-form/event-consult-form.html',
       link: link
     };
