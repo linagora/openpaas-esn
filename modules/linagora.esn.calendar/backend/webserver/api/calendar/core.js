@@ -191,6 +191,22 @@ function generateActionLinks(baseUrl, jwtPayload) {
   });
 }
 
+function getBaseUrl(callback) {
+  return esnconfig('web').get(function(err, web) {
+    if (err) {
+      return callback(err);
+    }
+    var baseUrl = 'http://localhost:';
+    if (web && web.base_url) {
+      baseUrl = web.base_url;
+    } else {
+      var port = staticConfig.webserver.port || '8080';
+      baseUrl += port;
+    }
+    return callback(null, baseUrl);
+  });
+}
+
 function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calendarURI, callback) {
   if (!notify) {
     return q({}).nodeify(callback);
@@ -231,16 +247,9 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
     });
     return deferred.promise;
   });
-  return esnconfig('web').get(function(err, web) {
+  return getBaseUrl(function(err, baseUrl) {
     if (err) {
       return q.reject(err).nodeify(callback);
-    }
-    var baseUrl = 'http://localhost:';
-    if (web && web.base_url) {
-      baseUrl = web.base_url;
-    } else {
-      var port = staticConfig.webserver.port || '8080';
-      baseUrl += port;
     }
     return q.all(getAllUsersAttendees).then(function(users) {
       var from = { objectType: 'email', id: organizer.email || organizer.emails[0] };
@@ -351,6 +360,7 @@ module.exports = function(dependencies) {
 
   return {
     dispatch: dispatch,
+    getBaseUrl: getBaseUrl,
     inviteAttendees: inviteAttendees,
     generateActionLinks: generateActionLinks
   };

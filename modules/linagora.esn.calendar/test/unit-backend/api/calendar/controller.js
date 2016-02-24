@@ -4,16 +4,35 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 var fs = require('fs');
 var ICAL = require('ical.js');
+var q = require('q');
+var sinon = require('sinon');
 
 describe('The calendar controller', function() {
+  var userModuleMock, coreMock;
 
   beforeEach(function() {
-    mockery.registerMock('./core', function() {});
+    coreMock = {
+      getBaseUrl: function(callback) {
+        callback(null, 'baseUrl');
+      },
+      generateActionLinks: function() {
+        return q.when({});
+      }
+    };
+    mockery.registerMock('./core', function() {
+      return coreMock;
+    });
     this.moduleHelpers.addDep('helpers', {});
+    userModuleMock = {
+      findByEmail: function(mail, callback) {
+        return callback(null, null);
+      }
+    };
+    this.moduleHelpers.addDep('user', userModuleMock);
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
   });
 
-  describe('the modifyParticipation function', function() {
+  describe('the changeParticipation function', function() {
     var req, vcalendar, ics, etag, callbackAfterGetDone, requestMock, maxNumTry, setGetRequest;
 
     beforeEach(function() {
@@ -177,11 +196,7 @@ describe('The calendar controller', function() {
           var res = {
             status: function(status) {
               expect(status).to.equal(200);
-              return {
-                end: function() {
-                  done();
-                }
-              };
+              done();
             }
           };
 
@@ -189,10 +204,8 @@ describe('The calendar controller', function() {
         });
 
         it('should fail if put fail with 412 more than 12 time', function(done) {
-          var time = 0;
           callbackAfterGetDone = function() {
             requestMock = function(options, callback) {
-              time++;
               expect(options.method).to.equal('PUT');
               expect(options.headers['If-Match']).to.equal(etag);
               expect(options.url).to.equal([
@@ -204,7 +217,7 @@ describe('The calendar controller', function() {
               ].join('/'));
               expect(options.body).to.exist;
               setGetRequest();
-              return callback(null, {statusCode: time === 12 ? 200 : 412});
+              return callback(null, {statusCode: 412});
             };
 
             mockery.registerMock('request', requestMock);
@@ -214,9 +227,9 @@ describe('The calendar controller', function() {
 
           var res = {
             status: function(status) {
-              expect(status).to.equal(200);
+              expect(status).to.equal(500);
               return {
-                end: function() {
+                json: function() {
                   done();
                 }
               };
@@ -226,6 +239,134 @@ describe('The calendar controller', function() {
           controller.changeParticipation(req, res);
         });
 
+      });
+
+      describe('when the event participation change has successed', function() {
+        it('should redirect to /#/calendars if the user can be found', function(done) {
+          var user = {_id: 'userId'};
+          userModuleMock.findByEmail = sinon.spy(function(email, callback) {
+            expect(email).to.equal(req.eventPayload.attendeeEmail);
+            callback(null, user);
+          });
+
+          callbackAfterGetDone = function() {
+            requestMock = function(options, callback) {
+              return callback(null, {statusCode: 200});
+            };
+            mockery.registerMock('request', requestMock);
+          };
+
+          var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
+          var res = {
+            status: function(status) {
+              expect(status).to.equal(200);
+              return {
+                redirect: function(url) {
+                  expect(url).to.equal('/#/calendar');
+                  expect(userModuleMock.findByEmail).to.have.been.called;
+                  done();
+                }
+              };
+            }
+          };
+
+          controller.changeParticipation(req, res);
+        });
+
+        describe('if the user cannot be found', function() {
+          it('should send 500 if the user search returns an error', function(done) {
+            userModuleMock.findByEmail = sinon.spy(function(email, callback) {
+              expect(email).to.equal(req.eventPayload.attendeeEmail);
+              callback(new Error());
+            });
+
+            callbackAfterGetDone = function() {
+              requestMock = function(options, callback) {
+                return callback(null, {statusCode: 200});
+              };
+              mockery.registerMock('request', requestMock);
+            };
+
+            var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
+            var res = {
+              status: function(status) {
+                expect(status).to.equal(500);
+                return {
+                  json: function() {
+                    expect(userModuleMock.findByEmail).to.have.been.called;
+                    done();
+                  }
+                };
+              }
+            };
+
+            controller.changeParticipation(req, res);
+          });
+
+          it('should send 500 if the esn baseUrl cannot be retrieved form the config', function(done) {
+            coreMock.getBaseUrl = sinon.spy(function(callback) {
+              callback(new Error());
+            });
+
+            callbackAfterGetDone = function() {
+              requestMock = function(options, callback) {
+                return callback(null, {statusCode: 200});
+              };
+              mockery.registerMock('request', requestMock);
+            };
+
+            var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
+            var res = {
+              status: function(status) {
+                expect(status).to.equal(500);
+                return {
+                  json: function() {
+                    expect(coreMock.getBaseUrl).to.have.been.called;
+                    done();
+                  }
+                };
+              }
+            };
+
+            controller.changeParticipation(req, res);
+          });
+
+          it('should send 200 and render the event consultation page', function(done) {
+            var links = 'links';
+
+            coreMock.generateActionLinks = sinon.spy(function(url, eventData) {
+              expect(url).to.equal('baseUrl');
+              expect(eventData).to.deep.equal(req.eventPayload);
+              return q.when(links);
+            });
+
+            callbackAfterGetDone = function() {
+              requestMock = function(options, callback) {
+                return callback(null, {statusCode: 200});
+              };
+              mockery.registerMock('request', requestMock);
+            };
+
+            var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
+            var res = {
+              status: function(status) {
+                expect(status).to.equal(200);
+                return {
+                  render: function(template, locals) {
+                    expect(coreMock.generateActionLinks).to.have.been.called;
+                    expect(locals).to.shallowDeepEqual({
+                      attendeeEmail: req.eventPayload.attendeeEmail,
+                      links: links
+                    });
+                    done();
+                  }
+                };
+              }
+            };
+
+            controller.changeParticipation(req, res);
+          });
+        });
       });
     });
   });
