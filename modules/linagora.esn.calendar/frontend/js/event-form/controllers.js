@@ -69,7 +69,7 @@ angular.module('esn.calendar')
       var path = '/calendars/' + $scope.calendarHomeId + '/' + calendarId;
       $scope.restActive = true;
       _hideModal();
-      calendarService.createEvent(calendarId, path, $scope.editedEvent, { graceperiod: true })
+      calendarService.createEvent(calendarId, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');
@@ -154,7 +154,7 @@ angular.module('esn.calendar')
       _hideModal();
       $scope.restActive = true;
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + DEFAULT_CALENDAR_ID;
-      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag)
+      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');

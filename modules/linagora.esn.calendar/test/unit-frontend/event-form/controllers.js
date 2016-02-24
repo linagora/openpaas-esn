@@ -82,6 +82,9 @@ describe('The event-form module controllers', function() {
     };
 
     this.openEventForm = sinon.spy();
+    this.$state = {
+      is: angular.noop
+    };
 
     var self = this;
     angular.mock.module('esn.calendar');
@@ -97,6 +100,7 @@ describe('The event-form module controllers', function() {
       $provide.value('session', sessionMock);
       $provide.value('notificationFactory', self.notificationFactory);
       $provide.value('openEventForm', self.openEventForm);
+      $provide.value('$state', self.$state);
     });
   });
 
@@ -243,6 +247,35 @@ describe('The event-form module controllers', function() {
         beforeEach(function() {
           this.scope.isOrganizer = true;
         });
+
+        it('should call modifyEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
+          this.scope.event = {
+            title: 'title',
+            clone: function() {
+              return angular.copy(this);
+            }
+          };
+          this.scope.editedEvent = {
+            title: 'newTitle',
+            clone: function() {
+              return angular.copy(this);
+            }
+          };
+          this.$state.is = sinon.stub().returns(true);
+          this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) {
+            expect(options).to.deep.equal({
+              graceperiod: true,
+              notifyFullcalendar: true
+            });
+            return $q.when();
+          });
+
+          this.initController();
+
+          this.scope.modifyEvent();
+          expect(this.$state.is).to.have.been.calledWith('calendar.main');
+        });
+
         it('should display an error if the edited event has no title', function(done) {
           this.scope.event = {
             clone: function() {
@@ -476,6 +509,20 @@ describe('The event-form module controllers', function() {
           }
         };
         this.initController();
+      });
+
+      it('should call createEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
+        this.$state.is = sinon.stub().returns(true);
+        this.calendarServiceMock.createEvent = sinon.spy(function(calendarId, path, event, options) {
+          expect(options).to.deep.equal({
+            graceperiod: true,
+            notifyFullcalendar: true
+          });
+          return $q.when();
+        });
+
+        this.scope.createEvent();
+        expect(this.$state.is).to.have.been.calledWith('calendar.main');
       });
 
       it('should force title to \'No title\' if the edited event has no title', function() {

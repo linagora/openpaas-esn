@@ -1374,7 +1374,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        this.calendarService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true }).then(
+        this.calendarService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true, notifyFullcalendar: true }).then(
           function(completed) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(completed).to.be.true;
@@ -1513,8 +1513,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
-        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).catch(
+        this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true, notifyFullcalendar: true }).catch(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_ADD);
             expect(errorSpy).to.have.been.called;
@@ -1570,7 +1569,7 @@ describe('The calendar module services', function() {
       it('should fail if status is not 202', function(done) {
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=10000').respond(200);
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(200);
             done();
@@ -1594,7 +1593,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function(completed) {
             expect(completed).to.be.true;
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
@@ -1624,7 +1623,7 @@ describe('The calendar module services', function() {
 
         flushContext = {id: this.event.id};
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function(completed) {
             expect(completed).to.be.true;
             done();
@@ -1665,7 +1664,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function(shell) { done(); }, unexpected.bind(null, done)
         );
 
@@ -1695,7 +1694,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.oldEvent, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function() {
             done();
           }, unexpected.bind(null, done)
@@ -1724,7 +1723,7 @@ describe('The calendar module services', function() {
           expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.oldEvent, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function() {
             done();
           }, unexpected.bind(null, done)
@@ -1753,7 +1752,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function(response) {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(successSpy).to.have.been.called;
@@ -1783,7 +1782,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), { ETag: 'etag' });
 
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', done);
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', done, {notifyFullcalendar: true});
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -1802,7 +1801,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
         var event = this.event;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag').then(
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
           function() {
             expect(keepChangeDuringGraceperiodMock.registerUpdate).to.have.been.calledWith(event);
             done();
@@ -1826,7 +1825,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
         var event = this.event;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag');
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true});
 
         keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
           expect(_event).to.equal(event);
@@ -1861,8 +1860,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
         emitMessage = null;
 
-        var self = this;
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag').catch(
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true}).catch(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_MODIFICATION);
             expect(errorSpy).to.have.been.called;
@@ -1883,7 +1881,7 @@ describe('The calendar module services', function() {
         this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
-        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag');
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true});
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -2076,7 +2074,6 @@ describe('The calendar module services', function() {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
-        var self = this;
         this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').catch(
           function() {
             expect(emitMessage).to.equal(self.CALENDAR_EVENTS.ITEM_REMOVE);
