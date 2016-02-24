@@ -81,6 +81,8 @@ describe('The event-form module controllers', function() {
       weakError: sinon.spy()
     };
 
+    this.openEventForm = sinon.spy();
+
     var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
@@ -94,6 +96,7 @@ describe('The event-form module controllers', function() {
       $provide.value('CalendarShell', self.calendarShellMock);
       $provide.value('session', sessionMock);
       $provide.value('notificationFactory', self.notificationFactory);
+      $provide.value('openEventForm', self.openEventForm);
     });
   });
 
@@ -491,6 +494,15 @@ describe('The event-form module controllers', function() {
             emails: ['user@test.com']
           }
         });
+      });
+
+      it('should call openEventForm on cancelled task', function() {
+        this.calendarServiceMock.createEvent = function() {
+          return $q.when(false);
+        };
+        this.scope.createEvent();
+        this.scope.$digest();
+        expect(this.openEventForm).to.have.been.called;
       });
     });
 

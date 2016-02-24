@@ -86,8 +86,8 @@ angular.module('esn.calendar')
       }
 
       calendarService.modifyEvent(path, newEvent, oldEvent, newEvent.etag, revertFunc)
-        .then(function(response) {
-          if (response) {
+        .then(function(completed) {
+          if (completed) {
             notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
           }
         });

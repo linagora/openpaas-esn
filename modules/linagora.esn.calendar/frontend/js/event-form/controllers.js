@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
+  .controller('eventFormController', function($scope, $alert, $state, CalendarShell, calendarUtils, calendarService, eventUtils, session, notificationFactory, openEventForm, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
 
@@ -70,9 +70,11 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.createEvent(calendarId, path, $scope.editedEvent, { graceperiod: true })
-        .then(function(response) {
-          if (response) {
+        .then(function(completed) {
+          if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');
+          } else {
+            openEventForm($scope.editedEvent);
           }
         })
         .catch(function(err) {
@@ -90,8 +92,8 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
-        .then(function(response) {
-          if (response) {
+        .then(function(completed) {
+          if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been deleted.');
           }
         })
@@ -153,8 +155,8 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + DEFAULT_CALENDAR_ID;
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag)
-        .then(function(response) {
-          if (response) {
+        .then(function(completed) {
+          if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');
           }
         })

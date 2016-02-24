@@ -50,7 +50,6 @@ angular.module('esn.calendar')
   .factory('calendarService', function(
     $q,
     $rootScope,
-    $modal,
     keepChangeDuringGraceperiod,
     CalendarShell,
     CalendarCollectionShell,
@@ -206,8 +205,41 @@ angular.module('esn.calendar')
         .catch($q.reject);
     }
 
-    function flushTasksForEvent(event) {
+    function _flushTasksForEvent(event) {
       return gracePeriodService.flushTasksFor({id: event.id});
+    }
+
+    function _handleTask(taskId, task, onTaskSuccess, onTaskCancel) {
+      if (task.cancelled) {
+        return gracePeriodService.cancel(taskId).then(function() {
+          onTaskCancel();
+          task.success();
+          return false;
+        }, function(error) {
+          task.error('An error has occured, cannot cancel this action', error.statusTask);
+          return $q.reject('An error has occured, cannot cancel this action ' + error.statusTask);
+        });
+      } else {
+        onTaskSuccess();
+        return true;
+      }
+    }
+
+    function _registerTaskListener(taskId, errorMessage, onTaskError) {
+      gracePeriodLiveNotification.registerListeners(taskId, function() {
+        gracePeriodService.remove(taskId);
+        notifyService({
+          message: errorMessage
+        }, {
+          type: 'danger',
+          placement: {
+            from: 'bottom',
+            align: 'center'
+          },
+          delay: CALENDAR_ERROR_DISPLAY_DELAY
+        });
+        onTaskError();
+      });
     }
 
     /**
@@ -217,40 +249,32 @@ angular.module('esn.calendar')
      * @param  {String}             calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
      * @param  {CalendarShell}      event        the event to PUT to the caldav server
      * @param  {Object}             options      options needed for the creation. For now it only accept {graceperiod: true||false}
-     * @return {Mixed}                           the new event wrap into a CalendarShell if it works, the http response otherwise.
+     * @return {Mixed}                           true no success, false if cancelled, the http response if no graceperiod is used.
      */
     function createEvent(calendarId, calendarPath, event, options) {
       var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
       var taskId = null;
+
+      function onTaskSuccess() {
+        gracePeriodService.remove(taskId);
+      }
+
+      function onTaskCancel() {
+        keepChangeDuringGraceperiod.deleteRegistration(event);
+        calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
+      }
+
       return eventAPI.create(eventPath, event.vcalendar, options)
         .then(function(response) {
           if (typeof response !== 'string') {
             return response;
           } else {
-            taskId = response;
-            event.gracePeriodTaskId = taskId;
+            event.gracePeriodTaskId = taskId = response;
             keepChangeDuringGraceperiod.registerAdd(event, calendarId);
             calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
-                if (task.cancelled) {
-                  gracePeriodService.cancel(taskId).then(function() {
-                    keepChangeDuringGraceperiod.deleteRegistration(event);
-                    calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
-                    task.success();
-                    var scope = $rootScope.$new();
-                    scope.event = event;
-                    scope.modal = $modal({scope: scope, templateUrl: '/calendar/views/event-quick-form/event-quick-form-modal', backdrop: 'static'});
-                  }, function(err) {
-                    task.error('Unexpected error. Cannot cancel the event creation', err.statusText);
-                  });
-                } else {
-                  // Unfortunately, sabredav doesn't support Prefer:
-                  // return=representation on the PUT request,
-                  // so we have to retrieve the event again for the etag.
-                  gracePeriodService.remove(taskId);
-                  return event;
-                }
+                return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
               })
               .catch($q.reject);
           }
@@ -263,7 +287,7 @@ angular.module('esn.calendar')
      * @param  {String}        eventPath the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
      * @param  {CalendarShell} event     The event from fullcalendar. It is used in case of rollback.
      * @param  {String}        etag      The etag
-     * @return {Boolean}                 true if it works, false if it does not.
+     * @return {Boolean}                 true on success, false if cancelled
      */
     function removeEvent(eventPath, event, etag) {
       if (!etag) {
@@ -272,64 +296,54 @@ angular.module('esn.calendar')
         // and cancel the taskid corresponding on the event.
         return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
-          return $q.when(false);
+          return true;
         }, $q.reject);
       }
 
       var taskId = null;
-      return flushTasksForEvent(event).then(function() {
-        return eventAPI.remove(eventPath, etag).then(function(id) {
+
+      function onTaskSuccess() {
+        gracePeriodService.remove(taskId);
+      }
+
+      function onTaskCancel() {
+        keepChangeDuringGraceperiod.deleteRegistration(event);
+        calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
+      }
+
+      function onTaskError() {
+        calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
+      }
+
+      return _flushTasksForEvent(event)
+        .then(function() {
+          return eventAPI.remove(eventPath, etag);
+        })
+        .then(function(id) {
           taskId = id;
           keepChangeDuringGraceperiod.registerDelete(event);
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
-        });
-      }).then(function() {
-        gracePeriodLiveNotification.registerListeners(taskId, function() {
-          gracePeriodService.remove(taskId);
-          notifyService({
-            message: 'Could not find the event to delete. Please refresh your calendar.'
-          }, {
-            type: 'danger',
-            placement: {
-              from: 'bottom',
-              align: 'center'
-            },
-            delay: CALENDAR_ERROR_DISPLAY_DELAY
-          });
-          calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
-        });
-        return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
-      })
-      .then(function(data) {
-        var task = data;
-        if (task.cancelled) {
-          return gracePeriodService.cancel(taskId).then(function() {
-            keepChangeDuringGraceperiod.deleteRegistration(event);
-            calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
-            task.success();
-            return $q.when(false);
-          }, function(err) {
-            task.error('Unexpected error. Cannot cancel the event deletion', err.statusText);
-            return $q.when(false);
-          });
-        } else {
-          if (gracePeriodService.hasTask(taskId)) {
-            gracePeriodService.remove(taskId);
-          }
-          return $q.when(true);
-        }
-      })
-      .catch($q.reject);
+        })
+        .then(function() {
+          return _registerTaskListener(taskId, 'Could not find the event to delete. Please refresh your calendar.', onTaskError);
+        })
+        .then(function() {
+          return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
+        })
+        .then(function(task) {
+          return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+        })
+        .catch($q.reject);
     }
 
     /**
      * Modify an event in the calendar defined by its path.
      * @param  {String}            path              the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
-     * @param  {CalendarShell}     event             the event from fullcalendar. It is used in case of rollback.
-     * @param  {CalendarShell}     oldEvent          the event from fullcalendar. It is used in case of rollback.
+     * @param  {CalendarShell}     event             the new event.
+     * @param  {CalendarShell}     oldEvent          the old event from fullcalendar. It is used in case of rollback and hasSignificantChange computation.
      * @param  {String}            etag              the etag
      * @param  {Function}          onCancel          callback called in case of rollback, ie when we cancel the task
-     * @return {Mixed}                               the new event wrap into a CalendarShell if it works, the http response otherwise.
+     * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel) {
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
@@ -350,52 +364,44 @@ angular.module('esn.calendar')
       var taskId = null;
       var instance, master;
 
-      return event.getModifiedMaster().then(function(masterShell) {
-        instance = event;
-        master = masterShell;
-        return flushTasksForEvent(master);
-      }).then(function() {
-        return eventAPI.modify(path, master.vcalendar, etag);
-      }).then(function(id) {
-        taskId = id;
-        keepChangeDuringGraceperiod.registerUpdate(master);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
-      }).then(function() {
-        gracePeriodLiveNotification.registerListeners(taskId, function() {
-          gracePeriodService.remove(taskId);
-          notifyService({
-            message: 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.'
-          }, {
-            type: 'danger',
-            placement: {
-              from: 'bottom',
-              align: 'center'
-            },
-            delay: CALENDAR_ERROR_DISPLAY_DELAY
-          });
-          calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
-        });
-        return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
-      }).then(function(data) {
-        var task = data;
-        if (task.cancelled) {
-          return gracePeriodService.cancel(taskId).then(function() {
-            keepChangeDuringGraceperiod.deleteRegistration(master);
-            calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+      function onTaskSuccess() {
+        gracePeriodService.remove(taskId);
+      }
 
-            (onCancel || angular.noop)();
-            task.success();
-            return $q.when(false);
-          }, function(err) {
-            task.error('Unexpected error. Cannot cancel the event modification', err.statusText);
-            return $q.when(false);
-          });
-        } else if (gracePeriodService.hasTask(taskId)) {
-          gracePeriodService.remove(taskId);
-          return master;
-        }
-      })
-      .catch($q.reject);
+      function onTaskCancel() {
+        keepChangeDuringGraceperiod.deleteRegistration(master);
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+        (onCancel || angular.noop)();
+      }
+
+      function onTaskError() {
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+      }
+
+      return event.getModifiedMaster()
+        .then(function(masterShell) {
+          instance = event;
+          master = masterShell;
+          return _flushTasksForEvent(master);
+        })
+        .then(function() {
+          return eventAPI.modify(path, master.vcalendar, etag);
+        })
+        .then(function(id) {
+          taskId = id;
+          keepChangeDuringGraceperiod.registerUpdate(master);
+          calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
+        })
+        .then(function() {
+          return _registerTaskListener(taskId, 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.', onTaskError);
+        })
+        .then(function() {
+          return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
+        })
+        .then(function(task) {
+          return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+        })
+        .catch($q.reject);
     }
 
     /**
