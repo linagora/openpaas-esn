@@ -1,26 +1,29 @@
-.listview.p-t-5.calendars-list
-  .lv-header
-    a.visible-xs.pull-right(href="", ui-sref="calendar.list", ng-click='onEditClick()')
-      i.mdi.mdi-settings
-    a.hidden-xs.pull-right(href="", ui-sref="calendar.add")
-      i.mdi.mdi-plus
-    .lv-header-title Calendars
-    .clearfix
+.listview.calendars-list
   .lv-body
-    .p-10
-      a.lv-item(href="", ng-repeat="calendar in calendars track by calendar.id")
-        .media
-          .pull-left(ng-click="toggleCalendar(calendar)")
-            i.mdi.mdi-label(ng-style="{'color': calendar.color}")
-          .pull-left(ng-if="!hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
-            i.mdi.mdi-checkbox-marked-outline
-          .pull-left(ng-if="hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
-            i.mdi.mdi-checkbox-blank-outline
-          .pull-right.hidden-xs(ui-sref='calendar.edit({calendarId: calendar.id})' ui-sref-opts='{calendarId: calendar.id}')
-              i.mdi.mdi-settings
-          .media-body.hidden-lg(ng-click="toggleCalendar(calendar)")
-            .lv-title
-              span {{calendar.name}}
-          .media-body.visible-lg-block(ng-click="selectCalendar(calendar)", ng-class="{'selected-calendar': calendar.selected}")
-            .lv-title
-              span {{calendar.name}}
+    .lv-item.calendar-item.calendar-header-title.hidden-xs
+      .media
+        .pull-left
+          i.mdi.mdi-calendar
+        .pull-right(ui-sref="calendar.add")
+            i.mdi.mdi-plus
+        .media-body
+          .lv-title Calendars
+    a.lv-item.calendar-item(href="", ng-repeat="calendar in calendars track by calendar.id", ng-class="{'selected-calendar': calendar.selected}")
+      .media
+        .pull-left(ng-if="!hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
+          i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
+        .pull-left(ng-if="hiddenCalendars[calendar.id]", ng-click="toggleCalendar(calendar)")
+          i.mdi.mdi-checkbox-blank-outline
+        .pull-right.hidden-xs(ui-sref='calendar.edit({id: calendar.id})' ui-sref-opts='{id: calendar.id}')
+            i.mdi.mdi-settings
+        .media-body.hidden-lg(ng-click="toggleCalendar(calendar)")
+          .lv-title
+            span {{calendar.name}}
+        .media-body.visible-lg-block(ng-click="selectCalendar(calendar)")
+          .lv-title
+            span {{calendar.name}}
+    .configuration-container.visible-xs
+      hr
+      .lv-item.clickable(href="", ui-sref="calendar.list", ng-click='onEditClick()')
+        i.mdi.mdi-settings
+        | #{__('Configuration')}
