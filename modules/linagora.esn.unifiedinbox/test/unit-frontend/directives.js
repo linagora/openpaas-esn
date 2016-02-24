@@ -956,6 +956,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
           }
         }]
       };
+      $scope.composition = { saveDraftSilently: sinon.spy() };
       compileDirective('<composer-desktop />');
 
       element.find('.attachment[name="attachment-0"] .cancel').click();

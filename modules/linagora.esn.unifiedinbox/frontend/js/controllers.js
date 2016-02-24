@@ -223,6 +223,8 @@ angular.module('linagora.esn.unifiedinbox')
     this.removeAttachment = function(attachment) {
       attachment.upload && attachment.upload.cancel();
       _.pull($scope.email.attachments, attachment);
+
+      $scope.composition.saveDraftSilently();
     };
 
     if ($stateParams.composition) {
