@@ -98,12 +98,12 @@ describe('The event-consult-form Angular module directives', function() {
         this.$scope.event = {
           allDay: true,
           start: this.fcMoment('2013-02-08 12:30'),
-          end: this.fcMoment('2013-02-08 13:30'),
+          end: this.fcMoment('2013-02-09 13:30'),
           location: 'aLocation'
         };
         var isolateScope = this.initDirective(this.$scope);
         expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D'));
-        expect(isolateScope.end).to.equal(this.$scope.event.end.format('MMMM D'));
+        expect(isolateScope.end).to.equal(this.$scope.event.end.clone().subtract(1, 'day').format('MMMM D'));
       });
     });
 
