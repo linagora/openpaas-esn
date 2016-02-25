@@ -540,7 +540,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('Composition', function($q, $timeout, session, draftService, emailSendingService, notificationFactory, Offline,
+  .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
                                    asyncAction, jmap, emailBodyService, DRAFT_SAVING_DEBOUNCE_DELAY) {
 
     function addDisplayNameToRecipients(recipients) {
@@ -639,7 +639,6 @@ angular.module('linagora.esn.unifiedinbox')
 
       var self = this;
 
-      this.email.from = session.user;
       emailSendingService.removeDuplicateRecipients(this.email);
 
       asyncAction('Sending of your message', function() {

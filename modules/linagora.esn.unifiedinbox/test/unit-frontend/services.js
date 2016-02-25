@@ -2252,26 +2252,6 @@ describe('The Unified Inbox Angular module services', function() {
       expect(emailSendingService.sendEmail).to.have.been.calledOnce;
     });
 
-    it('"send" fn should assign email.from using the session before sending', function() {
-      session.user = 'yolo';
-
-      var email = {
-        destroy: angular.noop,
-        to: [{name: '1', email: '1@linagora.com'}]
-      };
-
-      new Composition(email).send();
-      $timeout.flush();
-
-      expect(emailSendingService.sendEmail).to.have.been.calledWith({
-        from: 'yolo',
-        destroy: angular.noop,
-        to: [{name: '1', displayName: '1', email: '1@linagora.com'}],
-        cc: [],
-        bcc: []
-      });
-    });
-
     it('"send" fn should not try to destroy the original message, when it is not a jmap.Message', function() {
       var message = {
         destroy: sinon.spy(),
