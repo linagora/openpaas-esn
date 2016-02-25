@@ -89,12 +89,20 @@ angular.module('esn.header', ['esn.sidebar', 'matchMedia'])
       replace: true,
       templateUrl: '/views/modules/header/header.html',
       link: function(scope, element) {
+        // We need this second variable because screenSize.on is called to many times,
+        // for instance when top or bottom bars of mobiles finish moving.
+        scope.disableByEvent = false;
+
         scope.$on('header:hide', function() {
           element.addClass('hidden');
         });
 
         scope.$on('header:show', function() {
           element.removeClass('hidden');
+        });
+
+        scope.$on('header:disable-scroll-listener', function(event, disabled) {
+          scope.disableByEvent = disabled;
         });
 
         scope.toggleFullScreen = function() {
