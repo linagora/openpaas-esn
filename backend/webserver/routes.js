@@ -117,15 +117,6 @@ exports = module.exports = function(application) {
   application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authTokenMiddleware.getToken, authentication.getToken);
   application.get('/api/authenticationtoken/:token/user', authTokenMiddleware.getToken, authentication.authenticateByToken);
 
-  var contactsController = require('./controllers/contacts');
-  var googleImportController = require('./controllers/import/google');
-  application.get('/api/contacts', authorize.requiresAPILogin, contactsController.getContacts);
-  application.get('/api/contacts/google/oauthurl', authorize.requiresAPILogin, googleImportController.getGoogleOAuthURL);
-  application.get('/api/contacts/google/callback', authorize.requiresAPILogin, googleImportController.fetchGoogleContacts);
-  application.post('/api/contacts/:id/invitations', authorize.requiresAPILogin, contactsController.load, contactsController.sendInvitation);
-  application.get('/api/contacts/:id/invitations', authorize.requiresAPILogin, contactsController.load, contactsController.getContactInvitations);
-  application.get('/api/contacts/invitations', authorize.requiresAPILogin, contactsController.getInvitations);
-
   var addressbooks = require('./controllers/addressbooks');
   application.get('/api/addressbooks', authorize.requiresAPILogin, addressbooks.getAddressBooks);
 

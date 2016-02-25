@@ -60,7 +60,6 @@ describe('The module manager', function() {
         'linagora.esn.core.community',
         'linagora.esn.core.config',
         'linagora.esn.core.configured',
-        'linagora.esn.core.contact',
         'linagora.esn.core.css',
         'linagora.esn.core.db',
         'linagora.esn.core.domain',

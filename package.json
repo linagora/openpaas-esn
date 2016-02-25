@@ -37,7 +37,6 @@
     "extend": "~1.2.1",
     "fs-extra": "~0.8.1",
     "gm": "^1.16.0",
-    "googleapis": "^0.7.0",
     "gridfs-stream": "^0.5.0",
     "hash_file": "~0.1.1",
     "i18n": "~0.4.1",
