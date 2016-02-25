@@ -6,7 +6,8 @@ var ICAL = require('ical.js');
 var jcalHelper = require('../../../lib/jcal/jcalHelper.js');
 var calendar,
     arrayHelpers,
-    logger;
+    logger,
+    userModule;
 
 var MAX_TRY_NUMBER = 12;
 
@@ -76,7 +77,28 @@ function inviteAttendees(req, res) {
   });
 }
 
-function tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTry) {
+function changeParticipationSuccess(res, vcalendar, eventData) {
+  var attendeeEmail = eventData.attendeeEmail;
+  userModule.findByEmail(attendeeEmail, function(err, found) {
+    if (err) {
+      return res.status(500).json({error: {code: 500, message: 'Error while redirecting after participation change', details: err.message}});
+    } else if (!found) {
+      calendar.getBaseUrl(function(err, baseUrl) {
+        if (err) {
+          return res.status(500).json({error: {code: 500, message: 'Error while rendering event consultation page', details: err.message}});
+        }
+        calendar.generateActionLinks(baseUrl, eventData).then(function(links) {
+          var eventJSON = JSON.stringify(vcalendar.toJSON());
+          return res.status(200).render('../event-consultation-app/views/index', {eventJSON: eventJSON, attendeeEmail: attendeeEmail, links: links});
+        });
+      });
+    } else {
+      res.status(200).redirect('/#/calendar');
+    }
+  });
+}
+
+function tryUpdateParticipation(url, ESNToken, res, eventData, numTry) {
   numTry = numTry ? numTry + 1 : 1;
   if (numTry > MAX_TRY_NUMBER) {
     return res.status(500).json({error: {code: 500, message:'Exceeded max number of try for atomic update of event'}});
@@ -90,6 +112,8 @@ function tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTr
     var vcalendar = new ICAL.Component(icalendar);
     var vevent = vcalendar.getFirstSubcomponent('vevent');
 
+    var attendeeEmail = eventData.attendeeEmail;
+    var action = eventData.action;
     var hasAttendee = jcalHelper.getAttendeesEmails(icalendar).indexOf(attendeeEmail) !== -1;
     if (!hasAttendee) {
       return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Attendee does not exist.'}});
@@ -98,11 +122,11 @@ function tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTr
     attendee.setParameter('partstat', action);
     request({method: 'PUT', headers: {ESNToken: ESNToken, 'If-Match': response.headers.etag}, body: vcalendar.toJSON(), url: url, json: true}, function(err, response) {
       if (!err && response.statusCode === 412) {
-        tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTry++);
+        tryUpdateParticipation(url, ESNToken, res, eventData, numTry);
       } else if (err || response.statusCode < 200 || response.statusCode >= 300) {
         res.status(500).json({error: {code: 500, message: 'Error while modifying event', details: err ? err.message : response.body}}).end();
       } else {
-        return res.status(200).end();
+        changeParticipationSuccess(res, vcalendar, eventData);
       }
     });
   });
@@ -111,15 +135,15 @@ function tryUpdateParticipation(url, ESNToken, res, attendeeEmail, action, numTr
 function changeParticipation(req, res) {
   var ESNToken = req.token && req.token.token ? req.token.token : '';
   var url = urljoin(req.davserver, 'calendars', req.user._id, req.eventPayload.calendarURI, req.eventPayload.uid + '.ics');
-  var action = req.eventPayload.action;
 
-  tryUpdateParticipation(url, ESNToken, res, req.eventPayload.attendeeEmail, action);
+  tryUpdateParticipation(url, ESNToken, res, req.eventPayload);
 }
 
 module.exports = function(dependencies) {
   logger = dependencies('logger');
   calendar = require('./core')(dependencies);
   arrayHelpers = dependencies('helpers').array;
+  userModule = dependencies('user');
   return {
     dispatchEvent: dispatchEvent,
     inviteAttendees: inviteAttendees,
