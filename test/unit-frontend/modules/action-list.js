@@ -118,6 +118,28 @@ describe('directive : action-list', function() {
     expect($popover).to.have.been.called;
   });
 
+  it('should not resize a modal/popover of other directive', function() {
+    screenSize.is = sinon.stub();
+    screenSize.is.onCall(0).returns(true);
+    screenSize.is.onCall(1).returns(false);
+    var onResize;
+    screenSize.on = function(event, callback) {
+      onResize = callback;
+    };
+    this.initDirective('<button action-list>Click Me</button>');
+    this.opened =  {
+      $isShown: true,
+      destroy: angular.noop
+    };
+    element.click();
+
+    expect($modal).to.have.been.called;
+    this.opened.scope = {};
+    onResize(false);
+
+    expect($popover).to.not.have.been.called;
+  });
+
   it('should first open a $popover when screen size is lg, then open a $modal when it changes to xs', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(false);

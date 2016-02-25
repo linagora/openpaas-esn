@@ -21,6 +21,8 @@ angular.module('esn.actionList', [])
             template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
             placement: 'center'
           });
+
+          dialogOpened.scope = scope;
         }
 
         function openForDesktop() {
@@ -35,10 +37,12 @@ angular.module('esn.actionList', [])
             placement: 'bottom-right',
             animation: 'am-fade'
           });
+
+          dialogOpened.scope = scope;
         }
 
         function handleWindowResizement() {
-          if (dialogOpened && dialogOpened.$isShown) {
+          if (dialogOpened && dialogOpened.scope === scope && dialogOpened.$isShown) {
             boundOpenFn();
           }
         }
