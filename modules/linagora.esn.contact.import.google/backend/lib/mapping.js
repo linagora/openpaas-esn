@@ -118,6 +118,10 @@ module.exports = function() {
       });
     }
 
+    if (json.contactPhoto) {
+      vcard.addPropertyWithValue('photo', json.contactPhoto);
+    }
+
     prop = new ICAL.Property('categories');
     prop.setValues(['Google']);
     vcard.addProperty(prop);

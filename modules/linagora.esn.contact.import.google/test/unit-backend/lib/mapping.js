@@ -65,7 +65,8 @@ describe('The google contact importer mapping function', function() {
           'gd:postcode': ['75017'],
           'gd:city': ['Paris'],
           'gd:country': ['France']
-        }]
+        }],
+        contactPhoto: 'my photo'
       };
       var ical = {
         version: 'VERSION:4.0',
@@ -81,7 +82,8 @@ describe('The google contact importer mapping function', function() {
         socialprofile: 'SOCIALPROFILE;TYPE=skype:skype account',
         categories: 'CATEGORIES:Google',
         bday: 'BDAY:20150101',
-        nickname: 'NICKNAME:nickname'
+        nickname: 'NICKNAME:nickname',
+        photo: 'PHOTO:my photo'
       };
 
       compareShell(following, ical);
