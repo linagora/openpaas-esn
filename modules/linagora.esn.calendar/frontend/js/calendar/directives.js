@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('calendarView', function($timeout) {
+  .directive('calendarView', function($rootScope, $timeout) {
     function link(scope, element) {
       /*
        * Hiding the header in mobile first template does not work well with FullCalendar
@@ -13,6 +13,11 @@ angular.module('esn.calendar')
       $timeout(function() {
         element.find('.calendar').css('height', 'auto');
       }, 0);
+
+      $rootScope.$broadcast('header:disable-scroll-listener', true);
+      scope.$on('$destroy', function() {
+        $rootScope.$broadcast('header:disable-scroll-listener', false);
+      });
     }
     return {
       restrict: 'E',

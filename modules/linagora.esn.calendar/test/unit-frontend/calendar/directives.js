@@ -13,6 +13,62 @@ describe('The calendar module directives', function() {
     angular.mock.module('linagora.esn.graceperiod', 'esn.calendar', 'angular-nicescroll');
   });
 
+  describe('calendarView directive', function() {
+    beforeEach(function() {
+      var self = this;
+
+      this.calendarService = {
+        listCalendars: function() {
+          return $q.when([]);
+        }
+      };
+
+      angular.mock.module('ui.calendar', function($provide) {
+        $provide.constant('calendarService', self.calendarService);
+        $provide.factory('miniCalendarMobileDirective', function() { return {}; });
+        $provide.factory('eventCreateButtonDirective', function() { return {}; });
+        $provide.factory('uiCalendarDirective', function() { return {}; });
+      });
+    });
+
+    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
+      this.$compile = _$compile_;
+      this.$rootScope = _$rootScope_;
+      this.$scope = this.$rootScope.$new();
+      this.$scope.uiConfig = {
+        calendar: {}
+      };
+
+      this.initDirective = function(scope) {
+        var element = this.$compile('<calendar-view ui-config="uiConfig"/>')(scope);
+        element = this.$compile(element)(scope);
+        scope.$digest();
+        return element;
+      };
+    }));
+
+    it('should broadcast "header:disable-scroll-listener" true', function(done) {
+      this.$scope.$on('header:disable-scroll-listener', function(event, data) {
+        expect(data).to.be.true;
+        done();
+      });
+      this.initDirective(this.$scope);
+    });
+
+    it('should broadcast "header:disable-scroll-listener" false on destroy', function(done) {
+      this.$scope.$on('header:disable-scroll-listener', function(event, data) {
+        if (data) {
+          return;
+        } else {
+          expect(data).to.be.false;
+          done();
+        }
+      });
+      this.initDirective(this.$scope);
+      this.$scope.$destroy();
+    });
+  });
+
   describe('calendarLeftPane directive', function() {
     var LEFT_PANEL_BOTTOM_MARGIN;
     var CALENDAR_EVENTS;
@@ -47,7 +103,6 @@ describe('The calendar module directives', function() {
         LEFT_PANEL_BOTTOM_MARGIN = _LEFT_PANEL_BOTTOM_MARGIN_;
         CALENDAR_EVENTS = _CALENDAR_EVENTS_;
       });
-
     }));
 
     it('change element height on calendar:height', function() {
