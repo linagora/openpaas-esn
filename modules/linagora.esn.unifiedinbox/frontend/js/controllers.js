@@ -167,7 +167,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     function newAttachment(client, file) {
-      var attachment = new jmap.Attachment(client, 'unknownBlobId', {
+      var attachment = new jmap.Attachment(client, '', {
         name: file.name,
         size: file.size,
         type: file.type || DEFAULT_FILE_TYPE
@@ -246,7 +246,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     $scope.send = function() {
-
       $scope.disableSendButton();
 
       if ($scope.composition.canBeSentOrNotify()) {

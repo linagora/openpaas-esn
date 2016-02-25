@@ -448,6 +448,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (!this.needToBeSaved(newEmailState)) {
         return $q.reject();
       }
+
       return asyncJmapAction('Saving your email as draft', function(client) {
         return client.saveAsDraft(jmapHelper.toOutboundMessage(client, newEmailState));
       }, options);
@@ -568,9 +569,19 @@ angular.module('linagora.esn.unifiedinbox')
       this.draft = draftService.startDraft(this.email);
     }
 
+    Composition.prototype.getOutgoingEmailCopy = function() {
+      var outgoing = angular.copy(this.email);
+
+      outgoing.attachments = (outgoing.attachments || []).filter(function(attachment) {
+        return attachment.blobId;
+      });
+
+      return outgoing;
+    };
+
     Composition.prototype.saveDraft = function(options) {
       var self = this,
-          savingEmailState = angular.copy(this.email);
+          savingEmailState = this.getOutgoingEmailCopy();
 
       if (self.delayedDraftSaving) {
         $timeout.cancel(self.delayedDraftSaving);

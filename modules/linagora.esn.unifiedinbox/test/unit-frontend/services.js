@@ -2138,6 +2138,25 @@ describe('The Unified Inbox Angular module services', function() {
       $timeout.flush();
     });
 
+    it('should not save incomplete attachments in the drafts', function(done) {
+      var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {
+        attachments: [
+          { blobId: '1' },
+          { blobId: '' },
+          { blobId: '2' },
+          { blobId: '' }
+        ]
+      }));
+
+      composition.saveDraft().then(function() {
+        expect(jmapClient.saveAsDraft).to.have.been.calledWith(sinon.match({
+          attachments: [new jmap.Attachment(jmapClient, '1'), new jmap.Attachment(jmapClient, '2')]
+        }));
+      }).then(done, done);
+
+      $timeout.flush();
+    });
+
     it('should renew the original jmap message with the second ack id when saveDraft is called twice, after the debouce delay', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
       message.destroy = sinon.stub().returns($q.when());

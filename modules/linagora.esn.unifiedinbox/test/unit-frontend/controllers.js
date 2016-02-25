@@ -234,7 +234,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1, type: 'type' }]);
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: 'unknownBlobId',
+          blobId: '',
           name: 'name',
           size: 1,
           type: 'type',
@@ -246,7 +246,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: 'unknownBlobId',
+          blobId: '',
           name: 'name',
           size: 1,
           type: DEFAULT_FILE_TYPE
