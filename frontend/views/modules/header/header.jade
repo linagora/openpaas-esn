@@ -1,6 +1,6 @@
 div
   header#header
-    div(ng-if='enableScrollListener', scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show', data-on-destroy='show')
+    div(ng-if='enableScrollListener && !disableByEvent', scroll-listener, data-on-scroll-down='hide', data-on-scroll-up='show', data-on-destroy='show', data-disabled='isDisabled')
 
     div.header-inner.flex-vertical-centered.flex-space-between
       ul.list-inline.all-centered
