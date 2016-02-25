@@ -9,7 +9,10 @@ require('../../backend/core/db/mongo/models/user');
 var Domain = mongoose.model('Domain');
 var Community = mongoose.model('Community');
 var User = mongoose.model('User');
-require('../../backend/core/db/mongo/plugins/helpers').applyPlugins();
+var helpers = require('../../backend/core/db/mongo/plugins/helpers');
+helpers.applyPlugins();
+helpers.patchFindOneAndUpdate();
+
 var userDomainModule = require('../../backend/core/user/domain');
 
 var ADMIN_OBJECT = {
