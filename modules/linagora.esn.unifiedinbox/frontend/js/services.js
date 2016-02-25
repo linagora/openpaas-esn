@@ -147,13 +147,27 @@ angular.module('linagora.esn.unifiedinbox')
     return ElementGroupingTool;
   })
 
-  .factory('sendEmail', function($http, inBackground, withJmapClient, jmapHelper) {
+  .factory('sendEmail', function($http, $q, inBackground, jmap, withJmapClient, jmapHelper) {
+    function sendBySmtp(email) {
+      return $http.post('/unifiedinbox/api/inbox/sendemail', email);
+    }
+
+    function sendByJmap(client, email) {
+      var outboundMessage = jmapHelper.toOutboundMessage(client, email);
+      return $q.all([
+          client.saveAsDraft(outboundMessage),
+          client.getMailboxWithRole(jmap.MailboxRole.OUTBOX)
+        ]).then(function(data) {
+          return client.moveMessage(data[0].id, [data[1].id]);
+        });
+    }
+
     function sendEmail(email) {
       return withJmapClient(function(client, config) {
         if (config.isJmapSendingEnabled) {
-          return client.send(jmapHelper.toOutboundMessage(client, email));
+          return sendByJmap(client, email);
         } else {
-          return $http.post('/unifiedinbox/api/inbox/sendemail', email);
+          return sendBySmtp(email);
         }
       });
     }
@@ -451,7 +465,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (destroyMethod) {
         return asyncJmapAction('Destroying a draft', destroyMethod, {silent: true});
       }
-      
+
       return $q.when();
     };
 

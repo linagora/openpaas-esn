@@ -482,7 +482,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The sendEmail service', function() {
 
-    var $httpBackend, $rootScope, sendEmail, backgroundProcessorService;
+    var $httpBackend, $rootScope, jmap, sendEmail, backgroundProcessorService;
 
     var jmapConfigMock;
     var jmapClientMock;
@@ -501,9 +501,10 @@ describe('The Unified Inbox Angular module services', function() {
         $provide.value('jmapHelper', jmapHelperMock);
       });
 
-      angular.mock.inject(function(_$httpBackend_, _$rootScope_, _sendEmail_, _backgroundProcessorService_) {
+      angular.mock.inject(function(_$httpBackend_, _$rootScope_, _jmap_, _sendEmail_, _backgroundProcessorService_) {
         $httpBackend = _$httpBackend_;
         $rootScope = _$rootScope_;
+        jmap = _jmap_;
         sendEmail = _sendEmail_;
         backgroundProcessorService = _backgroundProcessorService_;
       });
@@ -556,34 +557,79 @@ describe('The Unified Inbox Angular module services', function() {
     describe('Use JMAP', function() {
       beforeEach(function() {
         jmapConfigMock.isJmapSendingEnabled = true;
+        jmapHelperMock.toOutboundMessage = angular.noop;
+
+        jmapClientMock.saveAsDraft = function() {
+          return $q.when({});
+        };
+
+        jmapClientMock.getMailboxWithRole = function() {
+          return $q.when({});
+        };
+
+        jmapClientMock.moveMessage = function() {
+          return $q.when({});
+        };
+
       });
 
       it('should use JMAP to send email when JMAP is enabled to send email', function(done) {
         var email = { from: 'A', to: 'B' };
+        var messageAck = { id: 'm123' };
+        var outbox = { id: 't456' };
         jmapHelperMock.toOutboundMessage = sinon.spy();
-        jmapClientMock.send = function() {
+
+        jmapClientMock.saveAsDraft = function() {
           expect(jmapHelperMock.toOutboundMessage).to.have.been.calledWith(jmapClientMock, email);
-          done();
+          return $q.when(messageAck);
         };
-        sendEmail(email);
+
+        jmapClientMock.getMailboxWithRole = function(role) {
+          expect(role).to.equal(jmap.MailboxRole.OUTBOX);
+          return $q.when(outbox);
+        };
+
+        jmapClientMock.moveMessage = function(messageId, mailboxIds) {
+          expect(messageId).to.equal(messageAck.id);
+          expect(mailboxIds).to.deep.equal([outbox.id]);
+        };
+
+        sendEmail(email).then(done.bind(null, null), done.bind(null, 'should resolve'));
         $rootScope.$digest();
       });
 
-      it('should resolve if JMAP client sends email successful', function(done) {
-        jmapHelperMock.toOutboundMessage = angular.noop;
-        jmapClientMock.send = function() {
-          return $q.when();
-        };
-        sendEmail().then(done.bind(null, null), done.bind(null, 'should resolve'));
-        $rootScope.$digest();
-      });
-
-      it('should reject if JMAP client fails to send email', function(done) {
+      it('should reject if JMAP client fails to save email as draft', function(done) {
         var error = new Error('error message');
-        jmapHelperMock.toOutboundMessage = angular.noop;
-        jmapClientMock.send = function() {
+        jmapClientMock.saveAsDraft = function() {
           return $q.reject(error);
         };
+
+        sendEmail().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal(error.message);
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should reject if JMAP client fails to get outbox mailbox', function(done) {
+        var error = new Error('error message');
+        jmapClientMock.getMailboxWithRole = function() {
+          return $q.reject(error);
+        };
+
+        sendEmail().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal(error.message);
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should reject if JMAP client fails to move message to outbox mailbox', function(done) {
+        var error = new Error('error message');
+        jmapClientMock.moveMessage = function() {
+          return $q.reject(error);
+        };
+
         sendEmail().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal(error.message);
           done();
