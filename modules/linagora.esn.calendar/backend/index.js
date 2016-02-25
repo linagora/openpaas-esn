@@ -73,7 +73,6 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'calendar/apis.js',
         'calendar/controllers.js',
         'calendar/directives.js',
-        'calendar/services.js',
         'calendar/services/calendar-attendee-service.js',
         'calendar/services/calendar-current-view.js',
         'calendar/services/calendar-event-emitter.js',
