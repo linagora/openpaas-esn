@@ -451,7 +451,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (destroyMethod) {
         return asyncJmapAction('Destroying a draft', destroyMethod, {silent: true});
       }
-      
+
       return $q.when();
     };
 
