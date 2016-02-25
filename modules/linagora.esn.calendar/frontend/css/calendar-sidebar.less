@@ -5,5 +5,26 @@
 
   .listview:not(.lv-lg):not(.lv-message) .lv-item {
     padding: 5px 20px;
+
+    &.selected-calendar {
+      background: none;
+    }
+  }
+
+  i.mdi {
+    .secondary-text-color;
+  }
+
+  .configuration-container {
+    margin-top: 5px;
+
+    .lv-item {
+      margin-top: 5px;
+      .flex-vertical-centered;
+
+      i.mdi {
+        margin-right: 15px;
+      }
+    }
   }
 }

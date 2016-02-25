@@ -7,28 +7,62 @@
     font-size: 1.5em;
   }
 
-  .lv-header {
-    text-align: left;
-    margin-bottom: 0;
-    i {
-      font-size: 2em;
+  .calendar-item {
+
+    .mdi.mdi-settings {
+      color: lighten(@secondaryTextColor, 20%);
+      &:hover {
+        color: @secondaryTextColor;
+      }
     }
 
-    .lv-header-title {
-      margin-top: 7px;
+    .mdi.mdi-checkbox-blank-outline {
+      color: @secondaryTextColor;
     }
-  }
-
-  .lv-footer {
-    font-size: 1em;
-    padding: 0;
 
     .lv-title {
-      margin-top: 3px;
+      color: @secondaryTextColor;
     }
-  }
 
-  .selected-calendar {
-    text-decoration: underline;
+    &.calendar-header-title {
+      margin-top: 15px;
+      margin-bottom: 10px;
+      border-left: 5px solid @primaryColor;
+
+      .media {
+        margin-left: -12px;
+        min-width: 240px;
+
+        .pull-left .mdi {
+          font-size: 35px;
+          margin-top: -3px;
+          color: @secondaryTextColor;
+        }
+
+        .pull-right .mdi {
+          font-size: 25px;
+          cursor: pointer;
+          color: lighten(@secondaryTextColor, 10%);
+          &:hover {
+            color: darken(@secondaryTextColor, 20%);
+          }
+        }
+
+        .pull-left {
+          padding-right: 0;
+        }
+
+        .media-body .lv-title {
+          margin-left: 7px;
+          font-size: 20px;
+          font-weight: bold;
+          color: @primaryColor;
+        }
+      }
+    }
+
+    &.selected-calendar {
+      background: @darkenBgColor;
+    }
   }
 }
