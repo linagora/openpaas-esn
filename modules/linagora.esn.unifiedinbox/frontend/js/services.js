@@ -540,7 +540,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('Composition', function($q, session, draftService, emailSendingService, notificationFactory, Offline, asyncAction, jmap, emailBodyService) {
+  .factory('Composition', function($q, $timeout, session, draftService, emailSendingService, notificationFactory, Offline,
+                                   asyncAction, jmap, emailBodyService, DRAFT_SAVING_DEBOUNCE_DELAY) {
 
     function addDisplayNameToRecipients(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -568,10 +569,16 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     Composition.prototype.saveDraft = function(options) {
-      var self = this;
-      var savingEmailState = angular.copy(this.email);
+      var self = this,
+          savingEmailState = angular.copy(this.email);
 
-      return self.draft.save(self.email, options)
+      if (self.delayedDraftSaving) {
+        $timeout.cancel(self.delayedDraftSaving);
+      }
+
+      self.delayedDraftSaving = $timeout(self.draft.save.bind(self.draft, savingEmailState, options), DRAFT_SAVING_DEBOUNCE_DELAY);
+
+      return self.delayedDraftSaving
         .then(function(createMessageAck) {
           self.draft.destroy();
 
@@ -588,7 +595,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     Composition.prototype.saveDraftSilently = function() {
-      return this.saveDraft({silent: true});
+      return this.saveDraft({ silent: true });
     };
 
     Composition.prototype.getEmail = function() {

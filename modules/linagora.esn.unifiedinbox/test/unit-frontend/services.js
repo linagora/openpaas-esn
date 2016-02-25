@@ -2138,7 +2138,7 @@ describe('The Unified Inbox Angular module services', function() {
       $timeout.flush();
     });
 
-    it('should renew the original jmap message with the second ack id when saveDraft is called twice', function(done) {
+    it('should renew the original jmap message with the second ack id when saveDraft is called twice, after the debouce delay', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
       message.destroy = sinon.stub().returns($q.when());
       var secondSaveAck = new jmap.CreateMessageAck(jmapClient, {
@@ -2153,15 +2153,35 @@ describe('The Unified Inbox Angular module services', function() {
       composition.saveDraft().then(function() {
         composition.email.htmlBody = 'content modified';
         jmapClient.saveAsDraft = sinon.stub().returns($q.when(secondSaveAck));
-
-        composition.saveDraft().then(function() {
-          expect(jmapClient.destroyMessage).to.have.been.calledWith('expected id');
-          expect(composition.draft.originalEmailState.id).to.equal('another id');
-          expect(composition.draft.originalEmailState.htmlBody).to.equal('content modified');
-        }).then(done, done);
-
       });
+      $timeout.flush();
 
+      composition.saveDraft().then(function() {
+        expect(jmapClient.destroyMessage).to.have.been.calledWith('expected id');
+        expect(composition.draft.originalEmailState.id).to.equal('another id');
+        expect(composition.draft.originalEmailState.htmlBody).to.equal('content modified');
+      }).then(done, done);
+      $timeout.flush();
+    });
+
+    it('should debouce multiple calls to saveDraft', function(done) {
+      var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
+      message.destroy = sinon.spy(message.destroy);
+
+      var composition = new Composition(message);
+
+      composition.email.htmlBody = 'content1';
+      composition.saveDraft();
+
+      composition.email.htmlBody = 'content2';
+      composition.saveDraft();
+
+      composition.email.htmlBody = 'content3';
+      composition.saveDraft().then(function() {
+        expect(message.destroy).to.have.been.calledOnce;
+        expect(jmapClient.saveAsDraft).to.have.been.calledOnce;
+        expect(composition.draft.originalEmailState.htmlBody).to.equal('content3');
+      }).then(done, done);
       $timeout.flush();
     });
 
