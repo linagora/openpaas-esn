@@ -3,9 +3,52 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var utils = require('./utils');
+var CONSTANTS = require('./constants');
+var pubsub = require('../../core/pubsub').local;
 
 var defaultLimit = 50;
 var defaultOffset = 0;
+
+function joinDomain(user, domain, callback) {
+  if (!user) {
+    return callback(new Error('User must not be null'));
+  }
+  if (!domain) {
+    return callback(new Error('Domain must not be null'));
+  }
+  var domainId = domain._id || domain;
+
+  function validateDomains(domain) {
+    return user.domains.every(function(d) {return d.domain_id !== domain;});
+  }
+
+  if (!validateDomains(domainId)) {
+    return callback(new Error('User is already in domain ' + domainId));
+  } else {
+    return User.findOneAndUpdate({_id: user._id}, {$push: {domains: {domain_id: domain}}}, function(err, result) {
+      if (!err && result) {
+        pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(result);
+      }
+      return callback(err, result);
+    });
+  }
+}
+module.exports.joinDomain = joinDomain;
+
+function isMemberOfDomain(user, domain) {
+  if (!user) {
+    throw new Error('User must not be null');
+  }
+
+  if (!domain) {
+    throw new Error('Domain must not be null');
+  }
+  var domainId = domain._id || domain;
+  return user.domains.some(function(d) {
+    return d.domain_id.equals(domainId);
+  });
+}
+module.exports.isMemberOfDomain = isMemberOfDomain;
 
 function getUserDomains(user, callback) {
   if (!user) {

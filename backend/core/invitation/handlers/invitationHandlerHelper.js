@@ -108,7 +108,7 @@ module.exports.initHelper = function(invitation, data) {
     },
 
     addUserToDomain: function(domain, user, callback) {
-      user.joinDomain(domain, function(err, update) {
+      userModule.domain.joinDomain(user, domain, function(err, update) {
         if (err) {
           return callback(new Error('User cannot join domain' + err.message));
         }

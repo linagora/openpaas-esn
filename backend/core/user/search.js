@@ -1,17 +1,18 @@
 'use strict';
 
 var utils = require('./utils');
+var CONSTANTS = require('./constants');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
 
 function getIndexName() {
-  return 'users.idx';
+  return CONSTANTS.ELASTICSEARCH.index;
 }
 module.exports.getIndexName = getIndexName;
 
 function getTypeName() {
-  return 'users';
+  return CONSTANTS.ELASTICSEARCH.type;
 }
 module.exports.getTypeName = getTypeName;
 

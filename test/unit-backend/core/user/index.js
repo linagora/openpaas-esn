@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 
 describe('The user core module', function() {
   var mockModels, mockPubSub, mockEsnConfig;
@@ -28,15 +29,58 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
-      userModule = this.helpers.requireBackend('core').user;
     });
 
     it('should save a user if it is not an instance of User model', function(done) {
-      userModule.recordUser({name: 'aName'}, done);
+      mockery.registerMock('../../core/pubsub', {
+        local: {
+          topic: function() {
+            return {
+              publish: function() {}
+            };
+          }
+        }
+      });
+      userModule = this.helpers.requireBackend('core').user;
+      userModule.recordUser({name: 'aName'}, function() {
+        done();
+      });
     });
 
-    it('should also save a user if it is an instance of User model', function(done) {
-      userModule.recordUser(new User({name: 'aName'}), done);
+    it('should save a user if it is an instance of User model', function(done) {
+      mockery.registerMock('../../core/pubsub', {
+        local: {
+          topic: function() {
+            return {
+              publish: function() {}
+            };
+          }
+        }
+      });
+      userModule = this.helpers.requireBackend('core').user;
+      userModule.recordUser(new User({name: 'aName'}), function() {
+        done();
+      });
+    });
+
+    it('should publish an event in the userCreated topic', function(done) {
+      var CONSTANTS = require('../../../../backend/core/user/constants');
+      var spy = sinon.spy();
+      mockery.registerMock('../../core/pubsub', {
+        local: {
+          topic: function(name) {
+            expect(name).to.equal(CONSTANTS.EVENTS.userCreated);
+            return {
+              publish: spy
+            };
+          }
+        }
+      });
+      userModule = this.helpers.requireBackend('core').user;
+      userModule.recordUser(new User({name: 'aName'}), function() {
+        expect(spy).to.have.been.called;
+        done();
+      });
     });
   });
 
@@ -51,6 +95,15 @@ describe('The user core module', function() {
         callback(null, template);
       };
       mockEsnConfig(get);
+      mockery.registerMock('../../core/pubsub', {
+        local: {
+          topic: function() {
+            return {
+              publish: function() {}
+            };
+          }
+        }
+      });
     });
 
     it('should record a user with the template informations', function(done) {

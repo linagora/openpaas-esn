@@ -210,6 +210,7 @@ describe('The addmember handler', function() {
 
     it('should create a user if invitation and form data are set', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
+      var userDomainModule = this.helpers.requireBackend('core/user/domain');
       var invitation = {
         type: 'test',
         data: {
@@ -266,8 +267,7 @@ describe('The addmember handler', function() {
                   return done(err);
                 }
                 expect(user).to.exist;
-                var isMember = new User(user).isMemberOfDomain(result.result.resources.domain);
-                expect(isMember).to.be.true;
+                expect(userDomainModule.isMemberOfDomain(user, result.result.resources.domain)).to.be.true;
                 done();
               });
             });

@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 
 describe('The User model', function() {
-  var User, Domain, email, email2, email_ci, email2_ci, helpers, userFixtures, domainFixtures;
+  var User, Domain, email, email2, email_ci, email2_ci, helpers, userFixtures, domainFixtures, userDomainModule;
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
@@ -14,6 +14,7 @@ describe('The User model', function() {
     Domain = this.mongoose.model('Domain');
     userFixtures = helpers.requireFixture('models/users.js')(User);
     domainFixtures = helpers.requireFixture('models/domains.js')(Domain);
+    userDomainModule = helpers.requireBackend('core/user/domain');
     email = 'foo@linagora.com';
     email_ci = 'FOO@LiNaGoRa.com ';
     email2 = 'bar@linagora.com';
@@ -169,98 +170,6 @@ describe('The User model', function() {
           expect(data.login.success).to.be.an.instanceOf(Date);
 
           done();
-        }));
-      }));
-    }));
-  });
-
-  it('should add the domain when domain is not null', function(done) {
-    userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-      domainFixtures.newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
-        user.joinDomain(domain, helpers.callbacks.noErrorAnd(function() {
-          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
-            expect(loaded.domains[0].domain_id).to.deep.equal(domain._id);
-
-            done();
-          }));
-        }));
-      }));
-    }));
-  });
-
-  it('should not add null domain', function(done) {
-    userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-      user.joinDomain(null, helpers.callbacks.error(done));
-    }));
-  });
-
-  it('should add domain from its ID', function(done) {
-    userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-      domainFixtures.newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
-        user.joinDomain(domain._id, helpers.callbacks.noErrorAnd(function() {
-          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
-            expect(loaded.domains[0].domain_id).to.deep.equal(domain._id);
-
-            done();
-          }));
-        }));
-      }));
-    }));
-  });
-
-  it('should not add the domain to the user if the domain is already in the domain list', function(done) {
-    var u = userFixtures.newDummyUser(['foo@bar.com']);
-
-    domainFixtures.newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
-      u.domains.push({ domain_id: domain._id });
-
-      u.save(helpers.callbacks.noErrorAnd(function(user) {
-        user.joinDomain(domain._id, helpers.callbacks.error(done));
-      }));
-    }));
-  });
-
-  it('should return error when calling isMemberOfDomain with null domain', function(done) {
-    userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-      expect(function() { user.isMemberOfDomain(null); }).to.throw(Error);
-
-      done();
-    }));
-  });
-
-  it('should return false when calling isMemberOfDomain with wrong domain id', function(done) {
-    domainFixtures.newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
-      userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-        expect(user.isMemberOfDomain('wrongDomainId')).to.equal(false);
-
-        done();
-      }));
-    }));
-  });
-
-  it('should return true when calling isMemberOfDomain with correct domain id', function(done) {
-    userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-      domainFixtures.newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
-        user.joinDomain(domain._id, helpers.callbacks.noErrorAnd(function() {
-          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
-            expect(loaded.isMemberOfDomain(domain._id)).to.equal(true);
-
-            done();
-          }));
-        }));
-      }));
-    }));
-  });
-
-  it('should return true when calling isMemberOfDomain with correct domain', function(done) {
-    userFixtures.newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
-      domainFixtures.newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
-        user.joinDomain(domain._id, helpers.callbacks.noErrorAnd(function() {
-          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
-            expect(loaded.isMemberOfDomain(domain)).to.equal(true);
-
-            done();
-          }));
         }));
       }));
     }));

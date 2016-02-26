@@ -7,7 +7,7 @@ var async = require('async');
 describe('The communities API', function() {
 
   var email = 'user@open-paas.org', password = 'secret';
-  var user, Community, User, Domain, webserver, fixtures, helpers;
+  var user, Community, User, Domain, webserver, fixtures, helpers, userDomainModule;
 
   function saveEntity(Model, entity, done) {
     new Model(entity).save(helpers.callbacks.noErrorAnd(function(saved) {
@@ -30,6 +30,7 @@ describe('The communities API', function() {
       Domain = helpers.requireBackend('core/db/mongo/models/domain');
       fixtures = helpers.requireFixture('models/users.js')(User);
       webserver = helpers.requireBackend('webserver').webserver;
+      userDomainModule = helpers.requireBackend('core/user/domain');
 
       saveUser(user = fixtures.newDummyUser([email], password), done);
     });
@@ -90,7 +91,7 @@ describe('The communities API', function() {
           saveDomain(domain2, callback);
         },
         function(callback) {
-          user.joinDomain(domain, callback);
+          userDomainModule.joinDomain(user, domain, callback);
         },
         function(callback) {
           saveCommunity({title: 'Node.js', domain_ids: [domain._id]}, callback);
@@ -143,7 +144,7 @@ describe('The communities API', function() {
             saveDomain(domain, callback);
           },
           function(callback) {
-            user.joinDomain(domain, callback);
+            userDomainModule.joinDomain(user, domain, callback);
           },
           function(callback) {
             saveCommunity({title: title, domain_ids: [domain._id]}, callback);
@@ -198,7 +199,7 @@ describe('The communities API', function() {
             saveDomain(domain, callback);
           },
           function(callback) {
-            user.joinDomain(domain, callback);
+            userDomainModule.joinDomain(user, domain, callback);
           },
           function(callback) {
             saveCommunity({title: title, domain_ids: [domain._id], creator: user._id}, callback);

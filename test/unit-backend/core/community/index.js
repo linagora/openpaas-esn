@@ -2,6 +2,7 @@
 
 var mockery = require('mockery');
 var expect = require('chai').expect;
+var sinon = require('sinon');
 
 describe('The community module', function() {
   describe('The save fn', function() {
@@ -51,6 +52,43 @@ describe('The community module', function() {
       var community = this.helpers.requireBackend('core/community/index');
       community.save({domain_id: 123, title: 'title'}, function(err) {
         expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should publish a notification when save succeed', function(done) {
+      var CONSTANTS = this.helpers.requireBackend('core/community/constants');
+      var response = {_id: 1, foo: 'bar'};
+      var spy = sinon.spy();
+
+      var Community = function() {};
+      Community.prototype.save = function(callback) {
+        callback(null, response);
+      };
+      Community.testTitleDomain = function(title, ids, callback) {
+        return callback();
+      };
+
+      this.helpers.mock.models({
+        Community: Community
+      });
+
+      mockery.registerMock('../pubsub', {
+        local: {
+          topic: function(name) {
+            expect(name).to.equal(CONSTANTS.EVENTS.communityCreated);
+            return {
+              publish: spy
+            };
+          }
+        }
+      });
+
+      var community = this.helpers.requireBackend('core/community/index');
+      community.save({domain_ids: [123], title: 'title'}, function(err, result) {
+        expect(err).to.not.be.defined;
+        expect(result).to.deep.equal(response);
+        expect(spy).to.have.been.calledWith(response);
         done();
       });
     });

@@ -4,6 +4,8 @@ var esnconfig = require('../esn-config');
 var elasticsearch = require('elasticsearch');
 var q = require('q');
 
+var TIMEOUT = 1000;
+
 var currentClient,
   currentClientHash = null;
 
@@ -52,7 +54,7 @@ function updateClient(callback) {
     var elasticsearchClient = new elasticsearch.Client(data);
 
     // Check if the connection was a success
-    elasticsearchClient.ping({}, function(err) {
+    elasticsearchClient.ping({requestTimeout: TIMEOUT}, function(err) {
       if (err) {
         return callback(new Error('cannot connect'));
       }
@@ -83,11 +85,11 @@ function getClient() {
   var defer = q.defer();
   client(function(err, esClient) {
     if (err) {
-      defer.reject(err);
+      return defer.reject(err);
     }
 
     if (!esClient) {
-      defer.reject(new Error('Can not get ES client'));
+      return defer.reject(new Error('Can not get ES client'));
     }
 
     defer.resolve(esClient);

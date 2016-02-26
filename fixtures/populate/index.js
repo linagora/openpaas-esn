@@ -9,6 +9,11 @@ require('../../backend/core/db/mongo/models/user');
 var Domain = mongoose.model('Domain');
 var Community = mongoose.model('Community');
 var User = mongoose.model('User');
+var helpers = require('../../backend/core/db/mongo/plugins/helpers');
+helpers.applyPlugins();
+helpers.patchFindOneAndUpdate();
+
+var userDomainModule = require('../../backend/core/user/domain');
 
 var ADMIN_OBJECT = {
   firstname: 'admin',
@@ -65,7 +70,7 @@ function _populateDomain(admin) {
 
 function _joinDomain(user, domain) {
   var deferred = q.defer();
-  user.joinDomain(domain, function(err) {
+  userDomainModule.joinDomain(user, domain, function(err) {
     if (err) { deferred.reject(err); }
     deferred.resolve([user, domain]);
   });

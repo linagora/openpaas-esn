@@ -2,6 +2,7 @@
 
 var util = require('util');
 var esnConfig = require('../../core')['esn-config'];
+var pubsub = require('../../core/pubsub').local;
 var logger = require('../logger');
 var authToken = require('../auth/token');
 var extend = require('extend');
@@ -9,8 +10,9 @@ var mongoose = require('mongoose');
 var trim = require('trim');
 var User = mongoose.model('User');
 var emailAddresses = require('email-addresses');
+var CONSTANTS = require('./constants');
 
-var TYPE = 'openpaas';
+var TYPE = CONSTANTS.TYPE;
 module.exports.TYPE = TYPE;
 
 function getUserTemplate(callback) {
@@ -29,6 +31,7 @@ function recordUser(userData, callback) {
     } else {
       logger.warn('Error while trying to provision user in database:', err.message);
     }
+    pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
     callback(err, resp);
   });
 }
@@ -91,7 +94,12 @@ module.exports.updateProfile = function(user, parameter, value, callback) {
   var id = user._id || user;
   var update = {};
   update[parameter] = value;
-  User.update({_id: id}, {$set: update}, callback);
+  User.update({_id: id}, {$set: update}, function(err, saved) {
+    if (!err) {
+      pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(user);
+    }
+    callback(err, saved);
+  });
 };
 
 module.exports.belongsToCompany = function(user, company, callback) {

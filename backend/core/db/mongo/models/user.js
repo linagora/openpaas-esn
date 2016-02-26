@@ -172,40 +172,6 @@ UserSchema.methods = {
   resetLoginFailure: function(cb) {
     this.login.failures = [];
     this.save(cb);
-  },
-
-  joinDomain: function(domain, cb) {
-    if (!domain) {
-      return cb(new Error('Domain must not be null'));
-    }
-    var domainId = domain._id || domain;
-
-    var self = this;
-    function validateDomains(domain) {
-      var valid = true;
-      self.domains.forEach(function(d) {
-        if (d.domain_id === domain) {
-          valid = false;
-        }
-      });
-      return valid;
-    }
-
-    if (!validateDomains(domainId)) {
-      return cb(new Error('User is already in domain ' + domainId));
-    } else {
-      return this.update({ $push: { domains: {domain_id: domain}}}, cb);
-    }
-  },
-
-  isMemberOfDomain: function(domain) {
-    if (!domain) {
-      throw new Error('Domain must not be null');
-    }
-    var domainId = domain._id || domain;
-    return this.domains.some(function(d) {
-      return d.domain_id.equals(domainId);
-    });
   }
 };
 
@@ -225,16 +191,6 @@ UserSchema.statics = {
         }
       }
     }, cb);
-  },
-
-  /**
-   * Get domains for an user
-   *
-   * @param {String} email
-   * @param {Function} cb
-   */
-  loadDomains: function(email, cb) {
-    cb(new Error('Not implemented'));
   }
 };
 module.exports = mongoose.model('User', UserSchema);
