@@ -1,8 +1,8 @@
 .contact-subheader
   .contact-controls-wrapper
     .contact-controls.flex-vertical-centered
-      .letter(ng-hide="displayAs === 'cards'")
-        contact-category-letter
+      .letter
+        contact-category-letter(ng-hide="displayAs === 'cards'")
       contact-search-form
       .contact-show-aside
         a(href='', contextual-sidebar, data-content-template="/contact/views/partials/contact-right-sidebar")
