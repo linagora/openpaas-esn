@@ -41,8 +41,12 @@ angular.module('esn.actionList', [])
           dialogOpened.scope = scope;
         }
 
+        function isDialogOpened() {
+          return dialogOpened && dialogOpened.scope === scope && dialogOpened.$isShown;
+        }
+
         function handleWindowResizement() {
-          if (dialogOpened && dialogOpened.scope === scope && dialogOpened.$isShown) {
+          if (isDialogOpened()) {
             boundOpenFn();
           }
         }
@@ -62,8 +66,11 @@ angular.module('esn.actionList', [])
         element.click(function(event) {
           event.stopImmediatePropagation();
           event.preventDefault();
-
-          boundOpenFn();
+          if (isDialogOpened()) {
+            dialogOpened.hide();
+          } else {
+            boundOpenFn();
+          }
         });
 
       }

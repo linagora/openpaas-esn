@@ -215,6 +215,22 @@ describe('directive : action-list', function() {
     expect(destroySpy).to.have.been.callCount(3);
   });
 
+  it('should hide the dialog when it already shows', function() {
+    screenSize.is = function() {
+      return true;
+    };
+    this.opened =  {
+      $isShown: true,
+      hide: sinon.spy()
+    };
+    this.initDirective('<button action-list>Click Me</button>');
+
+    element.click();
+    element.click();
+
+    expect(this.opened.hide).to.have.been.callCount(1);
+  });
+
   it('should not open multiple $popover', function() {
     screenSize.is = function() {
       return false;
