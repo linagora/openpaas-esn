@@ -484,9 +484,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     var $httpBackend, $rootScope, jmap, sendEmail, backgroundProcessorService;
 
-    var jmapConfigMock;
-    var jmapClientMock;
-    var jmapHelperMock;
+    var jmapConfigMock, jmapClientMock, jmapHelperMock;
 
     beforeEach(function() {
       jmapConfigMock = {};
@@ -557,6 +555,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('Use JMAP', function() {
       beforeEach(function() {
         jmapConfigMock.isJmapSendingEnabled = true;
+        jmapConfigMock.isSaveDraftBeforeSendingEnabled = true;
         jmapHelperMock.toOutboundMessage = angular.noop;
 
         jmapClientMock.saveAsDraft = function() {
@@ -634,6 +633,43 @@ describe('The Unified Inbox Angular module services', function() {
           expect(err.message).to.equal(error.message);
           done();
         });
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('Use JMAP but without saving a draft', function() {
+
+      var email;
+
+      beforeEach(function() {
+        email = { from: 'A', to: 'B' };
+        jmapConfigMock.isJmapSendingEnabled = true;
+        jmapConfigMock.isSaveDraftBeforeSendingEnabled = false;
+        jmapHelperMock.toOutboundMessage = sinon.stub().returns({email: 'content'});
+      });
+
+      it('should use JMAP to send email when JMAP is enabled to send email', function(done) {
+        jmapClientMock.send = sinon.stub().returns($q.when('expected return'));
+
+        sendEmail(email).then(function(returnedValue) {
+          expect(jmapClientMock.send).to.have.been.calledWith({email: 'content'});
+          expect(returnedValue).to.equal('expected return');
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should reject if JMAP client send fails', function(done) {
+        var error = new Error('error message');
+        jmapClientMock.send = sinon.stub().returns($q.reject(error));
+
+        sendEmail(email).then(function(returnedValue) {
+        }).then(done.bind(null, 'should reject'), function(err) {
+          expect(err).to.deep.equal(error);
+          done();
+        });
+
         $rootScope.$digest();
       });
 

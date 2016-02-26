@@ -164,10 +164,12 @@ angular.module('linagora.esn.unifiedinbox')
 
     function sendEmail(email) {
       return withJmapClient(function(client, config) {
-        if (config.isJmapSendingEnabled) {
+        if (!config.isJmapSendingEnabled) {
+          return sendBySmtp(email);
+        } else if (config.isSaveDraftBeforeSendingEnabled) {
           return sendByJmap(client, email);
         } else {
-          return sendBySmtp(email);
+          return client.send(jmapHelper.toOutboundMessage(client, email));
         }
       });
     }
