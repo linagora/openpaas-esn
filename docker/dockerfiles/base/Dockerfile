@@ -20,6 +20,10 @@ RUN apt-get install -y git \
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+WORKDIR /opt/openpaas
+RUN git clone https://github.com/vishnubob/wait-for-it.git wait-for-it
+RUN cp /opt/openpaas/wait-for-it/wait-for-it.sh /usr/bin/wait-for-it.sh
+
 # Cache NPM install of package.json has not been changed
 # cf http://www.clock.co.uk/blog/a-guide-on-how-to-cache-npm-install-with-docker
 COPY package.json /var/www/package.json

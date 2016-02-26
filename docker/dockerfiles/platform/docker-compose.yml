@@ -1,8 +1,9 @@
 version: '2'
 services:
   esn:
-    image: linagora/esn:latest
+    build: ../../../
     container_name: esn
+    command: ["sh", "start.sh"]
     ports:
      - "8080:8080"
     links:
@@ -36,12 +37,10 @@ services:
       - "6379:6379"
 
   mongo:
-    image: linagora/esn-mongo
+    image: mongo:2.6.5
+    command: ["mongod", "--smallfiles"]
     ports:
       - "27017:27017"
-    environment:
-      - REPLICATE_NAME=esn
-      - OPLOG_SIZE=128
 
   elasticsearch:
     image: linagora/esn-elasticsearch:latest

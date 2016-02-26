@@ -1,9 +1,8 @@
 version: '2'
 services:
   esn:
-    build: .
+    image: linagora/esn:latest
     container_name: esn
-    command: ["sh", "start.sh"]
     ports:
      - "8080:8080"
     links:
@@ -11,9 +10,14 @@ services:
       - mongo
       - sabre
       - elasticsearch
+    depends_on:
+      - redis
+      - mongo
+      - sabre
+      - elasticsearch
     env_file:
-      - ./docker/config/jwt.env
-      - ./docker/config/oauth.env
+      - ../../config/jwt.env
+      - ../../config/oauth.env
     environment:
       - PROVISION=${PROVISION}
       - MONGO_HOST=mongo
@@ -37,13 +41,10 @@ services:
       - "6379:6379"
 
   mongo:
-    #image: mongo:2.6.5
-    image: linagora/esn-mongo
+    image: mongo:2.6.5
+    command: ["mongod", "--smallfiles"]
     ports:
       - "27017:27017"
-    environment:
-      - REPLICATE_NAME=esn
-      - OPLOG_SIZE=128
 
   elasticsearch:
     image: linagora/esn-elasticsearch:latest
