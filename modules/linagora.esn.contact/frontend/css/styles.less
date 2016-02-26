@@ -93,10 +93,10 @@ ul.dropdown {
 @media(min-width: @full-size-avatar-max-resolution) {
   .contact-content.visible-xs {
     .contact-avatar {
-      text-align: center;
-      & > img {
+      margin: auto;
+      width: @full-size-avatar-max-resolution;
+      & > img, .mdi {
         display: inline;
-        width: @full-size-avatar-max-resolution;
         margin-top: 30px;
         margin-bottom: 20px;
         border-radius: 3px;
