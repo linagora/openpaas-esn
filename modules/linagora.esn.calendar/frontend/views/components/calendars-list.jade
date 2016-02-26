@@ -24,6 +24,6 @@
             span {{calendar.name}}
     .configuration-container.visible-xs
       hr
-      .lv-item.clickable(href="", ui-sref="calendar.list", ng-click='onEditClick()')
+      .lv-item.clickable.configuration-button(href="", ui-sref="calendar.list", ng-click='onEditClick()')
         i.mdi.mdi-settings
         | #{__('Configuration')}

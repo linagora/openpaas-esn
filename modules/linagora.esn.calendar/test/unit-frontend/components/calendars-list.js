@@ -65,7 +65,7 @@ describe('The calendar-lists component', function() {
   it('should call onEditClick on settings icon click', function(done) {
     this.$scope.click = done;
     var element = this.initDirective(this.$scope);
-    element.find('a.visible-xs').click();
+    element.find('.configuration-button').click();
   });
 
   describe('scope.toggleCalendar', function() {
