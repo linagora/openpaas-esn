@@ -1,4 +1,4 @@
-form(name='form', ng-submit='signup()')
+form(name='form')
   fieldset
     .input-group.m-b-20
       span.input-group-addon
@@ -17,4 +17,4 @@ form(name='form', ng-submit='signup()')
         input.form-control(type='email', ng-model='settings.email', name='email', placeholder="#{__('Email')}", autofocus=true, required, esn-track-first-blur)
     .clearfix
 
-    a.m-t-25.col-xs-12.btn.btn-success(type='submit', icon='new-user', color='success', ng-disabled='signupTask.running') #{__('Register')}
+    a.m-t-25.col-xs-12.btn.btn-success(ng-click='signup()', icon='new-user', color='success', ng-disabled='signupTask.running') #{__('Register')}
