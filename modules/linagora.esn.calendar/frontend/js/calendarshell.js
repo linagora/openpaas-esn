@@ -81,7 +81,6 @@ angular.module('esn.calendar')
         this.__start = undefined;
         if (value) {
           var dtstart = ICAL.Time.fromJSDate(value.toDate());
-          dtstart.zone = null;
           dtstart.isDate = !value.hasTime();
           var startprop = this.vevent.updatePropertyWithValue('dtstart', dtstart);
           startprop.setParameter('tzid', timezoneLocal);
@@ -98,7 +97,6 @@ angular.module('esn.calendar')
         this.__end = undefined;
         if (value) {
           var dtend = ICAL.Time.fromJSDate(value.toDate());
-          dtend.zone = null;
           dtend.isDate = !value.hasTime();
           var endprop = this.vevent.updatePropertyWithValue('dtend', dtend);
           endprop.setParameter('tzid', timezoneLocal);
