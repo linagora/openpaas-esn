@@ -121,8 +121,16 @@ angular.module('esn.calendar')
 
     function bindEventToCalWrapperMethod(angularEventName, calWrapperMethod) {
       return $rootScope.$on(angularEventName, function(angularEvent, data) {
-        calendarWrapperPromise.then(function(calendarWrapper) {
-          calendarWrapper[calWrapperMethod](data);
+        $q.all({
+          calendar: calendarPromise,
+          calendarWrapper: calendarWrapperPromise
+        }).then(function(o) {
+          if (data.isRecurring && data.isRecurring()) {
+            var getView = o.calendar.fullCalendar('getView');
+            data.expand(getView.start, getView.end.add(1, 'day')).forEach(o.calendarWrapper[calWrapperMethod], o.calendarWrapper);
+          } else {
+            o.calendarWrapper[calWrapperMethod](data);
+          }
         });
       });
     }
