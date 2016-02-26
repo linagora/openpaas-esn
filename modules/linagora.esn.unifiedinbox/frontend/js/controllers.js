@@ -144,6 +144,7 @@ angular.module('linagora.esn.unifiedinbox')
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
+    var disableImplicitSavesAsDraft = false;
 
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
@@ -155,6 +156,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     this.saveDraft = function() {
+      disableImplicitSavesAsDraft = true;
+
       return $scope.composition.saveDraft();
     };
 
@@ -181,17 +184,20 @@ angular.module('linagora.esn.unifiedinbox')
           cancel: uploadTask.cancel
         };
         attachment.status = 'uploading';
-
-        uploadTask.defer.promise.then(function(task) {
+        attachment.upload.promise = uploadTask.defer.promise.then(function(task) {
           attachment.status = 'uploaded';
           attachment.error = null;
           attachment.blobId = task.response.blobId;
+
+          if (!disableImplicitSavesAsDraft) {
+            $scope.composition.saveDraftSilently();
+          }
         }, function(err) {
           attachment.status = 'error';
           attachment.error = err;
         }, function(uploadTask) {
           attachment.upload.progress = uploadTask.progress;
-        }).then($scope.composition.saveDraftSilently.bind($scope.composition));
+        });
 
         return attachment;
       };
@@ -249,6 +255,8 @@ angular.module('linagora.esn.unifiedinbox')
       $scope.disableSendButton();
 
       if ($scope.composition.canBeSentOrNotify()) {
+        disableImplicitSavesAsDraft = true;
+
         $scope.hide();
         $scope.composition.send();
       } else {
