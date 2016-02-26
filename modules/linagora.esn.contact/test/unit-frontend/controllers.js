@@ -1662,7 +1662,7 @@ describe('The Contacts controller module', function() {
       });
       scope.searchInput = 'QueryB';
       scope.$digest();
-      $rootScope.$broadcast('$stateChangeStart', {name: '/some/other/place'});
+      $rootScope.$broadcast('$stateChangeSuccess', {name: '/some/other/place'});
       expect(scope.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledTwice;
       done();
@@ -1695,7 +1695,7 @@ describe('The Contacts controller module', function() {
         }
       });
       scope.searchInput = 'QueryA';
-      $rootScope.$broadcast('$stateChangeStart', {});
+      $rootScope.$broadcast('$stateChangeSuccess', {});
       expect(scope.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledOnce;
       done();

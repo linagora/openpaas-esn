@@ -2,9 +2,9 @@
 
 angular.module('linagora.esn.contact')
 
-  .factory('closeContactForm', function($location) {
+  .factory('closeContactForm', function($state) {
     return function() {
-      $location.path('/contact');
+      $state.go('/contact');
     };
   })
 
