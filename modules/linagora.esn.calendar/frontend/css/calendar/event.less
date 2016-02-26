@@ -29,7 +29,14 @@
     }
     .fc-resizer {
       color: @m-black;
+      display: none;
     }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .fc-view:not(.fc-month-view) .fc-event .fc-resizer {
+    display: block;
   }
 }
 
