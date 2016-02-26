@@ -21,9 +21,9 @@ describe('The google contact importer', function() {
         'openSearch:startIndex': [0],
         'openSearch:totalResults': [199],
         entry: [
-          { id: 1 },
-          { id: 2 },
-          { id: 3 }
+          { id: 1, link: [{$: { type: 'image/*' }}] },
+          { id: 2, link: [{$: { type: 'image/*' }}] },
+          { id: 3, link: [{$: { type: 'image/*' }}] }
         ]
       }
     };
@@ -175,6 +175,44 @@ describe('The google contact importer', function() {
       };
       getImporter().importContact(optionsMock).then(function() {
         expect(count).to.equal(12);
+        done();
+      });
+    });
+
+    it('should get all contact photo if gd:etag exist', function(done) {
+      var count = 0;
+      body.feed['openSearch:totalResults'] = [49];
+      var googleContactPhotoURL = 'https://www.google.com/m8/feeds/photos/media/';
+      var contactLink = [{
+        $: {
+          type: 'image/*',
+          'gd:etag': 1234,
+          href: googleContactPhotoURL
+        }
+      }];
+      body = {
+        feed: {
+          'openSearch:startIndex': [0],
+          'openSearch:totalResults': [49],
+          entry: [
+            { id: 1, link: contactLink },
+            { id: 2, link: contactLink },
+            { id: 3, link: contactLink }
+          ]
+        }
+      };
+      requestMock = function(option, callback) {
+        if (option.url === googleContactPhotoURL) {
+          count++;
+          callback(null, response, 'my photo');
+        } else {
+          callback(null, response, null);
+        }
+      };
+      mockery.registerMock('request', requestMock);
+      mockery.registerMock('xml2js', xml2jsMock);
+      getImporter().importContact(optionsMock).then(function() {
+        expect(count).to.equal(3);
         done();
       });
     });
