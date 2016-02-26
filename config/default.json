@@ -54,6 +54,7 @@
     "linagora.esn.appstore",
     "linagora.esn.calendar",
     "linagora.esn.contact",
+    "linagora.esn.contact.google",
     "linagora.esn.contact.import",
     "linagora.esn.contact.import.twitter",
     "linagora.esn.contact.import.google",
