@@ -28,10 +28,10 @@ There are two ways to run the OpenPaaS platform with docker-compose:
 
 The default docker-compose descriptor can be found at the root or the current repository (check the docker-compose.yml file).
 
-You have to build the container before to launch OpenPaaS. Go to the top repository folder then:
+You have to build the ESN container before to launch OpenPaaS. Go to the top repository folder then:
 
 ```
-docker-compose build
+docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml build
 ```
 
 Note: If your have an error saying that the linagora/esn-base can not be found, you have to build it before. Refer to the 'dev' section below in this case.
@@ -39,13 +39,13 @@ Note: If your have an error saying that the linagora/esn-base can not be found, 
 Then you can run:
 
 ``` sh
-PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose up
+PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml up
 ```
 
 **Run from Docker Hub containers (ie build nothing)**
 
 ```bash
-PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml up
+PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose-images.yml up
 ```
 
 In both cases, environment variables are defined like:
@@ -94,6 +94,8 @@ Let's connect to the OpenPaaS Web appliction on http://<YOUR_DOCKER_IP>:8080. If
 username: admin@open-paas.org
 password: secret
 ```
+
+You can check the [./mailer.md](./mailer.md) documentation to look how to configure a Mail client to access to the OpenPaaS mail server.
 
 ### Known Issues
 

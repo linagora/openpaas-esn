@@ -1,16 +1,12 @@
 version: '2'
 services:
   esn:
-    image: linagora/esn:latest
+    build: ../../../
     container_name: esn
+    command: ["sh", "start.sh"]
     ports:
      - "8080:8080"
     links:
-      - redis
-      - mongo
-      - sabre
-      - elasticsearch
-    depends_on:
       - redis
       - mongo
       - sabre

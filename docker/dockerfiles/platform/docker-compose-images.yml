@@ -1,9 +1,8 @@
 version: '2'
 services:
   esn:
-    build: .
+    image: linagora/esn:latest
     container_name: esn
-    command: ["sh", "start.sh"]
     ports:
      - "8080:8080"
     links:
@@ -11,9 +10,14 @@ services:
       - mongo
       - sabre
       - elasticsearch
+    depends_on:
+      - redis
+      - mongo
+      - sabre
+      - elasticsearch
     env_file:
-      - ./docker/config/jwt.env
-      - ./docker/config/oauth.env
+      - ../../config/jwt.env
+      - ../../config/oauth.env
     environment:
       - PROVISION=${PROVISION}
       - MONGO_HOST=mongo
