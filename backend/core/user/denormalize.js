@@ -3,14 +3,13 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
-function userToJSON(user) {
-  return user instanceof User ? user.toObject({ virtuals: true }) : new User(user).toObject({ virtuals: true });
-}
-
 function denormalize(user) {
-  var document = userToJSON(user);
-  document.id = document._id;
-  delete document.password;
-  return document;
+
+  function transform(doc, ret) {
+    ret.id = ret._id;
+    delete ret.password;
+  }
+  var options = {virtuals: true, transform: transform};
+  return user instanceof User ? user.toObject(options) : new User(user).toObject(options);
 }
 module.exports = denormalize;

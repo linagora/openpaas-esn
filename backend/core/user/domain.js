@@ -19,13 +19,7 @@ function joinDomain(user, domain, callback) {
   var domainId = domain._id || domain;
 
   function validateDomains(domain) {
-    var valid = true;
-    user.domains.forEach(function(d) {
-      if (d.domain_id === domain) {
-        valid = false;
-      }
-    });
-    return valid;
+    return user.domains.every(function(d) {return d.domain_id !== domain;});
   }
 
   if (!validateDomains(domainId)) {

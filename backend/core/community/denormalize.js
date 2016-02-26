@@ -2,13 +2,12 @@
 
 var Community = require('mongoose').model('Community');
 
-function communityToJSON(community) {
-  return community instanceof Community ? community.toObject({ virtuals: true }) : new Community(community).toObject({ virtuals: true });
-}
-
 function denormalize(community) {
-  var document = communityToJSON(community);
-  document.id = document._id;
-  return document;
+  function transform(doc, ret) {
+    ret.id = ret._id;
+  }
+  var options = {virtuals: true, transform: transform};
+
+  return community instanceof Community ? community.toObject(options) : new Community(community).toObject(options);
 }
 module.exports = denormalize;
