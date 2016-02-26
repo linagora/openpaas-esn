@@ -373,4 +373,19 @@ describe('The eventUtils service', function() {
       expect(this.eventUtils.isNew({etag: '123'})).to.be.false;
     });
   });
+
+  describe('setBackgroundColor function', function() {
+    it('should set the background color of the good calendar', function() {
+
+      var event = {
+        id: 'paint it black',
+        calendarId: 'altamont'
+      };
+
+      var calendars = [{id: 'woodstock', color: 'pink'}, {id: 'altamont', color: 'black'}];
+
+      expect(this.eventUtils.setBackgroundColor(event, calendars)).to.equal(event);
+      expect(event.backgroundColor).to.equal('black');
+    });
+  });
 });

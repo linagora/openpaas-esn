@@ -206,7 +206,7 @@ angular.module('esn.calendar')
      * @return {Mixed}                           true no success, false if cancelled, the http response if no graceperiod is used.
      */
     function createEvent(calendarId, calendarPath, event, options) {
-      var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
+      event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
       var taskId = null;
 
       function onTaskSuccess() {
@@ -218,7 +218,7 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
       }
 
-      return eventAPI.create(eventPath, event.vcalendar, options)
+      return eventAPI.create(event.path, event.vcalendar, options)
         .then(function(response) {
           if (typeof response !== 'string') {
             return response;

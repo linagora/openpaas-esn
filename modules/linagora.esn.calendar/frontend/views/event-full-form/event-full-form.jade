@@ -38,9 +38,7 @@
                       span.input-group-addon
                         i.mdi.mdi-calendar-multiple
                       .fg-line.select
-                        select.form-control(ng-disabled="!isOrganizer")
-                          option(value="calendarA") calendarA
-                          option(value="calendarB") calendarB
+                        select.form-control(ng-disabled="!isOrganizer || !isNew(editedEvent)", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
 
               event-date-edition(event="editedEvent", disabled="!isOrganizer")
 

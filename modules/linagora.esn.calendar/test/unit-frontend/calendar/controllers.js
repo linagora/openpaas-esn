@@ -53,6 +53,16 @@ describe('The calendar module controllers', function() {
 
     this.CalendarShellMock.fromIncompleteShell = sinon.spy();
 
+    this.calendars = [{
+      href: 'href',
+      id: 'id',
+      color: 'color'
+    }, {
+      href: 'href2',
+      id: 'id2',
+      color: 'color2'
+    }];
+
     this.calendarServiceMock = {
       calendarId: '1234',
       createEvent: function() {
@@ -63,15 +73,7 @@ describe('The calendar module controllers', function() {
         return $q.when();
       },
       listCalendars: function() {
-        return $q.when([{
-          href: 'href',
-          id: 'id',
-          color: 'color'
-        }, {
-          href: 'href2',
-          id: 'id2',
-          color: 'color2'
-        }]);
+        return $q.when(self.calendars);
       },
       createCalendar: function() {
         createCalendarSpy();
@@ -111,7 +113,8 @@ describe('The calendar module controllers', function() {
     this.headerServiceMock = {};
     this.userMock = {};
     this.eventUtilsMock = {
-      applyReply: sinon.spy()
+      applyReply: sinon.spy(),
+      setBackgroundColor: sinon.spy(angular.identity)
     };
 
     angular.mock.module('esn.calendar');
@@ -225,8 +228,7 @@ describe('The calendar module controllers', function() {
           _allDay: '_allday',
           _end: '_end',
           _id: '_id',
-          _start: '_start',
-          backgroundColor: '#2196f3'
+          _start: '_start'
         });
       });
 
@@ -271,8 +273,7 @@ describe('The calendar module controllers', function() {
           _end: '_end',
           _id: '_id',
           _start: '_start',
-          source: 'iamasource',
-          backgroundColor: '#2196f3'
+          source: 'iamasource'
         });
       });
 
@@ -296,17 +297,20 @@ describe('The calendar module controllers', function() {
         }
       };
 
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
+      var event = {
         title: 'aTitle',
         allDay: '_allday',
         id: '_id',
         source: 'iamasource'
-      });
+      };
+
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
 
       this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
       expect(removeEventsFn).to.not.have.been.called;
       expect(renderEventsFn).to.not.have.been.called;
+      expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
       expect(updateEventsFn).to.have.been.called;
     });
 
@@ -605,6 +609,7 @@ describe('The calendar module controllers', function() {
 
         this.controller('calendarController', {$scope: this.scope});
         this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
       });
 
       it('should compute the event before the resize and pass it to calendarService.modifyEvent', function(done) {
@@ -774,6 +779,7 @@ describe('The calendar module controllers', function() {
         expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
         expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
         expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
       });
 
       it('should add the event on EVENT_REQUEST if not already there', function() {
@@ -788,6 +794,7 @@ describe('The calendar module controllers', function() {
         expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
         expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
         expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
       });
 
       it('should replace the event on EVENT_REQUEST if already there', function() {
@@ -804,6 +811,7 @@ describe('The calendar module controllers', function() {
         expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
         expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
         expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
       });
 
       it('should replace the event EVENT_UPDATED', function() {
@@ -820,6 +828,7 @@ describe('The calendar module controllers', function() {
         expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
         expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
         expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
       });
 
       it('should replace the event EVENT_REPLY', function() {
@@ -839,6 +848,7 @@ describe('The calendar module controllers', function() {
         expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
         expect(this.eventUtilsMock.applyReply).to.have.been.calledWith(event, reply);
         expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
       });
 
       it('should remove the event on EVENT_DELETED', function() {

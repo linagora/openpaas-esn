@@ -325,6 +325,13 @@ describe('CalendarShell factory', function() {
 
   });
 
+  describe('calendarId property', function() {
+    it('should compute the id from the path', function() {
+      var event = CalendarShell.fromIncompleteShell({path: '/calendarHomeId/calendarId/events'});
+      expect(event.calendarId).to.equal('calendarId');
+    });
+  });
+
   describe('modifyOccurence method', function() {
 
     it('should failed if called on a non master event', function(done) {
