@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
+/* global _: false */
 
 var expect = chai.expect;
 
@@ -46,7 +47,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
     this.modifiedEvent = {
       id: 2,
       title: 'has been replaced',
-      start: this.fcMoment('1984-01-03')
+      start: this.fcMoment('1984-01-03'),
+      isRecurring: _.constant(false)
     };
   }));
 
@@ -146,6 +148,31 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
         this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
+      });
+
+      it('should take a recurring event and make wrapped event sources expand it and add his subevent in the requested period', function() {
+        var correctSubEvent = {
+          id: 'subevent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isRecurring: _.constant(false)
+        };
+
+        var invalidSubEvent = {
+          id: 'invalid subevent',
+          start: this.start.clone().subtract(2, 'hour'),
+          end: this.start.clone().subtract(1, 'hour'),
+          isRecurring: _.constant(false)
+        };
+
+        this.modifiedEvent.id = 'parent';
+        this.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        this.modifiedEvent.expand = sinon.stub().returns([correctSubEvent, invalidSubEvent]);
+        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
+        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        expect(this.modifiedEvent.isRecurring).to.have.been.called;
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start, this.end);
+        expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(correctSubEvent));
       });
 
       it('should ignore a event if it is not on the same calendar even if it is in the requested period', function() {
