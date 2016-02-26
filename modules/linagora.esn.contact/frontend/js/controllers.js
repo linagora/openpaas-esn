@@ -366,7 +366,7 @@ angular.module('linagora.esn.contact')
       contactUpdateDataService.contactUpdatedIds = [];
     });
 
-    $scope.$on('$stateChangeStart', function() {
+    $scope.$on('$stateChangeSuccess', function() {
       if (!$location.search().q) {
         if (!$scope.searchInput) {return;}
         $scope.searchInput = null;

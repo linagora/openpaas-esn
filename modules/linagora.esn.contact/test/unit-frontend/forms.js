@@ -15,10 +15,10 @@ describe('The Contacts forms module', function() {
 
     beforeEach(function() {
       var self = this;
-      self.location = {};
+      self.state = {};
 
       angular.mock.module(function($provide) {
-        $provide.value('$location', self.location);
+        $provide.value('$state', self.state);
       });
     });
 
@@ -27,9 +27,9 @@ describe('The Contacts forms module', function() {
     }));
 
     it('should change path to /contact', function() {
-      this.location.path = sinon.spy();
+      this.state.go = sinon.spy();
       this.closeContactForm();
-      expect(this.location.path).to.have.been.calledWith(('/contact'));
+      expect(this.state.go).to.have.been.calledWith(('/contact'));
     });
   });
 
