@@ -10,9 +10,6 @@ services:
     command: ["mongod", "--smallfiles"]
     ports:
       - "27017:27017"
-    environment:
-      - REPLICATE_NAME=esn
-      - OPLOG_SIZE=128
 
   elasticsearch:
     image: linagora/esn-elasticsearch:latest
