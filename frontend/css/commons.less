@@ -463,6 +463,12 @@
   -webkit-transform: translate(0, 0); // https://css-tricks.com/forums/topic/safari-for-ios-z-index-ordering-bug-while-scrolling-a-page-with-a-fixed-element/
 }
 
+textarea {
+  // http://stackoverflow.com/questions/5263260/stop-safari-mobile-from-giving-input-buttons-rounded-corners
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+}
+
 @media (max-width: @screen-xs-max) {
   .no-padding-xs {
     padding:0 !important; /* Needed to override bootsrap */
