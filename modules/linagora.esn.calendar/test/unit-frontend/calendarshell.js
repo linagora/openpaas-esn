@@ -228,6 +228,267 @@ describe('CalendarShell factory', function() {
       shell = CalendarShell.fromIncompleteShell(shell);
       expect(shell.vcalendar.toJSON()).to.deep.equal(getIcalWithRrule(rrule));
     });
+
+    it('should create a recurrent event with a method isRecurring returning true', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        title: 'non-allday event',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.isRecurring()).to.be.true;
+    });
+
+  });
+
+  describe('isRecurring method', function() {
+    it('should return true for reccuring event', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.isRecurring()).to.be.true;
+    });
+
+    it('should return false for non reccuring event', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.isRecurring()).to.be.false;
+    });
+  });
+
+  describe('expand method', function() {
+
+    function formatDates(event) {
+      event.formattedStart = event.start.format('YYYY-MM-DD HH:MM');
+      event.formattedEnd = event.end.format('YYYY-MM-DD HH:MM');
+      return event;
+    }
+
+    it('should return an empty array for non recurring event', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.expand()).to.deep.equal([]);
+    });
+
+    it('should fail if called without end date and max element if the event have a infinity of sub event', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        rrule: {
+          freq: 'DAILY',
+          interval: 2
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.expand).to.throw(Error);
+    });
+
+    it('should not fail if called with end date and max element if the event has count', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 2
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.expand.bind(shell)).to.not.throw(Error);
+    });
+
+    it('should not fail if called with end date and max element if the event has until', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          until: new Date()
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.expand.bind(shell)).to.not.throw(Error);
+    });
+
+    it('should expand correctly all subevent if no start end zone specified', function() {
+      var shell = {
+        start: fcMoment('2015-01-01 18:01'),
+        end: fcMoment('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-01 18:01',
+          formattedEnd: '2015-01-01 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        1: {
+          title: 'reccurent',
+          formattedStart: '2015-01-03 18:01',
+          formattedEnd: '2015-01-03 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        2: {
+          title: 'reccurent',
+          formattedStart: '2015-01-05 18:01',
+          formattedEnd: '2015-01-05 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 3
+      });
+    });
+
+    it('should expand correctly all subevent before enddate if no startDate given', function() {
+      var shell = {
+        start: fcMoment('2015-01-01 18:01'),
+        end: fcMoment('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand(null, fcMoment('2015-01-02')).map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-01 18:01',
+          formattedEnd: '2015-01-01 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 1
+      });
+    });
+
+    it('should expand correctly all subevent after start if no enddate given', function() {
+      var shell = {
+        start: fcMoment('2015-01-01 18:01'),
+        end: fcMoment('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand(fcMoment('2015-01-04')).map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-05 18:01',
+          formattedEnd: '2015-01-05 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 1
+      });
+    });
+
+    it('should expand correctly all subevent between start date and end date', function() {
+      var shell = {
+        start: fcMoment('2015-01-01 18:01'),
+        end: fcMoment('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand(fcMoment('2015-01-02'), fcMoment('2015-01-04')).map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-03 18:01',
+          formattedEnd: '2015-01-03 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 1
+      });
+    });
+
+    it('should expand no more event than given maxElement', function() {
+      var shell = {
+        start: fcMoment('2015-01-01 18:01'),
+        end: fcMoment('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand(null, null, 2).map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-01 18:01',
+          formattedEnd: '2015-01-01 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        1: {
+          title: 'reccurent',
+          formattedStart: '2015-01-03 18:01',
+          formattedEnd: '2015-01-03 19:01',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 2
+      });
+    });
   });
 
   describe('getModifiedMaster method', function() {
