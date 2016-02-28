@@ -1,7 +1,7 @@
 @inboxAsideFontSize: 1.6em;
 @inboxAsideHeadingFontSize: 1.8em;
 @inboxAsideIconFontSize: 2.2em;
-@inboxAsideMailboxNameHeight: 38px;
+@inboxAsideMailboxNameHeight: 30px;
 
 .inbox-aside {
 
@@ -9,6 +9,14 @@
 
   .clickable {
     line-height: @inboxAsideIconFontSize;
+
+    &.selected {
+      background-color: @darkenBgColor;
+
+      .mailbox-name .mailbox-name-after:after {
+        background-color: @darkenBgColor;
+      }
+    }
   }
 
   .inbox-icon {
@@ -22,7 +30,7 @@
     direction: rtl;
     height: @inboxAsideMailboxNameHeight;
     text-align: left;
-    line-height: @inboxAsideMailboxNameHeight - 8;
+    line-height: @inboxAsideMailboxNameHeight;
 
     .mailbox-name-inner {
       white-space: nowrap;
@@ -31,18 +39,19 @@
       vertical-align: top;
       height: @inboxAsideMailboxNameHeight + 1;
     }
+
     .mailbox-name-after {
       width: 1px;
       height: @inboxAsideMailboxNameHeight + 1;
       display: inline-block;
       position: relative;
     }
+
     .mailbox-name-after:after {
       content: "…";
       width: auto;
       background-color: white;
       margin-right: 6px;
-      box-shadow: 2px 0 2px white;
       position: absolute;
       bottom: @inboxAsideMailboxNameHeight + 1;
       left: 0;
@@ -53,29 +62,35 @@
 
   .listview:not(.lv-lg):not(.lv-message) {
     .lv-item:not(.menu-heading) {
-      padding: 5px 20px;
+      padding: 2px 30px 2px 20px;
     }
   }
 
   &.inbox-desktop-menu {
-    margin-top: 30px;
+    margin-top: 20px;
     max-width: 300px;
 
     .listview:not(.lv-lg):not(.lv-message) {
       .lv-item.menu-heading {
-        padding-right: 0;
+        padding: 8px 0 8px 15px;
       }
     }
 
     .menu-heading {
       .flex;
 
-      margin-left: -5px;
-      margin-right: -5px;
       border-left: 5px solid @primaryColor;
 
-      i.mdi.calendar{
-        font-size: 2.2em;
+      .add-folder {
+        .transition(0.25s ease-out);
+
+        &:hover {
+          .scale-rotate(1.2, 180deg);
+        }
+
+        .inbox-icon {
+          margin: 0;
+        }
       }
 
       .title {
@@ -85,6 +100,7 @@
         .text {
           .flex-shorthand(1);
 
+          margin-left: 5px;
           font-weight: bold;
           font-size: @inboxAsideFontSize;
           color: @primaryColor;
@@ -93,16 +109,18 @@
     }
 
     .settings-overlay {
-      top: 10%;
-      height: 60%;
-
       font-size: @inboxAsideIconFontSize;
     }
 
     .mailbox-name {
       .mailbox-name-after:after {
         background-color: @body-bg;
-        box-shadow: 2px 0 4px @body-bg;
+      }
+    }
+
+    .clickable.selected {
+      .mailbox-name .mailbox-name-after:after {
+        background-color: @darkenBgColor;
       }
     }
   }
