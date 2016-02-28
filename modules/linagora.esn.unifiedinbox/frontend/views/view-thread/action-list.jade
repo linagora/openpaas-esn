@@ -4,7 +4,7 @@
       i.mdi.mdi-eye-off
       span.label
         | #{__('Mark as unread')}
-    a(ng-switch-when='true', ng-click='ctrl.markAsRead())', title="#{__('Mark as read')}")
+    a(ng-switch-when='true', ng-click='ctrl.markAsRead()', title="#{__('Mark as read')}")
       i.mdi.mdi-eye
       span.label
         | #{__('Mark as read')}
