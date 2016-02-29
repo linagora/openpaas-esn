@@ -266,9 +266,9 @@ angular.module('linagora.esn.unifiedinbox')
           }, 0);
         };
 
-        scope.openRecipients = function(rcptType) {
+        scope.openRecipients = function(recipientsType) {
           $state.go('.recipients', {
-            rcpt: rcptType,
+            recipientsType: recipientsType,
             composition: controller.getComposition()
           });
         };

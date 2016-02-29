@@ -275,6 +275,25 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(headerService.subHeader.setVisibleMD).to.have.been.called;
     });
 
+    it('should call state.go with the given type and the controller composition', function(done) {
+      var directive = compileDirective('<composer />');
+      directive.controller('composer').initCtrl({});
+
+      $state.go = sinon.spy(function(recipientsType, params) {
+        expect(recipientsType).to.equal('.recipients');
+        expect(params).to.shallowDeepEqual({
+          recipientsType: 'to',
+          composition: {
+            draft: { originalEmailState: { bcc: [], cc: [], to: [] } },
+            email: { bcc: [], cc: [], to: [] }
+          }
+        });
+        done();
+      });
+
+      $scope.openRecipients('to');
+    });
+
     describe('its controller', function() {
 
       var directive, ctrl;

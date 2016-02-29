@@ -395,12 +395,13 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('recipientsFullscreenEditFormController', function($scope, $rootScope, $state, $stateParams, headerService) {
-    if (!$stateParams.rcpt || !$stateParams.composition) {
-      $state.go('unifiedinbox.compose');
+    if (!$stateParams.recipientsType || !$stateParams.composition || !$stateParams.composition.email) {
+      return $state.go('unifiedinbox.compose');
     }
 
-    $scope.rcpt = $stateParams.rcpt;
-    $scope.recipients = $stateParams.composition.email[$stateParams.rcpt];
+    $scope.recipientsType = $stateParams.recipientsType;
+    $scope.recipients = $stateParams.composition.email[$stateParams.recipientsType];
+
     $scope.backToComposition = function() {
       $state.go('^', { composition: $stateParams.composition });
     };
