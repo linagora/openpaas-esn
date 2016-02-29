@@ -160,7 +160,7 @@ describe('The keepChangeDuringGraceperiod service', function() {
 
         var invalidSubEvent = {
           id: 'invalid subevent',
-          start: this.start.clone().subtract(2, 'hour'),
+          start: this.start.clone().subtract(2, 'days'),
           end: this.start.clone().subtract(1, 'hour'),
           isRecurring: _.constant(false)
         };
@@ -171,7 +171,7 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
         this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.modifiedEvent.isRecurring).to.have.been.called;
-        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start, this.end);
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(correctSubEvent));
       });
 

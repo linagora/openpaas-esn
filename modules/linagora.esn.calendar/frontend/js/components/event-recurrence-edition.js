@@ -29,19 +29,23 @@ angular.module('esn.calendar')
   })
   .directive('eventRecurrenceEdition', function(calendarUtils, RECUR_FREQ, WEEK_DAYS) {
     function link(scope, element) {
-      scope.disabled = angular.isDefined(scope.disabled) ? scope.disabled : false;
-      if (!scope.event.rrule) {
-        scope.event.rrule = {
-          freq: RECUR_FREQ[0].value
-        };
-      }
+      scope._event.getModifiedMaster().then(function(master) {
+        scope.readOnly = !scope.isOrganizer || scope._event.isInstance();
+        scope.event = master;
+
+        if (!scope.event.rrule) {
+          scope.event.rrule = {
+            freq: RECUR_FREQ[0].value
+          };
+        }
+      });
+
       scope.RECUR_FREQ = RECUR_FREQ;
       scope.WEEK_DAYS = Object.keys(WEEK_DAYS);
       scope.animateFlexContainer = false;
       var weekDaysValues = Object.keys(WEEK_DAYS).map(function(key) {
         return WEEK_DAYS[key];
       });
-
       scope.toggleWeekdays = function(weekday) {
         var index = scope.event.rrule.byday.indexOf(WEEK_DAYS[weekday]);
         var newDays = scope.event.rrule.byday.slice();
@@ -87,8 +91,8 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       scope: {
-        event: '=',
-        readOnly: '=?'
+        _event: '=event',
+        isOrganizer: '=?'
       },
       replace: true,
       templateUrl: '/calendar/views/components/event-recurrence-edition.html',

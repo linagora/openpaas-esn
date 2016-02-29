@@ -127,7 +127,7 @@ angular.module('esn.calendar')
         }).then(function(o) {
           if (data.isRecurring && data.isRecurring()) {
             var getView = o.calendar.fullCalendar('getView');
-            data.expand(getView.start, getView.end.add(1, 'day')).forEach(o.calendarWrapper[calWrapperMethod], o.calendarWrapper);
+            data.expand(getView.start.clone().subtract(1, 'day'), getView.end.clone().add(1, 'day')).forEach(o.calendarWrapper[calWrapperMethod], o.calendarWrapper);
           } else {
             o.calendarWrapper[calWrapperMethod](data);
           }

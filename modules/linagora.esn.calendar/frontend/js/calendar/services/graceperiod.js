@@ -20,7 +20,8 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
       added: new Date(),
       event: event,
       calendarId: calendarId,
-      action: action
+      action: action,
+      instances: []
     };
 
     return undo;
@@ -29,8 +30,9 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
   function expandRecurringChange(start, end) {
     angular.forEach(changes, function(change) {
       if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end))) {
-        change.event.expand(start, end.add(1, 'day')).forEach(function(subEvent) {
+        change.event.expand(start.clone().subtract(1, 'day'), end.clone().add(1, 'day')).forEach(function(subEvent) {
           saveChange(change.action, subEvent, change.calendarId, ((new Date()).getTime() - change.added.getTime()));
+          change.instances.push(subEvent);
         });
         change.expandedUntil = end;
       }
@@ -44,7 +46,13 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
       if (!change || change.action === ADD) {
         previousCleanedEvents.push(event);
       } else if (change.action === UPDATE) {
-        previousCleanedEvents.push(change.event);
+        if (change.event.isRecurring()) {
+          change.instances.forEach(function(instance) {
+            previousCleanedEvents.push(instance);
+          });
+        } else {
+          previousCleanedEvents.push(change.event);
+        }
       }
 
       return previousCleanedEvents;

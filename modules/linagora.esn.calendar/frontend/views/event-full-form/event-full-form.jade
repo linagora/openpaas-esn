@@ -57,7 +57,7 @@
               .row.visible-xs
                 attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer', mode='edition')
 
-              event-recurrence-edition(event="editedEvent", read-only="!isOrganizer")
+              event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
 
               .row
                 .col-xs-12
