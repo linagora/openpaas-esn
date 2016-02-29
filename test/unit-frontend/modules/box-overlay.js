@@ -173,6 +173,13 @@ describe('The box-overlay Angular module', function() {
       expect(overlays()).to.have.length(2);
     });
 
+    it('should not accept to open two boxes with the same identifier', function() {
+      var button = compileAndClickTheButton('<button box-overlay box-id="identifier" />');
+      clickTheButton(button);
+
+      expect(overlays()).to.have.length(1);
+    });
+
     it('should accept to reopen a box when one has been closed', function() {
       var notificationCount = 0;
       $rootScope.$on('box-overlay:space-left-on-screen', function() {

@@ -513,10 +513,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function newBoxedComposer() {
-      boxOverlayOpener.open({
-        title: defaultTitle,
-        templateUrl: '/unifiedinbox/views/composer/box-compose.html'
-      });
+      newBoxedComposerCustomTitle(defaultTitle);
     }
 
     function newBoxedDraftComposer(email) {
@@ -525,6 +522,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     function newBoxedComposerCustomTitle(title, email) {
       boxOverlayOpener.open({
+        id: email && email.id,
         title: title,
         templateUrl: '/unifiedinbox/views/composer/box-compose.html',
         email: email
