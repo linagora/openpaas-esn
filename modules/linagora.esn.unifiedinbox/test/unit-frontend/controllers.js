@@ -210,6 +210,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl = initController('composerController');
 
         scope.composition = {
+          canBeSentOrNotify: function() { return true; },
+          saveDraft: sinon.spy(),
+          send: sinon.spy(),
           saveDraftSilently: sinon.stub().returns($q.when(new jmap.CreateMessageAck({destroyMessage: sinon.spy()}, {
             id: 'expected id',
             blobId: 'any',
@@ -280,6 +283,24 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(scope.composition.saveDraftSilently).to.have.been.calledTwice;
       });
 
+      it('should not save intermediate drafts when saveDraft has been called', function() {
+        ctrl.saveDraft();
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.composition.saveDraftSilently).to.have.not.been.called;
+      });
+
+      it('should not save intermediate drafts when send has been called', function() {
+        scope.send();
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.composition.saveDraftSilently).to.have.not.been.called;
+      });
+
       it('should set attachment.error if upload fails', function() {
         fileUploadMock = {
           addFile: function() {
@@ -300,6 +321,48 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           error: 'WTF',
           status: 'error'
         });
+      });
+
+      it('should resolve the upload promise with nothing when upload succeeds', function(done) {
+        fileUploadMock = {
+          addFile: function() {
+            var defer = $q.defer();
+
+            defer.resolve({
+              response: {
+                blobId: '1234'
+              }
+            });
+
+            return {
+              defer: defer
+            };
+          }
+        };
+
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+
+        scope.email.attachments[0].upload.promise.then(done);
+        $rootScope.$digest();
+      });
+
+      it('should resolve the upload promise with nothing when upload fails', function(done) {
+        fileUploadMock = {
+          addFile: function() {
+            var defer = $q.defer();
+
+            defer.reject('WTF');
+
+            return {
+              defer: defer
+            };
+          }
+        };
+
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+
+        scope.email.attachments[0].upload.promise.then(done);
+        $rootScope.$digest();
       });
 
       it('should notify and not add the attachment if file is larger that the default limit', function() {

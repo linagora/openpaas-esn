@@ -198,10 +198,16 @@ angular.module('linagora.esn.unifiedinbox')
         subject: emailState.subject,
         to: _mapToNameEmailTuple(emailState.to),
         cc: _mapToNameEmailTuple(emailState.cc),
-        bcc: _mapToNameEmailTuple(emailState.bcc),
-        attachments: emailState.attachments
+        bcc: _mapToNameEmailTuple(emailState.bcc)
       };
+
       message[emailBodyService.bodyProperty] = emailState[emailBodyService.bodyProperty];
+
+      if (emailState.attachments) {
+        message.attachments = (emailState.attachments || []).filter(function(attachment) {
+          return attachment.blobId;
+        });
+      }
 
       return new jmap.OutboundMessage(jmapClient, message);
     }
@@ -404,7 +410,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _, jmapHelper, ATTACHMENTS_ATTRIBUTES) {
+  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _,
+                                    jmapHelper, waitUntilMessageIsComplete, ATTACHMENTS_ATTRIBUTES) {
 
     function _keepSomeAttributes(array, attibutes) {
       return _.map(array, function(data) {
@@ -446,27 +453,36 @@ angular.module('linagora.esn.unifiedinbox')
       );
     };
 
-    Draft.prototype.save = function(newEmailState, options) {
-      if (!this.needToBeSaved(newEmailState)) {
-        return $q.reject();
+    Draft.prototype.save = function(email, options) {
+      var partial = options && options.partial;
+
+      if (!this.needToBeSaved(email)) {
+        return $q.reject('No changes detected in current draft');
       }
 
       return asyncJmapAction('Saving your email as draft', function(client) {
-        return client.saveAsDraft(jmapHelper.toOutboundMessage(client, newEmailState));
+        function doSave() {
+          var copy = angular.copy(email);
+
+          return client.saveAsDraft(jmapHelper.toOutboundMessage(client, copy, options))
+            .then(function(ack) {
+              copy.id = ack.id;
+
+              return copy;
+            });
+        }
+
+        return partial ? doSave() : waitUntilMessageIsComplete(email).then(doSave);
       }, options);
     };
 
     Draft.prototype.destroy = function() {
-      var destroyMethod, message = this.originalEmailState;
+      var id = this.originalEmailState.id;
 
-      if (message instanceof jmap.Message) {
-        destroyMethod =  message.destroy.bind(message);
-      } else if (message instanceof jmap.CreateMessageAck) {
-        destroyMethod = function(client) { return client.destroyMessage(message.id); };
-      }
-
-      if (destroyMethod) {
-        return asyncJmapAction('Destroying a draft', destroyMethod, {silent: true});
+      if (id) {
+        return asyncJmapAction('Destroying a draft', function(client) {
+          return client.destroyMessage(id);
+        }, { silent: true });
       }
 
       return $q.when();
@@ -544,7 +560,8 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
-                                   asyncAction, jmap, emailBodyService, DRAFT_SAVING_DEBOUNCE_DELAY) {
+                                   asyncAction, jmap, emailBodyService, waitUntilMessageIsComplete,
+                                   DRAFT_SAVING_DEBOUNCE_DELAY) {
 
     function addDisplayNameToRecipients(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -571,44 +588,33 @@ angular.module('linagora.esn.unifiedinbox')
       this.draft = draftService.startDraft(this.email);
     }
 
-    Composition.prototype.getOutgoingEmailCopy = function() {
-      var outgoing = angular.copy(this.email);
-
-      outgoing.attachments = (outgoing.attachments || []).filter(function(attachment) {
-        return attachment.blobId;
-      });
-
-      return outgoing;
+    Composition.prototype._cancelDelayedDraftSave = function() {
+      if (this.delayedDraftSave) {
+        $timeout.cancel(this.delayedDraftSave);
+      }
     };
 
     Composition.prototype.saveDraft = function(options) {
-      var self = this,
-          savingEmailState = this.getOutgoingEmailCopy();
+      this._cancelDelayedDraftSave();
 
-      if (self.delayedDraftSaving) {
-        $timeout.cancel(self.delayedDraftSaving);
-      }
+      return this.draft.save(this.email, options)
+        .then(function(newEmailstate) {
+          this.draft.destroy();
 
-      self.delayedDraftSaving = $timeout(self.draft.save.bind(self.draft, savingEmailState, options), DRAFT_SAVING_DEBOUNCE_DELAY);
+          return newEmailstate;
+        }.bind(this))
+        .then(function(newEmailstate) {
+          this.draft = draftService.startDraft(prepareEmail(newEmailstate));
 
-      return self.delayedDraftSaving
-        .then(function(createMessageAck) {
-          self.draft.destroy();
-
-          return createMessageAck;
-        })
-        .then(function(createMessageAck) {
-          delete savingEmailState.id;
-
-          var newDraftVersion = angular.extend(createMessageAck, savingEmailState);
-          self.draft = draftService.startDraft(prepareEmail(newDraftVersion));
-
-          return createMessageAck;
-        });
+          return newEmailstate;
+        }.bind(this));
     };
 
     Composition.prototype.saveDraftSilently = function() {
-      return this.saveDraft({ silent: true });
+      this._cancelDelayedDraftSave();
+      this.delayedDraftSave = $timeout(angular.noop, DRAFT_SAVING_DEBOUNCE_DELAY);
+
+      return this.delayedDraftSave.then(this.saveDraft.bind(this, { silent: true, partial: true }));
     };
 
     Composition.prototype.getEmail = function() {
@@ -646,24 +652,36 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     Composition.prototype.send = function() {
-      if (!this.canBeSentOrNotify()) {
-        return;
-      }
-
-      var self = this;
+      this._cancelDelayedDraftSave();
 
       emailSendingService.removeDuplicateRecipients(this.email);
 
-      asyncAction('Sending of your message', function() {
-        return quoteOriginalEmailIfNeeded(self.email).then(function(email) {
-          return emailSendingService.sendEmail(email);
-        });
-      }).then(function() {
-        self.draft.destroy();
-      });
+      return asyncAction('Sending of your message', function() {
+        return waitUntilMessageIsComplete(this.email)
+          .then(quoteOriginalEmailIfNeeded.bind(null, this.email))
+          .then(function(email) {
+            return emailSendingService.sendEmail(email);
+          });
+      }.bind(this)).then(this.draft.destroy.bind(this.draft));
     };
 
     return Composition;
+  })
+
+  .factory('waitUntilMessageIsComplete', function($q, _) {
+    function attachmentsAreReady(message) {
+      return _.size(message.attachments) === 0 || _.every(message.attachments, 'blobId');
+    }
+
+    return function(message) {
+      if (attachmentsAreReady(message)) {
+        return $q.when(message);
+      }
+
+      return $q.all(message.attachments.map(function(attachment) {
+        return attachment.upload.promise;
+      })).then(_.constant(message));
+    };
   })
 
   .factory('localTimezone', function() {

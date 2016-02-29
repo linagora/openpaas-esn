@@ -679,72 +679,59 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The jmapHelper service', function() {
 
-    var jmapHelper;
-    var jmapMock, sessionMock, emailBodyServiceMock;
+    var jmapHelper, jmap;
 
     beforeEach(function() {
-      jmapMock = {};
-      sessionMock = {};
-      emailBodyServiceMock = {};
-
       angular.mock.module(function($provide) {
-        $provide.value('jmap', jmapMock);
-        $provide.value('session', sessionMock);
-        $provide.value('emailBodyService', emailBodyServiceMock);
+        $provide.value('session', { user: { name: 'Alice', preferredEmail: 'alice@domain' } });
+        $provide.value('emailBodyService', { bodyProperty: 'htmlBody' });
       });
 
-      angular.mock.inject(function(_jmapHelper_) {
+      angular.mock.inject(function(_jmapHelper_, _jmap_) {
         jmapHelper = _jmapHelper_;
+        jmap = _jmap_;
       });
     });
 
     describe('The toOutboundMessage fn', function() {
+
       it('should build and return new instance of jmap.OutboundMessage', function() {
-        var emailState = {
+        expect(jmapHelper.toOutboundMessage({}, {
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
           to: [{email: 'to@domain', name: 'to'}],
           cc: [{email: 'cc@domain', name: 'cc'}],
           bcc: [{email: 'bcc@domain', name: 'bcc'}]
-        };
-        var jmapClient = {};
-        sessionMock.user = {
-          name: 'Alice',
-          preferredEmail: 'alice@domain'
-        };
-        var sender = {
-          name: sessionMock.user.name,
-          email: sessionMock.user.preferredEmail
-        };
-        emailBodyServiceMock.bodyProperty = 'htmlBody';
-        jmapMock.OutboundMessage = function(client, email) {
-          expect(client).to.shallowDeepEqual(jmapClient);
-          expect(email).to.shallowDeepEqual({
-            from: sender,
-            bcc: [{
-              email: 'bcc@domain',
-              name: 'bcc'
-            }],
-            cc: [{
-              email: 'cc@domain',
-              name: 'cc'
-            }],
-            htmlBody: 'expected htmlBody',
-            subject: 'expected subject',
-            to: [{
-              email: 'to@domain',
-              name: 'to'
-            }]
-          });
-        };
-        jmapMock.EMailer = function(data) {
-          expect(data).to.deep.equal(sender);
-          return sender;
-        };
-
-        var message = jmapHelper.toOutboundMessage(jmapClient, emailState);
-        expect(message).to.be.an.instanceof(jmapMock.OutboundMessage);
+        })).to.deep.equal(new jmap.OutboundMessage({}, {
+          from: new jmap.EMailer({
+            name: 'Alice',
+            email: 'alice@domain'
+          }),
+          subject: 'expected subject',
+          htmlBody: 'expected htmlBody',
+          to: [{email: 'to@domain', name: 'to'}],
+          cc: [{email: 'cc@domain', name: 'cc'}],
+          bcc: [{email: 'bcc@domain', name: 'bcc'}]
+        }));
       });
+
+      it('should filter attachments with no blobId', function() {
+        expect(jmapHelper.toOutboundMessage({}, {
+          htmlBody: 'expected htmlBody',
+          attachments: [{ blobId: '1' }, { blobId: '' }]
+        })).to.deep.equal(new jmap.OutboundMessage({}, {
+          from: new jmap.EMailer({
+            name: 'Alice',
+            email: 'alice@domain'
+          }),
+          htmlBody: 'expected htmlBody',
+          to: [],
+          cc: [],
+          bcc: [],
+          attachments: [new jmap.Attachment({}, '1')]
+        }));
+      });
+
     });
 
   });
@@ -1771,16 +1758,14 @@ describe('The Unified Inbox Angular module services', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
         session.user = {preferredEmail: 'yo@lo', name: 'me'};
 
-        var draft = draftService.startDraft({});
-        draft.needToBeSaved = function() {return true;};
-
-        draft.save({
+        draftService.startDraft({}).save({
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
           to: [{email: 'to@domain', name: 'to'}],
           cc: [{email: 'cc@domain', name: 'cc'}],
           bcc: [{email: 'bcc@domain', name: 'bcc'}]
         });
+        $rootScope.$digest();
 
         expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
           sinon.match({
@@ -1797,15 +1782,13 @@ describe('The Unified Inbox Angular module services', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
         session.user = {preferredEmail: 'yo@lo', name: 'me'};
 
-        var draft = draftService.startDraft({});
-        draft.needToBeSaved = function() {return true;};
-
-        draft.save({
+        draftService.startDraft({}).save({
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
           to: [{email: 'to@domain', name: 'to', other: 'value'}],
           cc: [{email: 'cc@domain', name: 'cc'}, {email: 'cc2@domain', other: 'value', name: 'cc2'}]
         });
+        $rootScope.$digest();
 
         expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
           sinon.match({
@@ -1857,32 +1840,16 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
-      it('should call message.destroy when the draft has been created from a jmap.Message', function(done) {
-        var message = new jmap.Message(jmapClient, 'id', 'threadId', ['box1'], {
-          to: [{displayName: '1', email: '1@linagora.com'}]
-        });
-        message.destroy = sinon.stub().returns($q.when());
-
-        draftService.startDraft(message).destroy()
-          .then(function() {
-            expect(message.destroy).to.have.been.calledOnce;
-          }).then(done, done);
-
-        $rootScope.$digest();
-      });
-
-      it('should call client.destroyMessage when the draft has been created from a jmap.CreateMessageAck', function() {
+      it('should call client.destroyMessage when the draft has an ID', function() {
         jmapClient.destroyMessage = sinon.stub().returns($q.when());
-        var ack = new jmap.CreateMessageAck(jmapClient, {
-          id: 'the ack id',
-          blobId: 'any',
-          size: 5
-        });
 
-        draftService.startDraft(ack).destroy();
+        draftService.startDraft({
+          id: 'the id',
+          htmlBody: 'Body'
+        }).destroy();
 
         $rootScope.$digest();
-        expect(jmapClient.destroyMessage).to.have.been.calledWith('the ack id');
+        expect(jmapClient.destroyMessage).to.have.been.calledWith('the id');
       });
 
     });
@@ -2135,13 +2102,19 @@ describe('The Unified Inbox Angular module services', function() {
         .calledWith({ obj: 'expected', bcc: [], cc: [], to: [] });
     });
 
+    function expectEmailAfterSaveAsDraft(email, returnedMessage) {
+      email.id = 'expected id';
+
+      expect(returnedMessage).to.deep.equal(email);
+    }
+
     function saveDraftTest(compositionMethod, done) {
       var composition = new Composition({});
       composition.email.htmlBody = 'modified';
       composition.email.to.push({email: '1@linagora.com'});
 
-      composition[compositionMethod]().then(function(ack) {
-        expect(ack).to.deep.equal(firstSaveAck);
+      composition[compositionMethod]().then(function(message) {
+        expectEmailAfterSaveAsDraft(composition.email, message);
         expect(jmapClient.saveAsDraft.getCall(0).args[0]).to.shallowDeepEqual({
           htmlBody: 'modified',
           to: [{email: '1@linagora.com'}],
@@ -2161,13 +2134,12 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should renew the original jmap message with the ack id when saveDraft is called', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
-      message.destroy = sinon.stub().returns($q.when());
 
       var composition = new Composition(message);
       composition.email.htmlBody = 'new content';
 
       composition.saveDraft().then(function() {
-        expect(message.destroy).to.have.been.calledOnce;
+        expect(jmapClient.destroyMessage).to.have.been.calledWith('not expected id');
         expect(composition.draft.originalEmailState.id).to.equal('expected id');
       }).then(done, done);
 
@@ -2175,14 +2147,13 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should not save incomplete attachments in the drafts', function(done) {
-      var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {
-        attachments: [
-          { blobId: '1' },
-          { blobId: '' },
-          { blobId: '2' },
-          { blobId: '' }
-        ]
-      }));
+      var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1']));
+      composition.email.attachments = [
+        { blobId: '1', upload: { promise: $q.when() } },
+        { blobId: '', upload: { promise: $q.when() } },
+        { blobId: '2', upload: { promise: $q.when() } },
+        { blobId: '', upload: { promise: $q.when() } }
+      ];
 
       composition.saveDraft().then(function() {
         expect(jmapClient.saveAsDraft).to.have.been.calledWith(sinon.match({
@@ -2219,21 +2190,20 @@ describe('The Unified Inbox Angular module services', function() {
       $timeout.flush();
     });
 
-    it('should debouce multiple calls to saveDraft', function(done) {
+    it('should debouce multiple calls to saveDraftSilently', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
-      message.destroy = sinon.spy(message.destroy);
 
       var composition = new Composition(message);
 
       composition.email.htmlBody = 'content1';
-      composition.saveDraft();
+      composition.saveDraftSilently();
 
       composition.email.htmlBody = 'content2';
-      composition.saveDraft();
+      composition.saveDraftSilently();
 
       composition.email.htmlBody = 'content3';
-      composition.saveDraft().then(function() {
-        expect(message.destroy).to.have.been.calledOnce;
+      composition.saveDraftSilently().then(function() {
+        expect(jmapClient.destroyMessage).to.have.been.calledWith('not expected id');
         expect(jmapClient.saveAsDraft).to.have.been.calledOnce;
         expect(composition.draft.originalEmailState.htmlBody).to.equal('content3');
       }).then(done, done);
@@ -2260,6 +2230,24 @@ describe('The Unified Inbox Angular module services', function() {
         expect(composition.draft.originalEmailState.htmlBody).to.equal('saving body');
         expect(composition.draft.originalEmailState.to).to.shallowDeepEqual([{email: 'saving@domain.org'}]);
       }).then(done, done);
+
+      $timeout.flush();
+    });
+
+    it('"saveDraft" should cancel a delayed draft save', function(done) {
+      var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {}));
+      composition.email.subject = 'subject';
+
+      jmapClient.saveAsDraft = sinon.spy(function() {
+        return $q.when(firstSaveAck);
+      });
+
+      composition.saveDraftSilently();
+      composition.saveDraft().then(function() {
+        expect(jmapClient.saveAsDraft).to.have.been.calledOnce;
+
+        done();
+      });
 
       $timeout.flush();
     });
@@ -2324,12 +2312,11 @@ describe('The Unified Inbox Angular module services', function() {
       var message = new jmap.Message(null, 'id', 'threadId', ['box1'], {
         to: [{displayName: '1', email: '1@linagora.com'}]
       });
-      message.destroy = sinon.stub().returns($q.when());
 
       new Composition(message).send();
       $timeout.flush();
 
-      expect(message.destroy).to.have.been.calledOnce;
+      expect(jmapClient.destroyMessage).to.have.been.calledWith('id');
     });
 
     it('"send" fn should quote the original email if current email is not already quoting', function() {
@@ -2388,6 +2375,23 @@ describe('The Unified Inbox Angular module services', function() {
         textBody: 'Body',
         htmlBody: undefined
       }));
+    });
+
+    it('"send" should cancel a delayed draft save', function(done) {
+      var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {}));
+      composition.email.subject = 'subject';
+
+      jmapClient.saveAsDraft = sinon.spy();
+
+      composition.saveDraftSilently();
+      composition.send().then(function() {
+        expect(emailSendingService.sendEmail).to.have.been.calledOnce;
+        expect(jmapClient.saveAsDraft).to.have.not.been.calledWith();
+
+        done();
+      });
+
+      $timeout.flush();
     });
 
   });
@@ -3477,6 +3481,70 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
 
       expect(backgroundProcessorService.add).to.have.been.calledWith();
+    });
+
+  });
+
+  describe('The waitUntilMessageIsComplete factory', function() {
+
+    var $rootScope, waitUntilMessageIsComplete;
+
+    beforeEach(inject(function(_$rootScope_, _waitUntilMessageIsComplete_) {
+      $rootScope = _$rootScope_;
+      waitUntilMessageIsComplete = _waitUntilMessageIsComplete_;
+    }));
+
+    it('should resolve with the email when email has no attachments', function(done) {
+      waitUntilMessageIsComplete({ subject: 'subject' }).then(function(value) {
+        expect(value).to.deep.equal({ subject: 'subject' });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should resolve when email attachments are all uploaded', function(done) {
+      var message = {
+        subject: 'subject',
+        attachments: [{
+          blobId: '1'
+        }, {
+          blobId: '2'
+        }]
+      };
+
+      waitUntilMessageIsComplete(message).then(function(value) {
+        expect(value).to.deep.equal(message);
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should resolve as soon as all attachments are done uploading', function(done) {
+      var defer = $q.defer(),
+          message = {
+            subject: 'subject',
+            attachments: [{
+              blobId: '1',
+              upload: {
+                promise: $q.when()
+              }
+            }, {
+              blobId: '',
+              upload: {
+                promise: defer.promise
+              }
+            }]
+          };
+
+      waitUntilMessageIsComplete(message).then(function(value) {
+        expect(value).to.deep.equal(message);
+
+        done();
+      });
+      defer.resolve();
+      $rootScope.$digest();
     });
 
   });
