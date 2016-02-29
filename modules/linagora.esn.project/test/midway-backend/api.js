@@ -537,9 +537,8 @@ describe('linagora.esn.project module', function() {
         return community._id;
       });
 
-      this.helpers.elasticsearch.checkDocumentsIndexed('communities.idx', 'communities', ids, function(err) {
+      this.helpers.elasticsearch.checkDocumentsIndexed({index: 'communities.idx', type: 'communities', ids: ids}, function(err) {
         if (err) {
-          console.log(err);
           return done(err);
         }
 
@@ -571,7 +570,7 @@ describe('linagora.esn.project module', function() {
         return community._id;
       });
 
-      this.helpers.elasticsearch.checkDocumentsIndexed('communities.idx', 'communities', ids, function(err) {
+      this.helpers.elasticsearch.checkDocumentsIndexed({index: 'communities.idx', type: 'communities', ids: ids}, function(err) {
         if (err) {
           console.log(err);
           return done(err);
@@ -601,7 +600,7 @@ describe('linagora.esn.project module', function() {
         return community._id;
       });
 
-      this.helpers.elasticsearch.checkDocumentsIndexed('communities.idx', 'communities', ids, function(err) {
+      this.helpers.elasticsearch.checkDocumentsIndexed({index: 'communities.idx', type: 'communities', ids: ids}, function(err) {
         if (err) {
           console.log(err);
           return done(err);

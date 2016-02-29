@@ -9,9 +9,19 @@ var communityListener = require('../../../community/listener');
 var elasticSearch = require('../../../elasticsearch/listeners');
 var logger = require('../../../logger');
 
-function applyPlugins() {
+function applyUserPlugins() {
   User.schema.plugin(esPlugin(userListener.getOptions()));
+}
+module.exports.applyUserPlugins = applyUserPlugins;
+
+function applyCommunityPlugins() {
   Community.schema.plugin(esPlugin(communityListener.getOptions()));
+}
+module.exports.applyCommunityPlugins = applyCommunityPlugins;
+
+function applyPlugins() {
+  applyUserPlugins();
+  applyCommunityPlugins();
 }
 module.exports.applyPlugins = applyPlugins;
 

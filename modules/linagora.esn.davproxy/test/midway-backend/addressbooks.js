@@ -202,7 +202,7 @@ describe('The addressbooks dav proxy', function() {
               return done(err);
             }
 
-            self.helpers.elasticsearch.checkDocumentsIndexed('contacts.idx', 'contacts', [contact.id], function(err) {
+            self.helpers.elasticsearch.checkDocumentsIndexed({index: 'contacts.idx', type: 'contacts', ids: [contact.id]}, function(err) {
               if (err) {
                 return done(err);
               }
