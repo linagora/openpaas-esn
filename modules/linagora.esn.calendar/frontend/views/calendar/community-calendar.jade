@@ -1,12 +1,8 @@
-div
-  .row
+.community-calendar
+  .row(ng-if="alertMessage")
     .col-xs-12
-      event-button-create(community='community')
-  .vertiz-space
+      span.calendar-error-message {{alertMessage}}
   .row
-    .col-xs-12
-      span {{alertMessage}}
-  .vertiz-space
-  .row
-    .col-xs-12
-      calendar-view(calendar-home-id='calendarHomeId', ui-config='uiConfig')
+    .calendar-view
+      .col-xs-12
+        .ui-view(name='content')

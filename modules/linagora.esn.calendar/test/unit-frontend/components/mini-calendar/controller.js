@@ -6,7 +6,7 @@ var expect = chai.expect;
 describe('The mini-calendar controller', function() {
 
   var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
-    sessionMock, miniCalendarServiceMock, calendarEventSourceMock, USER_UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
+    sessionMock, miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
     calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock, uniqueId, uuid4Mock;
 
   beforeEach(function() {
@@ -83,7 +83,7 @@ describe('The mini-calendar controller', function() {
       return ['anEventSource'];
     };
 
-    USER_UI_CONFIG_MOCK = {
+    UI_CONFIG_MOCK = {
       calendar: {
         defaultView: 'agendaDay'
       }
@@ -98,7 +98,7 @@ describe('The mini-calendar controller', function() {
       $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
       $provide.value('uuid4', uuid4Mock);
-      $provide.constant('USER_UI_CONFIG', USER_UI_CONFIG_MOCK);
+      $provide.constant('UI_CONFIG', UI_CONFIG_MOCK);
     });
 
   });

@@ -27,20 +27,42 @@ angular.module('esn.calendar', [
   'op.dynamicDirective'
 ])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
-    $stateProvider.state('/calendar/communities/:community_id', {
+    $stateProvider
+
+    .state('calendarForCommunities', {
       url: '/calendar/communities/:community_id',
       templateUrl: '/calendar/views/calendar/community-calendar',
-      controller: 'communityCalendarController',
+      abstract: true,
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
+      },
+      reloadOnSearch: false
+    })
+    .state('calendarForCommunities.main', {
+      url: '',
+      views: {
+        content: {
+          template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
+          controller: function($scope, community, headerService, UI_CONFIG) {
+            $scope.calendarHomeId = community._id;
+            $scope.uiConfig = angular.copy(UI_CONFIG);
+            $scope.uiConfig.calendar.editable = false;
+            $scope.uiConfig.calendar.selectable = false;
+          }
+        }
       }
     })
+
     .state('calendar', {
       url: '/calendar',
       templateUrl: '/calendar/views/calendar/user-calendar',
       abstract: true,
       resolve: {
-        user: routeResolver.session('user')
+        calendarHomeId: function($stateParams, calendarService, session) {
+          return session.ready.then(function() {
+            return session.user._id;
+          });
+        }
       },
       reloadOnSearch: false
     })
@@ -49,9 +71,9 @@ angular.module('esn.calendar', [
       views: {
         content: {
           template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-          controller: function($scope, user, headerService, USER_UI_CONFIG) {
-            $scope.calendarHomeId = user._id;
-            $scope.uiConfig = angular.copy(USER_UI_CONFIG);
+          controller: function($scope, calendarHomeId, headerService, UI_CONFIG) {
+            $scope.calendarHomeId = calendarHomeId;
+            $scope.uiConfig = angular.copy(UI_CONFIG);
 
             headerService.mainHeader.addInjection('calendar-header-content');
             headerService.subHeader.addInjection('calendar-header-mobile');
@@ -63,14 +85,15 @@ angular.module('esn.calendar', [
       url: '/edit/:calendarId',
       views: {
         content: {
-          templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
-          controller: 'calendarEditionController',
+          template: '<calendar-edit calendar-home-id="calendarHomeId" calendar="calendar"/>',
           resolve: {
-            calendar: function($stateParams, calendarService, session) {
-              return session.ready.then(function() {
-                return calendarService.getCalendar(session.user._id, $stateParams.calendarId);
-              });
+            calendar: function($stateParams, calendarService, calendarHomeId) {
+              return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
             }
+          },
+          controller: function($scope, calendarHomeId, calendar) {
+            $scope.calendarHomeId = calendarHomeId;
+            $scope.calendar = calendar;
           }
         }
       }
@@ -79,12 +102,9 @@ angular.module('esn.calendar', [
       url: '/add',
       views: {
         content: {
-          templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
-          controller: 'calendarEditionController',
-          resolve: {
-            calendar: function() {
-              return null;
-            }
+          template: '<calendar-edit calendar-home-id="calendarHomeId"/>',
+          controller: function($scope, calendarHomeId) {
+            $scope.calendarHomeId = calendarHomeId;
           }
         }
       }
@@ -93,14 +113,14 @@ angular.module('esn.calendar', [
       url: '/list',
       views: {
         content: {
-          templateUrl: 'calendar/views/calendar-configuration/calendars-edit',
-          controller: 'calendarsEditionController',
+          template: '<calendars-edit calendars="calendars"/>',
           resolve: {
-            calendars: function(session, calendarService) {
-              return session.ready.then(function() {
-                return calendarService.listCalendars(session.user._id);
-              });
+            calendars: function(calendarService, calendarHomeId) {
+              return calendarService.listCalendars(calendarHomeId);
             }
+          },
+          controller: function($scope, calendars) {
+            $scope.calendars = calendars;
           }
         }
       }

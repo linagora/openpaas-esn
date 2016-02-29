@@ -1,20 +1,20 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, USER_UI_CONFIG, CALENDAR_EVENTS,
+  .controller('miniCalendarController', function($rootScope, $q, $timeout, $window, $scope, $log, fcMoment, UI_CONFIG, CALENDAR_EVENTS,
         uiCalendarConfig, session, calendarEventSource, calendarService, miniCalendarService, notificationFactory, calendarCurrentView, keepChangeDuringGraceperiod, uuid4, _) {
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
     var userId = session.user._id;
 
-    $scope.miniCalendarConfig = angular.extend({}, USER_UI_CONFIG.calendar,
-        USER_UI_CONFIG.miniCalendar);
+    $scope.miniCalendarConfig = angular.extend({}, UI_CONFIG.calendar,
+        UI_CONFIG.miniCalendar);
     $scope.miniCalendarId = uuid4.generate();
     $scope.events = [];
 
     var currentView = calendarCurrentView.get();
-    $scope.homeCalendarViewMode = currentView.name || USER_UI_CONFIG.calendar.defaultView;
+    $scope.homeCalendarViewMode = currentView.name || UI_CONFIG.calendar.defaultView;
 
     var prev = calendarPromise.then.bind(calendarPromise, function(cal) {
       cal.fullCalendar('prev');

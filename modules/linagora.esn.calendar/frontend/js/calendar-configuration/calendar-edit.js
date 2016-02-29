@@ -1,21 +1,16 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendar, calendarService, CalendarCollectionShell, session, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
-    if (!calendarService.calendarHomeId) {
-      $state.go('calendar.main');
-      return;
-    }
-
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
     headerService.subHeader.addInjection('calendar-edition-header', $scope);
-    $scope.newCalendar = !calendar;
-    $scope.calendar = calendar || {};
+
+    $scope.newCalendar = !$scope.calendar;
+    $scope.calendar = $scope.calendar || {};
     $scope.oldCalendar = {};
     angular.copy($scope.calendar, $scope.oldCalendar);
 
     if ($scope.newCalendar) {
-      $scope.calendar.href = CalendarCollectionShell.buildHref(calendarService.calendarHomeId, uuid4.generate());
-      // Before a proper color-picker
+      $scope.calendar.href = CalendarCollectionShell.buildHref($scope.calendarHomeId, uuid4.generate());
       $scope.calendar.color = '#' + Math.random().toString(16).substr(-6);
     }
 
@@ -36,7 +31,7 @@ angular.module('esn.calendar')
 
       var shell = CalendarCollectionShell.from($scope.calendar);
       if ($scope.newCalendar) {
-        calendarService.createCalendar(calendarService.calendarHomeId, shell)
+        calendarService.createCalendar($scope.calendarHomeId, shell)
           .then(function() {
             notificationFactory.weakInfo('New calendar - ', $scope.calendar.name + ' has been created.');
             $state.go('calendar.main');
@@ -46,7 +41,7 @@ angular.module('esn.calendar')
           $state.go('calendar.list');
           return;
         }
-        calendarService.modifyCalendar(calendarService.calendarHomeId, shell)
+        calendarService.modifyCalendar($scope.calendarHomeId, shell)
           .then(function() {
             notificationFactory.weakInfo('Calendar - ', $scope.calendar.name + ' has been modified.');
             $state.go('calendar.main');
@@ -68,6 +63,17 @@ angular.module('esn.calendar')
 
     $scope.cancelMobile = function() {
       $state.go('calendar.list');
+    };
+  })
+  .directive('calendarEdit', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        calendar: '=?',
+        calendarHomeId: '='
+      },
+      templateUrl: '/calendar/views/calendar-configuration/calendar-edit',
+      controller: 'calendarEditionController'
     };
   })
   .directive('calendarEditionHeader', function() {

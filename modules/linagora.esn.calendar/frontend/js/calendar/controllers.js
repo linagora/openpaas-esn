@@ -2,11 +2,6 @@
 
 angular.module('esn.calendar')
 
-  .controller('communityCalendarController', function($scope, community, COMMUNITY_UI_CONFIG) {
-    $scope.calendarHomeId = community._id;
-    $scope.uiConfig = COMMUNITY_UI_CONFIG;
-  })
-
   .controller('calendarController', function(
       $scope,
       $q,

@@ -153,14 +153,14 @@ describe('The calendar module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, CalendarShell, fcMoment, CALENDAR_EVENTS) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, fcMoment, CALENDAR_EVENTS) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.$compile = $compile;
     this.$timeout = $timeout;
     this.$window = $window;
-    this.USER_UI_CONFIG = USER_UI_CONFIG;
+    this.UI_CONFIG = UI_CONFIG;
     this.moment = moment;
     this.CalendarShell = CalendarShell;
     this.fcMoment = fcMoment;
@@ -174,7 +174,7 @@ describe('The calendar module controllers', function() {
   describe('The calendarController controller', function() {
 
     beforeEach(function() {
-      this.scope.uiConfig = this.USER_UI_CONFIG;
+      this.scope.uiConfig = this.UI_CONFIG;
       this.scope.calendarHomeId = 'calendarId';
     });
 
