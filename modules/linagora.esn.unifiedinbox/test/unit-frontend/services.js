@@ -679,12 +679,12 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The jmapHelper service', function() {
 
-    var jmapHelper, jmap;
+    var jmapHelper, jmap, emailBodyServiceMock;
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
         $provide.value('session', { user: { name: 'Alice', preferredEmail: 'alice@domain' } });
-        $provide.value('emailBodyService', { bodyProperty: 'htmlBody' });
+        $provide.value('emailBodyService', emailBodyServiceMock = { bodyProperty: 'htmlBody' });
       });
 
       angular.mock.inject(function(_jmapHelper_, _jmap_) {
@@ -732,6 +732,29 @@ describe('The Unified Inbox Angular module services', function() {
         }));
       });
 
+      it('should include email.htmlBody when provided', function() {
+        emailBodyServiceMock.bodyProperty = 'textBody';
+
+        var message = jmapHelper.toOutboundMessage({}, {
+          htmlBody: 'expected htmlBody',
+          textBody: 'expected textBody'
+        });
+
+        expect(message.htmlBody).to.equal('expected htmlBody');
+        expect(message.textBody).to.be.null;
+      });
+
+      it('should leverage emailBodyServiceMock.bodyProperty when emailState.htmlBody is undefined', function() {
+        emailBodyServiceMock.bodyProperty = 'textBody';
+
+        var message = jmapHelper.toOutboundMessage({}, {
+          htmlBody: '',
+          textBody: 'expected textBody'
+        });
+
+        expect(message.htmlBody).to.be.null;
+        expect(message.textBody).to.equal('expected textBody');
+      });
     });
 
   });

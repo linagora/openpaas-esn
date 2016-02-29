@@ -12,7 +12,7 @@ function sendEmailToRecipients(req, res) {
   var email = req.body;
 
   var message = {
-    from: email.from.emails[0],
+    from: email.from,
     to: getEmailFromRecipient(email.to),
     cc: getEmailFromRecipient(email.cc),
     bcc: getEmailFromRecipient(email.bcc),

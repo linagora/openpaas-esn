@@ -200,8 +200,9 @@ angular.module('linagora.esn.unifiedinbox')
         cc: _mapToNameEmailTuple(emailState.cc),
         bcc: _mapToNameEmailTuple(emailState.bcc)
       };
+      var bodyProperty = emailState.htmlBody ? 'htmlBody' : emailBodyService.bodyProperty;
 
-      message[emailBodyService.bodyProperty] = emailState[emailBodyService.bodyProperty];
+      message[bodyProperty] = emailState[bodyProperty];
 
       if (emailState.attachments) {
         message.attachments = (emailState.attachments || []).filter(function(attachment) {
