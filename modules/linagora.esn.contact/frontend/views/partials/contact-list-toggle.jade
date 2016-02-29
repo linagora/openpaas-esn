@@ -1,4 +1,4 @@
 .contact-toggle-switch
-  span.list-item(ng-class='{"toggle-active": !toggleContactDisplay}') #{__('List')}
+  span.list-item.mdi.mdi-view-list.clickable(ng-class='{"toggle-active": !toggleContactDisplay}', ng-click="updateDisplay(false)")
   toggle-switch(ng-model='toggleContactDisplay', color='white')
-  span.card-item(ng-class='{"toggle-active": toggleContactDisplay}') #{__('Cards')}
+  span.card-item.mdi.mdi-view-module.clickable(ng-class='{"toggle-active": toggleContactDisplay}', ng-click="updateDisplay(true)")
