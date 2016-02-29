@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
+/* global _: false */
 
 var expect = chai.expect;
 
@@ -216,56 +217,49 @@ describe('The calendar module controllers', function() {
       expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
     });
 
-    it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event if event.source is undefined', function() {
-      var removeEventsFn = sinon.spy(function(id) {
-        expect(id).to.equal('_id');
+    describe('The CALENDAR_EVENTS.ITEM_MODIFICATION listener', function() {
+      var fcFn, clientEvents;
+
+      beforeEach(function() {
+        clientEvents = [{
+          _allday: '_allday',
+          _end: '_end',
+          _id: '_id',
+          _start: '_start',
+          source: 'iamasource'
+        }];
+
+        fcFn = {
+          clientEvents: _.constant(clientEvents),
+          removeEvents: sinon.spy(),
+          updateEvent: sinon.spy(),
+          renderEvent: sinon.spy()
+        };
+
+        this.controller('calendarController', {$scope: this.scope});
+
+        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+          return (fcFn[event] || angular.noop)(data);
+        };
       });
-      var renderEventsFn = sinon.spy(function(event) {
-        expect(event).to.deep.equal({
+
+      it('should update an event if event.source is defined', function() {
+        var event = {
           title: 'aTitle',
           allDay: '_allday',
           id: '_id',
-          _allDay: '_allday',
-          _end: '_end',
-          _id: '_id',
-          _start: '_start'
-        });
-      });
+          source: 'iamasource',
+          isRecurring: _.constant(false)
+        };
 
-      this.controller('calendarController', {$scope: this.scope});
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
 
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
-        if (event === 'clientEvents') {
-          return [{
-            _allday: '_allday',
-            _end: '_end',
-            _id: '_id',
-            _start: '_start'
-          }];
-        } else if (event === 'removeEvents') {
-          removeEventsFn(data);
-        } else if (event === 'renderEvent') {
-          renderEventsFn(data);
-        }
-      };
-
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
-        title: 'aTitle',
-        allDay: '_allday',
-        id: '_id'
-      });
-
-      this.scope.uiConfig.calendar.viewRender({});
-      this.scope.$digest();
-      expect(removeEventsFn).to.have.been.called;
-      expect(renderEventsFn).to.have.been.called;
-    });
-
-    it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that update an event if event.source is defined', function() {
-      var removeEventsFn = sinon.spy();
-      var renderEventsFn = sinon.spy();
-      var updateEventsFn = sinon.spy(function(event) {
-        expect(event).to.deep.equal({
+        this.scope.uiConfig.calendar.viewRender({});
+        this.scope.$digest();
+        expect(fcFn.removeEvents).to.not.have.been.called;
+        expect(fcFn.renderEvent).to.not.have.been.called;
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
+        expect(fcFn.updateEvent).to.have.been.calledWith(sinon.match({
           title: 'aTitle',
           allDay: '_allday',
           id: '_id',
@@ -274,44 +268,74 @@ describe('The calendar module controllers', function() {
           _id: '_id',
           _start: '_start',
           source: 'iamasource'
-        });
+        }));
       });
 
-      this.controller('calendarController', {$scope: this.scope});
+      it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event if event.source is undefined', function() {
+        this.controller('calendarController', {$scope: this.scope});
 
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
-        if (event === 'clientEvents') {
-          return [{
-            _allday: '_allday',
-            _end: '_end',
-            _id: '_id',
-            _start: '_start',
-            source: 'iamasource'
-          }];
-        } else if (event === 'removeEvents') {
-          removeEventsFn(data);
-        } else if (event === 'renderEvent') {
-          renderEventsFn(data);
-        } else if (event === 'updateEvent') {
-          updateEventsFn(data);
-        }
-      };
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
+          title: 'aTitle',
+          allDay: '_allday',
+          id: '_id',
+          isRecurring: _.constant(false)
+        });
 
-      var event = {
-        title: 'aTitle',
-        allDay: '_allday',
-        id: '_id',
-        source: 'iamasource'
-      };
+        this.scope.uiConfig.calendar.viewRender({});
+        this.scope.$digest();
+        expect(fcFn.removeEvents).to.have.been.calledWith('_id');
+        expect(fcFn.renderEvent).to.have.been.calledWith(sinon.match({
+          title: 'aTitle',
+          allDay: '_allday',
+          id: '_id',
+          _allDay: '_allday',
+          _end: '_end',
+          _id: '_id',
+          _start: '_start'
+        }));
+      });
 
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
+      it('should update subevent of recurring event', function() {
+        var view = {
+          start: this.fcMoment('2000-01-01'),
+          end: this.fcMoment('2000-01-02')
+        };
 
-      this.scope.uiConfig.calendar.viewRender({});
-      this.scope.$digest();
-      expect(removeEventsFn).to.not.have.been.called;
-      expect(renderEventsFn).to.not.have.been.called;
-      expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
-      expect(updateEventsFn).to.have.been.called;
+        fcFn.getView = sinon.stub().returns(view);
+        var subEvent = {
+          title: 'sub',
+          allDay: '_allDay',
+          id: 'sub',
+          source: 'iamasource',
+          isRecurring: _.constant(false)
+        };
+
+        var event = {
+          title: 'parent',
+          allDay: '_allday',
+          id: 'parent',
+          source: 'iamasource',
+          isRecurring: _.constant(true),
+          expand: sinon.stub().returns([subEvent])
+        };
+
+        clientEvents[0].id = 'sub';
+
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
+
+        this.scope.uiConfig.calendar.viewRender({});
+        this.scope.$digest();
+        expect(fcFn.removeEvents).to.not.have.been.called;
+        expect(fcFn.renderEvent).to.not.have.been.called;
+        expect(fcFn.getView).to.have.been.called;
+        expect(event.expand).to.have.been.calledWith(view.start, view.end);
+        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
+        expect(fcFn.updateEvent).to.have.been.calledWith(sinon.match({
+          title: 'sub',
+          id: 'sub',
+          source: 'iamasource'
+        }));
+      });
     });
 
     it('should call fullCalendar next on swipeRight', function() {
@@ -768,7 +792,7 @@ describe('The calendar module controllers', function() {
       });
 
       it('should add  the event on EVENT_CREATED', function() {
-        var event = {id: 'anId'};
+        var event = {id: 'anId', isRecurring: _.constant(false)};
         var path = 'path';
         var etag = 'etag';
         fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
@@ -783,7 +807,7 @@ describe('The calendar module controllers', function() {
       });
 
       it('should add the event on EVENT_REQUEST if not already there', function() {
-        var event = {id: 'anId'};
+        var event = {id: 'anId', isRecurring: _.constant(false)};
         var path = 'path';
         var etag = 'etag';
         fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
@@ -798,7 +822,7 @@ describe('The calendar module controllers', function() {
       });
 
       it('should replace the event on EVENT_REQUEST if already there', function() {
-        var event = {id: 'anId'};
+        var event = {id: 'anId', isRecurring: _.constant(false)};
         var path = 'path';
         var etag = 'etag';
         fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
@@ -815,7 +839,7 @@ describe('The calendar module controllers', function() {
       });
 
       it('should replace the event EVENT_UPDATED', function() {
-        var event = {id: 'anId'};
+        var event = {id: 'anId', isRecurring: _.constant(false)};
         var path = 'path';
         var etag = 'etag';
         fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
@@ -880,7 +904,7 @@ describe('The calendar module controllers', function() {
       });
 
       it('should transform start and end date if allday is true when modified event', function() {
-        var event = {id: 'anId', allDay: true};
+        var event = {id: 'anId', allDay: true, isRecurring: _.constant(false)};
 
         var fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
 

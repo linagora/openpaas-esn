@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarShell', function($q, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES) {
+  .factory('CalendarShell', function($q, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES, _) {
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -42,6 +42,7 @@ angular.module('esn.calendar')
       extendedProperties = extendedProperties || {};
       this.path = extendedProperties.path;
       this.etag = extendedProperties.etag;
+      this.backgroundColor = extendedProperties.backgroundColor;
       this.gracePeriodTaskId = extendedProperties.gracePeriodTaskId;
     }
 
@@ -81,7 +82,6 @@ angular.module('esn.calendar')
         this.__start = undefined;
         if (value) {
           var dtstart = ICAL.Time.fromJSDate(value.toDate());
-          dtstart.zone = null;
           dtstart.isDate = !value.hasTime();
           var startprop = this.vevent.updatePropertyWithValue('dtstart', dtstart);
           startprop.setParameter('tzid', timezoneLocal);
@@ -98,7 +98,6 @@ angular.module('esn.calendar')
         this.__end = undefined;
         if (value) {
           var dtend = ICAL.Time.fromJSDate(value.toDate());
-          dtend.zone = null;
           dtend.isDate = !value.hasTime();
           var endprop = this.vevent.updatePropertyWithValue('dtend', dtend);
           endprop.setParameter('tzid', timezoneLocal);
@@ -133,6 +132,42 @@ angular.module('esn.calendar')
           this.__rrule = new RRuleShell(rrule, this.vevent);
         }
         return this.__rrule;
+      },
+
+      isRecurring: function() {
+        return (new ICAL.Event(this.vevent)).isRecurring();
+      },
+      expand: function(startDate, endDate, maxElement) {
+        var IEvent = new ICAL.Event(this.vevent);
+        if (!IEvent.isRecurring()) {
+          return [];
+        }
+        if (!endDate && !maxElement && !this.rrule.count && !this.rrule.until) {
+          throw new Error('Could not list all element of a reccuring event that never end');
+        }
+
+        var iterator = IEvent.iterator(IEvent.startDate);
+        var currentDatetime, currentEvent, currentDetails, result = [];
+        while ((currentDatetime = iterator.next()) &&
+            (!endDate || endDate.isAfter(currentDatetime.toJSDate())) &&
+            (!maxElement || result.length < maxElement)) {
+          if (!startDate || startDate.isBefore(currentDatetime.toJSDate())) {
+            currentDetails = IEvent.getOccurrenceDetails(currentDatetime);
+
+            currentEvent = this.clone();
+            currentEvent.vevent.updatePropertyWithValue('recurrence-id', currentDetails.recurrenceId);
+
+            currentEvent.vevent.getFirstProperty('dtstart').setValue(currentDetails.startDate);
+            currentEvent.vevent.getFirstProperty('dtend').setValue(currentDetails.endDate);
+
+            currentEvent.vevent.removeProperty('rrule');
+
+            result.push(currentEvent);
+
+          }
+        }
+
+        return result;
       },
 
       set rrule(value) {
@@ -248,10 +283,11 @@ angular.module('esn.calendar')
        * @return {CalendarShell} The new clone
        */
       clone: function() {
-        var clonedComp = new ICAL.Component(angular.copy(this.vcalendar.toJSON()));
+        var clonedComp = new ICAL.Component(_.cloneDeep(this.vcalendar.toJSON()));
         return new CalendarShell(clonedComp, {
           path: this.path,
           etag: this.etag,
+          backgroundColor: this.backgroundColor,
           gracePeriodTaskId: this.gracePeriodTaskId
         });
       },

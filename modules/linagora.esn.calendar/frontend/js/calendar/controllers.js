@@ -164,6 +164,12 @@ angular.module('esn.calendar')
 
     function _modifiedOrCreatedCalendarItem(newEvent) {
       calendarPromise.then(function(calendar) {
+        if (newEvent.isRecurring()) {
+          var view = calendar.fullCalendar('getView');
+          newEvent.expand(view.start, view.end.add(1, 'day')).forEach(_modifiedOrCreatedCalendarItem);
+          return;
+        }
+
         var event = (calendar.fullCalendar('clientEvents', newEvent.id) || [])[0];
         if (!event) {
           calendar.fullCalendar('renderEvent', newEvent);
@@ -206,11 +212,8 @@ angular.module('esn.calendar')
         });
       }),
       $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
-        $q.all({
-          calendar: calendarPromise,
-          calendars: calendarService.listCalendars($scope.calendarHomeId)
-        }).then(function(resolved) {
-          resolved.calendar.fullCalendar('renderEvent', eventUtils.setBackgroundColor(data, resolved.calendars));
+        calendarService.listCalendars($scope.calendarHomeId).then(function(calendarList) {
+          _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(data, calendarList));
         });
       }),
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {

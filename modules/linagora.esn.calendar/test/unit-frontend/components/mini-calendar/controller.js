@@ -404,16 +404,39 @@ describe('The mini-calendar controller', function() {
       $scope.$digest();
     });
 
-    it('should call calWrapper.addEvent on CALENDAR_EVENTS.ITEM_ADD', function(done) {
+    it('should call calWrapper.addEvent on CALENDAR_EVENTS.ITEM_ADD', function() {
       var event = {id: 'anId', start: fcMoment()};
-      calWrapper.addEvent = function(_event) {
-        expect(_event).to.equals(event);
-        done();
-      };
-
+      calWrapper.addEvent = sinon.spy();
       $scope.miniCalendarConfig.viewRender();
       $rootScope.$broadcast(CALENDAR_EVENTS.ITEM_ADD, event);
       $scope.$digest();
+      expect(calWrapper.addEvent).to.have.been.calledWith(event);
+    });
+
+    it('should call calWrapper.addEvent on CALENDAR_EVENTS.ITEM_ADD with expanded events for reccurring event', function() {
+      var sub = {id: 'sub', start: fcMoment()};
+      var master = {
+        id: 'master',
+        start: fcMoment(),
+        isRecurring: sinon.stub().returns(true),
+        expand: sinon.stub().returns([sub])
+      };
+
+      var start = fcMoment('2016-03-03');
+      var end = fcMoment('2016-03-04');
+      calWrapper.modifyEvent = sinon.spy();
+      fcMethodMock.getView = sinon.stub().returns({
+        start: start,
+        end: end
+      });
+      calWrapper.addEvent = sinon.spy();
+      $scope.miniCalendarConfig.viewRender();
+      $rootScope.$broadcast(CALENDAR_EVENTS.ITEM_ADD, master);
+      $scope.$digest();
+      expect(fcMethodMock.getView).to.have.been.called;
+      expect(master.expand).to.have.been.calledWith(start, end);
+      expect(calWrapper.addEvent).to.have.not.been.calledWith(master);
+      expect(calWrapper.addEvent).to.have.been.calledWith(sub);
     });
 
     it('should call calWrapper.deleteEvent on CALENDAR_EVENTS.ITEM_REMOVE', function(done) {
@@ -430,23 +453,51 @@ describe('The mini-calendar controller', function() {
     });
 
     function testModifyEvent(nameOfEvent) {
-      return function(done) {
+      return function() {
         var event = {id: 'anId', start: fcMoment()};
 
-        calWrapper.modifyEvent = function(_event) {
-          expect(_event).to.equals(event);
-          done();
-        };
-
+        calWrapper.modifyEvent = sinon.spy();
         $scope.miniCalendarConfig.viewRender();
         $rootScope.$broadcast(CALENDAR_EVENTS[nameOfEvent], event);
         $scope.$digest();
+        expect(calWrapper.modifyEvent).to.have.been.calledWith(event);
+      };
+    }
+
+    function testModifyForReccurringEvent(nameOfEvent) {
+      return function() {
+        var sub = {id: 'sub', start: fcMoment()};
+        var master = {
+          id: 'master',
+          start: fcMoment(),
+          isRecurring: sinon.stub().returns(true),
+          expand: sinon.stub().returns([sub])
+        };
+
+        var start = fcMoment('2016-03-03');
+        var end = fcMoment('2016-03-04');
+        calWrapper.modifyEvent = sinon.spy();
+        fcMethodMock.getView = sinon.stub().returns({
+          start: start,
+          end: end
+        });
+        $scope.miniCalendarConfig.viewRender();
+        $rootScope.$broadcast(CALENDAR_EVENTS[nameOfEvent], master);
+        $scope.$digest();
+        expect(fcMethodMock.getView).to.have.been.called;
+        expect(master.expand).to.have.been.calledWith(start, end);
+        expect(calWrapper.modifyEvent).to.not.have.been.calledWith(master);
+        expect(calWrapper.modifyEvent).to.have.been.calledWith(sub);
       };
     }
 
     it('should call calWrapper.modifyEvent on modifiedCalendarItem', testModifyEvent('ITEM_MODIFICATION'));
 
     it('should call calWrapper.modifyEvent on revertedCalendarItemModification', testModifyEvent('REVERT_MODIFICATION'));
+
+    it('should call calWrapper.modifyEvent on modifiedCalendarItem with expanded events for recurring event', testModifyForReccurringEvent('ITEM_MODIFICATION'));
+
+    it('should call calWrapper.modifyEvent on revertedCalendarItemModification with expanded events for recurreng event', testModifyForReccurringEvent('REVERT_MODIFICATION'));
 
   });
 });

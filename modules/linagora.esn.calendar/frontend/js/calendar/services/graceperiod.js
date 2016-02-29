@@ -7,17 +7,17 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
   var ADD = 'add';
 
   function deleteRegistration(event) {
-    if (!changes[event.id]) {
-      return;
+    if (changes[event.id]) {
+      $timeout.cancel(changes[event.id].expirationPromise);
+      delete(changes[event.id]);
     }
-    $timeout.cancel(changes[event.id].expirationPromise);
-    delete(changes[event.id]);
   }
 
-  function saveChange(action, event, calendarId) {
+  function saveChange(action, event, calendarId, createdSince) {
     var undo = deleteRegistration.bind(null, event);
     changes[event.id] = {
-      expirationPromise: $timeout(undo, CALENDAR_GRACE_DELAY, false),
+      expirationPromise: $timeout(undo, CALENDAR_GRACE_DELAY - (createdSince || 0), false),
+      added: new Date(),
       event: event,
       calendarId: calendarId,
       action: action
@@ -26,8 +26,15 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
     return undo;
   }
 
-  function resetChange() {
-    changes = {};
+  function expandRecurringChange(start, end) {
+    angular.forEach(changes, function(change) {
+      if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end))) {
+        change.event.expand(start, end.add(1, 'day')).forEach(function(subEvent) {
+          saveChange(change.action, subEvent, change.calendarId, ((new Date()).getTime() - change.added.getTime()));
+        });
+        change.expandedUntil = end;
+      }
+    });
   }
 
   function applyUpdatedAndDeleteEvent(events) {
@@ -45,7 +52,6 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
   }
 
   function addAddedEvent(start, end, calendarId, events) {
-
     function eventInPeriod(event) {
       return [event.start, event.end].some(function(date) {
         return date && (date.isSame(start, 'day') || date.isAfter(start)) &&
@@ -54,7 +60,7 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
     }
 
     angular.forEach(changes, function(change) {
-      if (change.action === ADD && eventInPeriod(change.event) && change.calendarId === calendarId) {
+      if (change.action === ADD && change.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
         events.push(change.event);
       }
     });
@@ -65,17 +71,22 @@ angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($
   function wrapEventSource(calendarId, calendarSource) {
     return function(start, end, timezone, callback) {
       calendarSource(start, end, timezone, function(events) {
+        expandRecurringChange(start, end);
         callback(addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events)));
       });
     };
+  }
+
+  function resetChange() {
+    changes = {};
   }
 
   return {
     registerAdd: saveChange.bind(null, ADD),
     registerDelete: saveChange.bind(null, DELETE),
     registerUpdate: saveChange.bind(null, UPDATE),
+    resetChange: resetChange,
     deleteRegistration: deleteRegistration,
-    wrapEventSource: wrapEventSource,
-    resetChange: resetChange
+    wrapEventSource: wrapEventSource
   };
 });
