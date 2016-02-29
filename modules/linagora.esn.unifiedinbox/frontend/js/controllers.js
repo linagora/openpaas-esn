@@ -400,7 +400,10 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     $scope.rcpt = $stateParams.rcpt;
-    $scope.composition = $stateParams.composition;
+    $scope.recipients = $stateParams.composition.email[$stateParams.rcpt];
+    $scope.backToComposition = function() {
+      $state.go('^', { composition: $stateParams.composition });
+    };
 
     headerService.subHeader.setInjection('fullscreen-edit-form-subheader', $scope);
     headerService.subHeader.setVisibleMD();
