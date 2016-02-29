@@ -434,7 +434,7 @@ describe('The mini-calendar controller', function() {
       $rootScope.$broadcast(CALENDAR_EVENTS.ITEM_ADD, master);
       $scope.$digest();
       expect(fcMethodMock.getView).to.have.been.called;
-      expect(master.expand).to.have.been.calledWith(start, end);
+      expect(master.expand).to.have.been.calledWith(start.clone().subtract(1, 'day'), end.clone().add(1, 'day'));
       expect(calWrapper.addEvent).to.have.not.been.calledWith(master);
       expect(calWrapper.addEvent).to.have.been.calledWith(sub);
     });
@@ -485,7 +485,7 @@ describe('The mini-calendar controller', function() {
         $rootScope.$broadcast(CALENDAR_EVENTS[nameOfEvent], master);
         $scope.$digest();
         expect(fcMethodMock.getView).to.have.been.called;
-        expect(master.expand).to.have.been.calledWith(start, end);
+        expect(master.expand).to.have.been.calledWith(start.clone().subtract(1, 'day'), end.clone().add(1, 'day'));
         expect(calWrapper.modifyEvent).to.not.have.been.calledWith(master);
         expect(calWrapper.modifyEvent).to.have.been.calledWith(sub);
       };
