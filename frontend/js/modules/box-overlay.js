@@ -35,10 +35,14 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
       return count() === (MAX_BOX_COUNT - 1);
     }
 
+    function isBoxAlreadyOpened(scope) {
+      return scope.id && boxScopes.some(function(element) { return element.id === scope.id; });
+    }
+
     return {
       spaceLeftOnScreen: spaceLeftOnScreen,
       addBox: function(scope) {
-        if (!spaceLeftOnScreen()) {
+        if (!spaceLeftOnScreen() || isBoxAlreadyOpened(scope)) {
           return false;
         }
 
@@ -244,6 +248,7 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
     return {
       restrict: 'A',
       scope: {
+        boxId: '@',
         boxTitle: '@',
         boxTemplateUrl: '@'
       },
@@ -251,6 +256,7 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
 
         element.on('click', function() {
           boxOverlayOpener.open({
+            id: scope.boxId,
             title: scope.boxTitle,
             templateUrl: scope.boxTemplateUrl
           });

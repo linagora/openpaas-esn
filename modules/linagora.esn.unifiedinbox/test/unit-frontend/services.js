@@ -1910,6 +1910,10 @@ describe('The Unified Inbox Angular module services', function() {
       $state.go = sinon.spy();
     });
 
+    afterEach(function() {
+      $('.box-overlay-open').remove();
+    });
+
     describe('The "open" method', function() {
 
       it('should delegate to deviceDetector to know if the device is mobile or not', function(done) {
@@ -1933,7 +1937,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         newComposerService.open();
 
-        expect(boxOverlayOpener.open).to.have.been.calledWith({
+        expect(boxOverlayOpener.open).to.have.been.calledWithMatch({
           title: 'Compose an email',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html'
         });
@@ -1968,10 +1972,21 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
+          id: 'id',
           title: 'Continue your draft',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
           email:  { id: 'id' }
         });
+      });
+
+      it('should not open twice the same draft on desktop', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
+
+        newComposerService.openDraft('id');
+        newComposerService.openDraft('id');
+        $rootScope.$digest();
+
+        expect($('.box-overlay-open').length).to.equal(1);
       });
 
     });
@@ -1997,12 +2012,13 @@ describe('The Unified Inbox Angular module services', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.openEmailCustomTitle('title', {email: 'object'});
+        newComposerService.openEmailCustomTitle('title', { id: '1234', subject: 'object' });
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
+          id: '1234',
           title: 'title',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email: {email: 'object'}
+          email: { id: '1234', subject: 'object' }
         });
       });
 
@@ -2010,12 +2026,13 @@ describe('The Unified Inbox Angular module services', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.openEmailCustomTitle(null, { email: 'object' });
+        newComposerService.openEmailCustomTitle(null, { id: '1234', subject: 'object' });
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
+          id: '1234',
           title: 'Compose an email',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email: { email: 'object' }
+          email: { id: '1234', subject: 'object' }
         });
       });
 
