@@ -18,7 +18,7 @@ angular.module('esn.fcmoment', ['angularMoment'])
         }
         var m = $window.$.fullCalendar.moment(time.toJSDate());
 
-        if (time.zone !== ICAL.Timezone.localTimezone) {
+        if (time.zone !== ICAL.Timezone.localTimezone && time.utcOffset() !== 0) {
           m.utcOffset(time.utcOffset());
         }
         if (time.isDate) {

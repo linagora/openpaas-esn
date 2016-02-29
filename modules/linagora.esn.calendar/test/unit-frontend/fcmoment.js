@@ -143,4 +143,23 @@ describe('fcMoment factory', function() {
   it('has a duration method which is like moment.duration', function() {
     expect(this.fcMoment.duration).to.equal(this.moment.duration);
   });
+
+  it('call fullCalendar.moment with the provided ICAL.Time datetime without setting utcOffset if it is 0', function() {
+    var icalTime = this.ICAL.Time.fromJSDate(new Date());
+    icalTime.zone = 'aZone';
+    icalTime.utcOffset = function() {
+      return 0;
+    };
+
+    var utcOffsetFunc = sinon.spy();
+
+    this.window.$.fullCalendar.moment = function(dt) {
+      expect(dt).to.deep.equal(icalTime.toJSDate());
+      return {
+        utcOffset: utcOffsetFunc
+      };
+    };
+    this.fcMoment(icalTime);
+    expect(utcOffsetFunc).to.not.have.been.called;
+  });
 });
