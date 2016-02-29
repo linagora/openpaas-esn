@@ -43,9 +43,9 @@ angular.module('esn.calendar', [
       views: {
         content: {
           template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-          controller: function($scope, community, headerService, USER_UI_CONFIG) {
+          controller: function($scope, community, headerService, UI_CONFIG) {
             $scope.calendarHomeId = community._id;
-            $scope.uiConfig = angular.copy(USER_UI_CONFIG);
+            $scope.uiConfig = angular.copy(UI_CONFIG);
             $scope.uiConfig.calendar.editable = false;
             $scope.uiConfig.calendar.selectable = false;
           }
@@ -71,9 +71,9 @@ angular.module('esn.calendar', [
       views: {
         content: {
           template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-          controller: function($scope, calendarHomeId, headerService, USER_UI_CONFIG) {
+          controller: function($scope, calendarHomeId, headerService, UI_CONFIG) {
             $scope.calendarHomeId = calendarHomeId;
-            $scope.uiConfig = angular.copy(USER_UI_CONFIG);
+            $scope.uiConfig = angular.copy(UI_CONFIG);
 
             headerService.mainHeader.addInjection('calendar-header-content');
             headerService.subHeader.addInjection('calendar-header-mobile');

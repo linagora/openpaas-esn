@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .constant('USER_UI_CONFIG', {
+  .constant('UI_CONFIG', {
     calendar: {
       defaultView: 'agendaWeek',
       theme: true,
