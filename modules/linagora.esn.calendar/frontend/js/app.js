@@ -43,12 +43,11 @@ angular.module('esn.calendar', [
       views: {
         content: {
           template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-          controller: function($scope, community, headerService, COMMUNITY_UI_CONFIG) {
+          controller: function($scope, community, headerService, USER_UI_CONFIG) {
             $scope.calendarHomeId = community._id;
-            $scope.uiConfig = angular.copy(COMMUNITY_UI_CONFIG);
-
-            headerService.mainHeader.addInjection('calendar-header-content');
-            headerService.subHeader.addInjection('calendar-header-mobile');
+            $scope.uiConfig = angular.copy(USER_UI_CONFIG);
+            $scope.uiConfig.calendar.editable = false;
+            $scope.uiConfig.calendar.selectable = false;
           }
         }
       }
