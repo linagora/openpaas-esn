@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarsEditionController', function($scope, $log, $state, headerService, calendars) {
+  .controller('calendarsEditionController', function($scope, $state, headerService) {
     headerService.subHeader.addInjection('calendars-edition-header', $scope);
 
-    $scope.calendars = calendars;
+    $scope.calendars = $scope.calendars || [];
 
     $scope.modify = function(calendar) {
       $state.go('calendar.edit', {calendarId: calendar.id});
@@ -16,6 +16,16 @@ angular.module('esn.calendar')
 
     $scope.cancel = function() {
       $state.go('calendar.main');
+    };
+  })
+  .directive('calendarsEdit', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        calendars: '='
+      },
+      templateUrl: 'calendar/views/calendar-configuration/calendars-edit',
+      controller: 'calendarsEditionController'
     };
   })
   .directive('calendarsEditionHeader', function() {

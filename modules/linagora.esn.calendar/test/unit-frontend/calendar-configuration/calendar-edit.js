@@ -15,9 +15,7 @@ describe('The calendarEditionController controller', function() {
         return this._uuid;
       }
     };
-    this.calendarService = {
-      calendarHomeId: '12345'
-    };
+    this.calendarService = {};
     this.notificationFactoryMock = {};
     this.stateMock = {};
     this.calendarMock = null;
@@ -44,6 +42,7 @@ describe('The calendarEditionController controller', function() {
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
     this.CalendarCollectionShell = CalendarCollectionShell;
+    this.$scope.calendarHomeId = '12345';
 
     this.initController = function() {
       $controller('calendarEditionController', {$scope: this.$scope});
@@ -134,6 +133,7 @@ describe('The calendarEditionController controller', function() {
         };
 
         this.$scope.calendar = {
+          href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
           name: 'aName'
         };
