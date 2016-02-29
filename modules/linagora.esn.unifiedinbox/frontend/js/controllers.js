@@ -144,21 +144,26 @@ angular.module('linagora.esn.unifiedinbox')
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
-    var disableImplicitSavesAsDraft = false;
+    var disableImplicitSavesAsDraft = false,
+        composition;
+
+    this.getComposition = function() {
+      return composition;
+    };
 
     this.initCtrl = function(email) {
       this.initCtrlWithComposition(new Composition(email));
     };
 
     this.initCtrlWithComposition = function(comp) {
-      $scope.composition = comp;
-      $scope.email = $scope.composition.getEmail();
+      composition = comp;
+      $scope.email = composition.getEmail();
     };
 
     this.saveDraft = function() {
       disableImplicitSavesAsDraft = true;
 
-      return $scope.composition.saveDraft();
+      return composition.saveDraft();
     };
 
     this.showMobileHeader = function() {
@@ -190,7 +195,7 @@ angular.module('linagora.esn.unifiedinbox')
           attachment.blobId = task.response.blobId;
 
           if (!disableImplicitSavesAsDraft) {
-            $scope.composition.saveDraftSilently();
+            composition.saveDraftSilently();
           }
         }, function(err) {
           attachment.status = 'error';
@@ -230,7 +235,7 @@ angular.module('linagora.esn.unifiedinbox')
       attachment.upload && attachment.upload.cancel();
       _.pull($scope.email.attachments, attachment);
 
-      $scope.composition.saveDraftSilently();
+      composition.saveDraftSilently();
     };
 
     if ($stateParams.composition) {
@@ -254,11 +259,11 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.send = function() {
       $scope.disableSendButton();
 
-      if ($scope.composition.canBeSentOrNotify()) {
+      if (composition.canBeSentOrNotify()) {
         disableImplicitSavesAsDraft = true;
 
         $scope.hide();
-        $scope.composition.send();
+        composition.send();
       } else {
         $scope.enableSendButton();
       }

@@ -266,6 +266,13 @@ angular.module('linagora.esn.unifiedinbox')
           }, 0);
         };
 
+        scope.openRecipients = function(rcptType) {
+          $state.go('.recipients', {
+            rcpt: rcptType,
+            composition: controller.getComposition()
+          });
+        };
+
         controller.showMobileHeader();
       }
     };
