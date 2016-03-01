@@ -5,6 +5,8 @@ An OpenPaaS instance has two types of configuration:
 - Local: Defines the local properties of the instance
 - Global: Defines the configuration which is shared between on all the OpenPaaS instances
 
+An OpenPaaS CLI is available to ease the configuration. Check the documentation at [cli.md](./cli.md).
+
 ## Local Configuration
 
 Local configuration of the application is available in the ./config/default.json file.
