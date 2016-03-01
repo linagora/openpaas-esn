@@ -47,7 +47,8 @@ module.exports = function(grunt) {
           'test/**/**/*.js',
           'backend/**/*.js',
           'frontend/js/**/*.js',
-          'modules/**/*.js'
+          'modules/**/*.js',
+          'bin/**/*.js'
         ]
       },
       quick: {

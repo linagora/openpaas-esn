@@ -2,7 +2,7 @@
 
 module.exports.getDBOptions = function(host, port, dbName) {
 
-  host = host ||'localhost';
+  host = host || 'localhost';
   port = port || 27017;
   dbName = dbName || 'esn';
 

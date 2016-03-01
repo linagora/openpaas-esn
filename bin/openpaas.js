@@ -13,7 +13,7 @@ function init() {
 
     return configure.exec(host, port, dbName).then(function() {
       return populate.exec(host, port, dbName).then(function() {
-        console.log('ESN configured')
+        console.log('ESN configured');
         return q();
       }, function() {
         console.log('Warning, error while populating, the ESN may not work properly');
