@@ -88,10 +88,11 @@ describe('The mini-calendar service', function() {
     var calendar, calWrapper, eventSources, initWrapper, fcMethodMock, fcEvent;
     beforeEach(function() {
       fcMethodMock = {
-        addEventSource: angular.noop,
-        renderEvent: angular.noop,
-        updateEvent: angular.noop,
-        clientEvents: function() { return []; }
+        addEventSource: sinon.spy(),
+        renderEvent: sinon.spy(),
+        updateEvent: sinon.spy(),
+        removeEvents: sinon.spy(),
+        clientEvents: sinon.stub().returns([])
       };
       calendar = {
         fullCalendar: function(name) {
@@ -275,6 +276,16 @@ describe('The mini-calendar service', function() {
         expect(fcMethodMock.removeEvents).to.have.been.calledOnce;
       });
 
+      it('should do nothing when real event is removed was not already here', function() {
+        initWrapper();
+
+        calWrapper.removeEvent('anId');
+
+        expect(fcMethodMock.clientEvents).to.not.have.been.called;
+        expect(fcMethodMock.removeEvents).to.not.have.been.called;
+        expect(fcMethodMock.renderEvent).to.not.have.been.called;
+      });
+
       it('should update fake day event when real event is removed and still some event on this day', function() {
         var date = '2015-01-02';
         initWrapper();
@@ -337,6 +348,27 @@ describe('The mini-calendar service', function() {
         calWrapper.modifyEvent({id: 'anId', start: fcMoment(newDate), end: fcMoment(newDate).add(1, 'hours')});
 
         expect(fcMethodMock.removeEvents).to.have.been.called;
+        expect(fcMethodMock.renderEvent).to.have.been.called;
+      });
+
+      it('should update fake event like the real event was added if it was not here before', function() {
+        var date = '2015-01-02';
+
+        initWrapper();
+
+        var event = {
+          id: 'anId',
+          start: fcMoment(date),
+          end: fcMoment(date).add(1, 'hours')
+        };
+
+        fcMethodMock.renderEvent = sinon.spy(function(event) {
+          expect(event.id).to.equals(date);
+          expect(parseInt(event.title, 10)).to.equals(1);
+        });
+
+        calWrapper.modifyEvent(event);
+
         expect(fcMethodMock.renderEvent).to.have.been.called;
       });
 
