@@ -1,15 +1,11 @@
 'use strict';
 
 var request = require('supertest'),
-  async = require('async'),
-  expect = require('chai').expect;
+    expect = require('chai').expect;
 
 describe('The profile API', function() {
-  var app;
-  var User;
-  var foouser, baruser;
+  var app, foouser, baruser, imagePath, domain_id, mongoose, User;
   var password = 'secret';
-  var imagePath;
 
   beforeEach(function(done) {
     var self = this;
@@ -17,49 +13,21 @@ describe('The profile API', function() {
 
     this.testEnv.initCore(function() {
       app = self.helpers.requireBackend('webserver/application');
-      self.mongoose = require('mongoose');
+      mongoose = require('mongoose');
       User = self.helpers.requireBackend('core/db/mongo/models/user');
 
-      foouser = new User({
-        firstname: 'John',
-        username: 'Foo',
-        password: password,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: ['foo@bar.com']
-        }]
-      });
-
-      baruser = new User({
-        username: 'Bar',
-        password: password,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: ['bar@bar.com']
-        }]
-      });
-
-      function saveUser(user, cb) {
-        user.save(function(err, saved) {
-          if (saved) {
-            user._id = saved._id;
-          }
-          return cb(err, saved);
-        });
-      }
-
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          saveUser(baruser, callback);
+      self.helpers.api.applyDomainDeployment('foo_and_bar_users', function(err, models) {
+        if (err) {
+          return done(err);
         }
-      ],
-      function(err) {
-        done(err);
+
+        domain_id = models.domain._id;
+        foouser = models.users[0];
+        baruser = models.users[1];
+
+        self.helpers.api.addFeature(domain_id, 'core', 'my-feature', function() {
+          self.helpers.api.addFeature('4edd40c86762e0fb12000003', 'core', 'my-other-feature', done);
+        });
       });
     });
   });
@@ -75,7 +43,7 @@ describe('The profile API', function() {
     });
 
     it('should create a profile link when authenticated user looks at a user profile', function(done) {
-      var Link = this.mongoose.model('Link');
+      var Link = mongoose.model('Link');
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -154,7 +122,7 @@ describe('The profile API', function() {
     });
 
     it('should return 200 and update his profile', function(done) {
-      var User = this.mongoose.model('User');
+      var User = mongoose.model('User');
       var firstname = 'foobarbaz';
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
@@ -249,7 +217,7 @@ describe('The profile API', function() {
     it('should return 200 with the stream of the user avatar', function(done) {
       var imageModule = this.helpers.requireBackend('core/image');
       var readable = require('fs').createReadStream(imagePath);
-      var ObjectId = require('mongoose').Types.ObjectId;
+      var ObjectId = mongoose.Types.ObjectId;
       var avatarId = new ObjectId();
       var opts = {
         creator: {objectType: 'user', id: foouser._id}
@@ -364,7 +332,7 @@ describe('The profile API', function() {
     it('should return 200 with the stream of the user avatar', function(done) {
       var imageModule = this.helpers.requireBackend('core/image');
       var readable = require('fs').createReadStream(imagePath);
-      var ObjectId = require('mongoose').Types.ObjectId;
+      var ObjectId = mongoose.Types.ObjectId;
       var avatarId = new ObjectId();
       var opts = {
         creator: {objectType: 'user', id: foouser._id}
@@ -391,6 +359,36 @@ describe('The profile API', function() {
               done();
             });
           });
+        });
+      });
+    });
+
+  });
+
+  describe('GET /api/user route', function() {
+
+    it('should return 200 with the profile of the user, including his features', function(done) {
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).get('/api/user'));
+
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body.features).to.shallowDeepEqual({
+            domain_id: domain_id.toString(),
+            modules: [{
+              name: 'core',
+              features: [{
+                name: 'my-feature',
+                value: true
+              }]
+            }]
+          });
+
+          done();
         });
       });
     });
