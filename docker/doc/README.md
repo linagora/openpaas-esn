@@ -1,5 +1,7 @@
 # OpenPaaS + Docker documentation
 
+Here is the documentation about running OpenPaaS with the help of Docker.
+
 ## TOC
 
 - [dev.md](/dev.md): How to develop with the help of Docker

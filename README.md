@@ -1,75 +1,30 @@
-OpenPaas
-=======
+# OpenPaas
 
 [![Code Climate](https://codeclimate.com/github/linagora/openpaas-esn/badges/gpa.svg)](https://codeclimate.com/github/linagora/openpaas-esn)
 
-This is a social network for enterprises & organizations.
+OpenPaaS is a collaboration platform for enterprises & organizations.
 
-Installation
-------------
-
-See also [Ubuntu-specific installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/doc/install-ubuntu.md).
+## Installation
 
 1.clone the repository
 
     git clone https://ci.open-paas.org/stash/scm/or/rse.git
+    # or
+    git clone https://github.com/linagora/openpaas-esn.git
 
-2.Install and configure ElasticSearch and MongoDB
+2.Install dependencies
 
-First install ElasticSearch 1.3.5, then MongoDB 2.6.5.
+You can install dependencies yourself, or use the Docker environment as described in [./docker/doc/README.md](./docker/doc/README.md).
 
-If you have other ElasticSearch instance in the same sub-network running with the same cluster name than yours (default configuration), you may need to disable multicast discovery otherwise it will break the mongo river.
-For that uncomment the following line in /etc/ElasticSearch/elasticsearch.yml: 
-
-    discovery.zen.ping.multicast.enabled: false
-
-Retrieve source code of rse-scripts:
-
-    git clone https://ci.open-paas.org/stash/scm/or/rse-scripts.git
-
-Follow this [documentation](https://ci.open-paas.org/stash/projects/OR/repos/rse-scripts/browse/elasticsearch).
-
-You may have to specify the path to ElasticSearch plugin:
-
-        export ES_BIN_PLUGIN=/usr/share/elasticsearch/bin/plugin
-
-Then run the scripts (curl and java are needed) in the correct order:
-
-    1_elasticsearch_river_install.sh
-    2_config_elasticsearch_analyser.sh
-    contacts/init.sh
-
-Before running step 3, you must configure MongoDB cluster in replica set. Open `/etc/mongod.conf` and modify replSet
-
-    replSet=rs
-
-Then restart MongoDB
-
-    service mongod restart
-
-Change the hostname of the machine to 127.0.0.1
-
-    hostname 127.0.0.1
-
-Open the mongo shell (with `mongo`) and launch
-
-    > rs.initiate()
-
-About a minute later, you will have a PRIMARY prompt that will appear when checking the status of MongoDB
-
-    > rs.status()
-
-Then continue with 3rd script (when the cluster is running as a PRIMARY node)
-
-    3_config_elasticsearch_mongodb_river.sh
-
-If you missed something during the previous steps, a script `delete_elasticsearch_mongodb_river.sh` is available. After using it, please go back to step 2 again.
+- ElasticSearch v1.3.5
+- MongoDB v2.6.5
+- Redis 3.x
 
 3.Install node.js
 
 Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
 
-4.You may need some additional packages. For example with a Debian installation, as an administrator you should use the following commands (as an administrator):
+4.You may need some additional packages. For example with a Debian installation, as an administrator you should use the following command:
 
     apt-get install build-essential redis-server npm python-setuptools graphicsmagick graphicsmagick-imagemagick-compat
 
@@ -83,14 +38,14 @@ Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects
 
 7.Go into the project directory and install project dependencies (not as an administrator)
 
-    cd rse
     npm install
 
 If you have any problem relating to `node-canvas` during the dependencies installation,
 make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
 
-Testing
--------
+Note: You can also check [Ubuntu-specific installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/doc/install-ubuntu.md).
+
+## Testing
 
 First you must install some npm dependencies (as an administrator)
 
@@ -102,7 +57,7 @@ Then install the gjslint dependency (as an administrator)
 
 More informations [can be found here](https://developers.google.com/closure/utilities/docs/linter_howto).
 
-Finally, you can check that everything works by launching the test suite:
+Finally, you can check that everything works by launching the test suite (this may be long):
 
     grunt --chunk 1
 
@@ -114,7 +69,7 @@ For example, you can launch the backend tests on the test/unit-backend/webserver
 
 Note: This works for backend and midway tests.
 
-Some specialized Grunt tasks are available :
+Some specialized Grunt tasks are available, check the Gruntfile.js for more:
 
     grunt linters # launch hinter and linter against the codebase
     grunt test-frontend # only run the fontend unit tests
@@ -122,31 +77,26 @@ Some specialized Grunt tasks are available :
     grunt test-midway-bakend # only run the midway backend tests
     grunt test # launch all the testsuite
 
-Fixtures
---------
+## Fixtures
 
 Fixtures can be configured in the fixtures folder and injected in the system using grunt:
 
     grunt fixtures
 
-Note that you must configure contents of files inside **fixtures/config/data** and **fixtures/esn-config/data/** to match your environment, particularly **fixtures/config/data/db.json** in which the host of the mongodb database is defined. Also note that this will override all the current configuration resources with the fixtures ones.
+Note that you must configure contents of files inside **fixtures/config/data** and **fixtures/esn-config/data/** to match your environment, particularly **fixtures/config/data/db.js** in which the host of the mongodb database is defined. Also note that this will override all the current configuration resources with the fixtures ones.
 
-Starting the server
-------------------
+## Starting the server
 
-You should first start mongodb and redis-server.
+You should first start mongodb, redis and elasticsearch.
 
-Then npm start to start the ESN server !
+Then 'npm start' to start the OpenPaaS web application:
 
     npm start
 
 
-Your ESN can be reached at the following address: http://<ip>:8080. Now simply follow the wizard to
-prepare your working ESN with MongoDB port (default is 27017)
+Your ESN can be reached at the following address: http://<ip>:8080. Now simply follow the setup wizard. 
 
-
-Develop the ESN
----------------
+## Develop OpenPaaS
 
 Running `grunt dev` will start the server in development mode. Whenever you
 make changes to server files, the server will be restarted. Make sure you have
@@ -157,7 +107,13 @@ server. Visit the displayed URL in Chrome or Opera to start the graphical
 debugging session. Note that startup takes a while, you must wait until the ESN
 webserver starts to do anything meaningful.
 
-Licence
--------
+## Docker
+
+A Docker environment is provided to ease all the setup for various environments (development, demonstration, ...).
+It allows to start Docker containers for all the dependencies without having to install anything else than Docker and without having to configure all by hand.
+
+For more details, check the documentation on [./docker/doc/README.md](./docker/doc/README.md)
+
+## Licence
 
 [Affero GPL v3](http://www.gnu.org/licenses/agpl-3.0.html)
