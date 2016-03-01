@@ -2,7 +2,11 @@
 
 var expect = require('chai').expect;
 
-describe.skip('The user domain module', function() {
+describe('The user domain module', function() {
+
+  function checkIndexResult(res) {
+    return res.status === 200 && res.body.hits.total === 1 && res.body.hits.hits[0]._source.domains && res.body.hits.hits[0]._source.domains.length === 1;
+  }
 
   before(function() {
     this.testEnv.writeDBConfigFile();
@@ -21,12 +25,13 @@ describe.skip('The user domain module', function() {
           done(err);
         }
 
-        self.helpers.mongo.saveDoc('configuration', {
-          _id: 'elasticsearch',
-          host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
-        }, function(err) {
+        self.helpers.elasticsearch.saveTestConfiguration(function(err) {
+          if (err) {
+            return done(err);
+          }
           self.User = self.helpers.requireBackend('core/db/mongo/models/user');
-          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
+          self.Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+          self.helpers.requireBackend('core/db/mongo/models/community');
           done(err);
         });
       });
@@ -58,7 +63,6 @@ describe.skip('The user domain module', function() {
     });
 
     it('should return an array where limit === size when calling getUsersList with limit option', function(done) {
-      this.helpers.requireBackend('core/db/mongo/models/user');
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
@@ -101,7 +105,8 @@ describe.skip('The user domain module', function() {
         var ids = models.users.map(function(element) {
           return element._id;
         });
-        self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+
+        self.helpers.elasticsearch.checkUsersDocumentsFullyIndexed(ids, checkIndexResult, function(err) {
           if (err) { return done(err); }
 
           userDomain.getUsersSearch([models.domain], {search: 'lng'}, function(err, users) {
@@ -118,7 +123,6 @@ describe.skip('The user domain module', function() {
     });
 
     it('should return an error when calling getUsersList with a null domain', function(done) {
-      this.helpers.requireBackend('core/db/mongo/models/domain');
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
       userDomain.getUsersList(null, null, function(err, users) {
@@ -145,15 +149,11 @@ describe.skip('The user domain module', function() {
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
         if (err) { done(err); }
 
-        self.helpers.mongo.saveDoc('configuration', {
-          _id: 'elasticsearch',
-          host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
-        }, function(err) {
-          if (err) { done(err); }
+        self.helpers.elasticsearch.saveTestConfiguration(function(err) {
+          if (err) { return done(err); }
 
           User = self.helpers.requireBackend('core/db/mongo/models/user');
           Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
-          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
             if (err) { return done(err); }
@@ -165,7 +165,7 @@ describe.skip('The user domain module', function() {
             var ids = models.users.map(function(element) {
               return element._id;
             });
-            self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+            self.helpers.elasticsearch.checkUsersDocumentsFullyIndexed(ids, checkIndexResult, function(err) {
               if (err) { return done(err); }
               self.mongoose.disconnect(done);
             });
@@ -183,9 +183,7 @@ describe.skip('The user domain module', function() {
       userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        done(err);
-      });
+      this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
 
     afterEach(function(done) {
@@ -387,16 +385,12 @@ describe.skip('The user domain module', function() {
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
         if (err) { done(err); }
 
-        self.helpers.mongo.saveDoc('configuration', {
-          _id: 'elasticsearch',
-          host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
-        }, function(err) {
-          if (err) { done(err); }
+        self.helpers.elasticsearch.saveTestConfiguration(function(err) {
+          if (err) { return done(err); }
 
           User = self.helpers.requireBackend('core/db/mongo/models/user');
           Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
           userDomain = self.helpers.requireBackend('core/user/domain');
-          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases_extra', function(err, models) {
             if (err) { return done(err); }
@@ -404,7 +398,7 @@ describe.skip('The user domain module', function() {
             domain = models.domain;
             user = models.users[0];
 
-            self.helpers.elasticsearch.checkUsersDocumentsIndexed([user._id], function(err) {
+            self.helpers.elasticsearch.checkUsersDocumentsFullyIndexed([user._id], checkIndexResult, function(err) {
               if (err) { return done(err); }
               self.mongoose.disconnect(done);
             });
@@ -419,9 +413,7 @@ describe.skip('The user domain module', function() {
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        done(err);
-      });
+      this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
 
     afterEach(function(done) {
@@ -492,18 +484,12 @@ describe.skip('The user domain module', function() {
           done(err);
         }
 
-        self.helpers.mongo.saveDoc('configuration', {
-          _id: 'elasticsearch',
-          host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
-        }, function(err) {
-          if (err) {
-            done(err);
-          }
+        self.helpers.elasticsearch.saveTestConfiguration(function(err) {
+          if (err) { return done(err); }
 
           User = self.helpers.requireBackend('core/db/mongo/models/user');
           Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
           Community = self.helpers.requireBackend('core/db/mongo/models/community');
-          self.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
           self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
             if (err) {
@@ -548,7 +534,7 @@ describe.skip('The user domain module', function() {
                     models2.users.forEach(function(user) {
                       ids.push(user._id);
                     });
-                    self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+                    self.helpers.elasticsearch.checkUsersDocumentsFullyIndexed(ids, checkIndexResult, function(err) {
                       if (err) {
                         return done(err);
                       }
@@ -571,12 +557,9 @@ describe.skip('The user domain module', function() {
       User = this.helpers.requireBackend('core/db/mongo/models/user');
       userDomain = this.helpers.requireBackend('core/user/domain');
       Community = this.helpers.requireBackend('core/db/mongo/models/community');
-      this.helpers.requireBackend('core/elasticsearch/pubsub').init();
 
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        done(err);
-      });
+      this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
 
     afterEach(function(done) {

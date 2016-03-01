@@ -227,14 +227,23 @@ module.exports = function(mixin, testEnv) {
     /**
      * Check if documents are present in Elasticsearch by using "search" request
      *
-     * @param {string} index the index where documents are located
-     * @param {string} type the type of documents
-     * @param {string[]} ids array of string of ids of document to check
+     * @param {hash}
+     *  - options.index the index where documents are located
+     *  - options.type the type of documents
+     *  - options.ids array of string of ids of document to check
+     *  - options.check function to check if document is indexed
      * @param {function} callback fn like callback(err)
      */
-    checkDocumentsIndexed: function(index, type, ids, callback) {
+    checkDocumentsIndexed: function(options, callback) {
       var request = require('superagent');
       var elasticsearchURL = testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port;
+
+      var index = options.index;
+      var type = options.type;
+      var ids = options.ids;
+      var check = options.check || function(res) {
+        return res.status === 200 && res.body.hits.total === 1;
+      };
 
       async.each(ids, function(id, callback) {
 
@@ -245,7 +254,7 @@ module.exports = function(mixin, testEnv) {
             request
               .get(elasticsearchURL + '/' + index + '/' + type + '/_search?q=_id:' + id)
               .end(function(res) {
-                if (res.status === 200 && res.body.hits.total === 1) {
+                if (check(res)) {
                   finish = true;
                   return callback();
                 }
@@ -277,7 +286,11 @@ module.exports = function(mixin, testEnv) {
      * @param {function} callback fn like callback(err)
      */
     checkUsersDocumentsIndexed: function(ids, callback) {
-      mixin.elasticsearch.checkDocumentsIndexed('users.idx', 'users', ids, callback);
+      mixin.elasticsearch.checkDocumentsIndexed({index: 'users.idx', type: 'users', ids: ids}, callback);
+    },
+
+    checkUsersDocumentsFullyIndexed: function(ids, check, callback) {
+      mixin.elasticsearch.checkDocumentsIndexed({index: 'users.idx', type: 'users', ids: ids, check: check}, callback);
     },
 
     saveTestConfiguration: function(callback) {

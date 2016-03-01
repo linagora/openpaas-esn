@@ -38,6 +38,12 @@ module.exports = function(mixin, testEnv) {
 
   };
 
+  api.createUser = function(user) {
+    var User = require('mongoose').model('User');
+    var userHelper = require('../backend/core/user/helpers');
+    return q.ninvoke(userHelper, 'saveAndIndexUser', new User(user));
+  };
+
   /**
   * This enables deployments of common needed resources (domain, users)
   * using defined fixtures.
@@ -59,7 +65,13 @@ module.exports = function(mixin, testEnv) {
     }
     var deployment = fixtures[name]();
     require(testEnv.basePath + '/backend/core').db.mongo;
-    require(testEnv.basePath + '/backend/core/elasticsearch/pubsub').init();
+    var self = this;
+    require('mongoose').model('User');
+    var Community = require('mongoose').model('Community');
+    var Domain = require('mongoose').model('Domain');
+    var helpers = require('../backend/core/db/mongo/plugins/helpers');
+    helpers.applyCommunityPlugins();
+    helpers.patchFindOneAndUpdate();
 
     deployment.models = {};
 
@@ -114,7 +126,6 @@ module.exports = function(mixin, testEnv) {
     }
 
     function createDomain() {
-      var Domain = require('mongoose').model('Domain');
       var domain = extend(true, {}, deployment.domain);
       delete domain.administrator;
       return q.npost(new Domain(domain), 'save').spread(function(domain) {
@@ -135,12 +146,8 @@ module.exports = function(mixin, testEnv) {
 
     function createUsers() {
       var domainModule = require('../backend/core/user/domain');
-      var User = require('mongoose').model('User');
-      require('../backend/core/db/mongo/plugins/helpers').applyPlugins();
       return q.all(deployment.users.map(function(user) {
-        return q.npost(new User(user), 'save').spread(function(u) {
-          return u;
-        });
+        return self.createUser(user);
       }))
       .then(function(users) {
         return q.all(
@@ -162,7 +169,6 @@ module.exports = function(mixin, testEnv) {
       deployment.communities = deployment.communities ||  [];
       deployment.models.communities = deployment.models.communities ||  [];
 
-      var Community = require('mongoose').model('Community');
       return deployment.communities.reduce(function(sofar, c) {
         return sofar.then(function() {
           return saveCollaboration(Community, deployment.models, c);
