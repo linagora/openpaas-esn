@@ -47,6 +47,18 @@ It will generate all the configuration so that components can be run in docker a
 $ node ./bin/cli docker-dev --host localhost --port 27017 --database esn
 ```
 
+**elasticsearch**
+
+It will create the indexes on the elasticsearch instance defined from CLI options.
+
+```bash
+$ node ./bin/cli elasticsearch --host localhost --port 9200 --index contacts
+```
+
+- host: default is localhost
+- port: default is 9200
+- index: Defines the index to create. When not set, it will create all the required indexes.
+
 **populate**
 
 It will populate the mongodb database defined from CLI options with initial required data to use OpenPaaS.
