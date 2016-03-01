@@ -759,6 +759,16 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       unifiedinboxTagsAddedSpy = sinon.spy();
     });
 
+    function compileDirectiveThenGetScope() {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
+        $composerController: {
+          search: {}
+        }
+      });
+
+      return element.find('recipients-auto-complete').isolateScope();
+    }
+
     it('should trigger an error if no template is given', function() {
       expect(function() {
         compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>');
@@ -784,13 +794,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should scrolldown element when a tag is added and broadcast an event to inform the fullscreen-edit-form to scrolldown', function() {
-      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {
-          search: {}
-        }
-      });
-
-      var scope = element.find('recipients-auto-complete').isolateScope();
+      var scope = compileDirectiveThenGetScope();
       var recipient = {displayName: 'user@domain'};
 
       scope.onTagAdded(recipient);
@@ -798,50 +802,42 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(elementScrollService.autoScrollDown).to.have.been.calledWith();
     });
 
-    it('should leverage the recipient object to create a corresponding jmap json object', function() {
-      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {
-          search: {}
-        }
-      });
-
-      var scope = element.find('recipients-auto-complete').isolateScope();
-      var recipient = { displayName: 'user@domain' };
-
-      expect(scope.onTagAdding(recipient)).to.equal(true);
-      expect(recipient).to.deep.equal({name: 'user@domain', email: 'user@domain', displayName: 'user@domain'});
-    });
-
-    it('should refuse to add a new tag if displayName matches the email of an existing tag', function() {
-      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {
-          search: {}
-        }
-      });
-
-      var scope = element.find('recipients-auto-complete').isolateScope();
+    it('should accept to add a new tag if email does not matche the email of an existing tag', function() {
+      var scope = compileDirectiveThenGetScope();
 
       scope.tags.push({ email: 'user@domain' });
       scope.tags.push({ email: 'user2@domain' });
       scope.tags.push({ email: 'user3@domain' });
 
-      expect(scope.onTagAdding({ displayName: 'user@domain' })).to.equal(false);
+      expect(scope.onTagAdding({ email: 'user0@domain' })).to.equal(true);
     });
 
     it('should refuse to add a new tag if email matches the email of an existing tag', function() {
-      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
-        $composerController: {
-          search: {}
-        }
-      });
-
-      var scope = element.find('recipients-auto-complete').isolateScope();
+      var scope = compileDirectiveThenGetScope();
 
       scope.tags.push({ email: 'user@domain' });
       scope.tags.push({ email: 'user2@domain' });
       scope.tags.push({ email: 'user3@domain' });
 
       expect(scope.onTagAdding({ email: 'user2@domain' })).to.equal(false);
+    });
+
+    it('should remove all fields that are not "email" or "name"', function() {
+      var scope = compileDirectiveThenGetScope();
+      var recipient = {
+        other: 'unexpected',
+        name: 'The display name field',
+        displayName: 'will be discarded',
+        email: 'user@domain',
+        not: 'expected'
+      };
+
+      scope.onTagAdding(recipient);
+
+      expect(recipient).to.deep.equal({
+        name: 'The display name field',
+        email: 'user@domain'
+      });
     });
 
   });
@@ -967,15 +963,17 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     it('should not focus the body when an attachment is removed', function() {
-      $scope.email = {
-        attachments: [{
-          blobId: '1',
-          upload: {
-            cancel: angular.noop
-          }
-        }]
+      $stateParams.composition = {
+        saveDraftSilently: sinon.spy(),
+        getEmail: sinon.stub().returns({
+          attachments: [{
+            blobId: '1',
+            upload: {
+              cancel: angular.noop
+            }
+          }]
+        })
       };
-      $scope.composition = { saveDraftSilently: sinon.spy() };
       compileDirective('<composer-desktop />');
 
       element.find('.attachment[name="attachment-0"] .cancel').click();

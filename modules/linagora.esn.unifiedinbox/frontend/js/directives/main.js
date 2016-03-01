@@ -353,10 +353,19 @@ angular.module('linagora.esn.unifiedinbox')
         return '/unifiedinbox/views/composer/' + attr.template + '.html';
       },
       link: function(scope, element) {
+
+        function keepEmailAndNameOnly(tag) {
+          Object.keys(tag).forEach(function(key) {
+            if (key !== 'email' && key !== 'name') {
+              delete tag[key];
+            }
+          });
+        }
+
         scope.search = searchService.searchRecipients;
 
         scope.onTagAdding = function($tag) {
-          emailSendingService.ensureEmailAndNameFields($tag);
+          keepEmailAndNameOnly($tag);
 
           return !_.find(scope.tags, { email: $tag.email });
         };

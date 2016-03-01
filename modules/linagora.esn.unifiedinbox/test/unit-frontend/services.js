@@ -801,33 +801,6 @@ describe('The Unified Inbox Angular module services', function() {
       });
     });
 
-    describe('The ensureEmailAndNameField function', function() {
-      it('should do nothing if name and email are already defined', function() {
-        expect(emailSendingService.ensureEmailAndNameFields({name: 'user', email: 'user@domain', displayName: 'disp'}))
-          .to.deep.equal({name: 'user', email: 'user@domain', displayName: 'disp'});
-      });
-      it('should do nothing if displayName is undefined', function() {
-        expect(emailSendingService.ensureEmailAndNameFields({}))
-          .to.deep.equal({});
-      });
-      it('should assign name only if email is already defined', function() {
-        expect(emailSendingService.ensureEmailAndNameFields({email: 'user@domain', displayName: 'disp'}))
-          .to.deep.equal({name: 'disp', email: 'user@domain', displayName: 'disp'});
-      });
-      it('should assign email only if name is already defined', function() {
-        expect(emailSendingService.ensureEmailAndNameFields({name: 'user', displayName: 'disp'}))
-          .to.deep.equal({name: 'user', email: 'disp', displayName: 'disp'});
-      });
-      it('should assign name and email if both are undefined', function() {
-        expect(emailSendingService.ensureEmailAndNameFields({displayName: 'disp'}))
-          .to.deep.equal({name: 'disp', email: 'disp', displayName: 'disp'});
-      });
-      it('should assign name and email if both are empty', function() {
-        expect(emailSendingService.ensureEmailAndNameFields({name: '', email: '', displayName: 'disp'}))
-          .to.deep.equal({name: 'disp', email: 'disp', displayName: 'disp'});
-      });
-    });
-
     describe('The emailsAreValid function', function() {
       it('should return false when some recipients emails are not valid', function() {
         email = {
@@ -2101,35 +2074,13 @@ describe('The Unified Inbox Angular module services', function() {
       };
     }));
 
-    it('should set the displayName from the name to recipients when instantiated', function() {
-      var email = {
-        to: [{name: 'name1', email: '1@linagora.com'}],
-        cc: [{name: 'name2', email: '2@linagora.com'}],
-        bcc: [{name: 'name3', email: '3@linagora.com'}]
-      };
-
-      var result = new Composition(email).getEmail();
+    it('should create empty recipient array when instantiated with none', function() {
+      var result = new Composition({}).getEmail();
 
       expect(result).to.deep.equal({
-        to: [{name: 'name1', email: '1@linagora.com', displayName: 'name1'}],
-        cc: [{name: 'name2', email: '2@linagora.com', displayName: 'name2'}],
-        bcc: [{name: 'name3', email: '3@linagora.com', displayName: 'name3'}]
-      });
-    });
-
-    it('should set the displayName from the email to recipients when instantiated, when no name', function() {
-      var email = {
-        to: [{email: '1@linagora.com'}],
-        cc: [{email: '2@linagora.com'}],
-        bcc: [{email: '3@linagora.com'}]
-      };
-
-      var result = new Composition(email).getEmail();
-
-      expect(result).to.deep.equal({
-        to: [{name: undefined, email: '1@linagora.com', displayName: '1@linagora.com'}],
-        cc: [{name: undefined, email: '2@linagora.com', displayName: '2@linagora.com'}],
-        bcc: [{name: undefined, email: '3@linagora.com', displayName: '3@linagora.com'}]
+        to: [],
+        cc: [],
+        bcc: []
       });
     });
 
@@ -3076,23 +3027,63 @@ describe('The Unified Inbox Angular module services', function() {
           expect(query).to.equal('open-paas.org');
 
           return $q.when([{
-            displayName: 'user1',
+            name: 'user1',
             email: 'user1@open-paas.org'
           }, {
-            displayName: 'user2'
+            name: 'user2'
           }]);
         };
 
         searchService.searchRecipients('open-paas.org')
           .then(function(results) {
             expect(results).to.deep.equal([{
-              displayName: 'user1',
+              name: 'user1',
               email: 'user1@open-paas.org'
             }]);
-
-            done();
           })
-          .then(null, done);
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should assign name of the recipient from its displayName when he has none', function(done) {
+        attendeeService.getAttendeeCandidates = function(query) {
+          expect(query).to.equal('open-paas.org');
+
+          return $q.when([{
+            name: '',
+            email: 'empty@open-paas.org'
+          }, {
+            email: 'none@open-paas.org'
+          }, {
+            name: 'expected name',
+            displayName: 'not expected name',
+            email: 'with-name@open-paas.org'
+          }, {
+            displayName: 'expected name',
+            email: 'with-display-name-only@open-paas.org'
+          }]);
+        };
+
+        searchService.searchRecipients('open-paas.org')
+          .then(function(results) {
+            expect(results).to.deep.equal([{
+              name: 'empty@open-paas.org',
+              email: 'empty@open-paas.org'
+            }, {
+              name: 'none@open-paas.org',
+              email: 'none@open-paas.org'
+            }, {
+              name: 'expected name',
+              displayName: 'not expected name',
+              email: 'with-name@open-paas.org'
+            }, {
+              name: 'expected name',
+              displayName: 'expected name',
+              email: 'with-display-name-only@open-paas.org'
+            }]);
+          })
+          .then(done, done);
 
         $rootScope.$digest();
       });

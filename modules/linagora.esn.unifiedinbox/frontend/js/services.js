@@ -221,26 +221,6 @@ angular.module('linagora.esn.unifiedinbox')
   .factory('emailSendingService', function($q, $http, emailService, deviceDetector, jmap, _, emailBodyService, sendEmail) {
 
     /**
-     * Set the recipient.email and recipient.name fields to recipient.displayName if they are undefined.
-     *
-     * @param {Object} recipient
-     */
-    function ensureEmailAndNameFields(recipient) {
-      if (!recipient.displayName) {
-        return recipient;
-      }
-
-      if (!recipient.email) {
-        recipient.email = recipient.displayName;
-      }
-      if (!recipient.name) {
-        recipient.name = recipient.displayName;
-      }
-
-      return recipient;
-    }
-
-    /**
      * Add the following logic when sending an email: Check for an invalid email used as a recipient
      *
      * @param {Object} email
@@ -396,7 +376,6 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      ensureEmailAndNameFields: ensureEmailAndNameFields,
       emailsAreValid: emailsAreValid,
       removeDuplicateRecipients: removeDuplicateRecipients,
       noRecipient: noRecipient,
@@ -562,21 +541,11 @@ angular.module('linagora.esn.unifiedinbox')
                                    asyncAction, jmap, emailBodyService, waitUntilMessageIsComplete,
                                    DRAFT_SAVING_DEBOUNCE_DELAY) {
 
-    function addDisplayNameToRecipients(recipients) {
-      return (recipients || []).map(function(recipient) {
-        return {
-          name: recipient.name,
-          email: recipient.email,
-          displayName: recipient.name || recipient.email
-        };
-      });
-    }
-
     function prepareEmail(email) {
       var preparingEmail = angular.copy(email || {});
 
       ['to', 'cc', 'bcc'].forEach(function(recipients) {
-        preparingEmail[recipients] = addDisplayNameToRecipients(preparingEmail[recipients]);
+        preparingEmail[recipients] = preparingEmail[recipients] || [];
       });
 
       return preparingEmail;
@@ -831,13 +800,16 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('searchService', function(attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
+  .service('searchService', function(_, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
     return {
       searchRecipients: function(query) {
         return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
-          return recipients.filter(function(recipient) {
-            return recipient.email;
-          });
+          return recipients
+            .filter(_.property('email'))
+            .map(function(recipient) {
+              recipient.name = recipient.name || recipient.displayName || recipient.email;
+              return recipient;
+            });
         });
       }
     };
