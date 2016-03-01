@@ -15,7 +15,7 @@ This directive uses ngInfiniteScroll [(more)](http://binarymuse.github.io/ngInfi
 
 The controller attribute (CTRL) must have a "loadMoreElements" function which will fetch/build and add new elements to the list from the ng-repeat in order to provide infinite scrolling.
 
-##Configuration
+## Configuration
 
 This directive watches for three properties from the scope for its configuration.
 

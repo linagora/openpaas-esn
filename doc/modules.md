@@ -1,5 +1,7 @@
 # ESN modules
 
+**This part is deprecated**
+
 This document describes and lists all anchor points available inside the ESN. Note that for better display, one should
 follow the template example pattern.
 
