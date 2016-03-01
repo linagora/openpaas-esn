@@ -19,7 +19,7 @@
 .contact-list-item.p-10.visible-xs(ng-click='displayContact()')
   .pull-left.touch-zone
       contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{avatarSize}}')
-  .media-body.row
+  .media-body.touch-zone
     .lv-title.col-xs-11
         h4.media-heading {{displayShell.getDisplayName()}}
     .lv-title.col-xs-11(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
