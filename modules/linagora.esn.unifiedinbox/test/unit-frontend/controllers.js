@@ -173,16 +173,18 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should initialize the controller when a Composition instance is given in state params', function() {
       $stateParams.composition = { getEmail: angular.noop };
-      initController('composerController');
 
-      expect(scope.composition).to.deep.equal($stateParams.composition);
+      var ctrl = initController('composerController');
+
+      expect(ctrl.getComposition()).to.deep.equal($stateParams.composition);
     });
 
     it('should initialize the controller when an email is given in state params', function() {
       $stateParams.email = { to: [] };
-      initController('composerController');
 
-      expect(scope.composition).to.be.an.instanceof(Composition);
+      var ctrl = initController('composerController');
+
+      expect(ctrl.getComposition()).to.be.an.instanceof(Composition);
       expect(scope.email).to.be.a('object');
     });
 
@@ -209,16 +211,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         ctrl = initController('composerController');
 
-        scope.composition = {
+        ctrl.initCtrlWithComposition({
           canBeSentOrNotify: function() { return true; },
           saveDraft: sinon.spy(),
           send: sinon.spy(),
+          getEmail: sinon.stub().returns({}),
           saveDraftSilently: sinon.stub().returns($q.when(new jmap.CreateMessageAck({destroyMessage: sinon.spy()}, {
             id: 'expected id',
             blobId: 'any',
             size: 5
           })))
-        };
+        });
       });
 
       it('should do nothing if no files are given', function() {
@@ -257,7 +260,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should put the attachment in the scope, if the file size is exactly the limit', function() {
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
 
         expect(scope.email.attachments.length).to.equal(1);
       });
@@ -280,7 +283,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.composition.saveDraftSilently).to.have.been.calledTwice;
+        expect(ctrl.getComposition().saveDraftSilently).to.have.been.calledTwice;
       });
 
       it('should not save intermediate drafts when saveDraft has been called', function() {
@@ -289,7 +292,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.composition.saveDraftSilently).to.have.not.been.called;
+        expect(ctrl.getComposition().saveDraftSilently).to.have.not.been.called;
       });
 
       it('should not save intermediate drafts when send has been called', function() {
@@ -298,7 +301,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.composition.saveDraftSilently).to.have.not.been.called;
+        expect(ctrl.getComposition().saveDraftSilently).to.have.not.been.called;
       });
 
       it('should set attachment.error if upload fails', function() {
@@ -395,7 +398,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             }
           };
 
-          initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+          ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
           $rootScope.$digest();
 
           var attachment = scope.email.attachments[0];
@@ -412,22 +415,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The removeAttachment function', function() {
 
+      var ctrl;
+
       beforeEach(function() {
-        scope.composition = { saveDraftSilently: sinon.spy() };
+        ctrl = initController('composerController');
+        ctrl.initCtrl({});
+        ctrl.getComposition().saveDraftSilently = sinon.spy();
       });
 
       it('should cancel an ongoing upload', function(done) {
         var attachment = { upload: { cancel: done } };
         scope.email.attachments = [attachment];
 
-        initController('composerController').removeAttachment(attachment);
+        ctrl.removeAttachment(attachment);
       });
 
       it('should remove the attachment from the email', function() {
         var attachment = { blobId: 'willBeRemoved', upload: { cancel: angular.noop } };
         scope.email.attachments = [attachment, { blobId: '1' }];
 
-        initController('composerController').removeAttachment(attachment);
+        ctrl.removeAttachment(attachment);
 
         expect(scope.email.attachments).to.deep.equal([{ blobId: '1' }]);
       });
@@ -436,7 +443,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         var attachment = { blobId: 'willBeRemoved'};
         scope.email.attachments = [attachment, { blobId: '1' }];
 
-        initController('composerController').removeAttachment(attachment);
+        ctrl.removeAttachment(attachment);
 
         expect(scope.email.attachments).to.deep.equal([{ blobId: '1' }]);
       });
@@ -445,9 +452,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         var attachment = { blobId: 'willBeRemoved'};
         scope.email.attachments = [attachment];
 
-        initController('composerController').removeAttachment(attachment);
+        ctrl.removeAttachment(attachment);
 
-        expect(scope.composition.saveDraftSilently).to.have.been.calledWith();
+        expect(ctrl.getComposition().saveDraftSilently).to.have.been.calledWith();
       });
 
     });
@@ -1280,10 +1287,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     beforeEach(function() {
       headerService.subHeader.setVisibleMD = sinon.spy();
+      $state.go = sinon.spy();
+      $stateParams.recipientsType = 'to';
+      $stateParams.composition = {
+        email: {
+          to: 'to email'
+        }
+      };
     });
 
-    it('should go to unifiedinbox.compose if $stateParams.rcpt is not defined', function() {
-      $state.go = sinon.spy();
+    it('should go to unifiedinbox.compose if $stateParams.recipientsType is not defined', function() {
+      $stateParams.recipientsType = undefined;
 
       initController('recipientsFullscreenEditFormController');
 
@@ -1291,22 +1305,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should go to unifiedinbox.compose if $stateParams.composition is not defined', function() {
-      $state.go = sinon.spy();
-      $stateParams.rcpt = 'to';
+      $stateParams.composition = undefined;
 
       initController('recipientsFullscreenEditFormController');
 
       expect($state.go).to.have.been.calledWith('unifiedinbox.compose');
     });
 
-    it('should expose $stateParams.rcpt and $stateParams.composition in the scope', function() {
-      $stateParams.rcpt = 'to';
-      $stateParams.composition = 'composition';
+    it('should go to unifiedinbox.compose if $stateParams.composition.email is not defined', function() {
+      $stateParams.composition = {};
 
       initController('recipientsFullscreenEditFormController');
 
-      expect(scope.composition).to.equal('composition');
-      expect(scope.rcpt).to.equal('to');
+      expect($state.go).to.have.been.calledWith('unifiedinbox.compose');
+    });
+
+    it('should expose $stateParams.recipientsType and $stateParams.composition in the scope', function() {
+      initController('recipientsFullscreenEditFormController');
+
+      expect(scope.recipients).to.equal('to email');
+      expect(scope.recipientsType).to.equal('to');
     });
 
     it('should define the "fullscreen-edit-form-subheader" subheader', function() {
@@ -1321,6 +1339,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('recipientsFullscreenEditFormController');
 
       expect(headerService.subHeader.setVisibleMD).to.have.been.called;
+    });
+
+    it('should go to parent with stateParams.composition when backToComposition is called', function() {
+      initController('recipientsFullscreenEditFormController');
+
+      scope.backToComposition();
+
+      expect($state.go).to.have.been.calledWith('^', { composition: $stateParams.composition });
     });
 
   });

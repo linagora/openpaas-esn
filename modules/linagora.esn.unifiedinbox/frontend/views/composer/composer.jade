@@ -6,15 +6,15 @@ form.form-horizontal.compose.ng-cloak.subheader-margin
         .form-group
           label.col-xs-1.control-label(for="to") #{__('To')}
           .col-xs-10
-            recipients-auto-complete(ui-sref='.recipients({ rcpt: "to", composition: composition })', ng-model="email.to", template="fullscreen-recipients-auto-complete")
+            recipients-auto-complete(ng-click='openRecipients("to")', ng-model="email.to", template="fullscreen-recipients-auto-complete")
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label(for="cc") #{__('CC')}
           .col-xs-10
-            recipients-auto-complete(ui-sref='.recipients({ rcpt: "cc", composition: composition })', ng-model="email.cc", template="fullscreen-recipients-auto-complete")
+            recipients-auto-complete(ng-click='openRecipients("cc")', ng-model="email.cc", template="fullscreen-recipients-auto-complete")
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label(for="bcc") #{__('BCC')}
           .col-xs-10
-            recipients-auto-complete(ui-sref='.recipients({ rcpt: "bcc", composition: composition })', ng-model="email.bcc", template="fullscreen-recipients-auto-complete")
+            recipients-auto-complete(ng-click='openRecipients("bcc")', ng-model="email.bcc", template="fullscreen-recipients-auto-complete")
       .more-recipients.col-xs-1(ng-class="{ 'isCollapsed': isCollapsed }")
         span(ng-click="isCollapsed = !isCollapsed")
           i.mdi(ng-class="isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up'")

@@ -48,7 +48,7 @@ angular.module('linagora.esn.unifiedinbox', [
         params: { email: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
       })
       .state('unifiedinbox.compose.recipients', {
-        url: '/:rcpt',
+        url: '/:recipientsType',
         views: {
           'root@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/composer/fullscreen-edit-form/index',
