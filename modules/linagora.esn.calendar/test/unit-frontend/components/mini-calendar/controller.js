@@ -528,7 +528,7 @@ describe('The mini-calendar controller', function() {
       initController();
     });
 
-    it('should register a callback for EVENT_CREATED and pass the event to miniCalendarWrapper.modifyEvent', function() {
+    it('should register a callback for EVENT_CREATED and pass the event to miniCalendarWrapper.addEvent', function() {
       var event = {id: 'anId', isRecurring: _.constant(false)};
       var path = 'path';
       var etag = 'etag';
@@ -537,7 +537,34 @@ describe('The mini-calendar controller', function() {
       wsEventCreateListener({event: event, eventPath: path, etag: etag});
       $scope.$digest();
       expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-      expect(calWrapper.modifyEvent).to.have.been.calledWith(sinon.match(event));
+      expect(calWrapper.addEvent).to.have.been.calledWith(sinon.match(event));
+    });
+
+    it('should register a callback for EVENT_CREATED and pass the subevent of a recurrung event to miniCalendarWrapper.addEvent', function() {
+      var subevent = {
+        id: 'subevent',
+        isRecurring: _.constant(false)
+      };
+
+      var event = {
+        id: 'anId',
+        isRecurring: _.constant(true),
+        expand: sinon.stub().returns([subevent])
+      };
+      var path = 'path';
+      var etag = 'etag';
+
+      var start = fcMoment('2016-03-14');
+      var end = fcMoment('2016-03-14');
+
+      fcMethodMock.getView = sinon.stub().returns({start: start, end: end});
+      $scope.miniCalendarConfig.viewRender();
+      wsEventCreateListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.addEvent).to.have.been.calledWith(sinon.match(subevent));
+      expect(fcMethodMock.getView).to.have.been.called;
+      expect(event.expand).to.have.been.calledWith(start.subtract(1, 'day'), end.add(1, 'day'));
     });
 
     it('should register a callback for EVENT_DELETED and pass the event to miniCalendarWrapper.deleteEvent', function() {

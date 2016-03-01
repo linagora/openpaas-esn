@@ -162,16 +162,31 @@ angular.module('esn.calendar')
       });
     }
 
-    function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
+    function liveNotificationHandlerOnCreate(msg) {
+      var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
+      $q.all({
+        calendar: calendarPromise,
+        calendarWrapper: calendarWrapperPromise
+      }).then(function(resolved) {
+        if (event.isRecurring && event.isRecurring()) {
+          var getView = resolved.calendar.fullCalendar('getView');
+          event.expand(getView.start.clone().subtract(1, 'day'), getView.end.clone().add(1, 'day')).forEach(resolved.calendarWrapper.addEvent, resolved.calendarWrapper);
+        } else {
+          resolved.calendarWrapper.addEvent(event);
+        }
+      });
+    }
+
+    function liveNotificationHandlerOnRequestAndUpdate(msg) {
       calendarWrapperPromise.then(function(calendarWrapper) {
         calendarWrapper.modifyEvent(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}));
       });
     }
 
     var sio = livenotification('/calendars');
-    sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnRequestAndUpdate);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnRequestAndUpdate);
     sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
     sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
 
@@ -189,9 +204,9 @@ angular.module('esn.calendar')
     ];
 
     $scope.$on('$destroy', function() {
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnRequestAndUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnRequestAndUpdate);
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
 
