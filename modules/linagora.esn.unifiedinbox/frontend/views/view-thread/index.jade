@@ -1,6 +1,6 @@
 .email-view.thread-view
-  .thread-header.visible-md.visible-lg
-    .flex-space-between.flex-vertical-centered
+  .thread-header.visible-md
+    .flex-space-between
       div
         button.btn.btn-default(type='button', ui-sref="^()")
           i.mdi.mdi-arrow-left-bold
@@ -11,6 +11,9 @@
         button.btn.btn-primary(type='button', action-list, action-list-url='/unifiedinbox/views/view-thread/action-list.html', title="#{__('More')}")
           | #{__(' More')}
           i.mdi.mdi-dots-vertical
+
+  .thread-title.visible-xs
+    h4 {{ ::thread.subject }}
 
   email(ng-repeat='email in thread.emails', email='email')
 
