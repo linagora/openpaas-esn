@@ -70,7 +70,8 @@ angular.module('esnApp', [
   'esn.actionList',
   'esn.application-menu',
   'esn.router',
-  'esn.beforeunload'
+  'esn.beforeunload',
+  'esn.configuration'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...

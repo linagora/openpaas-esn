@@ -73,6 +73,7 @@ module.exports = function(config) {
       'frontend/components/offline/offline.min.js',
       'frontend/components/angular-media-queries/match-media.js',
       'frontend/components/jquery.focus/dist/jquery.focus.js',
+      'frontend/components/angular-feature-flags/dist/featureFlags.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',

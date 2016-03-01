@@ -92,6 +92,7 @@ html
     script(src='/components/angular-media-queries/match-media.js')
     script(src='/components/lng-clockpicker/dist/bootstrap-clockpicker.min.js')
     script(src='/components/angular-clockpicker/dist/angular-clockpicker.min.js')
+    script(src='/components/angular-feature-flags/dist/featureFlags.js')
     +injectAngularFromModules('esn', injections)
     +injectJSFromModules('esn', injections)
     script(src='js/esn/app.js')
@@ -173,6 +174,7 @@ html
     script(src='js/modules/settings-overlay.js')
     script(src='js/modules/desktop-utils.js')
     script(src='js/modules/beforeunload.js')
+    script(src='js/modules/config.js')
     script(src='/components/material-admin/js/modules/form.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController" resize-scrollbar ng-nicescroll nice-option="{cursorcolor: 'rgba(0,0,0,0.4)', cursorborder: 'none', cursorwidth:'6px', autohidemode: false, zindex: 12}")
