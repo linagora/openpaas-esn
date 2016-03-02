@@ -60,14 +60,14 @@ angular.module('esn.calendar')
       scope.today = fcMoment().format('YYYY-MM-DD');
 
       scope.onStartDateChange = function() {
-        if (!scope.event.start) {
+        if (!scope.event.start || !scope.event.start.isValid()) {
           return;
         }
         scope.event.end = fcMoment(scope.event.start).add(scope.diff / 1000, 'seconds');
       };
 
       scope.onEndDateChange = function() {
-        if (!scope.event.end) {
+        if (!scope.event.end || !scope.event.end.isValid()) {
           return;
         }
         if (scope.event.end.isBefore(scope.event.start)) {
@@ -143,10 +143,8 @@ angular.module('esn.calendar')
   .directive('dateToMoment', function(fcMoment) {
     function link(scope, element, attrs, controller) {
       function ensureFCMomentToModel(value) {
-        if (scope.event.allDay) {
-          return fcMoment(value).stripTime();
-        }
-        return fcMoment(value);
+        var result = scope.event.allDay ? fcMoment(value).stripTime() : fcMoment(value);
+        return result.isValid() ? result : undefined;
       }
 
       /**
