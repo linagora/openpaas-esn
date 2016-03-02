@@ -433,6 +433,7 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('inboxIndicators', function() {
     return {
       restrict: 'E',
+      replace: true,
       templateUrl:'/unifiedinbox/views/partials/inbox-indicators.html',
       scope: {
         item: '='
