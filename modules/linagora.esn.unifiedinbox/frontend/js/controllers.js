@@ -142,7 +142,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('composerController', function($scope, $stateParams, $q, headerService, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
-                                            attachmentUploadService, _,
+                                            attachmentUploadService, _, inboxConfig,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
     var disableImplicitSavesAsDraft = false,
         composition;
@@ -217,8 +217,8 @@ angular.module('linagora.esn.unifiedinbox')
 
       $scope.email.attachments = $scope.email.attachments || [];
 
-      withJmapClient(function(client, config) {
-        var maxSizeUpload = config.maxSizeUpload || DEFAULT_MAX_SIZE_UPLOAD,
+      withJmapClient(function(client) {
+        var maxSizeUpload = inboxConfig('maxSizeUpload', DEFAULT_MAX_SIZE_UPLOAD),
             humanReadableMaxSizeUpload = $filter('bytes')(maxSizeUpload);
 
         $files.forEach(function(file) {

@@ -45,10 +45,12 @@ exports = module.exports = function(application) {
   application.get('/api/user/activitystreams', authorize.requiresAPILogin, activitystreams.getMine);
   application.get('/api/activitystreams/:uuid/resource', authorize.requiresAPILogin, requestMW.requireRouteParams('uuid'), asMiddleware.findStreamResource, requestMW.assertRequestElementNotNull('activity_stream'), activitystreams.getResource);
 
-  var users = require('./controllers/users');
+  var users = require('./controllers/users'),
+      features = require('./middleware/features');
+
   application.get('/logout', users.logout);
   application.get('/api/users/:uuid/profile', authorize.requiresAPILogin, link.trackProfileView, users.profile);
-  application.get('/api/user', authorize.requiresAPILogin, users.user);
+  application.get('/api/user', authorize.requiresAPILogin, features.loadFeaturesForUser, users.user);
 
   application.get('/api/users/:uuid/profile/avatar', users.load, users.getProfileAvatar);
   application.get('/api/users/:uuid', authorize.requiresAPILogin, users.profile);

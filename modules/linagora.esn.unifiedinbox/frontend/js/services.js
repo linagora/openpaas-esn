@@ -2,18 +2,9 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('getJmapConfig', function($http, $q) {
-    var config;
-
-    return function() {
-      if (config) {
-        return $q.when(config);
-      }
-
-      return $http.get('/unifiedinbox/api/inbox/jmap-config').then(function(resp) {
-        config = resp.data;
-        return config;
-      });
+  .factory('inboxConfig', function(esnConfig, INBOX_MODULE_NAME) {
+    return function(key, defaultValue) {
+      return esnConfig(INBOX_MODULE_NAME + '.' + key, defaultValue);
     };
   })
 
@@ -23,17 +14,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('jmapClientProvider', function($q, $http, $log, jmap, dollarHttpTransport, dollarQPromiseProvider, getJmapConfig, generateJwtToken) {
-    var promise = $q.all([getJmapConfig(), generateJwtToken()]).then(function(data) {
-      return {
-        jmapConfig: data[0],
-        jmapClient: new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-          .withAPIUrl(data[0].api)
-          .withAuthenticationToken('Bearer ' + data[1])
-      };
-    }, function(err) {
-      $log.error('Cannot build the jmap-client', err);
-      return $q.reject(err);
+  .service('jmapClientProvider', function($q, $http, $log, inboxConfig, jmap, dollarHttpTransport, dollarQPromiseProvider, generateJwtToken) {
+    var promise = generateJwtToken().then(function(data) {
+      return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+        .withAPIUrl(inboxConfig('api'))
+        .withAuthenticationToken('Bearer ' + data);
     });
 
     return {
@@ -43,9 +28,9 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('withJmapClient', function(jmapClientProvider) {
     return function(callback) {
-      return jmapClientProvider.promise.then(function(data) {
-        return callback(data.jmapClient, data.jmapConfig);
-      }, callback.bind(null, null, null));
+      return jmapClientProvider.promise.then(function(client) {
+        return callback(client);
+      }, callback.bind(null, null));
     };
   })
 
@@ -147,7 +132,7 @@ angular.module('linagora.esn.unifiedinbox')
     return ElementGroupingTool;
   })
 
-  .factory('sendEmail', function($http, $q, inBackground, jmap, withJmapClient, jmapHelper) {
+  .factory('sendEmail', function($http, $q, inboxConfig, inBackground, jmap, withJmapClient, jmapHelper) {
     function sendBySmtp(email) {
       return $http.post('/unifiedinbox/api/inbox/sendemail', email);
     }
@@ -163,10 +148,10 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function sendEmail(email) {
-      return withJmapClient(function(client, config) {
-        if (!config.isJmapSendingEnabled) {
+      return withJmapClient(function(client) {
+        if (!inboxConfig('isJmapSendingEnabled')) {
           return sendBySmtp(email);
-        } else if (config.isSaveDraftBeforeSendingEnabled) {
+        } else if (inboxConfig('isSaveDraftBeforeSendingEnabled')) {
           return sendByJmap(client, email);
         } else {
           return client.send(jmapHelper.toOutboundMessage(client, email));
@@ -920,7 +905,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('attachmentUploadService', function($q, $rootScope, inBackground, xhrWithUploadProgress, withJmapClient) {
+  .service('attachmentUploadService', function($q, $rootScope, inboxConfig, inBackground, xhrWithUploadProgress) {
     function in$Apply(fn) {
       return function(value) {
         if ($rootScope.$$phase) {
@@ -934,32 +919,30 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function uploadFile(url, file, type, size, options, canceler) {
-      return withJmapClient(function(client, config) {
-        var defer = $q.defer(),
-            request = $.ajax({
-              type: 'POST',
-              url: config.uploadUrl,
-              contentType: type,
-              data: file,
-              processData: false,
-              dataType: 'json',
-              success: in$Apply(defer.resolve),
-              error: function(xhr, status, error) {
-                in$Apply(defer.reject)({
-                  xhr: xhr,
-                  status: status,
-                  error: error
-                });
-              },
-              xhr: xhrWithUploadProgress(in$Apply(defer.notify))
-            });
+      var defer = $q.defer(),
+          request = $.ajax({
+            type: 'POST',
+            url: inboxConfig('uploadUrl'),
+            contentType: type,
+            data: file,
+            processData: false,
+            dataType: 'json',
+            success: in$Apply(defer.resolve),
+            error: function(xhr, status, error) {
+              in$Apply(defer.reject)({
+                xhr: xhr,
+                status: status,
+                error: error
+              });
+            },
+            xhr: xhrWithUploadProgress(in$Apply(defer.notify))
+          });
 
-        if (canceler) {
-          canceler.then(request.abort);
-        }
+      if (canceler) {
+        canceler.then(request.abort);
+      }
 
-        return inBackground(defer.promise);
-      });
+      return inBackground(defer.promise);
     }
 
     return {

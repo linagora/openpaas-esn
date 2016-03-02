@@ -394,3 +394,30 @@ module.exports.openAndPrivateCommunities = function() {
     projects: []
   };
 };
+
+module.exports.foo_and_bar_users = function() {
+  return {
+    domain: {
+      name: 'FooAndBar',
+      company_name: 'Linagora'
+    },
+    users: [{
+      firstname: 'John',
+      username: 'Foo',
+      password: 'secret',
+      accounts: [{
+        type: 'email',
+        hosted: true,
+        emails: ['foo@bar.com']
+      }]
+    }, {
+      username: 'Bar',
+      password: 'secret',
+      accounts: [{
+        type: 'email',
+        hosted: true,
+        emails: ['bar@bar.com']
+      }]
+    }]
+  };
+};

@@ -500,4 +500,19 @@ module.exports = function(mixin, testEnv) {
     request(app)[method](apiUrl)
       .expect(401, done);
   };
+
+  api.addFeature = function(domain_id, module, feature, callback) {
+    var Features = require('mongoose').model('Features');
+
+    new Features({
+      domain_id: domain_id,
+      modules: [{
+        name: module,
+        features: [{
+          name: feature,
+          value: true
+        }]
+      }]
+    }).save(callback);
+  };
 };

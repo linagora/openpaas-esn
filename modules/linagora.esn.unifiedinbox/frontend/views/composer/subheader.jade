@@ -2,7 +2,7 @@
   .row
     inbox-subheader-close-button(ng-click='close()')
     .button.submit
-      button.attach.btn-link(type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true")
+      button.attach.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true")
         i.mdi.mdi-paperclip
       a.send(href='', ng-click='send()')
         | #{__('Send')}
