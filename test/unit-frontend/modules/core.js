@@ -217,6 +217,24 @@ describe('The Angular core module', function() {
 
   });
 
+  describe('The maxPlus filter', function() {
+
+    var maxPlus;
+
+    beforeEach(inject(function($filter) {
+      maxPlus = $filter('maxPlus');
+    }));
+
+    it('should return maxValue+ when the input is greater than maxValue', function() {
+      expect(maxPlus(100, 99)).to.equal('99+');
+    });
+
+    it('should return the original input when it is not greater than maxValue', function() {
+      expect(maxPlus(99, 99)).to.equal(99);
+    });
+
+  });
+
   describe('The urlencode filter', function() {
     var urlencode;
     beforeEach(inject(function($filter) {
