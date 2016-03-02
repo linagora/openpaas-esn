@@ -1,10 +1,11 @@
-This file describe the content of `config/db.json`.
+# MongoDB
 
-* The key `connectionOptions` is used to give the `option` parameter of `mongoose.connect`.
-* The key `connectionString` is the first parameter of `mongoose.connect`.
+Mongodb is configured is the `config/db.json` file with:
 
-Single instance setup
-=====================
+- The key `connectionOptions` is used to give the `option` parameter of `mongoose.connect`.
+- The key `connectionString` is the first parameter of `mongoose.connect`.
+
+## Single instance setup
 
 ConnexionString syntax :
 
@@ -14,8 +15,7 @@ ConnexionString example :
 
        mongodb://myVM1/test
 
-Replica set setup
-==================
+## Replica set setup
 
 ConnexionString syntax :
 
@@ -25,8 +25,7 @@ ConnexionString example :
 
        mongodb://myVM1/test,myVM2:27018/test,myVM3:27019/test?replicaSet=rs0
 
-Sharding setup (single mongos)
-==============================
+## Sharding setup (single mongos)
 
 ConnexionString syntax :
 
@@ -37,8 +36,7 @@ ConnexionString example :
        mongodb://myVM1/test
 
 
-Sharding setup (multiple mongos)
-================================
+## Sharding setup (multiple mongos)
 
 ConnexionString syntax :
 
