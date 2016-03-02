@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
-      mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, jmapConfig;
+      mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, config;
   var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
       DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
@@ -43,10 +43,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {};
-      jmapConfig = {
-        uploadUrl: 'http://jmap',
-        maxSizeUpload: DEFAULT_MAX_SIZE_UPLOAD
-      };
+      config = {};
+      config['linagora.esn.unifiedinbox.uploadUrl'] = 'http://jmap';
+      config['linagora.esn.unifiedinbox.maxSizeUpload'] = DEFAULT_MAX_SIZE_UPLOAD;
       fileUploadMock = {
         addFile: function() {
           return {
@@ -56,7 +55,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
 
       $provide.value('withJmapClient', function(callback) {
-        return callback(jmapClient, jmapConfig);
+        return callback(jmapClient);
       });
       $provide.decorator('$window', function($delegate) {
         return angular.extend($delegate, windowMock);
@@ -74,6 +73,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         get: function() {
           return fileUploadMock;
         }
+      });
+      $provide.value('esnConfig', function(key, defaultValue) {
+        return angular.isDefined(config[key]) ? config[key] : defaultValue;
       });
     });
   });
@@ -376,7 +378,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should notify and not add the attachment if file is larger that a configured limit', function() {
-        jmapConfig.maxSizeUpload = 1024 * 1024; // 1MB
+        config['linagora.esn.unifiedinbox.maxSizeUpload'] = 1024 * 1024; // 1MB
         initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1024 * 1024 * 2 }]);
 
         expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 1MB limit');

@@ -10,7 +10,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
       localTimeZone = 'Europe/Paris',
-      attendeeService, isMobile;
+      attendeeService, isMobile, config;
 
   beforeEach(function() {
     angular.mock.module('esn.jmap-client-wrapper');
@@ -23,6 +23,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   beforeEach(module(function($provide) {
     isMobile = false;
+    config = config || {};
 
     $provide.value('localTimezone', 'UTC');
     $provide.constant('moment', function(argument) {
@@ -34,47 +35,31 @@ describe('The Unified Inbox Angular module services', function() {
         return isMobile;
       }
     });
+    $provide.value('esnConfig', function(key, defaultValue) {
+      return angular.isDefined(config[key]) ? config[key] : defaultValue;
+    });
   }));
 
-  describe('The getJmapConfig service', function() {
+  afterEach(function() {
+    config = {};
+  });
 
-    var $httpBackend, getJmapConfig;
-    beforeEach(angular.mock.inject(function(_$httpBackend_, _getJmapConfig_) {
-      $httpBackend = _$httpBackend_;
-      getJmapConfig = _getJmapConfig_;
+  describe('The inboxConfig factory', function() {
+
+    var inboxConfig;
+
+    beforeEach(inject(function(_inboxConfig_) {
+      inboxConfig = _inboxConfig_;
+
+      config['linagora.esn.unifiedinbox.testKey'] = 'testValue';
     }));
 
-    it('should resolve config data on success', function(done) {
-      var config = { api: 'https://server.jmap.io' };
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(200, config);
-      getJmapConfig().then(function(data) {
-        expect(data).to.deep.equal(config);
-        done();
-      }, done.bind(null, 'should resolve'));
-      $httpBackend.flush();
+    it('should delegate to esnConfig, prefixing the key with the module name', function() {
+      expect(inboxConfig('testKey')).to.equal('testValue');
     });
 
-    it('should reject error response on failure', function(done) {
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(500);
-      getJmapConfig().then(done.bind(null, 'should reject'), function(err) {
-        expect(err.status).to.equal(500);
-        done();
-      });
-      $httpBackend.flush();
-    });
-
-    it('should cache the config to not send request twice', function(done) {
-      var config = { key: 'value' };
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/jmap-config').respond(200, config);
-
-      getJmapConfig().then(function() {
-        getJmapConfig().then(function(cfg) {
-          expect(cfg).to.deep.equal(config);
-          done();
-        });
-      });
-
-      $httpBackend.flush();
+    it('should delegate to esnConfig with default value, prefixing the key with the module name', function() {
+      expect(inboxConfig('not.existing', 'abc')).to.equal('abc');
     });
 
   });
@@ -123,9 +108,6 @@ describe('The Unified Inbox Angular module services', function() {
     it('should return a rejected promise if jwt generation fails', function(done) {
       var error = new Error('error message');
       angular.mock.module(function($provide) {
-        $provide.value('getJmapConfig', function() {
-          return $q.when();
-        });
         $provide.value('generateJwtToken', function() {
           return $q.reject(error);
         });
@@ -138,44 +120,19 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
     });
 
-    it('should return a rejected promise if jmap config lookup fails', function(done) {
-      var error = new Error('error message');
-      angular.mock.module(function($provide) {
-        $provide.value('getJmapConfig', function() {
-          return $q.reject(error);
-        });
-        $provide.value('generateJwtToken', function() {
-          return $q.when();
-        });
-      });
-
-      injectServices.bind(this)();
-      jmapClientProvider.promise.catch(function(err) {
-        expect(err.message).to.equal(error.message);
-        done();
-      });
-      $rootScope.$digest();
-    });
-
     it('should return a fulfilled promise if jwt generation succeed', function(done) {
-      var config = {
-        api: 'expected jmap api'
-      };
       angular.mock.module(function($provide) {
-        $provide.value('getJmapConfig', function() {
-          return $q.when(config);
-        });
         $provide.value('generateJwtToken', function() {
           return $q.when('expected jwt');
         });
       });
+      config['linagora.esn.unifiedinbox.api'] = 'expected jmap api';
 
       injectServices.bind(this)();
-      jmapClientProvider.promise.then(function(data) {
-        expect(data.jmapClient).to.be.an.instanceof(jmap.Client);
-        expect(data.jmapClient.authToken).to.equal('Bearer expected jwt');
-        expect(data.jmapClient.apiUrl).to.equal('expected jmap api');
-        expect(data.jmapConfig).to.deep.equal(config);
+      jmapClientProvider.promise.then(function(client) {
+        expect(client).to.be.an.instanceof(jmap.Client);
+        expect(client.authToken).to.equal('Bearer expected jwt');
+        expect(client.apiUrl).to.equal('expected jmap api');
         done();
       }, done.bind(null, 'should resolve'));
       $rootScope.$digest();
@@ -199,27 +156,22 @@ describe('The Unified Inbox Angular module services', function() {
       });
     });
 
-    it('should give the client and config in the callback when jmapClientProvider resolves', function(done) {
-      var mockData = {
-        jmapConfig: { key: 'value' },
-        jmapClient: { send: angular.noop }
-      };
-      jmapClientProviderMock.promise = $q.when(mockData);
+    it('should give the client in the callback when jmapClientProvider resolves', function(done) {
+      var jmapClient = { send: angular.noop };
+      jmapClientProviderMock.promise = $q.when(jmapClient);
 
-      withJmapClient(function(client, config) {
-        expect(client).to.deep.equal(mockData.jmapClient);
-        expect(config).to.deep.equal(mockData.jmapConfig);
+      withJmapClient(function(client) {
+        expect(client).to.deep.equal(jmapClient);
         done();
       });
       $rootScope.$digest();
     });
 
-    it('should resolve the callback with two null instances and an error when jmapClient cannot be built', function(done) {
+    it('should resolve the callback with a null instance and an error when jmapClient cannot be built', function(done) {
       jmapClientProviderMock.promise = $q.reject(new Error());
 
-      withJmapClient(function(client, config, err) {
+      withJmapClient(function(client, err) {
         expect(client).to.be.null;
-        expect(config).to.be.null;
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
@@ -227,7 +179,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should reject if the callback promise rejects', function(done) {
-      jmapClientProviderMock.promise = $q.when({ jmapConfig: {}, jmapClient: {} });
+      jmapClientProviderMock.promise = $q.when({});
       var e = new Error('error message');
       withJmapClient(function() {
         return $q.reject(e);
@@ -484,16 +436,15 @@ describe('The Unified Inbox Angular module services', function() {
 
     var $httpBackend, $rootScope, jmap, sendEmail, backgroundProcessorService;
 
-    var jmapConfigMock, jmapClientMock, jmapHelperMock;
+    var jmapClientMock, jmapHelperMock;
 
     beforeEach(function() {
-      jmapConfigMock = {};
       jmapClientMock = {};
       jmapHelperMock = {};
 
       angular.mock.module(function($provide) {
         $provide.value('withJmapClient', function(callback) {
-          return callback(jmapClientMock, jmapConfigMock);
+          return callback(jmapClientMock);
         });
 
         $provide.value('jmapHelper', jmapHelperMock);
@@ -522,7 +473,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('Use SMTP', function() {
 
       beforeEach(function() {
-        jmapConfigMock.isJmapSendingEnabled = false;
+        config['linagora.esn.unifiedinbox.isJmapSendingEnabled'] = false;
       });
 
       it('should use SMTP to send email when JMAP is not enabled to send email', function() {
@@ -554,8 +505,8 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('Use JMAP', function() {
       beforeEach(function() {
-        jmapConfigMock.isJmapSendingEnabled = true;
-        jmapConfigMock.isSaveDraftBeforeSendingEnabled = true;
+        config['linagora.esn.unifiedinbox.isJmapSendingEnabled'] = true;
+        config['linagora.esn.unifiedinbox.isSaveDraftBeforeSendingEnabled'] = true;
         jmapHelperMock.toOutboundMessage = angular.noop;
 
         jmapClientMock.saveAsDraft = function() {
@@ -644,8 +595,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       beforeEach(function() {
         email = { from: 'A', to: 'B' };
-        jmapConfigMock.isJmapSendingEnabled = true;
-        jmapConfigMock.isSaveDraftBeforeSendingEnabled = false;
+        config['linagora.esn.unifiedinbox.isJmapSendingEnabled'] = true;
+        config['linagora.esn.unifiedinbox.isSaveDraftBeforeSendingEnabled'] = false;
         jmapHelperMock.toOutboundMessage = sinon.stub().returns({email: 'content'});
       });
 
@@ -3405,8 +3356,9 @@ describe('The Unified Inbox Angular module services', function() {
 
     beforeEach(module(function($provide) {
       $provide.value('withJmapClient', function(callback) {
-        return callback(null, { uploadUrl: 'http://jmap' });
+        return callback(null);
       });
+      config['linagora.esn.unifiedinbox.uploadUrl'] = 'http://jmap';
 
       $.mockjaxSettings.logging = false;
     }));

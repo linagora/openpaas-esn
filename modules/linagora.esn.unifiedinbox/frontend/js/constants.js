@@ -2,6 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .constant('INBOX_MODULE_NAME', 'linagora.esn.unifiedinbox')
   .constant('MAILBOX_ROLE_ICONS_MAPPING', {
     default: 'mdi mdi-email',
     inbox: 'mdi mdi-email-outline',
