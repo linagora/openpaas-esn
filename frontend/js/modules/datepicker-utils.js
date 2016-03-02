@@ -34,6 +34,12 @@ angular.module('esn.datepickerUtils', [
   };
 })
 .factory('bsDatepickerMobileWrapper', function(moment, detectUtils, getControllerOfDirective) {
+
+  function avoidDatepickerLagOnAndroid5(element) {
+    element.attr('min', '1800-01-01');
+    element.attr('max', '3000-01-01');
+  }
+
   return function(directive) {
     var previousCompile = directive.compile;
     directive.compile = function() {
@@ -42,6 +48,7 @@ angular.module('esn.datepickerUtils', [
         var ngModel;
         if (detectUtils.isMobile()) {
 
+          avoidDatepickerLagOnAndroid5(element);
           ['minDate', 'maxDate'].forEach(function(sourceAttr) {
             var destAttr = sourceAttr.replace(/Date/, '');
             attrs.$observe(sourceAttr, function(val) {

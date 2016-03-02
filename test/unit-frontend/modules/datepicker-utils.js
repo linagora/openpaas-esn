@@ -128,6 +128,19 @@ describe('The datepicker utils module', function() {
       expect(this.rawDirective.link).to.have.been.calledWith(this.scope, this.element, this.attr, this.ngModelControllerMock);
     });
 
+    it('should set a min and max value on mobile to avoid lag on chrome in android 5', function() {
+      expect(this.element.attr).to.have.been.calledWith('min', '1800-01-01');
+      expect(this.element.attr).to.have.been.calledWith('max', '3000-01-01');
+    });
+
+    it('should not set a min and max value on desktop', function() {
+      this.mobile = false;
+      this.element.attr.reset();
+      this.wrapDirective();
+      expect(this.element.attr).to.not.have.been.calledWith('min', '1800-01-01');
+      expect(this.element.attr).to.not.have.been.calledWith('max', '3000-01-01');
+    });
+
     it('should not call original link if on mobile phone', function() {
       expect(this.detectUtilsMock.isMobile).to.have.beenCalledOnce;
       expect(this.rawDirective.link).to.have.not.been.called;
@@ -181,6 +194,7 @@ describe('The datepicker utils module', function() {
     });
 
     it('should observe properly minDate an maxDate and transfer them to min and max', function() {
+      self.element.attr.reset();
       [{
         sourceField: 'minDate',
         destField: 'min'
