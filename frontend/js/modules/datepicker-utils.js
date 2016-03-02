@@ -18,7 +18,7 @@ angular.module('esn.datepickerUtils', [
     return angular.extend({}, {nativeOnMobile: true}, $delegate);
   });
 })
-.factory('getControllerOfDirective', function() {
+.factory('getRequiredController', function() {
   return function(controllerName, controller, directive) {
     var controllers = controller;
     var requires = directive.require;
@@ -28,12 +28,12 @@ angular.module('esn.datepickerUtils', [
     }
     var index = requires.indexOf(controllerName);
     if (index === -1) {
-      throw new Error('We expect bsDatepickerDirective to require ngModel');
+      throw new Error(controllerName + 'could not be find in required controller');
     }
     return controllers[index];
   };
 })
-.factory('bsDatepickerMobileWrapper', function(moment, detectUtils, getControllerOfDirective) {
+.factory('bsDatepickerMobileWrapper', function(moment, detectUtils, getRequiredController) {
 
   function avoidDatepickerLagOnAndroid5(element) {
     element.attr('min', '1800-01-01');
@@ -56,7 +56,7 @@ angular.module('esn.datepickerUtils', [
             });
           });
 
-          ngModel = getControllerOfDirective('ngModel', controller, directive);
+          ngModel = getRequiredController('ngModel', controller, directive);
 
           ngModel.$formatters.push(function(date) {
             return moment(date).format('YYYY-MM-DD');

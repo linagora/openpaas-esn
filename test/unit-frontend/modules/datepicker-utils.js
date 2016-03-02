@@ -35,30 +35,30 @@ describe('The datepicker utils module', function() {
     });
   });
 
-  describe('getControllerOfDirective', function() {
+  describe('getRequiredController', function() {
 
-    beforeEach(inject(function(getControllerOfDirective) {
-      self.getControllerOfDirective = getControllerOfDirective;
+    beforeEach(inject(function(getRequiredController) {
+      self.getRequiredController = getRequiredController;
     }));
 
     it('should fail if require is not a array but is not the expected controller', function() {
-      expect(this.getControllerOfDirective.bind(null, 'controllerName', {}, {require:'badRequire'})).to.throw(Error);
+      expect(this.getRequiredController.bind(null, 'controllerName', {}, {require:'badRequire'})).to.throw(Error);
     });
 
     it('should fail if require is a array that does not contains the expected controller', function() {
-      expect(this.getControllerOfDirective.bind(null, 'controllerName', [{}], {require:['badRequire']})).to.throw(Error);
+      expect(this.getRequiredController.bind(null, 'controllerName', [{}], {require:['badRequire']})).to.throw(Error);
     });
 
     it('should return given controller if require is a string and correct', function() {
       var controller = {};
-      expect(this.getControllerOfDirective('controllerName', controller, {require: 'controllerName' })).to.equal(controller);
+      expect(this.getRequiredController('controllerName', controller, {require: 'controllerName' })).to.equal(controller);
     });
 
     it('should return given controller if require and controller are array that contain expected require', function() {
       var controller = {};
       var controllers = [{}, controller, {}];
       var directive = {require: ['toto', 'controllerName', '']};
-      expect(this.getControllerOfDirective('controllerName', controllers, directive)).to.equal(controller);
+      expect(this.getRequiredController('controllerName', controllers, directive)).to.equal(controller);
     });
 
   });
@@ -96,11 +96,11 @@ describe('The datepicker utils module', function() {
         $parsers: [42]
       };
 
-      this.getControllerOfDirectiveMock = sinon.stub().returns(this.ngModelControllerMock);
+      this.getRequiredControllerMock = sinon.stub().returns(this.ngModelControllerMock);
 
       angular.mock.module(function($provide) {
         $provide.value('detectUtils', self.detectUtilsMock);
-        $provide.value('getControllerOfDirective', self.getControllerOfDirectiveMock);
+        $provide.value('getRequiredController', self.getRequiredControllerMock);
       });
 
       this.wrapDirective = function() {
@@ -116,9 +116,9 @@ describe('The datepicker utils module', function() {
       self.moment = moment;
     }));
 
-    it('should call getControllerOfDirective to get the ngModelController', function() {
+    it('should call getRequiredController to get the ngModelController', function() {
       this.wrapDirective();
-      expect(this.getControllerOfDirectiveMock).to.have.been.calledWith('ngModel', this.ngModelControllerMock, this.rawDirective);
+      expect(this.getRequiredControllerMock).to.have.been.calledWith('ngModel', this.ngModelControllerMock, this.rawDirective);
     });
 
     it('should call original link if not on mobile phone', function() {
