@@ -87,7 +87,7 @@ Note that you must configure contents of files inside **fixtures/config/data** a
 
 ## Starting the server
 
-You should first start mongodb, redis and elasticsearch.
+You should first start mongodb, redis and elasticsearch and [configure OpenPaaS](./doc/configuration.md).
 
 Then 'npm start' to start the OpenPaaS web application:
 

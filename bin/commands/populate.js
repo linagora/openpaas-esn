@@ -1,6 +1,5 @@
 'use strict';
 
-var q = require('q');
 var commons = require('../commons');
 var populateFixture = require('../../fixtures/populate');
 var db = require('../../fixtures/db');

@@ -7,7 +7,7 @@ var path = require('path');
 var commons = require('../commons');
 
 function exec(host, port, dbName) {
-  host = host ||'localhost';
+  host = host || 'localhost';
   port = port || 27017;
   dbName = dbName || 'esn';
   var defer = q.defer();
