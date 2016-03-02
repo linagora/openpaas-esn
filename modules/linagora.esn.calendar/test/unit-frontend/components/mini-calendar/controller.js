@@ -1,13 +1,21 @@
 'use strict';
 /* global chai: false */
 /* global sinon: false */
+/* global _: false */
 var expect = chai.expect;
 
 describe('The mini-calendar controller', function() {
 
   var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
     sessionMock, miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
-    calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock, uniqueId, uuid4Mock;
+    calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock, uniqueId, uuid4Mock, liveNotification,
+    liveNotificationMock, CalendarShellMock, CalendarShellConstMock, calWrapper;
+
+  function sameDayMatcher(day) {
+    return function(_day) {
+      return _day && _day.isSame(day, 'day');
+    };
+  }
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
@@ -33,18 +41,40 @@ describe('The mini-calendar controller', function() {
       }
     };
 
+    CalendarShellConstMock = function(vcalendar, event) {
+      this.etag = event.etag;
+      this.path = event.path;
+      this.end = fcMoment();
+      this.clone = function() {
+        return this;
+      };
+    };
+
+    CalendarShellMock = function() {
+      return CalendarShellConstMock.apply(this, arguments);
+    };
+
+    CalendarShellMock.from = sinon.spy(function(event, extendedProp) {
+      return angular.extend({}, event, extendedProp);
+    });
+
+    liveNotificationMock = function(namespace) {
+      return liveNotification ? liveNotification(namespace) : {
+        on: angular.noop,
+        removeListener: angular.noop
+      };
+    };
+
     keepChangeDuringGraceperiodMock = {
-      wrapEventSource: function(id, source) {
+      wrapEventSource: sinon.spy(function(id, source) {
         return source;
-      }
+      })
     };
 
     uniqueId = 'this is supposed to be a very unique id';
 
     miniCalendarServiceMock = {
-      getWeekAroundDay: function() {
-        return {firstWeekDay: null, nextFirstWeekDay: null};
-      },
+      getWeekAroundDay: sinon.stub().returns({firstWeekDay: null, nextFirstWeekDay: null}),
       miniCalendarWrapper: angular.identity
     };
 
@@ -56,12 +86,14 @@ describe('The mini-calendar controller', function() {
 
     calendarCurrentViewMock = {
       save: angular.noop,
-      get: angular.identity.bind(null, {})
+      get: sinon.stub().returns({})
     };
 
     fcMethodMock = {
-      select: angular.noop,
-      gotoDate: angular.noop,
+      select: sinon.spy(),
+      unselect: sinon.spy(),
+      render: sinon.spy(),
+      gotoDate: sinon.spy(),
       prev: sinon.spy(),
       next: sinon.spy()
     };
@@ -89,6 +121,14 @@ describe('The mini-calendar controller', function() {
       }
     };
 
+    calWrapper = {
+      modifyEvent: sinon.spy(),
+      addEvent: sinon.spy(),
+      removeEvent: sinon.spy()
+    };
+
+    miniCalendarServiceMock.miniCalendarWrapper = sinon.stub().returns(calWrapper);
+
     angular.mock.module(function($provide) {
       $provide.value('session', sessionMock);
       $provide.value('calendarService', calendarServiceMock);
@@ -99,6 +139,8 @@ describe('The mini-calendar controller', function() {
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
       $provide.value('uuid4', uuid4Mock);
       $provide.constant('UI_CONFIG', UI_CONFIG_MOCK);
+      $provide.value('livenotification', liveNotificationMock);
+      $provide.value('CalendarShell', CalendarShellMock);
     });
 
   });
@@ -115,6 +157,7 @@ describe('The mini-calendar controller', function() {
     initController = function() {
       $controller('miniCalendarController', {$scope: $scope});
     };
+
   }));
 
   afterEach(function() {
@@ -130,7 +173,6 @@ describe('The mini-calendar controller', function() {
   });
 
   it('should call render on window resize if viewRender was never called', function() {
-    fcMethodMock.render = sinon.stub();
     initController();
     angular.element($window).resize();
     $scope.miniCalendarConfig.viewRender();
@@ -190,18 +232,9 @@ describe('The mini-calendar controller', function() {
     it('should select and go to the current view when initializing the mini calendar', function() {
       var day = fcMoment('1940-03-10');
 
-      fcMethodMock = {
-        gotoDate: sinon.spy(function(_day) {
-          expect(_day.isSame(day, 'day')).to.be.true;
-        }),
-        select: sinon.spy()
-      };
-
-      calendarCurrentViewMock.get = sinon.spy(function() {
-        return {
-          name: 'agendaDay',
-          start: day
-        };
+      calendarCurrentViewMock.get = sinon.stub().returns({
+        name: 'agendaDay',
+        start: day
       });
 
       initController();
@@ -209,7 +242,8 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
 
-      expect(fcMethodMock.gotoDate).to.have.been.called;
+      expect(fcMethodMock.gotoDate).to.have.been.calledWith(sinon.match(sameDayMatcher(day)));
+
       expect(fcMethodMock.select).to.have.been.called;
       expect(calendarCurrentViewMock.get).to.have.been.called;
       expect($scope.homeCalendarViewMode).to.equals('agendaDay');
@@ -289,26 +323,15 @@ describe('The mini-calendar controller', function() {
 
       $scope.homeCalendarViewMode = 'agendaDay';
 
-      fcMethodMock.select = sinon.spy(function(start, end) {
-        expect(day.isSame(start, 'day')).to.be.true;
-        day.add(1, 'days');
-        expect(day.isSame(end, 'day')).to.be.true;
-      });
-
       $scope.miniCalendarConfig.select(day, null, true, null);
       $scope.$digest();
-      expect(fcMethodMock.select).to.have.been.called;
+      expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(day)), sinon.match(sameDayMatcher(day.clone().add(1, 'day'))));
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in week view', function() {
       $scope.homeCalendarViewMode = 'agendaWeek';
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
-
-      fcMethodMock.select = sinon.spy(function(start, end) {
-        expect(start.isSame(firstWeekDay, 'day')).to.be.true;
-        expect(end.isSame(lastWeekDay, 'day')).to.be.true;
-      });
 
       miniCalendarServiceMock.getWeekAroundDay = sinon.spy(function(config, day) {
         expect(config).to.equals($scope.miniCalendarConfig);
@@ -318,41 +341,28 @@ describe('The mini-calendar controller', function() {
 
       $scope.miniCalendarConfig.select(dayInWeek, null, true, null);
       $scope.$digest();
-      expect(fcMethodMock.select).to.have.been.called;
+      expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(firstWeekDay)), sinon.match(sameDayMatcher(lastWeekDay)));
       expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.called;
     });
 
-    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with week as view mode', function(done) {
+    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with week as view mode', function() {
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
 
-      fcMethodMock.select = sinon.spy(function(start, end) {
-        expect(start.isSame(firstWeekDay, 'day')).to.be.true;
-        expect(end.isSame(lastWeekDay, 'day')).to.be.true;
-        expect(fcMethodMock.select).to.have.been.called;
-        expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.called;
-        done();
-      });
-
-      miniCalendarServiceMock.getWeekAroundDay = sinon.spy(function(config, day) {
-        expect(config).to.equals($scope.miniCalendarConfig);
-        expect(day.isSame(dayInWeek, 'day')).to.be.true;
-        return {firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay};
-      });
+      miniCalendarServiceMock.getWeekAroundDay = sinon.stub().returns({firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay});
 
       $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaWeek', start: dayInWeek});
       $scope.$digest();
+      expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(firstWeekDay)), sinon.match(sameDayMatcher(lastWeekDay)));
+      expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.calledWith($scope.miniCalendarConfig, sinon.match(sameDayMatcher(dayInWeek)));
     });
 
-    it('should unselect on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with month as view mode', function(done) {
+    it('should unselect on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with month as view mode', function() {
       $scope.miniCalendarConfig.viewRender();
-
-      fcMethodMock.unselect = function() {
-        done();
-      };
 
       $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'month', start: null});
       $scope.$digest();
+      expect(fcMethodMock.unselect).to.have.been.called;
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in month view', function() {
@@ -360,11 +370,8 @@ describe('The mini-calendar controller', function() {
       var day = fcMoment();
       $scope.homeCalendarViewMode = 'month';
 
-      fcMethodMock.unselect = sinon.spy();
-
       $scope.miniCalendarConfig.select(day, null, true, null);
       $scope.$digest();
-
       expect(fcMethodMock.unselect).to.have.been.called;
     });
 
@@ -372,36 +379,20 @@ describe('The mini-calendar controller', function() {
 
   describe('the synchronization of events between the home calendar and the mini calendar', function() {
 
-    var calWrapper;
-
     beforeEach(function() {
-      calWrapper = {};
-      miniCalendarServiceMock.miniCalendarWrapper = function() {
-        return calWrapper;
-      };
       initController();
     });
 
-    it('should wrap calendars inside a miniCalendarWrapper', function(done) {
-      miniCalendarServiceMock.miniCalendarWrapper = sinon.spy(function(_calendar, eventSources) {
-        expect(eventSources).to.deep.equals(['anEventSource']);
-        expect(_calendar).to.equals(calendar);
-        done();
-      });
-
+    it('should wrap calendars inside a miniCalendarWrapper', function() {
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
+      expect(miniCalendarServiceMock.miniCalendarWrapper).to.have.been.calledWith(calendar, ['anEventSource']);
     });
 
-    it('should wrap calendars inside keepChangeDuringGraceperiod.wrapEventSource', function(done) {
-      keepChangeDuringGraceperiodMock.wrapEventSource = sinon.spy(function(calId, eventSource) {
-        expect(eventSource).to.deep.equals(['anEventSource']);
-        expect(calId).to.equals('id');
-        done();
-      });
-
+    it('should wrap calendars inside keepChangeDuringGraceperiod.wrapEventSource', function() {
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
+      expect(keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWith('id', ['anEventSource']);
     });
 
     it('should call calWrapper.addEvent on CALENDAR_EVENTS.ITEM_ADD', function() {
@@ -498,6 +489,135 @@ describe('The mini-calendar controller', function() {
     it('should call calWrapper.modifyEvent on modifiedCalendarItem with expanded events for recurring event', testModifyForReccurringEvent('ITEM_MODIFICATION'));
 
     it('should call calWrapper.modifyEvent on revertedCalendarItemModification with expanded events for recurreng event', testModifyForReccurringEvent('REVERT_MODIFICATION'));
+  });
+
+  describe('the ws event listener', function() {
+
+    var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener;
+
+    beforeEach(function() {
+      liveNotification = function(namespace) {
+        expect(namespace).to.equal('/calendars');
+        return {
+          removeListener: sinon.spy(),
+          on: function(event, handler) {
+            switch (event) {
+              case CALENDAR_EVENTS.WS.EVENT_CREATED:
+                wsEventCreateListener = handler;
+                break;
+              case CALENDAR_EVENTS.WS.EVENT_UPDATED:
+                wsEventModifyListener = handler;
+                break;
+              case CALENDAR_EVENTS.WS.EVENT_DELETED:
+                wsEventDeleteListener = handler;
+                break;
+              case CALENDAR_EVENTS.WS.EVENT_REQUEST:
+                wsEventRequestListener = handler;
+                break;
+              case CALENDAR_EVENTS.WS.EVENT_REPLY:
+                wsEventReplyListener = handler;
+                break;
+              case CALENDAR_EVENTS.WS.EVENT_CANCEL:
+                wsEventCancelListener = handler;
+                break;
+            }
+          }
+        };
+      };
+
+      initController();
+    });
+
+    it('should register a callback for EVENT_CREATED and pass the event to miniCalendarWrapper.addEvent', function() {
+      var event = {id: 'anId', isRecurring: _.constant(false)};
+      var path = 'path';
+      var etag = 'etag';
+
+      $scope.miniCalendarConfig.viewRender();
+      wsEventCreateListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.addEvent).to.have.been.calledWith(sinon.match(event));
+    });
+
+    it('should register a callback for EVENT_CREATED and pass the subevent of a recurrung event to miniCalendarWrapper.addEvent', function() {
+      var subevent = {
+        id: 'subevent',
+        isRecurring: _.constant(false)
+      };
+
+      var event = {
+        id: 'anId',
+        isRecurring: _.constant(true),
+        expand: sinon.stub().returns([subevent])
+      };
+      var path = 'path';
+      var etag = 'etag';
+
+      var start = fcMoment('2016-03-14');
+      var end = fcMoment('2016-03-14');
+
+      fcMethodMock.getView = sinon.stub().returns({start: start, end: end});
+      $scope.miniCalendarConfig.viewRender();
+      wsEventCreateListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.addEvent).to.have.been.calledWith(sinon.match(subevent));
+      expect(fcMethodMock.getView).to.have.been.called;
+      expect(event.expand).to.have.been.calledWith(start.subtract(1, 'day'), end.add(1, 'day'));
+    });
+
+    it('should register a callback for EVENT_DELETED and pass the event to miniCalendarWrapper.deleteEvent', function() {
+      var event = {id: 'anId', isRecurring: _.constant(false)};
+      var path = 'path';
+      var etag = 'etag';
+
+      $scope.miniCalendarConfig.viewRender();
+      wsEventDeleteListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.removeEvent).to.have.been.calledWith(event.id);
+    });
+
+    it('should register a callback for EVENT_CANCEL and pass the event to miniCalendarWrapper.deleteEvent', function() {
+      var event = {id: 'anId', isRecurring: _.constant(false)};
+      var path = 'path';
+      var etag = 'etag';
+
+      $scope.miniCalendarConfig.viewRender();
+      wsEventCancelListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.removeEvent).to.have.been.calledWith(event.id);
+    });
+
+    it('should register a callback for EVENT_UPDATED and pass the event to miniCalendarWrapper.modifyEvent', function() {
+      var event = {id: 'anId', isRecurring: _.constant(false)};
+      var path = 'path';
+      var etag = 'etag';
+
+      $scope.miniCalendarConfig.viewRender();
+      wsEventModifyListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.modifyEvent).to.have.been.calledWith(sinon.match(event));
+    });
+
+    it('should register a callback for EVENT_REQUEST and pass the event to miniCalendarWrapper.modifyEvent', function() {
+      var event = {id: 'anId', isRecurring: _.constant(false)};
+      var path = 'path';
+      var etag = 'etag';
+
+      $scope.miniCalendarConfig.viewRender();
+      wsEventRequestListener({event: event, eventPath: path, etag: etag});
+      $scope.$digest();
+      expect(CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(calWrapper.modifyEvent).to.have.been.calledWith(sinon.match(event));
+    });
+
+    it('should not register a callback for EVENT_REPLY', function() {
+      expect(wsEventReplyListener).to.be.undefined;
+    });
 
   });
 });

@@ -118,12 +118,20 @@ angular.module('esn.calendar')
 
       function removeEvent(id) {
         var event = originalEvents[id];
+        if (!event) {
+          return;
+        }
+
         addOrDeleteEvent(false, event);
         forEachDayOfEvent(event, refreshDay);
       }
 
       function modifyEvent(event) {
         var previousEvent = originalEvents[event.id];
+
+        if (!previousEvent) {
+          return addEvent(event);
+        }
 
         //the order is important, delete then add
         addOrDeleteEvent(false, previousEvent);
