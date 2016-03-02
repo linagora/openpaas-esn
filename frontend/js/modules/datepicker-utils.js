@@ -1,4 +1,5 @@
 'use strict';
+
 angular.module('esn.datepickerUtils', [
     'ng.deviceDetector',
     'mgcrea.ngStrap.datepicker',
@@ -17,16 +18,28 @@ angular.module('esn.datepickerUtils', [
     return angular.extend({}, {nativeOnMobile: true}, $delegate);
   });
 })
-.factory('bsDatepickerMobileWrapper', function(moment, detectUtils) {
+.factory('getControllerOfDirective', function() {
+  return function(controllerName, controller, directive) {
+    var controllers = controller;
+    var requires = directive.require;
+    if (!angular.isArray(requires)) {
+      controllers = [controller];
+      requires = [requires];
+    }
+    var index = requires.indexOf(controllerName);
+    if (index === -1) {
+      throw new Error('We expect bsDatepickerDirective to require ngModel');
+    }
+    return controllers[index];
+  };
+})
+.factory('bsDatepickerMobileWrapper', function(moment, detectUtils, getControllerOfDirective) {
   return function(directive) {
-    var link = directive.link;
-    var require = directive.require;
+    var previousCompile = directive.compile;
     directive.compile = function() {
+      var link = previousCompile.apply(this, arguments);
       return function(scope, element, attrs, controller) {
-        var controllers = controller;
-        var requires = require;
         var ngModel;
-
         if (detectUtils.isMobile()) {
 
           ['minDate', 'maxDate'].forEach(function(sourceAttr) {
@@ -36,15 +49,7 @@ angular.module('esn.datepickerUtils', [
             });
           });
 
-          if (!angular.isArray(require)) {
-            controllers = [controller];
-            requires = [require];
-          }
-          var index = requires.indexOf('ngModel');
-          if (index === -1) {
-            throw 'We expect bsDatepickerDirective to require ngModel';
-          }
-          ngModel = controllers[index];
+          ngModel = getControllerOfDirective('ngModel', controller, directive);
 
           ngModel.$formatters.push(function(date) {
             return moment(date).format('YYYY-MM-DD');

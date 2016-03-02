@@ -35,6 +35,34 @@ describe('The datepicker utils module', function() {
     });
   });
 
+  describe('getControllerOfDirective', function() {
+
+    beforeEach(inject(function(getControllerOfDirective) {
+      self.getControllerOfDirective = getControllerOfDirective;
+    }));
+
+    it('should fail if require is not a array but is not the expected controller', function() {
+      expect(this.getControllerOfDirective.bind(null, 'controllerName', {}, {require:'badRequire'})).to.throw(Error);
+    });
+
+    it('should fail if require is a array that does not contains the expected controller', function() {
+      expect(this.getControllerOfDirective.bind(null, 'controllerName', [{}], {require:['badRequire']})).to.throw(Error);
+    });
+
+    it('should return given controller if require is a string and correct', function() {
+      var controller = {};
+      expect(this.getControllerOfDirective('controllerName', controller, {require: 'controllerName' })).to.equal(controller);
+    });
+
+    it('should return given controller if require and controller are array that contain expected require', function() {
+      var controller = {};
+      var controllers = [{}, controller, {}];
+      var directive = {require: ['toto', 'controllerName', '']};
+      expect(this.getControllerOfDirective('controllerName', controllers, directive)).to.equal(controller);
+    });
+
+  });
+
   describe('bsDatepickerMobileWrapper factory', function() {
     beforeEach(function() {
       this.mobile = true;
@@ -45,9 +73,12 @@ describe('The datepicker utils module', function() {
         })
       };
 
+      var link = sinon.spy();
+
       this.rawDirective = {
         require: 'ngModel',
-        link: sinon.spy()
+        link: link,
+        compile: sinon.stub().returns(link)
       };
 
       this.scope = {};
@@ -65,8 +96,11 @@ describe('The datepicker utils module', function() {
         $parsers: [42]
       };
 
+      this.getControllerOfDirectiveMock = sinon.stub().returns(this.ngModelControllerMock);
+
       angular.mock.module(function($provide) {
         $provide.value('detectUtils', self.detectUtilsMock);
+        $provide.value('getControllerOfDirective', self.getControllerOfDirectiveMock);
       });
 
       this.wrapDirective = function() {
@@ -81,6 +115,11 @@ describe('The datepicker utils module', function() {
       self.wrapDirective();
       self.moment = moment;
     }));
+
+    it('should call getControllerOfDirective to get the ngModelController', function() {
+      this.wrapDirective();
+      expect(this.getControllerOfDirectiveMock).to.have.been.calledWith('ngModel', this.ngModelControllerMock, this.rawDirective);
+    });
 
     it('should call original link if not on mobile phone', function() {
       this.mobile = false;
@@ -157,13 +196,6 @@ describe('The datepicker utils module', function() {
           return true;
         }));
       }, this);
-    });
-
-    it('should work even if require contain other controller than ngModel', function() {
-      this.rawDirective.require = ['sncfController', 'ngModel'];
-      this.ngModelControllerMock = [null, this.ngModelControllerMock];
-      this.wrapDirective();
-      expect(this.ngModelControllerMock[1].$formatters.length).to.equal(3);
     });
   });
 });
