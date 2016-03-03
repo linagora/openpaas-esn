@@ -7,4 +7,4 @@ Date: {{ email.quoted.date | date:dateFormat:tz }}
 {{ email.quoted.to | emailerList:'To: '}}
 {{ email.quoted.cc | emailerList:'CC: '}}
 
-{{ email.quoted.textBody }}
+{{ email.quoted.textBody | quote }}

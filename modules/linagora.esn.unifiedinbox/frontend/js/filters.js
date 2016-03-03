@@ -53,6 +53,16 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .filter('quote', function() {
+    return function(text) {
+      if (!angular.isDefined(text)) {
+        return;
+      }
+
+      return text.trim().replace(/^/gm, '> ');
+    };
+  })
+
   .filter('loadImagesAsync', function(absoluteUrl) {
     var throbberUrl = absoluteUrl('/images/throbber-amber.svg');
 
