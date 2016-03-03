@@ -17,7 +17,7 @@ angular.module('linagora.esn.contact')
   })
 
   .factory('ContactListScrollingService', function(CONTACT_SCROLL_EVENTS, $rootScope, $window, sharedContactDataService) {
-    return function(element) {
+    return function(element, callback) {
 
       function updateCategoryLetter(offset) {
         var categories = element.find('.block-header') || [];
@@ -25,12 +25,20 @@ angular.module('linagora.esn.contact')
 
         categories.each(function(index, element) {
           var letterPosition = element.getElementsByTagName('h2')[0].getBoundingClientRect().bottom;
-          letter = (letterPosition < offset) ? element.textContent : letter;
+          if (letterPosition < offset) {
+            letter = element.textContent;
+          } else {
+            return;
+          }
         });
 
         if (sharedContactDataService.categoryLetter !== letter) {
           sharedContactDataService.categoryLetter = letter;
           $rootScope.$broadcast(CONTACT_SCROLL_EVENTS, letter);
+        }
+
+        if (typeof callback === 'function') {
+          callback();
         }
       }
 

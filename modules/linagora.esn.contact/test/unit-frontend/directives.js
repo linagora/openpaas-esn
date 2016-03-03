@@ -631,11 +631,15 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactListItems directive', function() {
-    var $compile, $rootScope, $scope, CONTACT_EVENTS, $timeout;
-    var ContactListScrollingServiceMock, onScroll, unregister;
+    var $compile, $rootScope, $scope, CONTACT_EVENTS, $timeout, triggerScroll;
+    var ContactListScrollingServiceMock, sharedContactDataServiceMock, categoryLetter, onScroll, unregister;
 
     beforeEach(function() {
-      ContactListScrollingServiceMock = function() {
+      ContactListScrollingServiceMock = function(element, callback) {
+        if (triggerScroll) {
+          callback();
+        }
+
         return {
           onScroll: onScroll,
           unregister: unregister
@@ -644,14 +648,16 @@ describe('The contact Angular module directives', function() {
 
       module(function($provide) {
         $provide.value('ContactListScrollingService', ContactListScrollingServiceMock);
+        $provide.value('sharedContactDataService', { categoryLetter: categoryLetter });
       });
 
-      inject(function(_$compile_, _$rootScope_, _CONTACT_EVENTS_, _$timeout_) {
+      inject(function(_$compile_, _$rootScope_, _CONTACT_EVENTS_, _$timeout_, _sharedContactDataService_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         CONTACT_EVENTS = _CONTACT_EVENTS_;
         $timeout = _$timeout_;
+        sharedContactDataServiceMock = _sharedContactDataService_;
       });
 
       $scope.headerDisplay = {
@@ -687,5 +693,20 @@ describe('The contact Angular module directives', function() {
       expect(onScroll.callCount).to.be.equal(5);
     });
 
+    it('should update headerDisplay.mobileLetterVisibility when categoryLetter exists', function() {
+      triggerScroll = true;
+      sharedContactDataServiceMock.categoryLetter = 'A';
+      initDirective();
+      expect($scope.headerDisplay.mobileLetterVisibility).is.true;
+      $timeout.flush();
+      expect($scope.headerDisplay.mobileLetterVisibility).is.false;
+    });
+
+    it('should set headerDisplay.mobileLetterVisibility false when categoryLetter does not exists', function() {
+      triggerScroll = true;
+      sharedContactDataServiceMock.categoryLetter = '';
+      initDirective();
+      expect($scope.headerDisplay.mobileLetterVisibility).is.false;
+    });
   });
 });

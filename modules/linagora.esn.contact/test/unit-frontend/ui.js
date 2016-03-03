@@ -47,7 +47,7 @@ describe('The Contacts ui module', function() {
   });
 
   describe('The ContactListScrollingService service', function() {
-    var $rootScope, $window, event, $scope;
+    var $rootScope, $window, event, $scope, toggleMobileLetterFN;
     var ContactListScrollingService, sharedContactDataService, listScroller;
     var angularFind;
     var letterOffset = 0,
@@ -110,8 +110,9 @@ describe('The Contacts ui module', function() {
         sharedContactDataService = _sharedContactDataService_;
         event = _CONTACT_SCROLL_EVENTS_;
       });
-
-      listScroller = ContactListScrollingService(element);
+      $scope.headerDisplay = {};
+      toggleMobileLetterFN = sinon.spy();
+      listScroller = ContactListScrollingService(element, toggleMobileLetterFN);
       sharedContactDataService.categoryLetter = '#';
     });
 
@@ -151,6 +152,12 @@ describe('The Contacts ui module', function() {
       angular.element($window).triggerHandler('scroll');
     });
 
+    it('should toggle headerDisplay.mobileLetterVisibility if letter exists', function(done) {
+      angular.element($window).triggerHandler('scroll');
+      expect(toggleMobileLetterFN).to.have.been.calledOnce;
+      done();
+    });
+
     it('should return the function to remove scroll listener', function(done) {
       var angularElement = angular.element;
       angular.element = function() {
@@ -163,6 +170,12 @@ describe('The Contacts ui module', function() {
 
       listScroller.unregister();
       angular.element = angularElement;
+    });
+
+    it('should not cause error without callback', function(done) {
+      listScroller = ContactListScrollingService(element);
+      listScroller.onScroll();
+      done();
     });
   });
 

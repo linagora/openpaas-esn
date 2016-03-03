@@ -117,15 +117,28 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListItems', function(ContactListScrollingService, CONTACT_EVENTS, $timeout) {
+  .directive('contactListItems', function(ContactListScrollingService, CONTACT_EVENTS, $timeout, sharedContactDataService, LETTER_DISPLAY_DURATION) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-items.html',
       link: function(scope, element) {
+        var timeoutPromise;
         scope.headerDisplay = {
           letterExists: false
         };
-        var listScroller = ContactListScrollingService(element);
+
+        function toggleMobileLetter() {
+          if (sharedContactDataService.categoryLetter) {
+            scope.headerDisplay.mobileLetterVisibility = true;
+            $timeout.cancel(timeoutPromise);
+            timeoutPromise = $timeout(function() {
+              scope.headerDisplay.mobileLetterVisibility = false;
+            }, LETTER_DISPLAY_DURATION);
+          } else {
+            scope.headerDisplay.mobileLetterVisibility = false;
+          }
+        }
+        var listScroller = ContactListScrollingService(element, toggleMobileLetter);
 
         function updateLetter() {
           //We need to wait the contact list updated
