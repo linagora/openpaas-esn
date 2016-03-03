@@ -6,8 +6,10 @@ var mongoose = require('mongoose');
 
 function connect(config) {
   var defer = q.defer();
-  mongoose.connect(config.connectionString, function() {
-    console.log('CONNECTED');
+  mongoose.connect(config.connectionString, function(err) {
+    if (err) {
+      return defer.reject(err);
+    }
     console.log('Connected to MongoDB at', config.connectionString);
     defer.resolve();
   });
