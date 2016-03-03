@@ -65,7 +65,7 @@ module.exports = function(dependencies) {
     function onComplete(err, result) {
       logger.debug('Task has been completed');
       if (err) {
-        logger.error('Error while sending request to remote service', err, result);
+        logger.error('Error while sending request to remote service', err);
       }
       if (result) {
         logger.info('Remote service response status code', result.statusCode);
