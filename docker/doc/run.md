@@ -87,7 +87,7 @@ The server should print some logs in the docker-compose console and send you bac
 A0 OK LOGIN completed.
 ```
 
-You should now be able to user several services (check the docker-compose.yml file to find the list or exposed ports).
+You should now be able to use several services (check the docker-compose.yml file to find the list or exposed ports).
 Let's connect to the OpenPaaS Web appliction on http://<YOUR_DOCKER_IP>:8080. If you launched docker-compose with the PROVISION variable set to true, you can log in with
 
 ```
@@ -117,15 +117,15 @@ docker-compose restart esn
 
 They may have some database connection timeout at startup and so no user is available and you can not connect to the application.
 Try to relaunch the ESN service:
- 
+
 ```
 docker-compose restart esn
 ```
- 
+
 If it still does not work, restart all the services.
 
 - **Elasticsearch errors**
- 
+
 If you have an error like:
 
 ```
@@ -137,7 +137,43 @@ It means that your docker-compose platform is quite slow. You can increase the t
 ```
 ELASTICSEARCH_INIT_TIMEOUT=120 docker-compose ...
 ```
- 
+
+- **OutOfMemoryError** when launching james. It is possible that docker is not well configured on some distributions with systemd.
+
+Try:
+
+```
+systemctl status docker.service
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/usr/lib/systemd/system/docker.service; enabled; vendor preset: disabled)
+   Active: active (running) since Wed 2016-03-02 11:22:38 CET; 4min 30s ago
+     Docs: https://docs.docker.com
+ Main PID: 18869 (docker)
+    Tasks: 312 (512)
+   CGroup: /system.slice/docker.service
+```
+
+Note the Tasks line, the 512 limit is not enough for us.
+
+To change the settings find the docker.service systemd conf. For me it is:
+
+```
+vim /etc/systemd/system/multi-user.target.wants/docker.service
+```
+
+Then add the line **TasksMax=infinity** under **[Service]**.
+Now restart:
+
+```
+systemctl restart docker.service
+```
+
+You may have to also run (if you are asked to):
+
+```
+systemctl daemon-reload
+```
+
 # Dev
 
 All the OpenPaaS Dockerfiles and docker-compose descriptor heavily use environment variables to create required resources such as configuration files, endpoints, etc...
