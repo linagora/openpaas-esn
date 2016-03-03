@@ -84,6 +84,24 @@ describe('The Unified Inbox Angular module filters', function() {
     });
   });
 
+  describe('The quote filter', function() {
+    var emailTextBody;
+
+    it('should do nothing if textBody is not defined', function() {
+      expect($filter('quote')()).to.be.undefined;
+    });
+
+    it('should prefix each line with "> "', function() {
+      emailTextBody = 'This \n is \n multi-line \n email';
+      expect($filter('quote')(emailTextBody)).to.equal('> This \n>  is \n>  multi-line \n>  email');
+    });
+
+    it('should trim useless spaces/lines', function() {
+      emailTextBody = '       This \n is \n multi-line \n email     \n\n\n\n';
+      expect($filter('quote')(emailTextBody)).to.equal('> This \n>  is \n>  multi-line \n>  email');
+    });
+  });
+
   describe('The inlineImages filter', function() {
 
     it('should do nothing if there is no attachments', function() {
