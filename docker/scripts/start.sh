@@ -1,7 +1,12 @@
 #!/bin/bash
 
 if [ "$PROVISION" = true ] ; then
-  wait-for-it.sh $ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT -s -t 60 -- sh ./provision.sh
+
+  timeout=60;
+  [ -z "$ELASTICSEARCH_INIT_TIMEOUT" ] || timeout="$ELASTICSEARCH_INIT_TIMEOUT"
+  echo ${timeout}
+
+  wait-for-it.sh $ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT -s -t ${timeout} -- sh ./provision.sh
 fi
 
 echo 'Starting OpenPaaS ESN'
