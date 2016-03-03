@@ -16,7 +16,7 @@ docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml build
 or, to launch all from existing images (even the current node project):
 
 ```bash
-PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose-full.yml up
+PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose-images.yml up
 ```
 
 Check the complete documentation on [../../doc/run.md](../../doc/run.md)

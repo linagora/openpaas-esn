@@ -113,6 +113,31 @@ Note that this will not append the container logs to the main docker-compose log
 docker-compose restart esn
 ```
 
+- **Data is not provisioned**
+
+They may have some database connection timeout at startup and so no user is available and you can not connect to the application.
+Try to relaunch the ESN service:
+ 
+```
+docker-compose restart esn
+```
+ 
+If it still does not work, restart all the services.
+
+- **Elasticsearch errors**
+ 
+If you have an error like:
+
+```
+wait-for-it.sh: timeout occurred after waiting 30 seconds for localhost:9200
+```
+
+It means that your docker-compose platform is quite slow. You can increase the timeout value by setting the ELASTICSEARCH_INIT_TIMEOUT environment variable.
+
+```
+ELASTICSEARCH_INIT_TIMEOUT=120 docker-compose ...
+```
+ 
 # Dev
 
 All the OpenPaaS Dockerfiles and docker-compose descriptor heavily use environment variables to create required resources such as configuration files, endpoints, etc...
