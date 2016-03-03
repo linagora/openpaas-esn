@@ -10,7 +10,8 @@ describe('The Contacts controller module', function() {
   var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, ContactLiveUpdate, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
-    ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks, ContactShellDisplayBuilder;
+    ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks,
+    ContactShellDisplayBuilder;
 
   var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
@@ -955,9 +956,25 @@ describe('The Contacts controller module', function() {
   });
 
   describe('The editContactController controller', function() {
-
+    var contactFromDAV;
     beforeEach(function() {
-      this.initController = $controller.bind(null, 'editContactController', { $scope: scope});
+      contactFromDAV = {
+        addressbook: { editable: true },
+        id: 1,
+        firstName: 'Foo',
+        lastName: 'Bar',
+        vcard: 'vcard'
+      };
+      createVcardMock(function() {
+        return {
+          update: function() {
+            return $q.when();
+          },
+          get: function() {
+            return $q.when(contactFromDAV);
+          }};
+      });
+      this.initController = $controller.bind(null, 'editContactController', { $scope: scope });
     });
 
     it('should inject edition header', function(done) {
@@ -986,6 +1003,34 @@ describe('The Contacts controller module', function() {
       expect(getFnSpy.callCount).to.equal(0);
     });
 
+    it('should redirect to detail page if addressbook is not editable', function(done) {
+      contactUpdateDataService.contact = null;
+      scope.bookId = 'bookId';
+      scope.bookName = 'bookName';
+      scope.cardId = 'cardId';
+      scope.close = done();
+      createVcardMock(function() {
+        return {
+          get: function() {
+            return {
+              then: function(resolve) {
+                return resolve({addressbook: {editable: false} });
+              }
+            };
+          }
+        };
+      });
+      this.initController();
+    });
+
+    it('should not redirect to detail page if addressbook is editable', function(done) {
+      scope.close = function() {
+        done(new Error());
+      };
+      this.initController();
+      done();
+    });
+
     describe('The save function', function() {
 
       it('should call ContactAPIClient with the right bookId and cardId', function(done) {
@@ -998,10 +1043,10 @@ describe('The Contacts controller module', function() {
               done();
             },
             get: function() {
-              return $q.when(originalContact);
+              return $q.when(contactFromDAV);
             }
           };
-        }, bookId);
+        });
         scope.cardId = originalContact.id;
         this.initController();
 
@@ -1017,7 +1062,7 @@ describe('The Contacts controller module', function() {
               return $q.when('a taskId');
             },
             get: function() {
-              return $q.when();
+              return $q.when(contactFromDAV);
             }
           };
         });
@@ -1048,7 +1093,7 @@ describe('The Contacts controller module', function() {
               return $q.when('a taskId');
             },
             get: function() {
-              return $q.when();
+              return $q.when(contactFromDAV);
             }
           };
         });
@@ -1067,7 +1112,7 @@ describe('The Contacts controller module', function() {
               return $q.when('a taskId');
             },
             get: function() {
-              return $q.when();
+              return $q.when(contactFromDAV);
             }
           };
         });
@@ -1090,14 +1135,13 @@ describe('The Contacts controller module', function() {
       });
 
       it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
-        var originalContact = { id: 1, firstName: 'Foo', lastName: 'Bar', vcard: 'vcard' };
         createVcardMock(function() {
           return {
             update: function() {
               return $q.when('a taskId');
             },
             get: function() {
-              return $q.when(originalContact);
+              return $q.when(contactFromDAV);
             }
           };
         });
@@ -1125,14 +1169,13 @@ describe('The Contacts controller module', function() {
       });
 
       it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on task failure', function(done) {
-        var originalContact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         createVcardMock(function() {
           return {
             update: function() {
               return $q.when('a taskId');
             },
             get: function() {
-              return $q.when(originalContact);
+              return $q.when(contactFromDAV);
             }
           };
         });
