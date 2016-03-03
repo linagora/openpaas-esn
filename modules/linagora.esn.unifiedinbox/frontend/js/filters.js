@@ -58,8 +58,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (!angular.isDefined(text)) {
         return;
       }
-
-      return text.trim().replace(/^/gm, '> ');
+      return text.trim().replace(/^(.)/gm, '> $1');
     };
   })
 

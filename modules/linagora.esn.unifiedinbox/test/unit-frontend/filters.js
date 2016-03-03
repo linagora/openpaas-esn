@@ -96,6 +96,11 @@ describe('The Unified Inbox Angular module filters', function() {
       expect($filter('quote')(emailTextBody)).to.equal('> This \n>  is \n>  multi-line \n>  email');
     });
 
+    it('should support CRLF as newlines', function() {
+      emailTextBody = 'This \r\nis \nmulti-line \r\nemail \rtest';
+      expect($filter('quote')(emailTextBody)).to.equal('> This \r\n> is \n> multi-line \r\n> email \r> test');
+    });
+
     it('should trim useless spaces/lines', function() {
       emailTextBody = '       This \n is \n multi-line \n email     \n\n\n\n';
       expect($filter('quote')(emailTextBody)).to.equal('> This \n>  is \n>  multi-line \n>  email');
