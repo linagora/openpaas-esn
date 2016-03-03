@@ -1,6 +1,6 @@
 .clickable(title="{{ ::mailbox.name }}", ui-sref-active="selected")
   .badge-container
-    .badge(ng-hide='mailbox.unreadMessages === 0') {{ mailbox.unreadMessages }}
+    .badge(ng-hide='mailbox.unreadMessages === 0') {{ mailbox.unreadMessages | maxPlus:99 }}
     i.inbox-icon(ng-class='mailboxIcons')
   .mailbox-name
     span.mailbox-name-inner

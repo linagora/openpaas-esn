@@ -107,6 +107,13 @@ angular.module('esn.core', [])
       return input;
     };
   })
+
+  .filter('maxPlus', function() {
+    return function(input, maxValue) {
+      return input > maxValue ? maxValue + '+' : input;
+    };
+  })
+
   .directive('fallbackSrc', function() {
     return {
       link: function postLink(scope, element, attrs) {
