@@ -1,4 +1,5 @@
 'use strict';
+
 angular.module('esn.datepickerUtils', [
     'ng.deviceDetector',
     'mgcrea.ngStrap.datepicker',
@@ -17,18 +18,37 @@ angular.module('esn.datepickerUtils', [
     return angular.extend({}, {nativeOnMobile: true}, $delegate);
   });
 })
-.factory('bsDatepickerMobileWrapper', function(moment, detectUtils) {
-  return function(directive) {
-    var link = directive.link;
-    var require = directive.require;
-    directive.compile = function() {
-      return function(scope, element, attrs, controller) {
-        var controllers = controller;
-        var requires = require;
-        var ngModel;
+.factory('getRequiredController', function() {
+  return function(controllerName, controller, directive) {
+    var controllers = controller;
+    var requires = directive.require;
+    if (!angular.isArray(requires)) {
+      controllers = [controller];
+      requires = [requires];
+    }
+    var index = requires.indexOf(controllerName);
+    if (index === -1) {
+      throw new Error(controllerName + 'could not be find in required controller');
+    }
+    return controllers[index];
+  };
+})
+.factory('bsDatepickerMobileWrapper', function(moment, detectUtils, getRequiredController) {
 
+  function avoidDatepickerLagOnAndroid5(element) {
+    element.attr('min', '1800-01-01');
+    element.attr('max', '3000-01-01');
+  }
+
+  return function(directive) {
+    var previousCompile = directive.compile;
+    directive.compile = function() {
+      var link = previousCompile.apply(this, arguments);
+      return function(scope, element, attrs, controller) {
+        var ngModel;
         if (detectUtils.isMobile()) {
 
+          avoidDatepickerLagOnAndroid5(element);
           ['minDate', 'maxDate'].forEach(function(sourceAttr) {
             var destAttr = sourceAttr.replace(/Date/, '');
             attrs.$observe(sourceAttr, function(val) {
@@ -36,15 +56,7 @@ angular.module('esn.datepickerUtils', [
             });
           });
 
-          if (!angular.isArray(require)) {
-            controllers = [controller];
-            requires = [require];
-          }
-          var index = requires.indexOf('ngModel');
-          if (index === -1) {
-            throw 'We expect bsDatepickerDirective to require ngModel';
-          }
-          ngModel = controllers[index];
+          ngModel = getRequiredController('ngModel', controller, directive);
 
           ngModel.$formatters.push(function(date) {
             return moment(date).format('YYYY-MM-DD');

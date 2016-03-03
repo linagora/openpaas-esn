@@ -202,6 +202,21 @@ describe('The event-date-edition component', function() {
         var isSame = this.fcMoment('2013-02-08 11:30').isSame(this.$scope.event.end);
         expect(isSame).to.be.true;
       });
+
+      it('should ignore null date and invalid date', function() {
+        var end = this.fcMoment('2013-02-08 13:30');
+        this.$scope.event = {
+          start: this.fcMoment('2013-02-08 09:30'),
+          end: end.clone()
+        };
+        this.initDirective(this.$scope);
+        [null, this.fcMoment('invalid date')].forEach(function(date) {
+          this.$scope.event.start = date;
+          this.eleScope.onStartDateChange();
+          var isSame = end.isSame(this.$scope.event.end);
+          expect(isSame).to.be.true;
+        }, this);
+      });
     });
 
     describe('scope.onEndDateChange', function() {
@@ -224,6 +239,21 @@ describe('The event-date-edition component', function() {
         this.eleScope.onEndDateChange();
         var isSame = this.fcMoment('2013-02-08 10:30').isSame(this.$scope.event.end);
         expect(isSame).to.be.true;
+      });
+
+      it('should ignore null date and invalid date', function() {
+        var start = this.fcMoment('2013-02-07 13:30');
+        this.$scope.event = {
+          end: this.fcMoment('2013-02-08 09:30'),
+          start: start.clone()
+        };
+        this.initDirective(this.$scope);
+        [null, this.fcMoment('invalid date')].forEach(function(date) {
+          this.$scope.event.end = date;
+          this.eleScope.onEndDateChange();
+          var isSame = start.isSame(this.$scope.event.start);
+          expect(isSame).to.be.true;
+        }, this);
       });
     });
   });
@@ -315,6 +345,15 @@ describe('The event-date-edition component', function() {
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
       expect(parser('2015-07-03 10:30').hasTime()).to.be.true;
+    });
+
+    it('should return undefined for invalid date', function() {
+      this.$scope.event = {
+        allDay: false
+      };
+      var element = this.initDirective(this.$scope);
+      var parser = element.controller('ngModel').$parsers[0];
+      expect(parser('this is a bad date')).to.be.undefined;
     });
   });
 

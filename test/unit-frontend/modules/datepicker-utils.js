@@ -35,6 +35,34 @@ describe('The datepicker utils module', function() {
     });
   });
 
+  describe('getRequiredController', function() {
+
+    beforeEach(inject(function(getRequiredController) {
+      self.getRequiredController = getRequiredController;
+    }));
+
+    it('should fail if require is not a array but is not the expected controller', function() {
+      expect(this.getRequiredController.bind(null, 'controllerName', {}, {require:'badRequire'})).to.throw(Error);
+    });
+
+    it('should fail if require is a array that does not contains the expected controller', function() {
+      expect(this.getRequiredController.bind(null, 'controllerName', [{}], {require:['badRequire']})).to.throw(Error);
+    });
+
+    it('should return given controller if require is a string and correct', function() {
+      var controller = {};
+      expect(this.getRequiredController('controllerName', controller, {require: 'controllerName' })).to.equal(controller);
+    });
+
+    it('should return given controller if require and controller are array that contain expected require', function() {
+      var controller = {};
+      var controllers = [{}, controller, {}];
+      var directive = {require: ['toto', 'controllerName', '']};
+      expect(this.getRequiredController('controllerName', controllers, directive)).to.equal(controller);
+    });
+
+  });
+
   describe('bsDatepickerMobileWrapper factory', function() {
     beforeEach(function() {
       this.mobile = true;
@@ -45,9 +73,12 @@ describe('The datepicker utils module', function() {
         })
       };
 
+      var link = sinon.spy();
+
       this.rawDirective = {
         require: 'ngModel',
-        link: sinon.spy()
+        link: link,
+        compile: sinon.stub().returns(link)
       };
 
       this.scope = {};
@@ -65,8 +96,11 @@ describe('The datepicker utils module', function() {
         $parsers: [42]
       };
 
+      this.getRequiredControllerMock = sinon.stub().returns(this.ngModelControllerMock);
+
       angular.mock.module(function($provide) {
         $provide.value('detectUtils', self.detectUtilsMock);
+        $provide.value('getRequiredController', self.getRequiredControllerMock);
       });
 
       this.wrapDirective = function() {
@@ -82,11 +116,29 @@ describe('The datepicker utils module', function() {
       self.moment = moment;
     }));
 
+    it('should call getRequiredController to get the ngModelController', function() {
+      this.wrapDirective();
+      expect(this.getRequiredControllerMock).to.have.been.calledWith('ngModel', this.ngModelControllerMock, this.rawDirective);
+    });
+
     it('should call original link if not on mobile phone', function() {
       this.mobile = false;
       this.wrapDirective();
       expect(this.detectUtilsMock.isMobile).to.have.beenCalledTwice;
       expect(this.rawDirective.link).to.have.been.calledWith(this.scope, this.element, this.attr, this.ngModelControllerMock);
+    });
+
+    it('should set a min and max value on mobile to avoid lag on chrome in android 5', function() {
+      expect(this.element.attr).to.have.been.calledWith('min', '1800-01-01');
+      expect(this.element.attr).to.have.been.calledWith('max', '3000-01-01');
+    });
+
+    it('should not set a min and max value on desktop', function() {
+      this.mobile = false;
+      this.element.attr.reset();
+      this.wrapDirective();
+      expect(this.element.attr).to.not.have.been.calledWith('min', '1800-01-01');
+      expect(this.element.attr).to.not.have.been.calledWith('max', '3000-01-01');
     });
 
     it('should not call original link if on mobile phone', function() {
@@ -142,6 +194,7 @@ describe('The datepicker utils module', function() {
     });
 
     it('should observe properly minDate an maxDate and transfer them to min and max', function() {
+      self.element.attr.reset();
       [{
         sourceField: 'minDate',
         destField: 'min'
@@ -157,13 +210,6 @@ describe('The datepicker utils module', function() {
           return true;
         }));
       }, this);
-    });
-
-    it('should work even if require contain other controller than ngModel', function() {
-      this.rawDirective.require = ['sncfController', 'ngModel'];
-      this.ngModelControllerMock = [null, this.ngModelControllerMock];
-      this.wrapDirective();
-      expect(this.ngModelControllerMock[1].$formatters.length).to.equal(3);
     });
   });
 });
