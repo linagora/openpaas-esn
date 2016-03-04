@@ -62,6 +62,16 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .filter('nl2br', function() {
+    return function(text) {
+      if (!angular.isDefined(text)) {
+        return;
+      }
+
+      return text.trim().replace(/([^>\r\n]?)(\r\n|\r|\n)/gm, '$1<br/>');
+    };
+  })
+
   .filter('loadImagesAsync', function(absoluteUrl) {
     var throbberUrl = absoluteUrl('/images/throbber-amber.svg');
 
