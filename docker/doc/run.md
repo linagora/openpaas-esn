@@ -63,10 +63,14 @@ There are still some things to configure to have a fully operational platform. L
 docker exec esn_james java -jar /root/james-cli.jar -h localhost adddomain open-paas.org
 ```
 
+You may want to create some users in the newly created domain.
+Note that OpenPaaS users and their mailboxes are automatically provisioned on first login from the OpenPaaS application.
+So you do not need to create any user to use OpenPaaS, but you can check that all is working with the following commands:
+
 - To create an user:
 
 ```bash
-docker exec esn_james java -jar /root/james-cli.jar -h localhost adduser admin@open-paas.org james
+docker exec esn_james java -jar /root/james-cli.jar -h localhost adduser me@open-paas.org secret
 ```
 
 To check that the user is well created, you can telnet on the James IMAP port:
@@ -78,7 +82,7 @@ telnet <YOUR_DOCKER_IP> 1143
 and login with:
 
 ```
-A0 LOGIN admin@open-paas.org james
+A0 LOGIN me@open-paas.org secret
 ```
 
 The server should print some logs in the docker-compose console and send you back a login completed message:
@@ -87,7 +91,14 @@ The server should print some logs in the docker-compose console and send you bac
 A0 OK LOGIN completed.
 ```
 
-You should now be able to use several services (check the docker-compose.yml file to find the list or exposed ports).
+Provisioned users have a random generated password. If for some cases, you want to configure and use an external mail application (like in [./mailer.md](./mailer.md)), you can update the user password like this:
+
+```
+# Change the admin@open-paas.org password to 'secret'
+docker exec esn_james java -jar /root/james-cli.jar -h localhost setpassword admin@open-paas.org secret
+```
+
+**We are now ready!** You should now be able to use several services (check the docker-compose.yml file to find the list or exposed ports).
 Let's connect to the OpenPaaS Web appliction on http://<YOUR_DOCKER_IP>:8080. If you launched docker-compose with the PROVISION variable set to true, you can log in with
 
 ```
