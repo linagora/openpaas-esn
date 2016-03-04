@@ -12,6 +12,18 @@
   }
 }
 
+.underlined-button {
+  color: lighten(@secondaryTextColor, 20%);
+  text-decoration: underline;
+  text-transform: initial;
+
+  &.btn:not(.btn-link) {
+    box-shadow: none;
+    background: none;
+    border: none;
+  }
+}
+
 .checkbox .input-helper:after{
   border-color: @primaryColor;
 }
