@@ -2,20 +2,21 @@
 
 var logger, mailer;
 
-function getEmailFromRecipient(recipients) {
-  return recipients.map(function(recipient) {
-    return recipient.email;
-  });
+function getNodemailerRecipient(recipient) {
+  var email = recipient.email,
+      name = recipient.name;
+
+  return name && name !== email ? '"' + name + '" ' + email : email;
 }
 
 function sendEmailToRecipients(req, res) {
   var email = req.body;
 
   var message = {
-    from: email.from,
-    to: getEmailFromRecipient(email.to),
-    cc: getEmailFromRecipient(email.cc),
-    bcc: getEmailFromRecipient(email.bcc),
+    from: getNodemailerRecipient(email.from),
+    to: email.to.map(getNodemailerRecipient),
+    cc: email.cc.map(getNodemailerRecipient),
+    bcc: email.bcc.map(getNodemailerRecipient),
     subject: email.subject
   };
 

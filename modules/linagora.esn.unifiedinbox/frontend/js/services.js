@@ -137,10 +137,9 @@ angular.module('linagora.esn.unifiedinbox')
       return $http.post('/unifiedinbox/api/inbox/sendemail', email);
     }
 
-    function sendByJmap(client, email) {
-      var outboundMessage = jmapHelper.toOutboundMessage(client, email);
+    function sendByJmap(client, message) {
       return $q.all([
-          client.saveAsDraft(outboundMessage),
+          client.saveAsDraft(message),
           client.getMailboxWithRole(jmap.MailboxRole.OUTBOX)
         ]).then(function(data) {
           return client.moveMessage(data[0].id, [data[1].id]);
@@ -149,12 +148,14 @@ angular.module('linagora.esn.unifiedinbox')
 
     function sendEmail(email) {
       return withJmapClient(function(client) {
+        var message = jmapHelper.toOutboundMessage(client, email);
+
         if (!inboxConfig('isJmapSendingEnabled')) {
-          return sendBySmtp(email);
+          return sendBySmtp(message);
         } else if (inboxConfig('isSaveDraftBeforeSendingEnabled')) {
-          return sendByJmap(client, email);
+          return sendByJmap(client, message);
         } else {
-          return client.send(jmapHelper.toOutboundMessage(client, email));
+          return client.send(message);
         }
       });
     }
@@ -165,12 +166,12 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('jmapHelper', function(jmap, session, emailBodyService) {
-    function _mapToNameEmailTuple(recipients) {
+    function _mapToEMailer(recipients) {
       return (recipients || []).map(function(recipient) {
-        return {
+        return new jmap.EMailer({
           name: recipient.name,
           email: recipient.email
-        };
+        });
       });
     }
 
@@ -181,9 +182,9 @@ angular.module('linagora.esn.unifiedinbox')
           name: session.user.name
         }),
         subject: emailState.subject,
-        to: _mapToNameEmailTuple(emailState.to),
-        cc: _mapToNameEmailTuple(emailState.cc),
-        bcc: _mapToNameEmailTuple(emailState.bcc)
+        to: _mapToEMailer(emailState.to),
+        cc: _mapToEMailer(emailState.cc),
+        bcc: _mapToEMailer(emailState.bcc)
       };
       var bodyProperty = emailState.htmlBody ? 'htmlBody' : emailBodyService.bodyProperty;
 
