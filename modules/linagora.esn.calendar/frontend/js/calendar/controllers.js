@@ -84,6 +84,8 @@ angular.module('esn.calendar')
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
+          } else {
+            notificationFactory.weakInfo('Calendar - ', 'Modification of ' + newEvent.title + ' has been cancelled.');
           }
         });
     };
