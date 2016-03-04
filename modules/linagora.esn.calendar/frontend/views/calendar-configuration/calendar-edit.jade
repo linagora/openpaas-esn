@@ -8,7 +8,7 @@
         .field-name #{__('Name')}
         input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="calendar.name", maxlength="255")
         span.help-block(ng-show="calendar.name.length < 1")
-          | #{__('Please input a name if you want to save this edition')}
+          | #{__('Please input a name if you want to save this calendar')}
       .form-group.flex-vertical-centered
         .field-name #{__('Color')}
         .color-picker-container(calendar-color-picker-toggler, ng-model="calendar.color")
