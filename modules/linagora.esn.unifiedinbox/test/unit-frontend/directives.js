@@ -33,7 +33,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
     jmapClient = {};
     $provide.constant('withJmapClient', function(callback) {
-      callback(jmapClient);
+      return callback(jmapClient);
     });
     $provide.value('session', {
       user: {
@@ -426,12 +426,31 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect(textarea.selectionEnd).to.equal(position);
       }
 
-      beforeEach(inject(function($templateCache) {
+      beforeEach(inject(function($templateCache, emailBodyService) {
         isMobile = true;
         autosize.update = sinon.spy();
 
+        emailBodyService.bodyProperty = 'textBody';
+
         $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '{{ email.textBody }} Quote {{ email.quoted.textBody }}');
       }));
+
+      beforeEach(function() {
+        $stateParams.email = {
+          to: [],
+          cc: [],
+          bcc: []
+        };
+
+        $stateParams.previousState = {
+          name: 'unifiedinbox.inbox',
+          params: {}
+        };
+      });
+
+      afterEach(function() {
+        delete $stateParams.email;
+      });
 
       it('should quote the original message, and set it as the textBody', function(done) {
         compileDirective('<composer />');
@@ -506,6 +525,60 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         $timeout.flush();
 
         expect(autosize.update).to.have.been.calledWith(element.find('.compose-body').get(0));
+      });
+
+      it('should not save a draft if the user\'s only change is a press on Edit Quoted Mail', function() {
+        jmapClient.saveAsDraft = sinon.spy();
+        $state.go = angular.noop;
+
+        compileDirective('<composer />');
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        $scope.close();
+        $rootScope.$digest();
+
+        expect(jmapClient.saveAsDraft.callCount).to.equal(0);
+      });
+
+      it('should still save a draft if the user changes body then presses on Edit Quoted Mail', function() {
+        jmapClient.saveAsDraft = sinon.spy(function() {
+          return $q.when({});
+        });
+        $state.go = angular.noop;
+
+        compileDirective('<composer />');
+        $scope.email.textBody = 'the user has written this';
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        $scope.close();
+        $rootScope.$digest();
+
+        expect(jmapClient.saveAsDraft.callCount).to.equal(1);
+      });
+
+      it('should still save a draft if the user changes recipients then presses on Edit Quoted Mail', function() {
+        jmapClient.saveAsDraft = sinon.spy(function() {
+          return $q.when({});
+        });
+        $state.go = angular.noop;
+
+        compileDirective('<composer />');
+        $scope.email.to = [{
+          email: 'SOMEONE',
+          name: 'SOMEONE'
+        }];
+        $scope.editQuotedMail();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        $scope.close();
+        $rootScope.$digest();
+
+        expect(jmapClient.saveAsDraft.callCount).to.equal(1);
       });
 
     });
