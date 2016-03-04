@@ -62,6 +62,7 @@ services:
       - ESN_MONGO_HOST=mongo
       - ESN_MONGO_PORT=27017
       - ESN_MONGO_DBNAME=esn_docker
+      - MONGO_TIMEOUT=100000
       - ESN_HOST=esn
       - ESN_PORT=8080
       - REDIS_HOST=redis
