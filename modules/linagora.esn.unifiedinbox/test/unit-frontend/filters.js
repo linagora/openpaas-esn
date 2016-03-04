@@ -107,6 +107,29 @@ describe('The Unified Inbox Angular module filters', function() {
     });
   });
 
+  describe('The nl2br filter', function() {
+    var emailTextBody;
+
+    it('should do nothing if textBody is not defined', function() {
+      expect($filter('nl2br')()).to.be.undefined;
+    });
+
+    it('should replace each new line by <br/> tag', function() {
+      emailTextBody = 'This\n is\n multi-line\n email';
+      expect($filter('nl2br')(emailTextBody)).to.equal('This<br/> is<br/> multi-line<br/> email');
+    });
+
+    it('should support CRLF as newlines', function() {
+      emailTextBody = 'This\r\n is\n multi-line\r\n email\r test';
+      expect($filter('nl2br')(emailTextBody)).to.equal('This<br/> is<br/> multi-line<br/> email<br/> test');
+    });
+
+    it('should trim useless spaces/lines', function() {
+      emailTextBody = '       This\n is\n multi-line\n email\n \n\n\n';
+      expect($filter('nl2br')(emailTextBody)).to.equal('This<br/> is<br/> multi-line<br/> email');
+    });
+  });
+
   describe('The inlineImages filter', function() {
 
     it('should do nothing if there is no attachments', function() {
