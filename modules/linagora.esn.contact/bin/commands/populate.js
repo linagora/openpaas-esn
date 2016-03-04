@@ -21,7 +21,7 @@ function exec(base_url, login, password, size, type) {
     var defer = q.defer();
     var fileName = size < 1000 ? '100' : '1000';
 
-    var filePath = path.join(__dirname, './data/' + fileName + '.json');
+    var filePath = path.join(__dirname, './data/populate/' + fileName + '.json');
     fs.readFile(filePath, 'utf-8', function(err, data) {
       if (err) {
         return defer.reject(err);
@@ -164,7 +164,7 @@ function exec(base_url, login, password, size, type) {
 module.exports.exec = exec;
 
 function getCommandParameters() {
-  return '<size> <type>';
+  return '<type> <size>';
 }
 module.exports.getCommandParameters = getCommandParameters;
 
@@ -176,7 +176,7 @@ module.exports.createCommand = function(command) {
     .option('-p, --password [password]', 'User password', DEFAULT_PASSWORD)
     .option('-u, --url [url]', 'ESN base URL like http://localhost:8080', DEFAULT_BASE_URL)
 
-    .action(function(size, type) {
+    .action(function(type, size) {
       var url = command.url;
       var login = command.login;
       var password = command.password;
