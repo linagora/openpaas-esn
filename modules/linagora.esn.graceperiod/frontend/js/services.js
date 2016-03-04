@@ -149,16 +149,6 @@ angular.module('linagora.esn.graceperiod')
     function cancel(id) {
       var task = tasks[id];
 
-      var notification = notifyService({
-        message: 'Canceling...'
-      }, {
-        type: 'info',
-        placement: {
-          from: 'bottom',
-          align: 'center'
-        }
-      });
-
       return remove(id).then(function() {
         return gracePeriodAPI
           .one('tasks')
@@ -176,7 +166,7 @@ angular.module('linagora.esn.graceperiod')
           });
       }, function() {
         return $q.reject('Canceling invalid task id: ' + id);
-      }).finally(notification.close);
+      });
     }
 
     function flush(id) {
