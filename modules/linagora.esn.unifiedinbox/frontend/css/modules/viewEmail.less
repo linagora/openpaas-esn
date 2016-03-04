@@ -1,6 +1,12 @@
 .email-view {
 
   .card {
+    .avatarify {
+      .from, .to, .cc {
+        .flex-start;
+      }
+    }
+
     &.isCollapsed {
       .from span.line-header,
       .to,
@@ -10,15 +16,6 @@
       .email-body,
       .lv-footer {
         display: none;
-      }
-
-      .avatarify {
-        width: 100%;
-      }
-
-      .email-header-right {
-        position: absolute;
-        right: 10px;
       }
     }
 
@@ -52,6 +49,8 @@
     }
 
     .line-header {
+      .flex-noshrink;
+
       margin-right: 5px;
       font-style: italic;
     }
