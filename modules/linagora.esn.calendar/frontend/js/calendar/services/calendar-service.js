@@ -159,10 +159,6 @@ angular.module('esn.calendar')
         .catch($q.reject);
     }
 
-    function _flushTasksForEvent(event) {
-      return gracePeriodService.flushTasksFor({id: event.id});
-    }
-
     function _handleTask(taskId, task, onTaskSuccess, onTaskCancel) {
       if (task.cancelled) {
         return gracePeriodService.cancel(taskId).then(function() {
