@@ -142,10 +142,23 @@ function _populateMembers(community, domain) {
   return q.allSettled(createUsers);
 }
 
+function _populateConfiguration(admin, domain) {
+  console.log('[INFO] POPULATE Configuration');
+
+  var technicalUsers = require('./data/technical-users');
+  var features = require('./data/features');
+
+  return q.all([technicalUsers([domain]), features([domain])])
+    .then(function() {
+      return q([admin, domain]);
+    });
+}
+
 module.exports = function() {
   console.log('[INFO] POPULATE the ESN');
   return _populateAdmin()
     .then(_populateDomain)
+    .spread(_populateConfiguration)
     .spread(_joinDomain)
     .spread(_populateCommunity)
     .spread(_populateMembers)

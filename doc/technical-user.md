@@ -16,7 +16,7 @@ All the technical users are defined in the **technicalusers** MongoDB collection
 ```
 {
   "name": "Sabre Dav",
-  "description": "Allows to authenticate on Sabre DAV"
+  "description": "Allows to authenticate on Sabre DAV",
   "type": "dav",
   "domain": ObjectId("5665774f29e52f8e63a7eb47"),
   "data": {
