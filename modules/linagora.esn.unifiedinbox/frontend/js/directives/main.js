@@ -247,8 +247,14 @@ angular.module('linagora.esn.unifiedinbox')
 
           return emailBodyService.quote(scope.email, scope.email.quoteTemplate)
             .then(function(body) {
+              var needToBeSaved = controller.getComposition().draft.needToBeSaved(scope.email);
+
               scope.email.isQuoting = true;
               scope.email.textBody = body;
+
+              if (!needToBeSaved) {
+                controller.initCtrl(scope.email);
+              }
             })
             .then(function() {
               $timeout(function() {
