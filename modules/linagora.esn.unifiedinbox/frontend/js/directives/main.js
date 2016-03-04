@@ -201,7 +201,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams, headerService) {
+  .directive('composer', function($rootScope, $state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams, headerService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -230,7 +230,7 @@ angular.module('linagora.esn.unifiedinbox')
           quit(controller.saveDraft);
         }
 
-        var disableOnBackAutoSave = scope.$on('$stateChangeSuccess', quitAsSaveDraft);
+        var disableOnBackAutoSave = $rootScope.$on('$stateChangeSuccess', quitAsSaveDraft);
 
         scope.hide = quit.bind(null, backToLastLocation);
         scope.close = function() {

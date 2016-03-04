@@ -310,6 +310,12 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         $state.go = sinon.spy();
       });
 
+      it('should set a $stateChangeSuccess listener on the $rootScope to perform actions after controller destroy', function() {
+        $rootScope.$emit('$stateChangeSuccess');
+
+        expect(ctrl.saveDraft).to.have.been.calledOnce;
+      });
+
       it('should save draft when location has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
 
