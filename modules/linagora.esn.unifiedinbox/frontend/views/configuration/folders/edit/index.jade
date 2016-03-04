@@ -7,7 +7,7 @@
       .field-name #{__('Rename')}
       input.form-control(ng-model="mailbox.name", required)
     .form-group.fg-line.select
-      .field-name #{__('Child Of')}
+      .field-name #{__('Is located under')}
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
 
     .button-bar.hidden-xs
