@@ -958,6 +958,15 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
+    it('should cancel the task if event is involved in a graceperiod', function(done) {
+      this.gracePeriodService.cancel = function() { done(); };
+      var event = this.event.clone();
+      event.gracePeriodTaskId = '12345';
+      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true});
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+    });
+
     it('should call given cancelCallback when graceperiod is cancelled', function(done) {
       this.gracePeriodService.grace = function() {
         return $q.when({
@@ -1117,7 +1126,6 @@ describe('The calendarService service', function() {
     });
 
     it('should cancel the task if there is no etag', function(done) {
-
       this.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: false
@@ -1138,6 +1146,15 @@ describe('The calendarService service', function() {
         }, unexpected.bind(null, done)
       );
 
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+    });
+
+    it('should cancel the task if event is involved in a graceperiod', function(done) {
+      this.gracePeriodService.cancel = function() { done(); };
+      var event = angular.copy(this.event);
+      event.gracePeriodTaskId = '12345';
+      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', event, 'etag');
       this.$rootScope.$apply();
       this.$httpBackend.flush();
     });
