@@ -807,7 +807,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       }]);
     });
 
-    it('should set isCollapsed=true for all read emails, when there is at least one unread', function() {
+    it('should set isCollapsed=false for the only one email in a thread', function() {
+      mockGetThreadAndMessages([
+        {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1'}
+      ]);
+
+      initController('viewThreadController');
+
+      expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([false]);
+    });
+
+    it('should set isCollapsed=false for unread emails along with the last email', function() {
       mockGetThreadAndMessages([
         {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1', isUnread: false },
         {id: 'email2', mailboxIds: [threadId], subject: 'thread subject2', isUnread: true },
@@ -816,10 +826,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewThreadController');
 
-      expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([true, false, true]);
+      expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([true, false, false]);
     });
 
-    it('should set isCollapsed=true for all read emails except the last one, when all emails are read', function() {
+    it('should set isCollapsed=true for all read emails except the last one', function() {
       mockGetThreadAndMessages([
         {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1', isUnread: false },
         {id: 'email2', mailboxIds: [threadId], subject: 'thread subject2', isUnread: false },
