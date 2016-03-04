@@ -146,8 +146,9 @@ function _populateConfiguration(admin, domain) {
   console.log('[INFO] POPULATE Configuration');
 
   var technicalUsers = require('./data/technical-users');
+  var features = require('./data/features');
 
-  return technicalUsers([domain])
+  return q.all([technicalUsers([domain]), features([domain])])
     .then(function() {
       return q([admin, domain]);
     });
