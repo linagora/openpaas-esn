@@ -15,6 +15,13 @@ angular.module('linagora.esn.graceperiod')
     var sio;
     var listeners = {};
 
+    function unregisterListeners(task) {
+      if (!task) {
+        return;
+      }
+      delete listeners[task];
+    }
+
     function onError(data) {
       $log.debug('graceperiod error handlers for task', data.id);
       var handlers = listeners[data.id];
@@ -99,13 +106,6 @@ angular.module('linagora.esn.graceperiod')
       listeners[task].push({onError: onError, onDone: onDone});
     }
 
-    function unregisterListeners(task) {
-      if (!task) {
-        return;
-      }
-      delete listeners[task];
-    }
-
     function getListeners() {
       var result = {};
       angular.copy(listeners, result);
@@ -183,36 +183,6 @@ angular.module('linagora.esn.graceperiod')
       }));
     }
 
-    function flushTasksFor(contextQuery) {
-      return $q.all((getTasksFor(contextQuery) || []).map(function(taskId) {
-        return flush(taskId);
-      }));
-    }
-
-    function timeoutPromise(duration) {
-      return duration > 0 ? $timeout(angular.noop, duration) : $q.reject();
-    }
-
-    function grace(id, text, linkText, delay, context) {
-      var notify = notifyOfGracedRequest(text, linkText, delay);
-      addTask(id, context, notify.notification, delay);
-      return notify.promise;
-    }
-
-    function clientGrace(text, linkText, delay) {
-      return notifyOfGracedRequest(text, linkText, delay).promise;
-    }
-
-    function addTask(taskId, context, notification, delay) {
-      if (taskId) {
-        tasks[taskId] = {
-          notification: notification,
-          context: context,
-          justBeforeEnd: timeoutPromise((delay || GRACE_DELAY) - HTTP_LAG_UPPER_BOUND)
-        };
-      }
-    }
-
     function getTasksFor(contextQuery) {
       var result = [];
       if (!angular.isDefined(contextQuery)) {
@@ -230,6 +200,36 @@ angular.module('linagora.esn.graceperiod')
         }
       });
       return result;
+    }
+
+    function flushTasksFor(contextQuery) {
+      return $q.all((getTasksFor(contextQuery) || []).map(function(taskId) {
+        return flush(taskId);
+      }));
+    }
+
+    function timeoutPromise(duration) {
+      return duration > 0 ? $timeout(angular.noop, duration) : $q.reject();
+    }
+
+    function addTask(taskId, context, notification, delay) {
+      if (taskId) {
+        tasks[taskId] = {
+          notification: notification,
+          context: context,
+          justBeforeEnd: timeoutPromise((delay || GRACE_DELAY) - HTTP_LAG_UPPER_BOUND)
+        };
+      }
+    }
+
+    function grace(id, text, linkText, delay, context) {
+      var notify = notifyOfGracedRequest(text, linkText, delay);
+      addTask(id, context, notify.notification, delay);
+      return notify.promise;
+    }
+
+    function clientGrace(text, linkText, delay) {
+      return notifyOfGracedRequest(text, linkText, delay).promise;
     }
 
     function hasTask(taskId) {
