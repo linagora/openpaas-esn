@@ -7,13 +7,7 @@ var db = require('../../fixtures/db');
 function exec(host, port, dbName) {
   return db.connect(commons.getDBOptions(host, port, dbName))
     .then(configFixture)
-    .then(db.disconnect)
-    .catch(function(err) {
-      console.log(err);
-    })
-    .finally(function() {
-      console.log('Configured');
-    });
+    .then(db.disconnect);
 }
 module.exports.exec = exec;
 
