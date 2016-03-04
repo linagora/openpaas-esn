@@ -3,19 +3,24 @@
 }
 
 .contact-toggle-switch {
+  margin: 0 10px 0 30px;
 
   span {
-    padding-left: 12px;
-    padding-right: 12px;
-    text-transform: uppercase;
+    padding-left: 2px;
+    padding-right: 6px;
   }
 
   .toggle-active {
-    color: @primaryColor;
+    color: @accentColor;
   }
 
   .toggle-switch {
     vertical-align: super;
+    transform: scale3d(.8, .8, 1);
+
+    .ts-helper {
+      margin-bottom: 10px;
+    }
   }
 
   .mdi {
