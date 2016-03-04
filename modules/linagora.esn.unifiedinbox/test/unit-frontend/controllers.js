@@ -201,7 +201,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
             defer.resolve({
               response: {
-                blobId: '1234'
+                blobId: '1234',
+                url: 'http://jmap/1234'
               }
             });
 
@@ -267,12 +268,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(scope.email.attachments.length).to.equal(1);
       });
 
-      it('should set the blobId when upload succeeds', function() {
+      it('should set the blobId and the url when upload succeeds', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
         expect(scope.email.attachments[0]).to.shallowDeepEqual({
           blobId: '1234',
+          url: 'http://jmap/1234',
           name: 'name',
           size: 1,
           type: DEFAULT_FILE_TYPE,

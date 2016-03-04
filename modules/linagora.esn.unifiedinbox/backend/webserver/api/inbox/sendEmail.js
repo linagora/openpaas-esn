@@ -26,6 +26,20 @@ function sendEmailToRecipients(req, res) {
     message.text = email.textBody;
   }
 
+  if (email.attachments) {
+    message.attachments = email.attachments
+      .filter(function(attachment) {
+        return attachment.url;
+      })
+      .map(function(attachment) {
+        return {
+          filename: attachment.name,
+          contentType: attachment.type,
+          path: attachment.url
+        };
+      });
+  }
+
   mailer.send(message, function(err) {
     if (err) {
       logger.error('Error when trying to send email', err);
