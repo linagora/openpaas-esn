@@ -49,7 +49,7 @@ angular.module('esn.calendar')
       $scope.editedEvent = $scope.event.clone();
       $scope.newAttendees = eventUtils.getNewAttendees();
       $scope.invitedAttendee = null;
-      $scope.hasAttendees = !!$scope.editedEvent.attendees;
+      $scope.hasAttendees = eventUtils.hasAttendees($scope.editedEvent);
       if ($scope.hasAttendees) {
         $scope.editedEvent.attendees.forEach(function(attendee) {
           if (attendee.email in session.user.emailMap) {

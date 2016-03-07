@@ -76,6 +76,10 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
     });
   }
 
+  function hasAttendees(event) {
+    return angular.isDefined(event.attendees) && event.attendees.length > 0;
+  }
+
   function getNewAttendees() {
     return newAttendees;
   }
@@ -121,6 +125,7 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
     isInvolvedInATask: isInvolvedInATask,
     isOrganizer: isOrganizer,
     hasSignificantChange: hasSignificantChange,
+    hasAttendees: hasAttendees,
     getEditedEvent: getEditedEvent,
     setEditedEvent: setEditedEvent,
     getNewAttendees: getNewAttendees,
