@@ -30,4 +30,7 @@ module.exports = function(router, dependencies) {
     },
     controller.finalizeWorkflow.bind(null, 'twitter')
   );
+
+  router.use(controller.unknownAuthErrorMiddleware('twitter', new RegExp('Unknown authentication strategy "twitter-authz"')));
+
 };
