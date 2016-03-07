@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var mockery = require('mockery');
 var q = require('q');
+var CONSTANTS = require('../../../../../linagora.esn.contact/backend/lib/constants');
 
 describe('The addressbooks module', function() {
 
@@ -49,6 +50,7 @@ describe('The addressbooks module', function() {
 
       contact: {
         lib: {
+          constants: require('../../../../../linagora.esn.contact/backend/lib/constants'),
           client: function() {
             return {
               addressbookHome: function() {
@@ -559,7 +561,7 @@ describe('The addressbooks module', function() {
       req.params.contactId = req.params.cardId;
 
       dependencies.pubsub.global.topic = function(name) {
-        expect(name).to.equal('contacts:contact:update');
+        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED);
         return {
           publish: function(data) {
             expect(data).to.eql({
@@ -635,7 +637,7 @@ describe('The addressbooks module', function() {
       var called = false;
 
       dependencies.pubsub.global.topic = function(name) {
-        expect(name).to.equal('contacts:contact:add');
+        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED);
         return {
           publish: function(data) {
             called = true;
@@ -766,7 +768,7 @@ describe('The addressbooks module', function() {
     it('should publish a "contacts:contact:delete" event if request is a delete and is successful', function(done) {
       var called = false;
       dependencies.pubsub.global.topic = function(name) {
-        expect(name).to.equal('contacts:contact:delete');
+        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED);
         return {
           publish: function(data) {
             called = true;

@@ -88,6 +88,8 @@ describe('The contact import backend module', function() {
       mockery.registerMock('./cron', function() {
         return cronMock;
       });
+      mockery.registerMock('./import', function() {
+      });
     });
 
     it('should not add importer when undefined', function() {

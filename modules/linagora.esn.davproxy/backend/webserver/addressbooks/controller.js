@@ -8,6 +8,7 @@ module.exports = function(dependencies) {
   var logger = dependencies('logger');
   var pubsub = dependencies('pubsub').global;
   var contactModule = dependencies('contact');
+  var CONSTANTS = contactModule.lib.constants;
   var proxy = require('../proxy')(dependencies)(PATH);
   var avatarHelper = require('./avatarHelper')(dependencies);
 
@@ -96,7 +97,7 @@ module.exports = function(dependencies) {
         .create(req.body)
         .then(function(data) {
           avatarHelper.injectTextAvatar(req.params.bookHome, req.params.bookName, req.body).then(function(newBody) {
-            pubsub.topic('contacts:contact:add').publish({
+            pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).publish({
               contactId: req.params.contactId,
               bookId: req.params.bookHome,
               bookName: req.params.bookName,
@@ -125,7 +126,7 @@ module.exports = function(dependencies) {
 
         onSuccess: function(response, data, req, res, callback) {
           logger.debug('Success while updating contact %s', req.params.contactId);
-          pubsub.topic('contacts:contact:update').publish({
+          pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).publish({
             contactId: req.params.contactId,
             bookId: req.params.bookHome,
             bookName: req.params.bookName,
@@ -152,7 +153,7 @@ module.exports = function(dependencies) {
       onSuccess: function(response, data, req, res, callback) {
         logger.debug('Success while deleting contact %s', req.params.contactId);
 
-        pubsub.topic('contacts:contact:delete').publish({contactId: req.params.contactId, bookId: req.params.bookHome, bookName: req.params.bookName});
+        pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).publish({contactId: req.params.contactId, bookId: req.params.bookHome, bookName: req.params.bookName});
 
         return callback(null, data);
       }
