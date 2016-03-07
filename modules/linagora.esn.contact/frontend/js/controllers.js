@@ -163,7 +163,7 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, VcardBuilder, ContactLocationHelper, ContactShellDisplayBuilder) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, headerService, ContactAPIClient, VcardBuilder, ContactLocationHelper) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
@@ -188,6 +188,9 @@ angular.module('linagora.esn.contact')
         .vcard($scope.cardId)
         .get()
         .then(function(contact) {
+          if (!contact.addressbook.editable) {
+            $scope.close();
+          }
           $scope.contact = contact;
           oldContact = JSON.stringify(contact);
         }, function() {
