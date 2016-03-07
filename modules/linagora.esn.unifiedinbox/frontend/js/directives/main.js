@@ -361,18 +361,22 @@ angular.module('linagora.esn.unifiedinbox')
       },
       link: function(scope, element) {
 
-        function keepEmailAndNameOnly(tag) {
+        function normalizeToEMailer(tag) {
           Object.keys(tag).forEach(function(key) {
             if (key !== 'email' && key !== 'name') {
               delete tag[key];
             }
           });
+
+          if (!tag.email) {
+            tag.email = tag.name;
+          }
         }
 
         scope.search = searchService.searchRecipients;
 
         scope.onTagAdding = function($tag) {
-          keepEmailAndNameOnly($tag);
+          normalizeToEMailer($tag);
 
           return !_.find(scope.tags, { email: $tag.email });
         };

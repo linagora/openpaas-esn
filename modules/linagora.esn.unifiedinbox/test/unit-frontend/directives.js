@@ -920,6 +920,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
     });
 
+    it('should make sure "email" is defined', function() {
+      var scope = compileDirectiveThenGetScope(),
+          recipient = { name: 'a@a.com' };
+
+      scope.onTagAdding(recipient);
+
+      expect(recipient).to.deep.equal({ name: 'a@a.com', email: 'a@a.com' });
+    });
+
   });
 
   describe('The emailBodyEditor', function() {

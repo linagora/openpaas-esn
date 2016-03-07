@@ -193,6 +193,7 @@ angular.module('linagora.esn.unifiedinbox')
           attachment.status = 'uploaded';
           attachment.error = null;
           attachment.blobId = task.response.blobId;
+          attachment.url = task.response.url;
 
           if (!disableImplicitSavesAsDraft) {
             composition.saveDraftSilently();

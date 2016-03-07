@@ -434,20 +434,15 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The sendEmail service', function() {
 
-    var $httpBackend, $rootScope, jmap, sendEmail, backgroundProcessorService;
-
-    var jmapClientMock, jmapHelperMock;
+    var $httpBackend, $rootScope, jmap, sendEmail, backgroundProcessorService, jmapClientMock;
 
     beforeEach(function() {
       jmapClientMock = {};
-      jmapHelperMock = {};
 
       angular.mock.module(function($provide) {
         $provide.value('withJmapClient', function(callback) {
           return callback(jmapClientMock);
         });
-
-        $provide.value('jmapHelper', jmapHelperMock);
       });
 
       angular.mock.inject(function(_$httpBackend_, _$rootScope_, _jmap_, _sendEmail_, _backgroundProcessorService_) {
@@ -464,7 +459,7 @@ describe('The Unified Inbox Angular module services', function() {
       sinon.spy(backgroundProcessorService, 'add');
       $httpBackend.expectPOST('/unifiedinbox/api/inbox/sendemail').respond(200);
 
-      sendEmail();
+      sendEmail({});
       $httpBackend.flush();
 
       expect(backgroundProcessorService.add).to.have.been.calledOnce;
@@ -478,14 +473,14 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should use SMTP to send email when JMAP is not enabled to send email', function() {
         $httpBackend.expectPOST('/unifiedinbox/api/inbox/sendemail').respond(200);
-        sendEmail();
+        sendEmail({});
         $httpBackend.flush();
       });
 
       it('should resolve response on success', function(done) {
         var data = { key: 'data' };
         $httpBackend.expectPOST('/unifiedinbox/api/inbox/sendemail').respond(200, data);
-        sendEmail().then(function(resp) {
+        sendEmail({}).then(function(resp) {
           expect(resp.data).to.deep.equal(data);
           done();
         }, done.bind(null, 'should resolve'));
@@ -494,7 +489,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should reject error response on failure', function(done) {
         $httpBackend.expectPOST('/unifiedinbox/api/inbox/sendemail').respond(500);
-        sendEmail().then(done.bind(null, 'should reject'), function(err) {
+        sendEmail({}).then(done.bind(null, 'should reject'), function(err) {
           expect(err.status).to.equal(500);
           done();
         });
@@ -507,7 +502,6 @@ describe('The Unified Inbox Angular module services', function() {
       beforeEach(function() {
         config['linagora.esn.unifiedinbox.isJmapSendingEnabled'] = true;
         config['linagora.esn.unifiedinbox.isSaveDraftBeforeSendingEnabled'] = true;
-        jmapHelperMock.toOutboundMessage = angular.noop;
 
         jmapClientMock.saveAsDraft = function() {
           return $q.when({});
@@ -524,13 +518,11 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should use JMAP to send email when JMAP is enabled to send email', function(done) {
-        var email = { from: 'A', to: 'B' };
+        var email = { from: { email: 'A' }, to: [{ email: 'B' }] };
         var messageAck = { id: 'm123' };
         var outbox = { id: 't456' };
-        jmapHelperMock.toOutboundMessage = sinon.spy();
 
         jmapClientMock.saveAsDraft = function() {
-          expect(jmapHelperMock.toOutboundMessage).to.have.been.calledWith(jmapClientMock, email);
           return $q.when(messageAck);
         };
 
@@ -554,7 +546,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.reject(error);
         };
 
-        sendEmail().then(done.bind(null, 'should reject'), function(err) {
+        sendEmail({}).then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal(error.message);
           done();
         });
@@ -567,7 +559,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.reject(error);
         };
 
-        sendEmail().then(done.bind(null, 'should reject'), function(err) {
+        sendEmail({}).then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal(error.message);
           done();
         });
@@ -580,7 +572,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.reject(error);
         };
 
-        sendEmail().then(done.bind(null, 'should reject'), function(err) {
+        sendEmail({}).then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal(error.message);
           done();
         });
@@ -594,17 +586,16 @@ describe('The Unified Inbox Angular module services', function() {
       var email;
 
       beforeEach(function() {
-        email = { from: 'A', to: 'B' };
+        email = { to: [{ email: 'B' }] };
         config['linagora.esn.unifiedinbox.isJmapSendingEnabled'] = true;
         config['linagora.esn.unifiedinbox.isSaveDraftBeforeSendingEnabled'] = false;
-        jmapHelperMock.toOutboundMessage = sinon.stub().returns({email: 'content'});
       });
 
       it('should use JMAP to send email when JMAP is enabled to send email', function(done) {
         jmapClientMock.send = sinon.stub().returns($q.when('expected return'));
 
         sendEmail(email).then(function(returnedValue) {
-          expect(jmapClientMock.send).to.have.been.calledWith({email: 'content'});
+          expect(jmapClientMock.send).to.have.been.calledWithMatch({ to: [{ email: 'B', name: '' }]});
           expect(returnedValue).to.equal('expected return');
         }).then(done, done);
 
