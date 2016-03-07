@@ -11,6 +11,7 @@ angular.module('esn.actionList', [])
 
         function close() {
           if (dialogOpened) {
+            dialogOpened.hide();
             dialogOpened.destroy();
           }
         }
