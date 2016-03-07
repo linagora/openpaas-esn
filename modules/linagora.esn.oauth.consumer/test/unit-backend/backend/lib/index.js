@@ -33,18 +33,18 @@ describe('The OAuth Consumer backend module', function() {
       mockery.registerMock('./strategies', function() {
         return {
           twitter: {
-            configure: function (callback) {
+            configure: function(callback) {
               twitterSpy();
               callback();
             }
           },
           google: {
-            configure: function (callback) {
+            configure: function(callback) {
               googleSpy();
               callback();
             }
           }
-        }
+        };
       });
 
       getModule().start(function(err) {
@@ -59,16 +59,16 @@ describe('The OAuth Consumer backend module', function() {
       mockery.registerMock('./strategies', function() {
         return {
           twitter: {
-            configure: function (callback) {
+            configure: function(callback) {
               callback(new Error('I failed'));
             }
           },
           google: {
-            configure: function (callback) {
+            configure: function(callback) {
               callback();
             }
           }
-        }
+        };
       });
       getModule().start(done);
     });
@@ -77,16 +77,16 @@ describe('The OAuth Consumer backend module', function() {
       mockery.registerMock('./strategies', function() {
         return {
           twitter: {
-            configure: function (callback) {
+            configure: function(callback) {
               callback(new Error('I failed'));
             }
           },
           google: {
-            configure: function (callback) {
+            configure: function(callback) {
               callback(new Error('I failed'));
             }
           }
-        }
+        };
       });
       getModule().start(done);
     });
