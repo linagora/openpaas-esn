@@ -10,11 +10,12 @@ describe('directive : action-list', function() {
 
   beforeEach(function() {
     screenSize = {
-      on: function() {},
-      get: function() {}
+      on: angular.noop,
+      get: angular.noop,
+      is: angular.noop
     };
     this.opened = {
-      destroy: function() {}
+      destroy: angular.noop
     };
     var self = this;
     $modal = sinon.spy(function() {
@@ -292,4 +293,30 @@ describe('directive : action-list', function() {
     expect($modal).to.have.been.called;
     expect(this.opened.destroy).to.have.been.called;
   });
+
+  it('should destroy the dialog on $destroy', function() {
+    this.initDirective('<button action-list>Click Me</button>');
+    element.click();
+    this.opened.destroy = sinon.spy();
+
+    $scope.$destroy();
+
+    expect(this.opened.destroy).to.have.been.calledOnce;
+  });
+
+  it('should not destroy the dialog belong to other element on $destroy', function() {
+    var scope1, scope2;
+    scope1 = $scope = $rootScope.$new();
+    this.initDirective('<button action-list>1</button>');
+
+    scope2 = $scope = $rootScope.$new();
+    var element2 = this.initDirective('<button action-list>2</button>');
+    this.opened.destroy = sinon.spy();
+
+    element2.click(); // dialog is now belong to scope2
+    scope1.$destroy();
+
+    expect(this.opened.destroy).to.have.been.callCount(0);
+  });
+
 });

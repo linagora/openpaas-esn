@@ -8,10 +8,19 @@ angular.module('esn.actionList', [])
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
+
         function close() {
           if (dialogOpened) {
             dialogOpened.destroy();
           }
+        }
+
+        function isDialogOfThisScope() {
+          return dialogOpened && dialogOpened.scope === scope;
+        }
+
+        function isDialogOpened() {
+          return isDialogOfThisScope() && dialogOpened.$isShown;
         }
 
         function openForMobile() {
@@ -41,17 +50,13 @@ angular.module('esn.actionList', [])
           dialogOpened.scope = scope;
         }
 
-        function isDialogOpened() {
-          return dialogOpened && dialogOpened.scope === scope && dialogOpened.$isShown;
-        }
+        var boundOpenFn = screenSize.is('xs, sm') ? openForMobile : openForDesktop;
 
         function handleWindowResizement() {
           if (isDialogOpened()) {
             boundOpenFn();
           }
         }
-
-        var boundOpenFn = screenSize.is('xs, sm') ? openForMobile : openForDesktop;
 
         screenSize.on('xs, sm', function(match) {
           if (match && boundOpenFn === openForDesktop) {
@@ -70,6 +75,12 @@ angular.module('esn.actionList', [])
             dialogOpened.hide();
           } else {
             boundOpenFn();
+          }
+        });
+
+        scope.$on('$destroy', function() {
+          if (isDialogOfThisScope()) {
+            close();
           }
         });
 
