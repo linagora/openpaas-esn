@@ -1,15 +1,14 @@
 'use strict';
 
 var denormalize = require('./denormalize');
+var CONSTANTS = require('../constants');
 
-var CONTACT_ADDED = 'contacts:contact:add';
-var CONTACT_UPDATED = 'contacts:contact:update';
-var CONTACT_DELETED = 'contacts:contact:delete';
-
-var INDEX_NAME = 'contacts.idx';
-var TYPE_NAME = 'contacts';
-
-var DEFAULT_LIMIT = 20;
+var CONTACT_ADDED = CONSTANTS.NOTIFICATIONS.CONTACT_ADDED;
+var CONTACT_UPDATED = CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED;
+var CONTACT_DELETED = CONSTANTS.NOTIFICATIONS.CONTACT_DELETED;
+var INDEX_NAME = CONSTANTS.SEARCH.INDEX_NAME;
+var TYPE_NAME = CONSTANTS.SEARCH.TYPE_NAME;
+var DEFAULT_LIMIT = CONSTANTS.SEARCH.DEFAULT_LIMIT;
 
 module.exports = function(dependencies) {
 

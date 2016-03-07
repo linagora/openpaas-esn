@@ -31,6 +31,7 @@ describe('The contact import module', function() {
     };
     contactModuleMock = {
       lib: {
+        constants: require('../../../../linagora.esn.contact/backend/lib/constants'),
         client: function() {
           return {
             addressbookHome: function() {
@@ -452,11 +453,13 @@ describe('The contact import module', function() {
       getModule().synchronizeAccountContacts(user, account).then(function() {
         expect(publishSpy.callCount).to.equal(2);
         expect(publishSpy).to.have.been.calledWith({
+          mode: 'import',
           contactId: '1',
           bookId: user._id,
           bookName: addressbook.id
         });
         expect(publishSpy).to.have.been.calledWith({
+          mode: 'import',
           contactId: '3',
           bookId: user._id,
           bookName: addressbook.id
@@ -650,6 +653,7 @@ describe('The contact import module', function() {
         return {
           publish: function(data) {
             expect(data).to.deep.eql({
+              mode: 'import',
               contactId: vcarJson.uid,
               bookHome: optionsMock.user._id,
               bookName: optionsMock.addressbook.id,

@@ -5,6 +5,7 @@ var q = require('q');
 module.exports = function(dependencies) {
   var jobQueue = dependencies('jobqueue');
   var contactModule = dependencies('contact');
+  var CONSTANTS = contactModule.lib.constants;
   var logger = dependencies('logger');
   var pubsub = dependencies('pubsub').global;
   var importerRegistry = require('./registry')(dependencies);
@@ -42,7 +43,8 @@ module.exports = function(dependencies) {
           .then(function(data) {
             data.forEach(function(item) {
               if (!item.error) {
-                pubsub.topic('contacts:contact:delete').publish({
+                pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).publish({
+                  mode: CONSTANTS.MODE.IMPORT,
                   contactId: item.cardId,
                   bookId: options.user._id,
                   bookName: options.addressbook.id
@@ -88,7 +90,8 @@ module.exports = function(dependencies) {
       .vcard(contactId)
       .create(jsonCard)
       .then(function() {
-        pubsub.topic('contacts:contact:add').publish({
+        pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).publish({
+          mode: CONSTANTS.MODE.IMPORT,
           contactId: contactId,
           bookHome: options.user._id + '',
           bookName: options.addressbook.id,

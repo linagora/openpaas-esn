@@ -100,6 +100,17 @@ describe('The contact WS events module', function() {
         this.pubsub.global.topic(topic).publish(data);
       };
 
+      this.checkMode = function(data, topic, done) {
+        var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
+        this.contactNamespace = nsNotCalled(done);
+        mod.init(this.moduleHelpers.dependencies);
+        this.logger.info = function(message) {
+          expect(message).to.match(/notification is skipped/);
+          return done();
+        };
+        this.pubsub.global.topic(topic).publish(data);
+      };
+
       done();
     });
 
@@ -135,6 +146,10 @@ describe('The contact WS events module', function() {
     });
 
     describe('contacts:contact:add subscriber', function() {
+
+      it('should not publish event when data.mode===import', function(done) {
+        this.checkMode({mode: 'import'}, CONTACT_ADDED, done);
+      });
 
       it('should not publish event when data is undefined', function(done) {
         this.checkData(null, CONTACT_ADDED, done);
@@ -198,6 +213,10 @@ describe('The contact WS events module', function() {
 
     describe('contacts:contact:delete subscriber', function() {
 
+      it('should not publish event when data.mode===import', function(done) {
+        this.checkMode({mode: 'import'}, CONTACT_DELETED, done);
+      });
+
       it('should not publish event when data is undefined', function(done) {
         this.checkData(null, CONTACT_DELETED, done);
       });
@@ -256,6 +275,10 @@ describe('The contact WS events module', function() {
     });
 
     describe('contacts:contact:update subscriber', function() {
+
+      it('should not publish event when data.mode===import', function(done) {
+        this.checkMode({mode: 'import'}, CONTACT_UPDATED, done);
+      });
 
       it('should not publish event when data is undefined', function(done) {
         this.checkData(null, CONTACT_UPDATED, done);
