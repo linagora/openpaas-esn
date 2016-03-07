@@ -801,21 +801,26 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('jmapEmailService', function($q, jmap) {
+  .service('jmapEmailService', function($q, jmap, _, asyncAction, inBackground) {
+
     function setFlag(element, flag, state) {
       if (!element || !flag || !angular.isDefined(state)) {
         throw new Error('Parameters "element", "flag" and "state" are required.');
       }
 
       if (element[flag] === state) {
-        return $q.when();
+        return $q.when(element);
       }
 
-      return element['set' + jmap.Utils.capitalize(flag)](state).then(function() {
-        element[flag] = state;
+      element[flag] = state; // Be optimist!
+      return asyncAction('Changing a message flag', function() {
+        return inBackground(element['set' + jmap.Utils.capitalize(flag)](state))
+          .then(_.constant(element), function(err) {
+            element[flag] = !state;
 
-        return element;
-      });
+            return $q.reject(err);
+          });
+      }, { silent: true });
     }
 
     return {
