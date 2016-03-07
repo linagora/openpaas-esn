@@ -19,6 +19,10 @@ module.exports = function() {
           userAccount.data.display_name = account.data.display_name;
           userAccount.data.token = account.data.token;
           userAccount.data.token_secret = account.data.token_secret;
+          if (account.data.refresh_token) {
+            userAccount.data.refresh_token = account.data.refresh_token;
+          }
+          user.markModified('accounts');
         }
       });
     } else {

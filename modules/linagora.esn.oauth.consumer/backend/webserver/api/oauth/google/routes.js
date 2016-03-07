@@ -12,7 +12,7 @@ module.exports = function(router, dependencies) {
     authorizationMW.requiresAPILogin,
     passport.authorize('google-authz', {
       accessType: 'offline',
-      approvalPrompt: 'force',
+      prompt: 'consent',
       scope: ['profile', 'https://www.google.com/m8/feeds'],
       failureRedirect: '/#/accounts?status=error&provider=google&context=connect&action=redirect',
       callbackURL: '/oauth/google/connect/callback'
