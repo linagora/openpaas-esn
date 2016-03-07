@@ -62,7 +62,7 @@ describe('The strategy helper', function() {
       var username = 'username';
       var display_name = 'display_name';
       user.accounts.push(account1);
-      user.accounts.push(account1 );
+      user.accounts.push(account1);
 
       account1.data.username = username;
       account1.data.display_name = display_name;
