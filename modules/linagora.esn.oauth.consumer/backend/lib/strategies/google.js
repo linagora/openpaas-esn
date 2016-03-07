@@ -42,7 +42,7 @@ module.exports = function(dependencies) {
               username: profile.displayName,
               display_name: profile.displayName,
               token: accessToken,
-              refreshToken: refreshToken
+              refresh_token: refreshToken
             }
           };
 

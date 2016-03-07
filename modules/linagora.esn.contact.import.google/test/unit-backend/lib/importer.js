@@ -31,7 +31,7 @@ describe('The google contact importer', function() {
       callback(null, response, null);
     };
     passportRefreshMock = {
-      requestNewAccessToken: function(name, refreshToken, callback) {
+      requestNewAccessToken: function(name, refresh_token, callback) {
         callback(null, accessToken);
       }
     };
@@ -44,7 +44,7 @@ describe('The google contact importer', function() {
     optionsMock = {
       account: {
         data: {
-          refreshToken: 'abcde'
+          refresh_token: 'abcde'
         }
       }
     };
@@ -90,9 +90,9 @@ describe('The google contact importer', function() {
 
   describe('The importContact function', function() {
     it('should refresh the access token', function(done) {
-      passportRefreshMock.requestNewAccessToken = function(name, refreshToken) {
+      passportRefreshMock.requestNewAccessToken = function(name, refresh_token) {
         expect(name).to.equal('google-authz');
-        expect(refreshToken).to.equal(optionsMock.account.data.refreshToken);
+        expect(refresh_token).to.equal(optionsMock.account.data.refresh_token);
         done();
       };
       getImporter().importContact(optionsMock);
@@ -100,7 +100,7 @@ describe('The google contact importer', function() {
 
     it('should reject if can not refresh the access token', function(done) {
       var err = new Error('can not refresh access token');
-      passportRefreshMock.requestNewAccessToken = function(name, refreshToken, callback) {
+      passportRefreshMock.requestNewAccessToken = function(name, refresh_token, callback) {
         callback(err, accessToken);
       };
       getImporter().importContact(optionsMock).then(null, function(error) {

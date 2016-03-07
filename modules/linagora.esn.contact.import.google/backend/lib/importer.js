@@ -99,7 +99,7 @@ module.exports = function(dependencies) {
 
   function importContact(options) {
     var defer = q.defer();
-    refresh.requestNewAccessToken('google-authz', options.account.data.refreshToken, function(err, accessToken) {
+    refresh.requestNewAccessToken('google-authz', options.account.data.refresh_token, function(err, accessToken) {
       if (err) {
         defer.reject(err);
       } else {
