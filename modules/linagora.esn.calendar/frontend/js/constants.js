@@ -84,6 +84,11 @@ angular.module('esn.calendar')
   .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description', 'rrule'])
 
   /**
+   * When checking rrule comparison, these JSON keys on the rrule shell will be checked.
+   */
+  .constant('RRULE_MODIFY_COMPARE_KEYS', ['freq', 'interval', 'until', 'count', 'byday'])
+
+  /**
    * see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
    */
   .constant('SIGNIFICANT_CHANGE_KEYS', ['start', 'end', 'duration', 'due', 'rrule', 'rdate', 'exdate', 'status'])

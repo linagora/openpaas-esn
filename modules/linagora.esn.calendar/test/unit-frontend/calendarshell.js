@@ -661,4 +661,24 @@ describe('CalendarShell factory', function() {
 
   });
 
+  describe('equals method', function() {
+    it('should return call isSame for start, end and recurrenceId properties', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+      var eventB = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+
+      eventA.start.foo = 'bar';
+      eventA.end.foo = 'bar';
+      eventA.recurrendId.foo = 'bar';
+      expect(eventA.equals(eventB)).to.be.true;
+    });
+  });
+
 });

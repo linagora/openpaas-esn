@@ -160,13 +160,7 @@ angular.module('esn.calendar')
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
-      function _hasModificationsBetween(eventA, eventB) {
-        return EVENT_MODIFY_COMPARE_KEYS.some(function(key) {
-          return !angular.equals(eventA[key], eventB[key]);
-        });
-      }
-
-      if (!_hasModificationsBetween($scope.editedEvent, $scope.event)) {
+      if (!eventUtils.hasAnyChange($scope.editedEvent, $scope.event)) {
         _hideModal();
         return;
       }

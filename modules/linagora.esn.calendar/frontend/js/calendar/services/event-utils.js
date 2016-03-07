@@ -71,9 +71,11 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
   }
 
   function hasSignificantChange(oldEvent, newEvent) {
-    return SIGNIFICANT_CHANGE_KEYS.some(function(key) {
-      return !angular.equals(oldEvent[key], newEvent[key]);
-    });
+    return !oldEvent.equals(newEvent, SIGNIFICANT_CHANGE_KEYS);
+  }
+
+  function hasAnyChange(oldEvent, newEvent) {
+    return !oldEvent.equals(newEvent);
   }
 
   function hasAttendees(event) {
@@ -126,6 +128,7 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
     isOrganizer: isOrganizer,
     hasSignificantChange: hasSignificantChange,
     hasAttendees: hasAttendees,
+    hasAnyChange: hasAnyChange,
     getEditedEvent: getEditedEvent,
     setEditedEvent: setEditedEvent,
     getNewAttendees: getNewAttendees,
