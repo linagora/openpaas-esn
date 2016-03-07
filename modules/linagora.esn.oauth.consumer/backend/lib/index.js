@@ -1,19 +1,25 @@
 'use strict';
 
+var q = require('q');
+
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
 
   function start(callback) {
     var strategies = require('./strategies')(dependencies);
-    Object.keys(strategies).forEach(function(key) {
+    var promises = Object.keys(strategies).map(function(key) {
+      var defer = q.defer();
       strategies[key].configure(function(err) {
         if (err) {
-          logger.warn('OAuth consumer ' + key + ' is not configured');
+          logger.warn('OAuth consumer ' + key + ' configuration failure', err);
         }
-        callback();
+        defer.resolve();
       });
+      return defer.promise;
     });
+
+    q.all(promises).finally(callback);
   }
 
   return {
