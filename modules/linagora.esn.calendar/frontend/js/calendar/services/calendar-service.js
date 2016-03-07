@@ -159,10 +159,6 @@ angular.module('esn.calendar')
         .catch($q.reject);
     }
 
-    function _flushTasksForEvent(event) {
-      return gracePeriodService.flushTasksFor({id: event.id});
-    }
-
     function _handleTask(taskId, task, onTaskSuccess, onTaskCancel) {
       if (task.cancelled) {
         return gracePeriodService.cancel(taskId).then(function() {
@@ -203,7 +199,7 @@ angular.module('esn.calendar')
      * @param  {String}             calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
      * @param  {CalendarShell}      event        the event to PUT to the caldav server
      * @param  {Object}             options      options needed for the creation. The structure is {graceperiod: Boolean, notifyFullcalendar: Boolean}
-     * @return {Mixed}                           true no success, false if cancelled, the http response if no graceperiod is used.
+     * @return {Mixed}                           true if success, false if cancelled, the http response if no graceperiod is used.
      */
     function createEvent(calendarId, calendarPath, event, options) {
       event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
@@ -257,6 +253,8 @@ angular.module('esn.calendar')
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
           return true;
         }, $q.reject);
+      } else if (event.gracePeriodTaskId) {
+        gracePeriodService.cancel(event.gracePeriodTaskId);
       }
 
       var taskId = null;
@@ -274,12 +272,9 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
-      return _flushTasksForEvent(event)
-        .then(function() {
-          return eventAPI.remove(eventPath, etag);
-        })
+      return eventAPI.remove(eventPath, etag)
         .then(function(id) {
-          taskId = id;
+          event.gracePeriodTaskId = taskId = id;
           keepChangeDuringGraceperiod.registerDelete(event);
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
         })
@@ -317,10 +312,7 @@ angular.module('esn.calendar')
         event.sequence = event.sequence + 1;
       }
 
-      if (!etag) {
-        // This is a create event because the event is not created yet in sabre/dav,
-        // we then should only cancel the first creation task.
-        path = path.replace(/\/$/, '') + '/' + event.uid + '.ics';
+      if (event.gracePeriodTaskId) {
         gracePeriodService.cancel(event.gracePeriodTaskId);
       }
 
@@ -345,13 +337,12 @@ angular.module('esn.calendar')
         .then(function(masterShell) {
           instance = event;
           master = masterShell;
-          return _flushTasksForEvent(master);
         })
         .then(function() {
           return eventAPI.modify(path, master.vcalendar, etag);
         })
         .then(function(id) {
-          taskId = id;
+          event.gracePeriodTaskId = taskId = id;
           keepChangeDuringGraceperiod.registerUpdate(master);
           if (options.notifyFullcalendar) {
             calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);

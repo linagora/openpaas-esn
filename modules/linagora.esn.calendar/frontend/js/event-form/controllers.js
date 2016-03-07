@@ -114,6 +114,8 @@ angular.module('esn.calendar')
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been deleted.');
+          } else {
+            notificationFactory.weakInfo('Calendar - ', 'Suppression of ' + $scope.event.title + ' has been cancelled.');
           }
         })
         .catch(function(err) {
@@ -177,6 +179,8 @@ angular.module('esn.calendar')
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');
+          } else {
+            notificationFactory.weakInfo('Calendar - ', 'Modification of ' + $scope.event.title + ' has been cancelled.');
           }
         })
         .catch(function(err) {
