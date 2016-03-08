@@ -158,17 +158,19 @@ angular.module('esn.calendar')
 
       if ($scope.editedEvent.attendees && $scope.newAttendees) {
         $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat($scope.newAttendees);
-      } else {
-        $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
       if (!eventUtils.hasAnyChange($scope.editedEvent, $scope.event)) {
         _hideModal();
         return;
       }
-      _hideModal();
-      $scope.restActive = true;
+      if (!$scope.editedEvent.organizer && eventUtils.hasAttendees($scope.editedEvent)) {
+        var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
+        $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
+      }
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
+      $scope.restActive = true;
+      _hideModal();
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
