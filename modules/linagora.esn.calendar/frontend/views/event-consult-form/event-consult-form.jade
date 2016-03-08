@@ -49,7 +49,7 @@
 
         div(ng-show="selectedTab === 'more'")
 
-      .row.event-consult-form-footer.form-group
+      .row.event-consult-form-footer.form-group.flex-vertical-centered
         span.col-xs-5 #{__('Will you attend?')}
         .col-xs-2
           button.btn.btn-default(type='button', ng-click='modifyEventParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
