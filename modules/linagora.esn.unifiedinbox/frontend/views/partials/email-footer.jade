@@ -5,12 +5,12 @@
       span.label
         | #{__('Forward')}
   .action
-    a(ng-click="ctrl.replyAll()", title="#{__('Reply all')}")
-      i.mdi.mdi-reply-all
-      span.label
-        | #{__('Reply all')}
-  .action
     a(ng-click="ctrl.reply()", title="#{__('Reply')}")
       i.mdi.mdi-reply
       span.label
         | #{__('Reply')}
+  .action
+    a(ng-click="ctrl.replyAll()", title="#{__('Reply all')}")
+      i.mdi.mdi-reply-all
+      span.label
+        | #{__('Reply all')}
