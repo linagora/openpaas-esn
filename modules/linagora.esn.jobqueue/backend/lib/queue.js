@@ -7,32 +7,32 @@ module.exports = function(dependencies) {
   var logger = dependencies('logger');
   var workers = require('./workers')(dependencies);
   var pubsub = dependencies('pubsub').local;
-  var jobs;
+  var jobQueue;
 
   function initJobQueue() {
     var defer = q.defer();
-    if (!jobs) {
+    if (!jobQueue) {
       pubsub.topic('redis:configurationAvailable').subscribe(function(config) {
-        jobs = kue.createQueue({redis: config});
-        defer.resolve(jobs);
+        jobQueue = kue.createQueue({redis: config});
+        defer.resolve(jobQueue);
       });
     } else {
-      defer.resolve(jobs);
+      defer.resolve(jobQueue);
     }
     return defer.promise;
   }
 
   function createJobByName(name) {
     var defer = q.defer();
-    initJobQueue().then(function(jobs) {
-      var job = jobs.create(name, {
+    initJobQueue().then(function(jobQueue) {
+      var job = jobQueue.create(name, {
         title: name
       });
 
       job.save(function(err) {
         if (!err) {
           logger.info('Creating job ' + name + ' with id: ', job.id);
-          defer.resolve(jobs);
+          defer.resolve(jobQueue);
         } else {
           defer.reject(err);
         }
@@ -51,8 +51,8 @@ module.exports = function(dependencies) {
       return q.reject(new Error('Can not find worker for this job: ' + workerName));
     }
     var defer = q.defer();
-    createJobByName(jobName).then(function(jobs) {
-      jobs.process(jobName, function(job, done) {
+    createJobByName(jobName).then(function(jobQueue) {
+      jobQueue.process(jobName, function(job, done) {
         worker.getWorkerFunction()(data).then(function() {
           done();
           defer.resolve(job);
