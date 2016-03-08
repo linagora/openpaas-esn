@@ -92,7 +92,8 @@
     "jquery.focus": "linagora/jquery.focus#bowerified",
     "angular-component": "https://github.com/toddmotto/angular-component.git#~0.0.7",
     "ui-router-extras": "~0.1.0",
-    "angular-feature-flags": "~1.0.0"
+    "angular-feature-flags": "~1.0.0",
+    "angular-auto-focus": "~1.0.4"
   },
   "resolutions": {
     "jquery": "2.1.1",
