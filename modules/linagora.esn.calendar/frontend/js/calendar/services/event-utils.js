@@ -79,7 +79,7 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
   }
 
   function hasAttendees(event) {
-    return angular.isDefined(event.attendees) && event.attendees.length > 0;
+    return angular.isArray(event.attendees) && event.attendees.length > 0;
   }
 
   function getNewAttendees() {
