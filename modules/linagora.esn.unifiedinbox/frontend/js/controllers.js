@@ -9,9 +9,13 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('goToInboxController', function($state, withJmapClient, jmap) {
     withJmapClient(function(client) {
       client.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
-        $state.go('unifiedinbox.threads', { mailbox: mailbox.id });
+        $state.go('unifiedinbox.list', { mailbox: mailbox.id });
       });
     });
+  })
+
+  .controller('listController', function($state, $stateParams, inboxConfig, DEFAULT_VIEW) {
+    $state.go('unifiedinbox.list.' + inboxConfig('view', DEFAULT_VIEW), { mailbox: $stateParams.mailbox });
   })
 
   .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService, JMAP_GET_MESSAGES_LIST) {
@@ -46,7 +50,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (email.isDraft) {
         newComposerService.openDraft(email.id);
       } else {
-        $state.go('unifiedinbox.messages.message', {
+        $state.go('unifiedinbox.list.messages.message', {
           mailbox: $scope.mailbox.id,
           emailId: email.id
         });
@@ -68,7 +72,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (thread.email.isDraft) {
         newComposerService.openDraft(thread.email.id);
       } else {
-        $state.go('unifiedinbox.threads.thread', {
+        $state.go('unifiedinbox.list.threads.thread', {
           mailbox: $scope.mailbox.id,
           threadId: thread.id
         });

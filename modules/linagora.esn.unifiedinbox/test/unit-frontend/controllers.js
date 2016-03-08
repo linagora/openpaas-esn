@@ -593,7 +593,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('listEmailsController').openEmail({id: 'expectedId'});
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
+        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
       });
 
     });
@@ -915,7 +915,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       it('should change the state to the thread view if thread.email is not a draft', function() {
         initController('listThreadsController').openThread({ id: 'expected thread id', email: { isDraft: false } });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.threads.thread', {
+        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', {
           mailbox: 'chosenMailbox',
           threadId: 'expected thread id'
         });
@@ -1292,7 +1292,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('goToInboxController');
 
-      expect($state.go).to.have.been.calledWith('unifiedinbox.threads', { mailbox: '1' });
+      expect($state.go).to.have.been.calledWith('unifiedinbox.list', { mailbox: '1' });
     });
 
   });
