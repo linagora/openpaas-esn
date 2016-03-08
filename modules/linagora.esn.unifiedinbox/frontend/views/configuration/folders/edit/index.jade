@@ -7,15 +7,15 @@
       .field-name #{__('Rename')}
       input.form-control(ng-model="mailbox.name", required)
     .form-group.fg-line.select
-      .field-name #{__('Child Of')}
+      .field-name #{__('Is located under')}
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
 
-    .button-bar.hidden-xs
-      input.btn.btn-default.pull-left(type="button", value="#{__('Delete')}", ng-click="confirmationDialog()")
-      input.btn.btn-primary(type="submit", value="#{__('Edit')}")
-      input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
+    .button-bar.hidden-xs.flex-space-between
+      .delete-action
+        a.btn.underlined-button.p-l-0.m-0(ng-click="confirmationDialog()") #{__('Delete this folder')}
+      .other-actions
+        input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
+        input.btn.btn-primary(type="submit", value="#{__('Edit')}")
 
     .button-bar.visible-xs
-      a.submit.btn.btn-default(href='', ng-click='confirmationDialog()')
-        i.mdi.mdi-delete.m-l-5.m-r-5
-        | #{__('Delete')}
+      a.submit.btn.underlined-button(href='', ng-click='confirmationDialog()') #{__('Delete this folder')}

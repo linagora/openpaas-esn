@@ -7,9 +7,9 @@
       .field-name #{__('Name')}
       input.form-control(ng-model="mailbox.name", placeholder="#{__('Enter a name')}", required)
     .form-group.fg-line.select
-      .field-name #{__('Child Of')}
+      .field-name #{__('Is located under')}
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
 
-    .button-bar.hidden-xs
-      input.btn.btn-primary(type="submit", value="#{__('Create')}")
+    .button-bar.actions.hidden-xs.flex-end
       input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
+      input.btn.btn-primary(type="submit", value="#{__('Create')}")
