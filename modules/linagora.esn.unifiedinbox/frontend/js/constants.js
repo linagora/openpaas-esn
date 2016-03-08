@@ -21,4 +21,5 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('ELEMENTS_PER_PAGE', 20)
   .constant('ATTACHMENTS_ATTRIBUTES', ['blobId', 'isInline', 'name', 'size', 'type'])
   .constant('DEFAULT_MAX_SIZE_UPLOAD', 20971520)
-  .constant('DRAFT_SAVING_DEBOUNCE_DELAY', 1000);
+  .constant('DRAFT_SAVING_DEBOUNCE_DELAY', 1000)
+  .constant('DEFAULT_VIEW', 'messages');

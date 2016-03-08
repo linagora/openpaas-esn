@@ -34,6 +34,12 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 
 ```
 {
+    "name" : "view",
+    "value" : "messages" (can be 'threads' also)
+}
+```
+```
+{
     "name" : "api",
     "value" : "http://host:port/jmap/account_id"
 }

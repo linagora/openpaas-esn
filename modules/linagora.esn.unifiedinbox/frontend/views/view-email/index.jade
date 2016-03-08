@@ -1,10 +1,12 @@
 .email-view
+  .thread-header.visible-md
+    .flex-start
+      inbox-header-back-button
+      .header-label {{ ::email.subject }}
 
-  .block-header.visible-md.visible-lg
-    h2 {{::email.subject}}
+  .thread-title.visible-xs
+    h4 {{ ::email.subject }}
     
   email(email='email')
   
   ng-include(src="'/unifiedinbox/views/partials/email-footer'")
-
-  inbox-fab
