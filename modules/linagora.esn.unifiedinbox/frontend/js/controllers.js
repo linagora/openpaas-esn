@@ -293,6 +293,12 @@ angular.module('linagora.esn.unifiedinbox')
         inboxEmailService.markAsRead($scope.email);
       });
     });
+
+    ['reply', 'replyAll', 'forward'].forEach(function(action) {
+      this[action] = function() {
+        inboxEmailService[action]($scope.email);
+      };
+    }.bind(this));
   })
 
   .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {

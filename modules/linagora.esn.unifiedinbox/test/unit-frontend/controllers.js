@@ -666,6 +666,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-email-subheader', sinon.match.any);
     });
 
+    it('should expose a "reply" function', function() {
+      inboxEmailService.reply = sinon.spy();
+
+      initController('viewEmailController').reply();
+
+      expect(inboxEmailService.reply).to.have.been.calledWith(scope.email);
+    });
+
+    it('should expose a "replyAll" function', function() {
+      inboxEmailService.replyAll = sinon.spy();
+
+      initController('viewEmailController').replyAll();
+
+      expect(inboxEmailService.replyAll).to.have.been.calledWith(scope.email);
+    });
+
+    it('should expose a "forward" function', function() {
+      inboxEmailService.forward = sinon.spy();
+
+      initController('viewEmailController').forward();
+
+      expect(inboxEmailService.forward).to.have.been.calledWith(scope.email);
+    });
+
   });
 
   describe('The viewThreadController', function() {
