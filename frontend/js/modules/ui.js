@@ -31,7 +31,7 @@ angular.module('esn.ui', ['op.dynamicDirective'])
   .directive('fabScrollTop', function($window, elementScrollService) {
     return {
       restrict: 'E',
-      template: '<fab icon="up" scroll-listener data-on-scroll-down="hide" data-on-scroll-top="hide" data-on-scroll-up="show" />',
+      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide" data-on-scroll-top="hide" data-on-scroll-up="show" />',
       link: function(scope, element) {
 
         function _scrollIsTwiceScreenHeight() {
