@@ -59,8 +59,9 @@ module.exports = function(dependencies) {
           logger.info('Job %s is complete', jobName);
         }, function(err) {
           logger.error('Error while running job', err);
-          done(new Error('Error while running job'));
-          defer.reject(err);
+          var e = new Error('Error while running job: ' + err.message);
+          done(e);
+          defer.reject(e);
         }, function(progress) {
           if (progress) {
             job.log(progress.message);
