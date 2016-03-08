@@ -1,6 +1,9 @@
-.event-full-form-subheader.col-xs-12
-  div.flex-vertical-centered.flex-space-between
-    div
-      button.btn.btn-primary(type='button', ng-click='goToCalendar();')
-        i.mdi.mdi-reply
+.event-full-form-subheader
+  .flex-start.flex-vertical-centered
+    .col-xs-2.nopadding
+      button.btn.btn-primary.flex-vertical-centered(type='button', ng-click='goToCalendar();')
+        i.mdi.mdi-arrow-left
         | #{__('Back')}
+    .col-xs-8.nopadding
+      span.all-centered
+        | #{__('Consult')}
