@@ -11,7 +11,7 @@
         .btn.btn-default(type="button", ng-click="getMoreView()", ng-class="{'btn-primary': selectedTab === 'more', 'bold': selectedTab === 'more'}")
           | More
     .card
-      .card-body.card-padding
+      .card-body.card-padding(ng-swipe-right="onSwipe('right')", ng-swipe-left="onSwipe('left')")
         div(ng-show="selectedTab === 'main'")
           form.form.readonly(role="form", aria-hidden="true")
             .row

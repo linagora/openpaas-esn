@@ -49,6 +49,20 @@ angular.module('esn.calendar')
       scope.getMoreView = function() {
         scope.selectedTab = CONSULT_FORM_TABS.MORE;
       };
+
+      scope.onSwipe = function(direction) {
+        var availableTabs = [CONSULT_FORM_TABS.MAIN, CONSULT_FORM_TABS.ATTENDEES, CONSULT_FORM_TABS.MORE];
+        var adjust = (direction === 'left') ? 1 : -1;
+        var newTabIndex = availableTabs.indexOf(scope.selectedTab) + adjust;
+
+        if (newTabIndex < 0) {
+          newTabIndex = 0;
+        } else if (newTabIndex >= availableTabs.length) {
+          newTabIndex = availableTabs.length - 1;
+        }
+
+        scope.selectedTab = availableTabs[newTabIndex];
+      };
     }
 
     return {
