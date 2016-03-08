@@ -24,7 +24,7 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
     return contextualSidebarService;
   })
 
-  .directive('contextualSidebar', function(contextualSidebarService) {
+  .directive('contextualSidebar', function($timeout, contextualSidebarService) {
     function link(scope, element, attr) {
       var options = {scope: scope},
         placementToAnimationMap = {
@@ -46,6 +46,26 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
 
       element.on('click', function() {
         sidebar.toggle();
+      });
+
+      scope.$on('contextual-sidebar.show', function() {
+
+        /*
+           It is worth noting that when resizing, nicescroll is showed again. So during the animation,
+           even if we hide nicescroll immediately, it is shown again because of the fact that resize event
+           is triggered by the animation.
+           This hack is to wait for the animation to be done, and then to hide the nicescroll.
+           However, this hack will not work when we resize the screen manually, so the nicescroll is here again.
+           Let's hope removing nicescroll one day
+         */
+
+        $timeout(function() {
+          angular.element('body').getNiceScroll().hide();
+        }, 500);
+      });
+
+      scope.$on('contextual-sidebar.hide', function() {
+        angular.element('body').getNiceScroll().show();
       });
 
       scope.$on('$destroy', function() {
