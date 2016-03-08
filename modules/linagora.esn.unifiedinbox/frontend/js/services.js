@@ -57,9 +57,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('asyncJmapAction', function(asyncAction, withJmapClient) {
+  .factory('backgroundAction', function(asyncAction, inBackground) {
     return function(message, action, options) {
       return asyncAction(message, function() {
+        return inBackground(action());
+      }, options);
+    };
+  })
+
+  .factory('asyncJmapAction', function(backgroundAction, withJmapClient) {
+    return function(message, action, options) {
+      return backgroundAction(message, function() {
         return withJmapClient(action);
       }, options);
     };
@@ -524,7 +532,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
-                                   asyncAction, jmap, emailBodyService, waitUntilMessageIsComplete,
+                                   backgroundAction, jmap, emailBodyService, waitUntilMessageIsComplete,
                                    DRAFT_SAVING_DEBOUNCE_DELAY) {
 
     function prepareEmail(email) {
@@ -610,7 +618,7 @@ angular.module('linagora.esn.unifiedinbox')
 
       emailSendingService.removeDuplicateRecipients(this.email);
 
-      return asyncAction('Sending of your message', function() {
+      return backgroundAction('Sending of your message', function() {
         return waitUntilMessageIsComplete(this.email)
           .then(quoteOriginalEmailIfNeeded.bind(null, this.email))
           .then(function(email) {
@@ -801,21 +809,26 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('jmapEmailService', function($q, jmap) {
+  .service('jmapEmailService', function($q, jmap, _, backgroundAction) {
+
     function setFlag(element, flag, state) {
       if (!element || !flag || !angular.isDefined(state)) {
         throw new Error('Parameters "element", "flag" and "state" are required.');
       }
 
       if (element[flag] === state) {
-        return $q.when();
+        return $q.when(element);
       }
 
-      return element['set' + jmap.Utils.capitalize(flag)](state).then(function() {
-        element[flag] = state;
+      element[flag] = state; // Be optimist!
+      return backgroundAction('Changing a message flag', function() {
+        return element['set' + jmap.Utils.capitalize(flag)](state)
+          .then(_.constant(element), function(err) {
+            element[flag] = !state;
 
-        return element;
-      });
+            return $q.reject(err);
+          });
+      }, { silent: true });
     }
 
     return {
@@ -823,9 +836,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxEmailService', function($state, session, newComposerService, emailSendingService, asyncAction, jmap, jmapEmailService) {
+  .service('inboxEmailService', function($state, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService) {
     function moveToTrash(email) {
-      asyncAction('Move of message "' + email.subject + '" to trash', function() {
+      backgroundAction('Move of message "' + email.subject + '" to trash', function() {
         return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
       }).then(function() {
         $state.go('^');
@@ -874,9 +887,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxThreadService', function($state, session, newComposerService, emailSendingService, asyncAction, jmap, jmapEmailService) {
+  .service('inboxThreadService', function($state, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService) {
     function moveToTrash(thread) {
-      asyncAction('Move of thread "' + thread.subject + '" to trash', function() {
+      backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
         return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
       }).then(function() {
         $state.go('^');
