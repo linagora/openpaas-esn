@@ -5,10 +5,11 @@
   form(ng-submit="editFolder()")
     .form-group.fg-line
       .field-name #{__('Rename')}
-      input.form-control(ng-model="mailbox.name", required)
+      input.form-control(ng-model="mailbox.name")
     .form-group.fg-line.select
       .field-name #{__('Is located under')}
-      select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
+      select.form-control(ng-model="mailbox.parentId", ng-options="box.id as box.qualifiedName for box in mailboxes | filter:{ id: '!' + mailbox.id } | orderBy: ['level', 'name']")
+        option(value="") #{__('Unified Inbox')}
 
     .button-bar.hidden-xs.flex-space-between
       .delete-action

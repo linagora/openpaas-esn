@@ -72,6 +72,7 @@ module.exports = function(config) {
       'frontend/components/offline/offline.min.js',
       'frontend/components/angular-media-queries/match-media.js',
       'frontend/components/angular-feature-flags/dist/featureFlags.js',
+      'frontend/components/angular-auto-focus/angular-auto-focus.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/**/*.jade',

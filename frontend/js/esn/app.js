@@ -18,6 +18,7 @@ angular.module('esnApp', [
   'materialAdmin',
   'angular-nicescroll',
   'xeditable',
+  'mp.autoFocus',
   'op.dynamicDirective',
   'esn.datepickerUtils',
   'esn.core',
