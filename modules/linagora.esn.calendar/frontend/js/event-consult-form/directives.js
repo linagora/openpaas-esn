@@ -49,18 +49,6 @@ angular.module('esn.calendar')
       scope.getMoreView = function() {
         scope.selectedTab = CONSULT_FORM_TABS.MORE;
       };
-
-      var windowJquery = angular.element($window);
-      function setFooterTop() {
-        var footerTop = windowJquery.height() - CONSULT_FORM_FOOTER_HEIGHT;
-        element.find('.event-consult-form-footer').css('top', footerTop + 'px');
-      }
-      windowJquery.resize(setFooterTop);
-      setFooterTop();
-
-      scope.$on('$destroy', function() {
-        windowJquery.off('resize', setFooterTop);
-      });
     }
 
     return {
@@ -76,29 +64,5 @@ angular.module('esn.calendar')
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/event-consult-form/event-consult-form-subheader.html'
-    };
-  })
-
-  .directive('eventDateConsultation', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/event-consult-form/event-date-consultation.html',
-      scope: {
-        event: '='
-      },
-      link: function(scope) {
-        if (!scope.event.allDay) {
-          scope.start = scope.event.start.format('MMMM D hh:mma');
-          if (scope.event.start.isSame(scope.event.end, 'day')) {
-            scope.end = scope.event.end.format('hh:mma');
-          } else {
-            scope.end = scope.event.end.format('MMMM D hh:mma');
-          }
-        } else {
-          scope.start = scope.event.start.format('MMMM D');
-          scope.end = scope.event.end.clone().subtract(1, 'day').format('MMMM D');
-        }
-      }
     };
   });
