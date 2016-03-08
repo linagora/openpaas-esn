@@ -844,7 +844,9 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsUnread(email) {
-      jmapEmailService.setFlag(email, 'isUnread', true);
+      jmapEmailService.setFlag(email, 'isUnread', true).then(function() {
+        $state.go('^');
+      });
     }
 
     function markAsRead(email) {
@@ -885,7 +887,9 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsUnread(thread) {
-      jmapEmailService.setFlag(thread, 'isUnread', true);
+      jmapEmailService.setFlag(thread, 'isUnread', true).then(function() {
+        $state.go('^');
+      });
     }
 
     function markAsFlagged(thread) {

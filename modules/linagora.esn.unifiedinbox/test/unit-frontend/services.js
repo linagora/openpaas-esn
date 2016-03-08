@@ -3233,11 +3233,29 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The markAsUnread function', function() {
 
+      beforeEach(function() {
+        jmapEmailService.setFlag = sinon.spy(function() {
+          return $q.reject();
+        });
+      });
+
       it('should call jmapEmailService.setFlag', function() {
         inboxEmailService.markAsUnread({});
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
       });
+
+      it('should update location to the parent mailbox when the message was successfully marked as unread', function() {
+        jmapEmailService.setFlag = function() {
+          return $q.when();
+        };
+
+        inboxEmailService.markAsUnread({});
+        $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWithExactly('^');
+      });
+
     });
 
     describe('The markAsRead function', function() {
@@ -3312,10 +3330,27 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The markAsUnread function', function() {
 
+      beforeEach(function() {
+        jmapEmailService.setFlag = sinon.spy(function() {
+          return $q.reject();
+        });
+      });
+
       it('should call jmapEmailService.setFlag', function() {
         inboxThreadService.markAsUnread({ id: '1' });
 
         expect(jmapEmailService.setFlag).to.have.been.calledWith({ id: '1' }, 'isUnread', true);
+      });
+
+      it('should should update location to the parent mailbox when the thread was successfully marked as unread', function() {
+        jmapEmailService.setFlag = function() {
+          return $q.when();
+        };
+
+        inboxThreadService.markAsUnread({ id: '1' });
+        $rootScope.$digest();
+
+        expect($state.go).to.have.been.calledWithExactly('^');
       });
     });
 
