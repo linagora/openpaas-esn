@@ -2921,26 +2921,85 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
-  describe('The asyncJmapAction factory', function() {
+  describe('The backgroundAction factory', function() {
 
-    var asyncJmapAction, asyncAction, withJmapClient;
+    var $rootScope, backgroundAction, asyncAction, backgroundProcessorService;
 
     beforeEach(module(function($provide) {
-      $provide.value('asyncAction', sinon.spy(function(message, action) { return action(); }));
+      $provide.value('asyncAction', asyncAction = sinon.spy(function(message, action, options) {
+        return action();
+      }));
+    }));
+
+    beforeEach(inject(function(_$rootScope_, _backgroundAction_, _backgroundProcessorService_) {
+      $rootScope = _$rootScope_;
+      backgroundAction = _backgroundAction_;
+      backgroundProcessorService = _backgroundProcessorService_;
+    }));
+
+    it('should wrap the action into a background asyncAction', function() {
+      var message = 'action message',
+          options = {expected: 'opts'},
+          action = sinon.stub().returns($q.when());
+
+      backgroundAction(message, action, options);
+      var afterSubmitTaskCount = backgroundProcessorService.tasks.length;
+
+      $rootScope.$digest();
+      var afterDigestTaskCount = backgroundProcessorService.tasks.length;
+
+      expect(afterSubmitTaskCount).to.equal(1);
+      expect(afterDigestTaskCount).to.equal(0);
+      expect(action).to.have.been.calledOnce;
+      expect(asyncAction).to.have.been.calledWith(message, sinon.match.func, options);
+    });
+
+    it('should resolve with the action result when succeed', function(done) {
+      var actionResult = {result: 'value'},
+          action = sinon.stub().returns($q.when(actionResult));
+
+      backgroundAction('action message', action).then(function(resolvedValue) {
+        expect(resolvedValue).to.deep.equal(actionResult);
+        done();
+      }, done);
+      $rootScope.$digest();
+    });
+
+    it('should resolve with the action error when failed', function(done) {
+      var actionError = new Error('expect error'),
+          action = sinon.stub().returns($q.reject(actionError));
+
+      backgroundAction('action message', action).then(
+        done.bind(null, 'should be rejected'),
+        function(err) {
+          expect(err).to.deep.equal(actionError);
+          done();
+        });
+      $rootScope.$digest();
+    });
+
+  });
+
+  describe('The asyncJmapAction factory', function() {
+
+    var asyncJmapAction, backgroundAction, withJmapClient;
+
+    beforeEach(module(function($provide) {
+      $provide.value('backgroundAction', sinon.spy(function(message, action) { return action(); }));
       $provide.value('withJmapClient', sinon.spy(function(callback) { return callback; }));
     }));
 
-    beforeEach(inject(function(_asyncJmapAction_, _asyncAction_, _withJmapClient_) {
-      asyncAction = _asyncAction_;
+    beforeEach(inject(function(_asyncJmapAction_, _backgroundAction_, _withJmapClient_) {
+      backgroundAction = _backgroundAction_;
       withJmapClient = _withJmapClient_;
       asyncJmapAction = _asyncJmapAction_;
     }));
 
-    it('should delegate to asyncAction, forwarding the message and the wrapped action', function() {
-      asyncJmapAction('Message', 1);
+    it('should delegate to backgroundAction, forwarding the message and the wrapped action', function() {
+      asyncJmapAction('Message', 1, {expected: 'options'});
 
       expect(withJmapClient).to.have.been.calledWith(1);
-      expect(asyncAction).to.have.been.calledWith('Message', sinon.match.func);
+      expect(backgroundAction).to.have.been.calledWith('Message', sinon.match.func, {expected: 'options'});
     });
 
   });
