@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarShell', function($q, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES, _) {
+  .factory('CalendarShell', function($q, _, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES, EVENT_MODIFY_COMPARE_KEYS) {
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -293,6 +293,30 @@ angular.module('esn.calendar')
       },
 
       /**
+       * Return true if this equals that.
+       *
+       * @return {Boolean} the result
+       */
+      equals: function(that, optionalSubsetKeys) {
+        var keys = optionalSubsetKeys || EVENT_MODIFY_COMPARE_KEYS;
+        var self = this;
+        return keys.every(function(key) {
+          switch (key) {
+            case 'start':
+            case 'end':
+            case 'recurrenceId':
+              if (self[key] === that[key]) { return true; }
+              return self[key]._isAMomentObject && that[key]._isAMomentObject && self[key].isSame(that[key]);
+            case 'rrule':
+              if (self.rrule === that.rrule) { return true; }
+              return self.rrule.equals(that.rrule);
+            default:
+              return angular.equals(self[key], that[key]);
+          }
+        });
+      },
+
+      /**
        * Find or retrieve the modified master event for this shell. If the
        * shell is already a master event, return a promise with this. Otherwise
        * either find it in the vcalendar parent, or retrieve it from the
@@ -393,7 +417,7 @@ angular.module('esn.calendar')
     return CalendarShell;
   })
 
-  .factory('RRuleShell', function(fcMoment, ICAL) {
+  .factory('RRuleShell', function(ICAL, fcMoment, RRULE_MODIFY_COMPARE_KEYS) {
     function RRuleShell(rrule, vevent) {
       this.rrule = rrule;
       this.vevent = vevent;
@@ -401,6 +425,13 @@ angular.module('esn.calendar')
     }
 
     RRuleShell.prototype = {
+      equals: function(that) {
+        var self = this;
+        return RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
+          return angular.equals(self[key], that[key]);
+        });
+      },
+
       isValid: function() {
         return !!this.rrule.freq;
       },

@@ -6,10 +6,19 @@
 var expect = chai.expect;
 
 describe('The event-form module controllers', function() {
-  var event;
+  var event, eventObjectTemplate;
 
   beforeEach(function() {
     event = {};
+    eventObjectTemplate = {
+      clone: function() {
+        return angular.copy(this);
+      },
+      equals: function(that) {
+        return angular.equals(this, that);
+      }
+    };
+    var self = this;
 
     var calendarUtilsMock = {
       getNewStartDate: function() {
@@ -61,9 +70,7 @@ describe('The event-form module controllers', function() {
           }
         });
 
-        e.clone = function() {
-          return angular.copy(this);
-        };
+        angular.extend(e, eventObjectTemplate);
         return e;
       }
     };
@@ -101,7 +108,6 @@ describe('The event-form module controllers', function() {
       is: sinon.stub().returns('to be or not to be')
     };
 
-    var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
       $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
@@ -147,11 +153,9 @@ describe('The event-form module controllers', function() {
           allDay: true,
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
-          location: 'aLocation',
-          clone: function() {
-            return angular.copy(this);
-          }
+          location: 'aLocation'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.calendarServiceMock.createEvent = function() {
           done();
         };
@@ -167,11 +171,9 @@ describe('The event-form module controllers', function() {
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           location: 'aLocation',
-          gracePeriodTaskId: '123456',
-          clone: function() {
-            return angular.copy(this);
-          }
+          gracePeriodTaskId: '123456'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.calendarServiceMock.modifyEvent = function() {
           done();
         };
@@ -189,11 +191,9 @@ describe('The event-form module controllers', function() {
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           location: 'aLocation',
-          etag: '123456',
-          clone: function() {
-            return angular.copy(this);
-          }
+          etag: '123456'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.calendarServiceMock.modifyEvent = function() {
           done();
         };
@@ -210,22 +210,17 @@ describe('The event-form module controllers', function() {
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           allDay: false,
-          otherProperty: 'aString',
-          clone: function() {
-            return angular.copy(this);
-          }
+          otherProperty: 'aString'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
         expect(this.scope.event).to.deep.equal(this.scope.event);
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
       });
 
       it('should select the selected calendar from calendarService.listCalendars if new event', function() {
-        this.scope.event = {
-          clone: function() {
-            return angular.copy(this);
-          }
-        };
+        this.scope.event = {};
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
         expect(this.scope.calendar).to.equal(this.calendars[0]);
       });
@@ -233,11 +228,9 @@ describe('The event-form module controllers', function() {
       it('should select the calendar of the event from calendarService.listCalendars if not new event', function() {
         this.scope.event = {
           etag: 'i am not a new event',
-          calendarId: 'id2',
-          clone: function() {
-            return angular.copy(this);
-          }
+          calendarId: 'id2'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
         expect(this.scope.calendar).to.equal(this.calendars[1]);
       });
@@ -251,11 +244,9 @@ describe('The event-form module controllers', function() {
           organizer: {
             email: 'user@test.com'
           },
-          otherProperty: 'aString',
-          clone: function() {
-            return angular.copy(this);
-          }
+          otherProperty: 'aString'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
         expect(this.scope.isOrganizer).to.equal(true);
       });
@@ -268,11 +259,9 @@ describe('The event-form module controllers', function() {
           organizer: {
             email: 'other@test.com'
           },
-          otherProperty: 'aString',
-          clone: function() {
-            return angular.copy(this);
-          }
+          otherProperty: 'aString'
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
         expect(this.scope.isOrganizer).to.equal(false);
       });
@@ -289,18 +278,10 @@ describe('The event-form module controllers', function() {
         });
 
         it('should call modifyEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
-          this.scope.event = {
-            title: 'title',
-            clone: function() {
-              return angular.copy(this);
-            }
-          };
-          this.scope.editedEvent = {
-            title: 'newTitle',
-            clone: function() {
-              return angular.copy(this);
-            }
-          };
+          this.scope.event = { title: 'title' };
+          angular.extend(this.scope.event, eventObjectTemplate);
+          this.scope.editedEvent = { title: 'newTitle' };
+          angular.extend(this.scope.editedEvent, eventObjectTemplate);
           this.$state.is = sinon.stub().returns(true);
           this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) {
             expect(options).to.deep.equal({
@@ -317,11 +298,8 @@ describe('The event-form module controllers', function() {
         });
 
         it('should display an error if the edited event has no title', function(done) {
-          this.scope.event = {
-            clone: function() {
-              return angular.copy(this);
-            }
-          };
+          this.scope.event = {};
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.eventUtils.originalEvent = null;
           var $alertMock = function(alertObject) {
             expect(alertObject.show).to.be.true;
@@ -343,11 +321,9 @@ describe('The event-form module controllers', function() {
             startDate: new Date(),
             endDate: new Date(),
             allDay: false,
-            title: 'title',
-            clone: function() {
-              return angular.copy(this);
-            }
+            title: 'title'
           };
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.scope.$hide = done;
           this.initController();
 
@@ -368,11 +344,9 @@ describe('The event-form module controllers', function() {
             }, {
               name: 'attendee2',
               partstart: 'ACCEPTED'
-            }],
-            clone: function() {
-              return angular.copy(this);
-            }
+            }]
           };
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.initController();
 
           this.scope.editedEvent = {
@@ -389,6 +363,7 @@ describe('The event-form module controllers', function() {
               partstart: 'ACCEPTED'
             }]
           };
+          angular.extend(this.scope.editedEvent, eventObjectTemplate);
 
           this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
             return $q.when();
@@ -412,11 +387,10 @@ describe('The event-form module controllers', function() {
             endDate: new Date(),
             allDay: false,
             title: 'title',
-            diff: 123123,
-            clone: function() {
-              return angular.copy(this);
-            }
+            diff: 123123
           };
+          angular.extend(event, eventObjectTemplate);
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.scope.$hide = function() {
             expect(event.diff).to.equal(123123);
             expect(editedEvent.diff).to.equal(234234);
@@ -433,20 +407,19 @@ describe('The event-form module controllers', function() {
           this.scope.event = {
             title: 'oldtitle',
             path: '/path/to/event',
-            attendees: ['user1@test.com'],
-            clone: function() {
-              return angular.copy(this);
-            }
+            attendees: ['user1@test.com']
           };
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.initController();
 
           this.scope.editedEvent = {
             title: 'title',
             attendees: ['user1@test.com']
           };
+          angular.extend(this.scope.editedEvent, eventObjectTemplate);
           this.scope.newAttendees = ['user2@test.com', 'user3@test.com'];
           this.scope.modifyEvent();
-          expect(event).to.deep.equal({
+          expect(event).to.shallowDeepEqual({
             title: 'title',
             attendees: ['user1@test.com', 'user2@test.com', 'user3@test.com']
           });
@@ -456,11 +429,9 @@ describe('The event-form module controllers', function() {
           this.scope.event = {
             title: 'oldtitle',
             path: '/path/to/event',
-            etag: '123123',
-            clone: function() {
-              return angular.copy(this);
-            }
+            etag: '123123'
           };
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.initController();
 
           this.scope.editedEvent = {
@@ -468,6 +439,7 @@ describe('The event-form module controllers', function() {
             path: '/path/to/event',
             etag: '123123'
           };
+          angular.extend(this.scope.editedEvent, eventObjectTemplate);
 
           this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
             expect(event.title).to.equal('title');
@@ -492,11 +464,8 @@ describe('The event-form module controllers', function() {
         it('should changeParticipation with ACCEPTED', function(done) {
           var status = null;
           var self = this;
-          this.scope.event = {
-            clone: function() {
-              return angular.copy(this);
-            }
-          };
+          this.scope.event = {};
+          angular.extend(this.scope.event, eventObjectTemplate);
 
           this.scope.$hide = function() {
             expect(status).to.equal('ACCEPTED');
@@ -521,11 +490,8 @@ describe('The event-form module controllers', function() {
         it('should no displayNotification if response is null', function(done) {
           var status = null;
           var self = this;
-          this.scope.event = {
-            clone: function() {
-              return angular.copy(this);
-            }
-          };
+          this.scope.event = {};
+          angular.extend(this.scope.event, eventObjectTemplate);
           this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
             status = _status_;
             return $q.when(null);
@@ -550,12 +516,8 @@ describe('The event-form module controllers', function() {
 
     describe('createEvent function', function() {
       beforeEach(function() {
-        this.scope.event = {
-          id: 'eventId',
-          clone: function() {
-            return angular.copy(this);
-          }
-        };
+        this.scope.event = { id: 'eventId' };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
       });
 
@@ -612,11 +574,8 @@ describe('The event-form module controllers', function() {
 
     describe('canPerformCall function', function() {
       beforeEach(function() {
-        this.scope.event = {
-          clone: function() {
-            return angular.copy(this);
-          }
-        };
+        this.scope.event = {};
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
       });
 
@@ -641,11 +600,9 @@ describe('The event-form module controllers', function() {
             partstat: 'DECLINED',
             emails: []
           },
-          attendees: [],
-          clone: function() {
-            return angular.copy(this);
-          }
+          attendees: []
         };
+        angular.extend(this.scope.event, eventObjectTemplate);
         this.initController();
         this.scope.isOrganizer = true;
       });
