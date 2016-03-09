@@ -51,7 +51,7 @@ angular.module('linagora.esn.contact')
         .then(function(updatedContact) {
           $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, updatedContact);
         }, function(err) {
-
+          $log.error('Can not get contact', err);
         });
     }
 

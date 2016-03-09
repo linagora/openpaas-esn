@@ -9,16 +9,18 @@ describe('The Alpha List module', function() {
 
   describe('AlphaCategoryService service', function() {
 
+    var CategoryService;
+
     beforeEach(module('duScroll'));
     beforeEach(angular.mock.inject(function(AlphaCategoryService) {
-      this.CategoryService = AlphaCategoryService;
+      CategoryService = AlphaCategoryService;
     }));
 
     describe('when instantiating', function() {
 
       it('should initialize the categories', function() {
         var keys = 'ABC';
-        var category = new this.CategoryService({keys: keys});
+        var category = new CategoryService({keys: keys});
         var categories = category.get();
         expect(categories.A).to.be.an.array;
         expect(categories.B).to.be.an.array;
@@ -28,34 +30,66 @@ describe('The Alpha List module', function() {
       it('should create a category for items which are not in initial keys', function() {
         var keys = 'ABC';
         var others = '###';
-        var category = new this.CategoryService({keys: keys, keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, keepAll: true, keepAllKey: others});
         var categories = category.get();
         expect(categories[others]).to.be.an.array;
       });
     });
 
-    describe('The replaceItem fn', function() {
-      var category, items, categories;
+    describe('The getItemCategories fn', function() {
+
+      var category;
 
       beforeEach(function() {
         var keys = 'ABC';
         var others = '#';
+        category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+      });
+
+      it('should return empty array when the item does not belongs to any category', function() {
+        var item = {id: 1, firstName: 'C'};
+        category.get();
+        expect(category.getItemCategories(item)).to.be.empty;
+      });
+
+      it('should return the categories the item belongs to', function() {
+        var items = [
+          { id: 1, firstName: 'A', lastName: 'A' },
+          { id: 2, firstName: 'B', lastName: 'B' },
+          { id: 3, firstName: 'C', lastName: 'C' },
+          { id: 4, firstName: 'D', lastName: 'D' }
+        ];
+        category.addItems(items);
+        category.get();
+        expect(category.getItemCategories(items[1])).to.eql(['B']);
+      });
+
+    });
+
+    describe('The replaceItem fn', function() {
+      var category, items, categories;
+      var keys = 'ABC';
+      var others = '#';
+
+      var getCategories = function(items) {
+        category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+        categories = category.get();
+        return category;
+      };
+
+      beforeEach(function() {
         items = [
           { id: 1, firstName: 'A', lastName: 'A' },
           { id: 2, firstName: 'B', lastName: 'B' },
           { id: 3, firstName: 'C', lastName: 'C' },
           { id: 4, firstName: 'D', lastName: 'D' }
         ];
-
-        category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
-        category.addItems(items);
-        categories = category.get();
       });
 
       it('should just remove old item if it is not belong the current list', function() {
-
         var newContact = { id: 1, firstName: 'El'};
-        category.replaceItem(newContact);
+        getCategories(items).replaceItem(newContact);
         expect(categories).to.eql({
           '#': [items[3]],
           A: [],
@@ -64,10 +98,9 @@ describe('The Alpha List module', function() {
         });
       });
 
-      it('should just add new item if it is belong the current list', function() {
-
+      it('should add new item if it does not belongs to the current list', function() {
         var newContact = { id: 5, firstName: 'An'};
-        category.replaceItem(newContact);
+        getCategories(items).replaceItem(newContact);
         expect(categories).to.eql({
           '#': [items[3]],
           A: [items[0], newContact],
@@ -76,15 +109,63 @@ describe('The Alpha List module', function() {
         });
       });
 
-      it('should replace item if it is belong the current list', function() {
+      it('should move existing item to a lower category', function() {
+        var newContact = { id: 3, firstName: 'BA'};
+        getCategories(items).replaceItem(newContact);
+        expect(categories).to.eql({
+          '#': [items[3]],
+          A: [items[0]],
+          B: [items[1], newContact],
+          C: []
+        });
+      });
 
+      it('should move the item to a higher category', function() {
         var newContact = { id: 1, firstName: 'BA'};
-        category.replaceItem(newContact);
+        getCategories(items).replaceItem(newContact);
         expect(categories).to.eql({
           '#': [items[3]],
           A: [],
           B: [items[1], newContact],
           C: [items[2]]
+        });
+      });
+
+      it('should move the item to a higher category when higher categories are filled', function() {
+        var newContact = { id: 1, firstName: 'G'};
+        var lastItem = { id: 5, firstName: 'H', lastName: 'H' };
+        keys = 'ABCDEFGH';
+        items.push(lastItem);
+        getCategories(items).replaceItem(newContact);
+        expect(categories).to.eql({
+          '#': [],
+          A: [],
+          B: [items[1]],
+          C: [items[2]],
+          D: [items[3]],
+          E: [],
+          F: [],
+          G: [newContact],
+          H: [lastItem]
+        });
+      });
+
+      it('should not move the item to a higher category when higher categories are not filled', function() {
+        var newContact = { id: 1, firstName: 'G'};
+        var lastItem = { id: 5, firstName: 'F', lastName: 'F' };
+        keys = 'ABCDEFGH';
+        items.push(lastItem);
+        getCategories(items).replaceItem(newContact);
+        expect(categories).to.eql({
+          '#': [],
+          A: [],
+          B: [items[1]],
+          C: [items[2]],
+          D: [items[3]],
+          E: [],
+          F: [lastItem],
+          G: [],
+          H: []
         });
       });
 
@@ -102,7 +183,7 @@ describe('The Alpha List module', function() {
           { id: 4, firstName: 'D', lastName: 'D' }
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
 
         var categories = category.get();
@@ -122,7 +203,7 @@ describe('The Alpha List module', function() {
           { id: 4, firstName: 'A', lastName: 'A3' }
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
 
         var categories = category.get();
@@ -154,7 +235,7 @@ describe('The Alpha List module', function() {
           {firstName: 'zBC', lastName: 'DEF'}
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
         category.removeItem(item);
         var categories = category.get();
@@ -179,7 +260,7 @@ describe('The Alpha List module', function() {
           { firstName: 'é', lastName: 'E' }
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
 
         var categories = category.get();
@@ -203,7 +284,7 @@ describe('The Alpha List module', function() {
           { firstName: 'D', lastName: 'D' }
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
         var originalCategories = angular.copy(category.get());
 
@@ -232,7 +313,7 @@ describe('The Alpha List module', function() {
           {firstName: 'zBC', lastName: 'DEF'}
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
 
         var categories = category.get();
@@ -256,7 +337,7 @@ describe('The Alpha List module', function() {
           {firstName: '_??~#', lastName: 'DEF'}
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
         category.addItems(items);
 
         var categories = category.get();
@@ -281,7 +362,7 @@ describe('The Alpha List module', function() {
           {firstName: 'zBC', lastName: 'DEF'}
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: false, keepAllKey: others});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName', keepAll: false, keepAllKey: others});
         category.addItems(items);
         var categories = category.get();
         expect(categories.A).to.deep.equals([items[3]]);
@@ -299,7 +380,7 @@ describe('The Alpha List module', function() {
           {firstName: 'aBC', lastName: 'DEF'}
         ];
 
-        var category = new this.CategoryService({keys: keys, sortBy: 'firstName'});
+        var category = new CategoryService({keys: keys, sortBy: 'firstName'});
         category.addItems(items);
 
         var categories = category.get();
