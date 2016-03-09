@@ -337,8 +337,6 @@ angular.module('esn.calendar')
         .then(function(masterShell) {
           instance = event;
           master = masterShell;
-        })
-        .then(function() {
           return eventAPI.modify(path, master.vcalendar, etag);
         })
         .then(function(id) {

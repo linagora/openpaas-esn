@@ -146,24 +146,51 @@ angular.module('esn.calendar')
           throw new Error('Could not list all element of a reccuring event that never end');
         }
 
+        var subEventExceptions = this.vcalendar.getAllSubcomponents('vevent').filter(function(vevent) {
+          return vevent.getFirstPropertyValue('recurrence-id');
+        });
+
         var iterator = IEvent.iterator(IEvent.startDate);
         var currentDatetime, currentEvent, currentDetails, result = [];
+
         while ((currentDatetime = iterator.next()) &&
             (!endDate || endDate.isAfter(currentDatetime.toJSDate())) &&
             (!maxElement || result.length < maxElement)) {
+
           if (!startDate || startDate.isBefore(currentDatetime.toJSDate())) {
             currentDetails = IEvent.getOccurrenceDetails(currentDatetime);
 
-            currentEvent = this.clone();
-            currentEvent.vevent.updatePropertyWithValue('recurrence-id', currentDetails.recurrenceId);
+            //because we screwed up timezone on dtstart, recurrenceId are computed in dtstart timezone but marked as floating datetime
+            var tzid = this.vevent.getFirstProperty('dtstart').getParameter('tzid'); //so we get the dtstart timezone
+            var recurrenceId  = currentDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone); //mark recurrence id as UTC date
+            var utcOffset = ICAL.Duration.fromSeconds(-fcMoment.tz(tzid).utcOffset() * 60);
+            recurrenceId.addDuration(utcOffset); //and make it correct in UTC timezone
 
-            currentEvent.vevent.getFirstProperty('dtstart').setValue(currentDetails.startDate);
-            currentEvent.vevent.getFirstProperty('dtend').setValue(currentDetails.endDate);
+            currentEvent = null;
 
-            currentEvent.vevent.removeProperty('rrule');
+            //looking if current instance is an exception
+            for (var i = 0, len = subEventExceptions.length; i < len; i++) {
+              var vevent = subEventExceptions[i];
+              if (recurrenceId.compare(vevent.getFirstPropertyValue('recurrence-id')) === 0) {
+                currentEvent = new CalendarShell(vevent, {
+                  path: this.path,
+                  backgroundColor: this.backgroundColor,
+                  etag: this.etag
+                });
+                break;
+              }
+            }
+
+            if (!currentEvent) {
+              currentEvent = this.clone();
+              currentEvent.vevent.updatePropertyWithValue('recurrence-id', recurrenceId);
+
+              currentEvent.vevent.getFirstProperty('dtstart').setValue(currentDetails.startDate);
+              currentEvent.vevent.getFirstProperty('dtend').setValue(currentDetails.endDate);
+              currentEvent.vevent.removeProperty('rrule');
+            }
 
             result.push(currentEvent);
-
           }
         }
 
