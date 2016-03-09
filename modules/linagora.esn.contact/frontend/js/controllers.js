@@ -273,6 +273,7 @@ angular.module('linagora.esn.contact')
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
     $scope.searchResult = {};
+    $scope.updatedDuringSearch = null;
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
     $scope.searchFailure = false;
     $scope.totalHits = 0;
@@ -410,6 +411,7 @@ angular.module('linagora.esn.contact')
 
     $scope.search = function() {
       if ($scope.searching) {
+        $scope.updatedDuringSearch = $scope.searchInput;
         return;
       }
 
@@ -422,10 +424,14 @@ angular.module('linagora.esn.contact')
 
       $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.search);
       $scope.searching = true;
+      $scope.updatedDuringSearch = null;
       $scope.searchFailure = false;
       $scope.loadingNextContacts = true;
       getSearchResults().finally(function() {
         $scope.searching = false;
+        if ($scope.updatedDuringSearch !== null) {
+          $scope.search();
+        }
       });
     };
 

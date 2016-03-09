@@ -2424,6 +2424,143 @@ describe('The Contacts controller module', function() {
         scope.$digest();
         expect(called).to.equal(1);
       });
+
+      it('should store the search input value if the previous search request is still pending', function() {
+        var endOfSearch = $q.defer();
+
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+
+        scope.appendQueryToURL = scope.createPagination = angular.noop;
+
+        scope.pagination.service.loadNextItems = function(searchQuery) {
+          if (searchQuery) {
+            return endOfSearch.promise;
+          }
+          return $q.reject(new Error('Fail'));
+        };
+
+        scope.searchInput = 'openpaas';
+        scope.search();
+        scope.$digest();
+
+        scope.searchInput = 'openpaasng';
+        scope.search();
+        scope.$digest();
+
+        expect(scope.updatedDuringSearch).to.equal('openpaasng');
+      });
+
+      it('should reset the stored value if a new search request occurs and no changes occured between', function() {
+        var endOfSearch;
+        var fakeResult = {
+          total_hits: 0,
+          data: []
+        };
+
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+
+        scope.appendQueryToURL = scope.createPagination = angular.noop;
+
+        scope.pagination.service.loadNextItems = function(searchQuery) {
+          if (searchQuery) {
+            endOfSearch = $q.defer();
+            return endOfSearch.promise;
+          }
+          return $q.reject(new Error('Fail'));
+        };
+
+        scope.searchInput = 'openpaas';
+        scope.search();
+        scope.$digest();
+
+        endOfSearch.resolve(fakeResult);
+        scope.search();
+        scope.$digest();
+
+        expect(scope.updatedDuringSearch).to.be.null;
+      });
+
+      it('should send a new query search if a stored value exists', function() {
+        var endOfSearch;
+        var fakeResult = {
+          total_hits: 0,
+          data: []
+        };
+        var searchRequests = 0;
+
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+
+        scope.appendQueryToURL = scope.createPagination = angular.noop;
+
+        scope.pagination.service.loadNextItems = function(searchQuery) {
+          if (searchQuery) {
+            searchRequests++;
+            endOfSearch = $q.defer();
+            return endOfSearch.promise;
+          }
+          return $q.reject(new Error('Fail'));
+        };
+
+        scope.searchInput = 'openpaas';
+        scope.search();
+        scope.$digest();
+        scope.searchInput = 'openpaasng';
+        endOfSearch.resolve(fakeResult);
+        scope.search();
+        scope.$digest();
+
+        expect(searchRequests).to.equal(2);
+      });
+
+      it('should not send a new query search if no changes occured during a search query', function() {
+        var endOfSearch;
+        var fakeResult = {
+          total_hits: 0,
+          data: []
+        };
+        var searchRequests = 0;
+
+        $controller('contactsListController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+
+        scope.appendQueryToURL = scope.createPagination = angular.noop;
+
+        scope.pagination.service.loadNextItems = function(searchQuery) {
+          if (searchQuery) {
+            searchRequests++;
+            endOfSearch = $q.defer();
+            return endOfSearch.promise;
+          }
+          return $q.reject(new Error('Fail'));
+        };
+
+        scope.searchInput = 'openpaas';
+        scope.search();
+        scope.$digest();
+        endOfSearch.resolve(fakeResult);
+
+        expect(searchRequests).to.equal(1);
+      });
+
     });
 
     describe('The getContactTitleDisplayCondition fn', function() {
