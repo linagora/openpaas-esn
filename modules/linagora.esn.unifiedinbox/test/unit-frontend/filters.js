@@ -24,20 +24,6 @@ describe('The Unified Inbox Angular module filters', function() {
     $filter = _$filter_;
   }));
 
-  describe('The trustAsHtml filter', function() {
-    it('should delegate to $sce', function(done) {
-      var rawHtml = '<xss />';
-
-      $sce.trustAsHtml = function(text) {
-        expect(text).to.equal(rawHtml);
-
-        done();
-      };
-
-      $filter('trustAsHtml')(rawHtml);
-    });
-  });
-
   describe('The emailer filter', function() {
     var recipient;
 

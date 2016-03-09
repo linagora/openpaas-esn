@@ -696,32 +696,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(element.find('iframe')).to.have.length(1);
     });
 
-    it.skip('should append a BASE tag to the iframe document\'s HEAD tag', function(done) {
-      compileDirective('<html-email-body email="email" />');
-
-      element.isolateScope().$on('iframe:loaded', function(event, iFrame) {
-        expect(iFrame.contentDocument.head.children[0]).to.shallowDeepEqual({
-          tagName: 'BASE',
-          target: '_blank'
-        });
-
-        done();
-      });
-    });
-
-    it.skip('should append a SCRIPT tag to the iframe document\'s BODY tag', function(done) {
-      compileDirective('<html-email-body email="email" />');
-
-      element.isolateScope().$on('iframe:loaded', function(event, iFrame) {
-        var script = iFrame.contentDocument.body.children[1];
-
-        expect(script.tagName).to.equal('SCRIPT');
-        expect(script.src).to.contain('/components/iframe-resizer/js/iframeResizer.contentWindow.js');
-
-        done();
-      });
-    });
-
     it.skip('should enable iFrame resizer on the iFrame', function(done) {
       iFrameResize = function(options) {
         expect(options).to.shallowDeepEqual({
@@ -747,17 +721,37 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       compileDirective('<html-email-body email="email" />');
       $rootScope.$broadcast('iframe:loaded', {
-        contentDocument: {
-          body: {
-            appendChild: angular.noop
-          },
-          head: {
-            appendChild: angular.noop
-          }
+        contentWindow: {
+          postMessage: angular.noop
         }
       });
       $rootScope.$broadcast('email:collapse');
       $timeout.flush();
+    });
+
+    it('should post html content after having filtered it with inlineImages then loadImagesAsync filters', function(done) {
+      $scope.email = {
+        htmlBody: '<html><body><img src="remote.png" /><img src="cid:1" /></body></html>',
+        attachments: [{ cid: '1', url: 'http://expected-url' }]
+      };
+
+      compileDirective('<html-email-body email="email" />');
+      $rootScope.$broadcast('iframe:loaded', {
+        contentWindow: {
+          postMessage: function(content, target) {
+            expect(target).to.equal('*');
+
+            var contentWithoutRandomPort = content.replace(/localhost:\d*/g, 'localhost:PORT');
+            expect(contentWithoutRandomPort).to.equal(
+              '[linagora.esn.unifiedinbox]<html><body>' +
+                '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="remote.png" />' +
+                '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="http://expected-url" />' +
+              '</body></html>');
+
+            done();
+          }
+        }
+      });
     });
 
   });
