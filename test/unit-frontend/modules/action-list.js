@@ -6,17 +6,19 @@
 var expect = chai.expect;
 
 describe('directive : action-list', function() {
-  var element, $scope, $compile, $rootScope, screenSize, $modal, $popover;
+  var element, $scope, $compile, $rootScope, screenSize, $modal, $popover, onResize;
 
   beforeEach(function() {
     screenSize = {
-      on: angular.noop,
+      onChange: function(scope, event, callback) {
+        onResize = callback;
+      },
       get: angular.noop,
       is: angular.noop
     };
     this.opened = {
-      destroy: angular.noop,
-      hide: angular.noop
+      destroy: sinon.spy(),
+      hide: sinon.spy()
     };
     var self = this;
     $modal = sinon.spy(function() {
@@ -104,17 +106,12 @@ describe('directive : action-list', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(true);
     screenSize.is.onCall(1).returns(false);
-    var onResize;
-    screenSize.on = function(event, callback) {
-      onResize = callback;
-    };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
     expect($modal).to.have.been.called;
 
-    this.opened =  {
-      $isShown: function() { return false; }
-    };
+    this.opened.$isShown = function() { return false; };
+
     onResize(false);
     element.click();
     expect($popover).to.have.been.called;
@@ -124,15 +121,8 @@ describe('directive : action-list', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(true);
     screenSize.is.onCall(1).returns(false);
-    var onResize;
-    screenSize.on = function(event, callback) {
-      onResize = callback;
-    };
     this.initDirective('<button action-list>Click Me</button>');
-    this.opened =  {
-      $isShown: true,
-      destroy: angular.noop
-    };
+
     element.click();
 
     expect($modal).to.have.been.called;
@@ -146,17 +136,10 @@ describe('directive : action-list', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(false);
     screenSize.is.onCall(1).returns(true);
-    var onResize;
-    screenSize.on = function(event, callback) {
-      onResize = callback;
-    };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
     expect($popover).to.have.been.called;
 
-    this.opened =  {
-      $isShown: function() { return true; }
-    };
     onResize(true);
     element.click();
     expect($modal).to.have.been.called;
@@ -166,16 +149,9 @@ describe('directive : action-list', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(false);
     screenSize.is.onCall(1).returns(false);
-    var onResize;
-    screenSize.on = function(event, callback) {
-      onResize = callback;
-    };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
 
-    this.opened =  {
-      $isShown: function() { return true; }
-    };
     onResize(false);
     expect($popover).to.have.been.callCount(1);
     expect($modal).to.have.not.been.called;
@@ -185,43 +161,17 @@ describe('directive : action-list', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(true);
     screenSize.is.onCall(1).returns(true);
-    var onResize;
-    screenSize.on = function(event, callback) {
-      onResize = callback;
-    };
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
 
-    this.opened =  {
-      $isShown: function() { return true; }
-    };
     onResize(true);
     expect($modal).to.have.been.callCount(1);
     expect($popover).to.have.not.been.called;
   });
 
-  it('should not open multiple $modal', function() {
+  it('should hide the dialog when it is already shown', function() {
     screenSize.is = function() {
       return true;
-    };
-    this.initDirective('<button action-list>Click Me</button>');
-    this.opened.destroy = sinon.spy();
-
-    element.click();
-    element.click();
-    element.click();
-    element.click();
-
-    expect(this.opened.destroy).to.have.been.callCount(3);
-  });
-
-  it('should hide the dialog when it already shows', function() {
-    screenSize.is = function() {
-      return true;
-    };
-    this.opened =  {
-      $isShown: true,
-      hide: sinon.spy()
     };
     this.initDirective('<button action-list>Click Me</button>');
 
@@ -231,19 +181,32 @@ describe('directive : action-list', function() {
     expect(this.opened.hide).to.have.been.callCount(1);
   });
 
+  it('should not open multiple $modal', function() {
+    screenSize.is = function() {
+      return true;
+    };
+    this.initDirective('<button action-list>Click Me</button>');
+
+    element.click();
+    element.click();
+    element.click();
+    element.click();
+
+    expect(this.opened.hide).to.have.been.callCount(3);
+  });
+
   it('should not open multiple $popover', function() {
     screenSize.is = function() {
       return false;
     };
     this.initDirective('<button action-list>Click Me</button>');
-    this.opened.destroy = sinon.spy();
 
     element.click();
     element.click();
     element.click();
     element.click();
 
-    expect(this.opened.destroy).to.have.been.callCount(3);
+    expect(this.opened.hide).to.have.been.callCount(3);
   });
 
   it('should call $modal with template url', function() {
@@ -270,12 +233,12 @@ describe('directive : action-list', function() {
     }));
   });
 
-  it('should call destroy on $modal or $popover after a screen resize', function() {
+  it('should call hide on $modal or $popover after a screen resize', function() {
     screenSize.is = sinon.stub();
     screenSize.is.onCall(0).returns(false);
     screenSize.is.onCall(1).returns(true);
     var onResize;
-    screenSize.on = function(event, callback) {
+    screenSize.onChange = function(scope, event, callback) {
       onResize = callback;
     };
 
@@ -283,22 +246,46 @@ describe('directive : action-list', function() {
     element.click();
     expect($popover).to.have.been.called;
 
-    this.opened.destroy = sinon.spy();
-
     onResize(true);
     element.click();
     expect($modal).to.have.been.called;
-    expect(this.opened.destroy).to.have.been.called;
+    expect(this.opened.hide).to.have.been.called;
+  });
+
+  it('should not destroy a dialog if it is shown', function() {
+    this.initDirective('<button action-list>Click Me</button>');
+    element.click();
+    this.opened.$isShown = true;
+
+    $scope.$destroy();
+
+    expect(this.opened.destroy).to.not.have.been.called;
+  });
+
+  it('should destroy a non-shown along with the dialogLock', function() {
+    this.initDirective('<button action-list>Click Me</button>');
+    element.click();
+    this.opened.$isShown = false;
+
+    $scope.$destroy();
+
+    expect(this.opened.destroy).to.have.been.calledTwice;
   });
 
   it('should destroy the dialog on $destroy', function() {
     this.initDirective('<button action-list>Click Me</button>');
     element.click();
-    this.opened.destroy = sinon.spy();
-
     $scope.$destroy();
 
-    expect(this.opened.destroy).to.have.been.calledOnce;
+    expect(this.opened.destroy).to.have.been.called;
+  });
+
+  it('should destroy the dialog on action-list.hide', function() {
+    this.initDirective('<button action-list>Click Me</button>');
+    element.click();
+    $scope.$broadcast('action-list.hide');
+
+    expect(this.opened.destroy).to.have.been.called;
   });
 
   it('should not destroy the dialog belong to other element on $destroy', function() {
@@ -308,22 +295,11 @@ describe('directive : action-list', function() {
 
     scope2 = $scope = $rootScope.$new();
     var element2 = this.initDirective('<button action-list>2</button>');
-    this.opened.destroy = sinon.spy();
 
     element2.click(); // dialog is now belong to scope2
     scope1.$destroy();
 
     expect(this.opened.destroy).to.have.been.callCount(0);
-  });
-
-  it('should always try to hide the dialog before destroying it', function() {
-    this.initDirective('<button action-list>Click Me</button>');
-    element.click();
-    this.opened.hide = sinon.spy();
-
-    $scope.$destroy();
-
-    expect(this.opened.hide).to.have.been.calledOnce;
   });
 
 });
