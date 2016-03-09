@@ -174,6 +174,12 @@ angular.module('linagora.esn.contact')
       headerService.subHeader.resetInjections();
     });
 
+    $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
+      if ($scope.contact.id === data.id && data.etag) {
+        $scope.contact.etag = data.etag;
+      }
+    });
+
     var oldContact = '';
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
@@ -233,6 +239,7 @@ angular.module('linagora.esn.contact')
             });
 
             $scope.close();
+
             return gracePeriodService.grace(taskId, 'You have just updated a contact.', 'Cancel')
               .then(function(data) {
                 if (data.cancelled) {
