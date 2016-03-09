@@ -178,6 +178,8 @@ describe('The event-form module controllers', function() {
           done();
         };
         this.initController();
+        this.scope.editedEvent = this.scope.event.clone();
+        this.scope.editedEvent.title = 'newTitle';
         this.scope.isOrganizer = true;
         this.scope.submit();
       });
@@ -198,6 +200,8 @@ describe('The event-form module controllers', function() {
           done();
         };
         this.initController();
+        this.scope.editedEvent = this.scope.event.clone();
+        this.scope.editedEvent.title = 'newTitle';
         this.scope.isOrganizer = true;
         this.scope.submit();
       });
@@ -280,8 +284,6 @@ describe('The event-form module controllers', function() {
         it('should call modifyEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
           this.scope.event = { title: 'title' };
           angular.extend(this.scope.event, eventObjectTemplate);
-          this.scope.editedEvent = { title: 'newTitle' };
-          angular.extend(this.scope.editedEvent, eventObjectTemplate);
           this.$state.is = sinon.stub().returns(true);
           this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) {
             expect(options).to.deep.equal({
@@ -292,6 +294,9 @@ describe('The event-form module controllers', function() {
           });
 
           this.initController();
+
+          this.scope.editedEvent = { title: 'newTitle' };
+          angular.extend(this.scope.editedEvent, eventObjectTemplate);
 
           this.scope.modifyEvent();
           expect(this.$state.is).to.have.been.calledWith('calendar.main');
@@ -329,6 +334,41 @@ describe('The event-form module controllers', function() {
 
           this.scope.editedEvent = this.scope.event;
           this.scope.modifyEvent();
+        });
+
+        it('should send modify request with an organizer if it is undefined and has attendees', function() {
+          this.scope.event = {
+            id: 'eventId',
+            startDate: new Date(),
+            endDate: new Date(),
+            title: 'title',
+            attendees: [{
+              name: 'attendee1',
+              partstart: 'ACCEPTED'
+            }]
+          };
+          angular.extend(this.scope.event, eventObjectTemplate);
+          this.initController();
+
+          this.scope.editedEvent = {
+            id: 'eventId',
+            startDate: new Date(),
+            endDate: new Date(),
+            title: 'newTitle',
+            attendees: [{
+              name: 'attendee1',
+              partstart: 'ACCEPTED'
+            }]
+          };
+          angular.extend(this.scope.editedEvent, eventObjectTemplate);
+
+          this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) { return $q.when(); });
+
+          this.scope.modifyEvent();
+          this.scope.$digest();
+
+          expect(this.calendarServiceMock.modifyEvent).to.have.been.calledWith(sinon.match.any, this.scope.editedEvent);
+          expect(this.scope.editedEvent.organizer).to.deep.equal({ displayName: 'first last', emails: ['user@test.com'] });
         });
 
         it('should send modify request if deep changes (attendees)', function() {
