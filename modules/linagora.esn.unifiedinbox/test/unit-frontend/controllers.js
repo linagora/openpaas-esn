@@ -523,6 +523,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           filter: {
             inMailboxes: ['chosenMailbox']
           },
+          sort: ['date desc'],
           collapseThreads: false,
           fetchMessages: false,
           position: 0,

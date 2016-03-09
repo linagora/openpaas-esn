@@ -27,6 +27,7 @@ angular.module('linagora.esn.unifiedinbox')
             filter: {
               inMailboxes: [$scope.mailbox.id]
             },
+            sort: ['date desc'],
             collapseThreads: false,
             fetchMessages: false,
             position: 0,
