@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
+/* global jstz: false */
 
 var expect = chai.expect;
 
@@ -338,8 +339,8 @@ describe('CalendarShell factory', function() {
 
     it('should compute correctly recurrenceId in UTC Timezone', function() {
       var shell = {
-        start: fcMoment.tz('2015-01-01 18:01', 'Europe/Berlin'),
-        end: fcMoment('2015-01-01 19:01'),
+        start: fcMoment.tz('2015-01-01 18:01', 'America/Toronto'),
+        end: fcMoment('2015-01-01 19:01','America/Toronto'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -350,7 +351,8 @@ describe('CalendarShell factory', function() {
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
-      expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T17:01:00Z');
+      shell.vevent.getFirstProperty('dtstart').setParameter('tzid', jstz.determine().name()); //fcMoment.tz does not use fake timezone by our jstz mock
+      expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T23:01:00Z');
     });
 
     it('should expand correctly all subevent if no start end zone specified', function() {
