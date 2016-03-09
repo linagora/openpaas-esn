@@ -970,8 +970,12 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call given cancelCallback when graceperiod is cancelled', function(done) {
+    it('should call given cancelCallback when graceperiod is cancelled before calling calendarEventEmitter.fullCalendar.emitModifiedEvent', function(done) {
       this.gracePeriodService.grace = function() {
+        self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent = function() {
+          expect(onCancel).to.have.been.calledOnce;
+          done();
+        };
         return $q.when({
           cancelled: true,
           success: angular.noop
@@ -987,7 +991,9 @@ describe('The calendarService service', function() {
       this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), { ETag: 'etag' });
 
-      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', done, {notifyFullcalendar: true});
+      var onCancel = sinon.spy();
+
+      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', onCancel, {notifyFullcalendar: true});
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
