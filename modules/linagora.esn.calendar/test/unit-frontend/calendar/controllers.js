@@ -69,10 +69,10 @@ describe('The calendar module controllers', function() {
       createEvent: function() {
         return $q.when({});
       },
-      modifyEvent: function(path, e) {
+      modifyEvent: sinon.spy(function(path, e) {
         event = e;
         return $q.when();
-      },
+      }),
       listCalendars: function() {
         return $q.when(self.calendars);
       },
@@ -595,27 +595,33 @@ describe('The calendar module controllers', function() {
     });
 
     describe('the eventDropAndResize listener', function() {
-      it('should call calendarService.modifyEvent with scope.event.path if it exists', function(done) {
+      it('should call calendarService.modifyEvent with the correct argument', function() {
+        var newEvent = {
+          path: 'aPath',
+          etag: 'anEtag'
+        };
         var event = {
           path: 'aPath',
           etag: 'anEtag',
-          end: this.fcMoment()
+          end: this.fcMoment(),
+          clone: function() {
+            return newEvent;
+          }
         };
         this.scope.event = event;
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
-          expect(path).to.equal(event.path);
-          expect(etag).to.equal(event.etag);
-          done();
-        };
         this.controller('calendarController', {$scope: this.scope});
         this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
+        expect(this.calendarServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, event, newEvent.etag);
       });
 
-      it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event when the drap and drop if reverted ', function(done) {
+      it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event after calling fullcalendar revert when the drap and drop if reverted', function(done) {
         var event = {
           path: 'aPath',
           etag: 'anEtag',
-          end: this.fcMoment()
+          end: this.fcMoment(),
+          clone: function() {
+            return event;
+          }
         };
 
         this.scope.event = event;
@@ -633,51 +639,10 @@ describe('The calendar module controllers', function() {
         };
 
         this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
+        var fcRevert = sinon.spy();
+        this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10), fcRevert);
         expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
-      });
-
-      it('should compute the event before the resize and pass it to calendarService.modifyEvent', function(done) {
-        var origEnd = this.fcMoment('2016-01-10 12:00');
-        var event = {
-          path: 'aPath',
-          etag: 'anEtag',
-          end: this.fcMoment(origEnd)
-        };
-
-        this.scope.event = event;
-        var delta = this.fcMoment.duration(1, 'hours');
-
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, revertFunc) {
-          expect(oldEvent.end.add(delta).isSame(origEnd)).to.be.true;
-          done();
-        };
-
-        this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(false, event, delta);
-      });
-
-      it('should compute the event before the drop and pass it calendarService.modifyEvent', function(done) {
-        var origEnd = this.fcMoment('1997-08-13 10:00');
-        var origStart = this.fcMoment('1997-08-13 11:00');
-        var event = {
-          path: 'aPath',
-          etag: 'anEtag',
-          start: this.fcMoment(origStart),
-          end: this.fcMoment(origEnd)
-        };
-
-        this.scope.event = event;
-        var delta = this.fcMoment.duration(1, 'hours');
-
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag, revertFunc) {
-          expect(oldEvent.end.add(delta).isSame(origEnd)).to.be.true;
-          expect(oldEvent.start.add(delta).isSame(origStart)).to.be.true;
-          done();
-        };
-
-        this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(true, event, delta);
+        expect(fcRevert).to.have.been.calledOnce;
       });
 
       it('should call calendarService.modifyEvent with a built path if scope.event.path does not exist', function(done) {

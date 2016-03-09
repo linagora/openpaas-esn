@@ -59,28 +59,18 @@ angular.module('esn.calendar')
       openEventForm(event.clone());
     };
 
-    $scope.eventDropAndResize = function(drop, event, delta) {
-      var path = event.path || '/calendars/' + $scope.calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
-      var newEvent = new CalendarShell(event.vcalendar, {
-        etag: event.etag,
-        path: event.path,
-        gracePeriodTaskId: event.gracePeriodTaskId
-      });
+    $scope.eventDropAndResize = function(drop, event, delta, revert) {
+      var newEvent = event.clone();
       newEvent.start = event.start;
       newEvent.end = event.end;
-
-      var oldEvent = newEvent.clone();
-      oldEvent.end = oldEvent.end.subtract(delta);
-
-      if (drop) {
-        oldEvent.start = oldEvent.start.subtract(delta);
-      }
+      newEvent.path = newEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
 
       function revertFunc() {
-        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
+        revert();
+        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, event);
       }
 
-      calendarService.modifyEvent(path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
+      calendarService.modifyEvent(newEvent.path, newEvent, event, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
