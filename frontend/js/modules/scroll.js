@@ -4,7 +4,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
   .constant('SCROLL_EVENTS', {
     RESET_SCROLL: 'scroll:reset'
   })
-  .constant('SCROLL_DIFF_DELTA', 5) // in px
+  .constant('SCROLL_DIFF_DELTA', 30) // in px
   .directive('keepScrollPosition', function($log, SCROLL_EVENTS, $cacheFactory, $location, $document, $timeout) {
     var CACHE_KEY = 'scrollPosition';
 
