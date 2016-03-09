@@ -324,9 +324,9 @@ angular.module('esn.calendar')
       }
 
       function onTaskCancel() {
+        (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
         keepChangeDuringGraceperiod.deleteRegistration(master);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
-        (onCancel || angular.noop)();
       }
 
       function onTaskError() {
