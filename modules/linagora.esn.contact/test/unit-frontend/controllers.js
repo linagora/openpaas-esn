@@ -991,6 +991,35 @@ describe('The Contacts controller module', function() {
       scope.$emit('$stateChangeStart', {});
     });
 
+    it('should update the $scope.contact etag when the contact has been modified from a CONTACT_EVENTS.UPDATED event', function() {
+      contactUpdateDataService.contact = {id: 1, etag: 2};
+      var event = {id: 1, etag: 3};
+      this.initController();
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, event);
+      $rootScope.$digest();
+      expect(scope.contact.etag).to.equal(event.etag);
+    });
+
+    it('should not update the $scope.contact etag when CONTACT_EVENTS.UPDATED event data is not the same contact', function() {
+      var etag = 2;
+      contactUpdateDataService.contact = {id: 1, etag: etag};
+      var event = {id: 2, etag: 3};
+      this.initController();
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, event);
+      $rootScope.$digest();
+      expect(scope.contact.etag).to.equal(etag);
+    });
+
+    it('should not update the $scope.contact etag when CONTACT_EVENTS.UPDATED event data does not contains etag', function() {
+      var etag = 2;
+      contactUpdateDataService.contact = {id: 1, etag: etag};
+      var event = {id: 1};
+      this.initController();
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, event);
+      $rootScope.$digest();
+      expect(scope.contact.etag).to.equal(etag);
+    });
+
     it('should take contact from contactUpdateDataService if there was a graceperiod', function() {
       contactUpdateDataService.contact = { id: 'myId' };
       var getFnSpy = sinon.spy();
