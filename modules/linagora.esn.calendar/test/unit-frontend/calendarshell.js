@@ -340,7 +340,7 @@ describe('CalendarShell factory', function() {
     it('should compute correctly recurrenceId in UTC Timezone', function() {
       var shell = {
         start: fcMoment.tz('2015-01-01 18:01', 'America/Toronto'),
-        end: fcMoment('2015-01-01 19:01','America/Toronto'),
+        end: fcMoment('2015-01-01 19:01', 'America/Toronto'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
