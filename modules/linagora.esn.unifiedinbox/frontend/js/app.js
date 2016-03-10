@@ -55,7 +55,8 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'recipientsFullscreenEditFormController'
           }
         },
-        params: { composition: null }
+        params: { composition: null },
+        data: { ignoreSaveAsDraft: true }
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',

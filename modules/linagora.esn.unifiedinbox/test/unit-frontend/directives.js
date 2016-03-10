@@ -310,20 +310,26 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         $state.go = sinon.spy();
       });
 
-      it('should set a $stateChangeSuccess listener on the $rootScope to perform actions after controller destroy', function() {
-        $rootScope.$emit('$stateChangeSuccess');
-
-        expect(ctrl.saveDraft).to.have.been.calledOnce;
-      });
-
-      it('should save draft when location has successfully changed', function() {
+      it('should save draft when state has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
 
-      it('should save draft only once when close is called, then location has successfully changed', function() {
+      it('should not save draft when state has successfully changed to a state with ignoreSaveAsDraft=true', function() {
+        $rootScope.$broadcast('$stateChangeSuccess', { data: { ignoreSaveAsDraft: true } });
 
+        expect(ctrl.saveDraft).to.have.not.been.calledWith();
+      });
+
+      it('should disable the listener when state has successfully changed to a state with ignoreSaveAsDraft=true', function() {
+        $rootScope.$broadcast('$stateChangeSuccess', { data: { ignoreSaveAsDraft: true } });
+        $rootScope.$broadcast('$stateChangeSuccess');
+
+        expect(ctrl.saveDraft).to.have.not.been.calledWith();
+      });
+
+      it('should save draft only once when close is called, then location has successfully changed', function() {
         $scope.close();
         $rootScope.$broadcast('$stateChangeSuccess');
 

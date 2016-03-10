@@ -231,7 +231,13 @@ angular.module('linagora.esn.unifiedinbox')
           quit(controller.saveDraft);
         }
 
-        var disableOnBackAutoSave = $rootScope.$on('$stateChangeSuccess', quitAsSaveDraft);
+        var disableOnBackAutoSave = $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+          if (toState && toState.data && toState.data.ignoreSaveAsDraft) {
+            return disableOnBackAutoSave();
+          }
+
+          quitAsSaveDraft();
+        });
 
         scope.hide = quit.bind(null, backToLastLocation);
         scope.close = function() {
