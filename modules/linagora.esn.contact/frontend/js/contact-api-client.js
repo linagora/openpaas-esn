@@ -188,11 +188,15 @@ angular.module('linagora.esn.contact')
           params
         ).then(function(response) {
           return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
-            return {
+            var result = {
               current_page: response.data._current_page,
               total_hits: response.data._total_hits,
               data: shells
             };
+            if (!response.last_page) {
+              result.next_page =  parseInt(result.current_page) + 1;
+            }
+            return result;
           });
         });
     }
