@@ -206,6 +206,6 @@ angular.module('esn.profile', ['esn.http', 'openpaas-logo', 'esn.user', 'esn.ses
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/profile', 'mdi-account', 'Profile')
+      template: applicationMenuTemplateBuilder('/#/profile', 'mdi-account', 'Profile', 'core.application-menu.profile')
     };
   });

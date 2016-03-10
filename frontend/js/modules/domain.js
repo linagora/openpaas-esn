@@ -59,7 +59,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members/invite', 'mdi-account-plus', 'Invitation'),
+      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members/invite', 'mdi-account-plus', 'Invitation', 'core.applications-menu.invitation'),
       link: function(scope) {
         scope.domain = session.domain;
       }

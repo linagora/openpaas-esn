@@ -64,7 +64,7 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/applications', 'mdi-apps', 'Applications')
+      template: applicationMenuTemplateBuilder('/#/applications', 'mdi-apps', 'Applications', 'core.applications-menu.applications')
     };
   })
   .factory('applicationAPI', function(esnRestangular) {

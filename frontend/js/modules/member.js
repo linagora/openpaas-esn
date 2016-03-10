@@ -92,7 +92,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members', 'mdi-account-multiple-outline', 'Members'),
+      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members', 'mdi-account-multiple-outline', 'Members', 'core.applications-menu.members'),
       link: function(scope) {
         scope.domain = session.domain;
       }
