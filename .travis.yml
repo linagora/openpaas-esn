@@ -4,11 +4,17 @@ services:
   - docker
 
 before_install:
-  - docker build -f ./docker/dockerfiles/base/Dockerfile -t linagora/esn-base .
-  - docker build -t linagora/esn .
+  - export BUILD_ID=${TRAVIS_COMMIT::8}
+  - export BASE_REPO=linagora/esn-base
+  - export ESN_REPO=linagora/esn
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_TAG ; fi`
+  - docker build -f ./docker/dockerfiles/base/Dockerfile -t $BASE_REPO:$BUILD_ID .
+  - docker build -t $ESN_REPO:$BUILD_ID .
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push linagora/esn-base
-  - docker push linagora/esn
+  - docker tag $BASE_REPO:$BUILD_ID $BASE_REPO:$TAG
+  - docker push $BASE_REPO:$TAG
+  - docker tag $ESN_REPO:$BUILD_ID $ESN_REPO:$TAG
+  - docker push $ESN_REPO:$TAG
 
 script:
-  - docker ps
+  - docker images
