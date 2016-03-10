@@ -1,7 +1,7 @@
 version: '2'
 services:
   esn:
-    image: linagora/esn:latest
+    image: linagora/esn:mach10
     container_name: esn
     ports:
      - "8080:8080"
@@ -49,14 +49,14 @@ services:
       - "27017:27017"
 
   elasticsearch:
-    image: linagora/esn-elasticsearch:latest
+    image: linagora/esn-elasticsearch:mach10
     ports:
       - "9200:9200"
     environment:
       - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
 
   sabre:
-    image: linagora/esn-sabre
+    image: linagora/esn-sabre:mach10
     ports:
       - "8001:80"
     links:
@@ -75,7 +75,7 @@ services:
 
   james:
     entrypoint: bash -c "sleep 45; java -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project
+    image: linagora/james-project:mach10
     container_name: esn_james
     ports:
       - "1080:80"
