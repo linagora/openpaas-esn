@@ -1,14 +1,3 @@
-.contact-list-item.media.p-10.hidden-xs(ng-click='displayContact()')
-  .pull-left
-    contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{avatarSize}}')
-  .media-body.p-l-15.m-r-30
-    .lv-title(bs-tooltip, title="{{displayShell.getDisplayName()}}")
-      | {{displayShell.getDisplayName()}}
-    ul.lv-attrs.contact-list-item-attrs
-      li(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
-        a(ng-click="actionClick($event, attrs.action)" ng-href="{{attrs.action}}" op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}')
-          i.mdi.contact-attr-icon(ng-class="attrs.icon")
-          |  {{attrs.id}}
 .lv-actions.actions
   li.dropdown
     a(href='', data-toggle='dropdown', aria-expanded='true')
@@ -16,14 +5,14 @@
     ul.dropdown-menu.dropdown-menu-right
       li(dynamic-directive='contact-list-menu-items')
 
-.contact-list-item.p-10.visible-xs(ng-click='displayContact()')
+.contact-list-item.p-10(ng-click='displayContact()')
   .pull-left.touch-zone
-      contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{avatarSize}}')
+      contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{::avatarSize}}')
   .media-body.touch-zone
-    .lv-title.col-xs-11
-        h4.media-heading.m-b-0 {{displayShell.getDisplayName()}}
+    .lv-title.col-xs-11(bs-tooltip, title="{{::displayShell.getDisplayName()}}")
+        h4.media-heading.m-b-0 {{::displayShell.getDisplayName()}}
     ul.lv-attrs.col-xs-11.contact-list-item-attrs.m-l-10
       li(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
-        a(ng-click="actionClick($event, attrs.action)" ng-href="{{attrs.action}}" op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}')
+        a(ng-click="actionClick($event, attrs.action)" ng-href="{{::attrs.action}}" op-inbox-compose op-inbox-compose-display-name='{{::displayShell.getDisplayName()}}')
           i.mdi.contact-attr-icon(ng-class="attrs.icon")
-          |  {{attrs.id}}
+          |  {{::attrs.id}}
