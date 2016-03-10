@@ -12,6 +12,14 @@ module.exports = function(domains) {
       var features = new Features({
         domain_id: domain._id || domain,
         modules:[{
+          name: 'core',
+          features: [
+            {
+              name: 'application-menu.profile',
+              value: true
+            }
+          ]
+        }, {
           name: 'linagora.esn.unifiedinbox',
           features: [
             {
