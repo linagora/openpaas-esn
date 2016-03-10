@@ -20,11 +20,11 @@ describe('The esn app', function() {
 
   describe('state provider', function() {
 
-    it('should load the communities page when routing to an unknown path and no continue parameter exists', function() {
-      httpBackend.expectGET('/views/esn/partials/communities').respond(200);
+    it('should load the inbox page when routing to an unknown path and no continue parameter exists', function() {
+      httpBackend.expectGET('/unifiedinbox/views/unifiedinbox').respond(200);
       location.path('/unknown');
       rootScope.$digest();
-      expect(location.path()).to.equal('/communities');
+      expect(location.path()).to.equal('/unifiedinbox/inbox');
       expect(stateParams).to.deep.equal({});
     });
 
@@ -38,12 +38,13 @@ describe('The esn app', function() {
       expect(stateParams).to.deep.equal({});
     });
 
-    it('should load the commuinites page when routing to an unknown path and continue parameter is not an existing page', function() {
-      httpBackend.expectGET('/views/esn/partials/communities').respond(200);
+    it('should load the inbox page when routing to an unknown path and continue parameter is not an existing page', function() {
+      httpBackend.expectGET('/unifiedinbox/views/unifiedinbox').respond(200);
       location.path('/unknown');
       location.search({continue: '/notAPage'});
       rootScope.$digest();
-      expect(location.path()).to.equal('/communities'); expect(stateParams).to.deep.equal({});
+      expect(location.path()).to.equal('/unifiedinbox/inbox');
+      expect(stateParams).to.deep.equal({});
     });
 
     it('should accept to have a trailing slash in the url, even when the state did not set it explicitly', function() {

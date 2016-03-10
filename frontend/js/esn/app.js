@@ -77,7 +77,7 @@ angular.module('esnApp', [
 
   // don't remove $injector, otherwise $location is not correctly injected...
   $urlRouterProvider.otherwise(function($injector, $location) {
-    return $location.search().continue || '/communities';
+    return $location.search().continue || '/unifiedinbox/inbox';
   });
 
   $stateProvider
