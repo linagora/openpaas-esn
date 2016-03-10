@@ -12,7 +12,8 @@ services:
       - sabre
       - elasticsearch
     env_file:
-      - ../../config/jwt.env
+      # https://github.com/docker/docker/issues/12997
+      # - ../../config/jwt.env
       - ../../config/oauth.env
     environment:
       - PROVISION=${PROVISION}
