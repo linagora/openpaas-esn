@@ -18,13 +18,16 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
   })
   .factory('applicationMenuTemplateBuilder', function(_) {
     var template = '<div><a href="<%- href %>"><i class="mdi <%- icon %>"/><span class="label"><%- label %></span></a></div>';
-    return function(href, icon, label) {
+    var featureFlagTemplate = '<div feature-flag="<%- featureFlag %>"><a href="<%- href %>"><i class="mdi <%- icon %>"/><span class="label"><%- label %></span></a></div>';
+
+    return function(href, icon, label, featureFlag) {
       var context = {
         href: href,
         icon: icon,
-        label: label
+        label: label,
+        featureFlag: featureFlag
       };
-      return _.template(template)(context);
+      return _.template(featureFlag ? featureFlagTemplate : template)(context);
     };
   })
   .directive('applicationMenuToggler', function($document, $popover, POPOVER_APPLICATION_MENU_OPTIONS) {
