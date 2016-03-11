@@ -1,4 +1,4 @@
-.list-emails
+infinite-list.list-emails
 
   .groupedEmails(ng-repeat="group in groupedEmails" ng-if="group.elements.length > 0")
     .block-header
@@ -19,6 +19,9 @@
                 emailer.lv-title(emailer="::email.from")
                 inbox-indicators(item="email")
             .lv-small.preview {{::email.preview}}
+
+  ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
+    li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
 
   inbox-fab
   fab-scroll-top

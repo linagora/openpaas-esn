@@ -18,32 +18,36 @@ angular.module('linagora.esn.unifiedinbox')
     $state.go('unifiedinbox.list.' + inboxConfig('view', DEFAULT_VIEW), { mailbox: $stateParams.mailbox });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email, ElementGroupingTool, newComposerService, headerService, jmapEmailService, mailboxesService, JMAP_GET_MESSAGES_LIST) {
+  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email,
+                                               ElementGroupingTool, newComposerService, headerService, jmapEmailService,
+                                               mailboxesService, infiniteScrollHelper, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
 
-    function searchForMessages() {
-      withJmapClient(function(client) {
-        client
+    var groups = new ElementGroupingTool($stateParams.mailbox);
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
+      return withJmapClient(function(client) {
+        return client
           .getMessageList({
             filter: {
-              inMailboxes: [$scope.mailbox.id]
+              inMailboxes: [$stateParams.mailbox]
             },
             sort: ['date desc'],
             collapseThreads: false,
             fetchMessages: false,
-            position: 0,
-            limit: 100
+            position: $scope.infiniteScrollPosition,
+            limit: ELEMENTS_PER_PAGE
           })
           .then(function(messageList) {
-            return messageList.getMessages({
-              properties: JMAP_GET_MESSAGES_LIST
-            });
+            return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
           })
           .then(function(messages) { return messages.map(Email); })
-          .then(function(emails) {
-            $scope.groupedEmails = new ElementGroupingTool($scope.mailbox.id, emails).getGroupedElements();
+          .then(function(messages) {
+            groups.addAll(messages);
+
+            return messages;
           });
       });
-    }
+    });
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
 
@@ -60,14 +64,16 @@ angular.module('linagora.esn.unifiedinbox')
 
     mailboxesService
       .assignMailbox($stateParams.mailbox, $scope)
-      .then(searchForMessages);
+      .then(function() {
+        $scope.groupedEmails = groups.getGroupedElements();
+      });
   })
 
   .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool,
-                                                headerService, mailboxesService, newComposerService, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
+                                                headerService, mailboxesService, newComposerService, infiniteScrollHelper,
+                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
 
-    var position = 0,
-        groups = new ElementGroupingTool($stateParams.mailbox);
+    var groups = new ElementGroupingTool($stateParams.mailbox);
 
     this.openThread = function(thread) {
       if (thread.email.isDraft) {
@@ -92,14 +98,7 @@ angular.module('linagora.esn.unifiedinbox')
       return data[0];
     }
 
-    $scope.infiniteScrollDisabled = false;
-    $scope.loadMoreElements = function() {
-      if ($scope.infiniteScrollDisabled || $scope.infiniteScrollCompleted) {
-        return $q.reject();
-      }
-
-      $scope.infiniteScrollDisabled = true;
-
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
       return withJmapClient(function(client) {
         return client.getMessageList({
           filter: {
@@ -109,11 +108,10 @@ angular.module('linagora.esn.unifiedinbox')
           collapseThreads: true,
           fetchThreads: false,
           fetchMessages: false,
-          position: position,
+          position: $scope.infiniteScrollPosition,
           limit: ELEMENTS_PER_PAGE
         })
           .then(function(messageList) {
-
             return $q.all([
               messageList.getThreads({ fetchMessages: false }),
               messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST })
@@ -123,18 +121,10 @@ angular.module('linagora.esn.unifiedinbox')
           .then(function(threads) {
             groups.addAll(threads);
 
-            if (threads.length < ELEMENTS_PER_PAGE) {
-              $scope.infiniteScrollCompleted = true;
-
-              return $q.reject();
-            }
-          })
-          .then(function() {
-            position += ELEMENTS_PER_PAGE;
-            $scope.infiniteScrollDisabled = false;
+            return threads;
           });
       });
-    };
+    });
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
 

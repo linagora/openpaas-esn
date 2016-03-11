@@ -65,6 +65,34 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .factory('infiniteScrollHelper', function($q, ELEMENTS_PER_PAGE) {
+    return function(scope, loadMoreElements) {
+      scope.infiniteScrollPosition = 0;
+
+      return function() {
+        if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
+          return $q.reject();
+        }
+
+        scope.infiniteScrollDisabled = true;
+
+        return loadMoreElements().then(function(elements) {
+          if (elements.length < ELEMENTS_PER_PAGE) {
+            scope.infiniteScrollCompleted = true;
+
+            return $q.reject();
+          }
+
+          scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
+
+          return elements;
+        }).finally(function() {
+          scope.infiniteScrollDisabled = false;
+        });
+      };
+    };
+  })
+
   .factory('asyncJmapAction', function(backgroundAction, withJmapClient) {
     return function(message, action, options) {
       return backgroundAction(message, function() {
