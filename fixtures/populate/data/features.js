@@ -41,6 +41,9 @@ module.exports = function(domains) {
             {
               name: 'maxSizeUpload',
               value: 20971520
+            }, {
+              name: 'view',
+              value: 'messages'
             }
           ]
         }]
