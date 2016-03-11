@@ -76,3 +76,11 @@ You may have to also run (if you are asked to):
 ```
 systemctl daemon-reload
 ```
+
+- **When I log in, the page is empty**. First be sure that you have created the domain in james.
+
+```
+docker exec esn_james java -jar /root/james-cli.jar -h localhost adddomain open-paas.org
+```
+
+Then, this may comes from james auto-provisioning task that may not be finished yet. Wait a few seconds then reload the page.
