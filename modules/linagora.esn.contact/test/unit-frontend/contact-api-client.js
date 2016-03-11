@@ -558,6 +558,104 @@ describe('The contact Angular module contactapis', function() {
               this.$httpBackend.flush();
             });
 
+            it('should return next_page when not reached last_page', function(done) {
+              var shells = [1, 2, 3];
+              var expectPath = this.getBookUrl(bookId, bookName) + '?page=1&search=linagora&userId=userId';
+              var response = {
+                _current_page: 1,
+                _total_hits: 200,
+                last_page: false,
+                _embedded: {
+                  'dav:item': [
+                    {
+                      _links: {
+                        self: '/addressbooks/5375de4bd684db7f6fbd4f97/bookName/myuid.vcf'
+                      },
+                      etag: '\'6464fc058586fff85e3522de255c3e9f\'',
+                      data: [
+                        'vcard',
+                        [
+                          ['version', {}, 'text', '4.0'],
+                          ['uid', {}, 'text', 'myuid'],
+                          ['n', {}, 'text', ['Bruce', 'Willis', '', '', '']]
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              };
+              this.$httpBackend.expectGET(expectPath).respond(response);
+              this.ContactShellBuilder.fromCardListResponse = function(response) {
+                return $q.when(shells);
+              };
+
+              var searchOptions = {
+                data: 'linagora',
+                userId: 'userId',
+                page: 1
+              };
+              this.ContactAPIClient
+                .addressbookHome(bookId)
+                .addressbook(bookName)
+                .vcard()
+                .search(searchOptions)
+                .then(function(result) {
+                  expect(result.next_page).to.equal(2);
+                  done();
+                });
+              this.$rootScope.$apply();
+              this.$httpBackend.flush();
+            });
+
+            it('should not return next_page when reached last_page', function(done) {
+              var shells = [1, 2, 3];
+              var expectPath = this.getBookUrl(bookId, bookName) + '?page=1&search=linagora&userId=userId';
+              var response = {
+                _current_page: 1,
+                _total_hits: 10,
+                last_page: true,
+                _embedded: {
+                  'dav:item': [
+                    {
+                      _links: {
+                        self: '/addressbooks/5375de4bd684db7f6fbd4f97/bookName/myuid.vcf'
+                      },
+                      etag: '\'6464fc058586fff85e3522de255c3e9f\'',
+                      data: [
+                        'vcard',
+                        [
+                          ['version', {}, 'text', '4.0'],
+                          ['uid', {}, 'text', 'myuid'],
+                          ['n', {}, 'text', ['Bruce', 'Willis', '', '', '']]
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              };
+              this.$httpBackend.expectGET(expectPath).respond(response);
+              this.ContactShellBuilder.fromCardListResponse = function(response) {
+                return $q.when(shells);
+              };
+
+              var searchOptions = {
+                data: 'linagora',
+                userId: 'userId',
+                page: 1
+              };
+              this.ContactAPIClient
+                .addressbookHome(bookId)
+                .addressbook(bookName)
+                .vcard()
+                .search(searchOptions)
+                .then(function(result) {
+                  expect(result.next_page).to.not.be.defined;
+                  done();
+                });
+              this.$rootScope.$apply();
+              this.$httpBackend.flush();
+            });
+
           });
 
           describe('The create fn', function() {

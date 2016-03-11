@@ -92,7 +92,7 @@ angular.module('linagora.esn.contact')
 
     SearchAddressBookPaginationProvider.prototype.loadNextItems = function(options) {
       var self = this;
-      var page = this.currentPage || 1;
+      var page = this.nextPage || 1;
       $log.debug('Search contacts page %s for bookId %s', page, this.bookId);
 
       var query = {
