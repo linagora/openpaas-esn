@@ -508,50 +508,87 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(scope.mailbox.name).to.equal('expected name');
     });
 
-    it('should call jmapClient.getMailboxes then jmapClient.getMessageList', function(done) {
-      jmapClient.getMailboxes = sinon.stub().returns($q.when([{}]));
-      jmapClient.getMessageList = function() {
-        done();
-      };
+    describe('The loadMoreElements function', function() {
 
-      initController('listEmailsController');
-    });
+      function loadMoreElements() {
+        initController('listEmailsController');
 
-    it('should call jmapClient.getMessageList with correct arguments', function(done) {
-      jmapClient.getMessageList = function(options) {
-        expect(options).to.deep.equal({
-          filter: {
-            inMailboxes: ['chosenMailbox']
-          },
-          sort: ['date desc'],
-          collapseThreads: false,
-          fetchMessages: false,
-          position: 0,
-          limit: 100
-        });
+        var promise = scope.loadMoreElements();
+        scope.$digest();
 
-        done();
-      };
+        return promise;
+      }
 
-      initController('listEmailsController');
-    });
-
-    it('should call jmapClient.getMessageList then getMessages with expected options', function(done) {
-      var messageListResult = {
-        getMessages: function(options) {
+      it('should call jmapClient.getMessageList with correct arguments', function(done) {
+        jmapClient.getMessageList = function(options) {
           expect(options).to.deep.equal({
-            properties: JMAP_GET_MESSAGES_LIST
+            filter: {
+              inMailboxes: ['chosenMailbox']
+            },
+            sort: ['date desc'],
+            collapseThreads: false,
+            fetchMessages: false,
+            position: 0,
+            limit: ELEMENTS_PER_PAGE
           });
 
           done();
-        }
-      };
+        };
 
-      jmapClient.getMessageList = function() {
-        return $q.when(messageListResult);
-      };
+        loadMoreElements();
+      });
 
-      initController('listEmailsController');
+      it('should call jmapClient.getMessageList then getMessages', function() {
+        var messageListResult = {
+          messageIds: [1, 2],
+          getMessages: sinon.spy(function(data) {
+            expect(data).to.deep.equal({
+              properties: JMAP_GET_MESSAGES_LIST
+            });
+
+            return [];
+          })
+        };
+
+        jmapClient.getMessageList = function() {
+          return $q.when(messageListResult);
+        };
+
+        loadMoreElements();
+
+        expect(messageListResult.getMessages).to.have.been.called;
+      });
+
+      it('should not call jmapClient.getMessageList when windowing is done', function(done) {
+        jmapClient.getMessageList = sinon.spy();
+        scope.infiniteScrollCompleted = true;
+
+        loadMoreElements().then(null, function() {
+          expect(jmapClient.getMessageList).to.not.have.been.called;
+
+          done();
+        });
+        scope.$digest();
+      });
+
+      it('should reject, set scope.infiniteScrollCompleted=true when windowing is done', function(done) {
+        var messageList = {
+          messageIds: [1], // Only one result, so < limit
+          getMessages: function() {return [];}
+        };
+
+        jmapClient.getMessageList = function() {
+          return $q.when(messageList);
+        };
+
+        loadMoreElements().then(null, function() {
+          expect(scope.infiniteScrollCompleted).to.equal(true);
+
+          done();
+        });
+        scope.$digest();
+      });
+
     });
 
     it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
