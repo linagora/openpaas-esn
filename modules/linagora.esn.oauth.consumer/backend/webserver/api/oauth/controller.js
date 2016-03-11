@@ -17,7 +17,17 @@ module.exports = function(dependencies) {
     res.redirect('/#/accounts?provider=' + type);
   }
 
+  function unknownAuthErrorMiddleware(type, regexp) {
+    return function(err, req, res, next) {
+      if (err && regexp.test(err.message)) {
+        return res.redirect('/#/accounts?status=config_error&provider=' + type);
+      }
+      next(err);
+    };
+  }
+
   return {
-    finalizeWorkflow: finalizeWorkflow
+    finalizeWorkflow: finalizeWorkflow,
+    unknownAuthErrorMiddleware: unknownAuthErrorMiddleware
   };
 };

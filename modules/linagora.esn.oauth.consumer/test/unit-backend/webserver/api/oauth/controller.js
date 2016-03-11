@@ -2,6 +2,7 @@
 
 var chai = require('chai');
 var expect = chai.expect;
+var sinon = require('sinon');
 
 describe('The OAuth Consumer controller', function() {
 
@@ -69,5 +70,65 @@ describe('The OAuth Consumer controller', function() {
       };
       getController().finalizeWorkflow(type, req, res);
     });
+  });
+
+  describe('The unknownAuthErrorMiddleware function', function() {
+
+    var TYPE = 'twitter';
+    var ERR_MSG = 'This is an error';
+    var REGEXP = new RegExp(ERR_MSG);
+
+    it('should call redirect when err.message matched regexp', function(done) {
+      var spy = sinon.spy();
+      var res = {
+        redirect: spy
+      };
+      var middleware = getController().unknownAuthErrorMiddleware(TYPE, REGEXP);
+      middleware(new Error(ERR_MSG), {}, res, done);
+      expect(spy).to.have.been.calledWith('/#/accounts?status=config_error&provider=' + TYPE);
+      done();
+    });
+
+    it('should not call redirect when err.message does not match regexp', function(done) {
+      var spy = sinon.spy();
+      var res = {
+        redirect: spy
+      };
+      var e = new Error('Another error');
+      var middleware = getController().unknownAuthErrorMiddleware(TYPE, REGEXP);
+      middleware(e, {}, res, function(_err) {
+        expect(_err).to.equal(e);
+        expect(spy).to.not.have.been.called;
+        done();
+      });
+    });
+
+    it('should call next when err.message is not defined', function(done) {
+      var spy = sinon.spy();
+      var res = {
+        redirect: spy
+      };
+      var e = {};
+      var middleware = getController().unknownAuthErrorMiddleware(TYPE, REGEXP);
+      middleware(e, {}, res, function(_err) {
+        expect(_err).to.equal(e);
+        expect(spy).to.not.have.been.called;
+        done();
+      });
+    });
+
+    it('should call next when err is not defined', function(done) {
+      var spy = sinon.spy();
+      var res = {
+        redirect: spy
+      };
+      var middleware = getController().unknownAuthErrorMiddleware(TYPE, REGEXP);
+      middleware(null, {}, res, function(_err) {
+        expect(_err).to.be.null;
+        expect(spy).to.not.have.been.called;
+        done();
+      });
+    });
+
   });
 });

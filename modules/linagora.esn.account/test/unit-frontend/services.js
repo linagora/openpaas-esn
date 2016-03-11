@@ -199,6 +199,7 @@ describe('The Account Angular Services', function() {
     describe('The socialHelper function', function() {
       it('should translate OAUTH_SOCIAL_MESSAGES correctly', function() {
         var expectedResult = {
+          config_error: 'The google account module is not configured in the application',
           denied: 'You denied access to your google account',
           error: 'An error occured while accessing to your google account',
           updated: 'Your google account has been updated',

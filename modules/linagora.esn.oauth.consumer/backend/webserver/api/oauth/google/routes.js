@@ -29,4 +29,6 @@ module.exports = function(router, dependencies) {
     },
     controller.finalizeWorkflow.bind(null, 'google')
   );
+
+  router.use(controller.unknownAuthErrorMiddleware('google', new RegExp('Unknown authentication strategy "google-authz"')));
 };
