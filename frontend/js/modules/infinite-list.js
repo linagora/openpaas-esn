@@ -6,7 +6,7 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
     scrollDistance: 1,
     scrollDisabled: false,
     scrollImmediateCheck: 'true',
-    throttle: 250
+    throttle: 1000
   })
 
   .config(function($provide, defaultConfiguration) {
