@@ -8,11 +8,13 @@ module.exports = function() {
   var maxSizeUpload = process.env.JMAP_MAX_SIZE_UPLOAD || 20971520;
   var api = 'http://' + host + ':' + port + '/' + path;
   var uploadUrl = process.env.JMAP_UPLOAD_URL || api + '/upload';
+  var view = process.env.JMAP_VIEW || 'messages';
 
   return {
     api: api,
     uploadUrl: uploadUrl,
     isJmapSendingEnabled: isJmapSendingEnabled,
-    maxSizeUpload: maxSizeUpload
+    maxSizeUpload: maxSizeUpload,
+    view: view
   };
 };
