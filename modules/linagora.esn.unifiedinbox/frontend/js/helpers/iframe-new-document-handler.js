@@ -16,11 +16,23 @@ function createHtmlElement(tag, attribute, value) {
   return element;
 }
 
+function absoluteUrl(url) {
+  return createHtmlElement('a', 'href', url).href;
+}
+
 function setDocument(newDocument) {
+  // The new document can declare a <base href="xxx">,
+  // so we ask for absolute urls before updating the document
+  var scriptsToInclude = [
+    absoluteUrl('/components/iframe-resizer/js/iframeResizer.contentWindow.js'),
+    absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js')
+  ];
+
   document.documentElement.innerHTML = newDocument;
   document.head.appendChild(createHtmlElement('base', 'target', '_blank'));
-  document.head.appendChild(createHtmlElement('script', 'src', '/components/iframe-resizer/js/iframeResizer.contentWindow.js'));
-  document.head.appendChild(createHtmlElement('script', 'src', '/unifiedinbox/js/helpers/load-images-async.js'));
+  scriptsToInclude.forEach(function(script) {
+    document.head.appendChild(createHtmlElement('script', 'src', script));
+  });
 }
 
 function onMessageReceived(event) {
