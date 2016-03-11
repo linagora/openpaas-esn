@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -117,6 +118,97 @@ describe('The esn.form.helper Angular module', function() {
       var color = 'red';
       this.initDirective('<toggle-switch color="' + color + '"/>');
       expect(this.isolateScope.color).to.equal(color);
+    });
+
+  });
+
+  describe('The esnSubmit directive', function() {
+    var $compile, $rootScope;
+    var $scope;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    function initDirective(html) {
+      var element = $compile(html)($scope);
+      $scope.$digest();
+
+      return element;
+    }
+
+    it('should trigger esnSubmit function on click', function() {
+      $scope.myFunction = sinon.stub().returns($q.when());
+      var element = initDirective('<button esn-submit="myFunction()"></button>');
+
+      element.click();
+
+      expect($scope.myFunction).to.have.been.calledOnce;
+    });
+
+    it('should disable button on click then enable again on promise resolves', function() {
+      $scope.myFunction = function() {
+        return $q.when();
+      };
+      var element = initDirective('<button esn-submit="myFunction()"></button>');
+
+      element.click();
+      expect(element.prop('disabled')).to.be.true;
+
+      $scope.$digest();
+      expect(element.prop('disabled')).to.be.false;
+    });
+
+    it('should disable button on click then enable again on promise rejects', function() {
+      $scope.myFunction = function() {
+        return $q.reject();
+      };
+      var element = initDirective('<button esn-submit="myFunction()"></button>');
+
+      element.click();
+      expect(element.prop('disabled')).to.be.true;
+
+      $scope.$digest();
+      expect(element.prop('disabled')).to.be.false;
+    });
+
+    it('should trigger esnSubmit function on form submit', function() {
+      $scope.myFunction = sinon.stub().returns($q.when());
+      var element = initDirective('<form esn-submit="myFunction()"><button type="submit"></button></form>');
+
+      element.find('button').click();
+
+      expect($scope.myFunction).to.have.been.calledOnce;
+    });
+
+    it('should disable submit button of the form on submit then enable again on promise resolves', function() {
+      $scope.myFunction = function() {
+        return $q.when();
+      };
+      var element = initDirective('<form esn-submit="myFunction()"><button type="submit"></button></form>');
+      var button = element.find('button');
+
+      button.click();
+      expect(button.prop('disabled')).to.be.true;
+
+      $scope.$digest();
+      expect(button.prop('disabled')).to.be.false;
+    });
+
+    it('should disable submit button of the form on submit then enable again on promise rejects', function() {
+      $scope.myFunction = function() {
+        return $q.reject();
+      };
+      var element = initDirective('<form esn-submit="myFunction()"><button type="submit"></button></form>');
+      var button = element.find('button');
+
+      button.click();
+      expect(button.prop('disabled')).to.be.true;
+
+      $scope.$digest();
+      expect(button.prop('disabled')).to.be.false;
     });
 
   });

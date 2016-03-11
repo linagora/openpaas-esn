@@ -56,4 +56,32 @@ angular.module('esn.form.helper', [])
       scope.color = scope.color || 'blue';
     }
   };
+})
+
+.directive('esnSubmit', function() {
+  return {
+    restrict: 'A',
+    scope: {
+      submitFn: '&esnSubmit'
+    },
+    link: function(scope, element) {
+
+      function disableAndSubmit(element) {
+        return function() {
+          element.prop('disabled', true);
+
+          scope.submitFn().finally(function() {
+            element.prop('disabled', false);
+          });
+        };
+      }
+
+      if (element[0] && element[0].tagName === 'FORM') {
+        element.on('submit', disableAndSubmit(element.find('[type="submit"]')));
+      } else {
+        element.on('click', disableAndSubmit(element));
+      }
+
+    }
+  };
 });
