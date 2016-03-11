@@ -1142,18 +1142,20 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
 
-      it('should do nothing if mailbox.name is not defined', function() {
+      it('should do nothing and reject promise if mailbox.name is not defined', function(done) {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         jmapClient.createMailbox = sinon.spy();
 
         initController('addFolderController');
 
         scope.mailbox = { };
-        scope.addFolder();
+        scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal('Please enter a valid folder name');
+          expect($state.go).to.not.have.been.called;
+          expect(jmapClient.createMailbox).to.not.have.been.called;
+          done();
+        });
         scope.$digest();
-
-        expect($state.go).to.not.have.been.called;
-        expect(jmapClient.createMailbox).to.not.have.been.called;
       });
 
     });
@@ -1206,18 +1208,20 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect($state.go).to.have.been.calledWith('unifiedinbox');
       });
 
-      it('should do nothing if mailbox.name is not defined', function() {
+      it('should do nothing and reject promise if mailbox.name is not defined', function(done) {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         jmapClient.updateMailbox = sinon.spy();
 
         initController('editFolderController');
 
         scope.mailbox = {};
-        scope.editFolder();
+        scope.editFolder().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal('Please enter a valid folder name');
+          expect($state.go).to.not.have.been.called;
+          expect(jmapClient.updateMailbox).to.not.have.been.called;
+          done();
+        });
         scope.$digest();
-
-        expect($state.go).to.not.have.been.called;
-        expect(jmapClient.updateMailbox).to.not.have.been.called;
       });
 
     });

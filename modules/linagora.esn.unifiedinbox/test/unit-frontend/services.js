@@ -2921,6 +2921,49 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The rejectWithErrorNotification factory', function() {
+    var $rootScope;
+    var rejectWithErrorNotification;
+    var notificationFactoryMock;
+
+    beforeEach(function() {
+      notificationFactoryMock = {
+        weakError: angular.noop
+      };
+
+      module(function($provide) {
+        $provide.value('notificationFactory', notificationFactoryMock);
+      });
+
+      inject(function(_$rootScope_, _rejectWithErrorNotification_) {
+        $rootScope = _$rootScope_;
+        rejectWithErrorNotification = _rejectWithErrorNotification_;
+      });
+    });
+
+    it('should show notification with error message', function() {
+      var msg = 'error message';
+
+      notificationFactoryMock.weakError = sinon.spy();
+
+      rejectWithErrorNotification(msg);
+
+      expect(notificationFactoryMock.weakError).to.have.been.calledWithExactly('Error', msg);
+    });
+
+    it('should reject promise with error message', function(done) {
+      var msg = 'error message';
+
+      rejectWithErrorNotification(msg)
+        .then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal(msg);
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+  });
+
   describe('The backgroundAction factory', function() {
 
     var $rootScope, backgroundAction, asyncAction, backgroundProcessorService;

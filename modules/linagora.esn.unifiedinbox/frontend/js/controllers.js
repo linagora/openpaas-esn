@@ -321,17 +321,17 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, mailboxesService, notificationFactory, asyncJmapAction) {
+  .controller('addFolderController', function($scope, $q, $state, mailboxesService, rejectWithErrorNotification, asyncJmapAction) {
     mailboxesService.assignMailboxesList($scope);
 
     $scope.mailbox = {};
 
     $scope.addFolder = function() {
       if (!$scope.mailbox.name) {
-        return notificationFactory.weakError('Error', 'Please enter a valid folder name');
+        return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      asyncJmapAction('Creation of folder ' + $scope.mailbox.name, function(client) {
+      return asyncJmapAction('Creation of folder ' + $scope.mailbox.name, function(client) {
         return client.createMailbox($scope.mailbox.name, $scope.mailbox.parentId);
       }).then(function() {
         $state.go('unifiedinbox');
@@ -339,7 +339,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, notificationFactory, asyncJmapAction) {
+  .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, rejectWithErrorNotification, asyncJmapAction) {
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
@@ -348,10 +348,10 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.editFolder = function() {
       if (!$scope.mailbox.name) {
-        return notificationFactory.weakError('Error', 'Please enter a valid folder name');
+        return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      asyncJmapAction('Modification of folder ' + $scope.mailbox.name, function(client) {
+      return asyncJmapAction('Modification of folder ' + $scope.mailbox.name, function(client) {
         return client.updateMailbox($scope.mailbox.id, {
           name: $scope.mailbox.name,
           parentId: $scope.mailbox.parentId
@@ -366,7 +366,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     $scope.deleteFolder = function() {
-      asyncJmapAction('Deletion of folder ' + $scope.mailbox.name, function(client) {
+      return asyncJmapAction('Deletion of folder ' + $scope.mailbox.name, function(client) {
         return client.destroyMailbox($scope.mailbox.id);
       }).then(function() {
         $state.go('unifiedinbox');

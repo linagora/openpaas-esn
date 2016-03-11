@@ -5,7 +5,7 @@ sub-header
   h2 #{__('Create a new folder')}
 
 .inbox-main-content.configuration.card
-  form(ng-submit="addFolder()")
+  form(esn-submit="addFolder()")
     .form-group.fg-line
       .field-name #{__('Name')}
       input.form-control(ng-model="mailbox.name", placeholder="#{__('Enter a name')}", auto-focus)

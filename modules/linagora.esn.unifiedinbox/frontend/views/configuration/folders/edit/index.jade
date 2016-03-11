@@ -5,7 +5,7 @@ sub-header
   h2 #{__('%s folder configuration', '{{ ::mailbox.name }}')}
 
 .inbox-main-content.configuration.card
-  form(ng-submit="editFolder()")
+  form(esn-submit="editFolder()")
     .form-group.fg-line
       .field-name #{__('Rename')}
       input.form-control(ng-model="mailbox.name")
