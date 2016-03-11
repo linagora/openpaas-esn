@@ -137,7 +137,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('htmlEmailBody', function($timeout, createHtmlElement, iFrameResize, absoluteUrl) {
+  .directive('htmlEmailBody', function($timeout, iFrameResize, inlineImagesFilter, loadImagesAsyncFilter, IFRAME_MESSAGE_PREFIX) {
     return {
       restrict: 'E',
       scope: {
@@ -152,11 +152,9 @@ angular.module('linagora.esn.unifiedinbox')
         });
 
         scope.$on('iframe:loaded', function(event, iFrame) {
-          var iFrameDocument = iFrame.contentDocument;
+          var iFrameContent = loadImagesAsyncFilter(inlineImagesFilter(scope.email.htmlBody, scope.email.attachments));
 
-          iFrameDocument.body.appendChild(createHtmlElement('script', { src: absoluteUrl('/components/iframe-resizer/js/iframeResizer.contentWindow.js') }));
-          iFrameDocument.body.appendChild(createHtmlElement('script', { src: absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js') }));
-          iFrameDocument.head.appendChild(createHtmlElement('base', { target: '_blank' }));
+          iFrame.contentWindow.postMessage(IFRAME_MESSAGE_PREFIX + iFrameContent, '*');
 
           iFrames = iFrameResize({
             checkOrigin: false,

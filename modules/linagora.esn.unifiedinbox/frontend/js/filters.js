@@ -2,12 +2,6 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .filter('trustAsHtml', function($sce) {
-    return function(text) {
-      return $sce.trustAsHtml(text);
-    };
-  })
-
   .filter('emailer', function(emailBodyService) {
     return function(recipient) {
       if (!recipient) {
