@@ -6,6 +6,15 @@ require('../../../backend/core/db/mongo/models/features');
 var Features = mongoose.model('Features');
 
 module.exports = function(domains) {
+  var host = process.env.JMAP_SERVER_HOST || 'localhost';
+  var port = process.env.JMAP_SERVER_PORT || 80;
+  var path = process.env.JMAP_SERVER_PATH || 'jmap';
+  var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED || true;
+  var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED || false;
+  var maxSizeUpload = process.env.JMAP_MAX_SIZE_UPLOAD || 20971520;
+  var api = 'http://' + host + ':' + port + '/' + path;
+  var uploadUrl = process.env.JMAP_UPLOAD_URL || api + '/upload';
+  var view = process.env.JMAP_VIEW || 'messages';
 
   function createInboxFeature() {
     var promises = domains.map(function(domain) {
@@ -24,26 +33,26 @@ module.exports = function(domains) {
           features: [
             {
               name: 'api',
-              value: 'http://host:port/jmap/account_id'
+              value: api
             },
             {
               name: 'uploadUrl',
-              value: 'http://host:port/upload/account_id'
+              value: uploadUrl
             },
             {
               name: 'isJmapSendingEnabled',
-              value: false
+              value: isJmapSendingEnabled
             },
             {
               name: 'isSaveDraftBeforeSendingEnabled',
-              value: false
+              value: isSaveDraftBeforeSendingEnabled
             },
             {
               name: 'maxSizeUpload',
-              value: 20971520
+              value: maxSizeUpload
             }, {
               name: 'view',
-              value: 'messages'
+              value: view
             }
           ]
         }]
