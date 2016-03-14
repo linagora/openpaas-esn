@@ -25,7 +25,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.infinite-list',
   'esn.url',
   'esn.background'
-  ])
+])
+
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider
       .state('unifiedinbox', {
@@ -140,4 +141,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
     var attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
+  })
+
+  .run(function(inboxProviders, inboxHostedMailProvider) {
+    inboxProviders.add('hostedMail', inboxHostedMailProvider);
   });
