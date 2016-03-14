@@ -1,0 +1,12 @@
+div.clickable(ng-click="ctrl.openEmail(item)")
+  .list-image.avatarify
+    //- empty img tag, to force the avatar display
+    img
+  .media-body(ng-class="::{bold: item.isUnread}")
+    .flex-space-between
+      .lv-title.ellipsis {{ ::item.subject}}
+      .date-container {{ ::item.date | date: group.dateFormat }}
+    .flex-space-between
+      emailer.lv-title(emailer="::item.from")
+      inbox-indicators(item="item")
+  .lv-small.preview {{ ::item.preview }}

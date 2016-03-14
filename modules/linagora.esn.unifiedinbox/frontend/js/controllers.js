@@ -55,17 +55,6 @@ angular.module('linagora.esn.unifiedinbox')
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
 
-    this.openEmail = function(email) {
-      if (email.isDraft) {
-        newComposerService.openDraft(email.id);
-      } else {
-        $state.go('unifiedinbox.list.messages.message', {
-          mailbox: $scope.mailbox.id,
-          emailId: email.id
-        });
-      }
-    };
-
     mailboxesService
       .assignMailbox($stateParams.mailbox, $scope)
       .then(function() {
