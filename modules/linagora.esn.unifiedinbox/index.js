@@ -15,10 +15,12 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
   states: {
     lib: function(dependencies, callback) {
       var inbox = require('./backend/webserver/api/inbox/router')(dependencies);
+      var twitter = require('./backend/webserver/api/twitter/router')(dependencies);
 
       var lib = {
         api: {
-          inbox: inbox
+          inbox: inbox,
+          twitter: twitter
         }
       };
       return callback(null, lib);
@@ -27,6 +29,7 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this, dependencies);
       app.use('/', this.api.inbox);
+      app.use('/', this.api.twitter);
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('unifiedinbox', [
