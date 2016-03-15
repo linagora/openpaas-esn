@@ -9,7 +9,9 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('unifiedInboxController', function($state, $scope, $q, _, withJmapClient, jmap, infiniteScrollHelper,
-                                                 inboxProviders) {
+                                                 inboxProviders, headerService) {
+
+    headerService.subHeader.setInjection('unified-view-subheader', $scope);
 
     $scope.loadMoreElements = infiniteScrollHelper($scope, function(position, limit) {
       return inboxProviders
