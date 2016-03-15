@@ -2,6 +2,20 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .directive('unifiedViewSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/unified-inbox/subheader.html'
+    };
+  })
+
+  .directive('listTwitterSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html'
+    };
+  })
+
   .directive('listEmailsSubheader', function() {
     return {
       restrict: 'E',
