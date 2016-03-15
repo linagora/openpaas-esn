@@ -108,10 +108,21 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         mailbox: '='
       },
-      templateUrl: '/unifiedinbox/views/sidebar/mailbox-display.html',
+      templateUrl: '/unifiedinbox/views/sidebar/email/menu-item.html',
       link: function(scope) {
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
       }
+    };
+  })
+
+  .directive('twitterDisplay', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        account: '='
+      },
+      templateUrl: '/unifiedinbox/views/sidebar/twitter/menu-item.html'
     };
   })
 
