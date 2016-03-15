@@ -1,10 +1,15 @@
 div
-  ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
-    li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
+  .listview.p-t-5
+    .lv-body
+      .menu-heading.clickable
+        .title(ui-sref='unifiedinbox')
+          i.inbox-icon.mdi.mdi-email-open
+          .text #{__('Your emails')}
 
-  ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
-    .listview.p-t-5
-      .lv-body
+      ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
+        li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
+
+      ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
         mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })", ui-sref-opts="{ reload: true }")
 
   hr
