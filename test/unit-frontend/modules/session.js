@@ -67,6 +67,68 @@ describe('The esn.session Angular module', function() {
       });
     });
 
+    describe('getTwitterAccounts method', function() {
+
+      it('should return nothing when no account', function() {
+        this.session.setUser({
+          _id: '1',
+          name: 'yolo',
+          emails: ['yolo@example.com']
+        });
+
+        expect(this.session.getTwitterAccounts()).to.deep.equal([]);
+      });
+
+      it('should return nothing when only other accounts', function() {
+        this.session.setUser({
+          _id: '1',
+          name: 'yolo',
+          emails: ['yolo@example.com'],
+          accounts: [{
+            data: {
+              provider: 'other',
+              field: 'value'
+            }
+          }]
+        });
+
+        expect(this.session.getTwitterAccounts()).to.deep.equal([]);
+      });
+
+      it('should return all twitter accounts', function() {
+        this.session.setUser({
+          _id: '1',
+          name: 'yolo',
+          emails: ['yolo@example.com'],
+          accounts: [{
+            data: {
+              provider: 'other',
+              field: 'value'
+            }
+          }, {
+            data: {
+              provider: 'twitter',
+              field1: 'value1'
+            }
+          }, {
+            data: {
+              provider: 'twitter',
+              field2: 'value2'
+            }
+          }]
+        });
+
+        expect(this.session.getTwitterAccounts()).to.deep.equal([{
+          provider: 'twitter',
+          field1: 'value1'
+        }, {
+          provider: 'twitter',
+          field2: 'value2'
+        }]);
+      });
+
+    });
+
   });
 
   describe('sessionFactory service', function() {
