@@ -68,17 +68,6 @@ angular.module('linagora.esn.unifiedinbox')
 
     var groups = new ElementGroupingTool($stateParams.mailbox);
 
-    this.openThread = function(thread) {
-      if (thread.email.isDraft) {
-        newComposerService.openDraft(thread.email.id);
-      } else {
-        $state.go('unifiedinbox.list.threads.thread', {
-          mailbox: $scope.mailbox.id,
-          threadId: thread.id
-        });
-      }
-    };
-
     function _assignEmailAndDate(dst) {
       return function(email) {
         _.assign(_.find(dst, { id: email.threadId }), { email: Email(email), date: email.date });

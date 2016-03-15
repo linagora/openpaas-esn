@@ -6,20 +6,8 @@ infinite-list.list-emails
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
-        .lv-item.media(ng-repeat="thread in group.elements")
-          div.clickable(ng-click="ctrl.openThread(thread)")
-            .list-image.badge-container
-              i.mdi.mdi-email
-            .media-body(ng-class="::{bold: thread.email.isUnread}")
-              .flex-space-between
-                .flex-start.ellipsis
-                  .lv-title {{::thread.email.subject}}
-                  .badge-number(ng-if='thread.messageIds.length > 1') ({{ thread.messageIds.length }})
-                .date-container {{::thread.email.date | date: group.dateFormat}}
-              .flex-space-between
-                emailer.lv-title(emailer="::thread.email.from")
-                inbox-indicators(item="thread.email")
-            .lv-small.preview {{::thread.email.preview}}
+        .lv-item.media(ng-repeat="item in group.elements")
+          inbox-thread-list-item
 
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
     li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')

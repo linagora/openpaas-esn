@@ -20,4 +20,24 @@ angular.module('linagora.esn.unifiedinbox')
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/list-emails/inbox-message-list-item.html'
     };
+  })
+
+  .directive('inboxThreadListItem', function($state, newComposerService, _) {
+    return {
+      restrict: 'E',
+      controller: function($scope) {
+        this.openThread = function(thread) {
+          if (thread.email.isDraft) {
+            newComposerService.openDraft(thread.email.id);
+          } else {
+            $state.go('unifiedinbox.list.threads.thread', {
+              mailbox: ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
+              threadId: thread.id
+            });
+          }
+        };
+      },
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/list-threads/inbox-thread-list-item.html'
+    };
   });
