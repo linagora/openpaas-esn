@@ -2,16 +2,8 @@
 
 angular.module('esn.configuration', ['esn.session', 'feature-flags'])
 
-  .factory('esnConfig', function(featureFlags) {
-    return function(key, defaultValue) {
-      var feature = featureFlags.isOn(key);
-
-      return angular.isDefined(feature) ? feature : defaultValue;
-    };
-  })
-
-  .run(function(session, featureFlags) {
-    session.ready.then(function() {
+  .factory('esnConfig', function(session, featureFlags) {
+    var sessionReady = session.ready.then(function() {
       var features = session.user.features;
 
       if (features) {
@@ -26,4 +18,12 @@ angular.module('esn.configuration', ['esn.session', 'feature-flags'])
         }, []));
       }
     });
+
+    return function(key, defaultValue) {
+      return sessionReady.then(function() {
+        var feature = featureFlags.isOn(key);
+
+        return angular.isDefined(feature) ? feature : defaultValue;
+      });
+    };
   });

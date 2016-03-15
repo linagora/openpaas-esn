@@ -36,7 +36,9 @@ describe('The Unified Inbox Angular module services', function() {
       }
     });
     $provide.value('esnConfig', function(key, defaultValue) {
-      return angular.isDefined(config[key]) ? config[key] : defaultValue;
+      return $q.when().then(function() {
+        return angular.isDefined(config[key]) ? config[key] : defaultValue;
+      });
     });
   }));
 
@@ -46,20 +48,31 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxConfig factory', function() {
 
-    var inboxConfig;
+    var $rootScope, inboxConfig;
 
-    beforeEach(inject(function(_inboxConfig_) {
+    function checkValue(key, defaultValue, expected, done) {
+      inboxConfig(key, defaultValue).then(function(value) {
+        expect(value).to.equal(expected);
+
+        done();
+      }, done);
+
+      $rootScope.$digest();
+    }
+
+    beforeEach(inject(function(_$rootScope_, _inboxConfig_) {
       inboxConfig = _inboxConfig_;
+      $rootScope = _$rootScope_;
 
       config['linagora.esn.unifiedinbox.testKey'] = 'testValue';
     }));
 
-    it('should delegate to esnConfig, prefixing the key with the module name', function() {
-      expect(inboxConfig('testKey')).to.equal('testValue');
+    it('should delegate to esnConfig, prefixing the key with the module name', function(done) {
+      checkValue('testKey', undefined, 'testValue', done);
     });
 
-    it('should delegate to esnConfig with default value, prefixing the key with the module name', function() {
-      expect(inboxConfig('not.existing', 'abc')).to.equal('abc');
+    it('should delegate to esnConfig with default value, prefixing the key with the module name', function(done) {
+      checkValue('not.existing', 'abc', 'abc', done);
     });
 
   });
