@@ -7,7 +7,10 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
   var session = {
     user: {},
     domain: {},
-    ready: bootstrapDefer.promise
+    ready: bootstrapDefer.promise,
+    hasTwitterAccount: function() {
+      return true;
+    }
   };
 
   var sessionIsBootstraped = false;
