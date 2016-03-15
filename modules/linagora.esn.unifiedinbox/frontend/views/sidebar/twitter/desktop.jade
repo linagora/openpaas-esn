@@ -1,0 +1,7 @@
+div
+  .lv-item.clickable.menu-heading(ng-if="::getTwitterAccounts().length > 0")
+    .title(ui-sref='unifiedinbox.twitter')
+      i.inbox-icon.mdi.mdi-twitter
+      .text #{__('Twitter')}
+
+  twitter-display.lv-item(account="account", ng-repeat="account in ::getTwitterAccounts()")
