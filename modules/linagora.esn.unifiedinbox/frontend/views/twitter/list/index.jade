@@ -1,0 +1,19 @@
+infinite-list
+
+  .card.listview.lv-bordered.lv-lg
+    .lv-body
+      .lv-item.media(ng-repeat="tweet in tweets")
+        div.clickable
+          .list-image.badge-container
+            i.mdi.mdi-email
+          .media-body
+            .flex-space-between
+              .flex-start.ellipsis
+                .lv-title {{::tweet.text}}
+              .date-container {{::tweet.created_at | date: group.dateFormat}}
+
+  ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
+    li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
+
+  inbox-fab
+  fab-scroll-top

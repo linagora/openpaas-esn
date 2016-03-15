@@ -40,6 +40,16 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
+      .state('unifiedinbox.twitter', {
+        url: '/twitter',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/twitter/list/index',
+            controller: 'listTwitterController as ctrl'
+          }
+        },
+        params: { account: null }
+      })
       .state('unifiedinbox.compose', {
         url: '/compose',
         views: {
