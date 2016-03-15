@@ -71,6 +71,26 @@
     }
   }
 
+  .menu-heading {
+    .flex;
+
+    padding: 8px 0 8px 15px;
+
+    .title {
+      .flex;
+      .flex-shorthand(1);
+
+      .text {
+        .flex-shorthand(1);
+
+        margin-left: 5px;
+        font-weight: bold;
+        font-size: @inboxAsideFontSize;
+        color: @primaryColor;
+      }
+    }
+  }
+
   &.inbox-desktop-menu {
     margin-top: 20px;
     max-width: 300px;
@@ -86,7 +106,6 @@
     }
 
     .menu-heading {
-      .flex;
 
       .add-folder {
         .transition(0.25s ease-out);
@@ -101,19 +120,6 @@
         }
       }
 
-      .title {
-        .flex;
-        .flex-shorthand(1);
-
-        .text {
-          .flex-shorthand(1);
-
-          margin-left: 5px;
-          font-weight: bold;
-          font-size: @inboxAsideFontSize;
-          color: @primaryColor;
-        }
-      }
     }
 
     .settings-overlay {
