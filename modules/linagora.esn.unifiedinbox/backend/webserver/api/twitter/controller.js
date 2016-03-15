@@ -26,7 +26,7 @@ module.exports = function(dependencies) {
         return twitter.getTweets(twitterConfig);
       })
       .then(function(tweets) {
-        logger.info('Successfully fetched tweets.');
+        logger.info('Successfully fetched tweets. Got results:', tweets);
         return res.status(200).json(tweets);
       })
       .catch(function(err) {

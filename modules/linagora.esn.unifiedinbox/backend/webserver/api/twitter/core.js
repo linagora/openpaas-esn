@@ -3,41 +3,56 @@
 var Twitter = require('twitter-node-client').Twitter;
 var q = require('q');
 
-function _pruneMentions(tweets) {
+function _getUserObjectFrom(object) {
+  return (object && {
+    id: object.id,
+    displayName: object.name,
+    avatar: object.profile_image_url_https.replace('_normal.', '.')
+  }) || undefined;
+}
+
+function _pruneTweets(tweets) {
   return tweets.map(function(tweet) {
     return {
       id: tweet.id,
-      author: {
-        id: tweet.user.id,
-        displayName: tweet.user.name,
-        avatar: tweet.user.profile_image_url_https.replace('_normal.', '.')
-      },
+      author: _getUserObjectFrom(tweet.user || tweet.sender),
+      rcpt: _getUserObjectFrom(tweet.recipient),
       date: tweet.created_at,
-      text: tweet.text,
-      //meta: {},
-      //rcpt
-      //media
+      text: tweet.text
+      // meta: {},
+      // media
     };
   });
 }
 
-function getTweets(twitterConfig, options) {
-  var defer = q.defer();
-
-  function error(err, response, body) {
-    defer.reject(err);
-  };
-
-  function success(data) {
-    var tweets = _pruneMentions(JSON.parse(data));
-    console.log('TWEETS on success', tweets);
+function _onSuccess(defer) {
+  return function(data) {
+    var tweets = _pruneTweets(JSON.parse(data));
     defer.resolve(tweets);
   };
+}
 
-  var twitter = new Twitter(twitterConfig);
-  twitter.getMentionsTimeline({ count: '10'}, error, success);
-  console.log('Return promise');
+function _getMentionsTimelinePromise(client, options) {
+  var defer = q.defer();
+  client.getMentionsTimeline(options, defer.reject, _onSuccess(defer));
   return defer.promise;
+}
+
+function _getDirectMessagesPromise(client, options) {
+  var defer = q.defer();
+  client.getCustomApiCall('/direct_messages.json', options, defer.reject, _onSuccess(defer));
+  return defer.promise;
+}
+
+function getTweets(twitterConfig, options) {
+  var twitter = new Twitter(twitterConfig);
+
+  return q.all([
+    _getMentionsTimelinePromise(twitter, { count: '1'}),
+    _getDirectMessagesPromise(twitter, { count: '1'})
+  ]).then(function(results) {
+    return q.resolve(results[0].concat(results[1]));
+  });
 }
 
 module.exports = {
