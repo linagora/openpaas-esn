@@ -6,7 +6,7 @@ infinite-list.list-emails
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
-        .lv-item.media(ng-repeat="item in group.elements")
+        .lv-item.media(ng-repeat="item in group.elements | orderBy: ['-date']")
           ng-include(src="item.templateUrl")
 
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
