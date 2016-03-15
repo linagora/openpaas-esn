@@ -1,1 +1,12 @@
-div {{ item.text }}
+div.clickable(ng-click="ctrl.openThread(item)")
+  .list-image.avatarify
+    img(ng-src='{{item.author.avatar}}')
+    i.mdi.mdi-twitter-box
+  .media-body(ng-class="::{bold: item.isUnread}")
+    .flex-space-between
+      .flex-start.ellipsis
+        .lv-title {{ ::item.author.displayName }}
+      .date-container {{ ::item.date | date: group.dateFormat }}
+    .flex-space-between
+      .lv-title(ng-bind-html="::item.author.screenName | autolink")
+  .lv-small(ng-bind-html="::item.text | autolink")

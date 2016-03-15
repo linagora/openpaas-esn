@@ -57,8 +57,20 @@
 
   .avatarify {
     @media (min-width: @screen-md-min) {
-      padding-left: 50px;
-      background: ~"url('/images/user.png') no-repeat center left/40px";
+      padding-right: 10px;
+      img {
+        height: 40px;
+        width: 40px;
+      }
+      i.mdi {
+        position: absolute;
+        bottom: 30px;
+        left: 45px;
+        font-size: 1.5em;
+        color: #55acee;
+        background-color: @m-white;
+        border-radius: 6px;
+      }
     }
   }
 
