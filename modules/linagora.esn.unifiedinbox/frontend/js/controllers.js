@@ -17,7 +17,9 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('listController', function($state, $stateParams, inboxConfig, DEFAULT_VIEW) {
-    $state.go('unifiedinbox.list.' + inboxConfig('view', DEFAULT_VIEW), { mailbox: $stateParams.mailbox });
+    inboxConfig('view', DEFAULT_VIEW).then(function(view) {
+      $state.go('unifiedinbox.list.' + view, { mailbox: $stateParams.mailbox });
+    });
   })
 
   .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email,
@@ -203,16 +205,17 @@ angular.module('linagora.esn.unifiedinbox')
 
       $scope.email.attachments = $scope.email.attachments || [];
 
-      withJmapClient(function(client) {
-        var maxSizeUpload = inboxConfig('maxSizeUpload', DEFAULT_MAX_SIZE_UPLOAD),
-            humanReadableMaxSizeUpload = $filter('bytes')(maxSizeUpload);
+      return withJmapClient(function(client) {
+        return inboxConfig('maxSizeUpload', DEFAULT_MAX_SIZE_UPLOAD).then(function(maxSizeUpload) {
+          var humanReadableMaxSizeUpload = $filter('bytes')(maxSizeUpload);
 
-        $files.forEach(function(file) {
-          if (file.size > maxSizeUpload) {
-            return notificationFactory.weakError('', 'File ' + file.name + ' ignored as its size exceeds the ' + humanReadableMaxSizeUpload + ' limit');
-          }
+          $files.forEach(function(file) {
+            if (file.size > maxSizeUpload) {
+              return notificationFactory.weakError('', 'File ' + file.name + ' ignored as its size exceeds the ' + humanReadableMaxSizeUpload + ' limit');
+            }
 
-          $scope.email.attachments.push(newAttachment(client, file).startUpload());
+            $scope.email.attachments.push(newAttachment(client, file).startUpload());
+          });
         });
       });
     };

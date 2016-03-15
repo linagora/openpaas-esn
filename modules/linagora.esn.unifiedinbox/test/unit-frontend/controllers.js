@@ -68,7 +68,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         }
       });
       $provide.value('esnConfig', function(key, defaultValue) {
-        return angular.isDefined(config[key]) ? config[key] : defaultValue;
+        return $q.when().then(function() {
+          return angular.isDefined(config[key]) ? config[key] : defaultValue;
+        });
       });
     });
   });
@@ -226,33 +228,27 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(scope.email.attachments).to.equal(undefined);
       });
 
-      it('should put the attachment in the scope, with an unknown blobId', function() {
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1, type: 'type' }]);
+      it('should put the attachment in the scope, with a default file type', function(done) {
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          expect(scope.email.attachments[0]).to.shallowDeepEqual({
+            blobId: '1234',
+            name: 'name',
+            size: 1,
+            type: DEFAULT_FILE_TYPE
+          });
 
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: '',
-          name: 'name',
-          size: 1,
-          type: 'type',
-          status: 'uploading'
+          done();
         });
-      });
 
-      it('should put the attachment in the scope, with a default file type', function() {
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
-
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: '',
-          name: 'name',
-          size: 1,
-          type: DEFAULT_FILE_TYPE
-        });
+        $rootScope.$digest();
       });
 
       it('should put the attachment in the scope, if the file size is exactly the limit', function() {
-        ctrl.onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]).then(function() {
+          expect(scope.email.attachments.length).to.equal(1);
+        });
 
-        expect(scope.email.attachments.length).to.equal(1);
+        $rootScope.$digest();
       });
 
       it('should set the blobId and the url when upload succeeds', function() {
@@ -318,25 +314,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should resolve the upload promise with nothing when upload succeeds', function(done) {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          scope.email.attachments[0].upload.promise.then(done);
+        });
 
-            defer.resolve({
-              response: {
-                blobId: '1234'
-              }
-            });
-
-            return {
-              defer: defer
-            };
-          }
-        };
-
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
-
-        scope.email.attachments[0].upload.promise.then(done);
         $rootScope.$digest();
       });
 
@@ -353,25 +334,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }
         };
 
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          scope.email.attachments[0].upload.promise.then(done);
+        });
 
-        scope.email.attachments[0].upload.promise.then(done);
         $rootScope.$digest();
       });
 
       it('should notify and not add the attachment if file is larger that the default limit', function() {
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD + 1 }]);
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD + 1 }]).then(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 20MB limit');
+          expect(scope.email.attachments).to.deep.equal([]);
+        });
 
-        expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 20MB limit');
-        expect(scope.email.attachments).to.deep.equal([]);
+        $rootScope.$digest();
       });
 
       it('should notify and not add the attachment if file is larger that a configured limit', function() {
         config['linagora.esn.unifiedinbox.maxSizeUpload'] = 1024 * 1024; // 1MB
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1024 * 1024 * 2 }]);
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1024 * 1024 * 2 }]).then(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 1MB limit');
+          expect(scope.email.attachments).to.deep.equal([]);
+        });
 
-        expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 1MB limit');
-        expect(scope.email.attachments).to.deep.equal([]);
+        $rootScope.$digest();
       });
 
       describe('The attachment.startUpload function', function() {
