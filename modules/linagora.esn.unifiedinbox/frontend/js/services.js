@@ -75,7 +75,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, ELEMENTS_PER_PAGE) {
+  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, _, ELEMENTS_PER_PAGE) {
     return function(scope, loadMoreElements) {
       var groups = new ElementGroupingTool();
 
@@ -89,7 +89,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.infiniteScrollDisabled = true;
 
-        return loadMoreElements()
+        return loadMoreElements(scope.infiniteScrollPosition, ELEMENTS_PER_PAGE)
           .then(function(elements) {
             if (elements.length < ELEMENTS_PER_PAGE) {
               scope.infiniteScrollCompleted = true;

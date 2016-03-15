@@ -8,11 +8,21 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.getTwitterAccounts = session.getTwitterAccounts;
   })
 
-  .controller('goToInboxController', function($state, withJmapClient, jmap) {
-    withJmapClient(function(client) {
-      client.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
-        $state.go('unifiedinbox.list', { mailbox: mailbox.id });
-      });
+  .controller('unifiedInboxController', function($state, $scope, $q, _, withJmapClient, jmap, infiniteScrollHelper,
+                                                 inboxProviders) {
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function(position, limit) {
+      return inboxProviders
+        .getAll()
+        .then(function(providers) {
+          return $q.all(providers.map(function(provider) {
+            return provider.fetch(provider.defaultContainer)(position, limit)
+              .then(function(elements) {
+                return elements.map(function(e) { return _.assign(e, { templateUrl: provider.templateUrl }); });
+              });
+          }));
+        })
+        .then(function(results) { return _.flatten(results, true); });
     });
   })
 
@@ -24,27 +34,9 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email,
                                                ElementGroupingTool, newComposerService, headerService, jmapEmailService,
-                                               mailboxesService, infiniteScrollHelper, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
+                                               mailboxesService, infiniteScrollHelper, inboxHostedMailMessagesProvider) {
 
-    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
-      return withJmapClient(function(client) {
-        return client
-          .getMessageList({
-            filter: {
-              inMailboxes: [$stateParams.mailbox]
-            },
-            sort: ['date desc'],
-            collapseThreads: false,
-            fetchMessages: false,
-            position: $scope.infiniteScrollPosition,
-            limit: ELEMENTS_PER_PAGE
-          })
-          .then(function(messageList) {
-            return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
-          })
-          .then(function(messages) { return messages.map(Email); });
-      });
-    });
+    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailMessagesProvider.fetch($stateParams.mailbox));
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);

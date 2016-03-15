@@ -580,7 +580,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
       initController('listEmailsController');
 
-      scope.$watch('groupedEmails', function(before, after) {
+      scope.$watch('groupedElements', function(before, after) {
         expect(after).to.be.a('Array');
 
         done();
@@ -594,32 +594,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listEmailsController');
 
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
-    });
-
-    describe('openEmail fn', function() {
-
-      var newComposerService;
-
-      beforeEach(angular.mock.inject(function(_newComposerService_) {
-        newComposerService = _newComposerService_;
-      }));
-
-      it('should call newComposerService.openDraft if mailbox has the draft role', function() {
-        newComposerService.openDraft = sinon.spy();
-
-        initController('listEmailsController').openEmail({ id: 'id', isDraft: true });
-
-        expect(newComposerService.openDraft).to.have.been.calledWith('id');
-      });
-
-      it('should change state if mailbox has not the draft role', function() {
-        $state.go = sinon.spy();
-
-        initController('listEmailsController').openEmail({id: 'expectedId'});
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
-      });
-
     });
 
   });
@@ -942,7 +916,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should build an EmailGroupingTool with the list of threads, and assign it to scope.groupedThreads', function(done) {
       initController('listThreadsController');
 
-      scope.$watch('groupedThreads', function(before, after) {
+      scope.$watch('groupedElements', function(before, after) {
         expect(after).to.be.a('Array');
 
         done();
@@ -956,27 +930,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listThreadsController');
 
       expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
-    });
-
-    describe('The openThread function', function() {
-
-      it('should change the state to the thread view if thread.email is not a draft', function() {
-        initController('listThreadsController').openThread({ id: 'expected thread id', email: { isDraft: false } });
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', {
-          mailbox: 'chosenMailbox',
-          threadId: 'expected thread id'
-        });
-      });
-
-      it('should open the composer if thread.email is a draft', function() {
-        newComposerService.openDraft = sinon.spy();
-
-        initController('listThreadsController').openThread({ id: 'expected thread id', email: { id: 'id', isDraft: true } });
-
-        expect(newComposerService.openDraft).to.have.been.calledWith('id');
-      });
-
     });
 
     describe('The loadMoreElements function', function() {
@@ -1328,19 +1281,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.confirmationDialog();
         expect($modal).to.have.been.called;
       });
-    });
-
-  });
-
-  describe('The goToInboxController', function() {
-
-    it('should requests the INBOX mailbox, and move to it when found', function() {
-      $state.go = sinon.spy();
-      jmapClient.getMailboxWithRole = function() { return $q.when({ id: '1' }); };
-
-      initController('goToInboxController');
-
-      expect($state.go).to.have.been.calledWith('unifiedinbox.list', { mailbox: '1' });
     });
 
   });

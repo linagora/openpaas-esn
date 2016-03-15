@@ -31,7 +31,7 @@ angular.module('linagora.esn.unifiedinbox', [
     $stateProvider
       .state('unifiedinbox', {
         url: '/unifiedinbox',
-        templateUrl: '/unifiedinbox/views/unifiedinbox',
+        templateUrl: '/unifiedinbox/views/home',
         controller: 'rootController as ctrl',
         deepStateRedirect: {
           default: 'unifiedinbox.inbox',
@@ -90,7 +90,10 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.inbox', {
         url: '/inbox',
         views: {
-          'main@unifiedinbox': { controller: 'goToInboxController' }
+          'main@unifiedinbox': {
+            controller: 'unifiedInboxController',
+            templateUrl: '/unifiedinbox/views/unified-inbox/index'
+          }
         }
       })
       .state('unifiedinbox.list', {
@@ -143,6 +146,12 @@ angular.module('linagora.esn.unifiedinbox', [
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
   })
 
-  .run(function(inboxProviders, inboxHostedMailProvider) {
-    inboxProviders.add('hostedMail', inboxHostedMailProvider);
+  .run(function(inboxProviders, inboxHostedMailMessagesProvider, twitterProvider, session) {
+    inboxProviders.add(inboxHostedMailMessagesProvider);
+
+    session.ready.then(function() {
+      session.getTwitterAccounts().forEach(function(account) {
+        inboxProviders.add(twitterProvider(account.id));
+      });
+    });
   });

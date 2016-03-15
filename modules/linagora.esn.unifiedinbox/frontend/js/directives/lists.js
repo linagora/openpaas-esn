@@ -40,4 +40,11 @@ angular.module('linagora.esn.unifiedinbox')
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/list-threads/inbox-thread-list-item.html'
     };
+  })
+
+  .directive('inboxTweetListItem', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/list-tweets/inbox-tweet-list-item.html'
+    };
   });
