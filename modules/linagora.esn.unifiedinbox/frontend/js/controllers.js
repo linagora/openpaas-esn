@@ -9,7 +9,9 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('unifiedInboxController', function($state, $scope, $q, _, withJmapClient, jmap, infiniteScrollHelper,
-                                                 inboxProviders) {
+                                                 inboxProviders, headerService) {
+
+    headerService.subHeader.setInjection('unified-view-subheader', $scope);
 
     $scope.loadMoreElements = infiniteScrollHelper($scope, function(position, limit) {
       return inboxProviders
@@ -367,7 +369,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('listTwitterController', function($scope, $stateParams, twitterAPI) {
+  .controller('listTwitterController', function($scope, $stateParams, twitterAPI, headerService) {
+
+    $scope.username = $stateParams.account.username;
+    headerService.subHeader.setInjection('list-twitter-subheader', $scope);
 
 //    twitterAPI.getTweets($stateParams.account, {count: 5}).then(function(reply) {
 //      $scope.tweets = reply.data;
