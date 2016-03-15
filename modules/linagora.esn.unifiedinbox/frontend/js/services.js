@@ -75,9 +75,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('infiniteScrollHelper', function($q, ELEMENTS_PER_PAGE) {
+  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, ELEMENTS_PER_PAGE) {
     return function(scope, loadMoreElements) {
+      var groups = new ElementGroupingTool();
+
       scope.infiniteScrollPosition = 0;
+      scope.groupedElements = groups.getGroupedElements();
 
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
@@ -86,19 +89,26 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.infiniteScrollDisabled = true;
 
-        return loadMoreElements().then(function(elements) {
-          if (elements.length < ELEMENTS_PER_PAGE) {
-            scope.infiniteScrollCompleted = true;
+        return loadMoreElements()
+          .then(function(elements) {
+            if (elements.length < ELEMENTS_PER_PAGE) {
+              scope.infiniteScrollCompleted = true;
 
-            return $q.reject();
-          }
+              return $q.reject();
+            }
 
-          scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
+            scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
 
-          return elements;
-        }).finally(function() {
-          scope.infiniteScrollDisabled = false;
-        });
+            return elements;
+          })
+          .then(function(elements) {
+            groups.addAll(elements);
+
+            return elements;
+          })
+          .finally(function() {
+            scope.infiniteScrollDisabled = false;
+          });
       };
     };
   })
@@ -113,9 +123,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('ElementGroupingTool', function(moment) {
 
-    function ElementGroupingTool(mailbox, elements) {
-      this.mailbox = mailbox;
-
+    function ElementGroupingTool(elements) {
       this.todayElements = [];
       this.weeklyElements = [];
       this.monthlyElements = [];

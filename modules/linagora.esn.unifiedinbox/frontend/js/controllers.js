@@ -26,8 +26,6 @@ angular.module('linagora.esn.unifiedinbox')
                                                ElementGroupingTool, newComposerService, headerService, jmapEmailService,
                                                mailboxesService, infiniteScrollHelper, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
 
-    var groups = new ElementGroupingTool($stateParams.mailbox);
-
     $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
       return withJmapClient(function(client) {
         return client
@@ -44,29 +42,17 @@ angular.module('linagora.esn.unifiedinbox')
           .then(function(messageList) {
             return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
           })
-          .then(function(messages) { return messages.map(Email); })
-          .then(function(messages) {
-            groups.addAll(messages);
-
-            return messages;
-          });
+          .then(function(messages) { return messages.map(Email); });
       });
     });
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
-
-    mailboxesService
-      .assignMailbox($stateParams.mailbox, $scope)
-      .then(function() {
-        $scope.groupedEmails = groups.getGroupedElements();
-      });
+    mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
   .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool,
                                                 headerService, mailboxesService, newComposerService, infiniteScrollHelper,
                                                 JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
-
-    var groups = new ElementGroupingTool($stateParams.mailbox);
 
     function _assignEmailAndDate(dst) {
       return function(email) {
@@ -99,22 +85,12 @@ angular.module('linagora.esn.unifiedinbox')
               messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST })
             ]);
           })
-          .then(_prepareThreadsVariable)
-          .then(function(threads) {
-            groups.addAll(threads);
-
-            return threads;
-          });
+          .then(_prepareThreadsVariable);
       });
     });
 
     headerService.subHeader.setInjection('list-emails-subheader', $scope);
-
-    mailboxesService
-      .assignMailbox($stateParams.mailbox, $scope)
-      .then(function() {
-        $scope.groupedThreads = groups.getGroupedElements();
-      });
+    mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
   .controller('composerController', function($scope, $stateParams, $q, headerService, notificationFactory,
