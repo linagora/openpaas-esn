@@ -116,7 +116,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/messages',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/list-emails/index',
+            templateUrl: '/unifiedinbox/views/email/list/index',
             controller: 'listEmailsController as ctrl'
           }
         }
@@ -125,7 +125,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/:emailId',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/view-email/index',
+            templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
         }
@@ -134,7 +134,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/threads',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/list-threads/index',
+            templateUrl: '/unifiedinbox/views/thread/list/index',
             controller: 'listThreadsController as ctrl'
           }
         }
@@ -143,7 +143,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/:threadId',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/view-thread/index',
+            templateUrl: '/unifiedinbox/views/thread/view/index',
             controller: 'viewThreadController as ctrl'
           }
         }

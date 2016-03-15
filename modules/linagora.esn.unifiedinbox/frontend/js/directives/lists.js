@@ -18,7 +18,7 @@ angular.module('linagora.esn.unifiedinbox')
         };
       },
       controllerAs: 'ctrl',
-      templateUrl: '/unifiedinbox/views/list-emails/inbox-message-list-item.html'
+      templateUrl: '/unifiedinbox/views/email/list/list-item.html'
     };
   })
 
@@ -38,13 +38,13 @@ angular.module('linagora.esn.unifiedinbox')
         };
       },
       controllerAs: 'ctrl',
-      templateUrl: '/unifiedinbox/views/list-threads/inbox-thread-list-item.html'
+      templateUrl: '/unifiedinbox/views/thread/list/list-item.html'
     };
   })
 
   .directive('inboxTweetListItem', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/list-tweets/inbox-tweet-list-item.html'
+      templateUrl: '/unifiedinbox/views/twitter/list/list-item.html'
     };
   });
