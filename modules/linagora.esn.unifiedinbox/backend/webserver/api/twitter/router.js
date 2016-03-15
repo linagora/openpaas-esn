@@ -9,7 +9,7 @@ module.exports = function(dependencies) {
   var controller = require('./controller')(dependencies);
   var twitterMiddleware = require('./middleware')(dependencies);
 
-  router.get('/api/inbox/tweets', authorizationMW.requiresAPILogin, twitterMiddleware.checkRequiredBody, twitterMiddleware.getAccount, controller.getTweets);
+  router.get('/api/inbox/tweets', authorizationMW.requiresAPILogin, twitterMiddleware.checkRequiredQueryParam, twitterMiddleware.getAccount, controller.getTweets);
 
   return router;
 };

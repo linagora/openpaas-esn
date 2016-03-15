@@ -9,6 +9,8 @@ module.exports = function(dependencies) {
 
   function getTweets(req, res) {
     var account = req.account;
+    var options = req.query;
+    delete options.account_id;
 
     q.ninvoke(esnconfig('oauth'), 'get')
       .then(function(oauth) {
@@ -23,7 +25,7 @@ module.exports = function(dependencies) {
           accessTokenSecret: account.data.token_secret,
           callBackUrl: ''
         };
-        return twitter.getTweets(twitterConfig);
+        return twitter.getTweets(twitterConfig, options);
       })
       .then(function(tweets) {
         logger.info('Successfully fetched tweets. Got results:', tweets);
