@@ -1,2 +1,9 @@
 .inbox-aside.inbox-desktop-menu
-  ng-include(src="'/unifiedinbox/views/sidebar/desktop-menu-mail.html'")
+  ul.nav.nav-pills.nav-stacked
+    .listview.p-t-5
+      .lv-body
+        .lv-item.clickable.menu-root.menu-heading
+          .title(ui-sref='unifiedinbox')
+            .text #{__('Unified Inbox')}
+        ng-include(src="'/unifiedinbox/views/sidebar/desktop-menu-twitter.html'")
+        ng-include(src="'/unifiedinbox/views/sidebar/desktop-menu-mail.html'")
