@@ -72,4 +72,10 @@ angular.module('linagora.esn.unifiedinbox')
     return function(text) {
       return text.replace(/<img([^]*?)src=["']([^]+?)["']/gim, '<img$1src="' + throbberUrl + '" data-async-src="$2"');
     };
+  })
+
+  .filter('autolink', function($window) {
+    return function(text) {
+      return $window.Autolinker.link(text, { className: 'autolink' });
+    };
   });
