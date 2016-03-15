@@ -2,6 +2,13 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .factory('inboxRestangular', function(Restangular) {
+    return Restangular.withConfig(function(RestangularConfigurer) {
+      RestangularConfigurer.setFullResponse(true);
+      RestangularConfigurer.setBaseUrl('/unifiedinbox/api');
+    });
+  })
+
   .factory('inboxConfig', function(esnConfig, INBOX_MODULE_NAME) {
     return function(key, defaultValue) {
       return esnConfig(INBOX_MODULE_NAME + '.' + key, defaultValue);
