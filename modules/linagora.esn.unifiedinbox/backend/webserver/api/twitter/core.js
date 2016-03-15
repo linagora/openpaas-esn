@@ -48,8 +48,8 @@ function getTweets(twitterConfig, options) {
   var twitter = new Twitter(twitterConfig);
 
   return q.all([
-    _getMentionsTimelinePromise(twitter, { count: '1'}),
-    _getDirectMessagesPromise(twitter, { count: '1'})
+    _getMentionsTimelinePromise(twitter, options),
+    _getDirectMessagesPromise(twitter, options)
   ]).then(function(results) {
     return q.resolve(results[0].concat(results[1]));
   });
