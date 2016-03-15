@@ -2,8 +2,10 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('rootController', function($scope, mailboxesService) {
+  .controller('rootController', function($scope, session, mailboxesService) {
     mailboxesService.assignMailboxesList($scope);
+
+    $scope.hasTwitterAccount = session.hasTwitterAccount;
   })
 
   .controller('goToInboxController', function($state, withJmapClient, jmap) {
