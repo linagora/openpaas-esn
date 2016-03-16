@@ -22,7 +22,7 @@ angular.module('esn.cache', [])
     };
 
     CacheEntry.prototype.isExpired = function() {
-      if (this.ttl === CACHE_NO_TTL || !this.now) {
+      if (this.ttl === CACHE_NO_TTL || !this.now) {
         return false;
       }
 
@@ -70,7 +70,7 @@ angular.module('esn.cache', [])
         return self.entries[k].get();
       }
 
-      if (!self.exists(key) || self.isExpired(key)) {
+      if (!self.exists(key) || self.isExpired(key)) {
         self.entries[k] = new CacheEntry(self.ttl);
         self.loading[k] = true;
 

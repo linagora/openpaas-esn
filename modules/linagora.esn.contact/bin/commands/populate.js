@@ -86,7 +86,7 @@ function exec(base_url, login, password, size, type) {
   }
 
   function sendContact(user, shell) {
-    bookId = bookId || user._id;
+    bookId = bookId || user._id;
     var path = '/dav/api/addressbooks/' + bookId + '/contacts/' + shell.id + '.vcf';
 
     var json = shellToVCARD(shell).toJSON();

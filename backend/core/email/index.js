@@ -41,7 +41,7 @@ exports.setTemplatesDir = function(t) {
  */
 var mailconfig = function(done) {
   esnConf('mail').get(function(err, data) {
-    return done(err, data ||  opts);
+    return done(err, data ||  opts);
   });
 };
 exports.mailconfig = mailconfig;
@@ -130,7 +130,7 @@ exports.sendHTML = function(from, to, subject, type, locals, done) {
             return done(err);
           }
           var message = {
-            from: from ||  data.from,
+            from: from ||  data.from,
             to: to,
             subject: subject,
             html: html,
@@ -182,7 +182,7 @@ exports.send = function(from, to, subject, text, done) {
       }
 
       var message = {
-        from: from ||  data.from,
+        from: from ||  data.from,
         to: to,
         subject: subject,
         text: text

@@ -58,7 +58,7 @@ function getAvatar(req, res) {
 }
 
 function getGeneratedAvatar(req, res) {
-  if (!req.query.email || typeof req.query.email !== 'string' ||  req.query.email.length === 0) {
+  if (!req.query.email || typeof req.query.email !== 'string' ||  req.query.email.length === 0) {
     return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Email is mandatory and must be a non-empty string'}});
   }
   var options = {

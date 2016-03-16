@@ -86,7 +86,7 @@ function getManagers(objectType, collaboration, query, callback) {
 
   var q = Model.findById(id);
   // TODO Right now creator is the only manager. It will change in the futur.
-  // query = query ||  {};
+  // query = query ||  {};
   // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
   q.populate('creator');
   q.exec(function(err, collaboration) {
@@ -109,7 +109,7 @@ function fetchMember(tuple, callback) {
 }
 
 function getMembers(collaboration, objectType, query, callback) {
-  query = query ||  {};
+  query = query ||  {};
 
   var id = collaboration._id || collaboration;
 
@@ -525,7 +525,7 @@ function leave(objectType, collaboration, userAuthor, userTarget, callback) {
   var selection = { 'member.objectType': 'user', 'member.id': userTarget_id };
   var Model = getModel(objectType);
   Model.update(
-    {_id: id, members: {$elemMatch: selection} },
+    {_id: id, members: {$elemMatch: selection} },
     {$pull: {members: selection} },
     function(err, updated) {
       if (err) {

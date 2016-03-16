@@ -166,8 +166,8 @@ module.exports = function(mixin, testEnv) {
     }
 
     function createCommunities() {
-      deployment.communities = deployment.communities ||  [];
-      deployment.models.communities = deployment.models.communities ||  [];
+      deployment.communities = deployment.communities ||  [];
+      deployment.models.communities = deployment.models.communities ||  [];
 
       return deployment.communities.reduce(function(sofar, c) {
         return sofar.then(function() {
@@ -179,8 +179,8 @@ module.exports = function(mixin, testEnv) {
     }
 
     function createProjects() {
-      deployment.projects = deployment.projects ||  [];
-      deployment.models.projects = deployment.models.projects ||  [];
+      deployment.projects = deployment.projects ||  [];
+      deployment.models.projects = deployment.models.projects ||  [];
 
       return deployment.projects.reduce(function(sofar, p) {
         return sofar.then(function() {
