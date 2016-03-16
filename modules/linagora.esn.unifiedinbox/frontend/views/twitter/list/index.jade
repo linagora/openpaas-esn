@@ -1,16 +1,7 @@
-infinite-list.list-emails
+extends ../../layout/list
 
-  .groupedEmails(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
-    .block-header
-      h2 {{::group.name}}
+block item
+  inbox-tweet-list-item
 
-    .card.listview.lv-bordered.lv-lg
-      .lv-body
-        .lv-item.media(ng-repeat="item in group.elements")
-          inbox-tweet-list-item
-
-  ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
-    li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
-
-  inbox-fab
-  fab-scroll-top
+block subheader
+  list-twitter-subheader
