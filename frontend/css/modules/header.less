@@ -83,14 +83,19 @@
 
   .row {
     margin: 0;
-  }
 
-  .row a {
-    text-transform: uppercase;
-    color: @textPrimaryColor;
-    font-size: 1.1em;
-    font-weight: 500;
-    text-align: left;
+    a, button.btn-link {
+      text-transform: uppercase;
+      color: @textPrimaryColor;
+      font-size: 1.1em;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    button.btn-link {
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
 
   .row > .right-action {
