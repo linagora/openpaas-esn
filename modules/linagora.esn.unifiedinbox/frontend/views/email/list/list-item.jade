@@ -1,7 +1,6 @@
-div.clickable(ng-click="ctrl.openEmail(item)")
-  .list-image.avatarify
-    //- empty img tag, to force the avatar display
-    img
+.clickable(ng-click="ctrl.openEmail(item)")
+  .list-image.badge-container
+    img(ng-src='/images/user.png')
   .media-body(ng-class="::{bold: item.isUnread}")
     .flex-space-between
       .lv-title.ellipsis {{ ::item.subject}}
