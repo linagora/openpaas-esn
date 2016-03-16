@@ -1,0 +1,13 @@
+div.clickable(ng-click="ctrl.openThread(item)")
+  .list-image.badge-container
+    i.mdi.mdi-email
+  .media-body(ng-class="::{bold: item.email.isUnread}")
+    .flex-space-between
+      .flex-start.ellipsis
+        .lv-title {{ ::item.email.subject }}
+        .badge-number(ng-if='item.messageIds.length > 1') ({{ item.messageIds.length }})
+      .date-container {{ ::item.email.date | date: group.dateFormat }}
+    .flex-space-between
+      emailer.lv-title(emailer="::item.email.from")
+      inbox-indicators(item="item.email")
+  .lv-small.preview {{ ::item.email.preview }}

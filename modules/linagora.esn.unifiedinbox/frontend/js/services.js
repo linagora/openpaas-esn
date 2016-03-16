@@ -15,30 +15,34 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('generateJwtToken', function($http, $q, $log, _) {
+  .factory('generateJwtToken', function($http, _) {
     return function() {
       return $http.post('/api/jwt/generate').then(_.property('data'));
     };
   })
 
-  .service('jmapClientProvider', function($q, $http, $log, inboxConfig, jmap, dollarHttpTransport, dollarQPromiseProvider, generateJwtToken) {
-    var promise = $q.all([
-      generateJwtToken(),
-      inboxConfig('api')
-    ]).then(function(data) {
-      return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-        .withAPIUrl(data[1])
-        .withAuthenticationToken('Bearer ' + data[0]);
-    });
+  .service('jmapClientProvider', function($q, inboxConfig, jmap, dollarHttpTransport, dollarQPromiseProvider, generateJwtToken) {
+    var promise;
+
+    function initializeJmapClient() {
+      return (promise = $q.all([
+        generateJwtToken(),
+        inboxConfig('api')
+      ]).then(function(data) {
+        return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+          .withAPIUrl(data[1])
+          .withAuthenticationToken('Bearer ' + data[0]);
+      }));
+    }
 
     return {
-      promise: promise
+      promise: function() { return promise || initializeJmapClient(); }
     };
   })
 
   .factory('withJmapClient', function(jmapClientProvider) {
     return function(callback) {
-      return jmapClientProvider.promise.then(function(client) {
+      return jmapClientProvider.promise().then(function(client) {
         return callback(client);
       }, callback.bind(null, null));
     };
@@ -75,9 +79,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('infiniteScrollHelper', function($q, ELEMENTS_PER_PAGE) {
+  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, _, ELEMENTS_PER_PAGE) {
     return function(scope, loadMoreElements) {
+      var groups = new ElementGroupingTool();
+
       scope.infiniteScrollPosition = 0;
+      scope.groupedElements = groups.getGroupedElements();
 
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
@@ -86,19 +93,26 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.infiniteScrollDisabled = true;
 
-        return loadMoreElements().then(function(elements) {
-          if (elements.length < ELEMENTS_PER_PAGE) {
-            scope.infiniteScrollCompleted = true;
+        return loadMoreElements(scope.infiniteScrollPosition, ELEMENTS_PER_PAGE)
+          .then(function(elements) {
+            if (elements.length < ELEMENTS_PER_PAGE) {
+              scope.infiniteScrollCompleted = true;
 
-            return $q.reject();
-          }
+              return $q.reject();
+            }
 
-          scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
+            scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
 
-          return elements;
-        }).finally(function() {
-          scope.infiniteScrollDisabled = false;
-        });
+            return elements;
+          })
+          .then(function(elements) {
+            groups.addAll(elements);
+
+            return elements;
+          })
+          .finally(function() {
+            scope.infiniteScrollDisabled = false;
+          });
       };
     };
   })
@@ -113,9 +127,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('ElementGroupingTool', function(moment) {
 
-    function ElementGroupingTool(mailbox, elements) {
-      this.mailbox = mailbox;
-
+    function ElementGroupingTool(elements) {
       this.todayElements = [];
       this.weeklyElements = [];
       this.monthlyElements = [];
