@@ -346,4 +346,12 @@ angular.module('linagora.esn.unifiedinbox')
     this.download = function(attachment) {
       $window.open(attachment.url);
     };
+  })
+
+  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollHelper, inboxTwitterProvider, session, _) {
+
+    var account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxTwitterProvider(account.id).fetch());
+    $scope.username = account.username;
   });

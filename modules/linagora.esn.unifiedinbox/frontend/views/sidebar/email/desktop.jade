@@ -5,8 +5,8 @@ div
   ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
     .listview.p-t-5
       .lv-body
-        .lv-item.clickable.menu-heading
-          .title(ui-sref='unifiedinbox')
+        .lv-item.menu-heading
+          .title
             i.inbox-icon.mdi.mdi-email-open
             .text #{__('Your emails')}
           .add-folder(ui-sref='unifiedinbox.configuration.folders-add')

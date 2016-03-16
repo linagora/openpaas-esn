@@ -23,24 +23,44 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('twitterProvider', function($q, inboxRestangular) {
-    return function(username) {
+  .factory('inboxTwitterProvider', function($q, inboxRestangular) {
+    return function(accountId) {
       return {
-        fetch: function(container) {
+        fetch: function() {
           return function(position, limit) {
-            /*var params = angular.extend({ account_id: container }, { count: limit });
+            /*var params = angular.extend({ account_id: accountId }, { count: limit });
 
             return inboxRestangular.one('inbox').customGETLIST('tweets', params);*/
-            return $q.when([{
-              text: 'Tweet 1',
-              date: Date.now()
-            }, {
-              text: 'Tweet 2',
-              date: Date.now() - 50000
-            }]);
+            return $q.when([
+              {
+                id:709749105527013400,
+                author:{
+                  id:278458528,
+                  displayName:'Alexandre Zapolsky',
+                  avatar:'https://pbs.twimg.com/profile_images/676024287023747072/NuEUA74v.jpg'
+                },
+                date: Date.now(),
+                text:'On dirait des étudiants de @@TELECOMNancy  ! \nAh bravo @charoy : Quel beau voyage dans le temps tu leur offre !\n@linagora @AwesomePaaS'
+              },
+              {
+                id:682449283975520300,
+                author:{
+                  id:1717809529,
+                  displayName:'Ajay Pandey',
+                  avatar:'https://pbs.twimg.com/profile_images/378800000393742200/e1420f8af51bc00377acfe4ab6172cf2.jpeg'
+                },
+                rcpt:{
+                  id:2423453340,
+                  displayName:'Open PaaS',
+                  avatar:'https://pbs.twimg.com/profile_images/484319141940064256/k5iuYBQF.png'
+                },
+                date: Date.now() - 3600000,
+                text:'Hello  Increase your twitter 782 followers\n\n||||-VISIT SITE-|||| -&gt;https://t.co/vTDKAn8VMP\n\nThank you for following  @pandeyajay7'
+              }
+            ]);
           };
         },
-        getDefaultContainer: function() { return $q.when(username); },
+        getDefaultContainer: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
       };
     };
