@@ -159,7 +159,7 @@ describe('The oauth client API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app). delete('/api/oauth/clients/' + 'wrongId'));
+        var req = loggedInAsUser(request(app).delete('/api/oauth/clients/' + 'wrongId'));
         req.expect(500, done);
       });
     });
@@ -169,17 +169,17 @@ describe('The oauth client API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app). delete('/api/oauth/clients/' + user._id));
+        var req = loggedInAsUser(request(app).delete('/api/oauth/clients/' + user._id));
         req.expect(404, done);
       });
     });
 
-    it('should send back 200 and the oauth client should be deleted', function(done) {
+    it('should send back 200 and the oauth client should b.deleted', function(done) {
       this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app). delete('/api/oauth/clients/' + oauthclient._id));
+        var req = loggedInAsUser(request(app).delete('/api/oauth/clients/' + oauthclient._id));
         req.expect(200);
         req.end(function(err, res) {
           expect(err).to.be.null;

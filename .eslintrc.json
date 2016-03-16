@@ -142,7 +142,7 @@
     "no-lonely-if": "off",
     "no-loop-func": "error",
     "no-magic-numbers": "off",
-    "no-mixed-requires": "error",
+    "no-mixed-requires": "warn",
     "no-multi-spaces": "off",
     "no-multi-str": "error",
     "no-multiple-empty-lines": "error",
