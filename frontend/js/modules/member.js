@@ -57,7 +57,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
         usSpinnerService.spin('memberSpinner');
 
         domainAPI.getMembers(domain_id, opts).then(function(data) {
-          formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
+          formatResultsCount(parseInt(data.headers('X-ESN-Items-Count'), 10));
           $scope.members = $scope.members.concat(data.data);
         }, function() {
           $scope.error = true;

@@ -131,7 +131,7 @@ function recordAvatar(id, contentType, opts, readable, callback) {
 }
 
 function setDefaultAvatarSize(size) {
-  var s = parseInt(size);
+  var s = parseInt(size, 10);
   if (isNaN(s)) {
     return false;
   }

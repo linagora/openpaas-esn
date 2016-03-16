@@ -111,7 +111,7 @@ angular.module('esn.project')
         usSpinnerService.spin($scope.spinnerKey);
 
         collaborationAPI.getMembers('project', project_id, opts).then(function(result) {
-          $scope.total = parseInt(result.headers('X-ESN-Items-Count'));
+          $scope.total = parseInt(result.headers('X-ESN-Items-Count'), 10);
           $scope.offset += result.data.length;
 
           var members = result.data.filter(function(member) {

@@ -15,7 +15,7 @@ angular.module('esn.file', ['angularFileUpload', 'esn.http'])
       var background = false;
 
       function progress() {
-        return parseInt(100.0 * processed / tasks.length);
+        return parseInt(100.0 * processed / tasks.length, 10);
       }
 
       function isComplete() {
@@ -89,7 +89,7 @@ angular.module('esn.file', ['angularFileUpload', 'esn.http'])
 
             return task.defer.resolve(task);
           }, task.defer.reject, function(evt) {
-            task.progress = parseInt(100.0 * evt.loaded / evt.total);
+            task.progress = parseInt(100.0 * evt.loaded / evt.total, 10);
 
             return task.defer.notify(task);
           })

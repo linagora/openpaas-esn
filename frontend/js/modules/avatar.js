@@ -46,7 +46,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
       avatarAPI.uploadAvatar(blob, mime)
         .progress(function(evt) {
-          var value = parseInt(100.0 * evt.loaded / evt.total);
+          var value = parseInt(100.0 * evt.loaded / evt.total, 10);
           $scope.progress = value;
         })
         .success(function() {

@@ -21,11 +21,11 @@ function store(req, res) {
 
   var port = data.port;
 
-  if (port !== parseInt(port)) {
+  if (port !== parseInt(port, 10)) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port is not a number'}});
   }
 
-  var p = parseInt(port);
+  var p = parseInt(port, 10);
   if (p <= 0) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port must be greater than 0'}});
   }
