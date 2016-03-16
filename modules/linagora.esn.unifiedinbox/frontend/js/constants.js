@@ -23,4 +23,5 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('DEFAULT_MAX_SIZE_UPLOAD', 20971520)
   .constant('DRAFT_SAVING_DEBOUNCE_DELAY', 1000)
   .constant('DEFAULT_VIEW', 'messages')
-  .constant('IFRAME_MESSAGE_PREFIX', '[linagora.esn.unifiedinbox]');
+  .constant('IFRAME_MESSAGE_PREFIX', '[linagora.esn.unifiedinbox]')
+  .constant('ELEMENTS_PER_REQUEST', 200);
