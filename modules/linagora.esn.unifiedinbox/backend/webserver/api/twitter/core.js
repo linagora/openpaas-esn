@@ -2,7 +2,6 @@
 
 var Twitter = require('twitter-node-client').Twitter;
 var q = require('q');
-var moment = require('moment');
 
 function _getUserObjectFrom(object) {
   return (object && {
@@ -19,10 +18,8 @@ function _pruneTweets(tweets) {
       id: tweet.id,
       author: _getUserObjectFrom(tweet.user || tweet.sender),
       rcpt: _getUserObjectFrom(tweet.recipient),
-      date: moment(tweet.created_at).toDate(),
+      date: new Date(tweet.created_at),
       text: tweet.text
-      // meta: {},
-      // media
     };
   });
 }
