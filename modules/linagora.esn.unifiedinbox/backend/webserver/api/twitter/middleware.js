@@ -18,7 +18,7 @@ module.exports = function(dependencies) {
     });
 
     if (!accounts || !accounts.length) {
-      return res.status(404).json({error: {code: 404, message: 'Not found', details: 'No account found for type twitter'}});
+      return res.status(404).json({error: {code: 404, message: 'Not found', details: 'No twitter account has been found for account ' + accountId}});
     }
 
     req.account = accounts[0];

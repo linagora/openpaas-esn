@@ -2,7 +2,6 @@
 
 var Twitter = require('twitter-node-client').Twitter;
 var q = require('q');
-var moment = require('moment');
 
 function _getUserObjectFrom(object) {
   return (object && {
@@ -17,12 +16,10 @@ function _pruneTweets(tweets) {
   return tweets.map(function(tweet) {
     return {
       id: tweet.id,
-      author: _getUserObjectFrom(tweet.user || tweet.sender),
+      author: _getUserObjectFrom(tweet.user || tweet.sender),
       rcpt: _getUserObjectFrom(tweet.recipient),
-      date: moment(tweet.created_at).toDate(),
+      date: new Date(tweet.created_at),
       text: tweet.text
-      // meta: {},
-      // media
     };
   });
 }
@@ -30,19 +27,24 @@ function _pruneTweets(tweets) {
 function _onSuccess(defer) {
   return function(data) {
     var tweets = _pruneTweets(JSON.parse(data));
+
     defer.resolve(tweets);
   };
 }
 
 function _getMentionsTimelinePromise(client, options) {
   var defer = q.defer();
+
   client.getMentionsTimeline(options, defer.reject, _onSuccess(defer));
+
   return defer.promise;
 }
 
 function _getDirectMessagesPromise(client, options) {
   var defer = q.defer();
+
   client.getCustomApiCall('/direct_messages.json', options, defer.reject, _onSuccess(defer));
+
   return defer.promise;
 }
 

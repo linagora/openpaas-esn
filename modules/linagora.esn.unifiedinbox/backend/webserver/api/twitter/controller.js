@@ -1,6 +1,6 @@
 'use strict';
 
-var twitter = require('./core.js');
+var twitter = require('./core');
 var q = require('q');
 
 module.exports = function(dependencies) {
@@ -14,10 +14,12 @@ module.exports = function(dependencies) {
 
     q.ninvoke(esnconfig('oauth'), 'get')
       .then(function(oauth) {
+
         if (!(oauth && oauth.twitter)) {
           logger.error('Can not get oauth configuration for twitter configuration');
-          return res.status(400).json({error: {code: 400, message: 'Can not get oauth configuration for twitter configuration', details: 'Can not get oauth configuration for twitter configuration'}});
+          return res.status(503).json({error: {code: 503, message: 'Configuration issue', details: 'Cannot get oauth configuration for twitter configuration'}});
         }
+
         var twitterConfig = {
           consumerKey: oauth.twitter.consumer_key,
           consumerSecret: oauth.twitter.consumer_secret,
@@ -25,10 +27,10 @@ module.exports = function(dependencies) {
           accessTokenSecret: account.data.token_secret,
           callBackUrl: ''
         };
+
         return twitter.getTweets(twitterConfig, options);
       })
       .then(function(tweets) {
-        logger.info('Successfully fetched tweets. Got results:', tweets);
         return res.status(200).json(tweets);
       })
       .catch(function(err) {
