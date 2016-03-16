@@ -32,6 +32,13 @@ module.exports = function(grunt) {
         separator: ';'
       }
     },
+    eslint: {
+      target: ['Gruntfile.js', 'Gruntfile-tests.js', 'tasks/**/*.js', 'test/**/**/*.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'modules/**/*.js', 'bin/**/*.js'],
+      options: {
+        quiet: 'true'
+      }
+
+    },
     jshint: {
       options: {
         jshintrc: '.jshintrc',
@@ -203,6 +210,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
   grunt.loadNpmTasks('grunt-jscs');
+  grunt.loadNpmTasks('grunt-eslint');
 
   grunt.loadTasks('tasks');
 
