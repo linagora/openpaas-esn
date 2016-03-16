@@ -104,6 +104,8 @@ server.modify(SUFFIX, authorize, function(req, res, next) {
   }
 
   var entry = db[dn];
+  var mod;
+
   var callback = function(v) {
     if (entry[mod.type].indexOf(v) === -1) {
       entry[mod.type].push(v);
@@ -111,7 +113,7 @@ server.modify(SUFFIX, authorize, function(req, res, next) {
   };
 
   for (var i = 0; i < req.changes.length; i++) {
-    var mod = req.changes[i].modification;
+    mod = req.changes[i].modification;
     switch (req.changes[i].operation) {
     case 'replace':
       if (!entry[mod.type]) {
