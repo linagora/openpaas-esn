@@ -18,7 +18,7 @@ angular.module('linagora.esn.unifiedinbox')
         .getAll()
         .then(function(providers) {
           return $q.all(providers.map(function(provider) {
-            return provider.fetch(provider.defaultContainer)(position, limit)
+            return provider.fetcher(position, limit)
               .then(function(elements) {
                 return elements.map(function(e) { return _.assign(e, { templateUrl: provider.templateUrl }); });
               });

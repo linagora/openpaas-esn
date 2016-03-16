@@ -12,7 +12,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       emailSendingService, Composition, newComposerService = {}, $state, $modal,
       mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, config;
   var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
-      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
 
   beforeEach(function() {
     $stateParams = {
@@ -78,7 +78,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
                                           _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_) {
+                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -92,6 +92,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
+    ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
 
     scope = $rootScope.$new();
   }));
@@ -502,7 +503,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             collapseThreads: false,
             fetchMessages: false,
             position: 0,
-            limit: ELEMENTS_PER_PAGE
+            limit: ELEMENTS_PER_REQUEST
           });
 
           done();

@@ -9,12 +9,12 @@ angular.module('linagora.esn.unifiedinbox')
       add: function(provider) { providers.push(provider); },
       getAll: function() {
         return $q.all(providers.map(function(provider) {
-          if (provider.defaultContainer) {
+          if (provider.fetcher) {
             return $q.when(provider);
           }
 
           return $injector.invoke(provider.getDefaultContainer).then(function(container) {
-            provider.defaultContainer = container;
+            provider.fetcher = provider.fetch(container);
 
             return provider;
           });
@@ -23,45 +23,15 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxTwitterProvider', function($q, moment, inboxRestangular) {
+  .factory('inboxTwitterProvider', function($q, $http, inMemoryPaging, _) {
     return function(accountId) {
       return {
         fetch: function() {
-          return function(position, limit) {
-            /*var params = angular.extend({ account_id: accountId }, { count: limit });
-
-            return inboxRestangular.one('inbox').customGETLIST('tweets', params);*/
-            return $q.when([
-              {
-                id:709749105527013400,
-                author: {
-                  id: 278458528,
-                  displayName: 'Alexandre Zapolsky',
-                  avatar: 'https://pbs.twimg.com/profile_images/676024287023747072/NuEUA74v.jpg',
-                  screenName:  '@azapolsky'
-                },
-                date:  moment('Tue Mar 15 14: 32: 27 +0000 2016').toDate(),
-                text: 'On dirait des étudiants de @@TELECOMNancy  ! \nAh bravo @charoy :  Quel beau voyage dans le temps tu leur offre !\n@linagora @AwesomePaaS'
-              },
-              {
-                id: 682449283975520300,
-                author: {
-                  id: 1717809529,
-                  displayName: 'Ajay Pandey',
-                  avatar: 'https://pbs.twimg.com/profile_images/378800000393742200/e1420f8af51bc00377acfe4ab6172cf2.jpeg',
-                  screenName:  '@azapolsky'
-                },
-                rcpt: {
-                  id: 2423453340,
-                  displayName: 'Open PaaS',
-                  avatar: 'https://pbs.twimg.com/profile_images/484319141940064256/k5iuYBQF.png',
-                  screenName:  '@azapolsky'
-                },
-                date: moment('Thu Dec 31 06: 32: 43 +0000 2015').toDate(),
-                text: 'Hello  Increase your twitter 782 followers\n\n||||-VISIT SITE-|||| -&gt;https://t.co/vTDKAn8VMP\n\nThank you for following  @pandeyajay7'
-              }
-            ]);
-          };
+          return inMemoryPaging(function(position, limit) {
+            return $http
+              .get('/unifiedinbox/api/inbox/tweets', { params: { account_id: accountId, count: limit }  })
+              .then(_.property('data'));
+          });
         },
         getDefaultContainer: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
@@ -69,10 +39,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, JMAP_GET_MESSAGES_LIST) {
+  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, inMemoryPaging, JMAP_GET_MESSAGES_LIST) {
     return {
       fetch: function(container) {
-        return function(position, limit) {
+        return inMemoryPaging(function(position, limit) {
           return withJmapClient(function(client) {
             return client
               .getMessageList({
@@ -90,7 +60,7 @@ angular.module('linagora.esn.unifiedinbox')
               })
               .then(function(messages) { return messages.map(Email); });
           });
-        };
+        });
       },
       getDefaultContainer: function(jmap, _) {
         return withJmapClient(function(client) {
@@ -98,5 +68,29 @@ angular.module('linagora.esn.unifiedinbox')
         });
       },
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
+    };
+  })
+
+  .factory('inMemoryPaging', function($q, ELEMENTS_PER_REQUEST) {
+    return function(loadMoreElements) {
+      var cache = [];
+
+      return function(offset, limit) {
+        function slice() {
+          return cache.slice(offset, offset + limit);
+        }
+
+        if (cache.length > offset) {
+          return $q.when(slice());
+        }
+
+        if (cache.length > 0 && cache.length < ELEMENTS_PER_REQUEST) {
+          return $q.when([]);
+        }
+
+        return loadMoreElements(cache.length, ELEMENTS_PER_REQUEST)
+          .then(function(results) { cache = cache.concat(results); })
+          .then(slice);
+      };
     };
   });
