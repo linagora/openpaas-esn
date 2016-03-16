@@ -1366,4 +1366,42 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
+  describe('The listTwitterController', function() {
+
+    beforeEach(function() {
+      $stateParams.username = 'AwesomePaas';
+    });
+
+    beforeEach(inject(function(session) {
+      session.user.accounts = [{
+        data: {
+          id: 'idAwesomePaas',
+          provider: 'twitter',
+          username: 'AwesomePaas'
+        }
+      }, {
+        data: {
+          id: 'idAnother',
+          provider: 'twitter',
+          username: 'AnotherTwtterAccount'
+        }
+      }];
+    }));
+
+    it('should set $scope.username to the correct value', function() {
+      initController('listTwitterController');
+
+      expect(scope.username).to.equal('AwesomePaas');
+    });
+
+    it('should define the "list-twitter-subheader" subheader', function() {
+      headerService.subHeader.setInjection = sinon.spy();
+
+      initController('listTwitterController');
+
+      expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-twitter-subheader', sinon.match.any);
+    });
+
+  });
+
 });

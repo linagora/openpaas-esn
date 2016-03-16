@@ -95,6 +95,13 @@ angular.module('linagora.esn.unifiedinbox')
 
         return loadMoreElements(scope.infiniteScrollPosition, ELEMENTS_PER_PAGE)
           .then(function(elements) {
+            if (elements) {
+              groups.addAll(elements);
+            }
+
+            return elements || [];
+          })
+          .then(function(elements) {
             if (elements.length < ELEMENTS_PER_PAGE) {
               scope.infiniteScrollCompleted = true;
 
@@ -102,11 +109,6 @@ angular.module('linagora.esn.unifiedinbox')
             }
 
             scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
-
-            return elements;
-          })
-          .then(function(elements) {
-            groups.addAll(elements);
 
             return elements;
           })

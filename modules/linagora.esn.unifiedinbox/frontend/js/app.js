@@ -96,6 +96,15 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
+      .state('unifiedinbox.twitter', {
+        url: '/twitter/:username',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/twitter/list/index',
+            controller: 'listTwitterController as ctrl'
+          }
+        }
+      })
       .state('unifiedinbox.list', {
         url: '/:mailbox',
         views: {
@@ -146,12 +155,12 @@ angular.module('linagora.esn.unifiedinbox', [
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
   })
 
-  .run(function(inboxProviders, inboxHostedMailMessagesProvider, twitterProvider, session) {
+  .run(function(inboxProviders, inboxHostedMailMessagesProvider, inboxTwitterProvider, session) {
     inboxProviders.add(inboxHostedMailMessagesProvider);
 
     session.ready.then(function() {
       session.getTwitterAccounts().forEach(function(account) {
-        inboxProviders.add(twitterProvider(account.id));
+        inboxProviders.add(inboxTwitterProvider(account.id));
       });
     });
   });
