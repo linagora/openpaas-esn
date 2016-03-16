@@ -36,9 +36,7 @@ describe('The Unified Inbox Angular module services', function() {
       }
     });
     $provide.value('esnConfig', function(key, defaultValue) {
-      return $q.when().then(function() {
-        return angular.isDefined(config[key]) ? config[key] : defaultValue;
-      });
+      return $q.when(angular.isDefined(config[key]) ? config[key] : defaultValue);
     });
   }));
 
@@ -109,6 +107,7 @@ describe('The Unified Inbox Angular module services', function() {
   describe('The jmapClientProvider service', function() {
 
     var $rootScope, $httpBackend, jmapClientProvider, jmap;
+
     function injectServices() {
       angular.mock.inject(function(_$rootScope_, _$httpBackend_, _jmapClientProvider_, _jmap_) {
         $rootScope = _$rootScope_;
@@ -120,14 +119,17 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should return a rejected promise if jwt generation fails', function(done) {
       var error = new Error('error message');
+
       angular.mock.module(function($provide) {
         $provide.value('generateJwtToken', function() {
           return $q.reject(error);
         });
       });
       injectServices.bind(this)();
-      jmapClientProvider.promise.then(done.bind(null, 'should reject'), function(err) {
+
+      jmapClientProvider.get().then(done.bind(null, 'should reject'), function(err) {
         expect(err.message).to.equal(error.message);
+
         done();
       });
       $rootScope.$digest();
@@ -140,12 +142,13 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
       config['linagora.esn.unifiedinbox.api'] = 'expected jmap api';
-
       injectServices.bind(this)();
-      jmapClientProvider.promise.then(function(client) {
+
+      jmapClientProvider.get().then(function(client) {
         expect(client).to.be.an.instanceof(jmap.Client);
         expect(client.authToken).to.equal('Bearer expected jwt');
         expect(client.apiUrl).to.equal('expected jmap api');
+
         done();
       }, done.bind(null, 'should resolve'));
       $rootScope.$digest();
@@ -171,33 +174,36 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should give the client in the callback when jmapClientProvider resolves', function(done) {
       var jmapClient = { send: angular.noop };
-      jmapClientProviderMock.promise = $q.when(jmapClient);
+      jmapClientProviderMock.get = function() { return $q.when(jmapClient); };
 
       withJmapClient(function(client) {
         expect(client).to.deep.equal(jmapClient);
+
         done();
       });
       $rootScope.$digest();
     });
 
     it('should resolve the callback with a null instance and an error when jmapClient cannot be built', function(done) {
-      jmapClientProviderMock.promise = $q.reject(new Error());
+      jmapClientProviderMock.get = function() { return $q.reject(new Error()); };
 
       withJmapClient(function(client, err) {
-        expect(client).to.be.null;
+        expect(client).to.equal(null);
         expect(err).to.be.an.instanceOf(Error);
+
         done();
       });
       $rootScope.$digest();
     });
 
     it('should reject if the callback promise rejects', function(done) {
-      jmapClientProviderMock.promise = $q.when({});
+      jmapClientProviderMock.get = function() { return $q.when({}); };
       var e = new Error('error message');
       withJmapClient(function() {
         return $q.reject(e);
       }).then(done.bind(null, 'should reject'), function(err) {
         expect(err.message).to.equal(e.message);
+
         done();
       });
 
@@ -215,7 +221,7 @@ describe('The Unified Inbox Angular module services', function() {
     }));
 
     it('should build an array of empty groups when no elements are added', function() {
-      var elementGroupingTool = new ElementGroupingTool('any mailbox id');
+      var elementGroupingTool = new ElementGroupingTool();
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -227,7 +233,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the today group if it has the now date', function() {
       var element = { date: nowDate },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: [element]},
@@ -239,7 +245,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the today group if it has the midnight date', function() {
       var element = { date: '2015-08-20T00:10:00Z' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: [element]},
@@ -251,7 +257,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the today group even if it has a future date', function() {
       var element = { date: '2015-08-21T00:10:00Z' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: [element]},
@@ -263,7 +269,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the week group if it is 1 day old', function() {
       var element = { date: '2015-08-19T20:00:00Z' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -275,7 +281,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the week group if it is 7 days old', function() {
       var element = { date: '2015-08-13T04:00:00Z' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -287,7 +293,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the month group if it is just older than one week', function() {
       var element = { date: '2015-08-12T22:00:00Z' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -301,7 +307,7 @@ describe('The Unified Inbox Angular module services', function() {
       localTimeZone = 'Asia/Ho_Chi_Minh';
 
       var element = { date: '2015-08-13T08:00:00+07:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -315,7 +321,7 @@ describe('The Unified Inbox Angular module services', function() {
       localTimeZone = 'UTC';
 
       var element = { date: '2015-08-13T08:00:00+07:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -330,7 +336,7 @@ describe('The Unified Inbox Angular module services', function() {
       nowDate = new Date('2015-08-21T05:00:00+07:00');
 
       var element = { date: '2015-08-13T01:00:00+00:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -344,7 +350,7 @@ describe('The Unified Inbox Angular module services', function() {
       localTimeZone = 'Asia/Ho_Chi_Minh';
 
       var element = { date: '2015-08-12T23:00:00+07:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -357,7 +363,7 @@ describe('The Unified Inbox Angular module services', function() {
     it('should put a received element in the month group if it is just older than one week when element +7 TZ', function() {
       localTimeZone = 'UTC';
       var element = { date: '2015-08-13T05:00:00+07:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -370,7 +376,7 @@ describe('The Unified Inbox Angular module services', function() {
     it('should put a received element in the month group if it is just older than one week when now +7 TZ', function() {
       localTimeZone = 'Asia/Ho_Chi_Minh';
       var element = { date: '2015-08-12T22:00:00+00:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -383,7 +389,7 @@ describe('The Unified Inbox Angular module services', function() {
     it('should put a received element in the month group if it is just older than one week with both -7 TZ', function() {
       localTimeZone = 'America/Los_Angeles';
       var element = { date: '2015-08-12T15:00:00-07:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -396,7 +402,7 @@ describe('The Unified Inbox Angular module services', function() {
     it('should put a received element in the month group if it is just older than one week when element -7 TZ', function() {
       localTimeZone = 'UTC';
       var element = { date: '2015-08-12T15:00:00-07:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -409,7 +415,7 @@ describe('The Unified Inbox Angular module services', function() {
     it('should put a received element in the month group if it is just older than one week when now -7 TZ', function() {
       localTimeZone = 'America/Los_Angeles';
       var element = { date: '2015-08-12T22:00:00+00:00' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -421,7 +427,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the month group if its date is the first of the month', function() {
       var element = { date: '2015-08-01T04:00:00Z' },
-          elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+          elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -433,7 +439,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should put a received element in the older group if its date is the last day of the previous month', function() {
       var element = { date: '2015-07-31T04:00:00Z' },
-        elementGroupingTool = new ElementGroupingTool('any mailbox id', [element]);
+        elementGroupingTool = new ElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Today', dateFormat: 'shortTime', elements: []},
@@ -638,13 +644,17 @@ describe('The Unified Inbox Angular module services', function() {
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
-        $provide.value('session', { user: { name: 'Alice', preferredEmail: 'alice@domain' } });
         $provide.value('emailBodyService', emailBodyServiceMock = { bodyProperty: 'htmlBody' });
       });
 
-      angular.mock.inject(function(_jmapHelper_, _jmap_) {
+      angular.mock.inject(function(_jmapHelper_, _jmap_, session) {
         jmapHelper = _jmapHelper_;
         jmap = _jmap_;
+
+        session.user = {
+          name: 'Alice',
+          preferredEmail: 'alice@domain'
+        };
       });
     });
 

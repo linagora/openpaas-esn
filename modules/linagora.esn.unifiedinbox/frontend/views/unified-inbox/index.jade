@@ -1,6 +1,3 @@
-sub-header
-  list-emails-subheader
-
 infinite-list.list-emails
 
   .groupedEmails(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
@@ -10,7 +7,7 @@ infinite-list.list-emails
     .card.listview.lv-bordered.lv-lg
       .lv-body
         .lv-item.media(ng-repeat="item in group.elements")
-          inbox-thread-list-item
+          ng-include(src="item.templateUrl")
 
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
     li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')

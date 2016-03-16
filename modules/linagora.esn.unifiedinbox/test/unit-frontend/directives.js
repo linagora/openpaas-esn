@@ -35,12 +35,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.constant('withJmapClient', function(callback) {
       return callback(jmapClient);
     });
-    $provide.value('session', {
-      user: {
-        preferredEmail: 'user@open-paas.org',
-        emails: ['user@open-paas.org']
-      }
-    });
     $provide.provider('iFrameResize', {
       $get: function() {
         return iFrameResize;
@@ -61,13 +55,18 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('esnConfig', angular.noop);
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_, _$window_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_, _$window_, session) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $q = _$q_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
     $window = _$window_;
+
+    session.user = {
+      preferredEmail: 'user@open-paas.org',
+      emails: ['user@open-paas.org']
+    };
   }));
 
   beforeEach(function() {
@@ -1028,6 +1027,96 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $timeout.flush();
 
       expect(document.activeElement).to.not.equal(element.find('.note-editable').get(0));
+    });
+
+  });
+
+  describe('The inboxThreadListItem directive', function() {
+
+    describe('openThread fn', function() {
+
+      var $state, newComposerService;
+
+      beforeEach(angular.mock.inject(function(_$state_, _newComposerService_) {
+        $state = _$state_;
+        newComposerService = _newComposerService_;
+      }));
+
+      it('should call newComposerService.openDraft if message is a draft', function() {
+        compileDirective('<inbox-thread-list-item />');
+        newComposerService.openDraft = sinon.spy();
+
+        element.controller('inboxThreadListItem').openThread({ email: { id: 'id', isDraft: true } });
+
+        expect(newComposerService.openDraft).to.have.been.calledWith('id');
+      });
+
+      it('should change state to $scope.mailbox.id if present and message is not a draft', function() {
+        $scope.mailbox = {
+          id: 'chosenMailbox'
+        };
+        compileDirective('<inbox-thread-list-item />');
+        $state.go = sinon.spy();
+
+        element.controller('inboxThreadListItem').openThread({ id: 'expectedId', email: {} });
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', { threadId: 'expectedId', mailbox: 'chosenMailbox' });
+      });
+
+      it('should change state to the first mailbox of the message if message is not a draft', function() {
+        compileDirective('<inbox-thread-list-item />');
+        $state.go = sinon.spy();
+
+        element.controller('inboxThreadListItem').openThread({ id: 'expectedId', email: { mailboxIds: ['chosenMailbox', 'mailbox2'] } });
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', { threadId: 'expectedId', mailbox: 'chosenMailbox' });
+      });
+
+    });
+
+  });
+
+  describe('The inboxMessageListItem directive', function() {
+
+    describe('openEmail fn', function() {
+
+      var $state, newComposerService;
+
+      beforeEach(angular.mock.inject(function(_$state_, _newComposerService_) {
+        $state = _$state_;
+        newComposerService = _newComposerService_;
+      }));
+
+      it('should call newComposerService.openDraft if message is a draft', function() {
+        compileDirective('<inbox-message-list-item />');
+        newComposerService.openDraft = sinon.spy();
+
+        element.controller('inboxMessageListItem').openEmail({ id: 'id', isDraft: true });
+
+        expect(newComposerService.openDraft).to.have.been.calledWith('id');
+      });
+
+      it('should change state to $scope.mailbox.id if present and message is not a draft', function() {
+        $scope.mailbox = {
+          id: 'chosenMailbox'
+        };
+        compileDirective('<inbox-message-list-item />');
+        $state.go = sinon.spy();
+
+        element.controller('inboxMessageListItem').openEmail({ id: 'expectedId' });
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
+      });
+
+      it('should change state to the first mailbox of the message if message is not a draft', function() {
+        compileDirective('<inbox-message-list-item />');
+        $state.go = sinon.spy();
+
+        element.controller('inboxMessageListItem').openEmail({ id: 'expectedId', mailboxIds: ['chosenMailbox', 'mailbox2'] });
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
+      });
+
     });
 
   });
