@@ -32,7 +32,11 @@
     "block-spacing": "off",
     "brace-style": "off",
     "callback-return": "off",
+    "no-extra-boolean-cast": "error",
     "camelcase": "off",
+    "comma-dangle": "error",
+    "no-constant-condition": "error",
+    "no-dupe-args": "error",
     "comma-spacing": [
       "error",
       {
@@ -73,7 +77,7 @@
     "id-blacklist": "error",
     "id-length": "off",
     "id-match": "error",
-    "indent": "off",
+    "indent": ["off", 2],
     "init-declarations": "off",
     "jsx-quotes": "error",
     "key-spacing": "off",
@@ -118,6 +122,8 @@
     "no-extra-bind": "error",
     "no-extra-label": "error",
     "no-extra-parens": "off",
+    "no-redeclare": "error",
+    "no-unexpected-multiline": "error",
     "no-floating-decimal": "error",
     "no-implicit-coercion": [
       "error",
@@ -141,7 +147,7 @@
     "no-lone-blocks": "error",
     "no-lonely-if": "off",
     "no-loop-func": "error",
-    "no-magic-numbers": "off",
+    "no-magic-numbers": "warn",
     "no-mixed-requires": "warn",
     "no-multi-spaces": "off",
     "no-multi-str": "error",
