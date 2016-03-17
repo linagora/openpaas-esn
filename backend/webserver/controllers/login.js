@@ -9,7 +9,7 @@ var logger = require('../../core/logger');
 
 function index(req, res) {
   var targetUrl = { pathname: '/', hash: req.user ? '' : '/login' };
-  var continueUrl = req.query['continue'];
+  var continueUrl = req.query.continue;
   if (continueUrl && !req.user) {
     var hashUrl = { pathname: '/login', query: { continue: continueUrl } };
     targetUrl.hash = url.format(hashUrl);
