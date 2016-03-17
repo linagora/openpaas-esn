@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
-      emailSendingService, Composition, newComposerService = {}, headerService, $state, $modal,
+      emailSendingService, Composition, newComposerService = {}, $state, $modal,
       mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, config;
   var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
       DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
@@ -23,12 +23,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       weakSuccess: sinon.spy(),
       weakError: sinon.spy(),
       strongInfo: function() { return { close: sinon.spy() }; }
-    };
-    headerService = {
-      subHeader: {
-        setInjection: angular.noop,
-        resetInjections: angular.noop
-      }
     };
     $state = {
       go: sinon.spy()
@@ -66,7 +60,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('$modal', $modal);
       $provide.value('draftService', draftService = {});
       $provide.value('newComposerService', newComposerService);
-      $provide.value('headerService', headerService);
       $provide.value('$state', $state);
       $provide.constant('ELEMENTS_PER_PAGE', 2);
       $provide.value('fileUploadService', {
@@ -115,11 +108,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     beforeEach(inject(function() {
       draftService.startDraft = sinon.spy();
-      headerService.subHeader.setVisibleMD = angular.noop;
 
       scope.hide = sinon.spy();
-      scope.disableSendButton = sinon.spy();
-      scope.enableSendButton = sinon.spy();
       scope.email = {to: []};
     }));
 
@@ -153,8 +143,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.send();
 
       expect(scope.hide).to.have.not.been.called;
-      expect(scope.disableSendButton).to.have.been.calledOnce;
-      expect(scope.enableSendButton).to.have.been.calledOnce;
     });
 
     it('should send an email when canBeSentOrNotify returns true', function() {
@@ -169,7 +157,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.send();
 
       expect(scope.hide).to.have.been.calledOnce;
-      expect(scope.disableSendButton).to.have.been.calledOnce;
       expect(Composition.prototype.send).to.have.been.calledOnce;
     });
 
@@ -602,14 +589,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.$digest();
     });
 
-    it('should display the list-emails-subheader mobile header', function() {
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('listEmailsController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
-    });
-
     describe('openEmail fn', function() {
 
       var newComposerService;
@@ -696,14 +675,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(jmapMessage.isUnread).to.equal(false);
     });
 
-    it('should display the view-email-subheader mobile header', function() {
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('viewEmailController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-email-subheader', sinon.match.any);
-    });
-
     it('should expose a "reply" function', function() {
       inboxEmailService.reply = sinon.spy();
 
@@ -760,14 +731,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getThreads = function() {
         return $q.when([jmapThread]);
       };
-    });
-
-    it('should display the view-thread-subheader mobile header', function() {
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('viewThreadController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('view-thread-subheader', sinon.match.any);
     });
 
     it('should search for message ids of the given thread id', function(done) {
@@ -964,14 +927,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.$digest();
     });
 
-    it('should display the list-emails-subheader mobile header', function() {
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('listThreadsController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('list-emails-subheader', sinon.match.any);
-    });
-
     describe('The openThread function', function() {
 
       it('should change the state to the thread view if thread.email is not a draft', function() {
@@ -1142,15 +1097,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(scope.mailboxes).to.deep.equal([{ id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }]);
     });
 
-    it('should define the "configuration-index-subheader" subheader', function() {
-      jmapClient.getMailboxes = function() { return $q.when([]); };
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('configurationController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('configuration-index-subheader', sinon.match.any);
-    });
-
   });
 
   describe('The addFolderController', function() {
@@ -1179,15 +1125,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('addFolderController');
 
       expect(scope.mailbox).to.deep.equal({});
-    });
-
-    it('should define the "add-folder-subheader" subheader', function() {
-      jmapClient.getMailboxes = function() { return $q.when([]); };
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('addFolderController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('add-folder-subheader', sinon.match.any);
     });
 
     describe('The addFolder method', function() {
@@ -1252,15 +1189,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('editFolderController');
 
       expect(scope.mailbox).to.deep.equal({ id: 'chosenMailbox', name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } });
-    });
-
-    it('should define the "edit-folder-subheader" subheader', function() {
-      jmapClient.getMailboxes = function() { return $q.when([]); };
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('editFolderController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('edit-folder-subheader', sinon.match.any);
     });
 
     describe('The editFolder method', function() {
@@ -1362,7 +1290,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   describe('The recipientsFullscreenEditFormController', function() {
 
     beforeEach(function() {
-      headerService.subHeader.setVisibleMD = sinon.spy();
       $state.go = sinon.spy();
       $stateParams.recipientsType = 'to';
       $stateParams.composition = {
@@ -1401,20 +1328,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(scope.recipients).to.equal('to email');
       expect(scope.recipientsType).to.equal('to');
-    });
-
-    it('should define the "fullscreen-edit-form-subheader" subheader', function() {
-      headerService.subHeader.setInjection = sinon.spy();
-
-      initController('recipientsFullscreenEditFormController');
-
-      expect(headerService.subHeader.setInjection).to.have.been.calledWith('fullscreen-edit-form-subheader', sinon.match.any);
-    });
-
-    it('should call headerService.subHeader.setVisibleMD', function() {
-      initController('recipientsFullscreenEditFormController');
-
-      expect(headerService.subHeader.setVisibleMD).to.have.been.called;
     });
 
     it('should go to parent with stateParams.composition when backToComposition is called', function() {

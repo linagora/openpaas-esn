@@ -200,7 +200,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($rootScope, $state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams, headerService) {
+  .directive('composer', function($rootScope, $state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -210,15 +210,12 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.isBoxed = function() {return false;};
 
-        headerService.subHeader.setVisibleMD();
-
         function backToLastLocation() {
           $state.go($stateParams.previousState.name, $stateParams.previousState.params);
         }
 
         function quit(action) {
           disableOnBackAutoSave();
-          controller.hideMobileHeader();
 
           if (action) {
             action();
@@ -242,9 +239,6 @@ angular.module('linagora.esn.unifiedinbox')
           quitAsSaveDraft();
           backToLastLocation();
         };
-
-        scope.disableSendButton = controller.hideMobileHeader;
-        scope.enableSendButton = controller.showMobileHeader;
 
         scope.editQuotedMail = function() {
           var emailBody = element.find('.compose-body'),
@@ -284,7 +278,6 @@ angular.module('linagora.esn.unifiedinbox')
           });
         };
 
-        controller.showMobileHeader();
       }
     };
   })
@@ -306,14 +299,6 @@ angular.module('linagora.esn.unifiedinbox')
       link: function(scope, element, attrs, controller) {
 
         scope.isBoxed = function() {return true;};
-
-        scope.disableSendButton = function() {
-          element.find('.btn-primary').attr('disabled', 'disabled');
-        };
-
-        scope.enableSendButton = function() {
-          element.find('.btn-primary').removeAttr('disabled');
-        };
 
         scope.onInit = function() {
           element
