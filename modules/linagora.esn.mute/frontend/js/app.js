@@ -10,6 +10,12 @@ angular.module('linagora.esn.mute', [
         url: '/mute',
         templateUrl: '/mute/views/mute',
         controller: 'muteController'
+      })
+      
+      .state('mutedocument', {
+        url: '/mute/:id',
+        templateUrl: '/mute/views/partials/mute-iframe',
+        controller: 'muteIframeController'
       });
 
     var mute = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-mute', {priority: 45});

@@ -1,2 +1,7 @@
+form(ng-submit="goToDocument()")
+  .form-group.fg-line
+    .field-name #{__('Name')}
+    input.form-control(ng-model="document.name", placeholder="#{__('Enter a name')}", auto-focus)
 
-iframe.html-email-body(width="100%" ng-src="{{editorUrl}}")
+  .button-bar.actions
+    input.btn.btn-primary(type="submit", value="#{__('Submit')}")
