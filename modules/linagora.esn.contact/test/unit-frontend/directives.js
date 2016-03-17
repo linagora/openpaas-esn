@@ -686,9 +686,9 @@ describe('The contact Angular module directives', function() {
     it('should listen all contact event to update letter', function() {
       onScroll = sinon.spy();
       initDirective();
-      for (var event in CONTACT_EVENTS) {
-        $rootScope.$broadcast(CONTACT_EVENTS[event]);
-      }
+      angular.forEach(CONTACT_EVENTS, function(event) {
+        $rootScope.$broadcast(event);
+      });
       $timeout.flush();
       expect(onScroll.callCount).to.be.equal(5);
     });

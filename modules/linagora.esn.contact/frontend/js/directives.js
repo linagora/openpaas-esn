@@ -145,9 +145,10 @@ angular.module('linagora.esn.contact')
           $timeout(listScroller.onScroll, 500);
         }
 
-        for (var event in CONTACT_EVENTS) {
-          scope.$on(CONTACT_EVENTS[event], updateLetter);
-        }
+        angular.forEach(CONTACT_EVENTS, function(event) {
+          scope.$on(event, updateLetter);
+        });
+
         scope.$on('$destroy', listScroller.unregister);
       }
     };

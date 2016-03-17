@@ -397,7 +397,9 @@ function findCollaborationFromActivityStreamID(id, callback) {
   }
 
   for (var key in collaborationModels) {
-    finders.push(async.apply(finder, key));
+    if (Object.hasOwnProperty.call(collaborationModels, key)) {
+      finders.push(async.apply(finder, key));
+    }
   }
 
   async.parallel(finders, function(err, results) {
@@ -438,7 +440,9 @@ function getCollaborationsForTuple(tuple, callback) {
   }
 
   for (var key in collaborationModels) {
-    finders.push(async.apply(finder, key));
+    if (Object.hasOwnProperty.call(collaborationModels, key)) {
+      finders.push(async.apply(finder, key));
+    }
   }
 
   async.parallel(finders, function(err, results) {

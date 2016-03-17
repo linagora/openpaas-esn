@@ -435,9 +435,9 @@ angular.module('esn.calendar')
       vevent.addPropertyWithValue('transp', obj.allDay ? 'TRANSPARENT' : 'OPAQUE');
 
       var newShell = new CalendarShell(vcalendar);
-      for (var key in obj) {
-        newShell[key] = obj[key];
-      }
+      angular.forEach(obj, function(prop, key) {
+        newShell[key] = prop;
+      });
       return newShell;
     };
 

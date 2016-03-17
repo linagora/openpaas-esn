@@ -56,7 +56,9 @@ module.exports.getUserIds = function(targets, callback) {
     }
     var usersResult = [];
     for (var userId in usersFound) {
-      usersResult.push({_id: userId, context: usersFound[userId]});
+      if (Object.hasOwnProperty.call(usersFound, userId)) {
+        usersResult.push({_id: userId, context: usersFound[userId]});
+      }
     }
     return callback(null, usersResult);
   });

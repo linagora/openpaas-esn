@@ -358,10 +358,12 @@ describe('ContactShell Builders', function() {
         expect(properties.length).to.equal(icalkeys.length, message);
 
         for (var propName in ical) {
-          var prop = vcard.getFirstProperty(propName);
-          expect(prop, 'Missing: ' + propName).to.be.ok;
-          var value = prop.toICAL();
-          expect(value).to.equal(ical[propName].toString());
+          if (Object.hasOwnProperty.call(ical, propName)) {
+            var prop = vcard.getFirstProperty(propName);
+            expect(prop, 'Missing: ' + propName).to.be.ok;
+            var value = prop.toICAL();
+            expect(value).to.equal(ical[propName].toString());
+          }
         }
       }
 
