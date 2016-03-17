@@ -103,7 +103,6 @@ describe('The websockets usernotification module', function() {
             };
             return [socket3];
           }
-          return [];
         }
       };
       mockery.registerMock('../helper/socketio', socketHelper);
