@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, CONTACT_ATTRIBUTES_ORDER, $dateFormatter) {
+  .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, CONTACT_ATTRIBUTES_ORDER, $dateFormatter, moment) {
 
     function getFormattedBirthday(birthday) {
       if (birthday instanceof Date) {

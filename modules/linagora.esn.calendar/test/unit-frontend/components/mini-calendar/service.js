@@ -9,7 +9,9 @@ describe('The mini-calendar service', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
+    /*eslint-disable no-undef */
     moment.tz.setDefault('Europe/Paris'); // jshint ignore:line
+    /*eslint-enable no-undef */
   });
 
   var fcMoment, miniCalenderService, $rootScope;
