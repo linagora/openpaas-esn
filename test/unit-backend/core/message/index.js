@@ -219,7 +219,7 @@ describe('The message core module', function() {
       var messageModule = this.helpers.requireBackend('core/message');
       try {
         messageModule.getModel('idontexist');
-      }catch (e) {
+      } catch (e) {
         return done();
       }
       done(new Error('No game of thrown ?'));
@@ -243,7 +243,7 @@ describe('The message core module', function() {
       var messageModule = this.helpers.requireBackend('core/message');
       try {
         messageModule.getinstance('idontexist');
-      }catch (e) {
+      } catch (e) {
         return done();
       }
       done(new Error('No game of thrown ?'));
