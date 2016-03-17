@@ -8,7 +8,7 @@ module.exports = function(dependencies) {
       authorizationMW = dependencies('authorizationMW');
 
   var router = express.Router();
-  router.get('/api/mute/config', authorizationMW.requiresAPILogin, function(req, res) {
+  router.get('/api/config', authorizationMW.requiresAPILogin, function(req, res) {
     esnConfig('mute').get(function(err, config) {
 
       if (err) {

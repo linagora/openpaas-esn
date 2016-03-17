@@ -8,7 +8,8 @@ angular.module('linagora.esn.mute', [
     $stateProvider
       .state('mute', {
         url: '/mute',
-        templateUrl: '/mute/views/mute'
+        templateUrl: '/mute/views/mute',
+        controller: 'muteController'
       });
 
     var mute = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-mute', {priority: 45});
