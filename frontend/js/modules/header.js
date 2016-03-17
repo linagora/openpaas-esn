@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.header', ['esn.sidebar', 'matchMedia'])
+angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
 
   .constant('MAIN_HEADER', 'main-header-middle-content')
 
