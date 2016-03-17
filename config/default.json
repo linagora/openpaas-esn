@@ -68,6 +68,7 @@
     "linagora.esn.jobqueue",
     "linagora.esn.graceperiod",
     "linagora.esn.messaging.email",
+    "linagora.esn.mute",
     "linagora.esn.oauth.consumer",
     "linagora.esn.project",
     "linagora.esn.profile",

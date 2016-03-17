@@ -25,7 +25,6 @@ var muteModule = new AwesomeModule('linagora.esn.mute', {
 
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this, dependencies);
-      app.use('/', this.api.inbox);
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('mute', [

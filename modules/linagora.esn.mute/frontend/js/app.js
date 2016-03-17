@@ -8,18 +8,11 @@ angular.module('linagora.esn.mute', [
     $stateProvider
       .state('mute', {
         url: '/mute',
-        templateUrl: '/mute/views/unifiedinbox',
-        controller: 'rootController as ctrl',
-        deepStateRedirect: {
-          default: 'unifiedinbox.inbox',
-          fn: function() {
-            return { state: 'unifiedinbox.inbox' };
-          }
-        }
+        templateUrl: '/mute/views/mute'
       });
 
-    // var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45});
-    // dynamicDirectiveServiceProvider.addInjection('esn-application-menu', inbox);
+    var mute = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-mute', {priority: 45});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', mute);
 
     // var attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
     // dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
