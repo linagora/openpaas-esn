@@ -111,7 +111,6 @@ describe('The calendar module controllers', function() {
     };
 
     this.gracePeriodService = {};
-    this.headerServiceMock = {};
     this.userMock = {};
     this.eventUtilsMock = {
       applyReply: sinon.spy(),
@@ -129,7 +128,6 @@ describe('The calendar module controllers', function() {
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('gracePeriodService', self.gracePeriodService);
-      $provide.value('headerService', self.headerServiceMock);
       $provide.value('eventUtils', self.eventUtilsMock);
       $provide.value('user', self.userMock);
       $provide.value('keepChangeDuringGraceperiod', self.keepChangeDuringGraceperiodMock);

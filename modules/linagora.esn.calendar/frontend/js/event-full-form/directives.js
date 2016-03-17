@@ -2,9 +2,8 @@
 
 angular.module('esn.calendar')
 
-  .directive('eventFullForm', function($timeout, $state, eventUtils, headerService) {
+  .directive('eventFullForm', function($timeout, $state, eventUtils) {
     function link(scope, element, attrs) {
-      headerService.subHeader.addInjection('event-full-form-subheader', scope);
       element.on('$destroy', eventUtils.resetStoredEvents);
     }
 

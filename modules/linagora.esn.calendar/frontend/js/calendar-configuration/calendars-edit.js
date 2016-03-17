@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarsEditionController', function($scope, $state, headerService) {
-    headerService.subHeader.addInjection('calendars-edition-header', $scope);
+  .controller('calendarsEditionController', function($scope, $state) {
 
     $scope.calendars = $scope.calendars || [];
 
