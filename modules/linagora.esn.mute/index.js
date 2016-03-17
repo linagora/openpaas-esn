@@ -13,11 +13,11 @@ var muteModule = new AwesomeModule('linagora.esn.mute', {
   ],
   states: {
     lib: function(dependencies, callback) {
-      //var inbox = require('./backend/webserver/api/inbox/router')(dependencies);
+      var mute = require('./backend/webserver/api/mute/router')(dependencies);
 
       var lib = {
         api: {
-          //inbox: inbox
+          mute: mute
         }
       };
       return callback(null, lib);
@@ -25,6 +25,7 @@ var muteModule = new AwesomeModule('linagora.esn.mute', {
 
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this, dependencies);
+      app.use('/', this.api.mute);
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('mute', [
