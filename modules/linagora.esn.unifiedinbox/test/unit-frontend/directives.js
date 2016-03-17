@@ -17,6 +17,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     angular.mock.module('esn.ui');
     angular.mock.module('esn.core');
     angular.mock.module('esn.session');
+    angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
   });
@@ -52,7 +53,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
     $provide.value('autosize', autosize = sinon.spy());
-    $provide.value('esnConfig', angular.noop);
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_, _$window_, session) {

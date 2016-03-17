@@ -155,10 +155,12 @@ angular.module('linagora.esn.unifiedinbox', [
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
   })
 
-  .run(function(inboxProviders, inboxHostedMailMessagesProvider, inboxTwitterProvider, session) {
-    inboxProviders.add(inboxHostedMailMessagesProvider);
+  .run(function(inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
+                inboxTwitterProvider, session, DEFAULT_VIEW) {
 
-    session.ready.then(function() {
+    inboxConfig('view', DEFAULT_VIEW).then(function(view) {
+      inboxProviders.add(view === 'messages' ? inboxHostedMailMessagesProvider : inboxHostedMailThreadsProvider);
+
       session.getTwitterAccounts().forEach(function(account) {
         inboxProviders.add(inboxTwitterProvider(account.id));
       });

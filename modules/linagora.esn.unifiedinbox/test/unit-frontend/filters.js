@@ -10,6 +10,7 @@ describe('The Unified Inbox Angular module filters', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.session');
+    angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox');
   });
 
@@ -18,7 +19,6 @@ describe('The Unified Inbox Angular module filters', function() {
     $provide.value('deviceDetector', {
       isMobile: function() { return isMobile; }
     });
-    $provide.value('esnConfig', angular.noop);
   }));
 
   beforeEach(angular.mock.inject(function(_$filter_) {

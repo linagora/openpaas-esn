@@ -33,7 +33,7 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('viewThreadSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/thread/list/subheader.html'
+      templateUrl: '/unifiedinbox/views/thread/view/subheader.html'
     };
   })
 

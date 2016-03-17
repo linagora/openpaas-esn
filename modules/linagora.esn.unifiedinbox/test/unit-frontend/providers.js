@@ -41,22 +41,22 @@ describe('The Unified Inbox Angular module providers', function() {
 
     describe('The getAll function', function() {
 
-      it('should resolve the default container of providers, and assign the "fetcher" property', function(done) {
-        inboxProviders.getAll().then(function(providers) {
-          providers[0].fetcher().then(function(results) {
-            expect(results).to.deep.equal([]);
-
-            done();
-          });
-        });
-        $rootScope.$digest();
-      });
-
-      it('should return an array of providers, when multiple providers exist', function(done) {
+      it('should return an array of providers, with the "fetcher" property initialized', function(done) {
         inboxProviders.add({
           getDefaultContainer: sinon.spy(function() { return $q.when('container'); }),
           fetch: sinon.spy(function(container) {
             expect(container).to.equal('container');
+
+            return function() {
+              return $q.when([]);
+            };
+          }),
+          templateUrl: 'templateUrl'
+        });
+        inboxProviders.add({
+          getDefaultContainer: sinon.spy(function() { return $q.when('container_2'); }),
+          fetch: sinon.spy(function(container) {
+            expect(container).to.equal('container_2');
 
             return function() {
               return $q.when([]);

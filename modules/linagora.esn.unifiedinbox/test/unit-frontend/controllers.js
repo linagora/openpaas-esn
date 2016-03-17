@@ -910,7 +910,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             fetchMessages: false,
             sort: ['date desc'],
             position: 0,
-            limit: ELEMENTS_PER_PAGE
+            limit: ELEMENTS_PER_REQUEST
           });
 
           done();

@@ -34,53 +34,16 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email,
-                                               ElementGroupingTool, newComposerService, jmapEmailService,
-                                               mailboxesService, infiniteScrollHelper, inboxHostedMailMessagesProvider) {
+  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollHelper) {
 
     $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailMessagesProvider.fetch($stateParams.mailbox));
 
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
-  .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool,
-                                                mailboxesService, newComposerService, infiniteScrollHelper,
-                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
+  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollHelper) {
 
-    function _assignEmailAndDate(dst) {
-      return function(email) {
-        _.assign(_.find(dst, { id: email.threadId }), { email: Email(email), date: email.date });
-      };
-    }
-
-    function _prepareThreadsVariable(data) {
-      data[1].forEach(_assignEmailAndDate(data[0]));
-
-      return data[0];
-    }
-
-    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
-      return withJmapClient(function(client) {
-        return client.getMessageList({
-          filter: {
-            inMailboxes: [$stateParams.mailbox]
-          },
-          sort: ['date desc'],
-          collapseThreads: true,
-          fetchThreads: false,
-          fetchMessages: false,
-          position: $scope.infiniteScrollPosition,
-          limit: ELEMENTS_PER_PAGE
-        })
-          .then(function(messageList) {
-            return $q.all([
-              messageList.getThreads({ fetchMessages: false }),
-              messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST })
-            ]);
-          })
-          .then(_prepareThreadsVariable);
-      });
-    });
+    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailThreadsProvider.fetch($stateParams.mailbox));
 
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
