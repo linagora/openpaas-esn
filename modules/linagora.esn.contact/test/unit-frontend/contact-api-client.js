@@ -234,7 +234,7 @@ describe('The contact Angular module contactapis', function() {
                   expect(contact.nickname).to.equal('nick');
                   expect(contact.notes).to.equal('notes');
                   expect(contact.photo).to.equal('data:image/png;base64,iVBOR=');
-                }.bind(this)).finally(done);
+                }).finally(done);
 
               this.$rootScope.$apply();
               this.$httpBackend.flush();
@@ -275,7 +275,7 @@ describe('The contact Angular module contactapis', function() {
                 .get()
                 .then(function(contact) {
                   expect(contact.addressbook).to.deep.equal(addressbook);
-                }.bind(this)).finally(done);
+                }).finally(done);
 
               this.$rootScope.$apply();
               this.$httpBackend.flush();
@@ -300,7 +300,7 @@ describe('The contact Angular module contactapis', function() {
                 .get()
                 .then(function(contact) {
                   expect(contact.photo).to.not.exist;
-                }.bind(this)).finally(done);
+                }).finally(done);
 
               this.$httpBackend.flush();
             });
@@ -351,7 +351,7 @@ describe('The contact Angular module contactapis', function() {
                 .get()
                 .then(function(contact) {
                   expect(contact.birthday).to.equal('a text birthday');
-                }.bind(this)).finally(done);
+                }).finally(done);
 
               this.$rootScope.$apply();
               this.$httpBackend.flush();
@@ -413,7 +413,7 @@ describe('The contact Angular module contactapis', function() {
                 .list()
                 .then(function(data) {
                   expect(data.data).deep.equal(shells);
-                }.bind(this)).finally(done);
+                }).finally(done);
 
               this.$rootScope.$apply();
               this.$httpBackend.flush();
