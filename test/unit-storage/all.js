@@ -61,10 +61,14 @@ beforeEach(function() {
 afterEach(function() {
   try {
     require('mongoose').disconnect();
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
   try {
     this.helpers.requireBackend('core/db/mongo/file-watcher').clear();
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();

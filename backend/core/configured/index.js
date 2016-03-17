@@ -11,7 +11,9 @@ function isConfigured() {
   var dbConfig;
   try {
     dbConfig = core.config('db');
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   if (dbConfig && dbConfig.connectionString) {
     configured = true;

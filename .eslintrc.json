@@ -91,7 +91,7 @@
     "lines-around-comment": "off",
     "max-depth": "error",
     "max-len": "off",
-    "max-nested-callbacks": "error",
+    "max-nested-callbacks": "warn",
     "max-params": "off",
     "max-statements": "off",
     "new-parens": "error",
@@ -102,7 +102,7 @@
     "no-array-constructor": "error",
     "no-bitwise": "error",
     "no-caller": "error",
-    "no-catch-shadow": "error",
+    "no-catch-shadow": "off",
     "no-cond-assign": [
       "error",
       "except-parens"

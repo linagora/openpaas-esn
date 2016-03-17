@@ -22,7 +22,9 @@ describe('The document store routes resource', function() {
   beforeEach(function() {
     try {
       fs.unlinkSync(tmpDbConfigFile);
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   describe('PUT /api/document-store/connection', function() {
