@@ -31,7 +31,7 @@ module.exports = function(grunt) {
       } else {
         grunt.log.ok('No changed files');
       }
-      grunt.config.set('jshint.quick.src', files);
+      grunt.config.set('eslint.quick.src', files);
       done();
     });
   });
