@@ -97,7 +97,7 @@ angular.module('esn.calendar')
           }
         })
         .catch(function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+          _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', Please refresh your calendar');
         })
         .finally(function() {
           $scope.restActive = false;
@@ -119,7 +119,7 @@ angular.module('esn.calendar')
           }
         })
         .catch(function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+          _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', Please refresh your calendar');
         })
         .finally(function() {
           $scope.restActive = false;
@@ -140,7 +140,7 @@ angular.module('esn.calendar')
         icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
         _displayNotification(notificationFactory.weakInfo, 'Calendar - ', icalPartStatToReadableStatus[status]);
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', Please refresh your calendar');
       }).finally(function() {
         $scope.restActive = false;
       });
@@ -180,7 +180,7 @@ angular.module('esn.calendar')
           }
         })
         .catch(function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+          _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', Please refresh your calendar');
         })
         .finally(function() {
           $scope.restActive = false;

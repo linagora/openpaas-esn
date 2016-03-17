@@ -108,13 +108,13 @@ describe('ContactDisplayShell', function() {
           objectType: 'email',
           id: 'perso@linagora.com',
           icon: 'mdi-email-outline',
-          action: 'mailto:' + 'perso@linagora.com'
+          action: 'mailto:perso@linagora.com'
         },
         {
           objectType: 'phone',
           id: '01.02.03.04.05',
           icon: 'mdi-phone',
-          action: 'tel:' + '01.02.03.04.05'
+          action: 'tel:01.02.03.04.05'
         }]);
     });
   });

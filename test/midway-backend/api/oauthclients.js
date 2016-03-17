@@ -111,7 +111,7 @@ describe('The oauth client API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/oauth/clients/' + 'wrongId'));
+        var req = loggedInAsUser(request(app).get('/api/oauth/clients/wrongId'));
         req.expect(500, done);
       });
     });
@@ -159,7 +159,7 @@ describe('The oauth client API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).delete('/api/oauth/clients/' + 'wrongId'));
+        var req = loggedInAsUser(request(app).delete('/api/oauth/clients/wrongId'));
         req.expect(500, done);
       });
     });

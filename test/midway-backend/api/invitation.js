@@ -229,7 +229,7 @@ describe('The invitation controller', function() {
     it('should return 404 for an unknown invitation', function(done) {
       this.app = this.helpers.requireBackend('webserver/application');
       request(this.app)
-      .get('/api/invitation/' + 'Idontexist')
+      .get('/api/invitation/Idontexist')
       .expect(404)
       .end(done);
     });
