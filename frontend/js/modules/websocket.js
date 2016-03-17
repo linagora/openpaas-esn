@@ -334,12 +334,12 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
           reconnection: false
         });
         ioSocketConnection.setSio(sio);
-      }), function(error) {
+      }, function(error) {
         $log.info('fatal: tokenAPI.getNewToken() failed');
         if (error && error.data) {
           $log.info('Error while getting auth token', error.data);
         }
-      };
+      });
     }
 
     function _clearManagersCache() {

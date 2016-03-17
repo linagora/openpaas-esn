@@ -22,7 +22,7 @@ describe('The sessions middleware', function() {
     var self = this;
 
     this.testEnv.initCore(function() {
-      self.mongoose = require('mongoose'),
+      self.mongoose = require('mongoose');
       self.app = self.helpers.requireBackend('webserver/application');
       var User = self.helpers.requireBackend('core/db/mongo/models/user');
       var u = new User(user);
