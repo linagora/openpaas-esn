@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The Contacts controller module', function() {
 
-  var $rootScope, $controller, $timeout, scope, headerService, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
+  var $rootScope, $controller, $timeout, scope, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, ContactLiveUpdate, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
     ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks,
@@ -81,13 +81,6 @@ describe('The Contacts controller module', function() {
     };
 
     contactUpdateDataService = { contact: null, taskId: null, contactUpdatedIds: [] };
-
-    headerService = {
-      subHeader: {
-        addInjection: function() {},
-        resetInjections: function() {}
-      }
-    };
 
     ContactAPIClient = {
       addressbookHome: function() {
@@ -168,7 +161,6 @@ describe('The Contacts controller module', function() {
       $provide.value('contactUpdateDataService', contactUpdateDataService);
       $provide.value('usSpinnerService', usSpinnerService);
       $provide.value('$window', $window);
-      $provide.value('headerService', headerService);
       $provide.value('ContactShell', ContactShell);
       $provide.value('ContactAPIClient', ContactAPIClient);
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
@@ -248,25 +240,6 @@ describe('The Contacts controller module', function() {
     beforeEach(function() {
       $controller('newContactController', {
         $scope: scope
-      });
-    });
-
-    it('should inject create header', function(done) {
-      var headerService = {
-        subHeader: {
-          addInjection: function(directive) {
-            expect(directive).to.equal('contact-create-subheader');
-            done();
-          }
-        }
-      };
-
-      $controller('newContactController', {
-        $scope: scope,
-        sharedContactDataService: {
-          contact: {}
-        },
-        headerService: headerService
       });
     });
 
@@ -600,20 +573,6 @@ describe('The Contacts controller module', function() {
     it('should have bigger size for contact avatar', function() {
       this.initController();
       expect(scope.avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
-    });
-
-    it('should inject show header', function(done) {
-      headerService.subHeader.addInjection = function(directive) {
-        expect(directive).to.equal('contact-show-subheader');
-        done();
-      };
-      this.initController();
-    });
-
-    it('should call headerService to reset injections in the subheader on route change', function(done) {
-      headerService.subHeader.resetInjections = done;
-      this.initController();
-      scope.$emit('$stateChangeStart', {});
     });
 
     it('should go back to the list of contacts when close is called', function() {
@@ -977,20 +936,6 @@ describe('The Contacts controller module', function() {
       this.initController = $controller.bind(null, 'editContactController', { $scope: scope });
     });
 
-    it('should inject edition header', function(done) {
-      headerService.subHeader.addInjection = function(directive) {
-        expect(directive).to.equal('contact-edit-subheader');
-        done();
-      };
-      this.initController();
-    });
-
-    it('should call headerService to reset injections in the subheader on route change', function(done) {
-      headerService.subHeader.resetInjections = done;
-      this.initController();
-      scope.$emit('$stateChangeStart', {});
-    });
-
     it('should update the $scope.contact etag when the contact has been modified from a CONTACT_EVENTS.UPDATED event', function() {
       contactUpdateDataService.contact = {id: 1, etag: 2};
       var event = {id: 1, etag: 3};
@@ -1294,28 +1239,6 @@ describe('The Contacts controller module', function() {
   });
 
   describe('The contactsListController controller', function() {
-
-    it('should inject show header', function(done) {
-      headerService.subHeader.addInjection = function(directive) {
-        expect(directive).to.equal('contact-list-subheader');
-        done();
-      };
-      $controller('contactsListController', {
-        $scope: scope,
-        headerService: headerService,
-        user: { _id: '123' }
-      });
-    });
-
-    it('should reset header injection on $stateChangeStart', function(done) {
-      headerService.subHeader.resetInjections = done;
-      $controller('contactsListController', {
-        $scope: scope,
-        headerService: headerService,
-        user: { _id: '123' }
-      });
-      scope.$emit('$stateChangeStart');
-    });
 
     it('should store the search query when user switches to contact view', function() {
       scope.searchInput = 'some query';
