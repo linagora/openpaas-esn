@@ -326,7 +326,9 @@ describe('The calendar module controllers', function() {
         this.scope.uiConfig.calendar.viewRender({});
         this.scope.$digest();
         expect(fcFn.removeEvents).to.have.been.calledOnce;
-        expect(fcFn.removeEvents).to.have.been.calledWith(event.id);
+        expect(fcFn.removeEvents).to.have.been.calledWith(sinon.match(function(pred) {
+          return pred({uid: event.uid}) && !pred({uid: 'an other id'});
+        }));
         expect(fcFn.renderEvent).to.not.have.been.called;
         expect(fcFn.getView).to.have.been.called;
         expect(event.expand).to.have.been.calledWith(view.start.clone().subtract(1, 'day'), view.end.clone().add(1, 'day'));

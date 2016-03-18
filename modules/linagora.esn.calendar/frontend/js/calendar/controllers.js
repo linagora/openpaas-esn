@@ -152,7 +152,9 @@ angular.module('esn.calendar')
     function _modifiedOrCreatedCalendarItem(newEvent) {
       calendarPromise.then(function(calendar) {
         if (newEvent.isRecurring()) {
-          calendar.fullCalendar('removeEvents', newEvent.id);
+          calendar.fullCalendar('removeEvents', function(event) {
+            return newEvent.uid === event.uid;
+          });
           var view = calendar.fullCalendar('getView');
           newEvent.expand(view.start.clone().subtract(1, 'day'), view.end.clone().add(1, 'day')).forEach(_modifiedOrCreatedCalendarItem);
           return;
