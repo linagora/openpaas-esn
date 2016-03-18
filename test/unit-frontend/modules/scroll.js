@@ -18,11 +18,9 @@ describe('The Scroll Angular module', function() {
       return $delegate;
     });
 
-    $provide.value('headerService', {
-      subHeader: {
-        hasInjections: function() {
-          return subHeaderHasInjections;
-        }
+    $provide.value('subHeaderService', {
+      isVisible: function() {
+        return subHeaderHasInjections;
       }
     });
     $provide.value('SUB_HEADER_HEIGHT_IN_PX', SUB_HEADER_HEIGHT_IN_PX);

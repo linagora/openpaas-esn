@@ -87,7 +87,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
     };
   })
 
-  .factory('elementScrollService', function($timeout, $window, headerService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
+  .factory('elementScrollService', function($timeout, $window, subHeaderService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
     /**
      * Auto-scroll to the end of the given element
      * @param element
@@ -103,7 +103,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
     function scrollDownToElement(element) {
       var scrollY = element.offset().top;
 
-      if (headerService.subHeader.hasInjections()) {
+      if (subHeaderService.isVisible()) {
         scrollY -= SUB_HEADER_HEIGHT_IN_PX;
       }
 
