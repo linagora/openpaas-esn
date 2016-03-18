@@ -2,7 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
-/* global jstz: false */
+/* global __FIXTURES__: false */
 
 var expect = chai.expect;
 
@@ -18,15 +18,6 @@ describe('CalendarShell factory', function() {
       }
     };
 
-    this.jstz = {
-      determine: function() {
-        return {
-        name: function() {
-          return 'Europe/Paris';
-        }};
-      }
-    };
-
     this.eventApiMock = {
 
     };
@@ -36,7 +27,6 @@ describe('CalendarShell factory', function() {
     var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
-      $provide.value('jstz', self.jstz);
       $provide.value('uuid4', self.uuid4);
       $provide.value('eventAPI', self.eventApiMock);
       $provide.value('masterEventCache', self.masterEventCache);
@@ -49,6 +39,19 @@ describe('CalendarShell factory', function() {
       fcMoment = _fcMoment_;
       ICAL = _ICAL_;
       $rootScope = _$rootScope_;
+    });
+  });
+
+  describe('set date', function() {
+    it('should convert date to utc', function() {
+      var shell = CalendarShell.fromIncompleteShell({});
+      shell.start  = fcMoment.tz([2015, 11, 11, 19, 0, 0], 'Europe/Paris');
+      expect(shell.vevent.getFirstPropertyValue('dtstart').tzid).to.be.undefined;
+      expect(shell.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2015-12-11T18:00:00Z');
+
+      shell.end  = fcMoment.utc([2015, 11, 11, 19, 0, 0]);
+      expect(shell.vevent.getFirstPropertyValue('dtend').tzid).to.be.undefined;
+      expect(shell.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2015-12-11T19:00:00Z');
     });
   });
 
@@ -103,19 +106,15 @@ describe('CalendarShell factory', function() {
               ],
               [
                 'dtstart',
-                {
-                  tzid: 'Europe\/Paris'
-                },
+                {},
                 'date-time',
-                '2014-12-29T18:00:00'
+                '2014-12-29T18:00:00Z'
               ],
               [
                 'dtend',
-                {
-                  tzid: 'Europe\/Paris'
-                },
+                 {},
                 'date-time',
-                '2014-12-29T19:00:00'
+                '2014-12-29T19:00:00Z'
               ],
               [
                 'summary',
@@ -133,8 +132,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event : daily + interval + count', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'DAILY',
@@ -159,8 +158,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event: weekly + byday', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'WEEKLY',
@@ -184,8 +183,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event: monthly', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'MONTHLY'
@@ -207,8 +206,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event: yearly + until', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'YEARLY',
@@ -278,8 +277,9 @@ describe('CalendarShell factory', function() {
   describe('expand method', function() {
 
     function formatDates(event) {
-      event.formattedStart = event.start.format('YYYY-MM-DD HH:MM');
-      event.formattedEnd = event.end.format('YYYY-MM-DD HH:MM');
+      event.formattedStart = event.vevent.getFirstPropertyValue('dtstart').toString();
+      event.formattedEnd = event.vevent.getFirstPropertyValue('dtend').toString();
+      event.formattedRecurrenceId = event.vevent.getFirstPropertyValue('recurrence-id').toString();
       return event;
     }
 
@@ -340,7 +340,7 @@ describe('CalendarShell factory', function() {
     it('should compute correctly recurrenceId in UTC Timezone', function() {
       var shell = {
         start: fcMoment.tz('2015-01-01 18:01', 'America/Toronto'),
-        end: fcMoment('2015-01-01 19:01', 'America/Toronto'),
+        end: fcMoment.tz('2015-01-01 19:01', 'America/Toronto'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -351,14 +351,13 @@ describe('CalendarShell factory', function() {
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
-      shell.vevent.getFirstProperty('dtstart').setParameter('tzid', jstz.determine().name()); //fcMoment.tz does not use fake timezone by our jstz mock
       expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T23:01:00Z');
     });
 
     it('should expand correctly all subevent if no start end zone specified', function() {
       var shell = {
-        start: fcMoment('2015-01-01 18:01'),
-        end: fcMoment('2015-01-01 19:01'),
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -373,22 +372,22 @@ describe('CalendarShell factory', function() {
       expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
-          formattedStart: '2015-01-01 18:01',
-          formattedEnd: '2015-01-01 19:01',
+          formattedStart: '2015-01-01T18:01:00Z',
+          formattedEnd: '2015-01-01T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
         1: {
           title: 'reccurent',
-          formattedStart: '2015-01-03 18:01',
-          formattedEnd: '2015-01-03 19:01',
+          formattedStart: '2015-01-03T18:01:00Z',
+          formattedEnd: '2015-01-03T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
         2: {
           title: 'reccurent',
-          formattedStart: '2015-01-05 18:01',
-          formattedEnd: '2015-01-05 19:01',
+          formattedStart: '2015-01-05T18:01:00Z',
+          formattedEnd: '2015-01-05T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
@@ -396,10 +395,34 @@ describe('CalendarShell factory', function() {
       });
     });
 
+    it('should expand correctly recurrent event with timezone', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
+        0: {
+          formattedRecurrenceId: '2016-03-07T15:00:00Z',
+          formattedStart:  '2016-03-07T16:00:00Z',
+          formattedEnd:  '2016-03-07T17:00:00Z'
+        },
+        1: {
+          formattedRecurrenceId: '2016-03-08T15:00:00Z',
+          formattedStart:  '2016-03-08T15:00:00Z',
+          formattedEnd:  '2016-03-08T16:00:00Z'
+        },
+        length: 2
+      });
+    });
+
+    it('should expand correctly recurrent event with exdate', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithExdate.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      expect(shell.expand().length).to.equal(2);
+    });
+
     it('should expand correctly all subevent before enddate if no startDate given', function() {
       var shell = {
-        start: fcMoment('2015-01-01 18:01'),
-        end: fcMoment('2015-01-01 19:01'),
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -414,8 +437,8 @@ describe('CalendarShell factory', function() {
       expect(shell.expand(null, fcMoment('2015-01-02')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
-          formattedStart: '2015-01-01 18:01',
-          formattedEnd: '2015-01-01 19:01',
+          formattedStart: '2015-01-01T18:01:00Z',
+          formattedEnd: '2015-01-01T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
@@ -425,8 +448,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent after start if no enddate given', function() {
       var shell = {
-        start: fcMoment('2015-01-01 18:01'),
-        end: fcMoment('2015-01-01 19:01'),
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -441,8 +464,8 @@ describe('CalendarShell factory', function() {
       expect(shell.expand(fcMoment('2015-01-04')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
-          formattedStart: '2015-01-05 18:01',
-          formattedEnd: '2015-01-05 19:01',
+          formattedStart: '2015-01-05T18:01:00Z',
+          formattedEnd: '2015-01-05T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
@@ -452,8 +475,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent between start date and end date', function() {
       var shell = {
-        start: fcMoment('2015-01-01 18:01'),
-        end: fcMoment('2015-01-01 19:01'),
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -467,8 +490,8 @@ describe('CalendarShell factory', function() {
       expect(shell.expand(fcMoment('2015-01-02'), fcMoment('2015-01-04')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
-          formattedStart: '2015-01-03 18:01',
-          formattedEnd: '2015-01-03 19:01',
+          formattedStart: '2015-01-03T18:01:00Z',
+          formattedEnd: '2015-01-03T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
@@ -478,8 +501,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand no more event than given maxElement', function() {
       var shell = {
-        start: fcMoment('2015-01-01 18:01'),
-        end: fcMoment('2015-01-01 19:01'),
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -493,21 +516,51 @@ describe('CalendarShell factory', function() {
       expect(shell.expand(null, null, 2).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
-          formattedStart: '2015-01-01 18:01',
-          formattedEnd: '2015-01-01 19:01',
+          formattedStart: '2015-01-01T18:01:00Z',
+          formattedEnd: '2015-01-01T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
         1: {
           title: 'reccurent',
-          formattedStart: '2015-01-03 18:01',
-          formattedEnd: '2015-01-03 19:01',
+          formattedStart: '2015-01-03T18:01:00Z',
+          formattedEnd: '2015-01-03T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined
         },
         length: 2
       });
     });
+  });
+
+  describe('deleteInstance', function() {
+    it('should correctly delete non exceptional instance', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      var instances = shell.expand();
+      var instanceToDelete = instances.pop();
+      shell.deleteInstance(instanceToDelete);
+      var expandResult = shell.expand();
+      expect(expandResult.length).to.equal(1);
+      expect(expandResult[0].equals(instances[0]));
+      expect(shell.vevent.getFirstPropertyValue('exdate')).to.equal(instanceToDelete.vevent.getFirstPropertyValue('recurrence-id'));
+    });
+
+    it('should correctly delete exceptional instance', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      var instances = shell.expand();
+      var instanceToDelete = instances.shift();
+      shell.deleteInstance(instanceToDelete);
+      var expandResult = shell.expand();
+      expect(expandResult.length).to.equal(1);
+      expect(expandResult[0].equals(instances[0]));
+      expect(shell.vevent.getFirstPropertyValue('exdate')).to.equal(instanceToDelete.vevent.getFirstPropertyValue('recurrence-id'));
+      expect(shell.vcalendar.getAllSubcomponents('vevent').filter(function(vevent) {
+        return vevent.getFirstPropertyValue('recurrence-id');
+      }).length).to.equal(0);
+    });
+
   });
 
   describe('getModifiedMaster method', function() {

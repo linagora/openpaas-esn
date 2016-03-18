@@ -3,7 +3,19 @@
 angular.module('esn.calendar')
 
   .factory('CalendarShell', function($q, _, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES, EVENT_MODIFY_COMPARE_KEYS) {
-    var timezoneLocal = this.timezoneLocal || jstz.determine().name();
+
+    function setDatetimePropertyWithUtc(component, propertyName, icalTime) {
+      var property = component.getFirstProperty(propertyName);
+
+      if (!property) {
+        property = new ICAL.Property(propertyName);
+        component.addProperty(property);
+      }
+
+      property.setValue(icalTime.convertToZone(ICAL.Timezone.utcTimezone));
+      property.removeParameter('tzid');
+    }
+
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -44,6 +56,33 @@ angular.module('esn.calendar')
       this.etag = extendedProperties.etag;
       this.backgroundColor = extendedProperties.backgroundColor;
       this.gracePeriodTaskId = extendedProperties.gracePeriodTaskId;
+      this.icalEvent = new ICAL.Event(this.vevent);
+
+      this.timezones = _.chain(this.vcalendar.getAllSubcomponents('vtimezone')).map(ICAL.Timezone.fromData).indexBy('tzid').value();
+
+      if (this.isRecurring()) {
+        this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
+          if (vevent.getFirstPropertyValue('recurrence-id')) {
+            var event = new ICAL.Event(vevent);
+            if (event.startDate) {
+              event.startDate.zone = this.timezones[event.startDate.timezone] || event.startDate.zone;
+              //trying to acesss endDate if startDate is not define crash ICAL.js
+              if (event.endDate) {
+                event.endDate.zone = this.timezones[event.endDate.timezone] || event.endDate.zone;
+              }
+            }
+            this.icalEvent.relateException(event);
+          }
+        }, this);
+      }
+
+      if (this.icalEvent.startDate) {
+        this.icalEvent.startDate.zone = this.timezones[this.icalEvent.startDate.timezone] || this.icalEvent.startDate.zone;
+        //trying to acesss endDate if startDate is not define crash ICAL.js
+        if (this.icalEvent.endDate) {
+          this.icalEvent.endDate.zone = this.timezones[this.icalEvent.endDate.timezone] || this.icalEvent.endDate.zone;
+        }
+      }
     }
 
     CalendarShell.prototype = {
@@ -81,10 +120,9 @@ angular.module('esn.calendar')
       set start(value) {
         this.__start = undefined;
         if (value) {
-          var dtstart = ICAL.Time.fromJSDate(value.toDate());
+          var dtstart = ICAL.Time.fromJSDate(value.toDate(), true);
           dtstart.isDate = !value.hasTime();
-          var startprop = this.vevent.updatePropertyWithValue('dtstart', dtstart);
-          startprop.setParameter('tzid', timezoneLocal);
+          this.vevent.updatePropertyWithValue('dtstart', dtstart);
         }
       },
 
@@ -97,10 +135,9 @@ angular.module('esn.calendar')
       set end(value) {
         this.__end = undefined;
         if (value) {
-          var dtend = ICAL.Time.fromJSDate(value.toDate());
+          var dtend = ICAL.Time.fromJSDate(value.toDate(), true);
           dtend.isDate = !value.hasTime();
-          var endprop = this.vevent.updatePropertyWithValue('dtend', dtend);
-          endprop.setParameter('tzid', timezoneLocal);
+          this.vevent.updatePropertyWithValue('dtend', dtend);
         }
       },
 
@@ -118,11 +155,9 @@ angular.module('esn.calendar')
       set recurrenceId(value) {
         this.__recurrenceId = undefined;
         if (value) {
-          var recid = ICAL.Time.fromJSDate(value.toDate());
-          recid.zone = ICAL.Timezone.localTimezone;
+          var recid = ICAL.Time.fromJSDate(value.toDate(), true);
           recid.isDate = !value.hasTime();
-          var recprop = this.vevent.updatePropertyWithValue('recurrence-id', recid);
-          recprop.setParameter('tzid', timezoneLocal);
+          this.vevent.updatePropertyWithValue('recurrence-id', recid);
         }
       },
 
@@ -135,60 +170,36 @@ angular.module('esn.calendar')
       },
 
       isRecurring: function() {
-        return (new ICAL.Event(this.vevent)).isRecurring();
+        return this.icalEvent.isRecurring();
+      },
+      deleteInstance: function(instance) {
+        this._removeOccurenceFromVcalendar(instance);
+        this.vevent.addPropertyWithValue('exdate', instance.vevent.getFirstPropertyValue('recurrence-id'));
       },
       expand: function(startDate, endDate, maxElement) {
-        var IEvent = new ICAL.Event(this.vevent);
-        if (!IEvent.isRecurring()) {
+        if (!this.icalEvent.isRecurring()) {
           return [];
         }
         if (!endDate && !maxElement && !this.rrule.count && !this.rrule.until) {
           throw new Error('Could not list all element of a reccuring event that never end');
         }
 
-        var subEventExceptions = this.vcalendar.getAllSubcomponents('vevent').filter(function(vevent) {
-          return vevent.getFirstPropertyValue('recurrence-id');
-        });
-
-        var iterator = IEvent.iterator(IEvent.startDate);
+        var iterator = this.icalEvent.iterator(this.icalEvent.startDate);
         var currentDatetime, currentEvent, currentDetails, result = [];
-
         while ((currentDatetime = iterator.next()) &&
             (!endDate || endDate.isAfter(currentDatetime.toJSDate())) &&
             (!maxElement || result.length < maxElement)) {
 
           if (!startDate || startDate.isBefore(currentDatetime.toJSDate())) {
-            currentDetails = IEvent.getOccurrenceDetails(currentDatetime);
+            currentDetails = this.icalEvent.getOccurrenceDetails(currentDatetime);
 
-            //because we screwed up timezone on dtstart, recurrenceId are computed in dtstart timezone but marked as floating datetime
-            var tzid = this.vevent.getFirstProperty('dtstart').getParameter('tzid'); //so we get the dtstart timezone
-            var recurrenceId  = currentDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone); //mark recurrence id as UTC date
-            var utcOffset = ICAL.Duration.fromSeconds(-fcMoment.tz(tzid).utcOffset() * 60);
-            recurrenceId.addDuration(utcOffset); //and make it correct in UTC timezone
+            currentEvent = this.clone();
+            currentEvent.vevent.removeProperty('rrule');
+            currentEvent.vevent.removeProperty('exdate');
 
-            currentEvent = null;
-
-            //looking if current instance is an exception
-            for (var i = 0, len = subEventExceptions.length; i < len; i++) {
-              var vevent = subEventExceptions[i];
-              if (recurrenceId.compare(vevent.getFirstPropertyValue('recurrence-id')) === 0) {
-                currentEvent = new CalendarShell(vevent, {
-                  path: this.path,
-                  backgroundColor: this.backgroundColor,
-                  etag: this.etag
-                });
-                break;
-              }
-            }
-
-            if (!currentEvent) {
-              currentEvent = this.clone();
-              currentEvent.vevent.updatePropertyWithValue('recurrence-id', recurrenceId);
-
-              currentEvent.vevent.getFirstProperty('dtstart').setValue(currentDetails.startDate);
-              currentEvent.vevent.getFirstProperty('dtend').setValue(currentDetails.endDate);
-              currentEvent.vevent.removeProperty('rrule');
-            }
+            setDatetimePropertyWithUtc(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
+            setDatetimePropertyWithUtc(currentEvent.vevent, 'dtstart', currentDetails.startDate);
+            setDatetimePropertyWithUtc(currentEvent.vevent, 'dtend', currentDetails.endDate);
 
             result.push(currentEvent);
           }
@@ -347,7 +358,7 @@ angular.module('esn.calendar')
        * Find or retrieve the modified master event for this shell. If the
        * shell is already a master event, return a promise with this. Otherwise
        * either find it in the vcalendar parent, or retrieve it from the
-       * server.
+       * server and register the instance inside the master.
        *
        * @return {Promise}      Promise resolving with the master shell.
        */
@@ -384,19 +395,25 @@ angular.module('esn.calendar')
         if (this.isInstance()) {
           throw new Error('Cannot modify occurrence on an instance');
         }
-        var vevents = this.vcalendar.getAllSubcomponents('vevent');
 
+        this._removeOccurenceFromVcalendar(instance);
+        this.vcalendar.addSubcomponent(instance.clone().vevent);
+        masterEventCache.saveMasterEvent(this);
+      },
+
+      _removeOccurenceFromVcalendar: function(instance) {
+        var vevents = this.vcalendar.getAllSubcomponents('vevent');
         for (var i = 0, len = vevents.length; i < len; i++) {
           var vevent = vevents[i];
           var recId = vevent.getFirstPropertyValue('recurrence-id');
-          if (recId && instance.recurrenceId.isSame(recId.toJSDate())) {
-            this.vcalendar.removeSubcomponent(vevent);
-            break;
+          if (recId) {
+            recId.zone = this.timezones[recId.timezone] || recId.zone;
+            if (instance.recurrenceId.isSame(recId.toJSDate())) {
+              this.vcalendar.removeSubcomponent(vevent);
+              break;
+            }
           }
         }
-
-        this.vcalendar.addSubcomponent(instance.clone().vevent);
-        masterEventCache.saveMasterEvent(this);
       }
     };
 
