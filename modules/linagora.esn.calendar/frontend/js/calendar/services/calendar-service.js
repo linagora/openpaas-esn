@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('calendarService', function(
+  .service('calendarService', function(
     $q,
     $rootScope,
     keepChangeDuringGraceperiod,
@@ -22,6 +22,7 @@ angular.module('esn.calendar')
 
     var calendarsCache = {};
     var promiseCache = {};
+    var self = this;
 
     /**
      * List all calendars in the calendar home.
@@ -36,6 +37,7 @@ angular.module('esn.calendar')
             var vcal = new CalendarCollectionShell(calendar);
             vcalendars.push(vcal);
           });
+
           calendarsCache[calendarHomeId] = vcalendars;
           return calendarsCache[calendarHomeId];
         })
@@ -272,25 +274,37 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
-      return eventAPI.remove(eventPath, etag)
-        .then(function(id) {
-          event.gracePeriodTaskId = taskId = id;
-          keepChangeDuringGraceperiod.registerDelete(event);
-          calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
-        })
-        .then(function() {
-          return _registerTaskListener(taskId, 'Could not find the event to delete. Please refresh your calendar.', onTaskError);
-        })
-        .then(function() {
-          return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
-        })
-        .then(function(task) {
-          return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
-        })
-        .finally(function() {
-          event.gracePeriodTaskId = undefined;
-        })
-        .catch($q.reject);
+      if (event.isInstance()) {
+        return event.getModifiedMaster()
+          .then(function(oldMaster) {
+            var newMaster = oldMaster.clone();
+            newMaster.deleteInstance(event);
+
+            //we use self.modifyEvent and not modifyEvent for ease of testing
+            //this is also the reason why this is a service and not a factory so we can mock modifyEvent
+            return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
+          });
+      } else {
+        return eventAPI.remove(eventPath, etag)
+          .then(function(id) {
+            event.gracePeriodTaskId = taskId = id;
+            keepChangeDuringGraceperiod.registerDelete(event);
+            calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
+          })
+          .then(function() {
+            return _registerTaskListener(taskId, 'Could not find the event to delete. Please refresh your calendar.', onTaskError);
+          })
+          .then(function() {
+            return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
+          })
+          .then(function(task) {
+            return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+          })
+          .finally(function() {
+            event.gracePeriodTaskId = undefined;
+          })
+          .catch($q.reject);
+      }
     }
 
     /**
@@ -304,6 +318,7 @@ angular.module('esn.calendar')
      * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
+      options = options || {};
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
@@ -398,7 +413,7 @@ angular.module('esn.calendar')
         })
         .catch(function(response) {
           if (response.status === 412) {
-            return getEvent(eventPath).then(function(shell) {
+            return this.getEvent(eventPath).then(function(shell) {
               // A conflict occurred. We've requested the event data in the
               // response, so we can retry the request with this data.
               return changeParticipation(eventPath, shell, emails, status, shell.etag);
@@ -409,17 +424,16 @@ angular.module('esn.calendar')
         });
     }
 
-    return {
-      listEvents: listEvents,
-      listCalendars: listCalendars,
-      createEvent: createEvent,
-      getCalendar: getCalendar,
-      createCalendar: createCalendar,
-      modifyCalendar: modifyCalendar,
-      removeEvent: removeEvent,
-      modifyEvent: modifyEvent,
-      changeParticipation: changeParticipation,
-      getEvent: getEvent,
-      getInvitedAttendees: getInvitedAttendees
-    };
+    this.listCalendars = listCalendars;
+    this.getCalendar = getCalendar;
+    this.getInvitedAttendees = getInvitedAttendees;
+    this.createCalendar = createCalendar;
+    this.modifyCalendar = modifyCalendar;
+    this.changeParticipation = changeParticipation;
+    this.createEvent = createEvent;
+    this.listEvents = listEvents;
+    this.modifyEvent = modifyEvent;
+    this.removeEvent = removeEvent;
+    this.getEvent = getEvent;
+
   });
