@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('findInboxMailboxId', function(withJmapClient, jmap, _) {
+  .factory('findInboxMailboxId', function(withJmapClient, jmap, _) {
     return function() {
       return withJmapClient(function(client) {
         return client.getMailboxWithRole(jmap.MailboxRole.INBOX).then(_.property('id'));
@@ -10,19 +10,15 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxProviders', function($injector, $q) {
+  .factory('inboxProviders', function($q, toAggregatorSource, ELEMENTS_PER_PAGE) {
     var providers = [];
 
     return {
       add: function(provider) { providers.push(provider); },
       getAll: function() {
         return $q.all(providers.map(function(provider) {
-          if (provider.fetcher) {
-            return $q.when(provider);
-          }
-
           return provider.getDefaultContainer().then(function(container) {
-            provider.fetcher = provider.fetch(container);
+            provider.loadNextItems = toAggregatorSource(provider.fetch(container), ELEMENTS_PER_PAGE);
 
             return provider;
           });
@@ -31,41 +27,94 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxTwitterProvider', function($q, $http, inMemoryPaging, _) {
-    return function(accountId) {
-      return {
-        name: 'inboxTwitterProvider',
-        fetch: function() {
-          return inMemoryPaging(function(position, limit) {
-            return $http
-              .get('/unifiedinbox/api/inbox/tweets', { params: { account_id: accountId, count: limit }  })
-              .then(_.property('data'));
-          });
-        },
-        getDefaultContainer: function() { return $q.when(); },
-        templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
+  .factory('toAggregatorSource', function() {
+    return function(fetcher, length) {
+      return function() {
+        return fetcher().then(function(results) {
+          return { data: results, lastPage: results.length < length };
+        });
       };
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, inMemoryPaging, findInboxMailboxId,
-                                                       JMAP_GET_MESSAGES_LIST) {
-    return {
+  .factory('newInboxProvider', function(PageAggregatorService, toAggregatorSource, _, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
+    return function(provider) {
+      return {
+        name: provider.name,
+        fetch: function(container) {
+          var aggregator = new PageAggregatorService(provider.name, [{
+            loadNextItems: toAggregatorSource(provider.fetch(container), ELEMENTS_PER_REQUEST)
+          }], { results_per_page: ELEMENTS_PER_PAGE });
+
+          return function() {
+            return aggregator.loadNextItems()
+              .then(_.property('data'))
+              .then(function(results) {
+                return results.map(function(result) {
+                  if (!(result.date instanceof Date)) {
+                    result.date = new Date(result.date);
+                  }
+                  result.templateUrl = provider.templateUrl;
+
+                  return result;
+                });
+              });
+          };
+        },
+        getDefaultContainer: provider.getDefaultContainer
+      };
+    };
+  })
+
+  .factory('inboxTwitterProvider', function($q, $http, newInboxProvider, _, ELEMENTS_PER_REQUEST) {
+    return function(accountId) {
+      return newInboxProvider({
+        name: 'inboxTwitterProvider',
+        fetch: function() {
+          var oldestTweetId = null;
+
+          return function() {
+            return $http
+              .get('/unifiedinbox/api/inbox/tweets', {
+                params: {
+                  account_id: accountId,
+                  count: ELEMENTS_PER_REQUEST,
+                  max_id: oldestTweetId
+                }
+              })
+              .then(_.property('data'))
+              .then(function(results) {
+                if (results.length > 0) {
+                  oldestTweetId = _.last(results).id;
+                }
+
+                return results;
+              });
+          };
+        },
+        getDefaultContainer: function() { return $q.when(); },
+        templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
+      });
+    };
+  })
+
+  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, findInboxMailboxId,
+                                                       newInboxProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+    return newInboxProvider({
       name: 'inboxHostedMailMessagesProvider',
       fetch: function(container) {
-        return inMemoryPaging(function(position, limit) {
+        return pagedJmapRequest(function(position) {
           return withJmapClient(function(client) {
-            return client
-              .getMessageList({
-                filter: {
-                  inMailboxes: [container]
-                },
-                sort: ['date desc'],
-                collapseThreads: false,
-                fetchMessages: false,
-                position: position,
-                limit: limit
-              })
+            return client.getMessageList({
+              filter: {
+                inMailboxes: [container]
+              },
+              sort: ['date desc'],
+              collapseThreads: false,
+              fetchMessages: false,
+              position: position,
+              limit: ELEMENTS_PER_REQUEST
+            })
               .then(function(messageList) {
                 return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
               })
@@ -75,35 +124,38 @@ angular.module('linagora.esn.unifiedinbox')
       },
       getDefaultContainer: findInboxMailboxId,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
-    };
+    });
   })
 
-  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, inMemoryPaging, Email, _, findInboxMailboxId,
-                                                      JMAP_GET_MESSAGES_LIST) {
+  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, _, findInboxMailboxId,
+                                                      newInboxProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
     function _prepareThreads(data) {
-      data[1].forEach(function(email) {
-        _.assign(_.find(data[0], { id: email.threadId }), { email: Email(email), date: email.date });
+      var threads = data[0],
+          messages = data[1];
+
+      messages.forEach(function(message) {
+        _.assign(_.find(threads, { id: message.threadId }), { email: Email(message), date: message.date });
       });
 
-      return data[0];
+      return threads;
     }
 
-    return {
+    return newInboxProvider({
       name: 'inboxHostedMailThreadsProvider',
       fetch: function(container) {
-        return inMemoryPaging(function(position, limit) {
+        return pagedJmapRequest(function(position) {
           return withJmapClient(function(client) {
             return client.getMessageList({
-                filter: {
-                  inMailboxes: [container]
-                },
-                sort: ['date desc'],
-                collapseThreads: true,
-                fetchThreads: false,
-                fetchMessages: false,
-                position: position,
-                limit: limit
-              })
+              filter: {
+                inMailboxes: [container]
+              },
+              sort: ['date desc'],
+              collapseThreads: true,
+              fetchThreads: false,
+              fetchMessages: false,
+              position: position,
+              limit: ELEMENTS_PER_REQUEST
+            })
               .then(function(messageList) {
                 return $q.all([
                   messageList.getThreads({ fetchMessages: false }),
@@ -116,29 +168,20 @@ angular.module('linagora.esn.unifiedinbox')
       },
       getDefaultContainer: findInboxMailboxId,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
-    };
+    });
   })
 
-  .factory('inMemoryPaging', function($q, ELEMENTS_PER_REQUEST) {
-    return function(loadMoreElements) {
-      var cache = [];
+  .factory('pagedJmapRequest', function() {
+    return function(loadNextItems) {
+      var position = 0;
 
-      return function(offset, limit) {
-        function slice() {
-          return cache.slice(offset, offset + limit);
-        }
+      return function() {
+        return loadNextItems(position)
+          .then(function(results) {
+            position += results.length;
 
-        if (cache.length > offset) {
-          return $q.when(slice());
-        }
-
-        if (cache.length > 0 && cache.length < ELEMENTS_PER_REQUEST) {
-          return $q.when([]);
-        }
-
-        return loadMoreElements(cache.length, ELEMENTS_PER_REQUEST)
-          .then(function(results) { cache = cache.concat(results); })
-          .then(slice);
+            return results;
+          });
       };
     };
   });

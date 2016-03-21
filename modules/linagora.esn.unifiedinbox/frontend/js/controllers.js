@@ -8,24 +8,31 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.getTwitterAccounts = session.getTwitterAccounts;
   })
 
-  .controller('unifiedInboxController', function($state, $scope, $q, _, withJmapClient, jmap, infiniteScrollHelper,
-                                                 inboxProviders, headerService) {
+  .controller('unifiedInboxController', function($state, $scope, infiniteScrollHelper, inboxProviders, headerService,
+                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE) {
+
+    var aggregator;
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'));
+    }
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
+      if (aggregator) {
+        return load();
+      }
+
+      return inboxProviders.getAll().then(function(providers) {
+        aggregator = new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
+          compare: function(a, b) { return b.date - a.date; },
+          results_per_page: ELEMENTS_PER_PAGE
+        });
+
+        return load();
+      });
+    });
 
     headerService.subHeader.setInjection('unified-view-subheader', $scope);
-
-    $scope.loadMoreElements = infiniteScrollHelper($scope, function(position, limit) {
-      return inboxProviders
-        .getAll()
-        .then(function(providers) {
-          return $q.all(providers.map(function(provider) {
-            return provider.fetcher(position, limit)
-              .then(function(elements) {
-                return elements.map(function(e) { return _.assign(e, { templateUrl: provider.templateUrl }); });
-              });
-          }));
-        })
-        .then(function(results) { return _.flatten(results, true); });
-    });
   })
 
   .controller('listController', function($state, $stateParams, inboxConfig, DEFAULT_VIEW) {

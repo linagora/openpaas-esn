@@ -82,7 +82,7 @@ angular.module('esn.aggregator', [])
 
         var compare = self.options.compare(previous, current);
 
-        if (compare === -1) {
+        if (compare < 0) {
           out = previous;
         } else {
           out = current;
@@ -130,7 +130,7 @@ angular.module('esn.aggregator', [])
             result.push(item);
           }
 
-          if (!self._sourcesHaveData() || result.length === self.options.results_per_page) {
+          if (!self.hasNext() || result.length === self.options.results_per_page) {
             return $q.when({data: result});
           }
           return load();

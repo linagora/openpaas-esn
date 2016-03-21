@@ -24,7 +24,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.form.helper',
   'esn.infinite-list',
   'esn.url',
-  'esn.background'
+  'esn.background',
+  'esn.aggregator'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -155,7 +156,7 @@ angular.module('linagora.esn.unifiedinbox', [
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
   })
 
-  .run(function(inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
+  .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
                 inboxTwitterProvider, session, DEFAULT_VIEW) {
 
     inboxConfig('view', DEFAULT_VIEW).then(function(view) {

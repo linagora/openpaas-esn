@@ -6,7 +6,21 @@ var expect = chai.expect;
 
 describe('The Unified Inbox Angular module providers', function() {
 
-  var jmapClient;
+  var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
+    $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST;
+
+  function elements(id, length, offset) {
+    var array = [], start = offset || 0;
+
+    for (var i = start; i < (start + length); i++) {
+      array.push({
+        id: id + '_' + i,
+        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i)
+      });
+    }
+
+    return array;
+  }
 
   beforeEach(function() {
     angular.mock.module('esn.configuration');
@@ -19,7 +33,12 @@ describe('The Unified Inbox Angular module providers', function() {
           expect(options.filter.inMailboxes).to.deep.equal(['id_inbox']);
 
           return $q.when({
-            getMessages: function() { return $q.when([]); }
+            getMessages: function() {
+              return $q.when(elements('message', options.limit, options.position));
+            },
+            getThreads: function() {
+              return $q.when(elements('thread', options.limit, options.position));
+            }
           });
         }
       };
@@ -30,25 +49,202 @@ describe('The Unified Inbox Angular module providers', function() {
     });
   });
 
+  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _inboxTwitterProvider_, _inboxHostedMailMessagesProvider_,
+                                          _inboxHostedMailThreadsProvider_, _$httpBackend_, _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_) {
+    $rootScope = _$rootScope_;
+    inboxProviders = _inboxProviders_;
+    inboxTwitterProvider = _inboxTwitterProvider_;
+    inboxHostedMailMessagesProvider = _inboxHostedMailMessagesProvider_;
+    inboxHostedMailThreadsProvider = _inboxHostedMailThreadsProvider_;
+    $httpBackend = _$httpBackend_;
+
+    ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
+    ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
+  }));
+
+  describe('The inboxHostedMailMessagesProvider factory', function() {
+
+    it('should request the backend using the JMAP client, and return pages of messages', function(done) {
+      var fetcher = inboxHostedMailMessagesProvider.fetch('id_inbox');
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'message_19',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
+        });
+      });
+      $rootScope.$digest();
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'message_39',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should paginate requests to the backend', function(done) {
+      var fetcher = inboxHostedMailMessagesProvider.fetch('id_inbox');
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'message_19',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
+        });
+      });
+      $rootScope.$digest();
+
+      for (var i = ELEMENTS_PER_PAGE; i < ELEMENTS_PER_REQUEST; i += ELEMENTS_PER_PAGE) {
+        fetcher();
+        $rootScope.$digest();
+      }
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'message_219',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+  });
+
+  describe('The inboxHostedMailThreadsProvider factory', function() {
+
+    it('should request the backend using the JMAP client, and return pages of threads', function(done) {
+      var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
+
+      fetcher().then(function(threads) {
+        expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'thread_19',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
+        });
+      });
+      $rootScope.$digest();
+
+      fetcher().then(function(threads) {
+        expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'thread_39',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should paginate requests to the backend', function(done) {
+      var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
+
+      fetcher().then(function(threads) {
+        expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'thread_19',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
+        });
+      });
+      $rootScope.$digest();
+
+      for (var i = ELEMENTS_PER_PAGE; i < ELEMENTS_PER_REQUEST; i += ELEMENTS_PER_PAGE) {
+        fetcher();
+        $rootScope.$digest();
+      }
+
+      fetcher().then(function(threads) {
+        expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'thread_219',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+  });
+
+  describe('The inboxTwitterProvider factory', function() {
+
+    it('should request tweets from the  backend, and return pages of tweets', function(done) {
+      var fetcher = inboxTwitterProvider('myTwitterAccount').fetch();
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+
+      fetcher().then(function(tweets) {
+        expect(tweets.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(tweets[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'tweet_19',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
+        });
+      });
+      $httpBackend.flush();
+
+      fetcher().then(function(tweets) {
+        expect(tweets.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(tweets[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'tweet_39',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should paginate requests to the backend', function(done) {
+      var fetcher = inboxTwitterProvider('myTwitterAccount').fetch();
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+
+      fetcher();
+      $httpBackend.flush();
+
+      for (var i = ELEMENTS_PER_PAGE; i < ELEMENTS_PER_REQUEST; i += ELEMENTS_PER_PAGE) {
+        fetcher();
+        $rootScope.$digest();
+      }
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200&max_id=tweet_199').respond(200, [{
+        id: 'tweet_200',
+        date: '2016-01-01T01:01:01.001Z'
+      }]);
+
+      fetcher().then(function(tweets) {
+        expect(tweets.length).to.equal(1);
+        expect(tweets[0].date).to.equalTime(new Date(Date.UTC(2016, 0, 1, 1, 1, 1, 1)));
+
+        done();
+      });
+      $httpBackend.flush();
+    });
+
+  });
+
   describe('The inboxProviders factory', function() {
-
-    var $rootScope, inboxProviders;
-
-    beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_) {
-      $rootScope = _$rootScope_;
-      inboxProviders = _inboxProviders_;
-    }));
 
     describe('The getAll function', function() {
 
-      it('should return an array of providers, with the "fetcher" property initialized', function(done) {
+      it('should return an array of providers, with the "loadNextItems" property initialized', function(done) {
         inboxProviders.add({
           getDefaultContainer: sinon.spy(function() { return $q.when('container'); }),
           fetch: sinon.spy(function(container) {
             expect(container).to.equal('container');
 
             return function() {
-              return $q.when([]);
+              return $q.when(elements('id', 2));
             };
           }),
           templateUrl: 'templateUrl'
@@ -59,7 +255,7 @@ describe('The Unified Inbox Angular module providers', function() {
             expect(container).to.equal('container_2');
 
             return function() {
-              return $q.when([]);
+              return $q.when(elements('id', ELEMENTS_PER_PAGE));
             };
           }),
           templateUrl: 'templateUrl'
@@ -67,11 +263,10 @@ describe('The Unified Inbox Angular module providers', function() {
 
         inboxProviders.getAll().then(function(providers) {
           $q.all(providers.map(function(provider) {
-            return provider.fetcher();
+            return provider.loadNextItems();
           })).then(function(results) {
-            results.forEach(function(result) {
-              expect(result).to.deep.equal([]);
-            });
+            expect(results[0]).to.deep.equal({ data: elements('id', 2), lastPage: true });
+            expect(results[1]).to.deep.equal({ data: elements('id', ELEMENTS_PER_PAGE), lastPage: false });
 
             done();
           });
@@ -79,107 +274,6 @@ describe('The Unified Inbox Angular module providers', function() {
         $rootScope.$digest();
       });
 
-    });
-
-  });
-
-  describe('The inMemoryPaging factory', function() {
-
-    var $rootScope, inMemoryPaging, ELEMENTS_PER_REQUEST;
-
-    beforeEach(angular.mock.inject(function(_$rootScope_, _inMemoryPaging_, _ELEMENTS_PER_REQUEST_) {
-      $rootScope = _$rootScope_;
-      inMemoryPaging = _inMemoryPaging_;
-      ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
-    }));
-
-    function loader(offset, length) {
-      return sinon.spy(function(_offset, _limit) {
-        expect(_limit).to.equal(ELEMENTS_PER_REQUEST);
-
-        var results = [];
-        for (var i = 0; i < length; i++) {
-          results.push(_offset + i);
-        }
-
-        return $q.when(results);
-      });
-    }
-
-    it('should invoke the loader to init the cache on first call', function(done) {
-      var loadMoreElements = loader(0, 10);
-
-      inMemoryPaging(loadMoreElements)(0, 10).then(function() {
-        expect(loadMoreElements).to.have.been.calledOnce;
-
-        done();
-      });
-      $rootScope.$digest();
-    });
-
-    it('should return a slice of the results, honoring offset and index', function(done) {
-      var loadMoreElements = loader(0, 10);
-
-      inMemoryPaging(loadMoreElements)(0, 3).then(function(results) {
-        expect(results).to.deep.equal([0, 1, 2]);
-
-        done();
-      });
-      $rootScope.$digest();
-    });
-
-    it('should page data in memory, if there is more data available in the cache', function(done) {
-      var loadMoreElements = loader(0, 10), pager = inMemoryPaging(loadMoreElements);
-
-      pager(0, 3).then(function() {
-        pager(3, 2).then(function(results) {
-          expect(loadMoreElements).to.have.been.calledOnce;
-          expect(results).to.deep.equal([3, 4]);
-
-          done();
-        });
-      });
-      $rootScope.$digest();
-    });
-
-    it('should return empty results if there is no _more_ data available', function(done) {
-      var loadMoreElements = loader(0, 10), pager = inMemoryPaging(loadMoreElements);
-
-      pager(0, 10).then(function() {
-        pager(10, 2).then(function(results) {
-          expect(loadMoreElements).to.have.been.calledOnce;
-          expect(results).to.deep.equal([]);
-
-          done();
-        });
-      });
-      $rootScope.$digest();
-    });
-
-    it('should return empty results if there is no data available', function(done) {
-      var loadMoreElements = loader(0, 10);
-
-      inMemoryPaging(loadMoreElements)(10, 10).then(function(results) {
-        expect(loadMoreElements).to.have.been.calledOnce;
-        expect(results).to.deep.equal([]);
-
-        done();
-      });
-      $rootScope.$digest();
-    });
-
-    it('should fetch data again, paging correctly if there is more data available', function(done) {
-      var loadMoreElements = loader(0, ELEMENTS_PER_REQUEST), pager = inMemoryPaging(loadMoreElements);
-
-      pager(0, 200).then(function() {
-        pager(200, 5).then(function(results) {
-          expect(loadMoreElements).to.have.been.calledTwice;
-          expect(results).to.deep.equal([200, 201, 202, 203, 204]);
-
-          done();
-        });
-      });
-      $rootScope.$digest();
     });
 
   });

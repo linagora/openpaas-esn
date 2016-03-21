@@ -244,6 +244,7 @@
     "yoda": [
       "error",
       "never"
-    ]
+    ],
+    "no-magic-numbers": "off"
   }
 }

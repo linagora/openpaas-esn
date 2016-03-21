@@ -950,10 +950,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should add email and date for each thread', function() {
         var thread1 = {id: 'thread1', messageIds: ['msg1']},
-          thread2 = {id: 'thread2', messageIds: ['msg2']};
+            thread2 = {id: 'thread2', messageIds: ['msg2']};
         var messageListResult = {
           threadIds: [1, 2],
-          getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '10:00:00'}, {id: 'msg2', threadId: 'thread2', date: '12:00:00'}];}),
+          getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'}, {id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'}];}),
           getThreads: sinon.spy(function() { return [thread1, thread2];})
         };
 
@@ -966,11 +966,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(messageListResult.getMessages).to.have.been.called;
         expect(messageListResult.getThreads).to.have.been.called;
 
-        expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '10:00:00'});
-        expect(thread1.date).to.equal('10:00:00');
+        expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'});
+        expect(thread1.date).to.equalTime(new Date('2016-03-21T10:16:22.628Z'));
 
-        expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '12:00:00'});
-        expect(thread2.date).to.equal('12:00:00');
+        expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'});
+        expect(thread2.date).to.equalTime(new Date('2016-03-22T10:16:22.628Z'));
 
       });
 

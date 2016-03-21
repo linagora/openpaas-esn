@@ -9,7 +9,7 @@ infinite-list.list-emails
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
-        .lv-item.media(ng-repeat="item in group.elements | orderBy: ['-date']")
+        .lv-item.media(ng-repeat="item in group.elements")
           block item
 
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
