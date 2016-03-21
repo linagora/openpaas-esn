@@ -14,7 +14,7 @@ function storeAttachment(metaData, stream, options, callback) {
     return callback(new Error('Attachment stream is required.'));
   }
 
-  options = options ||  {};
+  options = options ||  {};
 
   var fileId = new ObjectId();
 

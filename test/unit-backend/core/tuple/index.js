@@ -65,14 +65,18 @@ describe('The tuple core module', function() {
       var spy = sinon.spy(this.mod, 'user');
       try {
         this.mod.user('bad');
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
       expect(spy).to.have.thrown();
     });
     it('should throw on an empty ObjectID', function() {
       var spy = sinon.spy(this.mod, 'user');
       try {
         this.mod.user('');
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
       expect(spy).to.have.thrown();
     });
   });

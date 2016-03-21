@@ -137,7 +137,7 @@ angular.module('esn.calendar')
           $scope.$parent.show('whatsup');
         })
       .catch(function(err) {
-        notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+        notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', Please refresh your calendar');
       })
       .finally(function() {
         $scope.restActive = false;

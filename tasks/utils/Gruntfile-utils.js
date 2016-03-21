@@ -202,6 +202,7 @@ GruntfileUtils.prototype.cleanEnvironment = function cleanEnvironment() {
       try {
         fs.rmdirSync(directory);
       } catch (e) {
+        console.error(e);
       }
     }
 

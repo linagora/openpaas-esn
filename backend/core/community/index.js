@@ -132,7 +132,7 @@ module.exports.userToMember = function(document) {
 };
 
 module.exports.getMembers = function(community, query, callback) {
-  query = query ||  {};
+  query = query ||  {};
   var id = community._id || community;
   Community.findById(id, function(err, community) {
     if (err) { return callback(err); }
@@ -156,7 +156,7 @@ module.exports.getManagers = function(community, query, callback) {
 
   var q = Community.findById(id);
   // TODO Right now creator is the only manager. It will change in the futur.
-  // query = query ||  {};
+  // query = query ||  {};
   // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
   q.populate('creator');
   q.exec(function(err, community) {

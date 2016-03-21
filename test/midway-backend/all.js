@@ -70,7 +70,9 @@ before(function() {
 after(function() {
   try {
     fs.unlinkSync(this.testEnv.tmp + '/default.json');
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
   delete process.env.NODE_CONFIG;
   delete process.env.NODE_ENV;
 });
@@ -84,7 +86,9 @@ afterEach(function() {
   try {
     this.helpers.requireBackend('core/db/mongo/file-watcher').clear();
     this.testEnv.removeDBConfigFile();
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();

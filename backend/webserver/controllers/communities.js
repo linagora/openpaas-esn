@@ -211,7 +211,7 @@ module.exports.uploadAvatar = function(req, res) {
     return res.json(400, {error: 400, message: 'Parameter missing', details: 'size parameter is required'});
   }
 
-  var size = parseInt(req.query.size);
+  var size = parseInt(req.query.size, 10);
   if (isNaN(size)) {
     return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
   }
@@ -310,14 +310,14 @@ module.exports.getMembers = function(req, res) {
 
   var query = {};
   if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'));
+    var limit = parseInt(req.param('limit'), 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
   if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'));
+    var offset = parseInt(req.param('offset'), 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }
@@ -455,14 +455,14 @@ module.exports.getMembershipRequests = function(req, res) {
 
   var query = {};
   if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'));
+    var limit = parseInt(req.param('limit'), 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
   if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'));
+    var offset = parseInt(req.param('offset'), 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }

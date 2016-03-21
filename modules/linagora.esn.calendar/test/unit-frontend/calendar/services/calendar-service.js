@@ -338,7 +338,7 @@ describe('The calendarService service', function() {
         expect(events[0].vevent).to.be.an('object');
         expect(events[0].etag).to.equal('"123123"');
         expect(events[0].path).to.equal('/prepath/path/to/calendar/myuid.ics');
-      }.bind(this)).finally(done);
+      }).finally(done);
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
@@ -407,7 +407,7 @@ describe('The calendarService service', function() {
         expect(events[1].vevent).to.be.an('object');
         expect(events[1].etag).to.equal('"123123"');
         expect(events[1].path).to.equal('/prepath/path/to/calendar/myuid.ics');
-      }.bind(this)).finally(done);
+      }).finally(done);
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
@@ -480,7 +480,7 @@ describe('The calendarService service', function() {
         expect(event.vcalendar).to.be.an('object');
         expect(event.path).to.equal('/path/to/event.ics');
         expect(event.etag).to.equal('testing-tag');
-      }.bind(this)).finally(done);
+      }).finally(done);
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();

@@ -20,7 +20,7 @@ angular.module('linagora.esn.contact')
       }
       var self = this;
 
-      this.id = options.id || DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME;
+      this.id = options.id || DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME;
       this.providers = this.addressbooks.map(function(addressbook) {
         return new AddressBookPaginationProvider({addressbooks: [addressbook], user: self.options.user});
       });

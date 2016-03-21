@@ -281,14 +281,14 @@ function getMembershipRequests(req, res) {
 
   var query = {};
   if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'));
+    var limit = parseInt(req.param('limit'), 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
   if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'));
+    var offset = parseInt(req.param('offset'), 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }

@@ -47,7 +47,7 @@ InvitationSchema.statics = {
    * Test if the invitation is finalized
    *
    * @param {String} uuid - invitation uuid
-   * @param {fn}  cb : cb as fn(err, finalized)
+   * @param {fn}  cb : cb as fn(err, finalized)
    */
   isFinalized: function(uuid, cb) {
     this.findOne({uuid: uuid}).where('timestamps.finalized').exists(true).exec(function(err, data) {

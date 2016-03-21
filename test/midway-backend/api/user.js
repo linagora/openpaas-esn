@@ -297,7 +297,7 @@ describe('User API', function() {
 
       function createCommunity(name, creator, domain, member) {
         return function(done) {
-          var opts = function(json) { return json; };
+          var opts = function(json) { return json; };
           if (member) {
             opts = function(json) {
               json.members.push({member: {id: member, objectType: 'user'}});

@@ -312,7 +312,7 @@ angular.module('linagora.esn.unifiedinbox')
         })
         .then(function() {
           $scope.thread.emails.forEach(function(email, index, emails) {
-            email.isCollapsed = !(email.isUnread || index === emails.length - 1);
+            email.isCollapsed = !(email.isUnread || index === emails.length - 1);
           });
         })
         .then(function() {

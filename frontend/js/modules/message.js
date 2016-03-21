@@ -179,9 +179,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
 
     $scope.displayValidationError = function() {
       var errorMsg = '';
-      for (var k in $scope.validationError) {
-        errorMsg = errorMsg + $scope.validationError[k] + ' ';
-      }
+      angular.forEach($scope.validationError, function(error) {
+        errorMsg = errorMsg + error + ' ';
+      });
       $scope.displayError(errorMsg);
     };
 

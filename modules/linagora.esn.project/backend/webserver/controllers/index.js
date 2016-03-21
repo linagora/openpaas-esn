@@ -196,7 +196,7 @@ function projectControllers(lib, dependencies) {
       return res.json(400, {error: 400, message: 'Parameter missing', details: 'size parameter is required'});
     }
 
-    var size = parseInt(req.query.size);
+    var size = parseInt(req.query.size, 10);
     if (isNaN(size)) {
       return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
     }

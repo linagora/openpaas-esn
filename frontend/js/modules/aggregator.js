@@ -19,7 +19,7 @@ angular.module('esn.aggregator', [])
 
       return this.source.loadNextItems(options).then(function(result) {
         self.lastPage = !!result.lastPage;
-        return {id: self.source.id, lastPage: self.lastPage, data: result.data || []};
+        return {id: self.source.id, lastPage: self.lastPage, data: result.data || []};
       }, function(err) {
         $log.error('Fail to load new items', err);
         return $q.reject(new Error('Fail to load data from source ' + self.source.id));
@@ -147,7 +147,7 @@ angular.module('esn.aggregator', [])
     };
 
     PageAggregatorService.prototype.hasNext = function() {
-      return this._sourcesHaveData() || this._sourcesHaveNext();
+      return this._sourcesHaveData() || this._sourcesHaveNext();
     };
 
     PageAggregatorService.prototype._sourcesHaveNext = function() {

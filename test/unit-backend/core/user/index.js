@@ -109,7 +109,7 @@ describe('The user core module', function() {
     it('should record a user with the template informations', function(done) {
       User = function User(user) {
         this.emails = user.emails;
-        this._id = user._id,
+        this._id = user._id;
         this.firstname = user.firstname;
         this.lastname = user.lastname;
       };

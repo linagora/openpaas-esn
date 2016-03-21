@@ -169,7 +169,7 @@ angular.module('esn.appstore')
           // any way to deploy a specific version right now.
           appstoreAPI.uploadArtifact(id, $scope.artifact, '1.0.0')
             .progress(function(evt) {
-              var value = parseInt(80.0 * evt.loaded / evt.total);
+              var value = parseInt(80.0 * evt.loaded / evt.total, 10);
               $scope.percent = 20 + value;
 
             }).success(function() {

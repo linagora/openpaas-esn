@@ -53,9 +53,9 @@ describe('ContactShell services', function() {
     vcard.addPropertyWithValue('role', 'openpaasrole');
 
     for (var i = 0, types = ['Home', 'Work', 'Other'], socials = ['Twitter', 'Skype', 'Other']; i < types.length; i++) {
-      prop = vcard.addPropertyWithValue('email', 'mailto:' + 'joe' + i + '@linagora.com');
+      prop = vcard.addPropertyWithValue('email', 'mailto:joe' + i + '@linagora.com');
       prop.setParameter('type', types[i]);
-      prop = vcard.addPropertyWithValue('tel', 'tel:' + '01.01.01.01.0' + i);
+      prop = vcard.addPropertyWithValue('tel', 'tel:01.01.01.01.0' + i);
       prop.setParameter('type', types[i]);
       var val = ['', '', 'Super Street' + i, 'Super City' + i, '', 'Super Zip' + i, 'Super Country' + i];
       prop = vcard.addPropertyWithValue('adr', val);

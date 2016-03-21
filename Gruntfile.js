@@ -32,6 +32,21 @@ module.exports = function(grunt) {
         separator: ';'
       }
     },
+    eslint: {
+      all: {
+        src: ['Gruntfile.js', 'Gruntfile-tests.js', 'tasks/**/*.js', 'test/**/**/*.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'modules/**/*.js', 'bin/**/*.js']
+      },
+      quick: {
+        src: [],
+        options: {
+          quiet: false
+        }
+      },
+      options: {
+        quiet: true
+      }
+
+    },
     jshint: {
       options: {
         jshintrc: '.jshintrc',
@@ -40,21 +55,12 @@ module.exports = function(grunt) {
         reporterOutput: CI && 'jshint.xml'
       },
       all: {
-        src: [
-          'Gruntfile.js',
-          'Gruntfile-tests.js',
-          'tasks/**/*.js',
-          'test/**/**/*.js',
-          'backend/**/*.js',
-          'frontend/js/**/*.js',
-          'modules/**/*.js',
-          'bin/**/*.js'
-        ]
+        src: ['<%= eslint.all.src %>']
       },
       quick: {
         // You must run the prepare-quick-lint target before jshint:quick,
         // files are filled in dynamically.
-        src: []
+        src: ['<%= eslint.quick.src %>']
       }
     },
     jscs: {
@@ -63,10 +69,10 @@ module.exports = function(grunt) {
       },
       all: {
 
-        src: ['<%= jshint.all.src %>', '!test/frontend/karma-include/*', '!frontend/js/modules/modernizr.js', '!modules/**/thirdparty/*.js']
+        src: ['<%= eslint.all.src %>', '!test/frontend/karma-include/*', '!frontend/js/modules/modernizr.js', '!modules/**/thirdparty/*.js']
       },
       quick: {
-        src: ['<%= jshint.quick.src %>']
+        src: ['<%= eslint.quick.src %>']
       }
     },
     lint_pattern: {
@@ -76,7 +82,7 @@ module.exports = function(grunt) {
         ]
       },
       all: {
-        src: ['<%= jshint.all.src %>']
+        src: ['<%= eslint.all.src %>']
       },
       css: {
         options: {
@@ -90,7 +96,7 @@ module.exports = function(grunt) {
         ]
       },
       quick: {
-        src: ['<%= jshint.quick.src %>']
+        src: ['<%= eslint.quick.src %>']
       }
     },
     shell: {
@@ -203,6 +209,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
   grunt.loadNpmTasks('grunt-jscs');
+  grunt.loadNpmTasks('grunt-eslint');
 
   grunt.loadTasks('tasks');
 
@@ -236,14 +243,14 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'jscs:all', 'lint_pattern']);
+  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'jscs:all', 'lint_pattern']);
 
   /**
    * Usage:
    *   grunt linters-dev              # Run linters against files changed in git
    *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
    */
-  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'jscs:quick', 'lint_pattern:quick']);
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'eslint:quick', 'jscs:quick', 'lint_pattern:quick']);
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {

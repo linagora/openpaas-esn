@@ -134,7 +134,7 @@ describe('The addressbooks dav proxy', function() {
                 return done(err);
               }
 
-              var req = loggedInAsUser(request(self.app). delete(PREFIX + path));
+              var req = loggedInAsUser(request(self.app).delete(PREFIX + path));
               req.set('yo', yo);
               req.set('lo', lo);
               req.expect(200).end(function(err) {
@@ -352,7 +352,7 @@ describe('The addressbooks dav proxy', function() {
               return done(err);
             }
 
-            var req = loggedInAsUser(request(self.app). delete(PREFIX + path));
+            var req = loggedInAsUser(request(self.app).delete(PREFIX + path));
             req.expect(204).end(function(err) {
               expect(err).to.not.exist;
               expect(called).to.be.true;

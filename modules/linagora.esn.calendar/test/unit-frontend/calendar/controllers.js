@@ -21,10 +21,10 @@ describe('The calendar module controllers', function() {
 
     var calendarUtilsMock = {
       getNewStartDate: function() {
-        return moment('2013-02-08 09:30'); // jshint ignore:line
+        return self.fcMoment('2013-02-08 09:30');
       },
       getNewEndDate: function() {
-        return moment('2013-02-08 10:30'); // jshint ignore:line
+        return self.fcMoment('2013-02-08 10:30');
       }
     };
 

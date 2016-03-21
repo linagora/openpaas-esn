@@ -79,8 +79,8 @@ module.exports = function(dependencies) {
                 message: 'Number of contacts imported ' + res.feed['openSearch:startIndex'][0],
                 value: Math.round(res.feed['openSearch:startIndex'][0] * 100 / res.feed['openSearch:totalResults'][0])
               });
-              requestOptions.totalResults = parseInt(res.feed['openSearch:totalResults'][0]);
-              requestOptions.offset = parseInt(res.feed['openSearch:startIndex'][0]) + MAX_CONTACT_PER_STACK;
+              requestOptions.totalResults = parseInt(res.feed['openSearch:totalResults'][0], 10);
+              requestOptions.offset = parseInt(res.feed['openSearch:startIndex'][0], 10) + MAX_CONTACT_PER_STACK;
 
               q.all(res.feed.entry.map(function(value) {
                   return getContactsPhoto(value, requestOptions).then(function(contact) {

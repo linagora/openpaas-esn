@@ -10,9 +10,11 @@ describe('The twitter contact importer mapping function', function() {
     function compareShell(shell, ical) {
       var vcard = getModule().toVcard(shell);
       for (var propName in ical) {
-        var prop = vcard.getFirstProperty(propName);
-        var value = prop.toICAL();
-        expect(value).to.equal(ical[propName].toString());
+        if (Object.hasOwnProperty.call(ical, propName)) {
+          var prop = vcard.getFirstProperty(propName);
+          var value = prop.toICAL();
+          expect(value).to.equal(ical[propName].toString());
+        }
       }
     }
     it('should correctly create card from a Twitter following with all props', function() {

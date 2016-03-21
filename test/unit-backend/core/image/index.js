@@ -11,7 +11,9 @@ describe('The core image module', function() {
   afterEach(function() {
     try {
       require('fs').unlinkSync(this.testEnv.tmp + '/img.jpg');
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   describe('getSize method', function() {

@@ -297,7 +297,7 @@ describe('The files API', function() {
 
   describe('DELETE /api/files/:id', function() {
     it('should 401 when not logged', function(done) {
-      request(webserver.application). delete('/api/files/123').expect(401).end(function(err, res) {
+      request(webserver.application).delete('/api/files/123').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });

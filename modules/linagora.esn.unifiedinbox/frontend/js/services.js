@@ -70,7 +70,7 @@ angular.module('linagora.esn.unifiedinbox')
       scope.infiniteScrollPosition = 0;
 
       return function() {
-        if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
+        if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
           return $q.reject();
         }
 
@@ -338,7 +338,7 @@ angular.module('linagora.esn.unifiedinbox')
         return item.email !== getEmailAddress(sender);
       }
 
-      if (!email || !sender) {
+      if (!email || !sender) {
         return;
       }
 

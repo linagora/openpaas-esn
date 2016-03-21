@@ -887,7 +887,7 @@ describe('The collaborations API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(webserver.application). delete('/api/collaborations/community/' + id + '/members/123'));
+        var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + id + '/members/123'));
         req.expect(404);
         req.end(function(err) {
           expect(err).to.be.null;
@@ -907,7 +907,7 @@ describe('The collaborations API', function() {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(webserver.application). delete('/api/collaborations/community/' + community._id + '/members/' + manager._id));
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + manager._id));
           req.expect(403);
           req.end(function(err) {
             expect(err).to.not.exist;
@@ -928,7 +928,7 @@ describe('The collaborations API', function() {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(webserver.application). delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
           req.expect(204);
           req.end(function(err, res) {
             expect(err).to.not.exist;
@@ -1233,7 +1233,7 @@ describe('The collaborations API', function() {
             return done(err);
           }
           var req = loggedInAsUser(
-            request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+            request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
           );
           req.end(function(err, res) {
             expect(res.status).to.equal(403);
@@ -1251,7 +1251,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.jhendrix.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1266,7 +1266,7 @@ describe('The collaborations API', function() {
         self.helpers.api.loginAsUser(webserver.application, self.jhendrix.emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) { return done(err); }
           var req = loggedInAsUser(
-            request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+            request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
           );
           req.end(function(err, res) {
             expect(res.status).to.equal(204);
@@ -1281,7 +1281,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.jdee.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1311,7 +1311,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.jdee.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1327,7 +1327,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.kcobain.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1357,7 +1357,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.kcobain.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1376,7 +1376,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1397,7 +1397,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1427,7 +1427,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1444,7 +1444,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1474,7 +1474,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1533,7 +1533,7 @@ describe('The collaborations API', function() {
           req.end(function(err, res) {
             var req = self.loggedInAsManager(
               request(webserver.application)
-                . delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+                .delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -1604,7 +1604,7 @@ describe('The collaborations API', function() {
               if (err) { return done(err); }
               var req = self.loggedInAsManager(
                 request(webserver.application)
-                  . delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+                  .delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
               );
               req.end(function(err, res) {
                 expect(res.status).to.equal(204);
@@ -1896,7 +1896,7 @@ describe('The collaborations API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(webserver.application). delete('/api/collaborations/community/' + id + '/members/123'));
+        var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + id + '/members/123'));
         req.expect(404);
         req.end(function(err) {
           expect(err).to.be.null;
@@ -1916,7 +1916,7 @@ describe('The collaborations API', function() {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(webserver.application). delete('/api/collaborations/community/' + community._id + '/members/' + manager._id));
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + manager._id));
           req.expect(403);
           req.end(function(err) {
             expect(err).to.not.exist;
@@ -1937,7 +1937,7 @@ describe('The collaborations API', function() {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(webserver.application). delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
           req.expect(204);
           req.end(function(err, res) {
             expect(err).to.not.exist;
@@ -2235,7 +2235,7 @@ describe('The collaborations API', function() {
             return done(err);
           }
           var req = loggedInAsUser(
-            request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+            request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
           );
           req.end(function(err, res) {
             expect(res.status).to.equal(403);
@@ -2253,7 +2253,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.jhendrix.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2268,7 +2268,7 @@ describe('The collaborations API', function() {
         self.helpers.api.loginAsUser(webserver.application, self.jhendrix.emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) { return done(err); }
           var req = loggedInAsUser(
-            request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+            request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
           );
           req.end(function(err, res) {
             expect(res.status).to.equal(204);
@@ -2283,7 +2283,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.jdee.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2313,7 +2313,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.jdee.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2329,7 +2329,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.kcobain.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2359,7 +2359,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.kcobain.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2378,7 +2378,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2399,7 +2399,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2429,7 +2429,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jdee._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2446,7 +2446,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2476,7 +2476,7 @@ describe('The collaborations API', function() {
           self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(
-              request(webserver.application). delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
+              request(webserver.application).delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.kcobain._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2535,7 +2535,7 @@ describe('The collaborations API', function() {
           req.end(function(err, res) {
             var req = self.loggedInAsManager(
               request(webserver.application)
-                . delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+                .delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
@@ -2606,7 +2606,7 @@ describe('The collaborations API', function() {
               if (err) { return done(err); }
               var req = self.loggedInAsManager(
                 request(webserver.application)
-                  . delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
+                  .delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
               );
               req.end(function(err, res) {
                 expect(res.status).to.equal(204);

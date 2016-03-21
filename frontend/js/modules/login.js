@@ -54,7 +54,9 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
           $scope.recaptcha.needed = err.data.recaptcha || false;
           try {
             vcRecaptchaService.reload();
-          } catch (e) {}
+          } catch (e) {
+            console.error(e);
+          }
         }
       );
     };
