@@ -53,7 +53,6 @@ describe('The module manager', function() {
       mockery.registerMock('awesome-module-manager', this.mmMock);
       var coreModules = [
         'linagora.esn.core.activitystreams',
-        'linagora.esn.core.addressbook',
         'linagora.esn.core.auth',
         'linagora.esn.core.avatar',
         'linagora.esn.core.collaboration',

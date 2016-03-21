@@ -119,9 +119,6 @@ exports = module.exports = function(application) {
   application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authTokenMiddleware.getToken, authentication.getToken);
   application.get('/api/authenticationtoken/:token/user', authTokenMiddleware.getToken, authentication.authenticateByToken);
 
-  var addressbooks = require('./controllers/addressbooks');
-  application.get('/api/addressbooks', authorize.requiresAPILogin, addressbooks.getAddressBooks);
-
   var notifications = require('./controllers/notifications');
   var notificationMiddleware = require('./middleware/notification');
   application.get('/api/notifications', authorize.requiresAPILogin, notifications.list);
