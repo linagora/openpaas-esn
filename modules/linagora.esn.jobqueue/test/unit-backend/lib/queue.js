@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var mockery = require('mockery');
 var q = require('q');
+var sinon = require('sinon');
 
 describe('The queue lib module', function() {
 
@@ -131,7 +132,7 @@ describe('The queue lib module', function() {
       });
     });
 
-    it('should reject if create job error ', function(done) {
+    it('should reject if create job error', function(done) {
       jobMock.create = function() {
         return {
           save: function(callback) {
@@ -244,6 +245,81 @@ describe('The queue lib module', function() {
         };
       };
       getModule().submitJob(workerName, jobName);
+    });
+
+    it('should resolve with the job when worker function resolves', function(done) {
+      var job = {foo: 'bar'};
+      var jobDone = sinon.spy();
+      var workerFunctionMock = function() {
+        return {
+          then: function(successCallback) {
+            successCallback();
+          }
+        };
+      };
+
+      jobMock = {
+        create: function() {
+          return {
+            save: function(callback) {
+              return callback();
+            }
+          };
+        },
+        process: function(name, callback) {
+          return callback(job, jobDone);
+        }
+      };
+      workersMock.get = function() {
+        return {
+          getWorkerFunction: function() {
+            return workerFunctionMock;
+          }
+        };
+      };
+      getModule().submitJob(workerName, jobName).then(function(result) {
+        expect(result).to.deep.equal(job);
+        expect(jobDone).to.have.been.called;
+        done();
+      }, done);
+    });
+
+    it('should reject when worker function rejects', function(done) {
+      var job = {foo: 'bar'};
+      var jobDone = sinon.spy();
+
+      var error = new Error('Your job failed');
+      var workerFunctionMock = function() {
+        return {
+          then: function(successCallback, errorCallback) {
+            errorCallback(error);
+          }
+        };
+      };
+
+      jobMock = {
+        create: function() {
+          return {
+            save: function(callback) {
+              return callback();
+            }
+          };
+        },
+        process: function(name, callback) {
+          return callback(job, jobDone);
+        }
+      };
+      workersMock.get = function() {
+        return {
+          getWorkerFunction: function() {
+            return workerFunctionMock;
+          }
+        };
+      };
+      getModule().submitJob(workerName, jobName).then(done, function(e) {
+        expect(e.message).to.match(/Error while running job: Your job failed/);
+        done();
+      });
     });
 
     it('should not log process nor call progress fn if worker function send undefined notification', function(done) {
