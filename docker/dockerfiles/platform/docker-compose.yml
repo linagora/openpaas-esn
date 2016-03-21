@@ -11,12 +11,13 @@ services:
       - mongo
       - sabre
       - elasticsearch
+    volumes:
+      - ../../config:/var/www/docker/config:ro
     env_file:
-      # https://github.com/docker/docker/issues/12997
-      # - ../../config/jwt.env
       - ../../config/oauth.env
     environment:
       - PROVISION=${PROVISION}
+      - CONFIG_DIR=/var/www/docker/config
       - MONGO_HOST=mongo
       - MONGO_PORT=27017
       - MONGO_DBNAME=esn_docker
@@ -87,6 +88,9 @@ services:
     depends_on:
       - cassandra
       - james_elastic
+    volumes:
+      - ../../config/james:/root/conf
+      - ../../config/jwt/public:/root/conf/jwt_publickey
 
   james_elastic:
     image: elasticsearch:1.5.2
