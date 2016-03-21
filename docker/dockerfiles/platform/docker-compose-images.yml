@@ -75,7 +75,7 @@ services:
       - REDIS_PORT=6379
 
   james:
-    entrypoint: bash -c "sleep 45; java -Dworking.directory=/root/ -jar james-server.jar"
+    entrypoint: bash -c "java -Dworking.directory=/root/ -jar james-server.jar"
     image: linagora/james-project:latest
     container_name: esn_james
     ports:
