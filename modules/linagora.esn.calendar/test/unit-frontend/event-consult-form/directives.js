@@ -71,5 +71,42 @@ describe('The event-consult-form Angular module directives', function() {
       var element = this.initDirective(this.$scope);
       expect(element.isolateScope().selectedTab).to.equal(this.TABS.MAIN);
     });
+
+    describe('The onSwipe function', function() {
+      it('should call scope.onSwipe left from tab MAIN to tab ATTENDEES', function() {
+        var element = this.initDirective(this.$scope);
+        element.isolateScope().selectedTab = this.TABS.MAIN;
+        element.isolateScope().onSwipe('left');
+        expect(element.isolateScope().selectedTab).to.equal(this.TABS.ATTENDEES);
+      });
+
+      it('should call scope.onSwipe left from tab ATTENDEES to tab MORE', function() {
+        var element = this.initDirective(this.$scope);
+        element.isolateScope().selectedTab = this.TABS.ATTENDEES;
+        element.isolateScope().onSwipe('left');
+        expect(element.isolateScope().selectedTab).to.equal(this.TABS.MORE);
+      });
+
+      it('should call scope.onSwipe right from tab MORE to tab ATTENDEES', function() {
+        var element = this.initDirective(this.$scope);
+        element.isolateScope().selectedTab = this.TABS.MORE;
+        element.isolateScope().onSwipe('right');
+        expect(element.isolateScope().selectedTab).to.equal(this.TABS.ATTENDEES);
+      });
+
+      it('should call scope.onSwipe right from tab MAIN', function() {
+        var element = this.initDirective(this.$scope);
+        element.isolateScope().selectedTab = this.TABS.MAIN;
+        element.isolateScope().onSwipe('right');
+        expect(element.isolateScope().selectedTab).to.equal(this.TABS.MAIN);
+      });
+
+      it('should call scope.onSwipe left from tab MORE', function() {
+        var element = this.initDirective(this.$scope);
+        element.isolateScope().selectedTab = this.TABS.MORE;
+        element.isolateScope().onSwipe('left');
+        expect(element.isolateScope().selectedTab).to.equal(this.TABS.MORE);
+      });
+    });
   });
 });
