@@ -72,7 +72,7 @@ services:
 
   james:
     entrypoint: bash -c "java -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:latest
+    image: linagora/james-project:barcamp01
     container_name: esn_james
     ports:
       - "1080:80"
