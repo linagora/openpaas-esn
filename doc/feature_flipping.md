@@ -68,3 +68,9 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
     "value" : 20971520
 }
 ```
+```
+{
+    "name" : "twitter.tweets",
+    "value" : false
+}
+```

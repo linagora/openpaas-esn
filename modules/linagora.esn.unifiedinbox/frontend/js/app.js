@@ -34,6 +34,9 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/unifiedinbox',
         templateUrl: '/unifiedinbox/views/home',
         controller: 'rootController as ctrl',
+        resolve: {
+          twitterTweetsEnabled: function(inboxConfig) { return inboxConfig('twitter.tweets'); }
+        },
         deepStateRedirect: {
           default: 'unifiedinbox.inbox',
           fn: function() {
@@ -149,21 +152,29 @@ angular.module('linagora.esn.unifiedinbox', [
         }
       });
 
-    var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', inbox);
+    var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45}),
+        attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
 
-    var attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', inbox);
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
   })
 
   .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
                 inboxTwitterProvider, session, DEFAULT_VIEW) {
 
-    inboxConfig('view', DEFAULT_VIEW).then(function(view) {
+    $q.all([
+      inboxConfig('view', DEFAULT_VIEW),
+      inboxConfig('twitter.tweets')
+    ]).then(function(config) {
+      var view = config[0],
+          twitterTweetsEnabled = config[1];
+
       inboxProviders.add(view === 'messages' ? inboxHostedMailMessagesProvider : inboxHostedMailThreadsProvider);
 
-      session.getTwitterAccounts().forEach(function(account) {
-        inboxProviders.add(inboxTwitterProvider(account.id));
-      });
+      if (twitterTweetsEnabled) {
+        session.getTwitterAccounts().forEach(function(account) {
+          inboxProviders.add(inboxTwitterProvider(account.id));
+        });
+      }
     });
   });

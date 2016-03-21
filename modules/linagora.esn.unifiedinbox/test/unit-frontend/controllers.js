@@ -72,6 +72,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return angular.isDefined(config[key]) ? config[key] : defaultValue;
         });
       });
+      $provide.value('twitterTweetsEnabled', false);
     });
   });
 

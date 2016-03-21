@@ -2,10 +2,10 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('rootController', function($scope, session, mailboxesService) {
+  .controller('rootController', function($scope, session, mailboxesService, twitterTweetsEnabled, _) {
     mailboxesService.assignMailboxesList($scope);
 
-    $scope.getTwitterAccounts = session.getTwitterAccounts;
+    $scope.getTwitterAccounts = twitterTweetsEnabled ? session.getTwitterAccounts : _.constant([]);
   })
 
   .controller('unifiedInboxController', function($state, $scope, infiniteScrollHelper, inboxProviders, headerService,
