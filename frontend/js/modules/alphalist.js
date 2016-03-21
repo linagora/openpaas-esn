@@ -104,14 +104,44 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
       this._removeItemFromCategories(item);
     };
 
+    Categorize.prototype.getItemCategories = function(item) {
+      var self = this;
+      var id = item.id;
+
+      function checkItemInCategories(name) {
+        return self.categories[name].some(function(item) {
+          return item.id === id;
+        });
+      }
+
+      return Object.keys(this.categories).filter(checkItemInCategories);
+    };
+
     Categorize.prototype.replaceItem = function replaceItem(item) {
       var self = this;
       var letter = charAPI.getAsciiUpperCase(item[self.sortBy].charAt(0)) || self.keepAllKey;
+      var oldCategory = self.getItemCategories(item)[0];
+      var oldCategoryIndex = self.keys.indexOf(oldCategory);
+      var categoryIndex = self.keys.indexOf(letter);
+
       self._removeItemWithId(item.id);
-      if (self.keys.indexOf(letter) >= 0) {
+
+      function someCategoriesAreFilledAfter(letter) {
         for (var i = self.keys.indexOf(letter); i < self.keys.length; i++) {
+          if (self.categories[self.keys.charAt(i)].length > 0) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      if (categoryIndex >= 0) {
+        for (var i = 0; i < self.keys.length; i++) {
           var nextChar = self.keys.charAt(i);
-          if (self.categories[nextChar].length > 0) {
+          if (i <= oldCategoryIndex && nextChar === letter) {
+            self._addItemsToCategories([item]);
+            return self._sort(letter);
+          } else if (self.keys.indexOf(letter) === i && someCategoriesAreFilledAfter(nextChar)) {
             self._addItemsToCategories([item]);
             return self._sort(letter);
           }
