@@ -12,7 +12,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       emailSendingService, Composition, newComposerService = {}, $state, $modal,
       mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, config;
   var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
-      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
 
   beforeEach(function() {
     $stateParams = {
@@ -68,15 +68,18 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         }
       });
       $provide.value('esnConfig', function(key, defaultValue) {
-        return angular.isDefined(config[key]) ? config[key] : defaultValue;
+        return $q.when().then(function() {
+          return angular.isDefined(config[key]) ? config[key] : defaultValue;
+        });
       });
+      $provide.value('twitterTweetsEnabled', false);
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
                                           _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_) {
+                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -90,6 +93,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
+    ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
 
     scope = $rootScope.$new();
   }));
@@ -226,33 +230,27 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(scope.email.attachments).to.equal(undefined);
       });
 
-      it('should put the attachment in the scope, with an unknown blobId', function() {
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1, type: 'type' }]);
+      it('should put the attachment in the scope, with a default file type', function(done) {
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          expect(scope.email.attachments[0]).to.shallowDeepEqual({
+            blobId: '1234',
+            name: 'name',
+            size: 1,
+            type: DEFAULT_FILE_TYPE
+          });
 
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: '',
-          name: 'name',
-          size: 1,
-          type: 'type',
-          status: 'uploading'
+          done();
         });
-      });
 
-      it('should put the attachment in the scope, with a default file type', function() {
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
-
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          blobId: '',
-          name: 'name',
-          size: 1,
-          type: DEFAULT_FILE_TYPE
-        });
+        $rootScope.$digest();
       });
 
       it('should put the attachment in the scope, if the file size is exactly the limit', function() {
-        ctrl.onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD }]).then(function() {
+          expect(scope.email.attachments.length).to.equal(1);
+        });
 
-        expect(scope.email.attachments.length).to.equal(1);
+        $rootScope.$digest();
       });
 
       it('should set the blobId and the url when upload succeeds', function() {
@@ -318,25 +316,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should resolve the upload promise with nothing when upload succeeds', function(done) {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          scope.email.attachments[0].upload.promise.then(done);
+        });
 
-            defer.resolve({
-              response: {
-                blobId: '1234'
-              }
-            });
-
-            return {
-              defer: defer
-            };
-          }
-        };
-
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
-
-        scope.email.attachments[0].upload.promise.then(done);
         $rootScope.$digest();
       });
 
@@ -353,25 +336,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           }
         };
 
-        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          scope.email.attachments[0].upload.promise.then(done);
+        });
 
-        scope.email.attachments[0].upload.promise.then(done);
         $rootScope.$digest();
       });
 
       it('should notify and not add the attachment if file is larger that the default limit', function() {
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD + 1 }]);
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: DEFAULT_MAX_SIZE_UPLOAD + 1 }]).then(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 20MB limit');
+          expect(scope.email.attachments).to.deep.equal([]);
+        });
 
-        expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 20MB limit');
-        expect(scope.email.attachments).to.deep.equal([]);
+        $rootScope.$digest();
       });
 
       it('should notify and not add the attachment if file is larger that a configured limit', function() {
         config['linagora.esn.unifiedinbox.maxSizeUpload'] = 1024 * 1024; // 1MB
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1024 * 1024 * 2 }]);
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1024 * 1024 * 2 }]).then(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 1MB limit');
+          expect(scope.email.attachments).to.deep.equal([]);
+        });
 
-        expect(notificationFactory.weakError).to.have.been.calledWith('', 'File name ignored as its size exceeds the 1MB limit');
-        expect(scope.email.attachments).to.deep.equal([]);
+        $rootScope.$digest();
       });
 
       describe('The attachment.startUpload function', function() {
@@ -516,7 +504,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             collapseThreads: false,
             fetchMessages: false,
             position: 0,
-            limit: ELEMENTS_PER_PAGE
+            limit: ELEMENTS_PER_REQUEST
           });
 
           done();
@@ -581,38 +569,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should build an EmailGroupingTool with the list of messages, and assign it to scope.groupedEmails', function(done) {
       initController('listEmailsController');
 
-      scope.$watch('groupedEmails', function(before, after) {
+      scope.$watch('groupedElements', function(before, after) {
         expect(after).to.be.a('Array');
 
         done();
       });
       scope.$digest();
-    });
-
-    describe('openEmail fn', function() {
-
-      var newComposerService;
-
-      beforeEach(angular.mock.inject(function(_newComposerService_) {
-        newComposerService = _newComposerService_;
-      }));
-
-      it('should call newComposerService.openDraft if mailbox has the draft role', function() {
-        newComposerService.openDraft = sinon.spy();
-
-        initController('listEmailsController').openEmail({ id: 'id', isDraft: true });
-
-        expect(newComposerService.openDraft).to.have.been.calledWith('id');
-      });
-
-      it('should change state if mailbox has not the draft role', function() {
-        $state.go = sinon.spy();
-
-        initController('listEmailsController').openEmail({id: 'expectedId'});
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
-      });
-
     });
 
   });
@@ -919,33 +881,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should build an EmailGroupingTool with the list of threads, and assign it to scope.groupedThreads', function(done) {
       initController('listThreadsController');
 
-      scope.$watch('groupedThreads', function(before, after) {
+      scope.$watch('groupedElements', function(before, after) {
         expect(after).to.be.a('Array');
 
         done();
       });
       scope.$digest();
-    });
-
-    describe('The openThread function', function() {
-
-      it('should change the state to the thread view if thread.email is not a draft', function() {
-        initController('listThreadsController').openThread({ id: 'expected thread id', email: { isDraft: false } });
-
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', {
-          mailbox: 'chosenMailbox',
-          threadId: 'expected thread id'
-        });
-      });
-
-      it('should open the composer if thread.email is a draft', function() {
-        newComposerService.openDraft = sinon.spy();
-
-        initController('listThreadsController').openThread({ id: 'expected thread id', email: { id: 'id', isDraft: true } });
-
-        expect(newComposerService.openDraft).to.have.been.calledWith('id');
-      });
-
     });
 
     describe('The loadMoreElements function', function() {
@@ -970,7 +911,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
             fetchMessages: false,
             sort: ['date desc'],
             position: 0,
-            limit: ELEMENTS_PER_PAGE
+            limit: ELEMENTS_PER_REQUEST
           });
 
           done();
@@ -1010,10 +951,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should add email and date for each thread', function() {
         var thread1 = {id: 'thread1', messageIds: ['msg1']},
-          thread2 = {id: 'thread2', messageIds: ['msg2']};
+            thread2 = {id: 'thread2', messageIds: ['msg2']};
         var messageListResult = {
           threadIds: [1, 2],
-          getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '10:00:00'}, {id: 'msg2', threadId: 'thread2', date: '12:00:00'}];}),
+          getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'}, {id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'}];}),
           getThreads: sinon.spy(function() { return [thread1, thread2];})
         };
 
@@ -1026,11 +967,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(messageListResult.getMessages).to.have.been.called;
         expect(messageListResult.getThreads).to.have.been.called;
 
-        expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '10:00:00'});
-        expect(thread1.date).to.equal('10:00:00');
+        expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'});
+        expect(thread1.date).to.equalTime(new Date('2016-03-21T10:16:22.628Z'));
 
-        expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '12:00:00'});
-        expect(thread2.date).to.equal('12:00:00');
+        expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'});
+        expect(thread2.date).to.equalTime(new Date('2016-03-22T10:16:22.628Z'));
 
       });
 
@@ -1274,19 +1215,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
-  describe('The goToInboxController', function() {
-
-    it('should requests the INBOX mailbox, and move to it when found', function() {
-      $state.go = sinon.spy();
-      jmapClient.getMailboxWithRole = function() { return $q.when({ id: '1' }); };
-
-      initController('goToInboxController');
-
-      expect($state.go).to.have.been.calledWith('unifiedinbox.list', { mailbox: '1' });
-    });
-
-  });
-
   describe('The recipientsFullscreenEditFormController', function() {
 
     beforeEach(function() {
@@ -1349,6 +1277,36 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         expect(windowMock.open).to.have.been.calledWith('url');
       });
+    });
+
+  });
+
+  describe('The listTwitterController', function() {
+
+    beforeEach(function() {
+      $stateParams.username = 'AwesomePaas';
+    });
+
+    beforeEach(inject(function(session) {
+      session.user.accounts = [{
+        data: {
+          id: 'idAwesomePaas',
+          provider: 'twitter',
+          username: 'AwesomePaas'
+        }
+      }, {
+        data: {
+          id: 'idAnother',
+          provider: 'twitter',
+          username: 'AnotherTwtterAccount'
+        }
+      }];
+    }));
+
+    it('should set $scope.username to the correct value', function() {
+      initController('listTwitterController');
+
+      expect(scope.username).to.equal('AwesomePaas');
     });
 
   });

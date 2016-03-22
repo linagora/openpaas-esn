@@ -471,10 +471,10 @@ describe('The Aggregator module', function() {
       });
 
       it('should resolve when sources does not have any more data', function(done) {
-        var item = {foo: 'bar'};
+        var item = {foo: 'bar'}, hasNext = false;
         var aggregator = new this.PageAggregatorService(name, [], {compare: compare});
         aggregator.hasNext = function() {
-          return true;
+          return (hasNext = !hasNext);
         };
 
         aggregator._loadItemsFromSources = function() {

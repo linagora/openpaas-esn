@@ -116,4 +116,10 @@ angular.module('esn.ui', ['op.dynamicDirective'])
 
       return element;
     };
+  })
+
+  .filter('autolink', function($window) {
+    return function(text) {
+      return $window.Autolinker.link(text, { className: 'autolink' });
+    };
   });

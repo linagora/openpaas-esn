@@ -18,7 +18,7 @@
     &.selected {
       background-color: @darkenBgColor;
 
-      .mailbox-name .mailbox-name-after:after {
+      .menu-item .menu-item-after:after {
         background-color: @darkenBgColor;
       }
     }
@@ -29,7 +29,7 @@
     vertical-align: bottom;
   }
 
-  .mailbox-name {
+  .menu-item {
     background-color: inherit;
     overflow: hidden;
     direction: rtl;
@@ -37,7 +37,7 @@
     text-align: left;
     line-height: @inboxAsideMailboxNameHeight;
 
-    .mailbox-name-inner {
+    .menu-item-inner {
       white-space: nowrap;
       text-align: left;
       display: inline-block;
@@ -45,14 +45,14 @@
       height: @inboxAsideMailboxNameHeight + 1;
     }
 
-    .mailbox-name-after {
+    .menu-item-after {
       width: 1px;
       height: @inboxAsideMailboxNameHeight + 1;
       display: inline-block;
       position: relative;
     }
 
-    .mailbox-name-after:after {
+    .menu-item-after:after {
       content: "…";
       width: auto;
       background-color: white;
@@ -71,6 +71,30 @@
     }
   }
 
+  .menu-heading {
+    .flex;
+
+    padding: 8px 0 8px 15px;
+
+    .title {
+      .flex;
+      .flex-shorthand(1);
+
+      .text {
+        .flex-shorthand(1);
+
+        margin-left: 5px;
+        font-weight: bold;
+        font-size: @inboxAsideFontSize;
+        color: @primaryColor;
+      }
+    }
+  }
+
+  .configuration-menu {
+    margin-top: 5px;
+  }
+
   &.inbox-desktop-menu {
     margin-top: 20px;
     max-width: 300px;
@@ -81,10 +105,11 @@
       }
     }
 
-    .menu-heading {
-      .flex;
-
+    .menu-root {
       border-left: 5px solid @primaryColor;
+    }
+
+    .menu-heading {
 
       .add-folder {
         .transition(0.25s ease-out);
@@ -99,33 +124,20 @@
         }
       }
 
-      .title {
-        .flex;
-        .flex-shorthand(1);
-
-        .text {
-          .flex-shorthand(1);
-
-          margin-left: 5px;
-          font-weight: bold;
-          font-size: @inboxAsideFontSize;
-          color: @primaryColor;
-        }
-      }
     }
 
     .settings-overlay {
       font-size: @inboxAsideIconFontSize;
     }
 
-    .mailbox-name {
-      .mailbox-name-after:after {
+    .menu-item {
+      .menu-item-after:after {
         background-color: @body-bg;
       }
     }
 
     .clickable.selected {
-      .mailbox-name .mailbox-name-after:after {
+      .menu-item .menu-item-after:after {
         background-color: @darkenBgColor;
       }
     }

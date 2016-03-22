@@ -10,6 +10,7 @@ describe('The Unified Inbox Angular module filters', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.session');
+    angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox');
   });
 

@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.unifiedinbox', [
+  'restangular',
   'esn.router',
   'esn.jmap-client-wrapper',
   'angularMoment',
@@ -23,14 +24,19 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.form.helper',
   'esn.infinite-list',
   'esn.url',
-  'esn.background'
-  ])
+  'esn.background',
+  'esn.aggregator'
+])
+
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider
       .state('unifiedinbox', {
         url: '/unifiedinbox',
-        templateUrl: '/unifiedinbox/views/unifiedinbox',
+        templateUrl: '/unifiedinbox/views/home',
         controller: 'rootController as ctrl',
+        resolve: {
+          twitterTweetsEnabled: function(inboxConfig) { return inboxConfig('twitter.tweets'); }
+        },
         deepStateRedirect: {
           default: 'unifiedinbox.inbox',
           fn: function() {
@@ -88,7 +94,19 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.inbox', {
         url: '/inbox',
         views: {
-          'main@unifiedinbox': { controller: 'goToInboxController' }
+          'main@unifiedinbox': {
+            controller: 'unifiedInboxController',
+            templateUrl: '/unifiedinbox/views/unified-inbox/index'
+          }
+        }
+      })
+      .state('unifiedinbox.twitter', {
+        url: '/twitter/:username',
+        views: {
+          'main@unifiedinbox': {
+            templateUrl: '/unifiedinbox/views/twitter/list/index',
+            controller: 'listTwitterController as ctrl'
+          }
         }
       })
       .state('unifiedinbox.list', {
@@ -101,7 +119,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/messages',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/list-emails/index',
+            templateUrl: '/unifiedinbox/views/email/list/index',
             controller: 'listEmailsController as ctrl'
           }
         }
@@ -110,7 +128,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/:emailId',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/view-email/index',
+            templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
         }
@@ -119,7 +137,7 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/threads',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/list-threads/index',
+            templateUrl: '/unifiedinbox/views/thread/list/index',
             controller: 'listThreadsController as ctrl'
           }
         }
@@ -128,15 +146,35 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/:threadId',
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/view-thread/index',
+            templateUrl: '/unifiedinbox/views/thread/view/index',
             controller: 'viewThreadController as ctrl'
           }
         }
       });
 
-    var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', inbox);
+    var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45}),
+        attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
 
-    var attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', inbox);
     dynamicDirectiveServiceProvider.addInjection('attachments-action-list', attachmentDownloadAction);
+  })
+
+  .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
+                inboxTwitterProvider, session, DEFAULT_VIEW) {
+
+    $q.all([
+      inboxConfig('view', DEFAULT_VIEW),
+      inboxConfig('twitter.tweets')
+    ]).then(function(config) {
+      var view = config[0],
+          twitterTweetsEnabled = config[1];
+
+      inboxProviders.add(view === 'messages' ? inboxHostedMailMessagesProvider : inboxHostedMailThreadsProvider);
+
+      if (twitterTweetsEnabled) {
+        session.getTwitterAccounts().forEach(function(account) {
+          inboxProviders.add(inboxTwitterProvider(account.id));
+        });
+      }
+    });
   });

@@ -2,24 +2,38 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .directive('unifiedViewSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/unified-inbox/subheader.html'
+    };
+  })
+
+  .directive('listTwitterSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html'
+    };
+  })
+
   .directive('listEmailsSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/list-emails/subheader.html'
+      templateUrl: '/unifiedinbox/views/email/list/subheader.html'
     };
   })
 
   .directive('viewEmailSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/view-email/subheader.html'
+      templateUrl: '/unifiedinbox/views/email/view/subheader.html'
     };
   })
 
   .directive('viewThreadSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/view-thread/subheader.html'
+      templateUrl: '/unifiedinbox/views/thread/view/subheader.html'
     };
   })
 

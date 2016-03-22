@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module models', function() {
 
   beforeEach(function() {
+    angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox');
   });
 

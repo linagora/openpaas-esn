@@ -8,27 +8,42 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('generateJwtToken', function($http, $q, $log, _) {
+  .factory('generateJwtToken', function($http, _) {
     return function() {
       return $http.post('/api/jwt/generate').then(_.property('data'));
     };
   })
 
-  .service('jmapClientProvider', function($q, $http, $log, inboxConfig, jmap, dollarHttpTransport, dollarQPromiseProvider, generateJwtToken) {
-    var promise = generateJwtToken().then(function(data) {
-      return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
-        .withAPIUrl(inboxConfig('api'))
-        .withAuthenticationToken('Bearer ' + data);
-    });
+  .service('jmapClientProvider', function($q, inboxConfig, jmap, dollarHttpTransport, dollarQPromiseProvider, generateJwtToken) {
+    var promise;
+
+    function _initializeJmapClient() {
+      return $q.all([
+        generateJwtToken(),
+        inboxConfig('api')
+      ]).then(function(data) {
+        return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+          .withAPIUrl(data[1])
+          .withAuthenticationToken('Bearer ' + data[0]);
+      });
+    }
+
+    function get() {
+      if (!promise) {
+        promise = _initializeJmapClient();
+      }
+
+      return promise;
+    }
 
     return {
-      promise: promise
+      get: get
     };
   })
 
   .factory('withJmapClient', function(jmapClientProvider) {
     return function(callback) {
-      return jmapClientProvider.promise.then(function(client) {
+      return jmapClientProvider.get().then(function(client) {
         return callback(client);
       }, callback.bind(null, null));
     };
@@ -65,9 +80,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('infiniteScrollHelper', function($q, ELEMENTS_PER_PAGE) {
-    return function(scope, loadMoreElements) {
-      scope.infiniteScrollPosition = 0;
+  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, _, ELEMENTS_PER_PAGE) {
+    return function(scope, loadNextItems) {
+      var groups = new ElementGroupingTool();
+
+      scope.groupedElements = groups.getGroupedElements();
 
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
@@ -76,19 +93,26 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.infiniteScrollDisabled = true;
 
-        return loadMoreElements().then(function(elements) {
-          if (elements.length < ELEMENTS_PER_PAGE) {
-            scope.infiniteScrollCompleted = true;
+        return loadNextItems()
+          .then(function(elements) {
+            if (elements) {
+              groups.addAll(elements);
+            }
 
-            return $q.reject();
-          }
+            return elements || [];
+          })
+          .then(function(elements) {
+            if (elements.length < ELEMENTS_PER_PAGE) {
+              scope.infiniteScrollCompleted = true;
 
-          scope.infiniteScrollPosition += ELEMENTS_PER_PAGE;
+              return $q.reject();
+            }
 
-          return elements;
-        }).finally(function() {
-          scope.infiniteScrollDisabled = false;
-        });
+            return elements;
+          })
+          .finally(function() {
+            scope.infiniteScrollDisabled = false;
+          });
       };
     };
   })
@@ -103,9 +127,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('ElementGroupingTool', function(moment) {
 
-    function ElementGroupingTool(mailbox, elements) {
-      this.mailbox = mailbox;
-
+    function ElementGroupingTool(elements) {
       this.todayElements = [];
       this.weeklyElements = [];
       this.monthlyElements = [];
@@ -184,15 +206,22 @@ angular.module('linagora.esn.unifiedinbox')
 
     function sendEmail(email) {
       return withJmapClient(function(client) {
-        var message = jmapHelper.toOutboundMessage(client, email);
+        return $q.all([
+          inboxConfig('isJmapSendingEnabled'),
+          inboxConfig('isSaveDraftBeforeSendingEnabled')
+        ]).then(function(data) {
+          var isJmapSendingEnabled = data[0],
+              isSaveDraftBeforeSendingEnabled = data[1],
+              message = jmapHelper.toOutboundMessage(client, email);
 
-        if (!inboxConfig('isJmapSendingEnabled')) {
-          return sendBySmtp(message);
-        } else if (inboxConfig('isSaveDraftBeforeSendingEnabled')) {
-          return sendByJmap(client, message);
-        } else {
-          return client.send(message);
-        }
+          if (!isJmapSendingEnabled) {
+            return sendBySmtp(message);
+          } else if (isSaveDraftBeforeSendingEnabled) {
+            return sendByJmap(client, message);
+          } else {
+            return client.send(message);
+          }
+        });
       });
     }
 
@@ -964,11 +993,12 @@ angular.module('linagora.esn.unifiedinbox')
       };
     }
 
-    function uploadFile(url, file, type, size, options, canceler) {
-      var defer = $q.defer(),
+    function uploadFile(unusedUrl, file, type, size, options, canceler) {
+      return inboxConfig('uploadUrl').then(function(url) {
+        var defer = $q.defer(),
           request = $.ajax({
             type: 'POST',
-            url: inboxConfig('uploadUrl'),
+            url: url,
             contentType: type,
             data: file,
             processData: false,
@@ -984,11 +1014,12 @@ angular.module('linagora.esn.unifiedinbox')
             xhr: xhrWithUploadProgress(in$Apply(defer.notify))
           });
 
-      if (canceler) {
-        canceler.then(request.abort);
-      }
+        if (canceler) {
+          canceler.then(request.abort);
+        }
 
-      return inBackground(defer.promise);
+        return inBackground(defer.promise);
+      });
     }
 
     return {

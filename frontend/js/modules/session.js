@@ -7,7 +7,15 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
   var session = {
     user: {},
     domain: {},
-    ready: bootstrapDefer.promise
+    ready: bootstrapDefer.promise,
+    getTwitterAccounts: function() {
+      return (session.user.accounts || [])
+        .filter(function(account) {
+          return account.data && account.data.provider === 'twitter';
+        }).map(function(account) {
+          return account.data;
+        });
+    }
   };
 
   var sessionIsBootstraped = false;
