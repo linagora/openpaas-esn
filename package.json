@@ -114,6 +114,8 @@
     "grunt-mocha-cli": "~1.8.0",
     "grunt-node-inspector": "^0.1.5",
     "grunt-nodemon": "~0.2.0",
+    "grunt-protractor-runner": "2.1.2",
+    "grunt-protractor-webdriver": "^0.2.5",
     "grunt-run": "~0.2.1",
     "grunt-run-grunt": "git+https://ci.open-paas.org/stash/scm/or/grunt-run-grunt.git",
     "grunt-shell": "~0.7.0",
@@ -147,7 +149,8 @@
     "supertest": "^0.12.1"
   },
   "scripts": {
-    "postinstall": "./node_modules/bower/bin/bower install --allow-root"
+    "postinstall": "./node_modules/bower/bin/bower install --allow-root",
+    "postinstall": "./node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
   },
   "bin": {
     "openpaas-cli": "./bin/cli.js",

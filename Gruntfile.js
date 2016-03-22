@@ -177,7 +177,8 @@ module.exports = function(grunt) {
       all_with_storage: runGrunt.newProcess(['test-unit-storage', 'test-midway-backend', 'test-modules-midway-backend']),
       modules_midway_backend: runGrunt.newProcess(['test-modules-midway-backend']),
       modules_unit_backend: runGrunt.newProcess(['test-modules-unit-backend']),
-      modules_frontend: runGrunt.newProcess(['test-modules-frontend'])
+      modules_frontend: runGrunt.newProcess(['test-modules-frontend']),
+      e2e: runGrunt.newProcess(['test-e2e'])
     },
     watch: {
       files: ['<%= jshint.files %>'],
@@ -231,6 +232,7 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchMongoRiver']);
 
+  grunt.registerTask('test-e2e', ['run_grunt:e2e']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);
