@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The esn.websocket Angular module', function() {
 
-  var handlerSubscribe, handlerUnsubscribe;
+  var handlerSubscribe, handlerUnsubscribe, handlerEmit;
 
   var namespace1 = 'ns1',
     namespace2 = 'ns2',
@@ -30,10 +30,13 @@ describe('The esn.websocket Angular module', function() {
       return {
         emit: function(event, data) {
           if (event === 'subscribe' && handlerSubscribe) {
-            handlerSubscribe(data);
+            return handlerSubscribe(data);
           }
           if (event === 'unsubscribe' && handlerUnsubscribe) {
-            handlerUnsubscribe(data);
+            return handlerUnsubscribe(data);
+          }
+          if (event !== 'subscribe' && event !== 'unsubscribe' && handlerEmit) {
+            handlerEmit(event, data);
           }
         },
         on: function(event, callback) {
@@ -96,6 +99,8 @@ describe('The esn.websocket Angular module', function() {
       expect(this.socketIORoom).to.be.a.function;
       expect(this.socketIORoom().on).to.be.a.function;
       expect(this.socketIORoom().removeListener).to.be.a.function;
+      expect(this.socketIORoom().subscribeToRoom).to.be.a.function;
+      expect(this.socketIORoom().send).to.be.a.function;
     });
 
     describe('on() method', function() {
@@ -221,6 +226,27 @@ describe('The esn.websocket Angular module', function() {
         expect(socketIOClientMock.namespaces[namespace1].callbacks.length).to.equal(0);
 
         socketIOServerMock.of(namespace1).to(room1).emit(event, {content: 'test'});
+      });
+    });
+
+    describe('send() method', function() {
+      it('should emit message to client', function(done) {
+        var event = 'message';
+        var data = {foo: 'bar'};
+        handlerEmit = function(_event, _data) {
+          expect(event).to.equal(event);
+          expect(_data).to.equal(data);
+          setTimeout(function() {
+            done();
+          }, 100);
+        };
+
+        var socketIORoom = this.socketIORoom(namespace1, room1, socketIOClientMock.connect(namespace1));
+        function handler() {
+          done(new Error('Test should not pass here !'));
+        }
+        socketIORoom.on(event, handler);
+        socketIORoom.send(event, data);
       });
     });
   });
