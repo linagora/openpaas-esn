@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai, sinon: false */
+/* global chai, sinon, _: false */
 
 var expect = chai.expect;
 
@@ -1113,7 +1113,8 @@ describe('The calendarService service', function() {
         id: '00000000-0000-4000-a000-000000000000',
         title: 'test event',
         start: this.fcMoment(),
-        end: this.fcMoment()
+        end: this.fcMoment(),
+        isInstance: _.constant(false)
       };
       flushContext = {id: this.event.id};
     });
@@ -1360,6 +1361,36 @@ describe('The calendarService service', function() {
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
+    });
+
+    it('should delegate on modifyEvent for instance of recurring after deleting subevent from master shell', function(done) {
+      var cloneOfMaster = {
+        deleteInstance: sinon.spy()
+      };
+      var master = {
+        clone: sinon.stub().returns(cloneOfMaster)
+      };
+
+      var event = {
+        isInstance: _.constant(true),
+        getModifiedMaster: sinon.stub().returns($q.when(master))
+      };
+
+      var modifyEventAnswer = {};
+
+      this.calendarService.modifyEvent = sinon.stub().returns($q.when(modifyEventAnswer));
+      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', event, 'etag').then(
+        function(response) {
+          expect(response).to.equal(modifyEventAnswer);
+          expect(event.getModifiedMaster).to.have.been.calledOnce;
+          expect(master.clone).to.have.been.calledOnce;
+          expect(cloneOfMaster.deleteInstance).to.have.been.calledWith(event);
+          done();
+        }, unexpected.bind(null, done)
+      );
+
+      this.$rootScope.$apply();
+
     });
 
   });
