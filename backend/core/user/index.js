@@ -102,6 +102,25 @@ module.exports.updateProfile = function(user, parameter, value, callback) {
   });
 };
 
+module.exports.removeAccountById = function(user, accountId, callback) {
+  var accountIndex = -1;
+  user.accounts.forEach(function(account, index) {
+    if (account.data && account.data.id === accountId) {
+      accountIndex = index;
+    }
+
+    if (index === user.accounts.length - 1) {
+      if (accountIndex === -1) {
+        return callback(new Error('Invalid account id: ' + accountId));
+      } else {
+        user.accounts.splice(accountIndex, 1);
+        user.markModified('accounts');
+        return user.save(callback);
+      }
+    }
+  });
+};
+
 module.exports.belongsToCompany = function(user, company, callback) {
   if (!user || !company) {
     return callback(new Error('User and company are required.'));

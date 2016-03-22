@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function(dependencies) {
+  var userModule = dependencies('esn-user');
 
   function getAccounts(req, res) {
     var accounts = req.user.accounts || [];
@@ -13,8 +14,19 @@ module.exports = function(dependencies) {
     return res.status(200).json(accounts);
   }
 
-  return {
-    getAccounts: getAccounts
-  };
+  function deleteAccount(req, res) {
+    var accountId = req.params.id;
+    userModule.removeAccountById(req.user, accountId, function(err) {
+      if (err) {
+        var status = (err.message === 'Invalid account id: ' + accountId) ? 400 : 500;
+        return res.status(status).json({error: status, message: 'Server Error', details: err.message});
+      }
+      return res.status(204).end();
+    });
+  }
 
+  return {
+    getAccounts: getAccounts,
+    deleteAccount: deleteAccount
+  };
 };

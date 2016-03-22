@@ -252,6 +252,64 @@ describe('The user core module', function() {
     });
   });
 
+  describe('The removeAccountById fn', function() {
+    var userModule, User;
+
+    beforeEach(function() {
+      User = {
+        markModified: sinon.spy(),
+        save: function(callback) {
+          expect(User.markModified).to.have.been.calledWith('accounts');
+          callback();
+        },
+        accounts: [
+          { data: { id: 1 } },
+          { data: { id: 2 } },
+          { data: { id: 3 } }
+        ]
+      };
+
+      mockModels({
+        User: User
+      });
+      userModule = this.helpers.requireBackend('core').user;
+    });
+
+    it('should save user if account exists', function(done) {
+      User.save = function() {
+        done();
+      };
+      userModule.removeAccountById(User, 1);
+    });
+
+    it('should call callback fn without error if saved user correctly', function(done) {
+      userModule.removeAccountById(User, 1, done);
+    });
+
+    it('should call callback fn with error if can not save user', function(done) {
+      var error = {
+        name: 'Mongo error',
+        message: 'Can not save'
+      };
+
+      User.save = function(callback) {
+        callback(error);
+      };
+
+      userModule.removeAccountById(User, 1, function(err) {
+        expect(err).to.deep.equal(error);
+        done();
+      });
+    });
+
+    it('should call callback fn with account not found error if account does not exist', function(done) {
+      userModule.removeAccountById(User, 4, function(err) {
+        expect(err).to.deep.equal(new Error('Invalid account id: 4'));
+        done();
+      });
+    });
+  });
+
   describe('belongsToCompany fn', function() {
     var userModule = null;
 

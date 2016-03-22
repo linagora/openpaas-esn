@@ -10,6 +10,7 @@ module.exports = function(dependencies) {
   var router = express.Router();
 
   router.get('/accounts', authorizationMW.requiresAPILogin, controller.getAccounts);
+  router.delete('/accounts/:id', authorizationMW.requiresAPILogin, controller.deleteAccount);
 
   return router;
 };

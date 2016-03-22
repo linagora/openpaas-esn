@@ -4,7 +4,21 @@ var expect = require('chai').expect;
 
 describe('The Accounts Controller', function() {
 
-  function requireController(dependencies) {
+  var deps;
+
+  beforeEach(function() {
+    deps = {
+      'esn-user': {
+        removeAccountById: function() {}
+      }
+    };
+  });
+
+  var dependencies = function(name) {
+    return deps[name];
+  };
+
+  function requireController() {
     return require('../../../../../backend/webserver/api/accounts/controller')(dependencies);
   }
 
@@ -123,6 +137,87 @@ describe('The Accounts Controller', function() {
         }
       };
       requireController().getAccounts(req, res);
+    });
+  });
+
+  describe('The deleteAccount function', function() {
+    var accounts, user, req;
+
+    beforeEach(function() {
+      accounts = [
+        { data: { id: 1 } }
+      ];
+      user = {
+        accounts: accounts
+      };
+      req = {
+        user: {
+          accounts: [{ data: { id: 1 } }]
+        },
+        params: {
+          id: 2
+        }
+      };
+      deps['esn-user'].removeAccountById = function(user, id, callback) {
+        callback();
+      };
+    });
+
+    it('should return 204 if account is deleted without error', function(done) {
+
+      var res = {
+        status: function(code) {
+          expect(code).to.equal(204);
+          return {
+            end: done
+          };
+        }
+      };
+      requireController().deleteAccount(req, res);
+    });
+
+    it('should return 400 if account not found', function(done) {
+      var error = {
+        message: 'Invalid account id: 2'
+      };
+      deps['esn-user'].removeAccountById = function(user, id, callback) {
+        callback(error);
+      };
+
+      var res = {
+        status: function(code) {
+          expect(code).to.equal(400);
+          return {
+            json: function(err) {
+              expect(err).to.deep.equal({error: 400, message: 'Server Error', details: error.message});
+              done();
+            }
+          };
+        }
+      };
+      requireController().deleteAccount(req, res);
+    });
+
+    it('should return 500 if error when saving user', function(done) {
+      var error = {
+        message: 'Mongo Error'
+      };
+      deps['esn-user'].removeAccountById = function(user, id, callback) {
+        callback(error);
+      };
+
+      var res = {
+        status: function(code) {
+          expect(code).to.equal(500);
+          return {
+            json: function(err) {
+              expect(err).to.deep.equal({error: 500, message: 'Server Error', details: error.message});
+              done();
+            }
+          };
+        }
+      };
+      requireController().deleteAccount(req, res);
     });
   });
 });
