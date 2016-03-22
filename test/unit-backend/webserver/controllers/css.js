@@ -1,5 +1,7 @@
 'use strict';
+
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('the css webserver controller', function() {
   it('should expose a getCss method', function() {
@@ -48,6 +50,23 @@ describe('the css webserver controller', function() {
       };
       var css = this.helpers.requireBackend('core').css;
       css.addLessInjection('modX', [this.testEnv.fixtures + '/css/file.less'], ['foo']);
+      this.controller.getCss({params: {app: 'foo'}}, res);
+    });
+    it('should use injected global variable', function(done) {
+      var res = {
+        send: function(css) {
+          expect(css).to.be.a('string');
+          expect(css).to.match(/thisIsAClassForTheTest/);
+          expect(css).to.match(/components\/cssinjecttest/);
+          done();
+        },
+        set: function(name, value) {
+          expect(name).to.equal('Content-Type');
+          expect(value).to.equal('text/css');
+        }
+      };
+      var css = this.helpers.requireBackend('core').css;
+      css.addLessInjection('modX', [this.testEnv.fixtures + '/css/file3.less'], ['foo']);
       this.controller.getCss({params: {app: 'foo'}}, res);
     });
     it('should send a 500 error when the less compilation fails', function(done) {
