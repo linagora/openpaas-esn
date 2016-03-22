@@ -22,12 +22,12 @@ module.exports = function() {
           if (account.data.refresh_token) {
             userAccount.data.refresh_token = account.data.refresh_token;
           }
-          user.markModified('accounts');
         }
       });
     } else {
       user.accounts.push(account);
     }
+    user.markModified('accounts');
     user.save(function(err, updated) {
       if (err) {
         return callback(err);
