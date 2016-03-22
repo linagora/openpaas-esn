@@ -117,12 +117,28 @@ module.exports = function(grunt) {
         browsers: ['PhantomJS', 'Firefox', 'Chrome'],
         reporters: KARMA_REPORTERS
       }
+    },
+    protractor_webdriver: {
+      options: {
+        command: './node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager start',
+        path: ''
+      },
+      start: {}
+    },
+    protractor: {
+      options: {
+        configFile: './test/config/protractor.conf.js',
+        keepAlive: false
+      },
+      all: {}
     }
   });
 
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-mocha-cli');
   grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-protractor-runner');
+  grunt.loadNpmTasks('grunt-protractor-webdriver');
 
   grunt.loadTasks('tasks');
 
@@ -137,6 +153,8 @@ module.exports = function(grunt) {
   grunt.registerTask('test-modules-frontend', 'run the FrontEnd tests of modules', ['karma:modulesUnit']);
   grunt.registerTask('test-frontend-all', 'run the FrontEnd tests on all possible browsers', ['karma:all']);
   grunt.registerTask('test-modules-frontend-all', 'run the FrontEnd tests of modules on all possible browsers', ['karma:modulesAll']);
+
+  grunt.registerTask('test-e2e', 'Launch integration tests', ['protractor_webdriver:start', 'protractor:all']);
 
   grunt.registerTask('test', ['test-backend', 'test-frontend']);
   grunt.registerTask('default', ['test']);
