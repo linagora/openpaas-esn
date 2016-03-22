@@ -10,14 +10,6 @@ describe('The event-consult-form Angular module directives', function() {
     beforeEach(function() {
       module('jadeTemplates');
       angular.mock.module('esn.calendar');
-      this.headerServiceMock = {
-        subHeader: {
-          addInjection: function() {
-          },
-          resetInjections: function() {
-          }
-        }
-      };
       this.eventFormControllerMock = function($scope) {
         $scope.initFormData = function() {
         };
@@ -26,7 +18,6 @@ describe('The event-consult-form Angular module directives', function() {
       var self = this;
       angular.mock.module(function($provide, $controllerProvider) {
         $controllerProvider.register('eventFormController', self.eventFormControllerMock);
-        $provide.value('headerService', self.headerServiceMock);
       });
     });
 
@@ -52,20 +43,6 @@ describe('The event-consult-form Angular module directives', function() {
         return element;
       };
     }));
-
-    it('should reset subheader injections on element $destroy', function(done) {
-      this.headerServiceMock.subHeader.resetInjections = done;
-      var element = this.initDirective(this.$scope);
-      element.remove();
-    });
-
-    it('should call headerService to add a directive to the subheader', function(done) {
-      this.headerServiceMock.subHeader.addInjection = function(directive) {
-        expect(directive).to.equal('event-consult-form-subheader');
-        done();
-      };
-      this.initDirective(this.$scope);
-    });
 
     it('should initialize scope.selectedTab to MAIN', function() {
       var element = this.initDirective(this.$scope);

@@ -255,25 +255,18 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $state, $stateParams, headerService;
+    var draftService, $state, $stateParams;
 
-    beforeEach(inject(function(_$state_, _draftService_, _$stateParams_, _headerService_) {
+    beforeEach(inject(function(_$state_, _draftService_, _$stateParams_) {
       $state = _$state_;
       draftService = _draftService_;
       $stateParams = _$stateParams_;
-      headerService = _headerService_;
     }));
 
     it('should return false when isBoxed is called', function() {
       compileDirective('<composer />');
 
       expect($scope.isBoxed()).to.equal(false);
-    });
-
-    it('should call headerService.subHeader.setVisibleMD', function() {
-      headerService.subHeader.setVisibleMD = sinon.spy();
-      compileDirective('<composer />');
-      expect(headerService.subHeader.setVisibleMD).to.have.been.called;
     });
 
     it('should call state.go with the given type and the controller composition', function(done) {
@@ -365,10 +358,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('The mobile header buttons', function() {
 
-      var headerService, mainHeader, ctrl;
+      var mainHeader, ctrl;
 
-      beforeEach(inject(function(_headerService_) {
-        headerService = _headerService_;
+      beforeEach(inject(function() {
 
         ctrl = compileDirective('<composer/>').controller('composer');
         ctrl.saveDraft = angular.noop;
@@ -389,42 +381,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         mainHeader.find('.inbox-subheader.composer .close.button').click();
 
         expect($scope.close).to.have.been.called;
-      });
-    });
-
-    describe('The mobile header display', function() {
-
-      var headerService, ctrl;
-
-      beforeEach(inject(function(_headerService_) {
-        headerService = _headerService_;
-        headerService.subHeader.setInjection = sinon.spy();
-        headerService.subHeader.resetInjections = sinon.spy();
-
-        ctrl = compileDirective('<composer/>').controller('composer');
-        ctrl.saveDraft = angular.noop;
-      }));
-
-      it('should be shown when directive is linked', function() {
-        expect(headerService.subHeader.setInjection).to.have.been.called;
-      });
-
-      it('should be hidden when location has successfully changed', function() {
-        $rootScope.$broadcast('$stateChangeSuccess');
-
-        expect(headerService.subHeader.resetInjections).to.have.been.called;
-      });
-
-      it('should be hidden when disableSendButton fn is called', function() {
-        $scope.disableSendButton();
-
-        expect(headerService.subHeader.resetInjections).to.have.been.called;
-      });
-
-      it('should be shown when enableSendButton fn is called', function() {
-        $scope.enableSendButton();
-
-        expect(headerService.subHeader.setInjection).to.have.been.calledTwice;
       });
     });
 
@@ -621,22 +577,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       $scope.hide();
 
       expect($scope.$hide).to.have.been.called;
-    });
-
-    it('should disable button when disableSendButton fn is called', function() {
-      var element = compileDirective('<composer-desktop/>');
-
-      $scope.disableSendButton();
-
-      expect(element.find('.btn-primary').attr('disabled')).to.be.defined;
-    });
-
-    it('should enable button when enableSendButton fn is called', function() {
-      var element = compileDirective('<composer-desktop/>');
-
-      $scope.enableSendButton();
-
-      expect(element.find('.btn-primary').attr('disabled')).to.be.undefined;
     });
 
     it('should initialize the controller with summernote\'s initial value when composing from scratch', function() {

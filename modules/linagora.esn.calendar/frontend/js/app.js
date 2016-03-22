@@ -43,7 +43,7 @@ angular.module('esn.calendar', [
       views: {
         content: {
           template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-          controller: function($scope, community, headerService, UI_CONFIG) {
+          controller: function($scope, community, UI_CONFIG) {
             $scope.calendarHomeId = community._id;
             $scope.uiConfig = angular.copy(UI_CONFIG);
             $scope.uiConfig.calendar.editable = false;
@@ -70,13 +70,10 @@ angular.module('esn.calendar', [
       url: '',
       views: {
         content: {
-          template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-          controller: function($scope, calendarHomeId, headerService, UI_CONFIG) {
+          templateUrl: '/calendar/views/calendar/calendar-main',
+          controller: function($scope, calendarHomeId, UI_CONFIG) {
             $scope.calendarHomeId = calendarHomeId;
             $scope.uiConfig = angular.copy(UI_CONFIG);
-
-            headerService.mainHeader.addInjection('calendar-header-content');
-            headerService.subHeader.addInjection('calendar-header-mobile');
           }
         }
       }
@@ -170,8 +167,4 @@ angular.module('esn.calendar', [
 
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
-  }).run(function($rootScope, headerService) {
-    $rootScope.$on('$stateChangeStart', function() {
-      headerService.resetAllInjections();
-    });
   });

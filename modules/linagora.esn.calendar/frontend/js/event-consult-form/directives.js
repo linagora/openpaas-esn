@@ -10,15 +10,8 @@ angular.module('esn.calendar')
     MORE: 'more'
   })
 
-  .directive('eventConsultForm', function(headerService) {
+  .directive('eventConsultForm', function() {
     function link(scope) {
-      headerService.subHeader.resetInjections();
-      headerService.subHeader.addInjection('event-consult-form-subheader', scope);
-
-      scope.$on('$destroy', function() {
-        headerService.subHeader.resetInjections();
-      });
-
       scope.modifyEventParticipation = function(partstat) {
         scope.changeParticipation(partstat);
         scope.modifyEvent();
@@ -32,7 +25,7 @@ angular.module('esn.calendar')
         event: '='
       },
       controller: 'eventFormController',
-      template: '<div><event-consult-form-body/></div>',
+      template: '<div><sub-header><event-consult-form-subheader /></sub-header><event-consult-form-body/></div>',
       link: link
     };
   })

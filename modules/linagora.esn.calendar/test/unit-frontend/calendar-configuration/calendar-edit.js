@@ -19,11 +19,6 @@ describe('The calendarEditionController controller', function() {
     this.notificationFactoryMock = {};
     this.stateMock = {};
     this.calendarMock = null;
-    this.headerServiceMock = {
-      subHeader: {
-        addInjection: function() {}
-      }
-    };
 
     var self = this;
     module('jadeTemplates');
@@ -34,7 +29,6 @@ describe('The calendarEditionController controller', function() {
       $provide.value('notificationFactory', self.notificationFactoryMock);
       $provide.value('$state', self.stateMock);
       $provide.value('calendar', self.calendarMock);
-      $provide.value('headerService', self.headerServiceMock);
     });
   });
 

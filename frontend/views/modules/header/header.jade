@@ -16,7 +16,6 @@ div
             i.md.mdi.mdi-fullscreen
         li.hover-scale-animation
           application-menu-toggler
-    .visible-xs(ng-class='{"visible-md": subHeaderVisibleMd}')
-      #sub-header.flex-vertical-centered(ng-if='hasSubHeaderGotInjections', dynamic-directive='sub-header-content')
+    sub-header-container.visible-xs(hide-on-empty="true")
   sidebar
   api-notification

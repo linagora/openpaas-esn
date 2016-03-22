@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, headerService, CALENDAR_MODIFY_COMPARE_KEYS) {
-    headerService.subHeader.addInjection('calendar-edition-header', $scope);
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS) {
 
     $scope.newCalendar = !$scope.calendar;
     $scope.calendar = $scope.calendar || {};

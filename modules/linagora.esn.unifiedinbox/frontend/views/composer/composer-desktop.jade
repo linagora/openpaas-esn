@@ -26,7 +26,7 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
   email-body-editor
 
   .compose-footer
-    button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true")
+    button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
       i.mdi.mdi-paperclip
-    button.btn.btn-primary(type="submit", value="submit") #{__('Send')}
+    button.btn.btn-primary(type="submit", value="submit", ng-disabled="isSendingMessage") #{__('Send')}
         i.mdi.mdi-send

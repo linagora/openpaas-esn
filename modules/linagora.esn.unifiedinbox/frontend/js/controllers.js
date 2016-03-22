@@ -19,7 +19,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('listEmailsController', function($scope, $stateParams, $state, jmap, withJmapClient, Email,
-                                               ElementGroupingTool, newComposerService, headerService, jmapEmailService,
+                                               ElementGroupingTool, newComposerService, jmapEmailService,
                                                mailboxesService, infiniteScrollHelper, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
 
     var groups = new ElementGroupingTool($stateParams.mailbox);
@@ -49,8 +49,6 @@ angular.module('linagora.esn.unifiedinbox')
       });
     });
 
-    headerService.subHeader.setInjection('list-emails-subheader', $scope);
-
     this.openEmail = function(email) {
       if (email.isDraft) {
         newComposerService.openDraft(email.id);
@@ -70,7 +68,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('listThreadsController', function($q, $scope, $stateParams, $state, _, withJmapClient, Email, ElementGroupingTool,
-                                                headerService, mailboxesService, newComposerService, infiniteScrollHelper,
+                                                mailboxesService, newComposerService, infiniteScrollHelper,
                                                 JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE) {
 
     var groups = new ElementGroupingTool($stateParams.mailbox);
@@ -126,8 +124,6 @@ angular.module('linagora.esn.unifiedinbox')
       });
     });
 
-    headerService.subHeader.setInjection('list-emails-subheader', $scope);
-
     mailboxesService
       .assignMailbox($stateParams.mailbox, $scope)
       .then(function() {
@@ -135,7 +131,7 @@ angular.module('linagora.esn.unifiedinbox')
       });
   })
 
-  .controller('composerController', function($scope, $stateParams, $q, headerService, notificationFactory,
+  .controller('composerController', function($scope, $stateParams, $q, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inboxConfig,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
@@ -159,14 +155,6 @@ angular.module('linagora.esn.unifiedinbox')
       disableImplicitSavesAsDraft = true;
 
       return composition.saveDraft();
-    };
-
-    this.showMobileHeader = function() {
-      headerService.subHeader.setInjection('composer-subheader', $scope);
-    };
-
-    this.hideMobileHeader = function() {
-      headerService.subHeader.resetInjections();
     };
 
     function newAttachment(client, file) {
@@ -253,7 +241,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     $scope.send = function() {
-      $scope.disableSendButton();
+      $scope.isSendingMessage = true;
 
       if (composition.canBeSentOrNotify()) {
         disableImplicitSavesAsDraft = true;
@@ -261,15 +249,13 @@ angular.module('linagora.esn.unifiedinbox')
         $scope.hide();
         composition.send();
       } else {
-        $scope.enableSendButton();
+        $scope.isSendingMessage = false;
       }
     };
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, Email, session, asyncAction, emailSendingService, newComposerService, headerService, inboxEmailService, JMAP_GET_MESSAGES_VIEW) {
-
-    headerService.subHeader.setInjection('view-email-subheader', $scope);
+  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, Email, session, asyncAction, emailSendingService, newComposerService, inboxEmailService, JMAP_GET_MESSAGES_VIEW) {
 
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
@@ -292,9 +278,7 @@ angular.module('linagora.esn.unifiedinbox')
     }.bind(this));
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, headerService, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
-
-    headerService.subHeader.setInjection('view-thread-subheader', $scope);
+  .controller('viewThreadController', function($scope, $stateParams, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
 
     withJmapClient(function(client) {
       client
@@ -333,14 +317,12 @@ angular.module('linagora.esn.unifiedinbox')
     }.bind(this));
   })
 
-  .controller('configurationController', function($scope, headerService, mailboxesService) {
+  .controller('configurationController', function($scope, mailboxesService) {
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
-    headerService.subHeader.setInjection('configuration-index-subheader', $scope);
   })
 
-  .controller('addFolderController', function($scope, $state, headerService, mailboxesService, notificationFactory, asyncJmapAction) {
+  .controller('addFolderController', function($scope, $state, mailboxesService, notificationFactory, asyncJmapAction) {
     mailboxesService.assignMailboxesList($scope);
-    headerService.subHeader.setInjection('add-folder-subheader', $scope);
 
     $scope.mailbox = {};
 
@@ -357,14 +339,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, $modal, headerService, mailboxesService, _, notificationFactory, asyncJmapAction) {
+  .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, notificationFactory, asyncJmapAction) {
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
         $scope.mailbox = _.find(mailboxes, { id: $stateParams.mailbox });
       });
-
-    headerService.subHeader.setInjection('edit-folder-subheader', $scope);
 
     $scope.editFolder = function() {
       if (!$scope.mailbox.name) {
@@ -394,7 +374,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('recipientsFullscreenEditFormController', function($scope, $rootScope, $state, $stateParams, headerService) {
+  .controller('recipientsFullscreenEditFormController', function($scope, $rootScope, $state, $stateParams) {
     if (!$stateParams.recipientsType || !$stateParams.composition || !$stateParams.composition.email) {
       return $state.go('unifiedinbox.compose');
     }
@@ -405,9 +385,6 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.backToComposition = function() {
       $state.go('^', { composition: $stateParams.composition });
     };
-
-    headerService.subHeader.setInjection('fullscreen-edit-form-subheader', $scope);
-    headerService.subHeader.setVisibleMD();
   })
 
   .controller('attachmentController', function($window) {
