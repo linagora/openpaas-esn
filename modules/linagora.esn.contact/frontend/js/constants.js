@@ -8,6 +8,7 @@ angular.module('linagora.esn.contact')
   .constant('DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME', 'ABAggregator')
   .constant('CONTACT_DATE_FORMAT', 'MM/dd/yyyy')
   .constant('LETTER_DISPLAY_DURATION', 1500)
+  .constant('SEARCH_INPUT_LIMIT', 200)
   .constant('CONTACT_LIST_DISPLAY', {
     list: 'list',
     cards: 'cards'

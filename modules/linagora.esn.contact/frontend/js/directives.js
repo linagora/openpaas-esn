@@ -186,10 +186,13 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactSearchForm', function() {
+  .directive('contactSearchForm', function(SEARCH_INPUT_LIMIT) {
     return {
       restrict: 'E',
-      templateUrl: '/contact/views/partials/contact-search-form.html'
+      templateUrl: '/contact/views/partials/contact-search-form.html',
+      link: function(scope) {
+        scope.SEARCH_INPUT_LIMIT = SEARCH_INPUT_LIMIT;
+      }
     };
   })
   .directive('relaxedDateForBsDatepicker', function(CONTACT_DATE_FORMAT, $dateFormatter) {
