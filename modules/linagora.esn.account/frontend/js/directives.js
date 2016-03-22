@@ -78,6 +78,7 @@ angular.module('linagora.esn.account')
       },
       templateUrl: function(elem, attr) {
         return '/account/views/providers/' + attr.type + '/account.html';
-      }
+      },
+      controller: 'socialAccountController'
     };
   });

@@ -2,6 +2,13 @@
 
 angular.module('linagora.esn.account')
   .constant('FAB_ANCHOR_POINT', 'accounts-item-anchorpoint')
+  .constant('ACCOUNT_MESSAGES', {
+    delete_error: 'An error occured while deleting your social account',
+    deleted: 'Your social account has been successfully deleted'
+  })
+  .constant('ACCOUNT_EVENTS', {
+    DELETED: 'account:deleted'
+  })
   .constant('OAUTH_DEFAULT_MESSAGES', {
     config_error: 'The account is not configured in the application',
     denied: 'You denied access to your account',
