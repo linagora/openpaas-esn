@@ -4,7 +4,7 @@ var request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The profile API', function() {
-  var app, foouser, baruser, imagePath, domain_id, mongoose, User;
+  var app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose, User;
   var password = 'secret';
 
   beforeEach(function(done) {
@@ -16,6 +16,8 @@ describe('The profile API', function() {
       mongoose = require('mongoose');
       User = self.helpers.requireBackend('core/db/mongo/models/user');
 
+      WCUtils = self.helpers.rewireBackend('webserver/controllers/utils');
+
       self.helpers.api.applyDomainDeployment('foo_and_bar_users', function(err, models) {
         if (err) {
           return done(err);
@@ -24,12 +26,38 @@ describe('The profile API', function() {
         domain_id = models.domain._id;
         foouser = models.users[0];
         baruser = models.users[1];
+        baruserExpectedKeys = [];
+        WCUtils.__get__('publicKeys').forEach(function(key) {
+          if (baruser[key]) {
+            baruserExpectedKeys.push(key);
+          }
+        });
+        baruserForbiddenKeys = [];
+        WCUtils.__get__('privateKeys').forEach(function(key) {
+          if (baruser[key]) {
+            baruserForbiddenKeys.push(key);
+          }
+        });
 
         self.helpers.api.addFeature(domain_id, 'core', 'my-feature', function() {
           self.helpers.api.addFeature('4edd40c86762e0fb12000003', 'core', 'my-other-feature', done);
         });
       });
     });
+
+    checkKeys = function(userToCheck, expectedKeys, forbiddenKeys) {
+      if (forbiddenKeys) {
+        forbiddenKeys.forEach(function(key) {
+          expect(userToCheck[key]).not.to.exist;
+        });
+      }
+      if (expectedKeys) {
+        expectedKeys.forEach(function(key) {
+          expect(userToCheck[key]).to.exist;
+        });
+      }
+    };
+
   });
 
   afterEach(function(done) {
@@ -86,6 +114,42 @@ describe('The profile API', function() {
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
           expect(baruser._id.toString()).to.equal(res.body._id);
+          done();
+        });
+      });
+    });
+
+    it('should return 200 with the profile of the user including its private informations if the user is the client himself', function(done) {
+
+      this.helpers.api.loginAsUser(app, baruser.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+
+          checkKeys(res.body, baruserExpectedKeys.concat(baruserForbiddenKeys), null);
+
+          done();
+        });
+      });
+    });
+
+    it('should return 200 with the profile of the user except its private informations if the user is NOT the client himself', function(done) {
+
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+
+          checkKeys(res.body, baruserExpectedKeys, baruserForbiddenKeys);
+
           done();
         });
       });
@@ -190,6 +254,42 @@ describe('The profile API', function() {
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
           expect(baruser._id.toString()).to.equal(res.body._id);
+          done();
+        });
+      });
+    });
+
+    it('should return 200 with the profile of the user including its private informations if the user is the client himself', function(done) {
+
+      this.helpers.api.loginAsUser(app, baruser.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
+
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+
+          checkKeys(res.body, baruserExpectedKeys.concat(baruserForbiddenKeys), null);
+
+          done();
+        });
+      });
+    });
+
+    it('should return 200 with the profile of the user except its private informations if the user is NOT the client himself', function(done) {
+
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
+
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+
+          checkKeys(res.body, baruserExpectedKeys, baruserForbiddenKeys);
+
           done();
         });
       });

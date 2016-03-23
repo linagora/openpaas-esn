@@ -58,7 +58,8 @@ function profile(req, res) {
         details: 'User ' + uuid + ' has not been found'
       });
     }
-    return res.json(200, utils.sanitizeUser(user));
+
+    return res.json(200, utils.sanitizeUser(user, String(req.user._id) !== uuid));
   });
 }
 module.exports.profile = profile;
