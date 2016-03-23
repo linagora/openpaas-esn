@@ -18,12 +18,13 @@ function getFilesList(injections, appName) {
   return list;
 }
 
-function getCss(req, res, next) {
+function getCss(req, res) {
   if (!req.params || !req.params.app) {
     return res.send(404, { error: { status: 404, message: 'Not Found', details: 'No app defined'}});
   }
   var productionMode = process.env.NODE_ENV === 'production';
   var appName = req.params.app;
+  var componentsPath = path.resolve(__dirname, '../../../frontend/components/');
   var lessMainFile = path.resolve(__dirname, '../../../frontend/css/styles.less');
   var lessOptions = {
     filename: 'styles.less'
@@ -39,6 +40,7 @@ function getCss(req, res, next) {
   getFilesList(injections, appName).forEach(function(filePath) {
     lessContents += '@import \'' + filePath + '\';\n';
   });
+  lessOptions.globalVars = {components: '"' + componentsPath + '"'};
   less.render(lessContents, lessOptions)
   .then(function(output) {
     res.set('Content-Type', 'text/css');
