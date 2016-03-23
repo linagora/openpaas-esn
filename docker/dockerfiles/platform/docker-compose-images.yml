@@ -16,7 +16,7 @@ services:
       - sabre
       - elasticsearch
     volumes:
-      - ../../config:/var/www/docker/config:ro
+      - ${ESN_PATH}/docker/config:/var/www/docker/config:ro
     env_file:
       - ../../config/oauth.env
     environment:
@@ -93,8 +93,8 @@ services:
       - cassandra
       - james_elastic
     volumes:
-      - ../../config/james:/root/conf
-      - ../../config/jwt/public:/root/conf/jwt_publickey
+      - ${ESN_PATH}/docker/config/james:/root/conf
+      - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey
 
   james_elastic:
     image: elasticsearch:1.5.2
