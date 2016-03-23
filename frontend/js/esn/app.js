@@ -109,34 +109,7 @@ angular.module('esnApp', [
       }
     }
   })
-  .state('/profile', {
-    url: '/profile',
-    templateUrl: '/views/esn/partials/profile',
-    controller: 'profileViewController',
-    resolve: {
-      user: function($location, userAPI) {
-        return userAPI.currentUser().then(function(response) {
-          return response.data;
-        }, function() {
-          $location.path('/');
-        });
-      }
-    }
-  })
-  .state('/profile/:user_id', {
-    url: '/profile/:user_id',
-    templateUrl: '/views/esn/partials/profile',
-    controller: 'profileViewController',
-    resolve: {
-      user: function($stateParams, $location, userAPI) {
-        return userAPI.user($stateParams.user_id).then(function(response) {
-          return response.data;
-        }, function() {
-          $location.path('/');
-        });
-      }
-    }
-  })
+
   .state('/domains/:domain_id/members', {
     url: '/domains/:domain_id/members',
     templateUrl: '/views/esn/partials/members',
