@@ -15,7 +15,8 @@ exports.config = {
     'phantomjs.ghostdriver.cli.args': ''
   },
   suites: {
-    'all': '../integration/*'
+    'modules': '../../modules/**/test/e2e/**/*.js',
+    'core': '../e2e/**/*.js'
   },
   mochaOpts: {
     timeout: 10000

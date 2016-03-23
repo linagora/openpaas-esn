@@ -14,40 +14,15 @@ helpers.applyPlugins();
 helpers.patchFindOneAndUpdate();
 
 var userDomainModule = require('../../backend/core/user/domain');
+var populateObjects = require('./data/populate-objects');
 
-var ADMIN_OBJECT = {
-  firstname: 'admin',
-  lastname: 'admin',
-  password: 'secret',
-  accounts: [{
-    type: 'email',
-    emails: ['admin@open-paas.org']
-  }]
-};
+var ADMIN_OBJECT = populateObjects.ADMIN;
 
-var USER_OBJECT = {
-  firstname: 'John',
-  lastname: 'Doe',
-  password: 'secret',
-  accounts: [{
-    type: 'email',
-    emails: ['user@open-paas.org']
-  }]
-};
+var USER_OBJECT = populateObjects.USER;
 
-var DOMAIN_OBJECT = {
-  name: 'OpenPaaS',
-  company_name: 'open-paas.org'
-};
+var DOMAIN_OBJECT = populateObjects.DOMAIN;
 
-var COMMUNITY_OBJECT = {
-  title: 'OpenPaaS Community',
-  description: 'The Open PaaS project aims at developing a PaaS (Platform as a Service) technology ' +
-    'dedicated to enterprise collaborative applications deployed on hybrid clouds (private / public). ' +
-    'Open PaaS is a platform that allow to design and deploy applications based on proven technologies ' +
-    'provided by partners such as collaborative messaging system, integration and workflow technologies ' +
-    'that is extended in order to address Cloud Computing requirements.'
-};
+var COMMUNITY_OBJECT = populateObjects.COMMUNITY;
 
 function _populateAdmin() {
   console.log('[INFO] POPULATE admin');
