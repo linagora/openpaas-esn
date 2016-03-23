@@ -582,14 +582,14 @@ describe('CalendarShell factory', function() {
       });
 
       var masterFromCache = CalendarShell.fromIncompleteShell({});
-      this.masterEventCache.getMasterEvent = sinon.stub().returns(masterFromCache);
-      this.masterEventCache.saveMasterEvent = sinon.spy();
+      this.masterEventCache.get = sinon.stub().returns(masterFromCache);
+      this.masterEventCache.save = sinon.spy();
 
       var self = this;
       shell.getModifiedMaster().then(function(masterShell) {
         expect(masterShell).to.equal(masterFromCache);
-        expect(self.masterEventCache.getMasterEvent).to.have.been.calledWith(shell.path);
-        expect(self.masterEventCache.saveMasterEvent).to.have.been.calledWith(masterFromCache);
+        expect(self.masterEventCache.get).to.have.been.calledWith(shell.path);
+        expect(self.masterEventCache.save).to.have.been.calledWith(masterFromCache);
         done();
       }, done);
 
@@ -609,8 +609,8 @@ describe('CalendarShell factory', function() {
         gracePeriodTaskId: gracePeriodTaskId
       });
 
-      this.masterEventCache.getMasterEvent = sinon.stub().returns(null);
-      this.masterEventCache.saveMasterEvent = sinon.spy();
+      this.masterEventCache.get = sinon.stub().returns(null);
+      this.masterEventCache.save = sinon.spy();
 
       this.eventApiMock.get = function(_path) {
         expect(_path).to.equal(path);
@@ -622,8 +622,8 @@ describe('CalendarShell factory', function() {
         expect(masterShell.vcalendar.toJSON()).to.deep.equal(vcalendar.toJSON());
         expect(masterShell.etag).to.equal(etag);
         expect(masterShell.gracePeriodTaskId).to.equal(gracePeriodTaskId);
-        expect(self.masterEventCache.getMasterEvent).to.have.been.calledWith(shell.path);
-        expect(self.masterEventCache.saveMasterEvent).to.have.been.calledWith(masterShell);
+        expect(self.masterEventCache.get).to.have.been.calledWith(shell.path);
+        expect(self.masterEventCache.save).to.have.been.calledWith(masterShell);
         done();
       }, done);
 
@@ -642,7 +642,7 @@ describe('CalendarShell factory', function() {
         recurrenceId: fcMoment()
       });
 
-      this.masterEventCache.getMasterEvent = function(path) {
+      this.masterEventCache.get = function(path) {
         expect(path).to.equal(shell.path);
       };
 
@@ -684,7 +684,7 @@ describe('CalendarShell factory', function() {
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
         recurrenceId: fcMoment()
       });
-      this.masterEventCache.saveMasterEvent = sinon.spy();
+      this.masterEventCache.save = sinon.spy();
 
       var masterEvent = CalendarShell.fromIncompleteShell({});
       masterEvent.modifyOccurrence(nonMasterEvent);
@@ -697,12 +697,12 @@ describe('CalendarShell factory', function() {
         numSame += angular.equals(vevent.toJSON(), nonMasterEvent.vevent.toJSON()) ? 1 : 0;
       });
       expect(numSame).to.equal(1);
-      expect(this.masterEventCache.saveMasterEvent).to.have.been.calledWith(masterEvent);
+      expect(this.masterEventCache.save).to.have.been.calledWith(masterEvent);
     });
 
     it('should replace the modified occurence in the vcalendar of the master shell if already there', function() {
       var recurrenceId = fcMoment();
-      this.masterEventCache.saveMasterEvent = sinon.spy();
+      this.masterEventCache.save = sinon.spy();
 
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId
@@ -728,7 +728,7 @@ describe('CalendarShell factory', function() {
       });
 
       expect(numSame).to.equal(1);
-      expect(this.masterEventCache.saveMasterEvent).to.have.been.calledWith(masterEvent);
+      expect(this.masterEventCache.save).to.have.been.calledWith(masterEvent);
     });
 
   });

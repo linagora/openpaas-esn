@@ -3,7 +3,7 @@
 angular.module('esn.calendar').factory('masterEventCache', function($timeout, MASTER_EVENT_CACHE_TTL) {
   var map = {};
 
-  function saveMasterEvent(shell) {
+  function save(shell) {
     if (!shell.isInstance()) {
       map[shell.path] = shell;
       $timeout(function() {
@@ -12,12 +12,12 @@ angular.module('esn.calendar').factory('masterEventCache', function($timeout, MA
     }
   }
 
-  function getMasterEvent(path) {
+  function get(path) {
     return map[path];
   }
 
   return {
-    saveMasterEvent: saveMasterEvent,
-    getMasterEvent: getMasterEvent
+    save: save,
+    get: get
   };
 });

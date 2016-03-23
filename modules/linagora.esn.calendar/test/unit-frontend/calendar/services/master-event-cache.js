@@ -32,11 +32,11 @@ describe('the masterEventCache service', function() {
 
   it('should not save an instance', function() {
     var path = 'aPath';
-    masterEventCache.saveMasterEvent(CalendarShell.fromIncompleteShell({
+    masterEventCache.save(CalendarShell.fromIncompleteShell({
       recurrenceId: fcMoment(),
       path: path
     }));
-    expect(masterEventCache.getMasterEvent(path)).to.not.exist;
+    expect(masterEventCache.get(path)).to.not.exist;
   });
 
   it('should save a master event', function() {
@@ -44,9 +44,9 @@ describe('the masterEventCache service', function() {
     var shell = CalendarShell.fromIncompleteShell({
       path: path
     });
-    masterEventCache.saveMasterEvent(shell);
-    expect(masterEventCache.getMasterEvent(path)).to.equal(shell);
-    expect(masterEventCache.getMasterEvent('randomPath')).to.not.exist;
+    masterEventCache.save(shell);
+    expect(masterEventCache.get(path)).to.equal(shell);
+    expect(masterEventCache.get('randomPath')).to.not.exist;
   });
 
   it('should create a deletion task when saving', function() {
@@ -59,9 +59,9 @@ describe('the masterEventCache service', function() {
       expect(deleteFunction).to.be.a.function;
       expect(ttl).to.equal(MASTER_EVENT_CACHE_TTL);
       deleteFunction();
-      expect(masterEventCache.getMasterEvent(path)).to.not.exist;
+      expect(masterEventCache.get(path)).to.not.exist;
     };
 
-    masterEventCache.saveMasterEvent(shell);
+    masterEventCache.save(shell);
   });
 });

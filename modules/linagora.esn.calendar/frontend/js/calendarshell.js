@@ -367,7 +367,7 @@ angular.module('esn.calendar')
           return $q.when(this);
         }
 
-        var fromCache = masterEventCache.getMasterEvent(this.path);
+        var fromCache = masterEventCache.get(this.path);
         if (fromCache) {
           fromCache.modifyOccurrence(this);
           return $q.when(fromCache);
@@ -398,7 +398,7 @@ angular.module('esn.calendar')
 
         this._removeOccurenceFromVcalendar(instance);
         this.vcalendar.addSubcomponent(instance.clone().vevent);
-        masterEventCache.saveMasterEvent(this);
+        masterEventCache.save(this);
       },
 
       _removeOccurenceFromVcalendar: function(instance) {
