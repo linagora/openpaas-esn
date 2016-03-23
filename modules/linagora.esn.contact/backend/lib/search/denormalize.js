@@ -2,9 +2,20 @@
 
 var Ical = require('ical.js');
 
-module.exports = function(contact) {
+function getId(contact) {
+  return contact.contactId;
+}
+module.exports.getId = getId;
+
+function denormalize(contact) {
 
   var result = {};
+
+  var id = getId(contact);
+  if (id) {
+    result.id = id;
+  }
+
   if (contact.bookId) {
     result.bookId = contact.bookId;
   }
@@ -98,4 +109,5 @@ module.exports = function(contact) {
   result.comments = vcard.getFirstPropertyValue('note');
 
   return result;
-};
+}
+module.exports.denormalize = denormalize;

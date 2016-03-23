@@ -3,9 +3,6 @@
 var denormalize = require('./denormalize');
 var CONSTANTS = require('../constants');
 
-var CONTACT_ADDED = CONSTANTS.NOTIFICATIONS.CONTACT_ADDED;
-var CONTACT_UPDATED = CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED;
-var CONTACT_DELETED = CONSTANTS.NOTIFICATIONS.CONTACT_DELETED;
 var INDEX_NAME = CONSTANTS.SEARCH.INDEX_NAME;
 var TYPE_NAME = CONSTANTS.SEARCH.TYPE_NAME;
 var DEFAULT_LIMIT = CONSTANTS.SEARCH.DEFAULT_LIMIT;
@@ -15,6 +12,7 @@ module.exports = function(dependencies) {
   var pubsub = dependencies('pubsub').global;
   var logger = dependencies('logger');
   var elasticsearch = dependencies('elasticsearch');
+  var listener = require('./listener')(dependencies);
 
   function indexContact(contact, callback) {
     logger.debug('Indexing contact into elasticseach', contact);
@@ -132,38 +130,8 @@ module.exports = function(dependencies) {
   }
 
   function listen() {
-
     logger.info('Subscribing to contact updates for indexing');
-
-    pubsub.topic(CONTACT_ADDED).subscribe(function(data) {
-      var contact = data;
-      contact.id = data.contactId;
-
-      indexContact(contact, function(err) {
-        if (err) {
-          logger.error('Error while adding contact in index', err);
-        }
-      });
-    });
-
-    pubsub.topic(CONTACT_UPDATED).subscribe(function(data) {
-      var contact = data;
-      contact.id = data.contactId;
-
-      indexContact(contact, function(err) {
-        if (err) {
-          logger.error('Error while updating contact in index', err);
-        }
-      });
-    });
-
-    pubsub.topic(CONTACT_DELETED).subscribe(function(data) {
-      removeContactFromIndex({id: data.contactId}, function(err) {
-        if (err) {
-          logger.error('Error while deleting contact from index', err);
-        }
-      });
-    });
+    listener.register();
   }
 
   return {

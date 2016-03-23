@@ -32,6 +32,9 @@ describe('The ES utils module', function() {
           expect(document).to.deep.equal(data);
           return denormalized;
         },
+        getId: function(document) {
+          return document._id;
+        },
         data: data,
         type: 'Mytype',
         index: 'type.idx'

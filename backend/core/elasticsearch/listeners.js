@@ -7,6 +7,7 @@ var logger = require('../logger');
 function index(data, options, callback) {
   var indexOptions = {
     denormalize: options.denormalize || function(data) {return data;},
+    getId: options.getId,
     index: options.index,
     type: options.type,
     data: data
@@ -42,6 +43,7 @@ function addListener(options) {
     pubsub.topic(options.events.remove).subscribe(function(data) {
       var indexOptions = {
         data: data,
+        getId: options.getId,
         index: options.index,
         type: options.type
       };

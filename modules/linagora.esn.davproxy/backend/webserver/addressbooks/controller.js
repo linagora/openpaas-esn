@@ -153,7 +153,11 @@ module.exports = function(dependencies) {
       onSuccess: function(response, data, req, res, callback) {
         logger.debug('Success while deleting contact %s', req.params.contactId);
 
-        pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).publish({contactId: req.params.contactId, bookId: req.params.bookHome, bookName: req.params.bookName});
+        pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).publish({
+          contactId: req.params.contactId,
+          bookId: req.params.bookHome,
+          bookName: req.params.bookName
+        });
 
         return callback(null, data);
       }

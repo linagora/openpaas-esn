@@ -15,6 +15,7 @@ describe('The user listener module', function() {
           expect(options.events.update).to.exist;
           expect(options.events.remove).to.exist;
           expect(options.denormalize).to.be.a.function;
+          expect(options.getId).to.be.a.function;
           expect(options.type).to.exist;
           expect(options.index).to.exist;
         }
