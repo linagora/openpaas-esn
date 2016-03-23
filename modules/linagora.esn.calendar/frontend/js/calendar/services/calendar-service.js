@@ -241,12 +241,13 @@ angular.module('esn.calendar')
 
     /**
      * Remove an event in the calendar defined by its path.
-     * @param  {String}        eventPath the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
-     * @param  {CalendarShell} event     The event from fullcalendar. It is used in case of rollback.
-     * @param  {String}        etag      The etag
+     * @param  {String}        eventPath            The event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
+     * @param  {CalendarShell} event                The event from fullcalendar. It is used in case of rollback.
+     * @param  {String}        etag                 The etag
+     * @param  {String}        removeAllInstance    Make sens only for instance of recurring event. If true all the instance of the recurring event will be removed
      * @return {Boolean}                 true on success, false if cancelled
      */
-    function removeEvent(eventPath, event, etag) {
+    function removeEvent(eventPath, event, etag, removeAllInstance) {
       if (!etag) {
         // This is a noop and the event is not created yet in sabre/dav,
         // we then should only remove the event from fullcalendar
@@ -274,17 +275,7 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
-      if (event.isInstance()) {
-        return event.getModifiedMaster()
-          .then(function(oldMaster) {
-            var newMaster = oldMaster.clone();
-            newMaster.deleteInstance(event);
-
-            //we use self.modifyEvent and not modifyEvent for ease of testing
-            //this is also the reason why this is a service and not a factory so we can mock modifyEvent
-            return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
-          });
-      } else {
+      function performRemove() {
         return eventAPI.remove(eventPath, etag)
           .then(function(id) {
             event.gracePeriodTaskId = taskId = id;
@@ -304,6 +295,24 @@ angular.module('esn.calendar')
             event.gracePeriodTaskId = undefined;
           })
           .catch($q.reject);
+      }
+
+      if (event.isInstance()) {
+        return event.getModifiedMaster()
+          .then(function(oldMaster) {
+            var newMaster = oldMaster.clone();
+            if (removeAllInstance || oldMaster.expand(null, null, 2).length < 2) {
+              return performRemove();
+            } else {
+              newMaster.deleteInstance(event);
+
+              //we use self.modifyEvent and not modifyEvent for ease of testing
+              //this is also the reason why this is a service and not a factory so we can mock modifyEvent
+              return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
+            }
+          });
+      } else {
+        return performRemove();
       }
     }
 

@@ -34,6 +34,7 @@ describe('The calendarService service', function() {
         return $q.when([]);
       }
     };
+
     this.gracePeriodLiveNotification = {
       registerListeners: function() {}
     };
@@ -1104,11 +1105,14 @@ describe('The calendarService service', function() {
 
     beforeEach(function() {
       var vcalendar = new ICAL.Component('vcalendar');
+
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('summary', 'test event');
       vcalendar.addSubcomponent(vevent);
+
       this.vcalendar = vcalendar;
+
       this.event = {
         id: '00000000-0000-4000-a000-000000000000',
         title: 'test event',
@@ -1116,6 +1120,22 @@ describe('The calendarService service', function() {
         end: this.fcMoment(),
         isInstance: _.constant(false)
       };
+
+      this.cloneOfMaster = {
+        equals: _.constant(false),
+        deleteInstance: sinon.spy()
+      };
+
+      this.master = {
+        expand: _.constant({length: 2}),
+        clone: sinon.stub().returns(this.cloneOfMaster)
+      };
+
+      this.instanceEvent = {
+        isInstance: _.constant(true),
+        getModifiedMaster: sinon.stub().returns($q.when(this.master))
+      };
+
       flushContext = {id: this.event.id};
     });
 
@@ -1364,33 +1384,73 @@ describe('The calendarService service', function() {
     });
 
     it('should delegate on modifyEvent for instance of recurring after deleting subevent from master shell', function(done) {
-      var cloneOfMaster = {
-        deleteInstance: sinon.spy()
-      };
-      var master = {
-        clone: sinon.stub().returns(cloneOfMaster)
-      };
-
-      var event = {
-        isInstance: _.constant(true),
-        getModifiedMaster: sinon.stub().returns($q.when(master))
-      };
-
       var modifyEventAnswer = {};
 
       this.calendarService.modifyEvent = sinon.stub().returns($q.when(modifyEventAnswer));
-      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', event, 'etag').then(
+      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.instanceEvent, 'etag').then(
         function(response) {
           expect(response).to.equal(modifyEventAnswer);
-          expect(event.getModifiedMaster).to.have.been.calledOnce;
-          expect(master.clone).to.have.been.calledOnce;
-          expect(cloneOfMaster.deleteInstance).to.have.been.calledWith(event);
+          expect(self.instanceEvent.getModifiedMaster).to.have.been.calledOnce;
+          expect(self.master.clone).to.have.been.calledOnce;
+          expect(self.cloneOfMaster.deleteInstance).to.have.been.calledWith(self.instanceEvent);
           done();
         }, unexpected.bind(null, done)
       );
 
       this.$rootScope.$apply();
+    });
 
+    it('should remove master of event if event is the only instance of a recurring event', function(done) {
+      var taskId = '123456789';
+      this.master.expand = _.constant({length:1});
+
+      this.gracePeriodService.grace = function() {
+        return $q.when({
+          cancelled: false
+        });
+      };
+
+      this.gracePeriodService.remove = function(id) {
+        expect(taskId).to.equal(taskId);
+      };
+
+      this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: taskId});
+
+      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.instanceEvent, 'etag').then(
+        function(response) {
+          expect(response).to.be.true;
+          done();
+        }, unexpected.bind(null, done)
+      );
+
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+    });
+
+    it('should remove master of event if removeAllInstance is true even if event is not the only instance of a recurring event', function(done) {
+      var taskId = '123456789';
+
+      this.gracePeriodService.grace = function() {
+        return $q.when({
+          cancelled: false
+        });
+      };
+
+      this.gracePeriodService.remove = function(id) {
+        expect(taskId).to.equal(taskId);
+      };
+
+      this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: taskId});
+
+      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.instanceEvent, 'etag', true).then(
+        function(response) {
+          expect(response).to.be.true;
+          done();
+        }, unexpected.bind(null, done)
+      );
+
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
     });
 
   });
