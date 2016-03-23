@@ -1,22 +1,22 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon, _: false */
 
 var expect = chai.expect;
 
 describe('the masterEventCache service', function() {
-  var masterEventCache, CalendarShell, fcMoment, timeoutMock, MASTER_EVENT_CACHE_TTL;
+  var masterEventCache, CalendarShell, fcMoment, timeoutMock, MASTER_EVENT_CACHE_TTL, path, shell, timeoutMockReturn;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
-      $provide.value('$timeout', function(delayedFunction, time) {
-        if (timeoutMock) {
-          timeoutMock(delayedFunction, time);
-        }
-      });
+      $provide.value('$timeout', timeoutMock);
     });
+
+    timeoutMockReturn = {};
+    timeoutMock = sinon.stub().returns(timeoutMockReturn);
+    timeoutMock.cancel = sinon.spy();
 
     angular.mock.inject(function(_masterEventCache_, _CalendarShell_, _fcMoment_, _MASTER_EVENT_CACHE_TTL_) {
       masterEventCache = _masterEventCache_;
@@ -24,14 +24,14 @@ describe('the masterEventCache service', function() {
       fcMoment = _fcMoment_;
       MASTER_EVENT_CACHE_TTL = _MASTER_EVENT_CACHE_TTL_;
     });
-  });
 
-  afterEach(function() {
-    timeoutMock = null;
+    path = 'aPath';
+    shell = CalendarShell.fromIncompleteShell({
+      path: path
+    });
   });
 
   it('should not save an instance', function() {
-    var path = 'aPath';
     masterEventCache.save(CalendarShell.fromIncompleteShell({
       recurrenceId: fcMoment(),
       path: path
@@ -40,28 +40,28 @@ describe('the masterEventCache service', function() {
   });
 
   it('should save a master event', function() {
-    var path = 'aPath';
-    var shell = CalendarShell.fromIncompleteShell({
-      path: path
-    });
     masterEventCache.save(shell);
     expect(masterEventCache.get(path)).to.equal(shell);
     expect(masterEventCache.get('randomPath')).to.not.exist;
   });
 
-  it('should create a deletion task when saving', function() {
-    var path = 'aPath';
-    var shell = CalendarShell.fromIncompleteShell({
-      path: path
-    });
-
-    timeoutMock = function(deleteFunction, ttl) {
-      expect(deleteFunction).to.be.a.function;
-      expect(ttl).to.equal(MASTER_EVENT_CACHE_TTL);
-      deleteFunction();
-      expect(masterEventCache.get(path)).to.not.exist;
-    };
-
+  it('should unregister previous timeout if replacing a master by an other', function() {
     masterEventCache.save(shell);
+    masterEventCache.save(shell);
+    expect(timeoutMock.cancel).to.have.been.calledWith(timeoutMockReturn);
+  });
+
+  it('should allow deletion of master event element', function() {
+    masterEventCache.save(shell);
+    masterEventCache.remove(shell);
+    expect(timeoutMock.cancel).to.have.been.calledWith(timeoutMockReturn);
+    expect(masterEventCache.get(shell.path)).to.be.undefined;
+  });
+
+  it('should create a deletion task when saving', function() {
+    masterEventCache.save(shell);
+    expect(timeoutMock).to.have.been.calledWith(sinon.match(function(deleteFunction) {
+      return _.isFunction(deleteFunction) && !(deleteFunction(), masterEventCache.get(path));
+    }), MASTER_EVENT_CACHE_TTL);
   });
 });
