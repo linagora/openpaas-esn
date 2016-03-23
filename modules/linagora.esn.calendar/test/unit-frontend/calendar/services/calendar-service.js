@@ -32,7 +32,11 @@ describe('The calendarService service', function() {
       flushTasksFor: function(context) {
         expect(flushContext).to.deep.equal(context);
         return $q.when([]);
-      }
+      },
+      grace: function() {
+        return $q.when({});
+      },
+      remove: angular.noop
     };
 
     this.gracePeriodLiveNotification = {
@@ -660,7 +664,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call masterEventCache.save iff it is a recurring event', function() {
+    it('should call masterEventCache.save if and only if it is a recurring event', function() {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -876,6 +880,34 @@ describe('The calendarService service', function() {
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
+    });
+
+    it('should save event on masterEventCache if and only if it is a recurring event', function() {
+      this.gracePeriodService.grace = function() {
+        return $q.when({
+          cancelled: false
+        });
+      };
+
+      this.gracePeriodService.remove = function(taskId) {
+        expect(taskId).to.equal('123456789');
+      };
+
+      this.event.isRecurring = _.constant(true);
+      this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, { id: '123456789' });
+      this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true});
+
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+
+      this.event.isRecurring = _.constant(false);
+      this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, { id: '123456789' });
+      this.calendarService.modifyEvent('/path/to/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true});
+
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+      expect(this.masterEventCache.save).to.have.been.calledOnce;
+      expect(this.masterEventCache.save).to.have.been.calledWith(this.event);
     });
 
     it('should be able to modify an instance', function(done) {
@@ -1123,6 +1155,33 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
+    it('should call masterEventCache.save on old event if the creation is cancelled if and only if oldEvent is recurring', function() {
+
+      this.gracePeriodService.grace = $q.when.bind(null, {
+        cancelled: true,
+        success: angular.noop
+      });
+
+      var oldEvent = this.event.clone();
+
+      this.gracePeriodService.cancel = $q.when.bind(null, {});
+
+      oldEvent.isRecurring = _.constant(true);
+      this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
+      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+
+      oldEvent.isRecurring = _.constant(false);
+      this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
+      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+
+      expect(this.masterEventCache.save).to.have.been.calledWith(sinon.match.same(oldEvent));
+      expect(this.masterEventCache.save).to.have.been.calledOnce;
+    });
+
     it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
       var statusErrorText = '';
       var errorSpy = sinon.spy(function(error) {
@@ -1158,18 +1217,40 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should register an error handler for grace period error', function(done) {
-      this.gracePeriodLiveNotification.registerListeners = function() {
-        done();
-      };
+    describe('handler for grace period error', function() {
+      var handler;
+      beforeEach(function() {
+        this.gracePeriodLiveNotification.registerListeners = function(taskId, _handler) {
+          handler = _handler;
+        };
 
-      this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
-      this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
+        this.oldEvent = this.event.clone();
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
-      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.event, 'etag', angular.noop, {notifyFullcalendar: true});
+        this.calendarService.modifyEvent('/path/to/calendar/uid.ics', this.event, this.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
 
-      this.$rootScope.$apply();
-      this.$httpBackend.flush();
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should register an error handler for grace period error', function() {
+        expect(handler).to.not.be.undefined;
+      });
+
+      it('should save oldEvent on masterEventCache if and only if it is a recurring event', function() {
+        this.oldEvent.isRecurring = _.constant(true);
+        handler();
+        this.oldEvent.isRecurring = _.constant(false);
+        handler();
+
+        expect(this.masterEventCache.save).to.have.been.calledOnce;
+        expect(this.masterEventCache.save).to.have.been.calledWith(this.oldEvent);
+      });
+
+      it('should emitModifiedEvent with the old event', function() {
+        handler();
+        expect(this.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.calledWith(sinon.match.same(this.oldEvent));
+      });
     });
   });
 

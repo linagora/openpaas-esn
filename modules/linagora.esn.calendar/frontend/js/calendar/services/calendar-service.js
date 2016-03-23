@@ -353,10 +353,12 @@ angular.module('esn.calendar')
       function onTaskCancel() {
         (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
         keepChangeDuringGraceperiod.deleteRegistration(master);
+        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
       }
 
       function onTaskError() {
+        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
       }
 
@@ -368,6 +370,7 @@ angular.module('esn.calendar')
         })
         .then(function(id) {
           event.gracePeriodTaskId = taskId = id;
+          event.isRecurring() && masterEventCache.save(event);
           keepChangeDuringGraceperiod.registerUpdate(master);
           if (options.notifyFullcalendar) {
             calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
