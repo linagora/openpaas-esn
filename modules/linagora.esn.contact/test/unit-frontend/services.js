@@ -6,6 +6,8 @@
 var expect = chai.expect;
 
 describe('The Contacts service module', function() {
+  var bookId = 'bookId';
+  var bookName = 'bookName';
 
   beforeEach(function() {
     module('esn.core');
@@ -15,8 +17,6 @@ describe('The Contacts service module', function() {
   });
 
   describe('The deleteContact service', function() {
-    var bookId = 'bookId';
-    var bookName = 'bookName';
 
     var CONTACT_EVENTS, contact;
 
@@ -606,6 +606,34 @@ describe('The Contacts service module', function() {
         expect(this.contactHelper.isTextAvatar(url)).to.be.false;
       });
 
+    });
+  });
+
+  describe('The ContactLocationHelper service', function() {
+
+    beforeEach(function() {
+      var self = this;
+      self.$location = { url: angular.noop };
+      angular.mock.module(function($provide) {
+        $provide.value('$location', self.$location);
+      });
+    });
+
+    beforeEach(angular.mock.inject(function(ContactLocationHelper) {
+      this.ContactLocationHelper = ContactLocationHelper;
+    }));
+
+    describe('The contact object', function() {
+
+      describe('The new fn', function() {
+
+        it('should call location.url with correct params', function() {
+          this.$location.url = function(url) {
+            expect(url).to.equal(['/contact', 'new', bookId, bookName].join('/'));
+          };
+          this.ContactLocationHelper.contact.new(bookId, bookName);
+        });
+      });
     });
 
   });

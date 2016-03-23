@@ -306,7 +306,7 @@ angular.module('linagora.esn.contact')
     }
 
     function newContact(bookId, bookName) {
-      $location.url('/contact/new/' + bookId);
+      $location.url('/contact/new/' + bookId + '/' + bookName);
     }
 
     return {
