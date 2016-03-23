@@ -5,7 +5,7 @@
 # docker build -t linagora/esn .
 #
 
-FROM linagora/esn-base:mach10
+FROM linagora/esn-base:latest
 MAINTAINER Linagora Folks
 
 WORKDIR /var/www
