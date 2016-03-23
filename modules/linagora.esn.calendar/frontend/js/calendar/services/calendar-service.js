@@ -15,6 +15,7 @@ angular.module('esn.calendar')
     gracePeriodService,
     gracePeriodLiveNotification,
     notifyService,
+    masterEventCache,
     ICAL,
     CALENDAR_GRACE_DELAY,
     CALENDAR_EVENTS,
@@ -214,6 +215,7 @@ angular.module('esn.calendar')
       function onTaskCancel() {
         keepChangeDuringGraceperiod.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
+        event.isRecurring() && masterEventCache.remove(event);
       }
 
       return eventAPI.create(event.path, event.vcalendar, options)
@@ -222,6 +224,7 @@ angular.module('esn.calendar')
             return response;
           } else {
             event.gracePeriodTaskId = taskId = response;
+            event.isRecurring() && masterEventCache.save(event);
             keepChangeDuringGraceperiod.registerAdd(event, calendarId);
             if (options.notifyFullcalendar) {
               calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
