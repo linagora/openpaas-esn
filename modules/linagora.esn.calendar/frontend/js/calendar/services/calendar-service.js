@@ -327,7 +327,7 @@ angular.module('esn.calendar')
      * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
-      options = options || {};
+      options = options || {notifyFullcalendar: true};
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
