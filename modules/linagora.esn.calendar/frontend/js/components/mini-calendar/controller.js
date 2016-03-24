@@ -18,7 +18,7 @@ angular.module('esn.calendar')
         miniCalendarService,
         notificationFactory,
         calendarCurrentView,
-        keepChangeDuringGraceperiod,
+        cachedEventSource,
         uuid4,
         livenotification,
         CalendarShell,
@@ -130,7 +130,7 @@ angular.module('esn.calendar')
           $log.error('Could not retrieve event sources', error);
         });
 
-        return keepChangeDuringGraceperiod.wrapEventSource(cal.id, rawSource);
+        return cachedEventSource.wrapEventSource(cal.id, rawSource);
       });
 
       return miniCalendarService.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));

@@ -4,7 +4,7 @@ angular.module('esn.calendar')
   .service('calendarService', function(
     $q,
     $rootScope,
-    keepChangeDuringGraceperiod,
+    cachedEventSource,
     CalendarShell,
     CalendarCollectionShell,
     calendarAPI,
@@ -213,7 +213,7 @@ angular.module('esn.calendar')
       }
 
       function onTaskCancel() {
-        keepChangeDuringGraceperiod.deleteRegistration(event);
+        cachedEventSource.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
         event.isRecurring() && masterEventCache.remove(event);
       }
@@ -225,7 +225,7 @@ angular.module('esn.calendar')
           } else {
             event.gracePeriodTaskId = taskId = response;
             event.isRecurring() && masterEventCache.save(event);
-            keepChangeDuringGraceperiod.registerAdd(event, calendarId);
+            cachedEventSource.registerAdd(event, calendarId);
             if (options.notifyFullcalendar) {
               calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             }
@@ -270,7 +270,7 @@ angular.module('esn.calendar')
       }
 
       function onTaskCancel() {
-        keepChangeDuringGraceperiod.deleteRegistration(event);
+        cachedEventSource.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
@@ -282,7 +282,7 @@ angular.module('esn.calendar')
         return eventAPI.remove(eventPath, etag)
           .then(function(id) {
             event.gracePeriodTaskId = taskId = id;
-            keepChangeDuringGraceperiod.registerDelete(event);
+            cachedEventSource.registerDelete(event);
             calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
           })
           .then(function() {
@@ -352,7 +352,7 @@ angular.module('esn.calendar')
 
       function onTaskCancel() {
         (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
-        keepChangeDuringGraceperiod.deleteRegistration(master);
+        cachedEventSource.deleteRegistration(master);
         oldEvent.isRecurring() && masterEventCache.save(oldEvent);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
       }
@@ -371,7 +371,7 @@ angular.module('esn.calendar')
         .then(function(id) {
           event.gracePeriodTaskId = taskId = id;
           event.isRecurring() && masterEventCache.save(event);
-          keepChangeDuringGraceperiod.registerUpdate(master);
+          cachedEventSource.registerUpdate(master);
           if (options.notifyFullcalendar) {
             calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
           }

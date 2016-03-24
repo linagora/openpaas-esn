@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.calendar').factory('keepChangeDuringGraceperiod', function($timeout, CALENDAR_GRACE_DELAY) {
+angular.module('esn.calendar').factory('cachedEventSource', function($timeout, CALENDAR_GRACE_DELAY) {
   var changes = {};
   var DELETE = 'delete';
   var UPDATE = 'update';

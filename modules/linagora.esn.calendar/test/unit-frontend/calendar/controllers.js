@@ -28,7 +28,7 @@ describe('The calendar module controllers', function() {
       }
     };
 
-    this.keepChangeDuringGraceperiodMock = {
+    this.cachedEventSourceMock = {
       wrapEventSource: sinon.spy(function(id, eventSource) {
         return eventSource;
       }),
@@ -130,7 +130,7 @@ describe('The calendar module controllers', function() {
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('eventUtils', self.eventUtilsMock);
       $provide.value('user', self.userMock);
-      $provide.value('keepChangeDuringGraceperiod', self.keepChangeDuringGraceperiodMock);
+      $provide.value('cachedEventSource', self.cachedEventSourceMock);
       $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
       $provide.value('CalendarShell', self.CalendarShellMock);
       $provide.factory('calendarEventSource', function() {
@@ -201,12 +201,12 @@ describe('The calendar module controllers', function() {
       expect(handler).to.equal('aHandler');
     });
 
-    it('should keepChangeDuringGraceperiod.resetChange $on(\'$destroy\')', function() {
+    it('should cachedEventSource.resetChange $on(\'$destroy\')', function() {
       this.gracePeriodService.flushAllTasks = angular.noop;
-      this.keepChangeDuringGraceperiodMock.resetChange = sinon.spy();
+      this.cachedEventSourceMock.resetChange = sinon.spy();
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$destroy();
-      expect(this.keepChangeDuringGraceperiodMock.resetChange).to.have.been.called;
+      expect(this.cachedEventSourceMock.resetChange).to.have.been.called;
     });
 
     it('should be created and its scope initialized', function() {
@@ -371,14 +371,14 @@ describe('The calendar module controllers', function() {
       expect(fullCalendarSpy).to.have.been.calledTwice;
     });
 
-    it('should have wrap each calendar with keepChangeDuringGraceperiod.wrapEventSource', function() {
+    it('should have wrap each calendar with cachedEventSource.wrapEventSource', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledTwice;
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
+      expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledTwice;
+      expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
 
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
+      expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
     });
 
     it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and eventData.hidden is false', function() {

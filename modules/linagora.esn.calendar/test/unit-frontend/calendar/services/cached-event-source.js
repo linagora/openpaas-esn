@@ -6,7 +6,7 @@
 
 var expect = chai.expect;
 
-describe('The keepChangeDuringGraceperiod service', function() {
+describe('The cachedEventSource service', function() {
 
   var self;
 
@@ -37,8 +37,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
 
   });
 
-  beforeEach(angular.mock.inject(function(keepChangeDuringGraceperiod, fcMoment, _CALENDAR_GRACE_DELAY_) {
-    this.keepChangeDuringGraceperiod = keepChangeDuringGraceperiod;
+  beforeEach(angular.mock.inject(function(cachedEventSource, fcMoment, _CALENDAR_GRACE_DELAY_) {
+    this.cachedEventSource = cachedEventSource;
     this.fcMoment = fcMoment;
 
     this.start = this.fcMoment('1984-01-01').stripTime();
@@ -60,7 +60,7 @@ describe('The keepChangeDuringGraceperiod service', function() {
         callback(self.events);
       });
 
-      this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+      this.cachedEventSource.wrapEventSource(this.calId, eventSource)(this.start, this.end, this.timezone, this.originalCallback);
       expect(this.originalCallback).to.have.been.calledOnce;
       expect(this.originalCallback).to.have.been.calledWithExactly(this.events);
       expect(eventSource).to.have.been.calledOnce;
@@ -68,8 +68,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
 
     it('should ignore element added on other calendar', function() {
       this.modifiedEvent.id = 3;
-      this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, 'anOtherCalendar');
-      this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+      this.cachedEventSource.registerAdd(this.modifiedEvent, 'anOtherCalendar');
+      this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
       expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
     });
 
@@ -78,9 +78,9 @@ describe('The keepChangeDuringGraceperiod service', function() {
   describe('deleteRegistration function', function() {
     it('should delete all registered crud', function() {
       ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
-        this.keepChangeDuringGraceperiod[action](this.modifiedEvent);
-        this.keepChangeDuringGraceperiod.deleteRegistration(this.modifiedEvent);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource[action](this.modifiedEvent);
+        this.cachedEventSource.deleteRegistration(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       }, this);
     });
@@ -90,35 +90,35 @@ describe('The keepChangeDuringGraceperiod service', function() {
 
     it('should not replace event if those event has been crud since more than CALENDAR_GRACE_DELAY', function() {
       ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
-        this.keepChangeDuringGraceperiod[action](this.modifiedEvent);
+        this.cachedEventSource[action](this.modifiedEvent);
         expect(this.$timeout).to.have.been.calledWith(sinon.match.any, this.CALENDAR_GRACE_DELAY);
         this.$timeout.flush();
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       }, this);
     });
 
     it('should not replace event if event that has been crud has been undo by the given callback when crud was registered', function() {
       ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
-        var undo = this.keepChangeDuringGraceperiod[action](this.modifiedEvent);
+        var undo = this.cachedEventSource[action](this.modifiedEvent);
         undo();
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       }, this);
     });
 
     describe('registerUpdate function', function() {
       it('should take a event and make wrapped event sources replace event with same id from the original source by this one', function() {
-        this.keepChangeDuringGraceperiod.registerUpdate(this.modifiedEvent);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0], self.modifiedEvent]);
       });
     });
 
     describe('registerDelete function', function() {
       it('should take a event and make wrapped event sources delete event with same id from the original source', function() {
-        this.keepChangeDuringGraceperiod.registerDelete(this.modifiedEvent);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.registerDelete(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0]]);
       });
     });
@@ -127,8 +127,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
 
       it('should take a event and make wrapped event sources add this event if it is in the requested period and one the same calendar', function() {
         this.modifiedEvent.id = 3;
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
       });
 
@@ -136,8 +136,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1984-01-06 10:00');
         this.modifiedEvent.end = this.fcMoment('1984-01-07 01:00');
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
       });
 
@@ -145,8 +145,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1984-01-07 23:59');
         this.modifiedEvent.end = this.fcMoment('1984-01-08 00:45');
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
       });
 
@@ -168,8 +168,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.modifiedEvent.id = 'parent';
         this.modifiedEvent.isRecurring = sinon.stub().returns(true);
         this.modifiedEvent.expand = sinon.stub().returns([correctSubEvent, invalidSubEvent]);
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.modifiedEvent.isRecurring).to.have.been.called;
         expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(correctSubEvent));
@@ -177,8 +177,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
 
       it('should ignore a event if it is not on the same calendar even if it is in the requested period', function() {
         this.modifiedEvent.id = 3;
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, 'this_is_an_other_id');
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, 'this_is_an_other_id');
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       });
 
@@ -186,8 +186,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1983-31-31 10:00');
         this.modifiedEvent.end = this.fcMoment('1983-31-31 23:00');
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       });
 
@@ -195,8 +195,8 @@ describe('The keepChangeDuringGraceperiod service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1984-01-08 00:30');
         this.modifiedEvent.end = this.fcMoment('1984-01-08 00:45');
-        this.keepChangeDuringGraceperiod.registerAdd(this.modifiedEvent, this.calId);
-        this.keepChangeDuringGraceperiod.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       });
     });

@@ -8,7 +8,7 @@ describe('The mini-calendar controller', function() {
 
   var $scope, $timeout, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
     sessionMock, miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
-    calendarCurrentViewMock, CALENDAR_EVENTS, keepChangeDuringGraceperiodMock, uniqueId, uuid4Mock, liveNotification,
+    calendarCurrentViewMock, CALENDAR_EVENTS, cachedEventSourceMock, uniqueId, uuid4Mock, liveNotification,
     liveNotificationMock, CalendarShellMock, CalendarShellConstMock, calWrapper;
 
   function sameDayMatcher(day) {
@@ -65,7 +65,7 @@ describe('The mini-calendar controller', function() {
       };
     };
 
-    keepChangeDuringGraceperiodMock = {
+    cachedEventSourceMock = {
       wrapEventSource: sinon.spy(function(id, source) {
         return source;
       })
@@ -135,7 +135,7 @@ describe('The mini-calendar controller', function() {
       $provide.value('calendarEventSource', calendarEventSourceMock);
       $provide.value('uiCalendarConfig', uiCalendarConfigMock);
       $provide.value('miniCalendarService', miniCalendarServiceMock);
-      $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
+      $provide.value('cachedEventSource', cachedEventSourceMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
       $provide.value('uuid4', uuid4Mock);
       $provide.constant('UI_CONFIG', UI_CONFIG_MOCK);
@@ -389,10 +389,10 @@ describe('The mini-calendar controller', function() {
       expect(miniCalendarServiceMock.miniCalendarWrapper).to.have.been.calledWith(calendar, ['anEventSource']);
     });
 
-    it('should wrap calendars inside keepChangeDuringGraceperiod.wrapEventSource', function() {
+    it('should wrap calendars inside cachedEventSource.wrapEventSource', function() {
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
-      expect(keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWith('id', ['anEventSource']);
+      expect(cachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', ['anEventSource']);
     });
 
     it('should call calWrapper.addEvent on CALENDAR_EVENTS.ITEM_ADD', function() {

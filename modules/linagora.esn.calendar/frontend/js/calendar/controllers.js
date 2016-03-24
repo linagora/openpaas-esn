@@ -12,7 +12,7 @@ angular.module('esn.calendar')
       $alert,
       $state,
       openEventForm,
-      keepChangeDuringGraceperiod,
+      cachedEventSource,
       CalendarShell,
       uiCalendarConfig,
       calendarService,
@@ -139,7 +139,7 @@ angular.module('esn.calendar')
         $scope.calendars = calendars || [];
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
-            events: keepChangeDuringGraceperiod.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
+            events: cachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
           calendarPromise.then(function(cal) {
@@ -293,7 +293,7 @@ angular.module('esn.calendar')
         unregisterFunction();
       });
       gracePeriodService.flushAllTasks();
-      keepChangeDuringGraceperiod.resetChange();
+      cachedEventSource.resetChange();
       windowJQuery.off('resize', $scope.resizeCalendarHeight);
     });
 
