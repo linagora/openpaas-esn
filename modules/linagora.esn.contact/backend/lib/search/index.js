@@ -13,25 +13,32 @@ module.exports = function(dependencies) {
   var logger = dependencies('logger');
   var elasticsearch = dependencies('elasticsearch');
   var listener = require('./listener')(dependencies);
+  var searchHandler;
 
   function indexContact(contact, callback) {
     logger.debug('Indexing contact into elasticseach', contact);
 
+    if (!searchHandler) {
+      return callback(new Error('Contact search is not initialized'));
+    }
+
     if (!contact) {
       return callback(new Error('Contact is required'));
     }
-
-    elasticsearch.addDocumentToIndex(denormalize(contact), {index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
+    searchHandler.indexData(contact, callback);
   }
 
   function removeContactFromIndex(contact, callback) {
     logger.info('Removing contact from index', contact);
 
+    if (!searchHandler) {
+      return callback(new Error('Contact search is not initialized'));
+    }
+
     if (!contact) {
       return callback(new Error('Contact is required'));
     }
-
-    elasticsearch.removeDocumentFromIndex({index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
+    searchHandler.removeFromIndex(contact, callback);
   }
 
   function searchContacts(query, callback) {
@@ -131,7 +138,7 @@ module.exports = function(dependencies) {
 
   function listen() {
     logger.info('Subscribing to contact updates for indexing');
-    listener.register();
+    searchHandler = listener.register();
   }
 
   return {

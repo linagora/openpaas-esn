@@ -27,32 +27,41 @@ module.exports.index = index;
 
 function addListener(options) {
 
+  function indexData(data, callback) {
+    return index(data, options, callback);
+  }
+
+  function removeFromIndex(data, callback) {
+    var indexOptions = {
+      data: data,
+      getId: options.getId,
+      index: options.index,
+      type: options.type
+    };
+    utils.removeFromIndex(indexOptions, callback);
+  }
+
   if (options.events.add) {
-    pubsub.topic(options.events.add).subscribe(function(data) {
-      index(data, options);
-    });
+    pubsub.topic(options.events.add).subscribe(indexData);
   }
 
   if (options.events.update) {
-    pubsub.topic(options.events.update).subscribe(function(data) {
-      index(data, options);
-    });
+    pubsub.topic(options.events.update).subscribe(indexData);
   }
 
   if (options.events.remove) {
     pubsub.topic(options.events.remove).subscribe(function(data) {
-      var indexOptions = {
-        data: data,
-        getId: options.getId,
-        index: options.index,
-        type: options.type
-      };
-      utils.removeFromIndex(indexOptions, function(err) {
+      removeFromIndex(data, function(err) {
         if (err) {
           logger.error('Error while removing data from index', err);
         }
       });
     });
   }
+
+  return {
+    indexData: indexData,
+    removeFromIndex: removeFromIndex
+  };
 }
 module.exports.addListener = addListener;
