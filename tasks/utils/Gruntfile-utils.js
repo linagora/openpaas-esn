@@ -10,21 +10,6 @@ var request = require('superagent');
 var extend = require('extend');
 var EsnConfig = require('esn-elasticsearch-configuration');
 
-var RIVER_SETTINGS = function(servers, collection) {
-  return {
-    type: 'mongodb',
-    mongodb: {
-      servers: [{host: servers.mongodb.ip, port: servers.mongodb.port}],
-      db: servers.mongodb.dbname,
-      collection: collection
-    },
-    index: {
-      name: collection + '.idx',
-      type: collection
-    }
-  };
-};
-
 function _args(grunt) {
   var opts = ['test', 'chunk', 'ci', 'reporter'];
   var args = {};
@@ -331,57 +316,6 @@ GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
       grunt.log.write('Elasticsearch contacts settings are successfully added');
       done(true);
     }, done);
-  };
-};
-
-GruntfileUtils.prototype.setupElasticsearchMongoRiver = function setupElasticsearchMongoRiver() {
-  var grunt = this.grunt;
-  var servers = this.servers;
-
-  return function() {
-    var done = this.async();
-    var elasticsearchURL = 'http://' + servers.host + ':' + servers.elasticsearch.port;
-    var functionsArray = [];
-    var command = this.args[0];
-
-    // Use default port if run inside a docker container
-    if (command === 'docker') {
-      servers = extend(true, servers);
-      servers.mongodb.port = servers.mongodb.port;
-      servers.mongodb.ip = 'mongo';
-    } else {
-      servers.mongodb.ip = '127.0.0.1';
-    }
-
-    var wrapper = function(collection) {
-      var functionToAdd = function(callback) {
-        request
-          .put(elasticsearchURL + '/_river/' + collection + '/_meta')
-          .set('Content-Type', 'application/json')
-          .send(RIVER_SETTINGS(servers, collection))
-          .end(function(res) {
-            if (res.status === 201) {
-              callback(null, res.body);
-            } else {
-              callback(new Error('Error HTTP status : ' + res.status + ', expected status code 201 Created !'), null);
-            }
-          });
-      };
-      functionsArray.push(functionToAdd);
-    };
-
-    for (var i = 0; i < servers.mongodb.elasticsearch.rivers.length; i++) {
-      var collection = servers.mongodb.elasticsearch.rivers[i];
-      wrapper(collection);
-    }
-
-    async.parallel(functionsArray, function(err, results) {
-      if (err) {
-        done(err);
-      }
-      grunt.log.write('Elasticsearch rivers are successfully setup');
-      done(true);
-    });
   };
 };
 

@@ -6,8 +6,6 @@ ElasticSearch is an end-to-end search and analytics platform.
 
 First you must [download ElasticSearch](http://www.elasticsearch.org/download).
 
-To communicate with datasource, ElasticSearch need plugins named *river*. You can [download](https://github.com/richardwilly98/elasticsearch-river-mongodb) source code of the river plugin for MongoDB or use the ElasticSearch `plugin` command. This plugin uses MongoDB as datasource to store data in ElasticSearch.
-
 ## Launch single server instance
 
 You can start elasticsearch in the foreground with: ([link](http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_running_elasticsearch.html#_running_elasticsearch))
