@@ -15,6 +15,7 @@ angular.module('esn.calendar')
     gracePeriodService,
     gracePeriodLiveNotification,
     notifyService,
+    masterEventCache,
     ICAL,
     CALENDAR_GRACE_DELAY,
     CALENDAR_EVENTS,
@@ -214,6 +215,7 @@ angular.module('esn.calendar')
       function onTaskCancel() {
         keepChangeDuringGraceperiod.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
+        event.isRecurring() && masterEventCache.remove(event);
       }
 
       return eventAPI.create(event.path, event.vcalendar, options)
@@ -222,6 +224,7 @@ angular.module('esn.calendar')
             return response;
           } else {
             event.gracePeriodTaskId = taskId = response;
+            event.isRecurring() && masterEventCache.save(event);
             keepChangeDuringGraceperiod.registerAdd(event, calendarId);
             if (options.notifyFullcalendar) {
               calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
@@ -241,12 +244,13 @@ angular.module('esn.calendar')
 
     /**
      * Remove an event in the calendar defined by its path.
-     * @param  {String}        eventPath the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
-     * @param  {CalendarShell} event     The event from fullcalendar. It is used in case of rollback.
-     * @param  {String}        etag      The etag
+     * @param  {String}        eventPath            The event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
+     * @param  {CalendarShell} event                The event from fullcalendar. It is used in case of rollback.
+     * @param  {String}        etag                 The etag
+     * @param  {String}        removeAllInstance    Make sens only for instance of recurring event. If true all the instance of the recurring event will be removed
      * @return {Boolean}                 true on success, false if cancelled
      */
-    function removeEvent(eventPath, event, etag) {
+    function removeEvent(eventPath, event, etag, removeAllInstance) {
       if (!etag) {
         // This is a noop and the event is not created yet in sabre/dav,
         // we then should only remove the event from fullcalendar
@@ -274,17 +278,7 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
-      if (event.isInstance()) {
-        return event.getModifiedMaster()
-          .then(function(oldMaster) {
-            var newMaster = oldMaster.clone();
-            newMaster.deleteInstance(event);
-
-            //we use self.modifyEvent and not modifyEvent for ease of testing
-            //this is also the reason why this is a service and not a factory so we can mock modifyEvent
-            return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
-          });
-      } else {
+      function performRemove() {
         return eventAPI.remove(eventPath, etag)
           .then(function(id) {
             event.gracePeriodTaskId = taskId = id;
@@ -305,6 +299,24 @@ angular.module('esn.calendar')
           })
           .catch($q.reject);
       }
+
+      if (event.isInstance()) {
+        return event.getModifiedMaster()
+          .then(function(oldMaster) {
+            var newMaster = oldMaster.clone();
+            if (removeAllInstance || oldMaster.expand(null, null, 2).length < 2) {
+              return performRemove();
+            } else {
+              newMaster.deleteInstance(event);
+
+              //we use self.modifyEvent and not modifyEvent for ease of testing
+              //this is also the reason why this is a service and not a factory so we can mock modifyEvent
+              return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
+            }
+          });
+      } else {
+        return performRemove();
+      }
     }
 
     /**
@@ -318,7 +330,7 @@ angular.module('esn.calendar')
      * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
-      options = options || {};
+      options = options || {notifyFullcalendar: true};
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
@@ -341,10 +353,12 @@ angular.module('esn.calendar')
       function onTaskCancel() {
         (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
         keepChangeDuringGraceperiod.deleteRegistration(master);
+        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
       }
 
       function onTaskError() {
+        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
       }
 
@@ -356,6 +370,7 @@ angular.module('esn.calendar')
         })
         .then(function(id) {
           event.gracePeriodTaskId = taskId = id;
+          event.isRecurring() && masterEventCache.save(event);
           keepChangeDuringGraceperiod.registerUpdate(master);
           if (options.notifyFullcalendar) {
             calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);

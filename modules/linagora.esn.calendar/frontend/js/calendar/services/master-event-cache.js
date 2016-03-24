@@ -3,21 +3,30 @@
 angular.module('esn.calendar').factory('masterEventCache', function($timeout, MASTER_EVENT_CACHE_TTL) {
   var map = {};
 
-  function saveMasterEvent(shell) {
+  function save(shell) {
     if (!shell.isInstance()) {
-      map[shell.path] = shell;
-      $timeout(function() {
-        delete map[shell.path];
-      }, MASTER_EVENT_CACHE_TTL);
+      remove(shell);
+      map[shell.path] = {
+        shell: shell,
+        deletionPromise: $timeout(function() {
+          delete map[shell.path];
+        }, MASTER_EVENT_CACHE_TTL)
+      };
     }
   }
 
-  function getMasterEvent(path) {
-    return map[path];
+  function get(path) {
+    return map[path] && map[path].shell;
+  }
+
+  function remove(shell) {
+    map[shell.path] && $timeout.cancel(map[shell.path].deletionPromise);
+    delete map[shell.path];
   }
 
   return {
-    saveMasterEvent: saveMasterEvent,
-    getMasterEvent: getMasterEvent
+    save: save,
+    get: get,
+    remove: remove
   };
 });
