@@ -35,10 +35,10 @@ describe('The Contacts forms module', function() {
 
   describe('The openContactForm service', function() {
 
-    var id, contact;
+    var bookId, contact;
 
     beforeEach(function() {
-      id = '123';
+      bookId = '123';
       contact = {_id: '456'};
       var self = this;
       self.sharedContactDataService = {};
@@ -54,19 +54,20 @@ describe('The Contacts forms module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(openContactForm) {
+    beforeEach(angular.mock.inject(function(openContactForm, DEFAULT_ADDRESSBOOK_NAME) {
       this.openContactForm = openContactForm;
+      this.DEFAULT_ADDRESSBOOK_NAME = DEFAULT_ADDRESSBOOK_NAME;
     }));
 
     it('should save the contact in the sharedContactDataService when defined', function() {
-      this.openContactForm(id, contact);
+      this.openContactForm(bookId, contact);
       expect(this.sharedContactDataService.contact).to.deep.equal(contact);
     });
 
     it('should call the ContactLocationHelper.contact.new with right parameter', function() {
       this.ContactLocationHelper.contact.new = sinon.spy();
-      this.openContactForm(id, contact);
-      expect(this.ContactLocationHelper.contact.new).to.have.been.calledWith(id);
+      this.openContactForm(bookId, contact);
+      expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, this.DEFAULT_ADDRESSBOOK_NAME);
     });
   });
 });

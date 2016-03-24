@@ -39,8 +39,8 @@ angular.module('linagora.esn.contact', [
       },
       reloadOnSearch: false
     })
-    .state('/contact/new/:bookId', {
-      url: '/contact/new/:bookId',
+    .state('/contact/new/:bookId/:bookName', {
+      url: '/contact/new/:bookId/:bookName',
       templateUrl: '/contact/views/contact-new',
       controller: 'newContactController',
       resolve: {
