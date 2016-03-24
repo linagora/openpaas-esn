@@ -125,6 +125,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .factory('rejectWithErrorNotification', function($q, notificationFactory) {
+    return function(message) {
+      notificationFactory.weakError('Error', message);
+
+      return $q.reject(new Error(message));
+    };
+  })
+
   .factory('ElementGroupingTool', function(moment) {
 
     function ElementGroupingTool(elements) {
