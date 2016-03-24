@@ -97,24 +97,14 @@ GruntfileUtils.prototype.shell = function shell() {
 GruntfileUtils.prototype.container = function container() {
   var grunt = this.grunt;
   return {
-    newContainer: function(image, name, startContainerOptions, command, regex, info) {
-      var result = {
-        Image: image,
-        Cmd: command,
-        name: name,
-        options: {
-          tasks: {
-            async: false
-          },
-          startContainerOptions: startContainerOptions
-        }
+    newContainer: function(createContainerOptions, startContainerOptions, regex, info) {
+      createContainerOptions.options = {
+        tasks: { async: false },
+        matchOutput: regex ? _taskSuccessIfMatch(grunt, regex, info) : undefined,
+        startContainerOptions: startContainerOptions
       };
 
-      if (regex) {
-        result.options.matchOutput = _taskSuccessIfMatch(grunt, regex, info);
-      }
-
-      return result;
+      return createContainerOptions;
     }
   };
 };

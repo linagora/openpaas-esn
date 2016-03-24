@@ -120,30 +120,38 @@ module.exports = function(grunt) {
           pass: process.env.DOCKER_CERT_PASS || 'mypass'
         }
       },
-      redis: container.newContainer(
-        servers.redis.container.image,
-        servers.redis.container.name,
-        { PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] } },
-        null, null, 'Redis server is started.'),
-      mongo: container.newContainer(
-        servers.mongodb.container.image,
-        servers.mongodb.container.name,
-        { PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] } },
-        ['mongod', '--nojournal'],
+      redis: container.newContainer({
+          Image: servers.redis.container.image,
+          name: servers.redis.container.name
+        }, {
+          PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] }
+        },
+        null, 'Redis server is started.'),
+      mongo: container.newContainer({
+          Image: servers.mongodb.container.image,
+          name: servers.mongodb.container.name,
+          Cmd: ['mongod', '--nojournal']
+        }, {
+          PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] }
+        },
         new RegExp('connections on port 27017'), 'MongoDB server is started.'),
-      mongo_replSet: container.newContainer(
-        servers.mongodb.container.image,
-        servers.mongodb.container.name,
-        { PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
-          ExtraHosts: ['mongo:127.0.0.1']},
-        util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' '),
+      mongo_replSet: container.newContainer({
+          Image: servers.mongodb.container.image,
+          name: servers.mongodb.container.name,
+          Cmd: util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' ')
+        }, {
+          PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
+          ExtraHosts: ['mongo:127.0.0.1']
+        },
         new RegExp('connections on port 27017'), 'MongoDB server is started.'),
-      elasticsearch: container.newContainer(
-        servers.elasticsearch.container.image,
-        servers.elasticsearch.container.name,
-        { PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
-          Links: [servers.mongodb.container.name + ':mongo'] },
-        ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false'],
+      elasticsearch: container.newContainer({
+          Image: servers.elasticsearch.container.image,
+          name: servers.elasticsearch.container.name,
+          Cmd: ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false']
+        }, {
+          PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
+          Links: [servers.mongodb.container.name + ':mongo']
+        },
         /started/, 'Elasticsearch server is started.')
     },
     nodemon: {
