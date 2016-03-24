@@ -6,7 +6,7 @@ var testConfig = require('./servers-conf.js');
 var globalPhantomjsBin = require('fs').existsSync('/usr/local/bin/phantomjs') ? '/usr/local/bin/phantomjs' : undefined;
 
 exports.config = {
-  baseUrl: 'http://' + testConfig.host + ':' + testConfig.express.port,
+  baseUrl: 'http://' + testConfig.host + ':8080',
   seleniumAddress: 'http://localhost:4444/wd/hub',
   framework: 'mocha',
   capabilities: {

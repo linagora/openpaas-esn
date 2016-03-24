@@ -120,6 +120,34 @@ module.exports = function(grunt) {
           pass: process.env.DOCKER_CERT_PASS || 'mypass'
         }
       },
+      esn_full: container.newContainer({
+          Image: 'docker/compose:1.6.2',
+          name: 'docker-compose-esn-full-' + Date.now(),
+          Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml', 'up'],
+          WorkingDir: '/compose',
+          Env: [
+            'DOCKER_IP=' + servers.host,
+            'PROVISION=true',
+            'ESN_PATH=' + __dirname
+          ],
+          HostConfig: {
+            Binds: [__dirname + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+          }
+        }, {},
+        //new RegExp('OpenPaas ESN is now started on node'), // James is the longer to start
+        new RegExp('org.eclipse.jetty.server.ServerConnector - Started ServerConnector'),
+        'All ESN docker containers are ready to use'),
+      esn_full_remover: container.newContainer({
+          Image: 'docker/compose:1.6.2',
+          name: 'docker-compose-esn-full-remover-' + Date.now(),
+          Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml', 'down'],
+          WorkingDir: '/compose',
+          HostConfig: {
+            Binds: [__dirname + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+          }
+        }, {},
+        new RegExp('Removing network platform_default'),
+        'All ESN docker containers have been removed'),
       redis: container.newContainer({
           Image: servers.redis.container.image,
           name: servers.redis.container.name
@@ -239,7 +267,7 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex']);
 
-  grunt.registerTask('test-e2e', ['run_grunt:e2e']);
+  grunt.registerTask('test-e2e', ['container:esn_full', 'run_grunt:e2e', 'container:esn_full_remover']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);
