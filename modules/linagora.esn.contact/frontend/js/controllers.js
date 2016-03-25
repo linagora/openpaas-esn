@@ -153,7 +153,10 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService, deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS, contactUpdateDataService, ContactAPIClient, VcardBuilder, ContactLocationHelper) {
+  .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout,
+                                                $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService,
+                                                deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS,
+                                                contactUpdateDataService, ContactAPIClient, VcardBuilder, ContactLocationHelper, REDIRECT_PAGE_TIMEOUT) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
@@ -186,7 +189,8 @@ angular.module('linagora.esn.contact')
           oldContact = JSON.stringify(contact);
         }, function() {
           $scope.error = true;
-          displayContactError('Cannot get contact details');
+          displayContactError('Cannot get contact details. Redirecting to contact list display');
+          $timeout(ContactLocationHelper.home, REDIRECT_PAGE_TIMEOUT);
         })
         .finally(function() {
           $scope.loaded = true;
