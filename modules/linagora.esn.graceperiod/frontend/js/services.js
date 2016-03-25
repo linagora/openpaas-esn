@@ -266,9 +266,9 @@ angular.module('linagora.esn.graceperiod')
         }
       });
 
-      notification.$ele.find('a.action-link').html(linkText);
+      notification.$ele.find('a.cancel-task').html(linkText);
 
-      notification.$ele.find('a.action-link').click(function() {
+      notification.$ele.find('a.cancel-task').click(function() {
         $rootScope.$applyAsync(function() {
           deferred.resolve({
             cancelled: true,

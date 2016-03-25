@@ -9,7 +9,7 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
       offset: 0,
       template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
         '<span data-notify="message">{2}</span>' +
-        '<a target="_self" class="action-link" data-notify="url"></a>' +
+        '<a target="_self" class="action-link cancel-task" data-notify="url"></a>' +
         '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
       '</div>'
     };
