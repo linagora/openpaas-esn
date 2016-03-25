@@ -33,6 +33,30 @@ describe('The esn.notification Angular modules', function() {
       notifyService = _notifyService_;
     }));
 
+    it('should containt defaultOptions', function() {
+      var options = {};
+      var expectedOptions = {
+        placement: { from: 'bottom', align: 'center'},
+        animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
+        offset: 0,
+        template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
+        '<span data-notify="message">{2}</span>' +
+        '<a target="_self" class="action-link" data-notify="url"></a>' +
+        '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
+        '</div>'
+      };
+
+      sanitizeMock = angular.noop;
+      notifyMock = sinon.spy(function(data, options) {
+        expect(options).to.shallowDeepEqual(expectedOptions);
+
+        return {};
+      });
+
+      notifyService({}, options);
+      expect(notifyMock).to.have.been.calledOnce;
+    });
+
     it('should sanitize data before passing it to notify', function() {
       var title = '<script>alert("XSS")</script>title';
       var message = '<script>alert("XSS")</script>message';

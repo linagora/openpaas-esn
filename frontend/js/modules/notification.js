@@ -3,6 +3,16 @@
 angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
 
   .factory('notifyService', function($window, $sanitize) {
+    var defaultOptions = {
+      placement: { from: 'bottom', align: 'center'},
+      animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
+      offset: 0,
+      template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
+        '<span data-notify="message">{2}</span>' +
+        '<a target="_self" class="action-link" data-notify="url"></a>' +
+        '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
+      '</div>'
+    };
     function sanitizeFlatObject(val) {
       var result = {};
 
@@ -14,7 +24,8 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
     }
 
     return function(data, options) {
-      var notification = $window.$.notify(sanitizeFlatObject(data), options);
+
+      var notification = $window.$.notify(sanitizeFlatObject(data), angular.extend({}, defaultOptions, options));
       var update = notification.update;
 
       notification.update = function(strOrObj, value) {
@@ -28,26 +39,24 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
   })
 
   .factory('notificationFactory', function(notifyService) {
-    var bottom_right = { from: 'bottom', align: 'right'},
-        top_right = { from: 'top', align: 'right' };
+    function notify(type, title, text, delay) {
+      var animationDelay = 300;
 
-    function notify(type, title, text, placement, delay) {
       return notifyService({
         title: title,
         message: text
       }, {
         type: type,
-        placement: placement,
-        delay: delay
+        delay: delay - animationDelay
       });
     }
 
     function weakNotification(type, title, text) {
-      return notify(type, title, text, bottom_right, 3000);
+      return notify(type, title, text, 3000);
     }
 
     function strongNotification(type, title, text) {
-      return notify(type, title, text, top_right, 0);
+      return notify(type, title, text, 0);
     }
 
     function weakSuccess(title, text) {

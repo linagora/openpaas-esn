@@ -251,22 +251,13 @@ angular.module('linagora.esn.graceperiod')
   })
 
   .factory('notifyOfGracedRequest', function(GRACE_DELAY, ERROR_DELAY, $q, $rootScope, notifyService, $log) {
-    function appendCancelLink(text, linkText) {
-      return text + ' <a class="cancel-task">' + linkText + '</a>';
-    }
-
     return function(text, linkText, delay) {
       var deferred = $q.defer();
 
       var notification = notifyService({
-        message: appendCancelLink(text, linkText)
+        message: text
       }, {
-        type: 'success',
-        text: appendCancelLink(text, linkText),
-        placement: {
-          from: 'bottom',
-          align: 'center'
-        },
+        type: 'danger',
         delay: delay || GRACE_DELAY,
         onClosed: function() {
           $rootScope.$applyAsync(function() {
@@ -275,7 +266,9 @@ angular.module('linagora.esn.graceperiod')
         }
       });
 
-      notification.$ele.find('a.cancel-task').click(function() {
+      notification.$ele.find('a.action-link').html(linkText);
+
+      notification.$ele.find('a.action-link').click(function() {
         $rootScope.$applyAsync(function() {
           deferred.resolve({
             cancelled: true,
@@ -288,11 +281,7 @@ angular.module('linagora.esn.graceperiod')
                 message: errorMessage
               }, {
                 type: 'danger',
-                delay: ERROR_DELAY,
-                placement: {
-                  from: 'bottom',
-                  align: 'center'
-                }
+                delay: ERROR_DELAY
               });
             }
           });
