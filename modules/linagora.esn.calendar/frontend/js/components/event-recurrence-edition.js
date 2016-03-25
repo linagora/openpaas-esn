@@ -35,7 +35,8 @@ angular.module('esn.calendar')
 
         if (!scope.event.rrule) {
           scope.event.rrule = {
-            freq: RECUR_FREQ[0].value
+            freq: RECUR_FREQ[0].value,
+            interval: null
           };
         }
       });

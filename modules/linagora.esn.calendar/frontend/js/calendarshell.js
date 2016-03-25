@@ -482,7 +482,10 @@ angular.module('esn.calendar')
 
       updateParentEvent: function() {
         if (this.isValid()) {
+          var intervalTmp = this.rrule.interval;
+          this.rrule.interval = this.rrule.interval || [1];
           this.vevent.updatePropertyWithValue('rrule', new ICAL.Recur.fromData(this.rrule));
+          this.rrule.interval = intervalTmp;
         } else {
           this.vevent.removeProperty('rrule');
         }
@@ -497,15 +500,17 @@ angular.module('esn.calendar')
       },
 
       get interval() {
-        this.__interval = this.__interval || this.rrule ? (this.rrule.interval ? parseInt(this.rrule.interval, 10) : 1) : null;
+        if (!this.__interval && this.rrule && this.rrule.interval) {
+          this.__interval = parseInt(this.rrule.interval, 10);
+        } else {
+          this.__interval = this.__interval || null;
+        }
         return this.__interval;
       },
       set interval(value) {
-        if (angular.isNumber(value)) {
-          this.__interval = undefined;
-          this.rrule.interval = [value];
-          this.updateParentEvent();
-        }
+        this.__interval = undefined;
+        this.rrule.interval = angular.isNumber(value) ? [value] : null;
+        this.updateParentEvent();
       },
 
       get until() {
