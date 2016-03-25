@@ -304,3 +304,77 @@ describe('the calendarExploredPeriodService service', function() {
     });
   });
 });
+
+describe('eventStore', function() {
+  var self;
+
+  function createPeriod(start, end) {
+    return {
+      start: self.fcMoment.utc([2000, 1, start]).stripTime(),
+      end: self.fcMoment.utc([2000, 1, end]).stripTime()
+    };
+  }
+
+  function createEvent(id, start, end) {
+    return {
+      id: id,
+      start: self.fcMoment.utc([2000, 1, start, 0, 0]),
+      end: self.fcMoment.utc([2000, 1, end, 0, 1])
+    };
+  }
+
+  beforeEach(function() {
+    self = this;
+    angular.mock.module('esn.calendar');
+  });
+
+  beforeEach(angular.mock.inject(function(fcMoment, eventStore) {
+    this.eventStore = eventStore;
+    this.fcMoment = fcMoment;
+  }));
+
+  describe('reset function', function() {
+    it('should destroy previously saved event', function() {
+      this.eventStore.save('calId', createEvent('a', 2, 2));
+      this.eventStore.reset('calId');
+      expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);
+    });
+  });
+
+  describe('save function', function() {
+    it('should properly save an event in his calendar', function() {
+      var event = createEvent('a', 2, 2);
+      var event2 = createEvent('b', 2, 2);
+      this.eventStore.save('calId', event);
+      this.eventStore.save('calId2', event2);
+      expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([event]);
+      expect(this.eventStore.getInPeriod('calId2', createPeriod(1, 30))).to.deep.equals([event2]);
+    });
+
+    it('should not save twice the same event', function() {
+      var event = createEvent('a', 2, 2);
+      var event2 = createEvent('b', 2, 2);
+      this.eventStore.save('calId', event);
+      this.eventStore.save('calId', createEvent('a', 2, 2));
+      expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([event]);
+
+      this.eventStore.save('calId', event2);
+      this.eventStore.save('calId', createEvent('a', 2, 2));
+      expect(_.sortBy(this.eventStore.getInPeriod('calId', createPeriod(1, 30)), 'id')).to.deep.equals(_.sortBy([event, event2], 'id'));
+    });
+  });
+
+  describe('getInPeriod function', function() {
+    it('should obtain all event in period', function() {
+      var event1 = createEvent('1', 13, 15);
+      var event2 = createEvent('2', 15, 15);
+      var event3 = createEvent('3', 13, 18);
+      var event4 = createEvent('4', 14, 14);
+
+      [event1, event2, event3, event4, createEvent('5', 11, 13), createEvent('6', 18, 18), createEvent('7', 13, 13), createEvent('8', 1, 1)].map(function(event) {
+        self.eventStore.save('calId', event);
+      });
+      expect(_.sortBy(this.eventStore.getInPeriod('calId', createPeriod(14, 17)), 'id')).to.deep.equals([event1, event2, event3, event4].sort());
+    });
+  });
+});

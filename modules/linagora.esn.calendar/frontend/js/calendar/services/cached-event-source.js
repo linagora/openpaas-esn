@@ -190,4 +190,73 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, C
     reset: reset,
     getUnexploredPeriodsInPeriod: getUnexploredPeriodsInPeriod
   };
+}).factory('eventStore', function(fcMoment, _) {
+  var calStores = {};
+
+  function getCalStore(calId) {
+    calStores[calId] = calStores[calId] || {
+      eventsSortedByStart: [],
+      maxEventsSize: 0
+    };
+    return calStores[calId];
+  }
+
+  function save(calId, event) {
+    var store = getCalStore(calId);
+    var insertionIndex = _.sortedIndex(store.eventsSortedByStart, event, function(event) {
+      return event.start.unix();
+    });
+
+    for (var i = insertionIndex; i < store.eventsSortedByStart.length && store.eventsSortedByStart[i].start.isSame(event.start); i++) {
+      if (store.eventsSortedByStart[i] && store.eventsSortedByStart[i].id === event.id) {
+        return;
+      }
+    }
+
+    store.eventsSortedByStart.splice(insertionIndex, 0, event);
+
+    var eventSize = event.end.unix() - event.start.unix();
+    store.maxEventsSize = Math.max(store.maxEventsSize, eventSize);
+  }
+
+  function getInPeriod(calId, period) {
+    var store = getCalStore(calId);
+    var result = [];
+
+    var indexOfFirstInEnlargedPeriod = _.sortedIndex(
+        store.eventsSortedByStart,
+        {
+          start: period.start.clone().subtract(fcMoment.duration(store.maxEventsSize).add(1, 'day'))
+        },
+        function(event) {
+          return event.start.unix();
+        }
+    );
+
+    //pre filter for efficiency we take event that start after maxEventsSize + 24 hour before the start of the period
+    //and that does not start after the end of the period
+    for (var i = indexOfFirstInEnlargedPeriod; i < store.eventsSortedByStart.length && !store.eventsSortedByStart[i].start.isAfter(period.end, 'day'); i++) {
+      result.push(store.eventsSortedByStart[i]);
+    }
+
+    result = result.filter(function(event) {
+      var eventInPeriod = [event.start, event.end].some(function(date) {
+        return date.isBetween(period.start.clone().subtract(1, 'day'), period.end.clone().add(1, 'day'), 'day');
+      });
+      var eventCoverPeriod = event.start.isBefore(period.start, 'day') && event.end.isAfter(period.end, 'day');
+      return eventInPeriod || eventCoverPeriod;
+    });
+
+    return result;
+  }
+
+  function reset(calId) {
+    delete calStores[calId];
+  }
+
+  return {
+    save: save,
+    getInPeriod: getInPeriod,
+    reset: reset
+  };
 });
