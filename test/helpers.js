@@ -261,8 +261,7 @@ module.exports = function(mixin, testEnv) {
                 nbExecuted++;
                 if (nbExecuted >= testEnv.serversConfig.elasticsearch.tries_index) {
                   return callback(new Error(
-                    'Number of tries of check document indexed in Elasticsearch reached the maximum allowed. ' +
-                      'Increase the number of tries or check if the river works'));
+                    'Number of tries of check document indexed in Elasticsearch reached the maximum allowed. Increase the number of tries!'));
                 }
                 return callback();
               });

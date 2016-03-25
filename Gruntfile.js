@@ -217,20 +217,19 @@ module.exports = function(grunt) {
   grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo_replSet', 'container:elasticsearch']);
   grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo_replSet:pull', 'container:elasticsearch:pull']);
   grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:mongo_replSet:remove', 'container:elasticsearch:remove']);
-  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continueOn', 'mongoReplicationMode:docker', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchMongoRiver:docker']);
+  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continueOn', 'mongoReplicationMode:docker', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex']);
 
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo_replSet', 'shell:elasticsearch']);
   grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo_replSet:kill', 'shell:elasticsearch:kill']);
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', gruntfileUtils.setupEnvironment());
   grunt.registerTask('clean-environment', 'remove temp folder for tests', gruntfileUtils.cleanEnvironment());
   grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', gruntfileUtils.setupMongoReplSet());
-  grunt.registerTask('setupElasticsearchMongoRiver', 'setup elasticsearch mongodb river', gruntfileUtils.setupElasticsearchMongoRiver());
   grunt.registerTask('setupElasticsearchUsersIndex', 'setup elasticsearch mongodb users index', gruntfileUtils.setupElasticsearchUsersIndex());
   grunt.registerTask('setupElasticsearchContactsIndex', 'setup elasticsearch mongodb contacts index', gruntfileUtils.setupElasticsearchContactsIndex());
 
   grunt.registerTask('dev', ['nodemon:dev']);
   grunt.registerTask('debug', ['node-inspector:dev']);
-  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchMongoRiver']);
+  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex']);
 
   grunt.registerTask('test-e2e', ['run_grunt:e2e']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
