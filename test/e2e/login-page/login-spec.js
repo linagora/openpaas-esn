@@ -12,13 +12,14 @@ var password = ADMIN_OBJECT.password;
 
 var waitUrlToBeRedirected = function() {
   var oldUrl;
+
   browser.getCurrentUrl()
     .then(function(url) {
       oldUrl = url;
     })
     .then(function() {
       browser.wait(function() {
-        return browser.getCurrentUrl().then(function (newUrl) {
+        return browser.getCurrentUrl().then(function(newUrl) {
           return newUrl !== oldUrl;
         });
       });
@@ -42,9 +43,7 @@ describe('OpenPaaS login page', function() {
   it('should not change url when login fails', function() {
     loginPage.login(username, 'not' + password);
 
-    var currentUrl = browser.getLocationAbsUrl();
-
-    expect(currentUrl).to.eventually.equal('/');
+    expect(browser.getLocationAbsUrl()).to.eventually.equal('/');
     expect(loginPage.errorNotification.isPresent()).to.eventually.be.true;
   });
 
@@ -52,8 +51,7 @@ describe('OpenPaaS login page', function() {
     loginPage.login(username, password);
     waitUrlToBeRedirected();
 
-    var currentUrl = browser.getLocationAbsUrl();
-    expect(currentUrl).to.eventually.not.equal('/');
+    expect(browser.getLocationAbsUrl()).to.eventually.not.equal('/');
   });
 
   it('should continue to the asked page', function() {
@@ -61,7 +59,6 @@ describe('OpenPaaS login page', function() {
     loginPage.login(username, password);
     waitUrlToBeRedirected();
 
-    var currentUrl = browser.getLocationAbsUrl();
-    expect(currentUrl).to.eventually.equal('/accounts');
+    expect(browser.getLocationAbsUrl()).to.eventually.equal('/accounts');
   });
 });
