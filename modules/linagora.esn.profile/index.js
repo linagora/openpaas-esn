@@ -26,7 +26,10 @@ var profileModule = new AwesomeModule('linagora.esn.profile', {
       var webserverWrapper = dependencies('webserver-wrapper');
 
       var jsFiles = [
-        'app.js'
+        'app.js',
+        'controllers.js',
+        'services.js',
+        'directives.js'
       ];
       webserverWrapper.injectAngularModules('profile', jsFiles, ['linagora.esn.profile'], ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');

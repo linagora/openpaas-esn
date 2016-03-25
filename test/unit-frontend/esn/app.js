@@ -30,11 +30,11 @@ describe('The esn app', function() {
 
     it('should load the page from continue parameter when routing to an unknown path and the continue page exists', function() {
       httpBackend.expectGET('/api/user').respond(200);
-      httpBackend.expectGET('/views/esn/partials/profile').respond(200);
+      httpBackend.expectGET('/views/esn/partials/communities').respond(200);
       location.path('unknown');
-      location.search({continue: '/profile'});
+      location.search({continue: '/communities'});
       rootScope.$digest();
-      expect(location.path()).to.equal('/profile');
+      expect(location.path()).to.equal('/communities');
       expect(stateParams).to.deep.equal({});
     });
 
