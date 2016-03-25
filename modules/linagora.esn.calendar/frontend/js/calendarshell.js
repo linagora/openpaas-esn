@@ -187,10 +187,10 @@ angular.module('esn.calendar')
         var iterator = this.icalEvent.iterator(this.icalEvent.startDate);
         var currentDatetime, currentEvent, currentDetails, result = [];
         while ((currentDatetime = iterator.next()) &&
-            (!endDate || endDate.isAfter(currentDatetime.toJSDate())) &&
+            (!endDate || endDate.isAfter(currentDatetime.toJSDate() || (!endDate.hasTime() && endDate.isSame(currentDatetime.toJSDate(), 'day')))) &&
             (!maxElement || result.length < maxElement)) {
 
-          if (!startDate || startDate.isBefore(currentDatetime.toJSDate())) {
+          if (!startDate || startDate.isBefore(currentDatetime.toJSDate()) || (!startDate.hasTime() && startDate.isSame(currentDatetime.toJSDate(), 'day'))) {
             currentDetails = this.icalEvent.getOccurrenceDetails(currentDatetime);
 
             currentEvent = this.clone();

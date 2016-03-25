@@ -354,7 +354,7 @@ describe('CalendarShell factory', function() {
       expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T23:01:00Z');
     });
 
-    it('should expand correctly all subevent if no start end zone specified', function() {
+    it('should expand correctly all subevent if no start and end date specified', function() {
       var shell = {
         start: fcMoment.utc('2015-01-01 18:01'),
         end: fcMoment.utc('2015-01-01 19:01'),
@@ -434,7 +434,7 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(null, fcMoment('2015-01-02')).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(null, fcMoment.utc('2015-01-02 00:00')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-01T18:01:00Z',
@@ -446,7 +446,7 @@ describe('CalendarShell factory', function() {
       });
     });
 
-    it('should expand correctly all subevent after start if no enddate given', function() {
+    it('should expand correctly all subevent after start if no end date given', function() {
       var shell = {
         start: fcMoment.utc('2015-01-01 18:01'),
         end: fcMoment.utc('2015-01-01 19:01'),
@@ -461,7 +461,7 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(fcMoment('2015-01-04')).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(fcMoment.utc('2015-01-04 00:00')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-05T18:01:00Z',
@@ -487,7 +487,33 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(fcMoment('2015-01-02'), fcMoment('2015-01-04')).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(fcMoment.utc('2015-01-02 00:00'), fcMoment.utc('2015-01-04 00:00')).map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-03T18:01:00Z',
+          formattedEnd: '2015-01-03T19:01:00Z',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 1
+      });
+    });
+
+    it('should expand correctly all subevent between start time stripTime date and end stripTime date', function() {
+      var shell = {
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand(fcMoment.utc('2015-01-02').stripTime(), fcMoment.utc('2015-01-04').stripTime()).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-03T18:01:00Z',
