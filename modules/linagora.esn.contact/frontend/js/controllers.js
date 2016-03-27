@@ -540,8 +540,10 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .controller('contactItemController', function($scope, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper) {
+  .controller('contactItemController', function($scope, $location, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper) {
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
+
+    $scope.keySearch = $location.search().q;
 
     $scope.displayContact = function() {
       // use url instead of path to remove search and hash from URL
