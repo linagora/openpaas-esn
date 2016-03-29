@@ -4,7 +4,6 @@ angular.module('esn.calendar')
   .controller('miniCalendarController', function(
         $rootScope,
         $q,
-        $timeout,
         $window,
         $scope,
         $log,
@@ -20,8 +19,6 @@ angular.module('esn.calendar')
         calendarCurrentView,
         cachedEventSource,
         uuid4,
-        livenotification,
-        CalendarShell,
         _
   ) {
 
@@ -106,6 +103,7 @@ angular.module('esn.calendar')
     }
 
     var calendarResolved = false;
+
     $scope.miniCalendarConfig.viewRender = function(view) {
       if (!calendarResolved) {
         calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.miniCalendarId]);
@@ -140,61 +138,17 @@ angular.module('esn.calendar')
       $log.error('Could not retrieve user calendars', error);
     });
 
-    function bindEventToCalWrapperMethod(angularEventName, calWrapperMethod) {
-      return $rootScope.$on(angularEventName, function(angularEvent, data) {
-        $q.all({
-          calendar: calendarPromise,
-          calendarWrapper: calendarWrapperPromise
-        }).then(function(resolved) {
-          if (data.isRecurring && data.isRecurring()) {
-            var getView = resolved.calendar.fullCalendar('getView');
-            data.expand(getView.start.clone().subtract(1, 'day'), getView.end.clone().add(1, 'day')).forEach(resolved.calendarWrapper[calWrapperMethod], resolved.calendarWrapper);
-          } else {
-            resolved.calendarWrapper[calWrapperMethod](data);
-          }
-        });
-      });
-    }
-
-    function liveNotificationHandlerOnDeleteAndCancel(msg) {
+    function rerenderMiniCalendar() {
       calendarWrapperPromise.then(function(calendarWrapper) {
-        calendarWrapper.removeEvent(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}).id);
+        calendarWrapper.rerender();
       });
     }
-
-    function liveNotificationHandlerOnCreate(msg) {
-      var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-      $q.all({
-        calendar: calendarPromise,
-        calendarWrapper: calendarWrapperPromise
-      }).then(function(resolved) {
-        if (event.isRecurring && event.isRecurring()) {
-          var getView = resolved.calendar.fullCalendar('getView');
-          event.expand(getView.start.clone().subtract(1, 'day'), getView.end.clone().add(1, 'day')).forEach(resolved.calendarWrapper.addEvent, resolved.calendarWrapper);
-        } else {
-          resolved.calendarWrapper.addEvent(event);
-        }
-      });
-    }
-
-    function liveNotificationHandlerOnRequestAndUpdate(msg) {
-      calendarWrapperPromise.then(function(calendarWrapper) {
-        calendarWrapper.modifyEvent(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}));
-      });
-    }
-
-    var sio = livenotification('/calendars');
-    sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnRequestAndUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnRequestAndUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
 
     var unregisterFunctions = [
-      bindEventToCalWrapperMethod(CALENDAR_EVENTS.ITEM_ADD, 'addEvent'),
-      bindEventToCalWrapperMethod(CALENDAR_EVENTS.ITEM_REMOVE, 'removeEvent'),
-      bindEventToCalWrapperMethod(CALENDAR_EVENTS.ITEM_MODIFICATION, 'modifyEvent'),
-      bindEventToCalWrapperMethod(CALENDAR_EVENTS.REVERT_MODIFICATION, 'modifyEvent'),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, rerenderMiniCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, rerenderMiniCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, rerenderMiniCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.REVERT_MODIFICATION, rerenderMiniCalendar),
 
       $rootScope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) {
         $scope.homeCalendarViewMode = view.name;
@@ -204,11 +158,6 @@ angular.module('esn.calendar')
     ];
 
     $scope.$on('$destroy', function() {
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnRequestAndUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnRequestAndUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
 
       unregisterFunctions.forEach(function(unregisterFunction) {
         unregisterFunction();
