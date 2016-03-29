@@ -201,7 +201,7 @@ angular.module('esn.calendar')
      * @param  {String}             calendarId   the calendar id.
      * @param  {String}             calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
      * @param  {CalendarShell}      event        the event to PUT to the caldav server
-     * @param  {Object}             options      options needed for the creation. The structure is {graceperiod: Boolean, notifyFullcalendar: Boolean}
+     * @param  {Object}             options      options needed for the creation. The structure is {graceperiod: Boolean}
      * @return {Mixed}                           true if success, false if cancelled, the http response if no graceperiod is used.
      */
     function createEvent(calendarId, calendarPath, event, options) {
@@ -226,9 +226,7 @@ angular.module('esn.calendar')
             event.gracePeriodTaskId = taskId = response;
             event.isRecurring() && masterEventCache.save(event);
             cachedEventSource.registerAdd(event, calendarId);
-            if (options.notifyFullcalendar) {
-              calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
-            }
+            calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
                 return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
@@ -275,6 +273,7 @@ angular.module('esn.calendar')
       }
 
       function onTaskError() {
+        cachedEventSource.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
@@ -330,7 +329,6 @@ angular.module('esn.calendar')
      * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
-      options = options || {notifyFullcalendar: true};
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
@@ -372,9 +370,7 @@ angular.module('esn.calendar')
           event.gracePeriodTaskId = taskId = id;
           event.isRecurring() && masterEventCache.save(event);
           cachedEventSource.registerUpdate(master);
-          if (options.notifyFullcalendar) {
-            calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
-          }
+          calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
         })
         .then(function() {
           return _registerTaskListener(taskId, 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.', onTaskError);
