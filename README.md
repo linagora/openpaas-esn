@@ -16,7 +16,7 @@ OpenPaaS is a collaboration platform for enterprises & organizations.
 
 You can install dependencies yourself, or use the Docker environment as described in [./docker/doc/README.md](./docker/doc/README.md).
 
-- ElasticSearch v1.3.5
+- ElasticSearch v2.2.1
 - MongoDB v2.6.5
 - Redis 3.x
 

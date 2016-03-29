@@ -32,11 +32,11 @@ module.exports.find = function(domains, query, callback) {
         {title: 'asc'}
       ],
       query: {
-        filtered: {
+        bool: {
           filter: {
             or: elasticsearchOrFilters
           },
-          query: {
+          must: {
             match: {
               title: {
                 type: 'phrase_prefix',
