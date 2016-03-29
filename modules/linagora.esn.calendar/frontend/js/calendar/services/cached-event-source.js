@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $q, CALENDAR_GRACE_DELAY, eventStore, calendarExploredPeriodService) {
+angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $q, CALENDAR_GRACE_DELAY, eventStore, calendarExploredPeriodService, _) {
   var changes = {};
   var DELETE = 'delete';
   var UPDATE = 'update';
@@ -34,13 +34,41 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     });
   }
 
-  function applyUpdatedAndDeleteEvent(events) {
-    return events.reduce(function(previousCleanedEvents, event) {
+  function addAddedEvent(start, end, calendarId, events, customChanges) {
+    function eventInPeriod(event) {
+      return [event.start, event.end].some(function(date) {
+        return date && (date.isSame(start, 'day') || date.isAfter(start)) &&
+          (date.isSame(end, 'day') || date.isBefore(end));
+      });
+    }
+
+    angular.forEach(customChanges || changes, function(change) {
+      if (change.action === ADD && change.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
+        events.push(change.event);
+      }
+    });
+
+    return events;
+  }
+
+  function applyUpdatedAndDeleteEvent(events, start, end, calendarId) {
+    var notAppliedChange = _.chain(changes).omit(function(change) {
+      return change.action !== UPDATE;
+    }).mapValues(function(event) {
+      var result = _.clone(event);
+      result.action = ADD;
+      return result;
+    }).value();
+
+    var result = events.reduce(function(previousCleanedEvents, event) {
 
       var change = changes[event.id];
-      if (!change || change.action === ADD) {
+      var changeInMaster = event.isInstance() && changes[event.uid];
+
+      if (!change && !changeInMaster) {
         previousCleanedEvents.push(event);
-      } else if (change.action === UPDATE) {
+      } else if (change && change.action === UPDATE) {
+        delete notAppliedChange[event.id];
         if (change.event.isRecurring()) {
           change.instances.forEach(function(instance) {
             previousCleanedEvents.push(instance);
@@ -52,28 +80,13 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
 
       return previousCleanedEvents;
     }, []);
-  }
 
-  function addAddedEvent(start, end, calendarId, events) {
-    function eventInPeriod(event) {
-      return [event.start, event.end].some(function(date) {
-        return date && (date.isSame(start, 'day') || date.isAfter(start)) &&
-          (date.isSame(end, 'day') || date.isBefore(end));
-      });
-    }
-
-    angular.forEach(changes, function(change) {
-      if (change.action === ADD && change.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
-        events.push(change.event);
-      }
-    });
-
-    return events;
+    return addAddedEvent(start, end, calendarId, result, notAppliedChange);
   }
 
   function applySavedChange(start, end, calendarId, events) {
     expandRecurringChange(start, end);
-    return addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events));
+    return addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events, start, end, calendarId));
   }
 
   function fetchEventOnlyIfNeeded(start, end, timezone, calId, calendarSource) {
@@ -212,7 +225,7 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
   function getCalStore(calId) {
     calStores[calId] = calStores[calId] || {
       eventsSortedByStart: [],
-      maxEventsSize: 0
+      maxEventsDuration: 0
     };
     return calStores[calId];
   }
@@ -231,8 +244,8 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
 
     store.eventsSortedByStart.splice(insertionIndex, 0, event);
 
-    var eventSize = event.end.unix() - event.start.unix();
-    store.maxEventsSize = Math.max(store.maxEventsSize, eventSize);
+    var eventDuration = event.end.unix() - event.start.unix();
+    store.maxEventsDuration = Math.max(store.maxEventsDuration, eventDuration);
   }
 
   function getInPeriod(calId, period) {
@@ -242,25 +255,25 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     var indexOfFirstInEnlargedPeriod = _.sortedIndex(
         store.eventsSortedByStart,
         {
-          start: period.start.clone().subtract(fcMoment.duration(store.maxEventsSize).add(1, 'day'))
+          start: period.start.clone().subtract(fcMoment.duration(store.maxEventsDuration).add(1, 'day'))
         },
         function(event) {
           return event.start.unix();
         }
     );
 
-    //pre filter for efficiency we take event that start after maxEventsSize + 24 hour before the start of the period
+    //pre filter for efficiency we take event that start after maxEventsDuration + 24 hour before the start of the period
     //and that does not start after the end of the period
     for (var i = indexOfFirstInEnlargedPeriod; i < store.eventsSortedByStart.length && !store.eventsSortedByStart[i].start.isAfter(period.end, 'day'); i++) {
       result.push(store.eventsSortedByStart[i]);
     }
 
     result = result.filter(function(event) {
-      var eventInPeriod = [event.start, event.end].some(function(date) {
+      var isEventInPeriod = [event.start, event.end].some(function(date) {
         return date.isBetween(period.start.clone().subtract(1, 'day'), period.end.clone().add(1, 'day'), 'day');
       });
-      var eventCoverPeriod = event.start.isBefore(period.start, 'day') && event.end.isAfter(period.end, 'day');
-      return eventInPeriod || eventCoverPeriod;
+      var isEventCoverPeriod = event.start.isBefore(period.start, 'day') && event.end.isAfter(period.end, 'day');
+      return isEventInPeriod || isEventCoverPeriod;
     });
 
     return result;

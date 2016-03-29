@@ -39,7 +39,23 @@ describe('The cachedEventSource service', function() {
   beforeEach(angular.mock.inject(function($rootScope, cachedEventSource, fcMoment) {
     this.cachedEventSource = cachedEventSource;
     this.fcMoment = fcMoment;
-    this.events = [{id: 1, start: this.fcMoment.utc('1984-01-01 08:00'), end: this.fcMoment.utc('1984-01-01 09:00'), title: 'should not be replaced'}, {id:2, start: this.fcMoment.utc('1984-01-02 08:00'), end: this.fcMoment.utc('1984-01-02 09:00'), title: 'to be replaced'}];
+    this.events = [{
+      id: 1,
+      uid: 1,
+      start: this.fcMoment.utc('1984-01-01 08:00'),
+      end: this.fcMoment.utc('1984-01-01 09:00'),
+      isRecurring: _.constant(false),
+      isInstance: _.constant(false),
+      title: 'should not be replaced'
+    }, {
+      id: 2,
+      uid: 2,
+      start: this.fcMoment.utc('1984-01-02 08:00'),
+      end: this.fcMoment.utc('1984-01-02 09:00'),
+      isRecurring: _.constant(false),
+      isInstance: _.constant(false),
+      title: 'to be replaced'
+    }];
 
     this.start = this.fcMoment.utc('1984-01-01').stripTime();
     this.end = this.fcMoment.utc('1984-01-07').stripTime();
@@ -48,6 +64,7 @@ describe('The cachedEventSource service', function() {
       id: 2,
       title: 'has been replaced',
       start: this.fcMoment('1984-01-03'),
+      isInstance: _.constant(false),
       isRecurring: _.constant(false)
     };
   }));
@@ -126,6 +143,117 @@ describe('The cachedEventSource service', function() {
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0], self.modifiedEvent]);
       });
+
+      it('should take an event and make wrapped event sources add this one if it does not exist', function() {
+        this.modifiedEvent.id = 3;
+        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+        expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(self.modifiedEvent));
+      });
+
+      it('should take a recurring event modification that delete an instance and apply it correctly', function() {
+        var invariantSubEvent = {
+          id: 'subevent',
+          uid: 'parent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        var deletedSubEvent = {
+          id: 'invalid subevent',
+          uid: 'parent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        this.modifiedEvent.id = 'parent';
+        this.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        this.modifiedEvent.expand = sinon.stub().returns([invariantSubEvent]);
+        this.events.push(invariantSubEvent);
+        this.events.push(deletedSubEvent);
+
+        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+
+        expect(this.modifiedEvent.isRecurring).to.have.been.called;
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
+
+        expect(this.originalCallback).to.have.been.calledWithExactly(self.events.slice(0, self.events.length - 1));
+      });
+
+      it('should take a recurring event modification that modify an instance and apply it correctly', function() {
+        var invariantSubEvent = {
+          id: 'subevent',
+          uid: 'parent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        var modifiedSubInstanceBefore = {
+          id: 'invalid subevent',
+          uid: 'parent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        var modifiedSubInstanceAfter = _.clone(modifiedSubInstanceBefore);
+        modifiedSubInstanceAfter.title = 'Modified';
+
+        this.modifiedEvent.id = 'parent';
+        this.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        this.modifiedEvent.expand = sinon.stub().returns([invariantSubEvent, modifiedSubInstanceAfter]);
+        this.events.push(invariantSubEvent);
+        this.events.push(modifiedSubInstanceBefore);
+
+        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+
+        expect(this.modifiedEvent.isRecurring).to.have.been.called;
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
+
+        expect(this.originalCallback).to.have.been.calledWithExactly(self.events.slice(0, self.events.length - 1).concat(modifiedSubInstanceAfter));
+      });
+
+      it('should take a recurring event and make wrapped event sources add this one if it does not exist', function() {
+        var correctSubEvent = {
+          id: 'subevent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isRecurring: _.constant(false)
+        };
+
+        var invalidSubEvent = {
+          id: 'invalid subevent',
+          start: this.start.clone().subtract(2, 'days'),
+          end: this.start.clone().subtract(1, 'hour'),
+          isRecurring: _.constant(false)
+        };
+
+        this.modifiedEvent.id = 'parent';
+        this.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        this.modifiedEvent.expand = sinon.stub().returns([correctSubEvent, invalidSubEvent]);
+
+        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+
+        expect(this.modifiedEvent.isRecurring).to.have.been.called;
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
+
+        expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(correctSubEvent));
+      });
+
     });
 
     describe('registerDelete function', function() {
