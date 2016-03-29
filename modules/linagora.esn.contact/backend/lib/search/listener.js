@@ -22,7 +22,7 @@ module.exports = function(dependencies) {
   }
 
   function register() {
-    listeners.addListener(getOptions());
+    return listeners.addListener(getOptions());
   }
 
   return {

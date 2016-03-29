@@ -44,5 +44,17 @@ describe('The contacts listener module', function() {
       var module = require('../../../../backend/lib/search/listener')(dependencies);
       module.register();
     });
+
+    it('should return addListener result', function() {
+      var result = {foo: 'bar'};
+      deps.elasticsearch = {
+        listeners: {
+          addListener: function() {
+            return result;
+          }
+        }
+      };
+      expect(require('../../../../backend/lib/search/listener')(dependencies).register()).to.deep.equal(result);
+    });
   });
 });

@@ -42,55 +42,88 @@ describe('The contacts search Module', function() {
 
   describe('The indexContact function', function() {
 
-    it('should send back error when contact is undefined', function(done) {
+    it('should send back error when listener is not started', function(done) {
       var module = require('../../../../backend/lib/search')(dependencies);
-      module.indexContact(null, this.helpers.callbacks.errorWithMessage(done, 'Contact is required'));
+      module.indexContact({}, this.helpers.callbacks.errorWithMessage(done, 'Contact search is not initialized'));
     });
 
-    it('should call the elasticsearch module', function(done) {
-      var contact = {id: '123', fn: 'Bruce'};
-      var denormalized = {id: '123', fn: 'Bruce', fistName: 'Bruce'};
+    describe('When initialized', function() {
 
-      deps.elasticsearch.addDocumentToIndex = function(document, options, callback) {
-        expect(document).to.deep.equal(denormalized);
-        expect(options).to.deep.equal({
-          id: contact.id,
-          type: 'contacts',
-          index: 'contacts.idx'
+      it('should send back error when contact is undefined', function(done) {
+        mockery.registerMock('./listener', function() {
+          return {
+            register: function() {
+              return {};
+            }
+          };
         });
-        return callback();
-      };
-
-      mockery.registerMock('./denormalize', function() {
-        return denormalized;
+        var module = require('../../../../backend/lib/search')(dependencies);
+        module.listen();
+        module.indexContact(null, this.helpers.callbacks.errorWithMessage(done, 'Contact is required'));
       });
 
-      var module = require('../../../../backend/lib/search')(dependencies);
-      module.indexContact(contact, this.helpers.callbacks.noError(done));
+      it('should call the indexData handler', function(done) {
+        var contact = {id: '123', firstName: 'Bruce'};
+        mockery.registerMock('./listener', function() {
+          return {
+            register: function() {
+              return {
+                indexData: function(data, callback) {
+                  expect(data).to.deep.equal(contact);
+                  callback();
+                }
+              };
+            }
+          };
+        });
+
+        var module = require('../../../../backend/lib/search')(dependencies);
+        module.listen();
+        module.indexContact(contact, this.helpers.callbacks.noError(done));
+      });
     });
   });
 
   describe('The removeContactFromIndex function', function() {
 
-    it('should send back error when contact is undefined', function(done) {
+    it('should send back error when listener is not started', function(done) {
       var module = require('../../../../backend/lib/search')(dependencies);
-      module.removeContactFromIndex(null, this.helpers.callbacks.errorWithMessage(done, 'Contact is required'));
+      module.removeContactFromIndex({}, this.helpers.callbacks.errorWithMessage(done, 'Contact search is not initialized'));
     });
 
-    it('should call the elasticsearch module', function(done) {
-      var contact = {id: '123', firstName: 'Bruce'};
+    describe('When initialized', function() {
 
-      deps.elasticsearch.removeDocumentFromIndex = function(options, callback) {
-        expect(options).to.deep.equal({
-          id: contact.id,
-          type: 'contacts',
-          index: 'contacts.idx'
+      it('should send back error when contact is undefined', function(done) {
+        mockery.registerMock('./listener', function() {
+          return {
+            register: function() {
+              return {};
+            }
+          };
         });
-        return callback();
-      };
+        var module = require('../../../../backend/lib/search')(dependencies);
+        module.listen();
+        module.removeContactFromIndex(null, this.helpers.callbacks.errorWithMessage(done, 'Contact is required'));
+      });
 
-      var module = require('../../../../backend/lib/search')(dependencies);
-      module.removeContactFromIndex(contact, this.helpers.callbacks.noError(done));
+      it('should call the removeFromIndex handler', function(done) {
+        var contact = {id: '123', firstName: 'Bruce'};
+        mockery.registerMock('./listener', function() {
+          return {
+            register: function() {
+              return {
+                removeFromIndex: function(data, callback) {
+                  expect(data).to.deep.equal(contact);
+                  callback();
+                }
+              };
+            }
+          };
+        });
+        var module = require('../../../../backend/lib/search')(dependencies);
+        module.listen();
+        module.removeContactFromIndex(contact, this.helpers.callbacks.noError(done));
+      });
     });
   });
 
