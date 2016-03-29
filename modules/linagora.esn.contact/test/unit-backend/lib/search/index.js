@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 
 describe('The contacts search Module', function() {
 
@@ -25,19 +26,17 @@ describe('The contacts search Module', function() {
 
   describe('The listen function', function() {
 
-    it('should subscribe to contacts events', function() {
-
-      var count = 0;
-      deps.pubsub.global.topic = function() {
-        count++;
+    it('should register a listener', function() {
+      var register = sinon.stub();
+      mockery.registerMock('./listener', function() {
         return {
-          subscribe: function() {}
+          register: register
         };
-      };
+      });
 
       var module = require('../../../../backend/lib/search')(dependencies);
       module.listen();
-      expect(count).to.equal(3);
+      expect(register).to.have.been.calledOnce;
     });
   });
 

@@ -5,6 +5,10 @@ var expect = require('chai').expect,
 
 describe('The elasticsearch module', function() {
 
+  beforeEach(function() {
+    mockery.registerMock('./listeners', {});
+  });
+
   describe('with config error', function() {
 
     beforeEach(function() {

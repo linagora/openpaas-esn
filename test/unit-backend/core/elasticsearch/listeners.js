@@ -105,7 +105,8 @@ describe('The ES listeners module', function() {
           },
           index: 'contacts.idx',
           type: 'contact',
-          denormalize: true
+          denormalize: true,
+          getId: true
         };
         var data = {_id: '123'};
 
@@ -114,6 +115,7 @@ describe('The ES listeners module', function() {
             expect(input).to.deep.equal({
               index: options.index,
               type: options.type,
+              getId: options.getId,
               data: data
             });
             done();
@@ -151,7 +153,8 @@ describe('The ES listeners module', function() {
         },
         index: 'contacts.idx',
         type: 'contact',
-        denormalize: true
+        denormalize: true,
+        getId: true
       };
       var data = {_id: '123'};
 
@@ -159,6 +162,7 @@ describe('The ES listeners module', function() {
         indexData: function(input) {
           expect(input).to.deep.equal({
             denormalize: options.denormalize,
+            getId: options.getId,
             index: options.index,
             type: options.type,
             data: data

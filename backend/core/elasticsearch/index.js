@@ -127,3 +127,5 @@ function searchDocuments(options, callback) {
   }, callback);
 }
 module.exports.searchDocuments = searchDocuments;
+
+module.exports.listeners = require('./listeners');

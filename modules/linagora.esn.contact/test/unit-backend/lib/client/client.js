@@ -25,6 +25,8 @@ describe('The contact client APIs', function() {
       },
       pubsub: {}
     };
+
+    mockery.registerMock('./listener', function() {});
   });
 
   var dependencies = function(name) {

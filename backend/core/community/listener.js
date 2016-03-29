@@ -11,7 +11,8 @@ function getOptions() {
       update: CONSTANTS.EVENTS.communityUpdated,
       remove: CONSTANTS.EVENTS.communityDeleted
     },
-    denormalize: denormalize,
+    denormalize: denormalize.denormalize,
+    getId: denormalize.getId,
     type: CONSTANTS.ELASTICSEARCH.type,
     index: CONSTANTS.ELASTICSEARCH.index
   };
