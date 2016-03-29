@@ -201,20 +201,21 @@ ul.dropdown {
     width: 100%;
     left: 0;
     right: 0;
-    background: @m-white;
-    box-shadow: 0 0 1px 1px @m-white;
-    padding: 20px 10px;
+    background: @contact-subheader-background;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    padding: 5px 10px;
+    color: @textPrimaryColor;
 
     .contacts-list-header-inner {
-      padding: 0;
+      padding: 0 5px;
       height: 100%;
       justify-content: space-between;
+      color: @m-white;
 
       .contacts-list-header-title {
-        height: 30px;
         h2 {
           font-size: 15px;
-          color: @m-gray;
+          color: @m-white;
           margin: 0 0 0 15px;
           font-weight: 400;
           text-transform: uppercase;
@@ -222,10 +223,18 @@ ul.dropdown {
           small {
             display: block;
             text-transform: none;
-            margin-top: 5px;
-            color: @m-gray;
+            margin-top: 3px;
+            color: @accentColor;
+            font-weight: bold;
             line-height: 140%;
           }
+        }
+      }
+
+      .actions {
+        .mdi {
+          color: @m-white;
+          font-size: xx-large;
         }
       }
     }
@@ -373,6 +382,9 @@ contact-photo {
 .contacts-list-toolbar {
   .flex();
   justify-content: flex-end;
+  .actions {
+    margin-right: 25px;
+  }
 }
 
 .contacts-toggle {
@@ -480,12 +492,14 @@ contact-photo {
   width: 35px;
   height: 35px;
 }
+
 .media-heading{
   width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 #sub-header {
   ul.dropdown-menu li a {
     text-align: right;

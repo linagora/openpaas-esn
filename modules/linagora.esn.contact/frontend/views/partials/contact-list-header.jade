@@ -18,12 +18,12 @@ header
           .contacts-list-toolbar
             .contacts-search
               contact-search-form
-            .contacts-toggle
+            .contacts-toggle.flex-vertical-centered
               contact-list-toggle
             ul.actions
               li.dropdown
                 a(href='', data-toggle='dropdown', aria-expanded='true')
-                  i.mdi.mdi-dots-horizontal
+                  i.mdi.mdi-dots-vertical
                 ul.dropdown-menu.dropdown-menu-right
                   li
                     a(href='/#/accounts') #{__('Import')}
