@@ -13,4 +13,6 @@
         a(href='', data-toggle='dropdown', aria-expanded='true')
           i.mdi.mdi-dots-vertical
         ul.dropdown-menu.dropdown-menu-right
+          li
+            a(ng-click='deleteAccount(account)') #{__('Delete account')}
           li(dynamic-directive='account-options-items')

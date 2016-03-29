@@ -53,3 +53,24 @@ Get the current user accounts
         "hosted": false
       }
     ]
+
+## DELETE /account/api/accounts/:id
+
+Delete account by id
+
+**Status Codes:**
+
+- 204 No Content
+- 400 Bad Request. Invalid account id.
+- 401 Unauthorized. The current request does not contains any valid data to be used for authentication.
+- 500 Internal server error.
+
+**Request:**
+
+    DELETE/account/api/accounts/:id
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No Content
