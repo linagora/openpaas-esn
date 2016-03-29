@@ -231,6 +231,7 @@ describe('The calendar module controllers', function() {
           clientEvents: _.constant(clientEvents),
           removeEvents: sinon.spy(),
           updateEvent: sinon.spy(),
+          refetchEvents: sinon.spy(),
           renderEvent: sinon.spy()
         };
 
@@ -241,102 +242,16 @@ describe('The calendar module controllers', function() {
         };
       });
 
-      it('should update an event if event.source is defined', function() {
-        var event = {
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          source: 'iamasource',
-          isRecurring: _.constant(false)
-        };
-
-        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        this.scope.$digest();
-        expect(fcFn.removeEvents).to.not.have.been.called;
-        expect(fcFn.renderEvent).to.not.have.been.called;
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
-        expect(fcFn.updateEvent).to.have.been.calledWith(sinon.match({
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          _allDay: '_allday',
-          _end: '_end',
-          _id: '_id',
-          _start: '_start',
-          source: 'iamasource'
-        }));
-      });
-
-      it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event if event.source is undefined', function() {
+      it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that refresh the calendar', function() {
         this.controller('calendarController', {$scope: this.scope});
 
-        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          isRecurring: _.constant(false)
-        });
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION);
 
         this.scope.uiConfig.calendar.viewRender({});
         this.scope.$digest();
-        expect(fcFn.removeEvents).to.have.been.calledWith('_id');
-        expect(fcFn.renderEvent).to.have.been.calledWith(sinon.match({
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          _allDay: '_allday',
-          _end: '_end',
-          _id: '_id',
-          _start: '_start'
-        }));
+        expect(fcFn.refetchEvents).to.have.been.calledOnce;
       });
 
-      it('should update subevent of recurring event', function() {
-        var view = {
-          start: this.fcMoment('2000-01-01'),
-          end: this.fcMoment('2000-01-02')
-        };
-
-        fcFn.getView = sinon.stub().returns(view);
-        var subEvent = {
-          title: 'sub',
-          allDay: '_allDay',
-          id: 'sub',
-          source: 'iamasource',
-          isRecurring: _.constant(false)
-        };
-
-        var event = {
-          title: 'parent',
-          allDay: '_allday',
-          id: 'parent',
-          source: 'iamasource',
-          isRecurring: _.constant(true),
-          expand: sinon.stub().returns([subEvent])
-        };
-
-        clientEvents[0].id = 'sub';
-
-        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        this.scope.$digest();
-        expect(fcFn.removeEvents).to.have.been.calledOnce;
-        expect(fcFn.removeEvents).to.have.been.calledWith(sinon.match(function(pred) {
-          return pred({uid: event.uid}) && !pred({uid: 'an other id'});
-        }));
-        expect(fcFn.renderEvent).to.not.have.been.called;
-        expect(fcFn.getView).to.have.been.called;
-        expect(event.expand).to.have.been.calledWith(view.start.clone().subtract(1, 'day'), view.end.clone().add(1, 'day'));
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
-        expect(fcFn.updateEvent).to.have.been.calledWith(sinon.match({
-          title: 'sub',
-          id: 'sub',
-          source: 'iamasource'
-        }));
-      });
     });
 
     it('should call fullCalendar next on swipeRight', function() {

@@ -190,22 +190,16 @@ angular.module('esn.calendar')
       });
     }
 
+    function rerenderCalendar() {
+      calendarPromise.then(function(calendar) {
+        calendar.fullCalendar('refetchEvents');
+      });
+    }
+
     var unregisterFunctions = [
-      $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, function(event, data) {
-        calendarService.listCalendars($scope.calendarHomeId).then(function(calendars) {
-          _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(data, calendars));
-        });
-      }),
-      $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
-        calendarPromise.then(function(calendar) {
-          calendar.fullCalendar('removeEvents', data);
-        });
-      }),
-      $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
-        calendarService.listCalendars($scope.calendarHomeId).then(function(calendarList) {
-          _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(data, calendarList));
-        });
-      }),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, rerenderCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, rerenderCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, rerenderCalendar),
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
         calendarPromise.then(function(cal) {
           if (data.hidden) {
