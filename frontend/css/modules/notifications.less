@@ -11,16 +11,20 @@
 
   .flex-space-between;
 
-  a.action-link {
-    font-size: 14px;
-    text-transform: uppercase;
-  }
+  a {
+    cursor: pointer;
 
-  a.close {
-    color: @m-white;
-    opacity: 1;
-    &:hover {
-      opacity: 0.5;
+    &.action-link {
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    &.close {
+      color: @m-white;
+      opacity: 1;
+      &:hover {
+        opacity: 0.5;
+      }
     }
   }
 
