@@ -9,7 +9,12 @@ angular.module('linagora.esn.profile')
       return esnRestangular.one('user/profile', fieldName).customPUT(payload);
     }
 
+    function updateProfile(profile) {
+      return esnRestangular.one('user/profile').customPUT(profile);
+    }
+
     return {
-      updateProfileField: updateProfileField
+      updateProfileField: updateProfileField,
+      updateProfile: updateProfile
     };
   });
