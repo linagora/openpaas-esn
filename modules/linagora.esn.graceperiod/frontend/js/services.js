@@ -257,7 +257,7 @@ angular.module('linagora.esn.graceperiod')
       var notification = notifyService({
         message: text
       }, {
-        type: 'danger',
+        type: 'success',
         delay: delay || GRACE_DELAY,
         onClosed: function() {
           $rootScope.$applyAsync(function() {
