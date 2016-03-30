@@ -120,6 +120,7 @@
     "grunt-run-grunt": "git+https://ci.open-paas.org/stash/scm/or/grunt-run-grunt.git",
     "grunt-shell": "~0.7.0",
     "grunt-shell-spawn": "sergkr/grunt-shell-spawn",
+    "grunt-wait-server": "^0.2.1",
     "karma": "0.12.28",
     "karma-chrome-launcher": "~0.1.2",
     "karma-coffee-preprocessor": "~0.1.2",

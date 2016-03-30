@@ -120,31 +120,75 @@ module.exports = function(grunt) {
           pass: process.env.DOCKER_CERT_PASS || 'mypass'
         }
       },
-      redis: container.newContainer(
-        servers.redis.container.image,
-        servers.redis.container.name,
-        { PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] } },
-        null, null, 'Redis server is started.'),
-      mongo: container.newContainer(
-        servers.mongodb.container.image,
-        servers.mongodb.container.name,
-        { PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] } },
-        ['mongod', '--nojournal'],
+      esn_full: container.newContainer({
+          Image: 'docker/compose:1.6.2',
+          name: 'docker-compose-esn-full-' + Date.now(),
+          Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml', 'up'],
+          WorkingDir: '/compose',
+          Env: [
+            'DOCKER_IP=' + servers.host,
+            'PROVISION=true',
+            'ESN_PATH=' + __dirname
+          ],
+          HostConfig: {
+            Binds: [__dirname + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+          }
+        }, {},
+        new RegExp('OpenPaas ESN is now started on node'),
+        'All ESN docker containers are deployed'),
+      esn_full_remover: container.newContainer({
+          Image: 'docker/compose:1.6.2',
+          name: 'docker-compose-esn-full-remover-' + Date.now(),
+          Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml', 'down'],
+          WorkingDir: '/compose',
+          HostConfig: {
+            Binds: [__dirname + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+          }
+        }, {},
+        new RegExp('Removing network platform_default'),
+        'All ESN docker containers have been removed'),
+      redis: container.newContainer({
+          Image: servers.redis.container.image,
+          name: servers.redis.container.name
+        }, {
+          PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] }
+        },
+        null, 'Redis server is started.'),
+      mongo: container.newContainer({
+          Image: servers.mongodb.container.image,
+          name: servers.mongodb.container.name,
+          Cmd: ['mongod', '--nojournal']
+        }, {
+          PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] }
+        },
         new RegExp('connections on port 27017'), 'MongoDB server is started.'),
-      mongo_replSet: container.newContainer(
-        servers.mongodb.container.image,
-        servers.mongodb.container.name,
-        { PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
-          ExtraHosts: ['mongo:127.0.0.1']},
-        util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' '),
+      mongo_replSet: container.newContainer({
+          Image: servers.mongodb.container.image,
+          name: servers.mongodb.container.name,
+          Cmd: util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' ')
+        }, {
+          PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
+          ExtraHosts: ['mongo:127.0.0.1']
+        },
         new RegExp('connections on port 27017'), 'MongoDB server is started.'),
-      elasticsearch: container.newContainer(
-        servers.elasticsearch.container.image,
-        servers.elasticsearch.container.name,
-        { PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
-          Links: [servers.mongodb.container.name + ':mongo'] },
-        ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false'],
+      elasticsearch: container.newContainer({
+          Image: servers.elasticsearch.container.image,
+          name: servers.elasticsearch.container.name,
+          Cmd: ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false']
+        }, {
+          PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
+          Links: [servers.mongodb.container.name + ':mongo']
+        },
         /started/, 'Elasticsearch server is started.')
+    },
+    waitServer: {
+      options: { timeout: 60 * 1000, interval: 200, print: false },
+      esn: { options: { net: { port: 8080 } } },
+      mongo: { options: { net: { port: 27017 } } },
+      redis: { options: { net: { port: 6379 } } },
+      elasticsearch: { options: { net: { port: 9200 } } },
+      jmap: { options: { net: { port: 1080 } } },
+      cassandra: { options: { net: { port: 9042 } } }
     },
     nodemon: {
       dev: {
@@ -211,6 +255,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-docker-spawn');
   grunt.loadNpmTasks('grunt-jscs');
   grunt.loadNpmTasks('grunt-eslint');
+  grunt.loadNpmTasks('grunt-wait-server');
 
   grunt.loadTasks('tasks');
 
@@ -231,7 +276,11 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex']);
 
-  grunt.registerTask('test-e2e', ['run_grunt:e2e']);
+  grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down']);
+  grunt.registerTask('test-e2e-quick', ['container:esn_full', 'test-e2e-wait-servers', 'container:esn_full:remove', 'run_grunt:e2e']);
+  grunt.registerTask('test-e2e-wait-servers', ['waitServer:esn', 'waitServer:mongo', 'waitServer:redis', 'waitServer:elasticsearch', 'waitServer:jmap', 'waitServer:cassandra']);
+  grunt.registerTask('test-e2e-down', ['container:esn_full_remover', 'container:esn_full_remover:remove']);
+
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);
