@@ -33,6 +33,41 @@ describe('The linagora.esn.profile Angular module services', function() {
         expect(promise.then).to.be.a.function;
       });
     });
-  });
 
+    describe('updateProfile() method', function() {
+
+      beforeEach(angular.mock.inject(function(profileAPI, $httpBackend, Restangular) {
+        this.$httpBackend = $httpBackend;
+        this.profileAPI = profileAPI;
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a PUT request to /user/profile', function() {
+        this.$httpBackend.expectPUT('/api/user/profile').respond(200, []);
+        this.profileAPI.updateProfile(this.profile);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.profileAPI.updateProfile();
+        expect(promise.then).to.be.a.function;
+      });
+
+      it('should send a PUT request, sending the correct profile object', function() {
+        var object = {
+          firstname: 'john',
+          lastname: 'Amaly',
+          job_title:'Engineer',
+          service:'IT',
+          building_location:'Tunis',
+          office_location:'France',
+          main_phone:'Engineer'
+        };
+
+        this.$httpBackend.expectPUT('/api/user/profile', object).respond(200, []);
+        this.profileAPI.updateProfile(object);
+        this.$httpBackend.flush();
+      });
+    });
+  });
 });
