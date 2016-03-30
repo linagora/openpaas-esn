@@ -470,6 +470,9 @@ angular.module('esn.calendar')
 
     RRuleShell.prototype = {
       equals: function(that) {
+        if (!that) {
+          return false;
+        }
         var self = this;
         return RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
           return angular.equals(self[key], that[key]);
