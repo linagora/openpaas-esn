@@ -280,7 +280,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e-quick', ['container:esn_full', 'test-e2e-wait-servers', 'container:esn_full:remove', 'run_grunt:e2e']);
   grunt.registerTask('test-e2e-wait-servers', ['waitServer:esn', 'waitServer:mongo', 'waitServer:redis', 'waitServer:elasticsearch', 'waitServer:jmap', 'waitServer:cassandra']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_remover', 'container:esn_full_remover:remove']);
-  
+
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);

@@ -39,19 +39,20 @@ Note: If your have an error saying that the linagora/esn-base can not be found, 
 Then you can run:
 
 ``` sh
-PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml up
+PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/platform/docker-compose.yml up
 ```
 
 **Run from Docker Hub containers (ie build nothing)**
 
 ```bash
-PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> docker-compose -f ./docker/dockerfiles/platform/docker-compose-images.yml up
+PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/platform/docker-compose-images.yml up
 ```
 
 In both cases, environment variables are defined like:
 
 - PROVISION (Required on first launch only): Tell OpenPaaS to initialize configuration and provision some users/domains/communities so that once launched, you can log in into OpenPaaS.
 - DOCKER_IP: localhost (or 127.0.0.1) on Linux-based system or the docker-machine IP on OS X and Windows (default machine is accessible at 192.168.99.100, type 'docker-machine ip default' to check the value). It is required to set this IP so that the configuration is generated from the right value. If not set, the webserver may not provide some assets correctly.
+- ESN_PATH: Should always be the absolute path of your ESN sources. This variable is used to interpolate some paths in the docker-compose file.
 
 Launching the platform may take some time (1-2 minutes), grab a coffee and be ready for the next steps!
 
@@ -59,8 +60,10 @@ There are still some things to configure to have a fully operational platform. L
 
 - Add a Domain:
 
+The open-paas.org domain is created by default for testing, but you can also create your own domain.
+
 ```bash
-docker exec esn_james java -jar /root/james-cli.jar -h localhost adddomain open-paas.org
+docker exec esn_james java -jar /root/james-cli.jar -h localhost adddomain my-custom-domain.org
 ```
 
 You may want to create some users in the newly created domain.
@@ -107,6 +110,23 @@ password: secret
 ```
 
 You can check the [./mailer.md](./mailer.md) documentation to look how to configure a Mail client to access to the OpenPaaS mail server.
+
+
+### Without docker-compose
+
+If you have only docker installed on your machine, you can avoid to install docker-compose by running it as a container.
+
+In such context, the ESN containers creation command becomes:
+
+```
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD:/compose  -e PROVISION=true -e DOCKER_IP=<YOUR_DOCKER_IP> -e ESN_PATH=$PWD -w /compose -ti docker/compose:1.6.2 -f docker/dockerfiles/platform/docker-compose.yml up
+```
+
+and the containers removal command is:
+
+```
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD:/compose  -w /compose -ti docker/compose:1.6.2 -f docker/dockerfiles/platform/docker-compose.yml down
+```
 
 # Dev
 
