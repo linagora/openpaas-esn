@@ -97,3 +97,5 @@ services:
 
   cassandra:
     image: cassandra:2.2.3
+    ports:
+      - "9042:9042"
