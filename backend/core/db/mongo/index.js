@@ -304,3 +304,5 @@ fs.readdirSync(__dirname + '/schemas').forEach(function(filename) {
   schemas[filename.replace('.js', '')] = require('./schemas/' + filename);
 });
 module.exports.schemas = schemas;
+
+module.exports.mongoose = mongoose;
