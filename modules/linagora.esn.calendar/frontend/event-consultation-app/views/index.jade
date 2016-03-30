@@ -17,6 +17,8 @@ html
     script(src='/components/angular/angular.min.js')
     script(src='/components/angular-ui-router/release/angular-ui-router.min.js')
     script(src='/components/moment/min/moment.min.js')
+    script(src='/components/angular-strap/dist/angular-strap.min.js')
+    script(src='/components/angular-strap/dist/angular-strap.tpl.min.js')
     script(src='/components/angular-moment/angular-moment.min.js')
     script(src='/components/fullcalendar/dist/fullcalendar.min.js')
     script(src='/components/angular-uuid4/angular-uuid4.min.js')
@@ -28,6 +30,7 @@ html
     script(src='/components/ical.js/build/ical.js')
     script(src='js/modules/core.js')
     script(src='js/modules/lodash-wrapper.js')
+    script(src='js/modules/application-menu.js')
     script(src='calendar/event-consultation-app/js/app.js')
     script(src='calendar/event-consultation-app/js/directives.js')
     script(src='calendar/js/event-consult-form/directives.js')
@@ -39,6 +42,7 @@ html
     script(src='calendar/js/calendarshell.js')
     script(src='calendar/js/ical.js')
     script(src='calendar/js/fcmoment.js')
+    script(src='calendar/js/calendar/directives.js')
     script.
       angular.module('esn.calendar.event-consultation').controller('eventController', function($scope) {
          $scope.eventJSON = "#{eventJSON}";
@@ -48,5 +52,14 @@ html
          $scope.noLink = "#{links.no}";
       });
   body(ng-app='esn.calendar.event-consultation')
+    header#header
+      div.header-inner.flex-vertical-centered.flex-space-between
+        ul.list-inline.all-centered
+          li.logo
+            a(href='#')
+                img.openpaas-logo(src="/images/white-logo.svg")
+        ul.list-inline.all-centered
+          li.hover-scale-animation
+            application-menu-toggler
     .consultation-body(ng-view ng-cloak)
       event-consult-form-external-user
