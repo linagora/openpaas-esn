@@ -99,7 +99,7 @@
     "find-port": "1.0.0",
     "grunt": "~0.4.2",
     "grunt-config": "^0.4.0",
-    "grunt-continue": "0.0.1",
+    "grunt-continue": "0.1.0",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.4.0",
     "grunt-contrib-jshint": "~0.10.0",
