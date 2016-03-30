@@ -37,7 +37,8 @@ describe('The event-recurrence-edition component', function() {
     this.initDirective(this.$scope);
     expect(this.eleScope.event).to.deep.equal({
       rrule: {
-        freq: undefined
+        freq: undefined,
+        interval: null
       }
     });
   });
@@ -49,7 +50,8 @@ describe('The event-recurrence-edition component', function() {
     this.initDirective(this.$scope);
     expect(this.eleScope.event).to.deep.equal({
       rrule: {
-        freq: undefined
+        freq: undefined,
+        interval: null
       }
     });
     expect(this.eleScope.readOnly).to.be.true;
