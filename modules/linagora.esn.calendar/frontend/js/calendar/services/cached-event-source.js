@@ -1,22 +1,17 @@
 'use strict';
 
-angular.module('esn.calendar').factory('cachedEventSource', function($timeout, CALENDAR_GRACE_DELAY) {
+angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $q, CALENDAR_GRACE_DELAY, eventStore, calendarExploredPeriodService) {
   var changes = {};
   var DELETE = 'delete';
   var UPDATE = 'update';
   var ADD = 'add';
 
   function deleteRegistration(event) {
-    if (changes[event.id]) {
-      $timeout.cancel(changes[event.id].expirationPromise);
-      delete(changes[event.id]);
-    }
+    delete(changes[event.id]);
   }
 
   function saveChange(action, event, calendarId, createdSince) {
-    var undo = deleteRegistration.bind(null, event);
     changes[event.id] = {
-      expirationPromise: $timeout(undo, CALENDAR_GRACE_DELAY - (createdSince || 0), false),
       added: new Date(),
       event: event,
       calendarId: calendarId,
@@ -24,7 +19,7 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, C
       instances: []
     };
 
-    return undo;
+    return deleteRegistration.bind(null, event);
   }
 
   function expandRecurringChange(start, end) {
@@ -76,11 +71,32 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, C
     return events;
   }
 
+  function applySavedChange(start, end, calendarId, events) {
+    expandRecurringChange(start, end);
+    return addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events));
+  }
+
+  function fetchEventOnlyIfNeeded(start, end, timezone, calId, calendarSource) {
+    var defer = $q.defer();
+    var period = {start: start, end: end};
+
+    if (calendarExploredPeriodService.getUnexploredPeriodsInPeriod(calId, period).length === 0) {
+      defer.resolve(eventStore.getInPeriod(calId, period));
+    } else {
+      calendarSource(start, end, timezone, function(events) {
+        calendarExploredPeriodService.registerExploredPeriod(calId, period);
+        events.map(eventStore.save.bind(eventStore, calId));
+        defer.resolve(events);
+      });
+    }
+
+    return defer.promise;
+  }
+
   function wrapEventSource(calendarId, calendarSource) {
     return function(start, end, timezone, callback) {
-      calendarSource(start, end, timezone, function(events) {
-        expandRecurringChange(start, end);
-        callback(addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events)));
+      fetchEventOnlyIfNeeded(start, end, timezone, calendarId, calendarSource).then(function(events) {
+        callback(applySavedChange(start, end, calendarId, events));
       });
     };
   }
