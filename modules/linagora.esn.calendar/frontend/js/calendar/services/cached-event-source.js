@@ -114,15 +114,17 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     };
   }
 
-  function resetChange() {
+  function resetCache() {
     changes = {};
+    eventStore.reset();
+    calendarExploredPeriodService.reset();
   }
 
   return {
     registerAdd: saveChange.bind(null, ADD),
     registerDelete: saveChange.bind(null, DELETE),
     registerUpdate: saveChange.bind(null, UPDATE),
-    resetChange: resetChange,
+    resetCache: resetCache,
     deleteRegistration: deleteRegistration,
     wrapEventSource: wrapEventSource
   };
@@ -202,7 +204,11 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
   }
 
   function reset(calId) {
-    delete exploredCalsPeriods[calId];
+    if (calId) {
+      delete exploredCalsPeriods[calId];
+    } else {
+      exploredCalsPeriods = {};
+    }
   }
 
   function getUnexploredPeriodsInPeriod(calId, period) {
@@ -280,7 +286,11 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
   }
 
   function reset(calId) {
-    delete calStores[calId];
+    if (calId) {
+      delete calStores[calId];
+    } else {
+      calStores = {};
+    }
   }
 
   return {

@@ -32,7 +32,7 @@ describe('The calendar module controllers', function() {
       wrapEventSource: sinon.spy(function(id, eventSource) {
         return eventSource;
       }),
-      resetChange: angular.noop,
+      resetCache: sinon.spy(),
       registerUpdate: sinon.spy(),
       registerDelete: sinon.spy()
     };
@@ -211,12 +211,12 @@ describe('The calendar module controllers', function() {
       expect(handler).to.equal('aHandler');
     });
 
-    it('should cachedEventSource.resetChange $on(\'$destroy\')', function() {
+    it('should cachedEventSource.resetCache $on(\'$destroy\')', function() {
       this.gracePeriodService.flushAllTasks = angular.noop;
       this.cachedEventSourceMock.resetChange = sinon.spy();
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$destroy();
-      expect(this.cachedEventSourceMock.resetChange).to.have.been.called;
+      expect(this.cachedEventSourceMock.resetCache).to.have.been.called;
     });
 
     it('should be created and its scope initialized', function() {

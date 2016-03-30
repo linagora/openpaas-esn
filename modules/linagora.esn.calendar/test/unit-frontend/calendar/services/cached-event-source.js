@@ -384,10 +384,20 @@ describe('the calendarExploredPeriodService service', function() {
 
   describe('the reset function', function() {
 
-    it('should remove all registeredExploredPeriod', function() {
+    it('should remove all registeredExploredPeriod in the calendar of the given id', function() {
       this.calendarExploredPeriodService.registerExploredPeriod('calId', this.aPeriod);
+      this.calendarExploredPeriodService.registerExploredPeriod('calId2', this.aPeriod);
       this.calendarExploredPeriodService.reset('calId');
       expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId2', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([]);
+    });
+
+    it('should remove all egisteredExploredPeriod in all the calendar if no given id', function() {
+      this.calendarExploredPeriodService.registerExploredPeriod('calId', this.aPeriod);
+      this.calendarExploredPeriodService.registerExploredPeriod('calId2', this.aPeriod);
+      this.calendarExploredPeriodService.reset();
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId2', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
     });
   });
 
@@ -483,10 +493,22 @@ describe('eventStore', function() {
   }));
 
   describe('reset function', function() {
-    it('should destroy previously saved event', function() {
-      this.eventStore.save('calId', createEvent('a', 2, 2));
+    it('should destroy previously saved event in given calId', function() {
+      var event = createEvent('a', 2, 2);
+      this.eventStore.save('calId', event);
+      this.eventStore.save('calId2', event);
       this.eventStore.reset('calId');
       expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);
+      expect(this.eventStore.getInPeriod('calId2', createPeriod(1, 30))).to.deep.equals([event]);
+    });
+
+    it('should destroy previously saved event in all calendar if not cal id given', function() {
+      var event = createEvent('a', 2, 2);
+      this.eventStore.save('calId', event);
+      this.eventStore.save('calId2', event);
+      this.eventStore.reset();
+      expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);
+      expect(this.eventStore.getInPeriod('calId2', createPeriod(1, 30))).to.deep.equals([]);
     });
   });
 

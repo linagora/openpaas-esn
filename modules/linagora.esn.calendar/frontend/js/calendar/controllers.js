@@ -234,7 +234,7 @@ angular.module('esn.calendar')
         unregisterFunction();
       });
       gracePeriodService.flushAllTasks();
-      cachedEventSource.resetChange();
+      cachedEventSource.resetCache();
       windowJQuery.off('resize', $scope.resizeCalendarHeight);
     });
 
