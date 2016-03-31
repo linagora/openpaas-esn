@@ -13,6 +13,15 @@ The related grunt tasks are all starting with the 'docker-' prefix:
 
 ## End to end tests
 
+Before you can start running any E2E tests, run bellow command to pull
+required Docker images:
+
+```bash
+grunt test-e2e-prepare
+```
+
+Then you can perform a full E2E test with:
+
 ```bash
 grunt test-e2e
 ```
