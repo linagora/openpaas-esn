@@ -460,6 +460,10 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
           if (!room || !nbEventSubscribed) { return; }
           client.emit('subscribe', room);
           $log.debug(namespace + ' : subscribed to room', room);
+        },
+        send: function(type, message) {
+          client.emit(type, message);
+          $log.debug('Send message %s to NS %s', type, namespace);
         }
       };
     };
