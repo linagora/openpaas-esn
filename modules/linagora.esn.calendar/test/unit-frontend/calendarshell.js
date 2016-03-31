@@ -777,6 +777,22 @@ describe('CalendarShell factory', function() {
       eventA.recurrendId.foo = 'bar';
       expect(eventA.equals(eventB)).to.be.true;
     });
+
+    it('should not fail if that.rrule is undefined', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00'),
+        rrule: 'isdefined'
+      });
+      var eventB = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+
+      expect(eventA.equals(eventB)).to.be.false;
+    });
   });
 
 });
