@@ -225,6 +225,52 @@ describe('The cachedEventSource service', function() {
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.slice(0, self.events.length - 1).concat(modifiedSubInstanceAfter));
       });
 
+      it('should replace previous modification by new modification on recurring event', function() {
+        var event1Before = {
+          id: 'subevent',
+          uid: 'parent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        var event2 = {
+          id: 'subevent 2',
+          uid: 'parent',
+          start: this.start.clone().add(1, 'hour'),
+          end: this.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        var event1After = _.clone(event1Before);
+        event1After.title = 'after';
+
+        this.modifiedEvent.id = 'parent';
+        this.modifiedEvent.expand = sinon.stub().returns([event1Before, event2]);
+        this.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        this.events = [];
+
+        var wrapedEventSource = this.cachedEventSource.wrapEventSource(this.calId, this.eventSource);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        wrapedEventSource(this.start, this.end, this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+
+        expect(this.modifiedEvent.isRecurring).to.have.been.called;
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
+        expect(this.originalCallback).to.have.been.calledWithExactly([event1Before, event2]);
+
+        this.modifiedEvent.expand = sinon.stub().returns([event1After]);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        wrapedEventSource(this.start, this.end, this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+
+        expect(this.modifiedEvent.isRecurring).to.have.been.called;
+        expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
+        expect(this.originalCallback).to.have.been.calledWithExactly([event1After]);
+      });
+
       it('should take a recurring event and make wrapped event sources add this one if it does not exist', function() {
         var correctSubEvent = {
           id: 'subevent',

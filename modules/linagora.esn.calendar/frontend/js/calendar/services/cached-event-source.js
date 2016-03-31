@@ -7,10 +7,17 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
   var ADD = 'add';
 
   function deleteRegistration(event) {
-    delete(changes[event.id]);
+    if (changes[event.id]) {
+      (changes[event.id].instances || []).forEach(function(subEvent) {
+        deleteRegistration(subEvent);
+      });
+      delete(changes[event.id]);
+    }
   }
 
-  function saveChange(action, event, calendarId, createdSince) {
+  function saveChange(action, event, calendarId) {
+    deleteRegistration(event);
+
     changes[event.id] = {
       added: new Date(),
       event: event,
