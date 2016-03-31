@@ -26,7 +26,7 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     angular.forEach(changes, function(change) {
       if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end))) {
         change.event.expand(start.clone().subtract(1, 'day'), end.clone().add(1, 'day')).forEach(function(subEvent) {
-          saveChange(change.action, subEvent, change.calendarId, ((new Date()).getTime() - change.added.getTime()));
+          saveChange(change.action, subEvent, change.calendarId);
           change.instances.push(subEvent);
         });
         change.expandedUntil = end;
