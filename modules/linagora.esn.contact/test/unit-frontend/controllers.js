@@ -997,6 +997,18 @@ describe('The Contacts controller module', function() {
       this.initController();
     });
 
+    it('should redirect to contact list page if it can not get contact detail', function(done) {
+      ContactLocationHelper.home = done;
+      createVcardMock(function() {
+        return { get: function() {
+          return $q.reject();
+        }};
+      });
+      this.initController();
+      $rootScope.$digest();
+      $timeout.flush();
+    });
+
     it('should not redirect to detail page if addressbook is editable', function(done) {
       scope.close = function() {
         done(new Error());
