@@ -199,19 +199,19 @@ angular.module('esn.calendar')
 
     function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-      cachedEventSource.registerUpdate(event, event.calendarId);
+      cachedEventSource.registerUpdate(event);
       calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
     }
 
     function liveNotificationHandlerOnReply(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-      cachedEventSource.registerUpdate(event, event.calendarId);
+      cachedEventSource.registerUpdate(event);
       calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
     }
 
     function liveNotificationHandlerOnDeleteAndCancel(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-      cachedEventSource.registerDelete(event, event.calendarId);
+      cachedEventSource.registerDelete(event);
       calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
     }
 

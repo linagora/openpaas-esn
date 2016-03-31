@@ -14,7 +14,7 @@ describe('The cachedEventSource service', function() {
     self = this;
 
     this.originalCallback = sinon.spy();
-    this.calId = 'a/cal/id';
+    this.calendarId = 'a/cal/id';
 
     this.eventSource = function(start, end, timezone, callback) {
       callback(self.events);
@@ -33,7 +33,6 @@ describe('The cachedEventSource service', function() {
         return self.$timeout;
       });
     });
-
   });
 
   beforeEach(angular.mock.inject(function($rootScope, cachedEventSource, fcMoment) {
@@ -41,6 +40,7 @@ describe('The cachedEventSource service', function() {
     this.fcMoment = fcMoment;
     this.events = [{
       id: 1,
+      calendarId: this.calendarId,
       uid: 1,
       start: this.fcMoment.utc('1984-01-01 08:00'),
       end: this.fcMoment.utc('1984-01-01 09:00'),
@@ -49,6 +49,7 @@ describe('The cachedEventSource service', function() {
       title: 'should not be replaced'
     }, {
       id: 2,
+      calendarId: this.calendarId,
       uid: 2,
       start: this.fcMoment.utc('1984-01-02 08:00'),
       end: this.fcMoment.utc('1984-01-02 09:00'),
@@ -62,6 +63,7 @@ describe('The cachedEventSource service', function() {
     this.$rootScope = $rootScope;
     this.modifiedEvent = {
       id: 2,
+      calendarId: this.calendarId,
       title: 'has been replaced',
       start: this.fcMoment('1984-01-03'),
       isInstance: _.constant(false),
@@ -78,7 +80,7 @@ describe('The cachedEventSource service', function() {
         callback(self.events);
       });
 
-      this.cachedEventSource.wrapEventSource(this.calId, eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+      this.cachedEventSource.wrapEventSource(this.calendarId, eventSource)(this.start, this.end, this.timezone, this.originalCallback);
       this.$rootScope.$apply();
       expect(this.originalCallback).to.have.been.calledOnce;
       expect(this.originalCallback).to.have.been.calledWithExactly(this.events);
@@ -87,8 +89,9 @@ describe('The cachedEventSource service', function() {
 
     it('should ignore element added on other calendar', function() {
       this.modifiedEvent.id = 3;
-      this.cachedEventSource.registerAdd(this.modifiedEvent, 'anOtherCalendar');
-      this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+      this.modifiedEvent.calendarId = 'anOtherCalendar';
+      this.cachedEventSource.registerAdd(this.modifiedEvent);
+      this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
       this.$rootScope.$apply();
       expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
     });
@@ -99,7 +102,7 @@ describe('The cachedEventSource service', function() {
         callback(self.events);
       });
 
-      var wrappedEventSource = this.cachedEventSource.wrapEventSource(this.calId, eventSource);
+      var wrappedEventSource = this.cachedEventSource.wrapEventSource(this.calendarId, eventSource);
       this.originalCallback = sinon.spy(function(events) {
         expect(_.sortBy(events, 'id')).to.deep.equals(_.sortBy(self.events, 'id'));
       });
@@ -117,7 +120,7 @@ describe('The cachedEventSource service', function() {
       ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
         this.cachedEventSource[action](this.modifiedEvent);
         this.cachedEventSource.deleteRegistration(this.modifiedEvent);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       }, this);
@@ -130,7 +133,7 @@ describe('The cachedEventSource service', function() {
       ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
         var undo = this.cachedEventSource[action](this.modifiedEvent);
         undo();
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       }, this);
@@ -139,15 +142,15 @@ describe('The cachedEventSource service', function() {
     describe('registerUpdate function', function() {
       it('should take a event and make wrapped event sources replace event with same id from the original source by this one', function() {
         this.cachedEventSource.registerUpdate(this.modifiedEvent);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0], self.modifiedEvent]);
       });
 
       it('should take an event and make wrapped event sources add this one if it does not exist', function() {
         this.modifiedEvent.id = 3;
-        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(self.modifiedEvent));
       });
@@ -177,8 +180,8 @@ describe('The cachedEventSource service', function() {
         this.events.push(invariantSubEvent);
         this.events.push(deletedSubEvent);
 
-        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
 
         expect(this.modifiedEvent.isRecurring).to.have.been.called;
@@ -215,8 +218,8 @@ describe('The cachedEventSource service', function() {
         this.events.push(invariantSubEvent);
         this.events.push(modifiedSubInstanceBefore);
 
-        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
 
         expect(this.modifiedEvent.isRecurring).to.have.been.called;
@@ -228,6 +231,7 @@ describe('The cachedEventSource service', function() {
       it('should replace previous modification by new modification on recurring event', function() {
         var event1Before = {
           id: 'subevent',
+          calendarId: this.calendarId,
           uid: 'parent',
           start: this.start.clone().add(1, 'hour'),
           end: this.end.clone().subtract(1, 'hour'),
@@ -237,6 +241,7 @@ describe('The cachedEventSource service', function() {
 
         var event2 = {
           id: 'subevent 2',
+          calendarId: this.calendarId,
           uid: 'parent',
           start: this.start.clone().add(1, 'hour'),
           end: this.end.clone().subtract(1, 'hour'),
@@ -252,8 +257,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.isRecurring = sinon.stub().returns(true);
         this.events = [];
 
-        var wrapedEventSource = this.cachedEventSource.wrapEventSource(this.calId, this.eventSource);
-        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        var wrapedEventSource = this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
         wrapedEventSource(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
 
@@ -262,7 +267,7 @@ describe('The cachedEventSource service', function() {
         expect(this.originalCallback).to.have.been.calledWithExactly([event1Before, event2]);
 
         this.modifiedEvent.expand = sinon.stub().returns([event1After]);
-        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
         wrapedEventSource(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
 
@@ -274,6 +279,7 @@ describe('The cachedEventSource service', function() {
       it('should take a recurring event and make wrapped event sources add this one if it does not exist', function() {
         var correctSubEvent = {
           id: 'subevent',
+          calendarId: this.calendarId,
           start: this.start.clone().add(1, 'hour'),
           end: this.end.clone().subtract(1, 'hour'),
           isRecurring: _.constant(false)
@@ -281,6 +287,7 @@ describe('The cachedEventSource service', function() {
 
         var invalidSubEvent = {
           id: 'invalid subevent',
+          calendarId: this.calendarId,
           start: this.start.clone().subtract(2, 'days'),
           end: this.start.clone().subtract(1, 'hour'),
           isRecurring: _.constant(false)
@@ -290,8 +297,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.isRecurring = sinon.stub().returns(true);
         this.modifiedEvent.expand = sinon.stub().returns([correctSubEvent, invalidSubEvent]);
 
-        this.cachedEventSource.registerUpdate(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
 
         expect(this.modifiedEvent.isRecurring).to.have.been.called;
@@ -305,7 +312,7 @@ describe('The cachedEventSource service', function() {
     describe('registerDelete function', function() {
       it('should take a event and make wrapped event sources delete event with same id from the original source', function() {
         this.cachedEventSource.registerDelete(this.modifiedEvent);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, this.timezone, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly([self.events[0]]);
       });
@@ -315,8 +322,8 @@ describe('The cachedEventSource service', function() {
 
       it('should take a event and make wrapped event sources add this event if it is in the requested period and one the same calendar', function() {
         this.modifiedEvent.id = 3;
-        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
       });
@@ -325,8 +332,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1984-01-06 10:00');
         this.modifiedEvent.end = this.fcMoment('1984-01-07 01:00');
-        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
       });
@@ -335,8 +342,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1984-01-07 23:59');
         this.modifiedEvent.end = this.fcMoment('1984-01-08 00:45');
-        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(this.modifiedEvent));
       });
@@ -344,6 +351,7 @@ describe('The cachedEventSource service', function() {
       it('should take a recurring event and make wrapped event sources expand it and add his subevent in the requested period', function() {
         var correctSubEvent = {
           id: 'subevent',
+          calendarId: this.calendarId,
           start: this.start.clone().add(1, 'hour'),
           end: this.end.clone().subtract(1, 'hour'),
           isRecurring: _.constant(false)
@@ -351,6 +359,7 @@ describe('The cachedEventSource service', function() {
 
         var invalidSubEvent = {
           id: 'invalid subevent',
+          calendarId: this.calendarId,
           start: this.start.clone().subtract(2, 'days'),
           end: this.start.clone().subtract(1, 'hour'),
           isRecurring: _.constant(false)
@@ -359,8 +368,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.id = 'parent';
         this.modifiedEvent.isRecurring = sinon.stub().returns(true);
         this.modifiedEvent.expand = sinon.stub().returns([correctSubEvent, invalidSubEvent]);
-        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.modifiedEvent.isRecurring).to.have.been.called;
         expect(this.modifiedEvent.expand).to.have.been.calledWith(this.start.clone().subtract(1, 'day'), this.end.clone().add(1, 'day'));
@@ -369,8 +378,9 @@ describe('The cachedEventSource service', function() {
 
       it('should ignore a event if it is not on the same calendar even if it is in the requested period', function() {
         this.modifiedEvent.id = 3;
-        this.cachedEventSource.registerAdd(this.modifiedEvent, 'this_is_an_other_id');
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.modifiedEvent.calendarId =  'this_is_an_other_id';
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       });
@@ -379,8 +389,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1983-31-31 10:00');
         this.modifiedEvent.end = this.fcMoment('1983-31-31 23:00');
-        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       });
@@ -389,8 +399,8 @@ describe('The cachedEventSource service', function() {
         this.modifiedEvent.id = 3;
         this.modifiedEvent.start = this.fcMoment('1984-01-08 00:30');
         this.modifiedEvent.end = this.fcMoment('1984-01-08 00:45');
-        this.cachedEventSource.registerAdd(this.modifiedEvent, this.calId);
-        this.cachedEventSource.wrapEventSource(this.calId, this.eventSource)(this.start, this.end, null, this.originalCallback);
+        this.cachedEventSource.registerAdd(this.modifiedEvent);
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(this.start, this.end, null, this.originalCallback);
         this.$rootScope.$apply();
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events);
       });
@@ -431,19 +441,19 @@ describe('the calendarExploredPeriodService service', function() {
   describe('the reset function', function() {
 
     it('should remove all registeredExploredPeriod in the calendar of the given id', function() {
-      this.calendarExploredPeriodService.registerExploredPeriod('calId', this.aPeriod);
-      this.calendarExploredPeriodService.registerExploredPeriod('calId2', this.aPeriod);
-      this.calendarExploredPeriodService.reset('calId');
-      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
-      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId2', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([]);
+      this.calendarExploredPeriodService.registerExploredPeriod('calendarId', this.aPeriod);
+      this.calendarExploredPeriodService.registerExploredPeriod('calendarId2', this.aPeriod);
+      this.calendarExploredPeriodService.reset('calendarId');
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calendarId', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calendarId2', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([]);
     });
 
     it('should remove all egisteredExploredPeriod in all the calendar if no given id', function() {
-      this.calendarExploredPeriodService.registerExploredPeriod('calId', this.aPeriod);
-      this.calendarExploredPeriodService.registerExploredPeriod('calId2', this.aPeriod);
+      this.calendarExploredPeriodService.registerExploredPeriod('calendarId', this.aPeriod);
+      this.calendarExploredPeriodService.registerExploredPeriod('calendarId2', this.aPeriod);
       this.calendarExploredPeriodService.reset();
-      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
-      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId2', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calendarId', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
+      expect(this.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calendarId2', this.aPeriod).map(periodToComparablePeriod)).to.deep.equals([this.aPeriod].map(periodToComparablePeriod));
     });
   });
 
@@ -520,9 +530,10 @@ describe('eventStore', function() {
     };
   }
 
-  function createEvent(id, start, end) {
+  function createEvent(calId, id, start, end) {
     return {
       id: id,
+      calendarId: calId,
       start: self.fcMoment.utc([2000, 1, start, 0, 0]),
       end: self.fcMoment.utc([2000, 1, end, 0, 1])
     };
@@ -540,18 +551,20 @@ describe('eventStore', function() {
 
   describe('reset function', function() {
     it('should destroy previously saved event in given calId', function() {
-      var event = createEvent('a', 2, 2);
-      this.eventStore.save('calId', event);
-      this.eventStore.save('calId2', event);
+      var event = createEvent('calId', 'a', 2, 2);
+      this.eventStore.save(event);
+      event.calendarId = 'calId2';
+      this.eventStore.save(event);
       this.eventStore.reset('calId');
       expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);
       expect(this.eventStore.getInPeriod('calId2', createPeriod(1, 30))).to.deep.equals([event]);
     });
 
     it('should destroy previously saved event in all calendar if not cal id given', function() {
-      var event = createEvent('a', 2, 2);
-      this.eventStore.save('calId', event);
-      this.eventStore.save('calId2', event);
+      var event = createEvent('calId', 'a', 2, 2);
+      this.eventStore.save(event);
+      event.calendarId = 'calId2';
+      this.eventStore.save(event);
       this.eventStore.reset();
       expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);
       expect(this.eventStore.getInPeriod('calId2', createPeriod(1, 30))).to.deep.equals([]);
@@ -560,36 +573,36 @@ describe('eventStore', function() {
 
   describe('save function', function() {
     it('should properly save an event in his calendar', function() {
-      var event = createEvent('a', 2, 2);
-      var event2 = createEvent('b', 2, 2);
-      this.eventStore.save('calId', event);
-      this.eventStore.save('calId2', event2);
+      var event = createEvent('calId', 'a', 2, 2);
+      var event2 = createEvent('calId2', 'b', 2, 2);
+      this.eventStore.save(event);
+      this.eventStore.save(event2);
       expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([event]);
       expect(this.eventStore.getInPeriod('calId2', createPeriod(1, 30))).to.deep.equals([event2]);
     });
 
     it('should not save twice the same event', function() {
-      var event = createEvent('a', 2, 2);
-      var event2 = createEvent('b', 2, 2);
-      this.eventStore.save('calId', event);
-      this.eventStore.save('calId', createEvent('a', 2, 2));
+      var event = createEvent('calId', 'a', 2, 2);
+      var event2 = createEvent('calId', 'b', 2, 2);
+      this.eventStore.save(event);
+      this.eventStore.save(createEvent('calId', 'a', 2, 2));
       expect(this.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([event]);
 
-      this.eventStore.save('calId', event2);
-      this.eventStore.save('calId', createEvent('a', 2, 2));
+      this.eventStore.save(event2);
+      this.eventStore.save(createEvent('calId', 'a', 2, 2));
       expect(_.sortBy(this.eventStore.getInPeriod('calId', createPeriod(1, 30)), 'id')).to.deep.equals(_.sortBy([event, event2], 'id'));
     });
   });
 
   describe('getInPeriod function', function() {
     it('should obtain all event in period', function() {
-      var event1 = createEvent('1', 13, 15);
-      var event2 = createEvent('2', 15, 15);
-      var event3 = createEvent('3', 13, 18);
-      var event4 = createEvent('4', 14, 14);
+      var event1 = createEvent('calId', '1', 13, 15);
+      var event2 = createEvent('calId', '2', 15, 15);
+      var event3 = createEvent('calId', '3', 13, 18);
+      var event4 = createEvent('calId', '4', 14, 14);
 
-      [event1, event2, event3, event4, createEvent('5', 11, 13), createEvent('6', 18, 18), createEvent('7', 13, 13), createEvent('8', 1, 1)].map(function(event) {
-        self.eventStore.save('calId', event);
+      [event1, event2, event3, event4, createEvent('calId', '5', 11, 13), createEvent('calId', '6', 18, 18), createEvent('calId', '7', 13, 13), createEvent('calId', '8', 1, 1)].map(function(event) {
+        self.eventStore.save(event);
       });
       expect(_.sortBy(this.eventStore.getInPeriod('calId', createPeriod(14, 17)), 'id')).to.deep.equals([event1, event2, event3, event4].sort());
     });

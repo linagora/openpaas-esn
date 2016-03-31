@@ -693,7 +693,7 @@ describe('The calendar module controllers', function() {
           self.scope.$digest();
           expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
           expect(self.calendarEventEmitterMock.fullcalendar[expectedEmitMethod]).to.have.been.calledWith(resultingEvent);
-          expect(self.cachedEventSourceMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent, event.calendarId);
+          expect(self.cachedEventSourceMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
         };
       });
 

@@ -15,13 +15,12 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     }
   }
 
-  function saveChange(action, event, calendarId) {
+  function saveChange(action, event) {
     deleteRegistration(event);
 
     changes[event.id] = {
       added: new Date(),
       event: event,
-      calendarId: calendarId,
       action: action,
       instances: []
     };
@@ -33,7 +32,7 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     angular.forEach(changes, function(change) {
       if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end))) {
         change.event.expand(start.clone().subtract(1, 'day'), end.clone().add(1, 'day')).forEach(function(subEvent) {
-          saveChange(change.action, subEvent, change.calendarId);
+          saveChange(change.action, subEvent);
           change.instances.push(subEvent);
         });
         change.expandedUntil = end;
@@ -50,7 +49,7 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     }
 
     angular.forEach(customChanges || changes, function(change) {
-      if (change.action === ADD && change.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
+      if (change.action === ADD && change.event.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
         events.push(change.event);
       }
     });
@@ -61,8 +60,8 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
   function applyUpdatedAndDeleteEvent(events, start, end, calendarId) {
     var notAppliedChange = _.chain(changes).omit(function(change) {
       return change.action !== UPDATE;
-    }).mapValues(function(event) {
-      var result = _.clone(event);
+    }).mapValues(function(change) {
+      var result = _.clone(change);
       result.action = ADD;
       return result;
     }).value();
@@ -105,7 +104,7 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     } else {
       calendarSource(start, end, timezone, function(events) {
         calendarExploredPeriodService.registerExploredPeriod(calId, period);
-        events.map(eventStore.save.bind(eventStore, calId));
+        events.map(eventStore.save);
         defer.resolve(events);
       });
     }
@@ -243,8 +242,8 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
     return calStores[calId];
   }
 
-  function save(calId, event) {
-    var store = getCalStore(calId);
+  function save(event) {
+    var store = getCalStore(event.calendarId);
     var insertionIndex = _.sortedIndex(store.eventsSortedByStart, event, function(event) {
       return event.start.unix();
     });

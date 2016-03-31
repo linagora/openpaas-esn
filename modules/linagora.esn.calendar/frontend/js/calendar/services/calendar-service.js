@@ -225,7 +225,7 @@ angular.module('esn.calendar')
           } else {
             event.gracePeriodTaskId = taskId = response;
             event.isRecurring() && masterEventCache.save(event);
-            cachedEventSource.registerAdd(event, calendarId);
+            cachedEventSource.registerAdd(event);
             calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
