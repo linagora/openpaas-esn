@@ -4,7 +4,10 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
 
-var controlCenterModule = new AwesomeModule('linagora.esn.controlcenter', {
+var MODULE_NAME = 'controlcenter';
+var AWESOME_MODULE_NAME = 'linagora.esn.' + MODULE_NAME;
+
+var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper')
   ],
@@ -25,12 +28,15 @@ var controlCenterModule = new AwesomeModule('linagora.esn.controlcenter', {
       var webserverWrapper = dependencies('webserver-wrapper');
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
       var jsFiles = [
-        'app.js'
+        'app.js',
+        'directives.js',
+        'services.js',
+        'controllers.js'
       ];
 
-      webserverWrapper.injectAngularModules('controlcenter', jsFiles, ['linagora.esn.controlcenter'], ['esn']);
-      webserverWrapper.injectLess('controlcenter', [lessFile], 'esn');
-      webserverWrapper.addApp('controlcenter', app);
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, [AWESOME_MODULE_NAME], ['esn']);
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },

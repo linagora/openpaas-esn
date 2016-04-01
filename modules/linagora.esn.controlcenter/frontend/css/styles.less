@@ -1,0 +1,42 @@
+@menuItemFontSize: 1.6em;
+@menuHeadingFontSize: 1.8em;
+@menuIconSize: 1.6em;
+
+.controlcenter-sidebar {
+  margin-top: 20px;
+  max-width: 300px;
+
+  .listview .lv-item {
+    .flex-vertical-centered;
+
+    color: @secondaryTextColor;
+
+    &.menu-heading {
+      border-left: 5px solid @primaryColor;
+      color: @primaryColor;
+      font-size: @menuHeadingFontSize;
+      padding: 8px 0 8px 15px;
+    }
+
+    &.menu-item {
+      font-size: @menuItemFontSize;
+      padding: 8px 0 8px 20px;
+    }
+
+    .menu-title {
+      margin-left: 5px;
+      font-weight: bold;
+    }
+
+    .mdi {
+      font-size: @menuIconSize;
+    }
+
+    &.clickable {
+      &.selected {
+        background-color: @darkenBgColor;
+      }
+    }
+
+  }
+}

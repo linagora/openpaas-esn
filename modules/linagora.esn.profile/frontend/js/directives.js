@@ -8,4 +8,11 @@ angular.module('linagora.esn.profile')
       replace: true,
       template: applicationMenuTemplateBuilder('/#/profile', 'mdi-account', 'Profile')
     };
+  })
+
+  .directive('controlcenterMenuProfile', function(controlCenterMenuTemplateBuilder) {
+    return {
+      restrict: 'E',
+      template: controlCenterMenuTemplateBuilder('/#/profile', 'mdi-account', 'Profile')
+    };
   });

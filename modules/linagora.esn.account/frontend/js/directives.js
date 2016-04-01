@@ -8,6 +8,12 @@ angular.module('linagora.esn.account')
       template: applicationMenuTemplateBuilder('/#/accounts', 'mdi-database', 'Accounts')
     };
   })
+  .directive('controlcenterMenuAccount', function(controlCenterMenuTemplateBuilder) {
+    return {
+      restrict: 'E',
+      template: controlCenterMenuTemplateBuilder('/#/accounts', 'mdi-database', 'Accounts')
+    };
+  })
   .directive('fabAccountDropup', function() {
     return {
       restrict: 'E',

@@ -28,8 +28,11 @@ angular.module('linagora.esn.account', [
       }
     });
 
-    var account = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-account', {priority: -5});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', account);
+    var accountAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-account', {priority: -5});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', accountAppMenu);
+
+    var accountControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-account', {priority: -2});
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', accountControlCenterMenu);
   })
   .run(function(dynamicDirectiveService, accountMessageRegistry, FAB_ANCHOR_POINT, SUPPORTED_ACCOUNT_TYPES, socialHelper, _) {
     _.forIn(SUPPORTED_ACCOUNT_TYPES, function(item) {
