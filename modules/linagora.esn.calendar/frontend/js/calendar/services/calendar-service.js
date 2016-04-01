@@ -249,7 +249,7 @@ angular.module('esn.calendar')
      * @return {Boolean}                 true on success, false if cancelled
      */
     function removeEvent(eventPath, event, etag, removeAllInstance) {
-      if (!etag) {
+      if (!etag && !event.isInstance()) {
         // This is a noop and the event is not created yet in sabre/dav,
         // we then should only remove the event from fullcalendar
         // and cancel the taskid corresponding on the event.
@@ -329,6 +329,14 @@ angular.module('esn.calendar')
      * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
+      if (event.isInstance()) {
+        return event.getModifiedMaster().then(function(newMasterEvent) {
+          var oldMasterEvent = newMasterEvent.clone();
+          oldMasterEvent.modifyOccurrence(oldEvent);
+          return modifyEvent(path, newMasterEvent, oldMasterEvent, etag, onCancel, options);
+        });
+      }
+
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
@@ -342,35 +350,28 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var instance, master;
 
       function onTaskSuccess() {
         gracePeriodService.remove(taskId);
       }
 
+      function onTaskError() {
+        cachedEventSource.registerUpdate(oldEvent);
+        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+      }
+
       function onTaskCancel() {
         (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
-        cachedEventSource.deleteRegistration(master);
-        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+        onTaskError();
       }
 
-      function onTaskError() {
-        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
-      }
-
-      return event.getModifiedMaster()
-        .then(function(masterShell) {
-          instance = event;
-          master = masterShell;
-          return eventAPI.modify(path, master.vcalendar, etag);
-        })
+      return eventAPI.modify(path, event.vcalendar, etag)
         .then(function(id) {
           event.gracePeriodTaskId = taskId = id;
+          cachedEventSource.registerUpdate(event);
           event.isRecurring() && masterEventCache.save(event);
-          cachedEventSource.registerUpdate(master);
-          calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
+          calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
         })
         .then(function() {
           return _registerTaskListener(taskId, 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.', onTaskError);
