@@ -121,14 +121,14 @@ module.exports = function(grunt) {
     protractor_webdriver: {
       options: {
         command: './node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager start',
-        path: ''
+        path: '',
+        keepAlive: true
       },
       start: {}
     },
     protractor: {
       options: {
-        configFile: './test/config/protractor.conf.js',
-        keepAlive: false
+        configFile: './test/config/protractor.conf.js'
       },
       all: {}
     }

@@ -2,12 +2,15 @@
 
 //jscs:disable
 
-var testConfig = require('./servers-conf.js');
-var globalPhantomjsBin = require('fs').existsSync('/usr/local/bin/phantomjs') ? '/usr/local/bin/phantomjs' : undefined;
+var testConfig = require('./servers-conf.js'),
+    globalPhantomjsBin = require('fs').existsSync('/usr/local/bin/phantomjs') ? '/usr/local/bin/phantomjs' : undefined,
+    seleniumWebapp = 'http://localhost:4444';
+
 
 exports.config = {
   baseUrl: 'http://' + testConfig.host + ':8080',
-  seleniumAddress: 'http://localhost:4444/wd/hub',
+  seleniumWebapp: seleniumWebapp,
+  seleniumAddress: seleniumWebapp + '/wd/hub',
   framework: 'jasmine',
   capabilities: {
     'browserName': process.env.BROWSER || 'phantomjs',
