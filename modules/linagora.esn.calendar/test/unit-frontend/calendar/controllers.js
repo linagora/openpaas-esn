@@ -37,6 +37,11 @@ describe('The calendar module controllers', function() {
       registerDelete: sinon.spy()
     };
 
+    this.masterEventCacheMock = {
+      save: sinon.spy(),
+      remove: sinon.spy()
+    };
+
     this.CalendarShellConstMock = function(vcalendar, event) {
       this.etag = event.etag;
       this.path = event.path;
@@ -143,6 +148,7 @@ describe('The calendar module controllers', function() {
       $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       $provide.value('CalendarShell', self.CalendarShellMock);
+      $provide.value('masterEventCache', self.masterEventCacheMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -640,7 +646,7 @@ describe('The calendar module controllers', function() {
 
     describe('the ws event listener', function() {
 
-      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener, testUpdateCacheAndFcEmit;
+      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener, testUpdateCachedEventSourceAndFcEmit, testUpdateMasterEventCache;
 
       beforeEach(function() {
         liveNotification = function(namespace) {
@@ -681,7 +687,7 @@ describe('The calendar module controllers', function() {
           $scope: this.scope
         });
 
-        testUpdateCacheAndFcEmit = function(wsCallback, expectedCacheMethod, expectedEmitMethod) {
+        testUpdateCachedEventSourceAndFcEmit = function(wsCallback, expectedCacheMethod, expectedEmitMethod) {
           var event = {id: 'id', calendarId: 'calId'};
           var path = 'path';
           var etag = 'etag';
@@ -695,30 +701,69 @@ describe('The calendar module controllers', function() {
           expect(self.calendarEventEmitterMock.fullcalendar[expectedEmitMethod]).to.have.been.calledWith(resultingEvent);
           expect(self.cachedEventSourceMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
         };
+
+        testUpdateMasterEventCache = function(wsCallback, expectedCacheMethod) {
+          var event = {id: 'id', calendarId: 'calId'};
+          var path = 'path';
+          var etag = 'etag';
+          var resultingEvent = self.CalendarShellMock.from(event, {etag: etag, path: path});
+          fullCalendarSpy = self.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
+
+          self.scope.uiConfig.calendar.viewRender({});
+          wsCallback({event: event, eventPath: path, etag: etag});
+          self.scope.$digest();
+          expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+          expect(self.masterEventCacheMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
+        };
+
       });
 
-      it('should update event on cache and emit a fullCalendar event for a modification on EVENT_CREATED', function() {
-        testUpdateCacheAndFcEmit(wsEventCreateListener, 'registerUpdate', 'emitModifiedEvent');
+      it('should update event on cachedEventSource and emit a fullCalendar event for a modification on EVENT_CREATED', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventCreateListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should update event on cache and broadcast emit a fullCalendar event for a modification on EVENT_REQUEST', function() {
-        testUpdateCacheAndFcEmit(wsEventRequestListener, 'registerUpdate', 'emitModifiedEvent');
+      it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REQUEST', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventRequestListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should update event on cache and broadcast emit a fullCalendar event for a modification on EVENT_UPDATED', function() {
-        testUpdateCacheAndFcEmit(wsEventModifyListener, 'registerUpdate', 'emitModifiedEvent');
+      it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_UPDATED', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventModifyListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should update event on cache and broadcast emit a fullCalendar event for a modification on EVENT_REPLY', function() {
-        testUpdateCacheAndFcEmit(wsEventReplyListener, 'registerUpdate', 'emitModifiedEvent');
+      it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REPLY', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventReplyListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should remove event on cache and broadcast emit a fullCalendar event for a deletion on EVENT_DELETED', function() {
-        testUpdateCacheAndFcEmit(wsEventDeleteListener, 'registerDelete', 'emitRemovedEvent');
+      it('should remove event on cachedEventSource and broadcast emit a fullCalendar event for a deletion on EVENT_DELETED', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventDeleteListener, 'registerDelete', 'emitRemovedEvent');
       });
 
-      it('should remove event on cache and broadcast emit a fullClaendar event for a deletion on EVENT_CANCEL', function() {
-        testUpdateCacheAndFcEmit(wsEventCancelListener, 'registerDelete', 'emitRemovedEvent');
+      it('should remove event on cachedEventSource and broadcast emit a fullClaendar event for a deletion on EVENT_CANCEL', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventCancelListener, 'registerDelete', 'emitRemovedEvent');
+      });
+
+      it('should update event on masterEventCache or a modification on EVENT_CREATED', function() {
+        testUpdateMasterEventCache(wsEventCreateListener, 'save');
+      });
+
+      it('should update event on masterEventCache for a modification on EVENT_REQUEST', function() {
+        testUpdateMasterEventCache(wsEventRequestListener, 'save');
+      });
+
+      it('should update event on masterEventCache for a modification on EVENT_UPDATED', function() {
+        testUpdateMasterEventCache(wsEventModifyListener, 'save');
+      });
+
+      it('should update event on masterEventCache for a modification on EVENT_REPLY', function() {
+        testUpdateMasterEventCache(wsEventReplyListener, 'save');
+      });
+
+      it('should remove event on masterEventCache for a deletion on EVENT_DELETED', function() {
+        testUpdateMasterEventCache(wsEventDeleteListener, 'remove');
+      });
+
+      it('should remove event on masterEventCache for a deletion on EVENT_CANCEL', function() {
+        testUpdateMasterEventCache(wsEventCancelListener, 'remove');
       });
     });
   });

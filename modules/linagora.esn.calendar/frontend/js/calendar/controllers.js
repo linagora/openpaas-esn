@@ -13,6 +13,7 @@ angular.module('esn.calendar')
       $state,
       openEventForm,
       cachedEventSource,
+      masterEventCache,
       CalendarShell,
       uiCalendarConfig,
       calendarService,
@@ -200,36 +201,32 @@ angular.module('esn.calendar')
     function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
       cachedEventSource.registerUpdate(event);
+      masterEventCache.save(event);
       calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
     }
 
-    function liveNotificationHandlerOnReply(msg) {
-      var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-      cachedEventSource.registerUpdate(event);
-      calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
-    }
-
-    function liveNotificationHandlerOnDeleteAndCancel(msg) {
+    function liveNotificationHandlerOnDelete(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
       cachedEventSource.registerDelete(event);
+      masterEventCache.remove(event);
       calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
     }
 
     var sio = livenotification('/calendars');
     sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
     sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDelete);
     sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnReply);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnCreateRequestandUpdate);
 
     $scope.$on('$destroy', function() {
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnReply);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDelete);
       unregisterFunctions.forEach(function(unregisterFunction) {
         unregisterFunction();
       });
