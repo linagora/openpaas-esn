@@ -104,7 +104,8 @@ module.exports = function(grunt) {
       mongo: shell.newShell(command.mongo(false), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       mongo_replSet: shell.newShell(command.mongo(true), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       ldap: shell.newShell(command.ldap, /LDAP server up at/, 'Ldap server is started.'),
-      elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.')
+      elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.'),
+      webdriver_install: { command: './node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update' }
     },
     container: {
       options: {
@@ -279,7 +280,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down']);
   grunt.registerTask('test-e2e-quick', ['container:esn_full', 'test-e2e-wait-servers', 'container:esn_full:remove', 'continue:on', 'run_grunt:e2e']);
   grunt.registerTask('test-e2e-wait-servers', ['waitServer:esn', 'waitServer:mongo', 'waitServer:redis', 'waitServer:elasticsearch', 'waitServer:jmap', 'waitServer:cassandra']);
-  grunt.registerTask('test-e2e-prepare', ['container:esn_full:pull', 'container:esn_full_remover:pull']);
+  grunt.registerTask('test-e2e-prepare', ['shell:webdriver_install', 'container:esn_full:pull', 'container:esn_full_remover:pull']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_remover', 'container:esn_full_remover:remove']);
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
