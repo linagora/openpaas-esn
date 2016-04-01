@@ -22,8 +22,7 @@ describe('The contact client APIs', function() {
             callback(DAV_PREFIX);
           }
         }
-      },
-      pubsub: {}
+      }
     };
 
     mockery.registerMock('./listener', function() {});

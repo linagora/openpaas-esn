@@ -25,13 +25,14 @@ describe('The contact import backend module', function() {
 
   beforeEach(function() {
     pubsubMock = {
-      global: {
+      local: {
         topic: function() {
           return {
-            publish: function() {}
+            forward: function() {}
           };
         }
-      }
+      },
+      global: {}
     };
     jobQueueMock = {
       lib: {

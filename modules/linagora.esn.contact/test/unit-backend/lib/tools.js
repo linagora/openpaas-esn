@@ -42,10 +42,6 @@ describe('The contacts tools Module', function() {
     indexContact: function() {}
   };
   var deps = {
-    pubsub: {
-      global: {
-      }
-    },
     user: {
       list: function() {}
     },

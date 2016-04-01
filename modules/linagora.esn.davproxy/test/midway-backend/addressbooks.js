@@ -187,7 +187,7 @@ describe('The addressbooks dav proxy', function() {
     describe('The search contacts module', function() {
 
       describe('Single Properties search', function() {
-        var pubsub;
+        var localpubsub, globalpubsub;
         var contact;
 
         var search = function(term, expectedSize, done) {
@@ -195,7 +195,7 @@ describe('The addressbooks dav proxy', function() {
             done = expectedSize;
             expectedSize = 1;
           }
-          pubsub.topic('contacts:contact:add').publish(contact);
+          localpubsub.topic('contacts:contact:add').forward(globalpubsub, contact);
           var self = this;
           this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
             if (err) {
@@ -219,7 +219,8 @@ describe('The addressbooks dav proxy', function() {
         };
 
         beforeEach(function(done) {
-          pubsub = this.helpers.requireBackend('core/pubsub').local;
+          localpubsub = this.helpers.requireBackend('core/pubsub').local;
+          globalpubsub = this.helpers.requireBackend('core/pubsub').global;
           contact = {
             user: user,
             contactId: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9',

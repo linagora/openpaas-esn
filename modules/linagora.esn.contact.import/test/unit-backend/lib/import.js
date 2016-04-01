@@ -50,13 +50,14 @@ describe('The contact import module', function() {
       }
     };
     pubsubMock = {
-      global: {
+      local: {
         topic: function() {
           return {
-            publish: function() {}
+            forward: function() {}
           };
         }
-      }
+      },
+      global: {}
     };
     jobQueueMock = {
       lib: {
@@ -443,22 +444,23 @@ describe('The contact import module', function() {
           };
         }
       };
-      var publishSpy = sinon.spy();
-      pubsubMock.global.topic = function(topic) {
+      var forwardSpy = sinon.spy();
+      pubsubMock.local.topic = function(topic) {
         expect(topic).to.equal('contacts:contact:delete');
         return {
-          publish: publishSpy
+          forward: forwardSpy
         };
       };
       getModule().synchronizeAccountContacts(user, account).then(function() {
-        expect(publishSpy.callCount).to.equal(2);
-        expect(publishSpy).to.have.been.calledWith({
+
+        expect(forwardSpy.callCount).to.equal(2);
+        expect(forwardSpy).to.have.been.calledWith(pubsubMock.global, {
           mode: 'import',
           contactId: '1',
           bookId: user._id,
           bookName: addressbook.id
         });
-        expect(publishSpy).to.have.been.calledWith({
+        expect(forwardSpy).to.have.been.calledWith(pubsubMock.global, {
           mode: 'import',
           contactId: '3',
           bookId: user._id,
@@ -644,14 +646,14 @@ describe('The contact import module', function() {
       });
     });
 
-    it('should publish correct object when contact client resolve', function(done) {
+    it('should forward correct object when contact client resolve', function(done) {
       contactClientMock.create = function() {
         return q.resolve({});
       };
-      deps.pubsub.global.topic = function(topic) {
+      deps.pubsub.local.topic = function(topic) {
         expect(topic).to.equal('contacts:contact:add');
         return {
-          publish: function(data) {
+          forward: function(pubsub, data) {
             expect(data).to.deep.eql({
               mode: 'import',
               contactId: vcarJson.uid,

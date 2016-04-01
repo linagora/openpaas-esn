@@ -7,10 +7,6 @@ var sinon = require('sinon');
 describe('The contacts search Module', function() {
 
   var deps = {
-    pubsub: {
-      global: {
-      }
-    },
     elasticsearch: {},
     logger: {
       error: function() {},
