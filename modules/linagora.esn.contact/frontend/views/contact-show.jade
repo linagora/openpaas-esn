@@ -20,7 +20,7 @@ sub-header
     .card-body.contact-body
       .contact-error-container
       contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday')
-      div.alert.alert-warning.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
+      div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
         strong #{__("This contact can not be edited")}
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
@@ -109,5 +109,5 @@ sub-header
           .contact-item-data(ng-if='contact.notes')
             p {{contact.notes}}
             p.type #{__('Comments')}
-    div.alert.alert-warning.text-center(ng-if= '!displayShell.isWritable()')
+    div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= '!displayShell.isWritable()')
       strong #{__("This contact can not be edited")}
