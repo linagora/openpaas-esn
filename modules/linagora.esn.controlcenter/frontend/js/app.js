@@ -3,11 +3,12 @@
 angular.module('linagora.esn.controlcenter', [
   'op.dynamicDirective',
   'esn.router',
-  'esn.user',
-  'esn.lodash-wrapper'
+  'esn.user'
 ])
 
-.config(function($stateProvider, dynamicDirectiveServiceProvider) {
+.config(function($stateProvider, $urlRouterProvider, dynamicDirectiveServiceProvider) {
+  $urlRouterProvider.when('/controlcenter', '/controlcenter/profile');
+
   $stateProvider
     .state('controlcenter', {
       url: '/controlcenter',

@@ -81,7 +81,7 @@ angular.module('esnApp', [
   });
 
   $stateProvider
-  .state('/domains/:id/members/invite', {
+  .state('controlcenter.domainInviteMembers', {
     url: '/domains/:id/members/invite',
     templateUrl: '/views/esn/partials/domains/invite',
     controller: 'inviteMembers',
@@ -110,12 +110,12 @@ angular.module('esnApp', [
     }
   })
 
-  .state('/domains/:domain_id/members', {
+  .state('controlcenter.domainMembers', {
     url: '/domains/:domain_id/members',
     templateUrl: '/views/esn/partials/members',
     controller: 'memberscontroller'
   })
-  .state('/applications', {
+  .state('controlcenter.applications', {
     url: '/applications',
     templateUrl: '/views/modules/application/applications',
     controller: 'applicationController',

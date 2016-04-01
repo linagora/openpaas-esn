@@ -12,7 +12,7 @@ angular.module('esn.appstore', [
   'op.dynamicDirective'
 ]).config(function($stateProvider, dynamicDirectiveServiceProvider) {
 
-  $stateProvider.state('/appstore', {
+  $stateProvider.state('controlcenter.appstore', {
     url: '/appstore',
     templateUrl: '/appstore/views/appstore/appstore',
     controller: 'appstoreController'

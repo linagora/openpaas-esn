@@ -28,7 +28,7 @@ angular.module('esn.appstore')
   .directive('controlcenterMenuAppstore', function(controlCenterMenuTemplateBuilder) {
     return {
       retrict: 'E',
-      template: controlCenterMenuTemplateBuilder('/#/appstore', 'mdi-package-variant', 'Modules')
+      template: controlCenterMenuTemplateBuilder('controlcenter.appstore', 'mdi-package-variant', 'Modules')
     };
   })
   .directive('appstoreButtonSubmit', function($modal) {

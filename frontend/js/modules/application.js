@@ -73,7 +73,7 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
   .directive('controlcenterMenuApplication', function(controlCenterMenuTemplateBuilder) {
     return {
       retrict: 'E',
-      template: controlCenterMenuTemplateBuilder('/#/applications', 'mdi-apps', 'Applications')
+      template: controlCenterMenuTemplateBuilder('controlcenter.applications', 'mdi-apps', 'Applications')
     };
   })
   .factory('applicationAPI', function(esnRestangular) {

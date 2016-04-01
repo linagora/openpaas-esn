@@ -104,7 +104,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
   .directive('controlcenterMenuMember', function(session, controlCenterMenuTemplateBuilder) {
     return {
       restrict: 'E',
-      template: controlCenterMenuTemplateBuilder('/#/domains/{{::domain._id}}/members', 'mdi-account-multiple-outline', 'Members'),
+      template: controlCenterMenuTemplateBuilder('controlcenter.domainMembers({ domain_id: domain._id })', 'mdi-account-multiple-outline', 'Members'),
       link: function(scope) {
         scope.domain = session.domain;
       }

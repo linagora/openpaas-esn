@@ -2,12 +2,23 @@
 
 angular.module('linagora.esn.controlcenter')
 
-.service('controlCenterMenuTemplateBuilder', function(_) {
-  var template = '<controlcenter-sidebar-menu-item icon="<%- icon %>" href="<%- href %>" label="<%- label %>" />';
+.service('controlCenterMenuTemplateBuilder', function($interpolate) {
+  var templateHref = '<controlcenter-sidebar-menu-item icon="{{icon}}" href="{{href}}" label="{{label}}" />';
+  var templateSref = '<controlcenter-sidebar-menu-item icon="{{icon}}" label="{{label}}" ui-sref="{{uiSref}}" ui-sref-active="selected" />';
 
   return function(href, icon, label) {
-    return _.template(template)({
+    var template, uiSref;
+
+    if (/^controlcenter\./.test(href)) {
+      template = templateSref;
+      uiSref = href;
+    } else {
+      template = templateHref;
+    }
+
+    return $interpolate(template)({
       href: href,
+      uiSref: uiSref,
       icon: icon,
       label: label
     });
