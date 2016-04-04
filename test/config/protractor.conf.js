@@ -11,17 +11,22 @@ exports.config = {
   baseUrl: 'http://' + testConfig.host + ':8080',
   seleniumWebapp: seleniumWebapp,
   seleniumAddress: seleniumWebapp + '/wd/hub',
-  framework: 'jasmine',
+  framework: 'cucumber',
   capabilities: {
     'browserName': process.env.BROWSER || 'phantomjs',
     'phantomjs.binary.path': process.env.PHANTOMJS_BIN || globalPhantomjsBin || './node_modules/karma-phantomjs-launcher/node_modules/phantomjs/bin/phantomjs',
     'phantomjs.ghostdriver.cli.args': ''
   },
   suites: {
-    'modules': '../../modules/**/test/e2e/**/*.js',
-    'core': '../e2e/**/*.js'
+    'modules': '../../modules/**/test/e2e/**/*.feature',
+    'core': '../e2e/**/*.feature'
   },
-  mochaOpts: {
-    timeout: 10000
+  cucumberOpts: {
+    require: [
+      './cucumber.conf.js',
+      '../../modules/**/test/e2e/**/*.js',
+      '../e2e/**/*.js'
+    ],
+    format: 'pretty'
   }
 };
