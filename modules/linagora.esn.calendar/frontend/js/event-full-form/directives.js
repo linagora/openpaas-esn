@@ -5,6 +5,7 @@ angular.module('esn.calendar')
   .directive('eventFullForm', function($timeout, $state, eventUtils) {
     function link(scope, element, attrs) {
       element.on('$destroy', eventUtils.resetStoredEvents);
+      element.find('.input.title').focus();
     }
 
     return {
