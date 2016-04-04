@@ -33,12 +33,30 @@
     }
 
   }
+
+  controlcenter-sidebar-menu-item {
+    display: block;
+
+    &.selected {
+      background-color: @darkenBgColor;
+    }
+  }
 }
 
-controlcenter-sidebar-menu-item {
-  display: block;
+.controlcenter-subheader {
+  .flex-vertical-centered;
 
-  &.selected {
-    background-color: @darkenBgColor;
+  padding: 0 5px;
+}
+
+@media(max-width: @screen-md-min) {
+  .controlcenter-sidebar {
+    font-size: 0.9em;
+    margin-top: 0;
+
+    .listview .lv-item.menu-heading {
+      border-left: none;
+      padding-left: 20px;
+    }
   }
 }
