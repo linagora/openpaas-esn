@@ -309,4 +309,21 @@ GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
   };
 };
 
+GruntfileUtils.prototype.stopSeleniumServer = function() {
+  var grunt = this.grunt;
+
+  return function() {
+    var done = this.async(),
+        config = require('../../test/config/protractor.conf.js').config;
+
+    grunt.log.write('Forcing shutdown of the selenium server...');
+    request
+      .post(config.seleniumWebapp + '/selenium-server/driver?cmd=shutDownSeleniumServer')
+      .end(function() {
+        grunt.log.writeln('done!');
+        done(true);
+      });
+  };
+};
+
 module.exports = GruntfileUtils;
