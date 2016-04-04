@@ -910,10 +910,107 @@ describe('CalendarShell factory', function() {
       }
     });
   });
+
+  describe('getOrganizerPartStat', function() {
+    it('should return null if shell has no organizer', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+      shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.getOrganizerPartStat()).to.not.exist;
+    });
+
+    it('should return the organizer partstat if it exists', function() {
+      var data = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+      var shell = CalendarShell.fromIncompleteShell(data);
+      shell.organizer = {
+        email: 'user1@demo.open-paas.org',
+        displayName: 'user1'
+      };
+      shell.attendees = [{
+        displayName: 'user1',
+        email: 'user1@demo.open-paas.org',
+        fullmail: 'user1 <user1@demo.open-paas.org>',
+        name: 'user1',
+        partstat: 'ACCEPTED'
+      }, {
+        displayName: 'user2',
+        email: 'user2@demo.open-paas.org',
+        fullmail: 'user2 <user2@demo.open-paas.org>',
+        name: 'user2',
+        partstat: 'DECLINED'
+      }];
+      expect(shell.getOrganizerPartStat()).to.equal('ACCEPTED');
+    });
+  });
+
+  describe('setOrganizerPartStat', function() {
+    it('should do nothing if the shell has no organizer', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+      shell = CalendarShell.fromIncompleteShell(shell);
+      shell.setOrganizerPartStat('ACCEPTED');
+      expect(shell.attendees).to.deep.equal([]);
+    });
+
+    it('should add an attendee with specified partstat for organizer if there was none', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+      shell = CalendarShell.fromIncompleteShell(shell);
+      shell.organizer = {
+        email: 'user1@demo.open-paas.org',
+        displayName: 'user1'
+      };
+      shell.setOrganizerPartStat('ACCEPTED');
+      expect(shell.attendees).to.deep.equal([{
+        fullmail: 'user1@demo.open-paas.org',
+        email: 'user1@demo.open-paas.org',
+        name: 'user1@demo.open-paas.org',
+        partstat: 'ACCEPTED',
+        displayName: 'user1@demo.open-paas.org'
+      }]);
+    });
+
+    it('should replace the attendee for organizer with a new one with specified partstat', function() {
+      var shell = {
+        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+      shell = CalendarShell.fromIncompleteShell(shell);
+      shell.organizer = {
+        email: 'user1@demo.open-paas.org',
+        displayName: 'user1'
+      };
+      shell.attendees = [{
+        fullmail: 'user1@demo.open-paas.org',
+        email: 'user1@demo.open-paas.org',
+        name: 'user1@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION',
+        displayName: 'user1@demo.open-paas.org'
+      }];
+      shell.setOrganizerPartStat('DECLINED');
+      expect(shell.attendees).to.deep.equal([{
+        fullmail: 'user1@demo.open-paas.org',
+        email: 'user1@demo.open-paas.org',
+        name: 'user1@demo.open-paas.org',
+        partstat: 'DECLINED',
+        displayName: 'user1@demo.open-paas.org'
+      }]);
+    });
+  });
+
 });
 
 describe('RRuleShell Factory', function() {
-  var RRuleShell, ICAL, CalendarShell, RECUR_FREQ;
+  var RRuleShell, ICAL, RECUR_FREQ;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');

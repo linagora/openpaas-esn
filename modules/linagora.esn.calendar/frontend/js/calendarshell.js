@@ -269,11 +269,12 @@ angular.module('esn.calendar')
         this.vevent.removeAllProperties('attendee');
         values.forEach(function(attendee) {
           var mail = attendee.email || attendee.emails[0];
+          var isOrganizer = this.organizer && (mail === this.organizer.email);
           var mailto = calendarUtils.prependMailto(mail);
           var property = this.vevent.addPropertyWithValue('attendee', mailto);
-          property.setParameter('partstat', attendee.partstat || ICAL_PROPERTIES.partstat.needsaction);
-          property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
-          property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
+          property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
+          property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
+          property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
           if (attendee.displayName && attendee.displayName !== mail) {
             property.setParameter('cn', attendee.displayName);
           }
@@ -349,6 +350,51 @@ angular.module('esn.calendar')
           }
         });
         return needsModify;
+      },
+
+      /**
+       * Change the partstat of the organizer to a specific status.
+       * @param  {String} status a partstat
+       */
+      setOrganizerPartStat: function(status) {
+        if (!this.organizer) {
+          return;
+        }
+        this.__organizerPartStat = undefined;
+        var organizerMailto = calendarUtils.prependMailto(this.organizer.email);
+        var organizerAsAttendee = this.vevent.getAllProperties('attendee').filter(function(attendee) {
+          return attendee.getFirstValue() === organizerMailto;
+        });
+        if (organizerAsAttendee[0]) {
+          this.vevent.removeProperty(organizerAsAttendee[0]);
+        }
+        var property = this.vevent.addPropertyWithValue('attendee', calendarUtils.prependMailto(this.organizer.email));
+        property.setParameter('partstat', status || ICAL_PROPERTIES.partstat.accepted);
+        property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.false);
+        property.setParameter('role', ICAL_PROPERTIES.role.chair);
+        this.__attendees = null;
+      },
+
+      /**
+       * Get the partstat of the organizer.
+       * @return {String} a partstat
+       */
+      getOrganizerPartStat: function() {
+        if (this.__organizerPartStat) {
+          return this.__organizerPartStat;
+        }
+        if (!this.organizer) {
+          return null;
+        }
+        var organizerMailto = calendarUtils.prependMailto(this.organizer.email);
+        var organizerAsAttendee = this.vevent.getAllProperties('attendee').filter(function(attendee) {
+          return attendee.getFirstValue() === organizerMailto;
+        });
+        if (organizerAsAttendee[0]) {
+          this.__organizerPartStat = organizerAsAttendee[0].getParameter('partstat');
+          return this.__organizerPartStat;
+        }
+        return null;
       },
 
       /**
