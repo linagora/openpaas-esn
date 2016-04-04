@@ -11,7 +11,7 @@ module.exports = function(router, dependencies) {
   router.get('/twitter/connect',
     authorizationMW.requiresAPILogin,
     passport.authorize('twitter-authz', {
-      failureRedirect: '/#/accounts?status=error&provider=twitter&context=connect&action=redirect',
+      failureRedirect: '/#/controlcenter/accounts?status=error&provider=twitter&context=connect&action=redirect',
       callbackURL: '/oauth/twitter/connect/callback'
     })
   );
