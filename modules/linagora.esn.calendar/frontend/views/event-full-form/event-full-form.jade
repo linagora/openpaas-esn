@@ -57,7 +57,7 @@
                 attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.visible-xs
-                attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer', mode='edition')
+                attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
 
@@ -88,7 +88,7 @@
                 attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.hidden-xs
-                attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer', mode='edition')
+                attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row
                 .col-xs-12

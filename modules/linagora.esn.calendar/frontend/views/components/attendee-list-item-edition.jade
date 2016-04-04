@@ -1,8 +1,10 @@
 .attendee-list-item.col-xs-1
   a.attendee-avatar(href="", ng-attr-title='{{::attendee.name}}')
       img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{attendee.email|urlencode}}')
-      .checkbox(ng-if='!readOnly')
+      .checkbox(ng-if='!readOnly && !isOrganizer')
         label
           input.force-position-initial(type="checkbox", ng-if="!attendee.clicked")
           input.force-position-initial(type="checkbox", ng-if="attendee.clicked", checked)
           i.input-helper
+      .organizer(ng-if='isOrganizer')
+        i.mdi.mdi-pencil

@@ -42,7 +42,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         .col-xs-12
           hr
         attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
-        attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', mode='edition')
+        attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
         .col-xs-12.hidden-xs
           hr
       .modal-footer

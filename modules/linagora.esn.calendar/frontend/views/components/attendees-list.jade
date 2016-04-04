@@ -3,16 +3,16 @@
     div(ng-if='attendeesPerPartstat.ACCEPTED > 0')
       .fg-line.accepted #{__('Accepted')}
       .fg-line.pl-body(ng-if='attendeesPerPartstat.ACCEPTED > 0')
-        attendee-list-item(attendee='attendee', read-only='::readOnly', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'ACCEPTED' track by attendee.email")
+        attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'ACCEPTED' track by attendee.email")
     div(ng-if='attendeesPerPartstat.DECLINED > 0')
       .fg-line.declined #{__('Declined')}
       .fg-line.pl-body(ng-if='attendeesPerPartstat.DECLINED > 0')
-        attendee-list-item(attendee='attendee', read-only='::readOnly', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'DECLINED' track by attendee.email")
+        attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'DECLINED' track by attendee.email")
     .undecided-category(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
       .fg-line.undecided #{__('Undecided')}
       .fg-line.pl-body(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
-        attendee-list-item(attendee='attendee', read-only='::readOnly', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'NEEDS-ACTION' track by attendee.email")
-        attendee-list-item(attendee='attendee', read-only='::readOnly', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'TENTATIVE' track by attendee.email")
+        attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'NEEDS-ACTION' track by attendee.email")
+        attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'TENTATIVE' track by attendee.email")
     .trash
       a(href="")
         i.mdi.mdi-delete(ng-show='!readOnly && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')

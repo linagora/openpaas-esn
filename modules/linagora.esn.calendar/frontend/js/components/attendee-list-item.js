@@ -10,6 +10,7 @@ angular.module('esn.calendar')
       scope: {
         attendee: '=',
         readOnly: '=',
+        isOrganizer: '=',
         mode: '='
       }
     };
@@ -22,7 +23,8 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/components/attendee-list-item-edition.html',
       scope: {
         attendee: '=',
-        readOnly: '='
+        readOnly: '=',
+        isOrganizer: '='
       }
     };
   })
@@ -33,7 +35,8 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/components/attendee-list-item-consult.html',
       scope: {
-        attendee: '='
+        attendee: '=',
+        isOrganizer: '='
       }
     };
   });
