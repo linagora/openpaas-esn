@@ -60,22 +60,6 @@ angular.module('esn.calendar')
 
       this.timezones = _.chain(this.vcalendar.getAllSubcomponents('vtimezone')).map(ICAL.Timezone.fromData).indexBy('tzid').value();
 
-      if (this.isRecurring()) {
-        this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
-          if (vevent.getFirstPropertyValue('recurrence-id')) {
-            var event = new ICAL.Event(vevent);
-            if (event.startDate) {
-              event.startDate.zone = this.timezones[event.startDate.timezone] || event.startDate.zone;
-              //trying to acesss endDate if startDate is not define crash ICAL.js
-              if (event.endDate) {
-                event.endDate.zone = this.timezones[event.endDate.timezone] || event.endDate.zone;
-              }
-            }
-            this.icalEvent.relateException(event);
-          }
-        }, this);
-      }
-
       if (this.icalEvent.startDate) {
         this.icalEvent.startDate.zone = this.timezones[this.icalEvent.startDate.timezone] || this.icalEvent.startDate.zone;
         //trying to acesss endDate if startDate is not define crash ICAL.js
@@ -113,7 +97,7 @@ angular.module('esn.calendar')
 
       get start() {
         if (!this.__start) {
-          this.__start = fcMoment(this.vevent.getFirstPropertyValue('dtstart'));
+          this.__start = fcMoment(this.icalEvent.startDate.toJSDate());
         }
         return this.__start;
       },
@@ -128,7 +112,7 @@ angular.module('esn.calendar')
 
       get end() {
         if (!this.__end) {
-          this.__end = fcMoment(this.vevent.getFirstPropertyValue('dtend'));
+          this.__end = fcMoment(this.icalEvent.endDate.toJSDate());
         }
         return this.__end;
       },
@@ -183,6 +167,20 @@ angular.module('esn.calendar')
         if (!endDate && !maxElement && !this.rrule.count && !this.rrule.until) {
           throw new Error('Could not list all element of a reccuring event that never end');
         }
+
+        this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
+          if (vevent.getFirstPropertyValue('recurrence-id')) {
+            var event = new ICAL.Event(vevent);
+            if (event.startDate) {
+              event.startDate.zone = this.timezones[event.startDate.timezone] || event.startDate.zone;
+              //trying to acesss endDate if startDate is not define crash ICAL.js
+              if (event.endDate) {
+                event.endDate.zone = this.timezones[event.endDate.timezone] || event.endDate.zone;
+              }
+            }
+            this.icalEvent.relateException(event);
+          }
+        }, this);
 
         var iterator = this.icalEvent.iterator(this.icalEvent.startDate);
         var currentDatetime, currentEvent, currentDetails, result = [];

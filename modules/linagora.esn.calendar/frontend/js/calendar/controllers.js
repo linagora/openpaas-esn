@@ -12,10 +12,12 @@ angular.module('esn.calendar')
       $alert,
       $state,
       openEventForm,
-      keepChangeDuringGraceperiod,
+      cachedEventSource,
+      masterEventCache,
       CalendarShell,
       uiCalendarConfig,
       calendarService,
+      calendarEventEmitter,
       calendarUtils,
       eventUtils,
       notificationFactory,
@@ -139,7 +141,7 @@ angular.module('esn.calendar')
         $scope.calendars = calendars || [];
         $scope.calendars.forEach(function(calendar) {
           $scope.eventSourcesMap[calendar.href] = {
-            events: keepChangeDuringGraceperiod.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
+            events: cachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
           calendarPromise.then(function(cal) {
@@ -149,63 +151,16 @@ angular.module('esn.calendar')
       })
       .catch($scope.displayCalendarError);
 
-    function _modifiedOrCreatedCalendarItem(newEvent) {
+    function rerenderCalendar() {
       calendarPromise.then(function(calendar) {
-        if (newEvent.isRecurring()) {
-          calendar.fullCalendar('removeEvents', function(event) {
-            return newEvent.uid === event.uid;
-          });
-          var view = calendar.fullCalendar('getView');
-          newEvent.expand(view.start.clone().subtract(1, 'day'), view.end.clone().add(1, 'day')).forEach(_modifiedOrCreatedCalendarItem);
-          return;
-        }
-
-        var event = (calendar.fullCalendar('clientEvents', newEvent.id) || [])[0];
-        if (!event) {
-          calendar.fullCalendar('renderEvent', newEvent);
-          return;
-        }
-
-        // We fake the _allDay property to fix the case when switching from
-        // allday to non-allday, as otherwise the end date is cleared and then
-        // set to the wrong date by fullcalendar.
-        newEvent._allDay = newEvent.allDay;
-        newEvent._end = event._end;
-        newEvent._id =  event._id;
-        newEvent._start = event._start;
-
-        /*
-         * OR-1426 removing and create a new event in fullcalendar (events without source property) works much better than
-         * updating it. Otherwise, we are loosing datas and synchronization like vcalendar, allday, attendees, vevent.
-         * Also (CAL-97), there are 2 cases:
-         *   * events that are updated directly in fullcalendar have a source property
-         *   * events that comes from the caldav server have not a source property
-         */
-        if (!newEvent.source) {
-          calendar.fullCalendar('removeEvents', newEvent.id);
-          calendar.fullCalendar('renderEvent', newEvent);
-        } else {
-          calendar.fullCalendar('updateEvent', newEvent);
-        }
+        calendar.fullCalendar('refetchEvents');
       });
     }
 
     var unregisterFunctions = [
-      $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, function(event, data) {
-        calendarService.listCalendars($scope.calendarHomeId).then(function(calendars) {
-          _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(data, calendars));
-        });
-      }),
-      $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, function(event, data) {
-        calendarPromise.then(function(calendar) {
-          calendar.fullCalendar('removeEvents', data);
-        });
-      }),
-      $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, function(event, data) {
-        calendarService.listCalendars($scope.calendarHomeId).then(function(calendarList) {
-          _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(data, calendarList));
-        });
-      }),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, rerenderCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, rerenderCalendar),
+      $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, rerenderCalendar),
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
         calendarPromise.then(function(cal) {
           if (data.hidden) {
@@ -244,56 +199,39 @@ angular.module('esn.calendar')
     ];
 
     function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
-      calendarService.listCalendars($scope.calendarHomeId).then(function(calendars) {
-        _modifiedOrCreatedCalendarItem(eventUtils.setBackgroundColor(CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}), calendars));
-      });
+      var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
+      cachedEventSource.registerUpdate(event);
+      masterEventCache.save(event);
+      calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
     }
 
-    function liveNotificationHandlerOnReply(msg) {
-      $q.all({
-        calendar: calendarPromise,
-        calendars: calendarService.listCalendars($scope.calendarHomeId)
-      }).then(function(resolved) {
-        var reply = CalendarShell.from(msg.event);
-        var event = eventUtils.setBackgroundColor(resolved.calendar.fullCalendar('clientEvents', reply.id)[0], resolved.calendars);
-
-        eventUtils.applyReply(event, reply);
-
-        if (!event.source) {
-          resolved.calendar.fullCalendar('removeEvents', event.id);
-          resolved.calendar.fullCalendar('renderEvent', event);
-        } else {
-          resolved.calendar.fullCalendar('updateEvent', event);
-        }
-      });
-    }
-
-    function liveNotificationHandlerOnDeleteAndCancel(msg) {
-      calendarPromise.then(function(calendar) {
-        calendar.fullCalendar('removeEvents', CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath}).id);
-      });
+    function liveNotificationHandlerOnDelete(msg) {
+      var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
+      cachedEventSource.registerDelete(event);
+      masterEventCache.remove(event);
+      calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
     }
 
     var sio = livenotification('/calendars');
     sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
     sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDelete);
     sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
-    sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnReply);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
+    sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnCreateRequestandUpdate);
 
     $scope.$on('$destroy', function() {
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDeleteAndCancel);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, liveNotificationHandlerOnDelete);
       sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnReply);
-      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDeleteAndCancel);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDelete);
       unregisterFunctions.forEach(function(unregisterFunction) {
         unregisterFunction();
       });
       gracePeriodService.flushAllTasks();
-      keepChangeDuringGraceperiod.resetChange();
+      cachedEventSource.resetCache();
       windowJQuery.off('resize', $scope.resizeCalendarHeight);
     });
 

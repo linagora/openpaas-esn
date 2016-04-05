@@ -41,23 +41,6 @@ angular.module('esn.calendar')
       var originalEvents = {};
       var fakeEvents = {};
 
-      function refreshDay(day) {
-        var date = day.format(dayFormat);
-        var fakeEvent = fakeEvents[date];
-        var fcEvents = calendar.fullCalendar('clientEvents', date);
-        var fcEvent = fcEvents[0];
-        if (fakeEvent && fakeEvent._num) {
-          if (fcEvent) {
-            fcEvent.title = fakeEvent.title;
-            calendar.fullCalendar('updateEvent', fcEvent);
-          } else {
-            calendar.fullCalendar('renderEvent', fakeEvent);
-          }
-        } else {
-          calendar.fullCalendar('removeEvents', date);
-        }
-      }
-
       function addOrDeleteEvent(add, event) {
 
         if (add) {
@@ -111,42 +94,13 @@ angular.module('esn.calendar')
         events: groupByDayEventSources
       });
 
-      function addEvent(event) {
-        addOrDeleteEvent(true, event);
-        forEachDayOfEvent(event, refreshDay);
-      }
-
-      function removeEvent(id) {
-        var event = originalEvents[id];
-        if (!event) {
-          return;
-        }
-
-        addOrDeleteEvent(false, event);
-        forEachDayOfEvent(event, refreshDay);
-      }
-
-      function modifyEvent(event) {
-        var previousEvent = originalEvents[event.id];
-
-        if (!previousEvent) {
-          return addEvent(event);
-        }
-
-        //the order is important, delete then add
-        addOrDeleteEvent(false, previousEvent);
-        addOrDeleteEvent(true, event);
-        [event, previousEvent].forEach(function(event) {
-          forEachDayOfEvent(event, refreshDay);
-        });
+      function rerender() {
+        calendar.fullCalendar('refetchEvents');
       }
 
       return {
-        removeEvent: removeEvent,
-        addEvent: addEvent,
-        modifyEvent: modifyEvent
+        rerender: rerender
       };
-
     }
 
     return {

@@ -22,7 +22,9 @@ describe('CalendarShell factory', function() {
 
     };
 
-    this.masterEventCache = {};
+    this.masterEventCache = {
+      save: angular.noop
+    };
 
     var self = this;
     angular.mock.module('esn.calendar');
@@ -373,6 +375,53 @@ describe('CalendarShell factory', function() {
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-01T18:01:00Z',
+          formattedEnd: '2015-01-01T19:01:00Z',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        1: {
+          title: 'reccurent',
+          formattedStart: '2015-01-03T18:01:00Z',
+          formattedEnd: '2015-01-03T19:01:00Z',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        2: {
+          title: 'reccurent',
+          formattedStart: '2015-01-05T18:01:00Z',
+          formattedEnd: '2015-01-05T19:01:00Z',
+          backgroundColor: 'red',
+          rrule: undefined
+        },
+        length: 3
+      });
+    });
+
+    it('should take mutation of subevent into consideration', function() {
+      var shell = {
+        start: fcMoment.utc('2015-01-01 18:01'),
+        end: fcMoment.utc('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      var subevents = shell.expand();
+
+      subevents[0].start = fcMoment.utc('2015-01-01T18:30:00');
+
+      shell.modifyOccurrence(subevents[0]);
+
+      expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
+        0: {
+          title: 'reccurent',
+          formattedStart: '2015-01-01T18:30:00Z',
           formattedEnd: '2015-01-01T19:01:00Z',
           backgroundColor: 'red',
           rrule: undefined

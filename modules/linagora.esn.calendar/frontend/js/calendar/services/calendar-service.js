@@ -4,7 +4,7 @@ angular.module('esn.calendar')
   .service('calendarService', function(
     $q,
     $rootScope,
-    keepChangeDuringGraceperiod,
+    cachedEventSource,
     CalendarShell,
     CalendarCollectionShell,
     calendarAPI,
@@ -201,7 +201,7 @@ angular.module('esn.calendar')
      * @param  {String}             calendarId   the calendar id.
      * @param  {String}             calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
      * @param  {CalendarShell}      event        the event to PUT to the caldav server
-     * @param  {Object}             options      options needed for the creation. The structure is {graceperiod: Boolean, notifyFullcalendar: Boolean}
+     * @param  {Object}             options      options needed for the creation. The structure is {graceperiod: Boolean}
      * @return {Mixed}                           true if success, false if cancelled, the http response if no graceperiod is used.
      */
     function createEvent(calendarId, calendarPath, event, options) {
@@ -213,7 +213,7 @@ angular.module('esn.calendar')
       }
 
       function onTaskCancel() {
-        keepChangeDuringGraceperiod.deleteRegistration(event);
+        cachedEventSource.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
         event.isRecurring() && masterEventCache.remove(event);
       }
@@ -225,10 +225,8 @@ angular.module('esn.calendar')
           } else {
             event.gracePeriodTaskId = taskId = response;
             event.isRecurring() && masterEventCache.save(event);
-            keepChangeDuringGraceperiod.registerAdd(event, calendarId);
-            if (options.notifyFullcalendar) {
-              calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
-            }
+            cachedEventSource.registerAdd(event);
+            calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
             return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
               .then(function(task) {
                 return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
@@ -251,7 +249,7 @@ angular.module('esn.calendar')
      * @return {Boolean}                 true on success, false if cancelled
      */
     function removeEvent(eventPath, event, etag, removeAllInstance) {
-      if (!etag) {
+      if (!etag && !event.isInstance()) {
         // This is a noop and the event is not created yet in sabre/dav,
         // we then should only remove the event from fullcalendar
         // and cancel the taskid corresponding on the event.
@@ -270,11 +268,12 @@ angular.module('esn.calendar')
       }
 
       function onTaskCancel() {
-        keepChangeDuringGraceperiod.deleteRegistration(event);
+        cachedEventSource.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
       function onTaskError() {
+        cachedEventSource.deleteRegistration(event);
         calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
       }
 
@@ -282,7 +281,7 @@ angular.module('esn.calendar')
         return eventAPI.remove(eventPath, etag)
           .then(function(id) {
             event.gracePeriodTaskId = taskId = id;
-            keepChangeDuringGraceperiod.registerDelete(event);
+            cachedEventSource.registerDelete(event);
             calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
           })
           .then(function() {
@@ -330,7 +329,14 @@ angular.module('esn.calendar')
      * @return {Boolean}                             true on success, false if cancelled
      */
     function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
-      options = options || {notifyFullcalendar: true};
+      if (event.isInstance()) {
+        return event.getModifiedMaster().then(function(newMasterEvent) {
+          var oldMasterEvent = newMasterEvent.clone();
+          oldMasterEvent.modifyOccurrence(oldEvent);
+          return modifyEvent(path, newMasterEvent, oldMasterEvent, etag, onCancel, options);
+        });
+      }
+
       if (eventUtils.hasSignificantChange(event, oldEvent)) {
         event.changeParticipation('NEEDS-ACTION');
         // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
@@ -344,37 +350,28 @@ angular.module('esn.calendar')
       }
 
       var taskId = null;
-      var instance, master;
 
       function onTaskSuccess() {
         gracePeriodService.remove(taskId);
       }
 
+      function onTaskError() {
+        cachedEventSource.registerUpdate(oldEvent);
+        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+      }
+
       function onTaskCancel() {
         (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
-        keepChangeDuringGraceperiod.deleteRegistration(master);
-        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
+        onTaskError();
       }
 
-      function onTaskError() {
-        oldEvent.isRecurring() && masterEventCache.save(oldEvent);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
-      }
-
-      return event.getModifiedMaster()
-        .then(function(masterShell) {
-          instance = event;
-          master = masterShell;
-          return eventAPI.modify(path, master.vcalendar, etag);
-        })
+      return eventAPI.modify(path, event.vcalendar, etag)
         .then(function(id) {
           event.gracePeriodTaskId = taskId = id;
+          cachedEventSource.registerUpdate(event);
           event.isRecurring() && masterEventCache.save(event);
-          keepChangeDuringGraceperiod.registerUpdate(master);
-          if (options.notifyFullcalendar) {
-            calendarEventEmitter.fullcalendar.emitModifiedEvent(instance);
-          }
+          calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
         })
         .then(function() {
           return _registerTaskListener(taskId, 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.', onTaskError);

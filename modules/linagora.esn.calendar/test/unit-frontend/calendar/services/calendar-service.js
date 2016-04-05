@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calendarService service', function() {
-  var ICAL, moment, CalendarCollectionShellMock, CalendarCollectionShellFuncMock, keepChangeDuringGraceperiodMock, flushContext, self;
+  var ICAL, moment, CalendarCollectionShellMock, CalendarCollectionShellFuncMock, cachedEventSourceMock, flushContext, self;
 
   beforeEach(function() {
     self = this;
@@ -18,7 +18,7 @@ describe('The calendarService service', function() {
       }
     };
 
-    keepChangeDuringGraceperiodMock = {
+    cachedEventSourceMock = {
       registerAdd: sinon.spy(),
       registerDelete: sinon.spy(),
       registerUpdate: sinon.spy(),
@@ -86,7 +86,7 @@ describe('The calendarService service', function() {
       $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
       $provide.value('$modal', self.$modal);
       $provide.value('CalendarCollectionShell', CalendarCollectionShellMock);
-      $provide.value('keepChangeDuringGraceperiod', keepChangeDuringGraceperiodMock);
+      $provide.value('cachedEventSource', cachedEventSourceMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       $provide.decorator('masterEventCache', function($delegate) {
         self.masterEventCache = {
@@ -635,7 +635,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call keepChangeDuringGraceperiod.registerAdd', function(done) {
+    it('should call cachedEventSource.registerAdd', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -655,7 +655,7 @@ describe('The calendarService service', function() {
 
       this.calendarService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
         function() {
-          expect(keepChangeDuringGraceperiodMock.registerAdd).to.have.been.calledWith(event);
+          expect(cachedEventSourceMock.registerAdd).to.have.been.calledWith(event);
           done();
         }
       );
@@ -698,7 +698,7 @@ describe('The calendarService service', function() {
       expect(this.masterEventCache.save).to.have.been.calledWith(event);
     });
 
-    it('should call keepChangeDuringGraceperiod.deleteRegistration if the creation is cancelled', function(done) {
+    it('should call cachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -713,7 +713,7 @@ describe('The calendarService service', function() {
 
       this.gracePeriodService.cancel = $q.when.bind(null, {});
 
-      keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
+      cachedEventSourceMock.deleteRegistration = function(_event) {
         expect(_event).to.equal(event);
         done();
       };
@@ -1107,7 +1107,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call keepChangeDuringGraceperiod.registerUpdate', function(done) {
+    it('should call cachedEventSource.registerUpdate', function(done) {
 
       this.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1122,7 +1122,7 @@ describe('The calendarService service', function() {
       var event = this.event;
       this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function() {
-          expect(keepChangeDuringGraceperiodMock.registerUpdate).to.have.been.calledWith(event);
+          expect(cachedEventSourceMock.registerUpdate).to.have.been.calledWith(event);
           done();
         }
       );
@@ -1131,7 +1131,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call keepChangeDuringGraceperiod.deleteRegistration if the creation is cancelled', function(done) {
+    it('should call cachedEventSource.registerUpdate again with the oldEvent if the modification is cancelled', function(done) {
 
       this.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1141,15 +1141,23 @@ describe('The calendarService service', function() {
       this.gracePeriodService.cancel = $q.when.bind(null, {});
 
       this.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
-      this.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, this.vcalendar.toJSON(), {ETag: 'etag'});
 
       var event = this.event;
-      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true});
+      event.isRecurring = _.constant(true);
+      var oldEvent = this.event.clone();
 
-      keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
-        expect(_event).to.equal(event);
-        done();
+      var first = true;
+      cachedEventSourceMock.registerUpdate = function(_event) {
+        if (first) {
+          expect(_event).to.equal(event);
+          first = false;
+        } else {
+          expect(_event).to.equal(oldEvent);
+          done();
+        }
       };
+
+      this.calendarService.modifyEvent('/path/to/calendar/uid.ics', event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
@@ -1309,7 +1317,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should cancel the task if there is no etag', function(done) {
+    it('should cancel the task if there is no etag and if it is not a recurring', function(done) {
       this.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: false
@@ -1368,7 +1376,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call keepChangeDuringGraceperiod.registerDelete', function(done) {
+    it('should call cachedEventSource.registerDelete', function(done) {
 
       this.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1382,7 +1390,7 @@ describe('The calendarService service', function() {
       var event = this.event;
       this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
         function() {
-          expect(keepChangeDuringGraceperiodMock.registerDelete).to.have.been.calledWith(event);
+          expect(cachedEventSourceMock.registerDelete).to.have.been.calledWith(event);
           done();
         }
       );
@@ -1391,7 +1399,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should call keepChangeDuringGraceperiod.deleteRegistration if the creation is cancelled', function(done) {
+    it('should call cachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
 
       this.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1401,7 +1409,7 @@ describe('The calendarService service', function() {
       this.gracePeriodService.cancel = $q.when.bind(null, {});
 
       var event = this.event;
-      keepChangeDuringGraceperiodMock.deleteRegistration = function(_event) {
+      cachedEventSourceMock.deleteRegistration = function(_event) {
         expect(_event).to.equal(event);
         done();
       };
@@ -1539,21 +1547,36 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should delegate on modifyEvent for instance of recurring after deleting subevent from master shell', function(done) {
+    it('should delegate on modifyEvent for instance of recurring after deleting subevent from master shell even if no etag', function() {
       var modifyEventAnswer = {};
+
+      var successCallback = sinon.spy(function(response) {
+        expect(response).to.equal(modifyEventAnswer);
+        expect(self.instanceEvent.getModifiedMaster).to.have.been.calledOnce;
+        expect(self.master.clone).to.have.been.calledOnce;
+        expect(self.cloneOfMaster.deleteInstance).to.have.been.calledWith(self.instanceEvent);
+      });
+
+      var errorCallback = sinon.spy();
 
       this.calendarService.modifyEvent = sinon.stub().returns($q.when(modifyEventAnswer));
       this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.instanceEvent, 'etag').then(
-        function(response) {
-          expect(response).to.equal(modifyEventAnswer);
-          expect(self.instanceEvent.getModifiedMaster).to.have.been.calledOnce;
-          expect(self.master.clone).to.have.been.calledOnce;
-          expect(self.cloneOfMaster.deleteInstance).to.have.been.calledWith(self.instanceEvent);
-          done();
-        }, unexpected.bind(null, done)
+        successCallback, errorCallback
       );
 
       this.$rootScope.$apply();
+
+      this.instanceEvent.getModifiedMaster.reset();
+      this.master.clone.reset();
+
+      this.calendarService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.instanceEvent).then(
+        successCallback, errorCallback
+      );
+
+      this.$rootScope.$apply();
+
+      expect(successCallback).to.have.been.calledTwice;
+      expect(errorCallback).to.not.been.called;
     });
 
     it('should remove master of event if event is the only instance of a recurring event', function(done) {

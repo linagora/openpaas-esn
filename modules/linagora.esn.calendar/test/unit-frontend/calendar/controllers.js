@@ -28,11 +28,18 @@ describe('The calendar module controllers', function() {
       }
     };
 
-    this.keepChangeDuringGraceperiodMock = {
+    this.cachedEventSourceMock = {
       wrapEventSource: sinon.spy(function(id, eventSource) {
         return eventSource;
       }),
-      resetChange: angular.noop
+      resetCache: sinon.spy(),
+      registerUpdate: sinon.spy(),
+      registerDelete: sinon.spy()
+    };
+
+    this.masterEventCacheMock = {
+      save: sinon.spy(),
+      remove: sinon.spy()
     };
 
     this.CalendarShellConstMock = function(vcalendar, event) {
@@ -117,6 +124,13 @@ describe('The calendar module controllers', function() {
       setBackgroundColor: sinon.spy(angular.identity)
     };
 
+    this.calendarEventEmitterMock = {
+      fullcalendar: {
+        emitModifiedEvent: sinon.spy(),
+        emitRemovedEvent: sinon.spy()
+      }
+    };
+
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
       $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
@@ -130,9 +144,11 @@ describe('The calendar module controllers', function() {
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('eventUtils', self.eventUtilsMock);
       $provide.value('user', self.userMock);
-      $provide.value('keepChangeDuringGraceperiod', self.keepChangeDuringGraceperiodMock);
+      $provide.value('cachedEventSource', self.cachedEventSourceMock);
       $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
+      $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       $provide.value('CalendarShell', self.CalendarShellMock);
+      $provide.value('masterEventCache', self.masterEventCacheMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -201,12 +217,12 @@ describe('The calendar module controllers', function() {
       expect(handler).to.equal('aHandler');
     });
 
-    it('should keepChangeDuringGraceperiod.resetChange $on(\'$destroy\')', function() {
+    it('should cachedEventSource.resetCache $on(\'$destroy\')', function() {
       this.gracePeriodService.flushAllTasks = angular.noop;
-      this.keepChangeDuringGraceperiodMock.resetChange = sinon.spy();
+      this.cachedEventSourceMock.resetChange = sinon.spy();
       this.controller('calendarController', {$scope: this.scope});
       this.scope.$destroy();
-      expect(this.keepChangeDuringGraceperiodMock.resetChange).to.have.been.called;
+      expect(this.cachedEventSourceMock.resetCache).to.have.been.called;
     });
 
     it('should be created and its scope initialized', function() {
@@ -231,6 +247,7 @@ describe('The calendar module controllers', function() {
           clientEvents: _.constant(clientEvents),
           removeEvents: sinon.spy(),
           updateEvent: sinon.spy(),
+          refetchEvents: sinon.spy(),
           renderEvent: sinon.spy()
         };
 
@@ -241,102 +258,16 @@ describe('The calendar module controllers', function() {
         };
       });
 
-      it('should update an event if event.source is defined', function() {
-        var event = {
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          source: 'iamasource',
-          isRecurring: _.constant(false)
-        };
-
-        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        this.scope.$digest();
-        expect(fcFn.removeEvents).to.not.have.been.called;
-        expect(fcFn.renderEvent).to.not.have.been.called;
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
-        expect(fcFn.updateEvent).to.have.been.calledWith(sinon.match({
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          _allDay: '_allday',
-          _end: '_end',
-          _id: '_id',
-          _start: '_start',
-          source: 'iamasource'
-        }));
-      });
-
-      it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that remove and create a new event if event.source is undefined', function() {
+      it('should register a listener on CALENDAR_EVENTS.ITEM_MODIFICATION that refresh the calendar', function() {
         this.controller('calendarController', {$scope: this.scope});
 
-        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, {
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          isRecurring: _.constant(false)
-        });
+        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION);
 
         this.scope.uiConfig.calendar.viewRender({});
         this.scope.$digest();
-        expect(fcFn.removeEvents).to.have.been.calledWith('_id');
-        expect(fcFn.renderEvent).to.have.been.calledWith(sinon.match({
-          title: 'aTitle',
-          allDay: '_allday',
-          id: '_id',
-          _allDay: '_allday',
-          _end: '_end',
-          _id: '_id',
-          _start: '_start'
-        }));
+        expect(fcFn.refetchEvents).to.have.been.calledOnce;
       });
 
-      it('should update subevent of recurring event', function() {
-        var view = {
-          start: this.fcMoment('2000-01-01'),
-          end: this.fcMoment('2000-01-02')
-        };
-
-        fcFn.getView = sinon.stub().returns(view);
-        var subEvent = {
-          title: 'sub',
-          allDay: '_allDay',
-          id: 'sub',
-          source: 'iamasource',
-          isRecurring: _.constant(false)
-        };
-
-        var event = {
-          title: 'parent',
-          allDay: '_allday',
-          id: 'parent',
-          source: 'iamasource',
-          isRecurring: _.constant(true),
-          expand: sinon.stub().returns([subEvent])
-        };
-
-        clientEvents[0].id = 'sub';
-
-        this.rootScope.$broadcast(this.CALENDAR_EVENTS.ITEM_MODIFICATION, event);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        this.scope.$digest();
-        expect(fcFn.removeEvents).to.have.been.calledOnce;
-        expect(fcFn.removeEvents).to.have.been.calledWith(sinon.match(function(pred) {
-          return pred({uid: event.uid}) && !pred({uid: 'an other id'});
-        }));
-        expect(fcFn.renderEvent).to.not.have.been.called;
-        expect(fcFn.getView).to.have.been.called;
-        expect(event.expand).to.have.been.calledWith(view.start.clone().subtract(1, 'day'), view.end.clone().add(1, 'day'));
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
-        expect(fcFn.updateEvent).to.have.been.calledWith(sinon.match({
-          title: 'sub',
-          id: 'sub',
-          source: 'iamasource'
-        }));
-      });
     });
 
     it('should call fullCalendar next on swipeRight', function() {
@@ -371,14 +302,14 @@ describe('The calendar module controllers', function() {
       expect(fullCalendarSpy).to.have.been.calledTwice;
     });
 
-    it('should have wrap each calendar with keepChangeDuringGraceperiod.wrapEventSource', function() {
+    it('should have wrap each calendar with cachedEventSource.wrapEventSource', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledTwice;
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
+      expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledTwice;
+      expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
 
-      expect(this.keepChangeDuringGraceperiodMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
+      expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
     });
 
     it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and eventData.hidden is false', function() {
@@ -715,7 +646,7 @@ describe('The calendar module controllers', function() {
 
     describe('the ws event listener', function() {
 
-      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener;
+      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener, testUpdateCachedEventSourceAndFcEmit, testUpdateMasterEventCache;
 
       beforeEach(function() {
         liveNotification = function(namespace) {
@@ -755,148 +686,85 @@ describe('The calendar module controllers', function() {
           $rootScope: this.rootScope,
           $scope: this.scope
         });
+
+        testUpdateCachedEventSourceAndFcEmit = function(wsCallback, expectedCacheMethod, expectedEmitMethod) {
+          var event = {id: 'id', calendarId: 'calId'};
+          var path = 'path';
+          var etag = 'etag';
+          var resultingEvent = self.CalendarShellMock.from(event, {etag: etag, path: path});
+          fullCalendarSpy = self.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
+
+          self.scope.uiConfig.calendar.viewRender({});
+          wsCallback({event: event, eventPath: path, etag: etag});
+          self.scope.$digest();
+          expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+          expect(self.calendarEventEmitterMock.fullcalendar[expectedEmitMethod]).to.have.been.calledWith(resultingEvent);
+          expect(self.cachedEventSourceMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
+        };
+
+        testUpdateMasterEventCache = function(wsCallback, expectedCacheMethod) {
+          var event = {id: 'id', calendarId: 'calId'};
+          var path = 'path';
+          var etag = 'etag';
+          var resultingEvent = self.CalendarShellMock.from(event, {etag: etag, path: path});
+          fullCalendarSpy = self.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
+
+          self.scope.uiConfig.calendar.viewRender({});
+          wsCallback({event: event, eventPath: path, etag: etag});
+          self.scope.$digest();
+          expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+          expect(self.masterEventCacheMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
+        };
+
       });
 
-      it('should add  the event on EVENT_CREATED', function() {
-        var event = {id: 'anId', isRecurring: _.constant(false)};
-        var path = 'path';
-        var etag = 'etag';
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventCreateListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
+      it('should update event on cachedEventSource and emit a fullCalendar event for a modification on EVENT_CREATED', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventCreateListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should add the event on EVENT_REQUEST if not already there', function() {
-        var event = {id: 'anId', isRecurring: _.constant(false)};
-        var path = 'path';
-        var etag = 'etag';
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventRequestListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
+      it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REQUEST', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventRequestListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should replace the event on EVENT_REQUEST if already there', function() {
-        var event = {id: 'anId', isRecurring: _.constant(false)};
-        var path = 'path';
-        var etag = 'etag';
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
-        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventRequestListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
-        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
-        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
+      it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_UPDATED', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventModifyListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should replace the event EVENT_UPDATED', function() {
-        var event = {id: 'anId', isRecurring: _.constant(false)};
-        var path = 'path';
-        var etag = 'etag';
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
-        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventModifyListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
-        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
-        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
+      it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REPLY', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventReplyListener, 'registerUpdate', 'emitModifiedEvent');
       });
 
-      it('should replace the event EVENT_REPLY', function() {
-        var event = {id: 'anId'};
-        var reply = {id: 'anId', reply: true};
-        var path = 'path';
-        var etag = 'etag';
-        this.CalendarShellMock.from = sinon.stub().returns(reply);
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
-        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventReplyListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event);
-        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
-        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
-        expect(this.eventUtilsMock.applyReply).to.have.been.calledWith(event, reply);
-        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match(event));
-        expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(sinon.match(event), this.calendars);
+      it('should remove event on cachedEventSource and broadcast emit a fullCalendar event for a deletion on EVENT_DELETED', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventDeleteListener, 'registerDelete', 'emitRemovedEvent');
       });
 
-      it('should remove the event on EVENT_DELETED', function() {
-        var event = {id: 'anId'};
-        var path = 'path';
-        var etag = 'etag';
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
-        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventDeleteListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+      it('should remove event on cachedEventSource and broadcast emit a fullClaendar event for a deletion on EVENT_CANCEL', function() {
+        testUpdateCachedEventSourceAndFcEmit(wsEventCancelListener, 'registerDelete', 'emitRemovedEvent');
       });
 
-      it('should remove the event on EVENT_CANCEL', function() {
-        var event = {id: 'anId'};
-        var path = 'path';
-        var etag = 'etag';
-        fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
-        fullCalendarSpy.withArgs('clientEvents', event.id).returns([event]);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventCancelListener({event: event, eventPath: path, etag: etag});
-        this.scope.$digest();
-        expect(this.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
+      it('should update event on masterEventCache or a modification on EVENT_CREATED', function() {
+        testUpdateMasterEventCache(wsEventCreateListener, 'save');
       });
 
-      it('should transform start and end date if allday is true when modified event', function() {
-        var event = {id: 'anId', allDay: true, isRecurring: _.constant(false)};
-
-        var fullCalendarSpy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.stub();
-
-        fullCalendarSpy.withArgs('clientEvents').returns([{
-          _allDay: '_allDay',
-          _end: '_end',
-          _id: '_id', _start: '_start',
-          start: self.fcMoment('2013-03-07T07:00:00-08:00'),
-          end: self.fcMoment('2013-03-07T07:00:00-08:00')
-        }]);
-
-        this.scope.uiConfig.calendar.viewRender({});
-        wsEventModifyListener({event: event});
-        this.scope.$digest();
-        expect(fullCalendarSpy).to.have.been.calledWith('clientEvents', event.id);
-        expect(fullCalendarSpy).to.have.been.calledWith('removeEvents', event.id);
-        expect(fullCalendarSpy).to.have.been.calledWith('renderEvent', sinon.match({
-          _allDay: true,
-          _end: '_end',
-          _id: '_id',
-          _start: '_start',
-          id: 'anId',
-          allDay: true
-        }));
+      it('should update event on masterEventCache for a modification on EVENT_REQUEST', function() {
+        testUpdateMasterEventCache(wsEventRequestListener, 'save');
       });
 
+      it('should update event on masterEventCache for a modification on EVENT_UPDATED', function() {
+        testUpdateMasterEventCache(wsEventModifyListener, 'save');
+      });
+
+      it('should update event on masterEventCache for a modification on EVENT_REPLY', function() {
+        testUpdateMasterEventCache(wsEventReplyListener, 'save');
+      });
+
+      it('should remove event on masterEventCache for a deletion on EVENT_DELETED', function() {
+        testUpdateMasterEventCache(wsEventDeleteListener, 'remove');
+      });
+
+      it('should remove event on masterEventCache for a deletion on EVENT_CANCEL', function() {
+        testUpdateMasterEventCache(wsEventCancelListener, 'remove');
+      });
     });
   });
 });
