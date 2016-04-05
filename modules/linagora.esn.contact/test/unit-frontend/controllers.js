@@ -1253,7 +1253,9 @@ describe('The Contacts controller module', function() {
   describe('The contactsListController controller', function() {
 
     it('should store the search query when user switches to contact view', function() {
-      scope.searchInput = 'some query';
+      scope.contactSearch = {
+        searchInput: 'some query'
+      };
       sharedContactDataService.searchQuery = null;
       $controller('contactsListController', {
         $scope: scope,
@@ -1262,11 +1264,13 @@ describe('The Contacts controller module', function() {
       scope.$emit('$stateChangeStart', {
         name: '/contact/show/:bookId/:bookName/:cardId'
       });
-      expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
+      expect(sharedContactDataService.searchQuery).to.equal(scope.contactSearch.searchInput);
     });
 
     it('should store the search query when user switches to contact edition view', function() {
-      scope.searchInput = 'some query';
+      scope.contactSearch = {
+        searchInput: 'some query'
+      };
       sharedContactDataService.searchQuery = null;
       $controller('contactsListController', {
         $scope: scope,
@@ -1275,7 +1279,7 @@ describe('The Contacts controller module', function() {
       scope.$emit('$stateChangeStart', {
         name: '/contact/edit/:bookId/:bookName/:cardId'
       });
-      expect(sharedContactDataService.searchQuery).to.equal(scope.searchInput);
+      expect(sharedContactDataService.searchQuery).to.equal(scope.contactSearch.searchInput);
     });
 
     it('should clear the search query when user switches to a view that is not contact view nor contact edition view', function() {
@@ -1376,7 +1380,7 @@ describe('The Contacts controller module', function() {
         user: { _id: '123' }
       });
 
-      scope.searchInput = 'someQuery';
+      scope.contactSearch.searchInput = 'someQuery';
       $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
       expect(contact.deleted).to.be.true;
     });
@@ -1388,7 +1392,7 @@ describe('The Contacts controller module', function() {
         user: { _id: '123' }
       });
 
-      scope.searchInput = 'someQuery';
+      scope.contactSearch.searchInput = 'someQuery';
       $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
       expect(contact.deleted).to.be.false;
     });
@@ -1423,7 +1427,7 @@ describe('The Contacts controller module', function() {
         }
       });
 
-      scope.searchInput = null;
+      scope.contactSearch.searchInput = null;
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
       $rootScope.$digest();
     });
@@ -1464,7 +1468,7 @@ describe('The Contacts controller module', function() {
         }
       });
 
-      scope.searchInput = 'someQuery';
+      scope.contactSearch.searchInput = 'someQuery';
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
       $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
       $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
@@ -1595,7 +1599,7 @@ describe('The Contacts controller module', function() {
       createPaginationMocks(function() {
         done(new Error('Should not be called'));
       }, function() {
-        expect(scope.searchInput).to.equal(query);
+        expect(scope.contactSearch.searchInput).to.equal(query);
         done();
       });
 
@@ -1652,7 +1656,7 @@ describe('The Contacts controller module', function() {
       createPaginationMocks(function() {
         return done(new Error('This test should not call list function'));
       }, function(options) {
-        expect(scope.searchInput).to.equal(options.searchInput);
+        expect(scope.contactSearch.searchInput).to.equal(options.searchInput);
         mySpy();
         return $q.when({
           data: [],
@@ -1667,10 +1671,10 @@ describe('The Contacts controller module', function() {
           _id: '123'
         }
       });
-      scope.searchInput = 'QueryB';
+      scope.contactSearch.searchInput = 'QueryB';
       scope.$digest();
       $rootScope.$broadcast('$stateChangeSuccess', {name: '/some/other/place'});
-      expect(scope.searchInput).to.equal(query);
+      expect(scope.contactSearch.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledTwice;
       done();
     });
@@ -1689,7 +1693,7 @@ describe('The Contacts controller module', function() {
       createPaginationMocks(function() {
         return done(new Error('This test should not call list function'));
       }, function() {
-        expect(scope.searchInput).to.equal(query);
+        expect(scope.contactSearch.searchInput).to.equal(query);
         mySpy();
         return $q.when([]);
       });
@@ -1701,9 +1705,9 @@ describe('The Contacts controller module', function() {
           _id: '123'
         }
       });
-      scope.searchInput = 'QueryA';
+      scope.contactSearch.searchInput = 'QueryA';
       $rootScope.$broadcast('$stateChangeSuccess', {});
-      expect(scope.searchInput).to.equal(query);
+      expect(scope.contactSearch.searchInput).to.equal(query);
       expect(mySpy).to.have.been.calledOnce;
       done();
     });
@@ -1892,7 +1896,9 @@ describe('The Contacts controller module', function() {
 
       it('should clear search input and all search results', function() {
         var user = {_id: 123};
-        scope.searchInput = 'name';
+        scope.contactSearch = {
+          searchInput: 'name'
+        };
         scope.searchResult = {
           data: ['name1', 'name2', 'name3']
         };
@@ -1903,7 +1909,7 @@ describe('The Contacts controller module', function() {
           user: user
         });
         scope.clearSearchInput();
-        expect(scope.searchInput).to.be.null;
+        expect(scope.contactSearch.searchInput).to.be.null;
         expect(scope.searchResult).to.deep.equal({});
         expect(scope.totalHits).to.equal(0);
       });
@@ -2220,7 +2226,7 @@ describe('The Contacts controller module', function() {
           bookId: '456'
         });
 
-        scope.searchInput = search;
+        scope.contactSearch.searchInput = search;
         scope.totalHits = 0;
         scope.search();
         scope.$digest();
@@ -2252,7 +2258,7 @@ describe('The Contacts controller module', function() {
           bookId: '456'
         });
 
-        scope.searchInput = search;
+        scope.contactSearch.searchInput = search;
         scope.search();
         scope.$digest();
       });
@@ -2285,7 +2291,7 @@ describe('The Contacts controller module', function() {
           bookId: '456'
         });
 
-        scope.searchInput = search;
+        scope.contactSearch.searchInput = search;
         scope.search();
         expect(scope.loadingNextContacts).to.be.true;
         scope.$digest();
@@ -2322,7 +2328,7 @@ describe('The Contacts controller module', function() {
         });
         scope.$digest();
 
-        scope.searchInput = search;
+        scope.contactSearch.searchInput = search;
         scope.totalHits = 0;
         scope.search();
         scope.$digest();
@@ -2347,7 +2353,7 @@ describe('The Contacts controller module', function() {
           bookId: '456'
         });
 
-        scope.searchInput = search;
+        scope.contactSearch.searchInput = search;
         scope.search();
         scope.$digest();
         expect(scope.searchFailure).to.be.true;
@@ -2380,7 +2386,7 @@ describe('The Contacts controller module', function() {
         });
         scope.appendQueryToURL = function() {};
 
-        scope.searchInput = search;
+        scope.contactSearch.searchInput = search;
         scope.$digest();
         scope.search();
         scope.$digest();
@@ -2408,11 +2414,11 @@ describe('The Contacts controller module', function() {
           return $q.reject(new Error('Fail'));
         };
 
-        scope.searchInput = 'openpaas';
+        scope.contactSearch.searchInput = 'openpaas';
         scope.search();
         scope.$digest();
 
-        scope.searchInput = 'openpaasng';
+        scope.contactSearch.searchInput = 'openpaasng';
         scope.search();
         scope.$digest();
 
@@ -2443,7 +2449,7 @@ describe('The Contacts controller module', function() {
           return $q.reject(new Error('Fail'));
         };
 
-        scope.searchInput = 'openpaas';
+        scope.contactSearch.searchInput = 'openpaas';
         scope.search();
         scope.$digest();
 
@@ -2480,10 +2486,10 @@ describe('The Contacts controller module', function() {
           return $q.reject(new Error('Fail'));
         };
 
-        scope.searchInput = 'openpaas';
+        scope.contactSearch.searchInput = 'openpaas';
         scope.search();
         scope.$digest();
-        scope.searchInput = 'openpaasng';
+        scope.contactSearch.searchInput = 'openpaasng';
         endOfSearch.resolve(fakeResult);
         scope.search();
         scope.$digest();
@@ -2517,7 +2523,7 @@ describe('The Contacts controller module', function() {
           return $q.reject(new Error('Fail'));
         };
 
-        scope.searchInput = 'openpaas';
+        scope.contactSearch.searchInput = 'openpaas';
         scope.search();
         scope.$digest();
         endOfSearch.resolve(fakeResult);
@@ -2538,7 +2544,7 @@ describe('The Contacts controller module', function() {
         var testGetContactTitleDisplayCondition = function(headerDisplayLetterExists, displayAs, searchInput, returnValue) {
           scope.headerDisplay = {letterExists: headerDisplayLetterExists};
           scope.displayAs = displayAs;
-          scope.searchInput = searchInput;
+          scope.contactSearch.searchInput = searchInput;
           expect(scope.getContactTitleDisplayCondition()).to.equal(returnValue);
         };
         testGetContactTitleDisplayCondition(false, 'cards', '', true);

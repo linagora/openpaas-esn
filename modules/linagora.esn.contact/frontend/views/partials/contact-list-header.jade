@@ -5,11 +5,11 @@ header
         .flex-space-between.flex-vertical-centered.flex-wrap
           .contacts-list-header-title
             h2
-              .contact-categories-letter(ng-show="!searchInput && displayAs === 'list'")
+              .contact-categories-letter(ng-show="!contactSearch.searchInput && displayAs === 'list'")
                 contact-category-letter
               span(ng-show="getContactTitleDisplayCondition()") #{__('Contacts')}
-              span(ng-show="searchInput") #{__('Search in contacts')}
-              small(ng-switch="searchResult.count" ng-if="!!searchInput")
+              span(ng-show="contactSearch.searchInput") #{__('Search in contacts')}
+              small(ng-switch="searchResult.count" ng-if="!!contactSearch.searchInput")
                 span(ng-switch-when='0') #{__('No contacts found')}
                 span(ng-switch-when='1') #{__('1 contact found')}
                 span(ng-switch-default)
