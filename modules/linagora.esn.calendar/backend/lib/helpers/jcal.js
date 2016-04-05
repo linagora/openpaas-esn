@@ -50,7 +50,15 @@ module.exports.getVeventAttendeeByMail = getVeventAttendeeByMail;
           cn: 'aattendee2',
           partstat: 'NEEDS-ACTION',
         }
+      },
+      alarm: {
+        action: 'EMAIL',
+        trigger: '-PT15M',
+        description: 'an alarm',
+        summary: 'Event Pending',
+        attendee: 'aorganizer@linagora.com'
       }
+    }
    }
  */
 function jcal2content(icalendar, baseUrl) {
@@ -156,6 +164,17 @@ function jcal2content(icalendar, baseUrl) {
     organizer: organizer,
     durationInDays: durationInDays
   };
+
+  var valarm = vevent.getFirstSubcomponent('valarm');
+  if (valarm) {
+    content.alarm = {
+      action: valarm.getFirstPropertyValue('action'),
+      trigger: valarm.getFirstPropertyValue('trigger'),
+      description: valarm.getFirstPropertyValue('description'),
+      summary: valarm.getFirstPropertyValue('summary'),
+      attendee: valarm.getFirstPropertyValue('attendee')
+    };
+  }
 
   return content;
 }

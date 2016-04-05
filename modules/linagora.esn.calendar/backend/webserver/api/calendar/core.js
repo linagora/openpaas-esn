@@ -2,7 +2,7 @@
 
 var async = require('async');
 var q = require('q');
-var jcal2content = require('../../../lib/jcal/jcalHelper').jcal2content;
+var jcal2content = require('../../../lib/helpers/jcal').jcal2content;
 var urljoin = require('url-join');
 var extend = require('extend');
 var eventMessage,
@@ -16,9 +16,8 @@ var eventMessage,
     globalpubsub,
     collaborationPermission,
     contentSender,
-    esnconfig,
-    staticConfig,
-    jwt;
+    jwt,
+    utils;
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -191,22 +190,6 @@ function generateActionLinks(baseUrl, jwtPayload) {
   });
 }
 
-function getBaseUrl(callback) {
-  return esnconfig('web').get(function(err, web) {
-    if (err) {
-      return callback(err);
-    }
-    var baseUrl = 'http://localhost:';
-    if (web && web.base_url) {
-      baseUrl = web.base_url;
-    } else {
-      var port = staticConfig.webserver.port || '8080';
-      baseUrl += port;
-    }
-    return callback(null, baseUrl);
-  });
-}
-
 function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calendarURI, callback) {
   if (!notify) {
     return q({}).nodeify(callback);
@@ -247,7 +230,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
     });
     return deferred.promise;
   });
-  return getBaseUrl(function(err, baseUrl) {
+  return utils.getBaseUrl(function(err, baseUrl) {
     if (err) {
       return q.reject(err).nodeify(callback);
     }
@@ -345,6 +328,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
 module.exports = function(dependencies) {
   eventMessage = require('./../../../lib/message/eventmessage.core')(dependencies);
   i18n = require('../../../lib/i18n')(dependencies);
+  utils = require('../../../lib/helpers/utils')(dependencies);
   userModule = dependencies('user');
   collaborationModule = dependencies('collaboration');
   messageHelpers = dependencies('helpers').message;
@@ -354,13 +338,10 @@ module.exports = function(dependencies) {
   globalpubsub = dependencies('pubsub').global;
   collaborationPermission = dependencies('collaboration').permission;
   contentSender = dependencies('content-sender');
-  esnconfig = dependencies('esn-config');
-  staticConfig = dependencies('config')('default');
   jwt = dependencies('auth').jwt;
 
   return {
     dispatch: dispatch,
-    getBaseUrl: getBaseUrl,
     inviteAttendees: inviteAttendees,
     generateActionLinks: generateActionLinks
   };
