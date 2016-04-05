@@ -268,6 +268,7 @@ angular.module('linagora.esn.contact')
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
+    $scope.contactSearch = {};
     $scope.searchResult = {};
     $scope.updatedDuringSearch = null;
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
@@ -281,7 +282,7 @@ angular.module('linagora.esn.contact')
       // switches back to contacts list
       if (next.name === '/contact/show/:bookId/:bookName/:cardId' ||
           next.name === '/contact/edit/:bookId/:bookName/:cardId') {
-        sharedContactDataService.searchQuery = $scope.searchInput;
+        sharedContactDataService.searchQuery = $scope.contactSearch.searchInput;
       } else {
         sharedContactDataService.searchQuery = null;
       }
@@ -328,7 +329,7 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.$on(CONTACT_EVENTS.CREATED, function(e, data) {
-      if ($scope.searchInput) { return; }
+      if ($scope.contactSearch.searchInput) { return; }
       addItemsToCategories([data]);
     });
 
@@ -336,14 +337,14 @@ angular.module('linagora.esn.contact')
       if (contactUpdateDataService.contactUpdatedIds.indexOf(data.id) === -1) {
         contactUpdateDataService.contactUpdatedIds.push(data.id);
       }
-      if ($scope.searchInput) { return; }
+      if ($scope.contactSearch.searchInput) { return; }
       $scope.$applyAsync(function() {
         $scope.categories.replaceItem(fillRequiredContactInformation(data));
       });
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {
-      if ($scope.searchInput) {
+      if ($scope.contactSearch.searchInput) {
         contact.deleted = true;
       } else {
         $scope.categories.removeItemWithId(contact.id);
@@ -351,7 +352,7 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(e, data) {
-      if ($scope.searchInput) {
+      if ($scope.contactSearch.searchInput) {
         data.deleted = false;
       } else {
         addItemsToCategories([data]);
@@ -365,12 +366,12 @@ angular.module('linagora.esn.contact')
 
     $scope.$on('$stateChangeSuccess', function() {
       if (!$location.search().q) {
-        if (!$scope.searchInput) {return;}
-        $scope.searchInput = null;
+        if (!$scope.contactSearch.searchInput) {return;}
+        $scope.contactSearch.searchInput = null;
         return $scope.search();
       }
-      if ($location.search().q.replace(/\+/g, ' ') !== $scope.searchInput) {
-        $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
+      if ($location.search().q.replace(/\+/g, ' ') !== $scope.contactSearch.searchInput) {
+        $scope.contactSearch.searchInput = $location.search().q.replace(/\+/g, ' ');
         return $scope.search();
       }
     });
@@ -378,8 +379,8 @@ angular.module('linagora.esn.contact')
     $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);
 
     $scope.appendQueryToURL = function() {
-      if ($scope.searchInput) {
-        $location.search('q', $scope.searchInput.replace(/ /g, '+'));
+      if ($scope.contactSearch.searchInput) {
+        $location.search('q', $scope.contactSearch.searchInput.replace(/ /g, '+'));
         return;
       }
       $location.search('q', null);
@@ -403,15 +404,16 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.search = function() {
+
       if ($scope.searching) {
-        $scope.updatedDuringSearch = $scope.searchInput;
+        $scope.updatedDuringSearch = $scope.contactSearch.searchInput;
         return;
       }
 
       $scope.appendQueryToURL();
       cleanSearchResults();
       cleanCategories();
-      if (!$scope.searchInput) {
+      if (!$scope.contactSearch.searchInput) {
         return switchToList();
       }
 
@@ -431,7 +433,7 @@ angular.module('linagora.esn.contact')
     function getSearchResults() {
       $log.debug('Searching contacts');
       usSpinnerService.spin(SPINNER);
-      return $scope.pagination.service.loadNextItems({searchInput: $scope.searchInput})
+      return $scope.pagination.service.loadNextItems({searchInput: $scope.contactSearch.searchInput})
         .then(setSearchResults, searchFailure)
         .finally(loadPageComplete);
     }
@@ -469,14 +471,14 @@ angular.module('linagora.esn.contact')
 
     $scope.scrollHandler = function() {
       $log.debug('Infinite Scroll down handler');
-      if ($scope.searchInput) {
+      if ($scope.contactSearch.searchInput) {
         return scrollSearchHandler();
       }
       $scope.loadContacts();
     };
 
     $scope.clearSearchInput = function() {
-      $scope.searchInput = null;
+      $scope.contactSearch.searchInput = null;
       $scope.appendQueryToURL();
       switchToList();
     };
@@ -495,17 +497,17 @@ angular.module('linagora.esn.contact')
     $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
 
     if ($location.search().q) {
-      $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
+      $scope.contactSearch.searchInput = $location.search().q.replace(/\+/g, ' ');
       $scope.search();
     } else if (sharedContactDataService.searchQuery) {
       $location.search('q', sharedContactDataService.searchQuery.replace(/ /g, '+'));
     } else {
-      $scope.searchInput = null;
+      $scope.contactSearch.searchInput = null;
       $scope.loadContacts();
     }
 
     $scope.getContactTitleDisplayCondition = function() {
-      return (!$scope.headerDisplay.letterExists || $scope.displayAs === CONTACT_LIST_DISPLAY.cards) && !$scope.searchInput;
+      return (!$scope.headerDisplay.letterExists || $scope.displayAs === CONTACT_LIST_DISPLAY.cards) && !$scope.contactSearch.searchInput;
     };
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
