@@ -844,6 +844,72 @@ describe('CalendarShell factory', function() {
     });
   });
 
+  describe('Alarm', function() {
+    it('should create a valarm component with trigger, action, summary, description and attendee', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+      eventA.alarm = {
+        trigger: '-PT30M',
+        attendee: 'test@open-paas.org'
+      };
+      expect(eventA.alarm.trigger.toICALString()).to.equal('-PT30M');
+      expect(eventA.alarm.attendee).to.equal('mailto:test@open-paas.org');
+      expect(eventA.alarm.action).to.equal('EMAIL');
+      expect(eventA.alarm.summary).to.exist;
+      expect(eventA.alarm.description).to.exist;
+    });
+
+    it('should not create 2 alarms but delete/create again', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+      eventA.alarm = {
+        trigger: '-PT30M',
+        attendee: 'test@open-paas.org'
+      };
+      eventA.alarm = {
+        trigger: '-PT30M',
+        attendee: 'test2@open-paas.org'
+      };
+      expect(eventA.alarm.trigger.toICALString()).to.equal('-PT30M');
+      expect(eventA.alarm.attendee).to.equal('mailto:test2@open-paas.org');
+      expect(eventA.alarm.action).to.equal('EMAIL');
+      expect(eventA.alarm.summary).to.exist;
+      expect(eventA.alarm.description).to.exist;
+      expect(eventA.vevent.getAllSubcomponents('valarm').length).to.equal(1);
+    });
+
+    it('should fail if trigger is undefined', function(done) {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+      try {
+        eventA.alarm = {attendeeEmail: 'test'};
+      } catch (e) {
+        done();
+      }
+    });
+
+    it('should fail if attendeeEmail is undefined', function(done) {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00')
+      });
+      try {
+        eventA.alarm = {trigger: 'test'};
+      } catch (e) {
+        done();
+      }
+    });
+  });
 });
 
 describe('RRuleShell Factory', function() {

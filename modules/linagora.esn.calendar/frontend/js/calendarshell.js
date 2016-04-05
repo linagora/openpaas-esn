@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .factory('CalendarShell', function($q, _, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, ICAL_PROPERTIES, EVENT_MODIFY_COMPARE_KEYS) {
+  .factory('CalendarShell', function($q, _, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, VAlarmShell, ICAL_PROPERTIES, EVENT_MODIFY_COMPARE_KEYS) {
 
     function setDatetimePropertyWithUtc(component, propertyName, icalTime) {
       var property = component.getFirstProperty(propertyName);
@@ -152,7 +152,14 @@ angular.module('esn.calendar')
         }
         return this.__rrule;
       },
-
+      set rrule(value) {
+        this.__rrule = undefined;
+        if (value.until) {
+          value.until = ICAL.Time.fromJSDate(value.until);
+        }
+        var rrule = new ICAL.Recur.fromData(value);
+        this.vevent.updatePropertyWithValue('rrule', rrule);
+      },
       isRecurring: function() {
         return this.icalEvent.isRecurring();
       },
@@ -204,15 +211,6 @@ angular.module('esn.calendar')
         }
 
         return result;
-      },
-
-      set rrule(value) {
-        this.__rrule = undefined;
-        if (value.until) {
-          value.until = ICAL.Time.fromJSDate(value.until);
-        }
-        var rrule = new ICAL.Recur.fromData(value);
-        this.vevent.updatePropertyWithValue('rrule', rrule);
       },
 
       get organizer() {
@@ -280,6 +278,52 @@ angular.module('esn.calendar')
             property.setParameter('cn', attendee.displayName);
           }
         }.bind(this));
+      },
+
+      get alarm() {
+        if (!this.__alarm) {
+          var valarm = this.vevent.getFirstSubcomponent('valarm');
+          if (valarm) {
+            this.__alarm = new VAlarmShell(valarm, this.vevent);
+          }
+        }
+        return this.__alarm;
+      },
+      set alarm(value) {
+        if (!value.trigger || !value.attendee) {
+          throw new Error('invalid alarm set value, missing trigger or attendee');
+        }
+        this.__alarm = undefined;
+        this.vevent.removeSubcomponent('valarm');
+        var SUMMARY_TEMPLATE = 'Pending event! <%- summary %>';
+        var DESCRIPTION_TEMPLATE =
+          'This is an automatic alarm sent by OpenPaas\r\n' +
+          'PENDING EVENT!\r\n' +
+          'The event <%- summary %> will start <%- diffStart %>\r\n' +
+          'start: <%- start %> \r\n' +
+          'end: <%- end %> \r\n' +
+          'location: <%- location %> \r\n' +
+          'More details:\r\n' +
+          'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
+        var valarm = new ICAL.Component('valarm');
+        valarm.addPropertyWithValue('trigger', value.trigger);
+        valarm.addPropertyWithValue('action', 'EMAIL');
+        valarm.addPropertyWithValue('summary', _.template(SUMMARY_TEMPLATE)({summary: this.summary}));
+        valarm.addPropertyWithValue('description', _.template(DESCRIPTION_TEMPLATE)({
+          summary: this.summary,
+          start: this.start,
+          end: this.end,
+          diffStart: fcMoment(new Date()).to(this.start),
+          location: this.location,
+          calendarId: this.calendarId,
+          eventId: this.id
+        }));
+        var mailto = calendarUtils.prependMailto(value.attendee);
+        valarm.addPropertyWithValue('attendee', mailto);
+        this.vevent.addSubcomponent(valarm);
+      },
+      removeAlarm: function() {
+        this.vevent.removeSubcomponent('valarm');
       },
 
       /**
@@ -554,4 +598,21 @@ angular.module('esn.calendar')
     };
 
     return RRuleShell;
+  })
+
+  .factory('VAlarmShell', function() {
+    function VAlarmShell(valarm, vevent) {
+      this.valarm = valarm;
+      this.vevent = vevent;
+    }
+
+    VAlarmShell.prototype = {
+      get action() { return this.valarm.getFirstPropertyValue('action'); },
+      get trigger() { return this.valarm.getFirstPropertyValue('trigger'); },
+      get description() { return this.valarm.getFirstPropertyValue('description'); },
+      get summary() { return this.valarm.getFirstPropertyValue('summary'); },
+      get attendee() { return this.valarm.getFirstPropertyValue('attendee'); }
+    };
+
+    return VAlarmShell;
   });
