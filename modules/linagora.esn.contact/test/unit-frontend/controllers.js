@@ -2563,7 +2563,13 @@ describe('The Contacts controller module', function() {
         },
         cancel: function() {}
       };
-      this.$location = {};
+      this.$location = {
+        search: function() {
+          return {
+            q: null
+          };
+        }
+      };
       this.$window = {
         open: function() {}
       };
