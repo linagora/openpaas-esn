@@ -495,9 +495,9 @@ contact-photo {
 
 .media-heading{
   width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #sub-header {
@@ -509,5 +509,15 @@ contact-photo {
 .contact-dropdown-font {
   a {
     color: @secondaryTextColor !important; /* override drop-down  */
+  }
+}
+
+.contact-list-item,contact-list-card {
+  .highlight { 
+    background: @m-yellow;  
+  
+  &.empty {
+    display: none;
+    }
   }
 }
