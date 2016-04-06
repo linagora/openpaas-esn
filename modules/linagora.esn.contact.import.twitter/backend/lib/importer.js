@@ -11,7 +11,9 @@ module.exports = function(dependencies) {
 
   var twitterToVcard = require('./mapping')(dependencies);
   var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub').global;
+  var pubsub = dependencies('pubsub');
+  var localpubsub = pubsub.local;
+  var globalpubsub = pubsub.global;
   var config = dependencies('esn-config');
   var CONTACT_IMPORT_ERROR = dependencies('contact-import').constants.CONTACT_IMPORT_ERROR;
   var importContactClient = dependencies('contact-import').lib.import;
@@ -121,7 +123,7 @@ module.exports = function(dependencies) {
         })
         .then(defer.resolve, function(err) {
           logger.error('Error while importing Twitter followings', err);
-          pubsub.topic(err.type).publish({
+          localpubsub.topic(err.type).forward(globalpubsub, {
             type: err.type,
             provider: TWITTER,
             account: account.data.username,

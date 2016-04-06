@@ -39,10 +39,10 @@ describe('The twitter contact importer', function() {
         warn: function() {}
       },
       pubsub: {
-        global: {
+        local: {
           topic: function() {
             return {
-              publish: function() {}
+              forward: function() {}
             };
           }
         }

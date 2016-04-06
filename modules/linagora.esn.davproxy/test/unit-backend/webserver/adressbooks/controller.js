@@ -36,10 +36,10 @@ describe('The addressbooks module', function() {
         warn: function() {}
       },
       pubsub: {
-        global: {
+        local: {
           topic: function() {
             return {
-              publish: function() {}
+              forward: function() {}
             };
           }
         }
@@ -552,7 +552,7 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should publish a "contacts:contact:update" event with new contact if request is an update', function(done) {
+    it('should forward a "contacts:contact:update" event with new contact if request is an update', function(done) {
       req.headers = {
         'if-match': 123
       };
@@ -560,10 +560,10 @@ describe('The addressbooks module', function() {
       req.body = { fn: 'abc' };
       req.params.contactId = req.params.cardId;
 
-      dependencies.pubsub.global.topic = function(name) {
+      dependencies.pubsub.local.topic = function(name) {
         expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED);
         return {
-          publish: function(data) {
+          forward: function(pubsub, data) {
             expect(data).to.eql({
               contactId: req.params.cardId,
               bookId: req.params.bookHome,
@@ -603,9 +603,9 @@ describe('The addressbooks module', function() {
       req.body = { fn: 'abc' };
       req.params.contactId = req.params.cardId;
 
-      dependencies.pubsub.global.topic = function() {
+      dependencies.pubsub.local.topic = function() {
         return {
-          publish: function() {
+          forward: function() {
             expect(req.headers['if-match']).to.equal(123);
             done();
           }
@@ -628,7 +628,7 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should publish a "contacts:contact:add" event if request is a creation', function(done) {
+    it('should forward a "contacts:contact:add" event if request is a creation', function(done) {
       var statusCode = 200;
       req.user = {_id: 1};
       req.body = {foo: 'bar'};
@@ -636,10 +636,10 @@ describe('The addressbooks module', function() {
       };
       var called = false;
 
-      dependencies.pubsub.global.topic = function(name) {
+      dependencies.pubsub.local.topic = function(name) {
         expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED);
         return {
-          publish: function(data) {
+          forward: function(pubsub, data) {
             called = true;
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
@@ -765,12 +765,12 @@ describe('The addressbooks module', function() {
       getController().deleteContact();
     });
 
-    it('should publish a "contacts:contact:delete" event if request is a delete and is successful', function(done) {
+    it('should forward a "contacts:contact:delete" event if request is a delete and is successful', function(done) {
       var called = false;
-      dependencies.pubsub.global.topic = function(name) {
+      dependencies.pubsub.local.topic = function(name) {
         expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED);
         return {
-          publish: function(data) {
+          forward: function(pubsub, data) {
             called = true;
             expect(data).to.deep.equal({
               contactId: req.params.contactId,

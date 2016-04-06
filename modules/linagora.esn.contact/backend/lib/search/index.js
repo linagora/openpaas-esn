@@ -9,7 +9,6 @@ var DEFAULT_LIMIT = CONSTANTS.SEARCH.DEFAULT_LIMIT;
 
 module.exports = function(dependencies) {
 
-  var pubsub = dependencies('pubsub').global;
   var logger = dependencies('logger');
   var elasticsearch = dependencies('elasticsearch');
   var listener = require('./listener')(dependencies);
