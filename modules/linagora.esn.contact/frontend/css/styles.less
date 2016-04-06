@@ -197,14 +197,16 @@ ul.dropdown {
       border: 1px solid darken(@darkenBgColor, 8%);
     }
     &:first-child {
-      border-radius: 2px 0 0 2px;
+      border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px;
       margin-left: 5px;
       a {
         padding: 2px 5px;
       }
     }
     &:last-child {
-      border-radius: 0 2px 2px 0;
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
       a {
         padding: 3px 5px 1px 5px;
       }
