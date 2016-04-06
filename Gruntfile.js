@@ -121,33 +121,36 @@ module.exports = function(grunt) {
           pass: process.env.DOCKER_CERT_PASS || 'mypass'
         }
       },
-      esn_full: container.newContainer({
-          Image: 'docker/compose:1.6.2',
-          name: 'docker-compose-esn-full-' + Date.now(),
-          Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml', 'up'],
-          WorkingDir: '/compose',
-          Env: [
+
+      esn_full_pull: container.newEsnFullContainer({
+          name: 'docker-compose-esn-full-pull',
+          command: ['pull']
+        }),
+
+      esn_full_build: container.newEsnFullContainer({
+          name: 'docker-compose-esn-full-build',
+          command: ['build', '--force-rm', '--no-cache']
+        }),
+
+      esn_full_up: container.newEsnFullContainer({
+          name: 'docker-compose-esn-full-up',
+          command: ['up'],
+          env: [
             'DOCKER_IP=' + servers.host,
             'PROVISION=true',
             'ESN_PATH=' + __dirname
-          ],
-          HostConfig: {
-            Binds: [__dirname + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
-          }
-        }, {},
+          ]
+        },
         new RegExp('OpenPaas ESN is now started on node'),
         'All ESN docker containers are deployed'),
-      esn_full_remover: container.newContainer({
-          Image: 'docker/compose:1.6.2',
-          name: 'docker-compose-esn-full-remover-' + Date.now(),
-          Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml', 'down'],
-          WorkingDir: '/compose',
-          HostConfig: {
-            Binds: [__dirname + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
-          }
-        }, {},
+
+      esn_full_down: container.newEsnFullContainer({
+          name: 'docker-compose-esn-full-remover',
+          command: ['down']
+        },
         new RegExp('Removing network platform_default'),
         'All ESN docker containers have been removed'),
+
       redis: container.newContainer({
           Image: servers.redis.container.image,
           name: servers.redis.container.name
@@ -277,11 +280,15 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex']);
 
-  grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down']);
-  grunt.registerTask('test-e2e-quick', ['container:esn_full', 'test-e2e-wait-servers', 'container:esn_full:remove', 'continue:on', 'run_grunt:e2e', 'test-e2e-down-selenium']);
+  grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down', 'continue:fail-on-warning']);
+  grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down-selenium', 'continue:off']);
   grunt.registerTask('test-e2e-wait-servers', ['waitServer:esn', 'waitServer:mongo', 'waitServer:redis', 'waitServer:elasticsearch', 'waitServer:jmap', 'waitServer:cassandra']);
-  grunt.registerTask('test-e2e-prepare', ['shell:webdriver_install', 'container:esn_full:pull', 'container:esn_full_remover:pull']);
-  grunt.registerTask('test-e2e-down', ['container:esn_full_remover', 'container:esn_full_remover:remove']);
+  grunt.registerTask('test-e2e-prepare', ['shell:webdriver_install', 'container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);
+
+  grunt.registerTask('test-e2e-pull', ['container:esn_full_pull', 'container:esn_full_pull:remove']);
+  grunt.registerTask('test-e2e-build', ['container:esn_full_build', 'container:esn_full_build:remove']);
+  grunt.registerTask('test-e2e-up', ['container:esn_full_up', 'test-e2e-wait-servers', 'container:esn_full_up:remove']);
+  grunt.registerTask('test-e2e-down', ['container:esn_full_down', 'container:esn_full_down:remove']);
   grunt.registerTask('test-e2e-down-selenium', 'stop selenium server', gruntfileUtils.stopSeleniumServer());
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);

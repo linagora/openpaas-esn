@@ -24,12 +24,24 @@ function _args(grunt) {
 
 function _taskSuccessIfMatch(grunt, regex, info) {
   return function(chunk) {
-    var done = grunt.task.current.async();
-    var out = '' + chunk;
-    var started = regex;
-    if (started.test(out)) {
-      grunt.log.write(info);
-      done(true);
+
+    if (regex) {
+      var done = grunt.task.current.async();
+
+      if (regex.test('' + chunk)) {
+        grunt.log.write(info);
+        done(true);
+      }
+    }
+  };
+}
+
+function _taskSuccessIfStreamEnds(grunt, verbose) {
+  return function(chunk) {
+    if (chunk === null) {
+      grunt.task.current.async()(true);
+    } else if (verbose) {
+      grunt.log.writeln(chunk);
     }
   };
 }
@@ -96,16 +108,33 @@ GruntfileUtils.prototype.shell = function shell() {
 
 GruntfileUtils.prototype.container = function container() {
   var grunt = this.grunt;
-  return {
-    newContainer: function(createContainerOptions, startContainerOptions, regex, info) {
-      createContainerOptions.options = {
-        tasks: { async: false },
-        matchOutput: regex ? _taskSuccessIfMatch(grunt, regex, info) : undefined,
-        startContainerOptions: startContainerOptions
-      };
 
-      return createContainerOptions;
-    }
+  function newContainer(createContainerOptions, startContainerOptions, regex, info) {
+    createContainerOptions.options = {
+      tasks: { async: false },
+      matchOutput: regex ? _taskSuccessIfMatch(grunt, regex, info) : _taskSuccessIfStreamEnds(grunt, grunt.option('show-logs')),
+      startContainerOptions: startContainerOptions
+    };
+
+    return createContainerOptions;
+  }
+
+  function newEsnFullContainer(options, regex, info) {
+    return newContainer({
+        Image: 'docker/compose:1.6.2',
+        name: options.name,
+        Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml'].concat(options.command),
+        WorkingDir: '/compose',
+        Env: options.env || [],
+        HostConfig: {
+          Binds: [path.normalize(__dirname + '../../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+        }
+      }, {}, regex, info);
+  }
+
+  return {
+    newContainer: newContainer,
+    newEsnFullContainer: newEsnFullContainer
   };
 };
 
@@ -116,6 +145,7 @@ GruntfileUtils.prototype.runGrunt = function runGrunt() {
   function _process(res) {
     if (res.fail) {
       grunt.config.set('esn.tests.success', false);
+      grunt.fail.warn(res.error || new Error(res.output));
       grunt.log.writeln('failed');
     } else {
       grunt.config.set('esn.tests.success', true);
