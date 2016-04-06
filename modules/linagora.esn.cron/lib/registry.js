@@ -1,27 +1,45 @@
 'use strict';
 
+var extend = require('extend');
+var jobModule = require('./job');
 var registry = {};
 
 module.exports = function() {
 
-  function store(id, description, job, callback) {
-    if (!id || !description || !job) {
+  function save(job, callback) {
+    jobModule.save(job, function(err, savedJob) {
+      if (err) {
+        return callback(err);
+      }
+      registry[savedJob.jobId] = savedJob;
+      registry[savedJob.jobId].job = job;
+
+      return callback(null, savedJob);
+    });
+  }
+
+  function store(jobId, description, job, context, callback) {
+    if (!jobId || !description || !job) {
       return callback(new Error('id, description and job are required'));
     }
 
     var meta = {
-      id: id,
+      jobId: jobId,
       description: description,
-      job: job,
-      createdAt: new Date(),
-      calls: 0
+      context: context
     };
-    registry[id] = meta;
-    return callback(null, meta);
+
+    save(meta, callback);
   }
 
   function get(id, callback) {
-    return callback(null, registry[id]);
+    if (!id) {
+      return callback();
+    }
+    if (registry[id]) {
+      return callback(null, registry[id]);
+    }
+    jobModule.getById(id, callback);
   }
 
   function update(job, callback) {
@@ -29,14 +47,15 @@ module.exports = function() {
       return callback(new Error('Job is required'));
     }
 
-    if (!registry[job.id]) {
-      return callback(new Error('Job not found'));
-    }
+    get(job.jobId, function(err, foundJob) {
+      if (!foundJob) {
+        return callback(new Error('Job not found'));
+      }
+      foundJob.state = job.state || foundJob.state;
+      foundJob.timestamps.updatedAt = new Date();
 
-    registry[job.id].state = job.state || registry[job.id].state;
-    registry[job.id].updatedAt = job.updatedAt || registry[job.id].updatedAt;
-
-    return callback(null, registry[job.id]);
+      save(foundJob, callback);
+    });
   }
 
   return {
