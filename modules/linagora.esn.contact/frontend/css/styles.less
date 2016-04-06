@@ -184,7 +184,31 @@ ul.dropdown {
   padding: 0 15px;
 
   a > i.contact-attr-icon {
-    color: @m-gray !important; /* override to avoid blue icon inside link */
+    color: @primaryColor;
+  }
+
+  .listview .lv-attrs > li {
+
+    .hidden-xs;
+    margin-right: -1px;
+    margin-top: 3px;
+
+    &:not(.info):not(.primary):not(.warning):not(.danger) {
+      border: 1px solid darken(@darkenBgColor, 8%);
+    }
+    &:first-child {
+      border-radius: 2px 0 0 2px;
+      margin-left: 5px;
+      a {
+        padding: 2px 5px;
+      }
+    }
+    &:last-child {
+      border-radius: 0 2px 2px 0;
+      a {
+        padding: 3px 5px 1px 5px;
+      }
+    }
   }
 
   .contact-letter {
@@ -513,9 +537,9 @@ contact-photo {
 }
 
 .contact-list-item,contact-list-card {
-  .highlight { 
-    background: @m-yellow;  
-  
+  .highlight {
+    background: @m-yellow;
+
   &.empty {
     display: none;
     }
