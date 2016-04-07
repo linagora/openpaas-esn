@@ -13,14 +13,15 @@ The related grunt tasks are all starting with the 'docker-' prefix:
 
 ## End to end tests
 
-Before you can start running any E2E tests, run bellow command to pull
-required Docker images:
+Before you can start running any E2E tests, run bellow command to prepare an
+E2E testing environment like :
 
 ```bash
 grunt test-e2e-prepare
 ```
 
-Then you can perform a full E2E test with:
+Above command will update web driver, pull or build required Docker images, etc.
+Once it runs successful, you can perform a full E2E test with:
 
 ```bash
 grunt test-e2e
@@ -28,7 +29,23 @@ grunt test-e2e
 
 This is regular way to run end-to-end tests. It will create all required ESN containers, wait for each service to be available, run protractor tests and then stop/garbage all containers.
 
-As a developer, you can skip the containers removal to save time while you're writing tests. By using the following command, you will reuse the same containers over the time. So use it carefully, as for example, your database data won't be removed between tests!
+### E2E test in development
+
+Anytime you change your ESN code, you may want to rebuild your ESN image with:
+
+```bash
+grunt test-e2e-build
+```
+
+If you have newer version of service images like esn-sabre, esn-elasticsearch, etc.
+You can pull latest version of them with (don't forget to build ESN images again
+after a pull):
+
+```bash
+grunt test-e2e-pull
+```
+
+`grunt test-e2e` will remove the containers after it finishes. You can skip the containers removal to save time while you're writing tests. By using the following command, you will reuse the same containers over the time. So use it carefully, as for example, your database data won't be removed between tests!
 
 ```bash
 grunt test-e2e-quick
@@ -38,6 +55,12 @@ If an unexpected issue makes the container removal failing (see `docker ps` outp
 
 ```bash
 grunt test-e2e-down
+```
+
+If you want more logs, use `--show-logs` option with E2E test tasks, for example:
+
+```bash
+grunt test-e2e-prepare --show-logs
 ```
 
 ## Docker settings
