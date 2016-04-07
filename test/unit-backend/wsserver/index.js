@@ -1,13 +1,32 @@
 'use strict';
 
 var expect = require('chai').expect,
-    mockery = require('mockery');
+    mockery = require('mockery'),
+    sinon = require('sinon');
 
 describe('The WebSockets server module', function() {
+
+  var connectionTopic, disconnectionTopic, pubsub;
 
   beforeEach(function(done) {
     this.testEnv.initCore(done);
     mockery.registerMock('./events', function() {});
+
+    connectionTopic = {
+      publish: sinon.spy()
+    };
+
+    disconnectionTopic = {
+      publish: sinon.spy()
+    };
+
+    pubsub = {
+      topic: sinon.spy(function(name) {
+        return name === 'user:connection' ? connectionTopic : disconnectionTopic;
+      })
+    };
+
+    mockery.registerMock('../core/pubsub/global', pubsub);
   });
 
   it('should contains all needed properties.', function() {
@@ -164,6 +183,73 @@ describe('The WebSockets server module', function() {
           var socks = store.getSocketsForUser('123');
           expect(socks).to.have.length(1);
           expect(socks[0]).to.deep.equal(socket);
+          done();
+        });
+      });
+    });
+
+    it('should publish userId on user:connection channel on socket connection', function(done) {
+      var events = require('events');
+      var eventEmitter = new events.EventEmitter();
+      eventEmitter.use = function() {};
+
+      var ioMock = function() {
+        return eventEmitter;
+      };
+
+      mockery.registerMock('./middleware/setup-sessions', function() {});
+      mockery.registerMock('socket.io', ioMock);
+
+      var wsserver = this.helpers.requireBackend('wsserver').wsserver;
+      wsserver.start(function() {
+        var socket = {
+          id: 'socket1',
+          request: {
+            userId: '123'
+          },
+          on: function() {
+          }
+        };
+        eventEmitter.emit('connection', socket);
+
+        process.nextTick(function() {
+          expect(pubsub.topic).to.have.been.calledWith('user:connection');
+          expect(connectionTopic.publish).to.have.been.calledWith('123');
+          done();
+        });
+      });
+    });
+
+    it('should publish userId on user:disconnection channel on socket disconnection', function(done) {
+      var events = require('events');
+      var eventEmitter = new events.EventEmitter();
+      eventEmitter.use = function() {};
+
+      var ioMock = function() {
+        return eventEmitter;
+      };
+
+      mockery.registerMock('./middleware/setup-sessions', function() {});
+      mockery.registerMock('socket.io', ioMock);
+
+      var wsserver = this.helpers.requireBackend('wsserver').wsserver;
+      wsserver.start(function() {
+        var socket = {
+          id: 'socket1',
+          request: {
+            userId: '123'
+          },
+          on: sinon.spy()
+        };
+        eventEmitter.emit('connection', socket);
+
+        process.nextTick(function() {
+          expect(socket.on).to.have.been.calledWith('disconnect', sinon.match(function(callback) {
+            callback();
+            expect(pubsub.topic).to.have.been.calledWith('user:disconnection');
+            expect(disconnectionTopic.publish).to.have.been.calledWith('123');
+            return true;
+          }));
           done();
         });
       });
