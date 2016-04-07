@@ -573,7 +573,7 @@ describe('The calendar core module', function() {
         };
         this.moduleHelpers.addDep('config', configMock);
         this.moduleHelpers.addDep('esn-config', esnConfigMock);
-        mockery.registerMock('../../../lib/jcal/jcalHelper', {
+        mockery.registerMock('../../../lib/helpers/jcal', {
           jcal2content: function() {
             return {};
           }
@@ -652,7 +652,7 @@ describe('The calendar core module', function() {
         };
         this.moduleHelpers.addDep('config', configMock);
         this.moduleHelpers.addDep('esn-config', esnConfigMock);
-        mockery.registerMock('../../../lib/jcal/jcalHelper', {
+        mockery.registerMock('../../../lib/helpers/jcal', {
           jcal2content: function() {
             return {};
           }
@@ -813,7 +813,7 @@ describe('The calendar core module', function() {
 
           var method = 'REQUEST';
 
-          mockery.registerMock('../../../lib/jcal/jcalHelper', {
+          mockery.registerMock('../../../lib/helpers/jcal', {
             jcal2content: function() {
               return event;
             }

@@ -8,7 +8,7 @@ describe('jcalHelper', function() {
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
-    this.jcalHelper = require(this.calendarModulePath + '/backend/lib/jcal/jcalHelper');
+    this.jcalHelper = require(this.calendarModulePath + '/backend/lib/helpers/jcal');
   });
 
   describe('the getAttendeesEmails function', function() {
@@ -212,6 +212,48 @@ describe('jcalHelper', function() {
             cn: 'Jane Doe',
             partstat: 'NEEDS-ACTION'
           }
+        }
+      });
+    });
+
+    it('should parse jcal with one valarm component', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.shallowDeepEqual({
+        method: 'REQUEST',
+        sequence: 0,
+        summary: 'Démo OPENPAAS',
+        uid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c',
+        start: {
+          date: '06/12/2015'
+        },
+        end: {
+          date: '09/11/2015'
+        },
+        allDay: true,
+        durationInDays: 92,
+        location: 'https://hubl.in/openpaas',
+        description: 'Présentation de OPENPAAS',
+        organizer: {
+          cn: 'John Doe',
+          email: 'johndoe@open-paas.org',
+          avatar: 'http://localhost:8080/api/avatars?objectType=user&email=johndoe@open-paas.org'
+        },
+        attendees: {
+          'johndoe@open-paas.org': {
+            cn: 'John Doe',
+            partstat: 'ACCEPTED'
+          },
+          'janedoe@open-paas.org': {
+            cn: 'Jane Doe',
+            partstat: 'NEEDS-ACTION'
+          }
+        },
+        alarm: {
+          action: 'EMAIL',
+          trigger: '-PT30M',
+          description: 'This is an automatic alarm sent by OpenPaas',
+          summary: 'Pending event! Event: Victor Sanders',
+          attendee: 'mailto:slemaistre@gmail.com'
         }
       });
     });

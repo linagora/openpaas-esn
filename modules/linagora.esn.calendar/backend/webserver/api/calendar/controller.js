@@ -3,7 +3,7 @@
 var request = require('request');
 var urljoin = require('url-join');
 var ICAL = require('ical.js');
-var jcalHelper = require('../../../lib/jcal/jcalHelper.js');
+var jcalHelper = require('../../../lib/helpers/jcal');
 var calendar,
     arrayHelpers,
     logger,

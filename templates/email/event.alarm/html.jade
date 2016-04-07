@@ -1,0 +1,38 @@
+
+doctype html
+html.mail
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    style
+      include ../css/media.less
+
+  body
+    .wrapper
+      br
+      .mail-content
+
+        table
+          tr.table-header
+            td.logo(colspan="2")
+              div
+                a(href="#{content.baseUrl}")
+                  img(src="cid:logo", alt="open-paas logo")
+            td.organizer(colspan="3")
+              h5
+                p
+                  | #{content.event.organizer.cn} (
+                  span.small
+                    a(href='mailto:#{content.event.organizer.email}')
+                      img(src="cid:email", alt="Organizer mail")
+                    | )
+                p.big #{content.inviteMessage}
+            td.avatar.indent-right
+              img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
+          tr
+            td.indent
+              div.alarmdescription #{content.alarm.description}
+
+      footer
+        div.footer
+          a(href='#{content.baseUrl}/#/calendar') More details...
