@@ -3,7 +3,9 @@
 angular.module('linagora.esn.controlcenter', [
   'op.dynamicDirective',
   'esn.router',
-  'esn.user'
+  'esn.user',
+  'esn.subheader',
+  'esn.sidebar'
 ])
 
 .config(function($stateProvider, $urlRouterProvider, dynamicDirectiveServiceProvider) {
