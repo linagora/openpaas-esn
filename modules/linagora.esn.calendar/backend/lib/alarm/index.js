@@ -1,14 +1,14 @@
 'use strict';
 
 var q = require('q');
-var utils;
 var contentSender;
+var helpers;
 var jcal2content = require('../helpers/jcal').jcal2content;
 
 function sendAlarmEmail(ics, email) {
   var defer = q.defer();
 
-  utils.getBaseUrl(function(err, baseUrl) {
+  helpers.config.getBaseUrl(function(err, baseUrl) {
     if (err) {
       return defer.reject(err);
     }
@@ -42,7 +42,7 @@ function sendAlarmEmail(ics, email) {
 }
 
 module.exports = function(dependencies) {
-  utils = require('../helpers/utils')(dependencies);
+  helpers = dependencies('helpers');
   contentSender = dependencies('content-sender');
 
   return {

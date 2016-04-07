@@ -1,7 +1,7 @@
 'use strict';
 
-var esnconfig;
-var staticConfig;
+var esnconfig = require('../core/esn-config');
+var staticConfig = require('../core/config')('default');
 
 function getBaseUrl(callback) {
   return esnconfig('web').get(function(err, web) {
@@ -19,11 +19,4 @@ function getBaseUrl(callback) {
   });
 }
 
-module.exports = function(dependencies) {
-  esnconfig = dependencies('esn-config');
-  staticConfig = dependencies('config')('default');
-
-  return {
-    getBaseUrl: getBaseUrl
-  };
-};
+module.exports.getBaseUrl = getBaseUrl;

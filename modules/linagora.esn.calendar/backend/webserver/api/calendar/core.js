@@ -17,7 +17,7 @@ var eventMessage,
     collaborationPermission,
     contentSender,
     jwt,
-    utils;
+    configHelpers;
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -230,7 +230,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
     });
     return deferred.promise;
   });
-  return utils.getBaseUrl(function(err, baseUrl) {
+  return configHelpers.getBaseUrl(function(err, baseUrl) {
     if (err) {
       return q.reject(err).nodeify(callback);
     }
@@ -328,11 +328,11 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
 module.exports = function(dependencies) {
   eventMessage = require('./../../../lib/message/eventmessage.core')(dependencies);
   i18n = require('../../../lib/i18n')(dependencies);
-  utils = require('../../../lib/helpers/utils')(dependencies);
   userModule = dependencies('user');
   collaborationModule = dependencies('collaboration');
   messageHelpers = dependencies('helpers').message;
   arrayHelpers = dependencies('helpers').array;
+  configHelpers = dependencies('helpers').config;
   activityStreamHelper = dependencies('activitystreams').helpers;
   localpubsub = dependencies('pubsub').local;
   globalpubsub = dependencies('pubsub').global;
