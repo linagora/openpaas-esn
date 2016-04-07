@@ -35,36 +35,36 @@ describe('The OAuth Consumer controller', function() {
 
   describe('The finalizeWorkflow controller', function() {
 
-    it('should redirect to /#/accounts?provider=social when ok', function(done) {
+    it('should redirect to /#/controlcenter/accounts?provider=social when ok', function(done) {
       var res = {
         redirect: function(path) {
-          expect(path).to.equal('/#/accounts?provider=social');
+          expect(path).to.equal('/#/controlcenter/accounts?provider=social');
           done();
         }
       };
       getController().finalizeWorkflow(type, req, res);
     });
 
-    it('should redirect to /#/accounts?provider=social&status=:status when status is defined in req.oauth', function(done) {
+    it('should redirect to /#/controlcenter/accounts?provider=social&status=:status when status is defined in req.oauth', function(done) {
       var status = 'created';
       req.oauth = {
         status: status
       };
       var res = {
         redirect: function(path) {
-          expect(path).to.equal('/#/accounts?provider=social&status=' + status);
+          expect(path).to.equal('/#/controlcenter/accounts?provider=social&status=' + status);
           done();
         }
       };
       getController().finalizeWorkflow(type, req, res);
     });
 
-    it('should redirect to /#/accounts?status=denied&provider=social&token=:token when req.query.denied', function(done) {
+    it('should redirect to /#/controlcenter/accounts?status=denied&provider=social&token=:token when req.query.denied', function(done) {
       var token = '12345';
       req.query.denied = token;
       var res = {
         redirect: function(path) {
-          expect(path).to.equal('/#/accounts?status=denied&provider=social&token=' + token);
+          expect(path).to.equal('/#/controlcenter/accounts?status=denied&provider=social&token=' + token);
           done();
         }
       };
@@ -85,7 +85,7 @@ describe('The OAuth Consumer controller', function() {
       };
       var middleware = getController().unknownAuthErrorMiddleware(TYPE, REGEXP);
       middleware(new Error(ERR_MSG), {}, res, done);
-      expect(spy).to.have.been.calledWith('/#/accounts?status=config_error&provider=' + TYPE);
+      expect(spy).to.have.been.calledWith('/#/controlcenter/accounts?status=config_error&provider=' + TYPE);
       done();
     });
 

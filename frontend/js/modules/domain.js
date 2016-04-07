@@ -2,8 +2,11 @@
 
 angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user'])
   .config(function(dynamicDirectiveServiceProvider) {
-    var invitation = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitation);
+    var invitationAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitationAppMenu);
+
+    var invitationControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-invitation', {priority: -8});
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', invitationControlCenterMenu);
   })
   .factory('domainAPI', function(esnRestangular) {
 
@@ -59,7 +62,17 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members/invite', 'mdi-account-plus', 'Invitation', 'core.applications-menu.invitation'),
+      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members/invite', 'mdi-account-plus', 'Invitation', 'core.applications-menu.invitation'),
+      link: function(scope) {
+        scope.domain = session.domain;
+      }
+    };
+  })
+
+  .directive('controlcenterMenuInvitation', function(session, controlCenterMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      template: controlCenterMenuTemplateBuilder('controlcenter.domainInviteMembers({ id: domain._id })', 'mdi-account-plus', 'Invitation'),
       link: function(scope) {
         scope.domain = session.domain;
       }

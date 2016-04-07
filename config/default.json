@@ -71,6 +71,7 @@
     "linagora.esn.oauth.consumer",
     "linagora.esn.project",
     "linagora.esn.profile",
+    "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox"
   ],
   "email": {

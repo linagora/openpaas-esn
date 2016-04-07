@@ -9,7 +9,7 @@ angular.module('linagora.esn.contact.import')
     CONTACT_CLIENT_ERROR: 'contact:import:contact:error'
   })
   .constant('CONTACT_IMPORT_DEFAULT_MESSAGES', {
-    ACCOUNT_ERROR: 'Failed to import contacts, make sure your external account is <a href="/#/accounts">configured</a> correctly',
+    ACCOUNT_ERROR: 'Failed to import contacts, make sure your external account is <a href="/#/controlcenter/accounts">configured</a> correctly',
     API_CLIENT_ERROR: 'Failed to import contacts, there was a problem with the external service',
     CONTACT_CLIENT_ERROR: 'Failed to import contacts'
   })

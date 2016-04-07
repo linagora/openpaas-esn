@@ -2,8 +2,11 @@
 
 angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
   .config(function(dynamicDirectiveServiceProvider) {
-    var application = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-application', {priority: 5});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', application);
+    var applicationAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-application', {priority: 5});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', applicationAppMenu);
+
+    var applicationControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-application', {priority: -10});
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', applicationControlCenterMenu);
   })
   .controller('applicationController', function($scope, $log, $location, applicationAPI, applications) {
     $scope.applications = applications;
@@ -64,7 +67,13 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/applications', 'mdi-apps', 'Applications', 'core.applications-menu.applications')
+      template: applicationMenuTemplateBuilder('/#/controlcenter/applications', 'mdi-apps', 'Applications', 'core.applications-menu.applications')
+    };
+  })
+  .directive('controlcenterMenuApplication', function(controlCenterMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      template: controlCenterMenuTemplateBuilder('controlcenter.applications', 'mdi-apps', 'Applications')
     };
   })
   .factory('applicationAPI', function(esnRestangular) {

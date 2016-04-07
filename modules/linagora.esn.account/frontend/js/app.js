@@ -10,7 +10,7 @@ angular.module('linagora.esn.account', [
   'linagora.esn.oauth',
   'linagora.esn.contact.import'])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
-    $stateProvider.state('/accounts', {
+    $stateProvider.state('controlcenter.accounts', {
       url: '/accounts',
       templateUrl: '/account/views/accounts',
       controller: 'accountListController',
@@ -28,8 +28,8 @@ angular.module('linagora.esn.account', [
       }
     });
 
-    var account = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-account', {priority: -5});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', account);
+    var accountControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-account', {priority: -2});
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', accountControlCenterMenu);
   })
   .run(function(dynamicDirectiveService, accountMessageRegistry, FAB_ANCHOR_POINT, SUPPORTED_ACCOUNT_TYPES, socialHelper, _) {
     _.forIn(SUPPORTED_ACCOUNT_TYPES, function(item) {

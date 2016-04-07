@@ -14,7 +14,7 @@ module.exports = function(router, dependencies) {
       accessType: 'offline',
       prompt: 'consent',
       scope: ['profile', 'https://www.google.com/m8/feeds'],
-      failureRedirect: '/#/accounts?status=error&provider=google&context=connect&action=redirect',
+      failureRedirect: '/#/controlcenter/accounts?status=error&provider=google&context=connect&action=redirect',
       callbackURL: '/oauth/google/connect/callback'
     })
   );

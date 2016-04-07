@@ -10,7 +10,7 @@ angular.module('linagora.esn.profile', [
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider
-      .state('profile', {
+      .state('controlcenter.profile', {
         url: '/profile',
         templateUrl: '/profile/views/profile',
         controller: 'profileController',
@@ -39,7 +39,9 @@ angular.module('linagora.esn.profile', [
         }
       });
 
-    var profile = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-profile', {priority: 20});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', profile);
+    var profileControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(
+      true, 'controlcenter-menu-profile', { priority: -1 });
+
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', profileControlCenterMenu);
 
   });

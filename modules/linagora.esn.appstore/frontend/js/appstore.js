@@ -12,7 +12,7 @@ angular.module('esn.appstore', [
   'op.dynamicDirective'
 ]).config(function($stateProvider, dynamicDirectiveServiceProvider) {
 
-  $stateProvider.state('/appstore', {
+  $stateProvider.state('controlcenter.appstore', {
     url: '/appstore',
     templateUrl: '/appstore/views/appstore/appstore',
     controller: 'appstoreController'
@@ -67,6 +67,9 @@ angular.module('esn.appstore', [
     }
   });
 
-  var appstore = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-appstore', {priority: 0});
-  dynamicDirectiveServiceProvider.addInjection('esn-application-menu', appstore);
+  var appstoreAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-appstore', {priority: 0});
+  dynamicDirectiveServiceProvider.addInjection('esn-application-menu', appstoreAppMenu);
+
+  var appstoreControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-appstore', {priority: -12});
+  dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', appstoreControlCenterMenu);
 });

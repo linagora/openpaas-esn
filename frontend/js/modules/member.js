@@ -2,8 +2,11 @@
 
 angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
   .config(function(dynamicDirectiveServiceProvider) {
-    var profile = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', profile);
+    var memberAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', memberAppMenu);
+
+    var memberControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-member', {priority: -6});
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', memberControlCenterMenu);
   })
   .constant('memberSearchConfiguration', {
     searchLimit: 20
@@ -92,7 +95,16 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/domains/{{::domain._id}}/members', 'mdi-account-multiple-outline', 'Members', 'core.applications-menu.members'),
+      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members', 'mdi-account-multiple-outline', 'Members', 'core.applications-menu.members'),
+      link: function(scope) {
+        scope.domain = session.domain;
+      }
+    };
+  })
+  .directive('controlcenterMenuMember', function(session, controlCenterMenuTemplateBuilder) {
+    return {
+      restrict: 'E',
+      template: controlCenterMenuTemplateBuilder('controlcenter.domainMembers({ domain_id: domain._id })', 'mdi-account-multiple-outline', 'Members'),
       link: function(scope) {
         scope.domain = session.domain;
       }

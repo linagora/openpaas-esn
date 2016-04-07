@@ -7,20 +7,20 @@ module.exports = function(dependencies) {
   function finalizeWorkflow(type, req, res) {
     logger.info('Finalize callback');
     if (req.query.denied) {
-      return res.redirect('/#/accounts?status=denied&provider=' + type + '&token=' + req.query.denied);
+      return res.redirect('/#/controlcenter/accounts?status=denied&provider=' + type + '&token=' + req.query.denied);
     }
 
     if (req.oauth && req.oauth.status) {
       var status = req.oauth.status;
-      return res.redirect('/#/accounts?provider=' + type + '&status=' + status);
+      return res.redirect('/#/controlcenter/accounts?provider=' + type + '&status=' + status);
     }
-    res.redirect('/#/accounts?provider=' + type);
+    res.redirect('/#/controlcenter/accounts?provider=' + type);
   }
 
   function unknownAuthErrorMiddleware(type, regexp) {
     return function(err, req, res, next) {
       if (err && regexp.test(err.message)) {
-        return res.redirect('/#/accounts?status=config_error&provider=' + type);
+        return res.redirect('/#/controlcenter/accounts?status=config_error&provider=' + type);
       }
       next(err);
     };

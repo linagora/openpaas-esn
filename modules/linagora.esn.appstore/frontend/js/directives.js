@@ -22,7 +22,13 @@ angular.module('esn.appstore')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/appstore', 'mdi-package-variant', 'Modules', 'linagora.esn.appstore.applications-menu')
+      template: applicationMenuTemplateBuilder('/#/controlcenter/appstore', 'mdi-package-variant', 'Modules', 'linagora.esn.appstore.applications-menu')
+    };
+  })
+  .directive('controlcenterMenuAppstore', function(controlCenterMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      template: controlCenterMenuTemplateBuilder('controlcenter.appstore', 'mdi-package-variant', 'Modules')
     };
   })
   .directive('appstoreButtonSubmit', function($modal) {
