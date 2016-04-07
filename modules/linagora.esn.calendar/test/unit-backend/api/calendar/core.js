@@ -16,7 +16,6 @@ describe('The calendar core module', function() {
   var pubsubMock;
   var contentSenderMock;
   var configMock;
-  var esnConfigMock;
   var authMock;
 
   function initMock() {
@@ -55,6 +54,11 @@ describe('The calendar core module', function() {
         isNullOrEmpty: function(array) {
           return (!Array.isArray(array) || array.length === 0);
         }
+      },
+      config: {
+        getBaseUrl: function(callback) {
+          callback();
+        }
       }
     };
     pubsubMock = {
@@ -75,13 +79,6 @@ describe('The calendar core module', function() {
     configMock = function() {
       return {
         webserver: {}
-      };
-    };
-    esnConfigMock = function() {
-      return {
-        get: function(callback) {
-          callback();
-        }
       };
     };
     authMock = {
@@ -105,7 +102,6 @@ describe('The calendar core module', function() {
     this.moduleHelpers.addDep('pubsub', pubsubMock);
     this.moduleHelpers.addDep('content-sender', contentSenderMock);
     this.moduleHelpers.addDep('config', configMock);
-    this.moduleHelpers.addDep('esn-config', esnConfigMock);
     this.moduleHelpers.addDep('auth', authMock);
   });
 
@@ -441,14 +437,9 @@ describe('The calendar core module', function() {
       });
 
       it('should return an error it cannot retrieve ', function(done) {
-        var esnConfigMock = function() {
-          return {
-            get: function(callback) {
-              callback(new Error('cannot get base_url'));
-            }
-          };
+        helpersMock.config.getBaseUrl = function(callback) {
+          callback(new Error('cannot get base_url'));
         };
-        this.moduleHelpers.addDep('esn-config', esnConfigMock);
 
         var method = 'REQUEST';
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
@@ -557,22 +548,9 @@ describe('The calendar core module', function() {
       });
 
       it('should call content-sender.send with correct parameters', function(done) {
-        var configMock = function() {
-          return {
-            webserver: {
-              port: 8888
-            }
-          };
+        helpersMock.config.getBaseUrl = function(callback) {
+          callback(null, 'http://localhost:8888');
         };
-        var esnConfigMock = function() {
-          return {
-            get: function(callback) {
-              callback();
-            }
-          };
-        };
-        this.moduleHelpers.addDep('config', configMock);
-        this.moduleHelpers.addDep('esn-config', esnConfigMock);
         mockery.registerMock('../../../lib/helpers/jcal', {
           jcal2content: function() {
             return {};
@@ -629,52 +607,6 @@ describe('The calendar core module', function() {
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           expect(called).to.equal(2);
-          done();
-        });
-      });
-
-      it('should get baseUrl from esnConfig', function(done) {
-        var configMock = function() {
-          return {
-            webserver: {
-              port: 8888
-            }
-          };
-        };
-        var esnConfigMock = function() {
-          return {
-            get: function(callback) {
-              callback(null, {
-                base_url: 'https://dev.open-paas.org'
-              });
-            }
-          };
-        };
-        this.moduleHelpers.addDep('config', configMock);
-        this.moduleHelpers.addDep('esn-config', esnConfigMock);
-        mockery.registerMock('../../../lib/helpers/jcal', {
-          jcal2content: function() {
-            return {};
-          }
-        });
-        var attendeeEmails = [attendee1.emails[0]];
-        var method = 'REQUEST';
-
-        userMock.findByEmail = function(email, callback) {
-          return callback(null, attendee1);
-        };
-
-        var called = 0;
-        contentSenderMock.send = function(from, to, content, options, type) {
-          called++;
-          expect(content.baseUrl).to.deep.equal('https://dev.open-paas.org');
-          return q();
-        };
-
-        this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
-          expect(err).to.not.exist;
-          expect(called).to.equal(1);
           done();
         });
       });
@@ -793,23 +725,9 @@ describe('The calendar core module', function() {
     describe('The filter method of the inviteAttendees fn', function() {
       beforeEach(function() {
         this.getFilter = function(event, callback) {
-          var configMock = function() {
-            return {
-              webserver: {
-                port: 8888
-              }
-            };
+          helpersMock.config.getBaseUrl = function(callback) {
+            callback();
           };
-          this.moduleHelpers.addDep('config', configMock);
-
-          var esnConfigMock = function() {
-            return {
-              get: function(callback) {
-                callback();
-              }
-            };
-          };
-          this.moduleHelpers.addDep('esn-config', esnConfigMock);
 
           var method = 'REQUEST';
 
