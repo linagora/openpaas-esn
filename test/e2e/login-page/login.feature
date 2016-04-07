@@ -14,7 +14,7 @@ Feature: As a user of Open-Paas,
     Then the location url should not equal "/"
 
   Scenario: OpenPaaS login page should continue to the asked page
-    Given I go on "/#/login?continue=%2Faccounts"
+    Given I go on "/#/login?continue=%2Fcontrolcenter%2Faccounts"
     When I log in with "admin@open-paas.org" and "secret"
     And I wait for the url redirection
-    Then the location url should equal "/accounts"
+    Then the location url should equal "/controlcenter/accounts"
