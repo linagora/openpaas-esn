@@ -14,11 +14,12 @@
     }
 
     .logo {
-      padding-left: 0;
+      padding: 0;
       a {
-        padding: 5px;
+        padding: 0 0 0 5px;
         .openpaas-logo {
-          height: 40px;
+          height: 35px;
+          width: 150px;
         }
       }
     }
@@ -29,7 +30,7 @@
 
     li.hover-scale-animation {
       position: relative;
-      width: 50px;
+      width: 40px;
       height: 40px;
       padding: 0;
 
@@ -40,7 +41,7 @@
         height: 100%;
 
         > i.mdi {
-          font-size: 1.9em;
+          font-size: 2em;
           color: @textPrimaryColor;
         }
         &:hover {
@@ -62,6 +63,20 @@
       &.browser-opera  {
         display: block;
       }
+    }
+  }
+  .header-actions{
+    padding-right: 5px;
+  }
+  .avatar-container {
+    margin-left: 5px;
+
+    .header-avatar {
+      height: 30px;
+      width: 30px;
+      background: #fff;
+      border-radius: 3px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
     }
   }
 }
