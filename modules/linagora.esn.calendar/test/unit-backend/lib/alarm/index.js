@@ -2,24 +2,24 @@
 
 var expect = require('chai').expect;
 var fs = require('fs');
-var mockery = require('mockery');
 var sinon = require('sinon');
 var q = require('q');
 
 describe('jcalHelper', function() {
-  var contentSender;
+  var contentSender, helpers;
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
     contentSender = { send: sinon.stub().returns(q.when({})) };
-    this.moduleHelpers.addDep('content-sender', contentSender);
-    mockery.registerMock('../helpers/utils', function(dep) {
-      return {
+    helpers = {
+      config: {
         getBaseUrl: function(callback) {
           callback(null, 'http://localhost:8080/');
         }
-      };
-    });
+      }
+    };
+    this.moduleHelpers.addDep('content-sender', contentSender);
+    this.moduleHelpers.addDep('helpers', helpers);
     this.requireModule = function() {
       return require(this.calendarModulePath + '/backend/lib/alarm')(this.moduleHelpers.dependencies);
     };
