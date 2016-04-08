@@ -7,7 +7,7 @@ var q = require('q');
 var ICAL = require('ical.js');
 var moment = require('moment');
 
-describe('jcalHelper', function() {
+describe('alarm module', function() {
   var contentSender, helpers, localstub, cron;
 
   beforeEach(function() {

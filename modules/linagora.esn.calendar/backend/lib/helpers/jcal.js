@@ -8,6 +8,21 @@ function _getEmail(attendee) {
   return attendee.getFirstValue().replace(/^MAILTO:/i, '');
 }
 
+function _icalDateToMoment(icalDate, correspondingIcalStartDate) {
+  var dt;
+  var momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
+
+  if (icalDate.isDate) {
+    dt = moment(momentDatetimeArg.slice(0, 3));
+  } else if (icalDate.zone === ICAL.Timezone.utcTimezone) {
+    dt = moment.utc(momentDatetimeArg);
+  } else {
+    dt = moment(momentDatetimeArg);
+  }
+
+  return dt;
+}
+
 function getVeventAttendeeByMail(vevent, email) {
   var results = vevent.getAllProperties('attendee').filter(function(attendee) {
     return _getEmail(attendee) === email;
@@ -16,6 +31,22 @@ function getVeventAttendeeByMail(vevent, email) {
   return results.length ? results[0] : null;
 }
 module.exports.getVeventAttendeeByMail = getVeventAttendeeByMail;
+
+function getVAlarmAsObject(valarm, dtstart) {
+  var trigger = valarm.getFirstPropertyValue('trigger');
+  var attendee = valarm.getFirstPropertyValue('attendee');
+  var startDate = _icalDateToMoment(dtstart);
+  return {
+    action: valarm.getFirstPropertyValue('action'),
+    trigger: trigger,
+    description: valarm.getFirstPropertyValue('description'),
+    summary: valarm.getFirstPropertyValue('summary'),
+    attendee: attendee,
+    email: attendee.replace(/^MAILTO:/i, ''),
+    alarmDueDate: startDate.clone().add(moment.duration(trigger))
+  };
+}
+module.exports.getVAlarmAsObject = getVAlarmAsObject;
 
 /**
  * Return a formatted, easily usable data for an email template from a jcal object
@@ -56,7 +87,9 @@ module.exports.getVeventAttendeeByMail = getVeventAttendeeByMail;
         trigger: '-PT15M',
         description: 'an alarm',
         summary: 'Event Pending',
-        attendee: 'aorganizer@linagora.com'
+        attendee: 'aorganizer@linagora.com',
+        email: 'aorganizer@linagora.com',
+        alarmDueDate: 'a date 15 min before start date'
       }
     }
    }
@@ -77,21 +110,6 @@ function jcal2content(icalendar, baseUrl) {
     };
   });
 
-  function icalDateToMoment(icalDate, correspondingIcalStartDate) {
-    var dt;
-    var momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
-
-    if (icalDate.isDate) {
-      dt = moment(momentDatetimeArg.slice(0, 3));
-    } else if (icalDate.zone === ICAL.Timezone.utcTimezone) {
-      dt = moment.utc(momentDatetimeArg);
-    } else {
-      dt = moment(momentDatetimeArg);
-    }
-
-    return dt;
-  }
-
   function getTimezoneOfIcalDate(icalDatetime) {
     if (icalDatetime.isDate) {
       return '';
@@ -102,7 +120,7 @@ function jcal2content(icalendar, baseUrl) {
 
   var allDay = vevent.getFirstProperty('dtstart').type === 'date';
   var dtstart = vevent.getFirstPropertyValue('dtstart');
-  var startDate = icalDateToMoment(dtstart);
+  var startDate = _icalDateToMoment(dtstart);
   var startTimezone = getTimezoneOfIcalDate(dtstart);
 
   var end, endDate;
@@ -115,7 +133,7 @@ function jcal2content(icalendar, baseUrl) {
     duration: vevent.getFirstPropertyValue('duration') || null
   });
 
-  endDate = icalDateToMoment(dtend || period.getEnd());
+  endDate = _icalDateToMoment(dtend || period.getEnd());
   var endTimezone = dtend ? getTimezoneOfIcalDate(dtend) : startTimezone;
 
   if (!!endDate && !!startDate) {
@@ -167,13 +185,7 @@ function jcal2content(icalendar, baseUrl) {
 
   var valarm = vevent.getFirstSubcomponent('valarm');
   if (valarm) {
-    content.alarm = {
-      action: valarm.getFirstPropertyValue('action'),
-      trigger: valarm.getFirstPropertyValue('trigger'),
-      description: valarm.getFirstPropertyValue('description'),
-      summary: valarm.getFirstPropertyValue('summary'),
-      attendee: valarm.getFirstPropertyValue('attendee')
-    };
+    content.alarm = getVAlarmAsObject(valarm, dtstart);
   }
 
   return content;

@@ -1,13 +1,12 @@
 'use strict';
 
 var q = require('q');
+var ICAL = require('ical.js');
+var jcalHelper = require('../helpers/jcal');
 var contentSender;
 var helpers;
-var jcal2content = require('../helpers/jcal').jcal2content;
-var ICAL = require('ical.js');
 var pubsub;
 var logger;
-var moment = require('moment');
 var cron;
 
 function _sendAlarmEmail(ics, email) {
@@ -20,7 +19,7 @@ function _sendAlarmEmail(ics, email) {
 
     var event;
     try {
-      event = jcal2content(ics, baseUrl);
+      event = jcalHelper.jcal2content(ics, baseUrl);
     } catch (err) {
       return defer.reject(err);
     }
@@ -67,21 +66,6 @@ function _registerNewAlarm(date, ics, email) {
   });
 }
 
-function _icalDateToMoment(icalDate) {
-  var dt;
-  var momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
-
-  if (icalDate.isDate) {
-    dt = moment(momentDatetimeArg.slice(0, 3));
-  } else if (icalDate.zone === ICAL.Timezone.utcTimezone) {
-    dt = moment.utc(momentDatetimeArg);
-  } else {
-    dt = moment(momentDatetimeArg);
-  }
-
-  return dt;
-}
-
 function _handleAlarm(msg) {
   switch (msg.type) {
     case 'created':
@@ -100,13 +84,9 @@ function _handleAlarm(msg) {
         return;
       }
 
-      var trigger = valarm.getFirstPropertyValue('trigger');
-      var attendee = valarm.getFirstPropertyValue('attendee');
-      var startDate = _icalDateToMoment(vevent.getFirstPropertyValue('dtstart'));
-      var date = startDate.clone().add(moment.duration(trigger));
-      var email = attendee.replace(/^MAILTO:/i, '');
-      logger.info('Register new event alarm email for', email, 'at', date.clone().local().format());
-      _registerNewAlarm(date.toDate(), vcalendar.toString(), email);
+      var alarm = jcalHelper.getVAlarmAsObject(valarm, vevent.getFirstPropertyValue('dtstart'));
+      logger.info('Register new event alarm email for', alarm.email, 'at', alarm.alarmDueDate.clone().local().format());
+      _registerNewAlarm(alarm.alarmDueDate.toDate(), vcalendar.toString(), alarm.email);
       break;
     case 'updated':
       logger.warn('Handling alarm and event modification is not supported yet');
