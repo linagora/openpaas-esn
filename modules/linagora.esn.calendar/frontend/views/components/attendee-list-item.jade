@@ -1,3 +1,3 @@
 div
-  attendee-list-item-edition(ng-if="mode === 'edition'", attendee='attendee', read-only='::readOnly')
-  attendee-list-item-consult(ng-if="mode === 'consult'", attendee='attendee', read-only='::readOnly')
+  attendee-list-item-edition(ng-if="mode === 'edition'", attendee='attendee', is-organizer='isOrganizer', read-only='::readOnly')
+  attendee-list-item-consult(ng-if="mode === 'consult'", attendee='attendee', is-organizer='isOrganizer', read-only='::readOnly')

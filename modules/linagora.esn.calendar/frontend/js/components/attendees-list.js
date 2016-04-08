@@ -10,6 +10,7 @@ angular.module('esn.calendar')
       scope: {
         attendees: '=',
         readOnly: '=',
+        organizer: '=',
         mode: '@'
       },
       link: function(scope) {

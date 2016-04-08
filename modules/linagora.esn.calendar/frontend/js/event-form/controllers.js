@@ -48,20 +48,26 @@ angular.module('esn.calendar')
     function initFormData() {
       $scope.editedEvent = $scope.event.clone();
       $scope.newAttendees = eventUtils.getNewAttendees();
-      $scope.invitedAttendee = null;
-      $scope.hasAttendees = eventUtils.hasAttendees($scope.editedEvent);
-      if ($scope.hasAttendees) {
-        $scope.editedEvent.attendees.forEach(function(attendee) {
-          if (attendee.email in session.user.emailMap) {
-            $scope.invitedAttendee = attendee;
-          }
-        });
-      }
       calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
         $scope.calendars = calendars;
         $scope.calendar = eventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
       });
       $scope.isOrganizer = eventUtils.isOrganizer($scope.editedEvent);
+      if ($scope.isOrganizer) {
+        initOrganizer();
+      }
+      $scope.userAsAttendee = null;
+      $scope.editedEvent.attendees.forEach(function(attendee) {
+        if (attendee.email in session.user.emailMap) {
+          $scope.userAsAttendee = attendee;
+        }
+      });
+    }
+
+    function initOrganizer() {
+      var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
+      $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
+      $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
     }
 
     function canPerformCall() {
@@ -83,8 +89,6 @@ angular.module('esn.calendar')
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
-      var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
-      $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
       var path = '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
       $scope.restActive = true;
       _hideModal();
@@ -127,7 +131,7 @@ angular.module('esn.calendar')
     }
 
     function _modifyAttendeeEvent() {
-      var status = $scope.invitedAttendee.partstat;
+      var status = $scope.userAsAttendee.partstat;
 
       $scope.restActive = true;
       calendarService.changeParticipation($scope.editedEvent.path, $scope.event, session.user.emails, status).then(function(response) {
@@ -164,10 +168,6 @@ angular.module('esn.calendar')
         _hideModal();
         return;
       }
-      if (!$scope.editedEvent.organizer && eventUtils.hasAttendees($scope.editedEvent)) {
-        var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
-        $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
-      }
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
       $scope.restActive = true;
       _hideModal();
@@ -196,17 +196,16 @@ angular.module('esn.calendar')
     }
 
     function changeParticipation(status) {
-      if ($scope.isOrganizer && !$scope.invitedAttendee) {
-        var organizer = angular.copy($scope.editedEvent.organizer);
-        organizer.partstat = status;
-        $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat(organizer);
-        $scope.invitedAttendee = organizer;
-      } else if ($scope.isOrganizer && $scope.invitedAttendee.partstat !== status) {
-        $scope.editedEvent.changeParticipation(status, [$scope.invitedAttendee.email]);
+      $scope.userAsAttendee.partstat = status;
+      if ($scope.isOrganizer) {
+        if (status !== $scope.editedEvent.getOrganizerPartStat()) {
+          $scope.editedEvent.setOrganizerPartStat(status);
+          $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
+        }
+      } else {
+        $scope.editedEvent.changeParticipation(status, [$scope.userAsAttendee.email]);
+        $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
       }
-
-      $scope.invitedAttendee.partstat = status;
-      $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
     }
 
     $scope.initFormData = initFormData;
