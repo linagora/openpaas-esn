@@ -20,6 +20,7 @@ describe('The event-full-form Angular module directives', function() {
       $provide.value('eventUtils', self.eventUtilsMock);
       $provide.factory('eventDateEditionDirective', function() { return {}; });
       $provide.factory('eventRecurrenceEditionDirective', function() { return {}; });
+      $provide.factory('eventAlarmEditionDirective', function() { return {}; });
     });
   });
 

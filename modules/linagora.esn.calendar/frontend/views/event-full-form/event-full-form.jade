@@ -60,17 +60,8 @@
                 attendees-list(ng-if='hasAttendees', attendees='editedEvent.attendees', read-only='::!isOrganizer', mode='edition')
 
               event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
-
-              .row
-                .col-xs-12
-                  .form-group
-                    .input-group
-                      span.input-group-addon
-                        i.mdi.mdi-alarm
-                      .fg-line.select
-                        select.form-control(ng-disabled="!isOrganizer")
-                          option(value="alarmA") alarmA
-                          option(value="alarmB") alarmB
+              
+              event-alarm-edition(event="editedEvent")
 
               .row
                 .col-xs-12
