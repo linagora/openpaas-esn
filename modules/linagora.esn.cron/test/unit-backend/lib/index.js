@@ -9,11 +9,12 @@ describe('The Cron Module', function() {
   function _registry(mock) {
     mock = mock || {};
 
-    function store(id, description, job, callback) {
+    function store(id, description, job, context, callback) {
       return callback(null, {
         id: id,
         description: description,
-        job: job
+        job: job,
+        context: context
       });
     }
 
@@ -76,7 +77,7 @@ describe('The Cron Module', function() {
 
       // first launch will occurs at t0 + 1000 and will finish at t0 + 1000 + 1500
       // second launch will occurs at t0 + 2000
-      module.submit('Awesome Job', '* * * * * *', job, function() {
+      module.submit('Awesome Job', '* * * * * *', job, {}, function() {
       }, function(err) {
         clock.tick(2900);
         expect(err).to.not.exist;
@@ -111,7 +112,7 @@ describe('The Cron Module', function() {
         return callback();
       };
 
-      module.submit('Awesome Job', '* * * * * *', job, function() {
+      module.submit('Awesome Job', '* * * * * *', job, {}, function() {
       }, function(err) {
         clock.tick(3000);
         expect(err).to.not.exist;
@@ -148,7 +149,7 @@ describe('The Cron Module', function() {
         return callback(new Error());
       };
 
-      module.submit('Awesome Job', '* * * * * *', job, function() {
+      module.submit('Awesome Job', '* * * * * *', job, {}, function() {
       }, function(err) {
         clock.tick(3000);
         expect(err).to.not.exist;
@@ -171,24 +172,21 @@ describe('The Cron Module', function() {
     });
 
     it('should fail is crontime is undefined', function(done) {
-      module.submit('Awesome Job', null, function() {
-      }, function() {
-      }, function(err) {
+      module.submit('Awesome Job', null, function() {}, {}, function(err) {
         expect(err).to.match(/Crontime is required/);
         done();
       });
     });
 
     it('should fail is job is undefined', function(done) {
-      module.submit('Awesome Job', '* * * * *', null, function() {
-      }, function(err) {
+      module.submit('Awesome Job', '* * * * *', null, {}, function(err) {
         expect(err).to.match(/Job is required/);
         done();
       });
     });
 
     it('should fail is job is not a function', function(done) {
-      module.submit('Awesome Job', '* * * * *', {}, function() {
+      module.submit('Awesome Job', '* * * * *', {}, {}, function() {
       }, function(err) {
         expect(err).to.match(/Job must be a function/);
         done();
@@ -201,7 +199,7 @@ describe('The Cron Module', function() {
         called++;
       };
 
-      module.submit('Awesome Job', '* * * * * *', job, function() {
+      module.submit('Awesome Job', '* * * * * *', job, {}, function() {
       }, function(err) {
         clock.tick(10000);
         expect(err).to.not.exist;
@@ -216,7 +214,7 @@ describe('The Cron Module', function() {
         called = true;
       };
 
-      module.submit('Awesome Job', '* * * * * *', job, function(err) {
+      module.submit('Awesome Job', '* * * * * *', job, {}, function(err) {
         clock.tick(1000);
         expect(err).to.not.exist;
         expect(called).to.be.true;
@@ -231,7 +229,7 @@ describe('The Cron Module', function() {
       };
       var description = 'My Description';
 
-      module.submit(description, '* * * * * *', job, complete, function(err, created) {
+      module.submit(description, '* * * * * *', job, {}, complete, function(err, created) {
         expect(err).to.not.exist;
         expect(created).to.exist;
         expect(created.id).to.exist;

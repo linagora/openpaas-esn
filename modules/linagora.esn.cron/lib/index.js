@@ -1,6 +1,7 @@
 'use strict';
 
 var cron = require('cron');
+var JOB_STATES = require('./constants').JOB_STATES;
 var uuid = require('node-uuid');
 
 module.exports = function(dependencies) {
@@ -26,7 +27,7 @@ module.exports = function(dependencies) {
 
   function isJobRunning(id, callback) {
     registry.get(id, function(err, job) {
-      callback(err, job && job.state && job.state === 'running');
+      callback(err, job && job.state && job.state === JOB_STATES.RUNNING);
     });
   }
 
@@ -49,8 +50,13 @@ module.exports = function(dependencies) {
     });
   }
 
-  function submit(description, cronTime, job, onStopped, callback) {
+  function submit(description, cronTime, job, context, onStopped, callback) {
     description = description || 'No description';
+
+    if (!callback) {
+      callback = onStopped;
+      onStopped = function() {};
+    }
 
     if (!cronTime) {
       logger.error('Can not submit a cron job without a crontime');
@@ -65,11 +71,6 @@ module.exports = function(dependencies) {
     if (typeof job !== 'function') {
       logger.error('Job must be a function');
       return callback(new Error('Job must be a function'));
-    }
-
-    if (!callback) {
-      callback = onStopped;
-      onStopped = function() {};
     }
 
     var CronJob = cron.CronJob;
@@ -88,7 +89,7 @@ module.exports = function(dependencies) {
           if (err) {
             logger.error('Job %s failed', id, err);
           }
-          setJobState(id, err ? 'failed' : 'complete', function(err) {
+          setJobState(id, err ? JOB_STATES.FAILED : JOB_STATES.COMPLETE, function(err) {
             if (err) {
               logger.warning('Can not update the job state', err);
             }
@@ -106,8 +107,8 @@ module.exports = function(dependencies) {
           }
         });
       }, function() {
-        logger.info('Job %s is stoped', id);
-        setJobState(id, 'stopped', function(err) {
+        logger.info('Job %s is stopped', id);
+        setJobState(id, JOB_STATES.STOPPED, function(err) {
           if (err) {
             logger.warning('Can not update the job state', err);
           }
@@ -117,7 +118,7 @@ module.exports = function(dependencies) {
       true
     );
 
-    registry.store(id, description, cronjob, function(err, saved) {
+    registry.store(id, description, cronjob, context, function(err, saved) {
       if (err) {
         logger.warning('Error while storing the job', err);
       }

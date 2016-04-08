@@ -2,19 +2,17 @@
 
 var expect = require('chai').expect;
 var async = require('async');
+var sinon = require('sinon');
+var mockery = require('mockery');
 
 describe('The Cron Registry', function() {
-
-  var module;
-  var id = '123';
   var description = 'My Desc';
-  var job = {
-    task: function() {}
-  };
+  var context = {contextKey: 'contextValue'};
+  var job = {};
 
-  beforeEach(function() {
-    module = require('../../../lib/registry')();
-  });
+  var getModule = function() {
+    return require('../../../lib/registry')();
+  };
 
   var checkError = function(done, expr) {
     return function(err) {
@@ -23,42 +21,93 @@ describe('The Cron Registry', function() {
     };
   };
 
-  describe('The store function', function() {
+  var jobModuleMock;
 
-    it('should fail if id is undefined', function(done) {
-      module.store(null, description, job, checkError(done, /id, description and job are required/));
+  beforeEach(function() {
+    jobModuleMock = {};
+    mockery.registerMock('./job', jobModuleMock);
+  });
+
+  afterEach(function() {
+    jobModuleMock = null;
+  });
+
+  describe('The store function', function() {
+    it('should fail if jobId is undefined', function(done) {
+      getModule().store(null, description, job, context, checkError(done, /id, description and job are required/));
     });
 
     it('should fail if description is undefined', function(done) {
-      module.store(id, null, job, checkError(done, /id, description and job are required/));
+      getModule().store('id', null, job, context, checkError(done, /id, description and job are required/));
     });
 
-    it('should fail if description is job', function(done) {
-      module.store(id, description, null, checkError(done, /id, description and job are required/));
+    it('should fail if job is undefined', function(done) {
+      getModule().store('id', description, null, context, checkError(done, /id, description and job are required/));
     });
 
-    it('should return the saved job', function(done) {
-      module.store(id, description, job, function(err, result) {
+    it('should fail if storage in the db fails', function(done) {
+      jobModuleMock.save = function(toSave, callback) {
+        expect(toSave).to.deep.equal({
+          jobId: 'id',
+          description: description,
+          context: context
+        });
+
+        return callback(new Error('db error'));
+      };
+      getModule().store('id', description, job, context, checkError(done, /db error/));
+    });
+
+    it('should return the job saved in the db', function(done) {
+      var savedJob = {id: 'jobId'};
+
+      jobModuleMock.save = function(toSave, callback) {
+        expect(toSave).to.deep.equal({
+          jobId: 'id',
+          description: description,
+          context: context
+        });
+
+        return callback(null, savedJob);
+      };
+
+      getModule().store('id', description, job, context, function(err, result) {
         expect(err).to.not.exist;
-        expect(result).to.exist;
-        expect(result.id).to.equal(id);
-        expect(result.description).to.equal(description);
-        expect(result.job).to.equal(job);
+        expect(result).to.equal(savedJob);
         done();
       });
     });
   });
 
   describe('The get function', function() {
-    it('should return undefined on undefined id', function() {
-      module.get(null, function(err, result) {
+    it('should return undefined on undefined id', function(done) {
+      getModule().get(null, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.not.exist;
+        done();
       });
     });
 
+    it('should fail if the search in the db fails', function(done) {
+      var id = '1';
+
+      jobModuleMock.getById = function(wantedId, callback) {
+        expect(wantedId).to.equal(id);
+        callback(new Error('db error'));
+      };
+
+      getModule().get(id, checkError(done, /db error/));
+    });
+
     it('should return undefined on unknown id', function() {
-      module.get('1', function(err, result) {
+      var id = '1';
+
+      jobModuleMock.getById = function(wantedId, callback) {
+        expect(wantedId).to.equal(id);
+        callback();
+      };
+
+      getModule().get(id, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.not.exist;
       });
@@ -66,13 +115,19 @@ describe('The Cron Registry', function() {
 
     it('should return the registered job', function() {
       function save(id, callback) {
-        module.store(id, description, job, callback);
+        getModule().store(id, description, job, context, callback);
       }
 
-      async.each(['1', '2'], function(id, callback) {
-        save(id, callback);
+      jobModuleMock.save = function(toSave, callback) {
+        return callback(null, toSave);
+      };
+
+      var id = '1';
+
+      async.each([id, '2'], function(_id, callback) {
+        save(_id, callback);
       }, function() {
-        module.get('1', function(err, result) {
+        getModule().get(id, function(err, result) {
           expect(err).to.not.exist;
           expect(result).to.exist;
         });
@@ -82,29 +137,41 @@ describe('The Cron Registry', function() {
 
   describe('The update function', function() {
 
-    it('should fail on if job is undefined', function(done) {
-      module.update(null, checkError(done, /Job is required/));
+    it('should fail if job is undefined', function(done) {
+      getModule().update(null, checkError(done, /Job is required/));
     });
 
-    it('should fail on if job id is undefined', function(done) {
-      module.update({}, checkError(done, /Job not found/));
+    it('should fail if job id is undefined', function(done) {
+      getModule().update({}, checkError(done, /Job not found/));
     });
 
-    it('should fail on if job id is not found', function(done) {
-      module.update({id: 1}, checkError(done, /Job not found/));
+    it('should fail if job is not found', function(done) {
+      getModule().update({id: 1}, checkError(done, /Job not found/));
     });
 
     it('should update the entry', function(done) {
       var state = 'yolo';
-      module.store(id, description, job, function(err, saved) {
+      var id = 'id';
+
+      jobModuleMock.save = function(toSave, callback) {
+        toSave.timestamps = {};
+
+        return callback(null, toSave);
+      };
+
+      getModule().store(id, description, job, context, function(err, saved) {
         if (err) {
           return done(err);
         }
 
         saved.state = state;
-        module.update(saved, function(err, updated) {
+        getModule().update(saved, function(err, updated) {
           expect(err).to.not.exist;
-          expect(updated.state).to.equal(state);
+          expect(updated).to.shallowDeepEqual({
+            jobId: id,
+            description: description,
+            context: context
+          });
           done();
         });
       });
