@@ -7,6 +7,7 @@ module.exports = function(dependencies) {
 
   require('./twitter')(router, dependencies);
   require('./google')(router, dependencies);
+  require('./facebook')(router, dependencies);
 
   return router;
 };
