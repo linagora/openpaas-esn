@@ -113,7 +113,7 @@ describe('The Cron Registry', function() {
       });
     });
 
-    it('should return the registered job', function() {
+    it('should return the registered job', function(done) {
       function save(id, callback) {
         getModule().store(id, description, job, context, callback);
       }
@@ -130,6 +130,7 @@ describe('The Cron Registry', function() {
         getModule().get(id, function(err, result) {
           expect(err).to.not.exist;
           expect(result).to.exist;
+          done();
         });
       });
     });
@@ -172,6 +173,54 @@ describe('The Cron Registry', function() {
             description: description,
             context: context
           });
+          done();
+        });
+      });
+    });
+  });
+
+  describe('The remove function', function() {
+    it('should do nothing if id is undefined', function(done) {
+      jobModuleMock.remove = sinon.spy();
+      getModule().remove(null, function(err) {
+        expect(err).to.not.exist;
+        expect(jobModuleMock.remove).to.not.have.been.called;
+        done();
+      });
+    });
+
+    it('should fail if removing the jobs from the db fails', function(done) {
+      jobModuleMock.save = function(toSave, callback) {
+        return callback(null, toSave);
+      };
+
+      var id = '1';
+      jobModuleMock.remove = function(_id, callback) {
+        expect(_id).to.equal(id);
+        return callback(new Error('db fail'));
+      };
+
+      var module = getModule();
+      module.store(id, description, job, context, function(err, stored) {
+        module.remove(stored.jobId, checkError(done, /db fail/));
+      });
+    });
+
+    it('should remove the jobs from the db', function(done) {
+      jobModuleMock.save = function(toSave, callback) {
+        return callback(null, toSave);
+      };
+
+      var id = '1';
+      jobModuleMock.remove = function(_id, callback) {
+        expect(_id).to.equal(id);
+        return callback();
+      };
+
+      var module = getModule();
+      module.store(id, description, job, context, function(err, stored) {
+        module.remove(stored.jobId, function(err) {
+          expect(err).to.not.exist;
           done();
         });
       });
