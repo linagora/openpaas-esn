@@ -8,6 +8,7 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var ESN_MODULE_PREFIX = require('../module-manager').ESN_MODULE_PREFIX;
 var socketioHelper = require('./helper/socketio');
+var pubsub = require('../core/pubsub/global');
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -65,14 +66,18 @@ function start(port, options, callback) {
   }
 
   var sio = io(wsserver.server, options);
+  var userConnectionTopic = pubsub.topic('user:connection');
+  var userDisconnectionTopic = pubsub.topic('user:disconnection');
   if (sio) {
     sio.use(require('./auth/token'));
 
     sio.on('connection', function(socket) {
       var user = socketioHelper.getUserId(socket);
+      userConnectionTopic.publish(user);
       store.registerSocket(socket);
       logger.info('Socket is connected for user = ' + user);
       socket.on('disconnect', function() {
+        userDisconnectionTopic.publish(user);
         logger.info('Socket is disconnected for user = ' + user);
         store.unregisterSocket(socket);
       });
