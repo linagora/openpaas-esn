@@ -145,7 +145,7 @@ describe('The Account Angular Services', function() {
       var messages = {};
 
       this.accountMessageRegistry.register(provider, messages);
-      var result = this.accountMessageRegistry.get('facebook', type);
+      var result = this.accountMessageRegistry.get('yookee', type);
       expect(result).to.equal(this.OAUTH_DEFAULT_MESSAGES[type]);
     });
 
