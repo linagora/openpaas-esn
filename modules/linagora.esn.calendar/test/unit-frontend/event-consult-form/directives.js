@@ -1,33 +1,40 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The event-consult-form Angular module directives', function() {
+  var updateAlarmSpy;
 
   describe('the eventConsultForm directive', function() {
     beforeEach(function() {
       module('jadeTemplates');
       angular.mock.module('esn.calendar');
+      updateAlarmSpy = sinon.spy(function() {});
       this.eventFormControllerMock = function($scope) {
         $scope.initFormData = function() {
         };
+        $scope.updateAlarm = updateAlarmSpy;
       };
 
       var self = this;
       angular.mock.module(function($provide, $controllerProvider) {
         $controllerProvider.register('eventFormController', self.eventFormControllerMock);
+        $provide.factory('eventAlarmConsultationDirective', function() { return {}; });
       });
     });
 
-    beforeEach(angular.mock.inject(function($compile, $rootScope, $window, fcMoment, CONSULT_FORM_TABS) {
+    beforeEach(angular.mock.inject(function($compile, $rootScope, $window, fcMoment, CONSULT_FORM_TABS, CalendarShell, moment) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.fcMoment = fcMoment;
       this.$window = $window;
       this.TABS = CONSULT_FORM_TABS;
+      this.CalendarShell = CalendarShell;
+      this.moment = moment;
 
       this.$scope.event = {
         allDay: true,
@@ -84,6 +91,29 @@ describe('The event-consult-form Angular module directives', function() {
         element.isolateScope().onSwipe('left');
         expect(element.isolateScope().selectedTab).to.equal(this.TABS.MORE);
       });
+    });
+
+    it('should call changeConsultState to update alarm when click save', function() {
+      this.$scope.event = this.CalendarShell.fromIncompleteShell({
+        start: this.moment('2013-02-08 12:30'),
+        end: this.moment('2013-02-08 13:30'),
+        location: 'aLocation',
+        alarm: {
+          trigger: '-PT1M',
+          attendee: 'test@open-paas.org'
+        }
+      });
+
+      var element = this.initDirective(this.$scope);
+      element.isolateScope().isEdit = true;
+      element.isolateScope().editedEvent = element.isolateScope().event.clone();
+      element.isolateScope().editedEvent.alarm = {
+        trigger: '-P2D',
+        attendee: 'test@open-paas.org'
+      };
+
+      element.isolateScope().changeConsultState();
+      expect(updateAlarmSpy).to.have.been.called;
     });
   });
 });

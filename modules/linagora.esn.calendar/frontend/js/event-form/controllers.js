@@ -130,7 +130,7 @@ angular.module('esn.calendar')
         });
     }
 
-    function _modifyAttendeeEvent() {
+    function _changeparticipationAsAttendee() {
       var status = $scope.userAsAttendee.partstat;
 
       $scope.restActive = true;
@@ -187,11 +187,36 @@ angular.module('esn.calendar')
         });
     }
 
+    function updateAlarm() {
+      if (!$scope.calendarHomeId) {
+        $scope.calendarHomeId = calendarService.calendarHomeId;
+      }
+      if ($scope.editedEvent.alarm.trigger.toICALString() === $scope.event.alarm.trigger.toICALString()) {
+        return;
+      }
+      var path = $scope.editedEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
+      $scope.restActive = true;
+      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop)
+        .then(function(completed) {
+          if (completed) {
+            notificationFactory.weakInfo('Alarm of ', $scope.event.title + ' has been modified.');
+          } else {
+            notificationFactory.weakInfo('Modification of ' + $scope.event.title + ' has been cancelled.');
+          }
+        })
+        .catch(function(err) {
+          _displayNotification(notificationFactory.weakError, 'Alarm modification failed', (err.statusText || err) + ', Please refresh your calendar');
+        })
+        .finally(function() {
+          $scope.restActive = false;
+        });
+    }
+
     function modifyEvent() {
       if ($scope.isOrganizer) {
         _modifyOrganizerEvent();
       } else {
-        _modifyAttendeeEvent();
+        _changeparticipationAsAttendee();
       }
     }
 
@@ -215,6 +240,7 @@ angular.module('esn.calendar')
     $scope.createEvent = createEvent;
     $scope.isNew = eventUtils.isNew;
     $scope.isInvolvedInATask = eventUtils.isInvolvedInATask;
+    $scope.updateAlarm = updateAlarm;
     $scope.submit = function() {
       eventUtils.isNew($scope.editedEvent) && !eventUtils.isInvolvedInATask($scope.editedEvent) ? $scope.createEvent() : $scope.modifyEvent();
     };

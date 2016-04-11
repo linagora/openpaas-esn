@@ -12,9 +12,18 @@ angular.module('esn.calendar')
 
   .directive('eventConsultForm', function() {
     function link(scope) {
+      scope.isEdit = false;
+
       scope.modifyEventParticipation = function(partstat) {
         scope.changeParticipation(partstat);
         scope.modifyEvent();
+      };
+
+      scope.changeConsultState = function() {
+        if (scope.isEdit) {
+          scope.updateAlarm();
+        }
+        scope.isEdit = !scope.isEdit;
       };
     }
 
@@ -73,3 +82,4 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/event-consult-form/event-consult-form-subheader.html'
     };
   });
+
