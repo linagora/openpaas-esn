@@ -29,6 +29,7 @@ angular.module('linagora.esn.account')
   .constant('SUPPORTED_ACCOUNTS', ['oauth'])
   .constant('SUPPORTED_ACCOUNT_TYPES', {
     twitter: 'twitter',
+    facebook: 'facebook',
     google: 'google'
   })
   .constant('OAUTH_SOCIAL_MESSAGES', {
