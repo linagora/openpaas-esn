@@ -26,11 +26,16 @@ describe('The Cron Module', function() {
       return callback(null, job);
     }
 
+    function remove(id, callback) {
+      return callback();
+    }
+
     return function() {
       return {
         store: mock.store || store,
         get: mock.get || get,
-        update: mock.update || update
+        update: mock.update || update,
+        remove: mock.remove || remove
       };
     };
   }
@@ -268,33 +273,27 @@ describe('The Cron Module', function() {
       });
     });
 
-    it('should fail if job does not have cron job', function(done) {
+    it('should stop the job if any and delete the job in the registry', function(done) {
+      var testId = '123';
+      var stopSpy = sinon.spy();
       mockRegistry({
         get: function(id, callback) {
-          return callback(null, {});
-        }
-      });
-      var module = require('../../../lib/index')(dependencies);
-      module.abort('123', function(err) {
-        expect(err).to.match(/No job to stop/);
-        done();
-      });
-    });
-
-    it('should stop the job', function(done) {
-      mockRegistry({
-        get: function(id, callback) {
+          expect(id).to.equal(testId);
           return callback(null, {
             job: {
-              stop: done
+              stop: stopSpy
             }
           });
+        },
+        remove: function(id, callback) {
+          expect(id).to.equal(testId);
+          expect(stopSpy).to.have.been.called;
+          callback();
         }
       });
 
       var module = require('../../../lib/index')(dependencies);
-      module.abort('123', function() {
-      });
+      module.abort(testId, done);
     });
   });
 });

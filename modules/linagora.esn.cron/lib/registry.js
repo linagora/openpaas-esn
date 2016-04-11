@@ -58,9 +58,18 @@ module.exports = function() {
     });
   }
 
+  function remove(id, callback) {
+    if (!id) {
+      return callback();
+    }
+    delete registry[id];
+    jobModule.remove(id, callback);
+  }
+
   return {
     store: store,
     get: get,
-    update: update
+    update: update,
+    remove: remove
   };
 };

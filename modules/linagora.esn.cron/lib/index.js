@@ -41,12 +41,11 @@ module.exports = function(dependencies) {
         return callback(new Error('No such job'));
       }
 
-      if (!job.job) {
-        return callback(new Error('No job to stop'));
+      if (job.job) {
+        job.job.stop();
       }
 
-      job.job.stop();
-      return callback();
+      registry.remove(id, callback);
     });
   }
 
