@@ -29,13 +29,13 @@ angular.module('esn.calendar')
     value: '-PT12H',
     label: '12 hours'
   }, {
-    value: '-PT1D',
+    value: '-P1D',
     label: '1 day'
   }, {
-    value: '-PT2D',
+    value: '-P2D',
     label: '2 days'
   }, {
-    value: '-PT1W',
+    value: '-P1W',
     label: '1 week'
   }])
   .directive('eventAlarmEdition', function(session, TRIGGER) {
