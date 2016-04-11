@@ -14,7 +14,7 @@ The related grunt tasks are all starting with the 'docker-' prefix:
 ## End to end tests
 
 Before you can start running any E2E tests, run bellow command to prepare an
-E2E testing environment like :
+E2E testing environment:
 
 ```bash
 grunt test-e2e-prepare
@@ -27,7 +27,9 @@ Once it runs successful, you can perform a full E2E test with:
 grunt test-e2e
 ```
 
-This is regular way to run end-to-end tests. It will create all required ESN containers, wait for each service to be available, run protractor tests and then stop/garbage all containers.
+This is regular way to run end-to-end tests. It will create all required ESN
+containers, wait for each service to be available, run protractor tests and then
+stop/garbage all containers.
 
 ### E2E test in development
 
@@ -45,17 +47,43 @@ after a pull):
 grunt test-e2e-pull
 ```
 
-`grunt test-e2e` will remove the containers after it finishes. You can skip the containers removal to save time while you're writing tests. By using the following command, you will reuse the same containers over the time. So use it carefully, as for example, your database data won't be removed between tests!
+By running `grunt test-e2e`, it will remove the containers after it finishes.
+Instead, you can skip the containers removal to save time while you're writing
+tests. By using the following command, you will reuse the same containers over
+the time. So use it carefully, as for example, your database data won't be
+removed between tests!
 
 ```bash
 grunt test-e2e-quick
 ```
 
-If an unexpected issue makes the container removal failing (see `docker ps` output), you can do it manually with:
+If an unexpected issue makes the container removal failing
+(see `docker ps` output), you can do it manually with:
 
 ```bash
 grunt test-e2e-down
 ```
+
+#### Run only specified E2E tests
+
+When you have many E2E tests, you may not want to run them all on each time you
+write E2E tests for your code. In such cases, you can run only specified
+scenarios by leveraging Cucumber [tags](https://github.com/cucumber/cucumber/wiki/Tags).
+
+Let's specify a tag for your feature:
+
+```
+@only
+Feature: Verify billing
+```
+
+Then test only that feature by:
+
+```bash
+tags=@only grunt test-e2e-quick
+```
+
+#### Logging
 
 If you want more logs, use `--show-logs` option with E2E test tasks, for example:
 

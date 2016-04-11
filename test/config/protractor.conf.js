@@ -27,6 +27,7 @@ exports.config = {
       '../../modules/**/test/e2e/**/*.js',
       '../e2e/**/*.js'
     ],
-    format: 'pretty'
+    format: 'pretty',
+    tags: process.env.TAGS
   }
 };
