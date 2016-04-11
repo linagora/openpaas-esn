@@ -26,7 +26,7 @@ describe('The WebSockets server module', function() {
       })
     };
 
-    mockery.registerMock('../core/pubsub/global', pubsub);
+    mockery.registerMock('../core/pubsub/local', pubsub);
   });
 
   it('should contains all needed properties.', function() {
