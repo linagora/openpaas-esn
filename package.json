@@ -108,7 +108,7 @@
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-contrib-uglify": "~0.4.0",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-docker-spawn": "git+https://ci.open-paas.org/stash/scm/olibs/grunt-docker-spawn.git",
+    "grunt-docker-spawn": "git+https://ci.open-paas.org/stash/scm/olibs/grunt-docker-spawn.git#35e6e00adca",
     "grunt-eslint": "18.0.0",
     "grunt-jscs": "2.3.0",
     "grunt-karma": "^0.11.2",

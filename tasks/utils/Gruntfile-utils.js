@@ -109,11 +109,12 @@ GruntfileUtils.prototype.shell = function shell() {
 GruntfileUtils.prototype.container = function container() {
   var grunt = this.grunt;
 
-  function newContainer(createContainerOptions, startContainerOptions, regex, info) {
+  function newContainer(createContainerOptions, startContainerOptions, removeContainerOptions, taskOptions) {
     createContainerOptions.options = {
-      tasks: { async: false },
-      matchOutput: regex ? _taskSuccessIfMatch(grunt, regex, info) : _taskSuccessIfStreamEnds(grunt, grunt.option('show-logs')),
-      startContainerOptions: startContainerOptions
+      tasks: { async: !!taskOptions.async },
+      matchOutput: taskOptions.regex ? _taskSuccessIfMatch(grunt, taskOptions.regex, taskOptions.info) : _taskSuccessIfStreamEnds(grunt, taskOptions.verbose),
+      startContainerOptions: startContainerOptions,
+      removeContainerOptions: removeContainerOptions
     };
 
     return createContainerOptions;
@@ -129,7 +130,12 @@ GruntfileUtils.prototype.container = function container() {
         HostConfig: {
           Binds: [path.normalize(__dirname + '../../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
         }
-      }, {}, regex, info);
+      }, {}, {}, {
+        async: false,
+        regex: regex,
+        info: info,
+        verbose: grunt.option('show-logs')
+      });
   }
 
   return {
