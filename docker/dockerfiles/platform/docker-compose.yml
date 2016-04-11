@@ -93,7 +93,7 @@ services:
       - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey
 
   james_elastic:
-    image: elasticsearch:1.5.2
+    image: elasticsearch:2.2.1
 
   cassandra:
     image: cassandra:2.2.3
