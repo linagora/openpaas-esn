@@ -26,6 +26,7 @@ function init(dependencies) {
   }
 
   pubsub.global.topic(PUBSUB_EVENT).subscribe(function(msg) {
+    pubsub.local.topic(PUBSUB_EVENT).publish(msg);
     notify(io, ioHelper, msg.websocketEvent, msg);
   });
 

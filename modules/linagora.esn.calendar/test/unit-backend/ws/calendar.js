@@ -23,6 +23,13 @@ describe('The calendar WS events module', function() {
               }
             };
           }
+        },
+        local: {
+          topic: function(topic) {
+            return {
+              publish: function() {}
+            };
+          }
         }
       };
       this.socketListeners = {};

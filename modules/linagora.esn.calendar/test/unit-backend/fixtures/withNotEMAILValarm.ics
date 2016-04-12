@@ -31,7 +31,7 @@ ATTENDEE;CUTYPE=INDIVIDUAL;RSVP=TRUE;CN=Jane Doe;PARTSTAT=NEEDS-
  ACTION;X-OBM-ID=399:mailto:janedoe@open-paas.org
 BEGIN:VALARM
 TRIGGER:-P1D
-ACTION:EMAIL
+ACTION:DISPLAY
 SUMMARY:Pending event! Event: Victor Sanders
 DESCRIPTION:This is an automatic alarm sent by OpenPaas
 ATTENDEE:mailto:slemaistre@gmail.com

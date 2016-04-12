@@ -250,7 +250,7 @@ describe('jcalHelper', function() {
         },
         alarm: {
           action: 'EMAIL',
-          trigger: '-PT30M',
+          trigger: '-P1D',
           description: 'This is an automatic alarm sent by OpenPaas',
           summary: 'Pending event! Event: Victor Sanders',
           attendee: 'mailto:slemaistre@gmail.com'

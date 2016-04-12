@@ -23,14 +23,17 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
     new Dependency(Dependency.TYPE_NAME, 'awm.content-sender', 'content-sender'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
   ],
 
   states: {
     lib: function(dependencies, callback) {
       var calendar = require('./webserver/api/calendar')(dependencies);
+      var alarm = require('./lib/alarm')(dependencies);
 
       var lib = {
+        alarm: alarm,
         api: {
           calendar: calendar
         }
@@ -40,6 +43,9 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     },
 
     deploy: function(dependencies, callback) {
+      // Init alarm local pubsub listener
+      this.alarm.init();
+
       // Register the new message type event
       var message = dependencies('message');
       message.registerMessageType('event', 'EventMessage');
