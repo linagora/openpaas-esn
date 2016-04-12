@@ -5,6 +5,7 @@ var util = require('util');
 var conf_path = './test/config/';
 var servers = require(conf_path + 'servers-conf');
 var config = require('./config/default.json');
+var dockerodeConfig = require('./docker/config/dockerode');
 var GruntfileUtils = require('./tasks/utils/Gruntfile-utils');
 var fixtures = require('./fixtures');
 
@@ -16,14 +17,6 @@ module.exports = function(grunt) {
   var container = gruntfileUtils.container();
   var command = gruntfileUtils.command();
   var runGrunt = gruntfileUtils.runGrunt();
-
-  function readDockerCert(name) {
-    try {
-      return grunt.file.read(process.env.DOCKER_CERT_PATH + '/' + name, 'utf-8');
-    } catch (e) {
-      return '';
-    }
-  }
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -108,19 +101,7 @@ module.exports = function(grunt) {
       webdriver_install: { command: './node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update' }
     },
     container: {
-      options: {
-        localhost: {
-          socketPath: '/var/run/docker.sock'
-        },
-        remote: {
-          host: process.env.DOCKER_HOST || '192.168.99.100',
-          port: process.env.DOCKER_PORT || 2376,
-          ca: readDockerCert('ca.pem'),
-          cert: readDockerCert('cert.pem'),
-          key: readDockerCert('key.pem'),
-          pass: process.env.DOCKER_CERT_PASS || 'mypass'
-        }
-      },
+      options: dockerodeConfig(grunt.option('docker')),
 
       esn_full_pull: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-pull',
