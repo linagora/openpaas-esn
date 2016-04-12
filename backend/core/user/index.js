@@ -149,4 +149,9 @@ function getNewToken(user, ttl, callback) {
 }
 module.exports.getNewToken = getNewToken;
 
+function find(query, callback) {
+  User.findOne(query, callback);
+}
+module.exports.find = find;
+
 module.exports.domain = require('./domain');
