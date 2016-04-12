@@ -8,7 +8,7 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var ESN_MODULE_PREFIX = require('../module-manager').ESN_MODULE_PREFIX;
 var socketioHelper = require('./helper/socketio');
-var pubsub = require('../core/pubsub/global');
+var pubsub = require('../core/pubsub/local');
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
