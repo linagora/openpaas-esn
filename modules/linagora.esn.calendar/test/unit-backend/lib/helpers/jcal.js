@@ -253,7 +253,8 @@ describe('jcalHelper', function() {
           trigger: '-P1D',
           description: 'This is an automatic alarm sent by OpenPaas',
           summary: 'Pending event! Event: Victor Sanders',
-          attendee: 'mailto:slemaistre@gmail.com'
+          attendee: 'mailto:slemaistre@gmail.com',
+          triggerDisplay: 'a day'
         }
       });
     });
