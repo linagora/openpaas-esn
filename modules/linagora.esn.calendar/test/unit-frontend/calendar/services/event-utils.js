@@ -175,13 +175,19 @@ describe('The eventUtils service', function() {
       expect(element.class).to.include('event-is-instance');
     });
 
-    it('should keep startEditable and durationEditable to undefined if the user is not an attendee of the event', function() {
+    it('should keep startEditable and durationEditable to undefined if the user is the organizer', function() {
+      event.organizer = {
+        email: userEmail
+      };
       this.eventUtils.render(event, element);
       expect(event.startEditable).to.not.exist;
       expect(event.durationEditable).to.not.exist;
     });
 
-    it('should set startEditable and durationEditable to false if the user is an attendee of the event', function() {
+    it('should set startEditable and durationEditable to false if the user is an attendee of the event but not the organizer', function() {
+      event.organizer = {
+        email: 'organizerEmail'
+      };
       event.attendees.push({
         email: userEmail
       });
