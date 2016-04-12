@@ -14,11 +14,11 @@ html.mail
 
         table
           tr.table-header
-            td.logo(colspan="2")
+            td(colspan='2').logo
               div
                 a(href="#{content.baseUrl}")
                   img(src="cid:logo", alt="open-paas logo")
-            td.organizer(colspan="3")
+            td(colspan='2').organizer
               h5
                 p
                   | #{content.event.organizer.cn} (
@@ -26,12 +26,48 @@ html.mail
                     a(href='mailto:#{content.event.organizer.email}')
                       img(src="cid:email", alt="Organizer mail")
                     | )
-                p.big #{content.inviteMessage}
-            td.avatar.indent-right
+                p.big Event Reminder
+            td(colspan='2').avatar.indent-right
               img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
           tr
+            td(colspan='6').indent
+              span.title #{content.event.summary}
+              span will start in #{content.alarm.triggerDisplay}
+
+          tr
             td.indent
-              div.alarmdescription #{content.alarm.description}
+              if (content.event.end)
+                img(src="cid:clock", alt="From")
+              else
+                img(src="cid:clock", alt="At")
+            td
+              p #{content.event.start.date}
+              if (!content.event.allDay)
+                p #{content.event.start.time}
+            if (content.event.end)
+              td
+                if (content.event.allDay && content.event.end.date == content.event.start.date)
+                  p all day
+                else
+                  img.check-transform(src="cid:check", alt="To")
+              td
+                if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
+                  p #{content.event.end.date}
+                  if (!content.event.allDay)
+                    p #{content.event.end.time}
+            else
+              td(colspan="2")
+            td.recurrence
+            td.indent-right
+              a(href='#{content.baseUrl}/#/calendar') See in calendar
+
+          if (content.event.location)
+            tr
+              td(colspan='1').indent
+                img(src="cid:map-marker", alt="Location")
+              td(colspan='3').indent
+                | #{content.event.location}
+
 
       footer
         div.footer

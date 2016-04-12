@@ -31,6 +31,19 @@ body {
     background-color: white;
   }
 
+  .title {
+    font-size: 1.3em;
+    font-weight: bold;
+    padding: 10px 10px 10px 0;
+    text-align: left;
+  }
+
+  .check-transform {
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+  }
+
   .small {
     color: grey;
   }
@@ -57,9 +70,7 @@ body {
 
     td.organizer {
       text-align: right;
-      transform: translate(80px);
-      -webkit-transform: translate(80px);
-      -moz-transform: translate(80px);
+      width: 55%;
       img {
         margin: 0;
         padding: 0;
@@ -67,7 +78,8 @@ body {
     }
 
     td.logo {
-      text-align: center;
+      width: 33%;
+      text-align: left;
     }
 
     td.avatar {
@@ -92,6 +104,10 @@ body {
     .indent-right {
       text-align: right;
       padding-right: 15px;
+    }
+
+    .alarm-description {
+      width: 100%;
     }
   }
 
