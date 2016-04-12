@@ -34,15 +34,15 @@ describe('The Cron Registry', function() {
 
   describe('The store function', function() {
     it('should fail if jobId is undefined', function(done) {
-      getModule().store(null, description, job, context, checkError(done, /id, description and job are required/));
+      getModule().store(null, description, job, context, checkError(done, /id, description and cronjob are required/));
     });
 
     it('should fail if description is undefined', function(done) {
-      getModule().store('id', null, job, context, checkError(done, /id, description and job are required/));
+      getModule().store('id', null, job, context, checkError(done, /id, description and cronjob are required/));
     });
 
     it('should fail if job is undefined', function(done) {
-      getModule().store('id', description, null, context, checkError(done, /id, description and job are required/));
+      getModule().store('id', description, null, context, checkError(done, /id, description and cronjob are required/));
     });
 
     it('should fail if storage in the db fails', function(done) {
@@ -59,7 +59,7 @@ describe('The Cron Registry', function() {
     });
 
     it('should return the job saved in the db', function(done) {
-      var savedJob = {id: 'jobId'};
+      var savedJob = {jobId: 'id'};
 
       jobModuleMock.save = function(toSave, callback) {
         expect(toSave).to.deep.equal({
@@ -74,6 +74,22 @@ describe('The Cron Registry', function() {
       getModule().store('id', description, job, context, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.equal(savedJob);
+        done();
+      });
+    });
+
+    it('should add cronjob to the job of the registry', function(done) {
+      var savedJob = {jobId: 'id'};
+
+      jobModuleMock.save = function(toSave, callback) {
+        return callback(null, savedJob);
+      };
+
+      var module = getModule();
+      module.store('id', description, 'acronjobobject', context, function(err, result) {
+        expect(err).to.not.exist;
+        var registryJob = module.getInMemory('id');
+        expect(registryJob.cronjob).to.equal('acronjobobject');
         done();
       });
     });
