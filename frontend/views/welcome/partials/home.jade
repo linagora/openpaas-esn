@@ -5,6 +5,7 @@
     .login(data-ng-if='!step || step === 1')
       h3.m-t-0.m-b-15 #{__('Login')}
       include ../../modules/login/login
+      ul.login-oauth(dynamic-directive='esn-login-oauth')
     .signup(ng-controller='signup' data-ng-if='step === 2')
       h3.m-t-0.m-b-15 #{__('Register')}
       include ./signup
