@@ -9,6 +9,8 @@ var Server = require('mongodb').Server;
 var request = require('superagent');
 var extend = require('extend');
 var EsnConfig = require('esn-elasticsearch-configuration');
+var Docker = require('dockerode');
+var dockerodeConfig = require('../../docker/config/dockerode.js');
 
 function _args(grunt) {
   var opts = ['test', 'chunk', 'ci', 'reporter'];
@@ -145,6 +147,52 @@ GruntfileUtils.prototype.container = function container() {
     newContainer: newContainer,
     newEsnFullContainer: newEsnFullContainer
   };
+};
+
+GruntfileUtils.prototype.buildDockerImage = function(source, buildOptions) {
+  var grunt = this.grunt;
+
+  return function() {
+    var done = this.async();
+    var docker = new Docker(dockerodeConfig()[grunt.option('docker')]);
+
+    docker.buildImage(source, buildOptions, function(err, stream) {
+      if (err) {
+        grunt.fail.fatal('Failed to build image, reason: ' + err);
+      } else {
+        stream.setEncoding('utf8');
+
+        stream.on('data', function(data) {
+          var jsonData = JSON.parse(data);
+
+          jsonData.stream && grunt.log.write(jsonData.stream);
+          jsonData.error && grunt.fail.warn(jsonData.error);
+        });
+
+        stream.on('error', function(err) {
+          grunt.fail.warn(err);
+          done(false);
+        });
+
+        stream.on('end', function() {
+          grunt.log.oklns('Build image successful!');
+          done(true);
+        });
+      }
+    });
+  };
+};
+
+GruntfileUtils.prototype.buildEsnBaseImage = function() {
+  var dockerfilePath = 'docker/dockerfiles/base/Dockerfile';
+
+  return this.buildDockerImage({
+    context: path.normalize(__dirname + '/../../'),
+    src: ['package.json', 'bower.json', dockerfilePath]
+  }, {
+    t: 'linagora/esn-base',
+    dockerfile: dockerfilePath
+  });
 };
 
 GruntfileUtils.prototype.runGrunt = function runGrunt() {
