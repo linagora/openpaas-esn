@@ -328,7 +328,7 @@ angular.module('esn.calendar')
       },
 
       /**
-       * Change the partstat of all attendees to a specific status. if emails is defined, change only attendees matching with emails.
+       * Change the partstat of all attendees (except the organizer) to a specific status. if emails is defined, change only attendees matching with emails.
        * @param  {String} status a partstat
        * @param  {[String]} emails optional, used to filter which attendee to change participation of
        * @return {Boolean} true or false depending of if an attendee has been modified or not
@@ -336,10 +336,17 @@ angular.module('esn.calendar')
       changeParticipation: function(status, emails) {
         this.__attendees = undefined;
         var needsModify = false;
-        this.vevent.getAllProperties('attendee').forEach(function(attendee) {
+        var attendees = this.vevent.getAllProperties('attendee');
+        if (this.organizer) {
+          var organizerMailto = calendarUtils.prependMailto(this.organizer.email);
+          attendees = attendees.filter(function(attendee) {
+            return organizerMailto && attendee.getFirstValue() !== organizerMailto;
+          });
+        }
+        attendees.forEach(function(attendee) {
           if (!emails) {
+            needsModify = needsModify || attendee.getParameter('partstat') !== status;
             attendee.setParameter('partstat', status);
-            needsModify = true;
           } else {
             var emailMap = {};
             emails.forEach(function(email) { emailMap[calendarUtils.prependMailto(email.toLowerCase())] = true; });

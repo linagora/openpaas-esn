@@ -1007,6 +1007,140 @@ describe('CalendarShell factory', function() {
     });
   });
 
+  describe('changeParticipation', function() {
+    var shell;
+
+    beforeEach(function() {
+      shell = CalendarShell.fromIncompleteShell({});
+    });
+
+    it('should do nothing if the event has no attendees', function() {
+      shell.changeParticipation('ACCEPTED');
+      expect(shell.attendees).to.deep.equal([]);
+    });
+
+    it('should change all needed attendees partstat and return true', function() {
+      shell.attendees = [{
+        email: 'user1@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION'
+      }, {
+        email: 'user2@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION'
+      }, {
+        email: 'user3@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }];
+      expect(shell.changeParticipation('ACCEPTED')).to.be.true;
+      expect(shell.attendees).to.shallowDeepEqual([{
+        email: 'user1@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }, {
+        email: 'user2@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }, {
+        email: 'user3@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }]);
+    });
+
+    it('should not change organizer partstat', function() {
+      shell.attendees = [{
+        email: 'user1@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION'
+      }, {
+        email: 'user2@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }];
+      shell.organizer = {
+        email: 'user1@demo.open-paas.org',
+        displayName: 'user1'
+      };
+      expect(shell.changeParticipation('ACCEPTED')).to.be.false;
+      expect(shell.attendees).to.shallowDeepEqual([{
+        email: 'user1@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION'
+      }, {
+        email: 'user2@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }]);
+    });
+
+    it('should return false if no attendee partstat was modified', function() {
+      shell.attendees = [{
+        email: 'user1@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }, {
+        email: 'user2@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }];
+      expect(shell.changeParticipation('ACCEPTED')).to.be.false;
+    });
+
+    describe('when emails parameter is provided', function() {
+      it('should do nothing if the event has no attendees', function() {
+        shell.changeParticipation('ACCEPTED', ['user1@demo.open-paas.org']);
+        expect(shell.attendees).to.deep.equal([]);
+      });
+
+      it('should change all needed attendees partstat and return true', function() {
+        shell.attendees = [{
+          email: 'user1@demo.open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        }, {
+          email: 'user2@demo.open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        }, {
+          email: 'user3@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }];
+        expect(shell.changeParticipation('ACCEPTED', ['user1@demo.open-paas.org'])).to.be.true;
+        expect(shell.attendees).to.shallowDeepEqual([{
+          email: 'user1@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }, {
+          email: 'user2@demo.open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        }, {
+          email: 'user3@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }]);
+      });
+
+      it('should not change organizer partstat', function() {
+        shell.attendees = [{
+          email: 'user1@demo.open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        }, {
+          email: 'user2@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }];
+        shell.organizer = {
+          email: 'user1@demo.open-paas.org',
+          displayName: 'user1'
+        };
+        expect(shell.changeParticipation('ACCEPTED'), ['user1@demo.open-paas.org']).to.be.false;
+        expect(shell.attendees).to.shallowDeepEqual([{
+          email: 'user1@demo.open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        }, {
+          email: 'user2@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }]);
+      });
+
+      it('should return false if no attendee partstat was modified', function() {
+        shell.attendees = [{
+          email: 'user1@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }, {
+          email: 'user2@demo.open-paas.org',
+          partstat: 'ACCEPTED'
+        }];
+        expect(shell.changeParticipation('ACCEPTED'), ['user1@demo.open-paas.org']).to.be.false;
+      });
+    });
+  });
+
 });
 
 describe('RRuleShell Factory', function() {
