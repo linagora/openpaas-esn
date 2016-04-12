@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
         return defer.reject(new Error('Can not retrieve baseURL'));
       }
 
-      defer.resolve(baseURL + '/login/oauth/facebook/auth/callback');
+      defer.resolve(baseURL + '/login-oauth/facebook/auth/callback');
     });
     return defer.promise;
   }

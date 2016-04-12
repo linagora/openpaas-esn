@@ -1,9 +1,10 @@
 'use strict';
 
 var AwesomeModule = require('awesome-module');
+var path = require('path');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var MODULE_NAME = 'linagora.esn.login.oauth';
-var APPLICATION_NAME = 'login';
+var APPLICATION_NAME = 'login-oauth';
 
 var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
   dependencies: [
@@ -27,12 +28,13 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
 
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this, dependencies);
-      app.use('/oauth', this.api);
+      app.use('/', this.api);
 
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules(APPLICATION_NAME, ['app.js'], MODULE_NAME, ['esn']);
+      webserverWrapper.injectAngularModules(APPLICATION_NAME, ['app.js', 'strategies/facebook.js'], MODULE_NAME, ['welcome']);
+      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      webserverWrapper.injectLess(APPLICATION_NAME, [lessFile], 'welcome');
       webserverWrapper.addApp(APPLICATION_NAME, app);
-
       return callback();
     },
 
