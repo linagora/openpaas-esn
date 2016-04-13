@@ -140,16 +140,16 @@ module.exports = function(grunt) {
             'PROVISION=true',
             'ESN_PATH=' + __dirname
           ]
-        },
-        new RegExp('OpenPaas ESN is now started on node'),
-        'All ESN docker containers are deployed'),
+        }, {
+          regex: new RegExp('OpenPaas ESN is now started on node'),
+          info: 'All ESN docker containers are deployed',
+          timeout: 300000
+        }),
 
       esn_full_down: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-remover',
           command: ['down', '-v']
-        },
-        new RegExp('Removing network platform_default'),
-        'All ESN docker containers have been removed'),
+        }),
 
       redis: container.newContainer({
           Image: servers.redis.container.image,
