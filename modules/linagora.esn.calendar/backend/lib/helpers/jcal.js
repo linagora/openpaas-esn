@@ -8,7 +8,7 @@ function _getEmail(attendee) {
   return attendee.getFirstValue().replace(/^MAILTO:/i, '');
 }
 
-function _icalDateToMoment(icalDate, correspondingIcalStartDate) {
+function _icalDateToMoment(icalDate) {
   var dt;
   var momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
 
@@ -36,6 +36,7 @@ function getVAlarmAsObject(valarm, dtstart) {
   var trigger = valarm.getFirstPropertyValue('trigger');
   var attendee = valarm.getFirstPropertyValue('attendee');
   var startDate = _icalDateToMoment(dtstart);
+  var triggerDuration = moment.duration(trigger);
   return {
     action: valarm.getFirstPropertyValue('action'),
     trigger: trigger,
@@ -43,7 +44,8 @@ function getVAlarmAsObject(valarm, dtstart) {
     summary: valarm.getFirstPropertyValue('summary'),
     attendee: attendee,
     email: attendee.replace(/^MAILTO:/i, ''),
-    alarmDueDate: startDate.clone().add(moment.duration(trigger))
+    alarmDueDate: startDate.clone().add(triggerDuration),
+    triggerDisplay: triggerDuration.humanize()
   };
 }
 module.exports.getVAlarmAsObject = getVAlarmAsObject;
@@ -89,7 +91,8 @@ module.exports.getVAlarmAsObject = getVAlarmAsObject;
         summary: 'Event Pending',
         attendee: 'aorganizer@linagora.com',
         email: 'aorganizer@linagora.com',
-        alarmDueDate: 'a date 15 min before start date'
+        alarmDueDate: 'a date 15 min before start date',
+        triggerDisplay: '15 minutes'
       }
     }
    }
