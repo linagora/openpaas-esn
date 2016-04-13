@@ -298,6 +298,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e-up', ['container:esn_full_up', 'test-e2e-wait-servers', 'container:esn_full_up:remove']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_down', 'container:esn_full_down:remove']);
   grunt.registerTask('test-e2e-down-selenium', 'stop selenium server', gruntfileUtils.stopSeleniumServer());
+  grunt.registerTask('test-e2e-clean', 'Clean all compose containers', ['continue:on', 'container:esn_full_pull:remove', 'container:esn_full_build:remove', 'container:esn_full_up:remove', 'container:esn_full_down:remove', 'continue:off']);
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
