@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('linagora.esn.mute')
-  .controller('muteIframeController', function ($scope, $sce, $stateParams, Restangular, iFrameResize) {
+  .controller('muteIframeController', function ($scope, $sce, $stateParams, Restangular, session) {
 
     Restangular.withConfig(function (RestangularConfigurer) {
       RestangularConfigurer.setBaseUrl('/mute/api');
       RestangularConfigurer.setFullResponse(true);
     }).one('config').get().then(function (response) {
-      $scope.editorUrl = $sce.trustAsResourceUrl(response.data.url + $stateParams.id);
-    })
+      $scope.editorUrl = $sce.trustAsResourceUrl(response.data.url + $stateParams.id + '?' + session.user.firstname);
+    });
 
   })
 
