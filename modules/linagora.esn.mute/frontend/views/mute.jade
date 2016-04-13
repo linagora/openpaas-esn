@@ -1,7 +1,10 @@
-form(ng-submit="goToDocument()")
-  .form-group.fg-line
-    .field-name #{__('Name')}
-    input.form-control(ng-model="document.name", placeholder="#{__('Enter a name')}", auto-focus)
+.welcome
+  .greetings #{__('Bienvenue à la revue OpenPaas::NG du 15 Avril 2016 !')}
 
-  .button-bar.actions
-    input.btn.btn-primary(type="submit", value="#{__('Submit')}")
+  form.form(ng-submit="goToDocument()")
+    .form-group.fg-line
+      .field-name #{__('Veuillez renseigner un nom de document')}
+      input.form-control(ng-model="document.name", placeholder="#{__('Nom')}", auto-focus)
+
+    .button-bar.actions
+      input.btn.btn-primary(type="submit", value="#{__('Valider')}")
