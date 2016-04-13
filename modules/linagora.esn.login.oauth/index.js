@@ -20,6 +20,7 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
     lib: function(dependencies, callback) {
       var lib = require('./backend/lib')(dependencies);
       var api = require('./backend/webserver/api')(dependencies);
+
       return callback(null, {
         api: api,
         lib: lib
@@ -27,14 +28,24 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
     },
 
     deploy: function(dependencies, callback) {
+      var config = dependencies('config')('default');
+      var webserverWrapper = dependencies('webserver-wrapper');
       var app = require('./backend/webserver/application')(this, dependencies);
+      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      var js = ['app.js'];
+
       app.use('/', this.api);
 
-      var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules(APPLICATION_NAME, ['app.js', 'strategies/facebook.js'], MODULE_NAME, ['welcome']);
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      if (config.auth && config.auth.oauth && config.auth.oauth.strategies && config.auth.oauth.strategies.length) {
+        config.auth.oauth.strategies.forEach(function(strategy) {
+          js.push('strategies/' + strategy + '.js');
+        });
+      }
+
+      webserverWrapper.injectAngularModules(APPLICATION_NAME, js, MODULE_NAME, ['welcome']);
       webserverWrapper.injectLess(APPLICATION_NAME, [lessFile], 'welcome');
       webserverWrapper.addApp(APPLICATION_NAME, app);
+
       return callback();
     },
 
