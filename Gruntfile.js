@@ -146,7 +146,7 @@ module.exports = function(grunt) {
 
       esn_full_down: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-remover',
-          command: ['down']
+          command: ['down', '-v']
         },
         new RegExp('Removing network platform_default'),
         'All ESN docker containers have been removed'),
@@ -156,16 +156,20 @@ module.exports = function(grunt) {
           name: servers.redis.container.name
         }, {
           PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] }
-        },
-        null, 'Redis server is started.'),
+        }, {}, {
+          regex: null,
+          info: 'Redis server is started.'
+        }),
       mongo: container.newContainer({
           Image: servers.mongodb.container.image,
           name: servers.mongodb.container.name,
           Cmd: ['mongod', '--nojournal']
         }, {
           PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] }
-        },
-        new RegExp('connections on port 27017'), 'MongoDB server is started.'),
+        }, {}, {
+          regex: new RegExp('connections on port 27017'),
+          info: 'MongoDB server is started.'
+        }),
       mongo_replSet: container.newContainer({
           Image: servers.mongodb.container.image,
           name: servers.mongodb.container.name,
@@ -173,8 +177,10 @@ module.exports = function(grunt) {
         }, {
           PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
           ExtraHosts: ['mongo:127.0.0.1']
-        },
-        new RegExp('connections on port 27017'), 'MongoDB server is started.'),
+        }, {}, {
+          regex: new RegExp('connections on port 27017'),
+          info: 'MongoDB server is started.'
+        }),
       elasticsearch: container.newContainer({
           Image: servers.elasticsearch.container.image,
           name: servers.elasticsearch.container.name,
@@ -182,8 +188,10 @@ module.exports = function(grunt) {
         }, {
           PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
           Links: [servers.mongodb.container.name + ':mongo']
-        },
-        /started/, 'Elasticsearch server is started.')
+        }, {}, {
+          regex: /started/,
+          info: 'Elasticsearch server is started.'
+        })
     },
     waitServer: {
       options: { timeout: 60 * 1000, interval: 200, print: false },
