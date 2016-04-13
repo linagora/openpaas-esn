@@ -16,11 +16,11 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
       element.attr('title', $sanitize(event.description));
     }
 
-    var invitedAttendee = null;
+    var userAsAttendee = null;
     if (event.attendees) {
       event.attendees.forEach(function(att) {
         if (att.email in session.user.emailMap) {
-          invitedAttendee = att;
+          userAsAttendee = att;
         }
       });
     }
@@ -30,17 +30,20 @@ angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, ses
       angular.element('<i class="mdi mdi-sync"/>').insertBefore(timeSpan);
     }
 
-    if (invitedAttendee) {
+    if (!isOrganizer(event)) {
       event.startEditable = false;
       event.durationEditable = false;
-      if (invitedAttendee.partstat === 'NEEDS-ACTION') {
+    }
+
+    if (userAsAttendee) {
+      if (userAsAttendee.partstat === 'NEEDS-ACTION') {
         element.addClass('event-needs-action');
-      } else if (invitedAttendee.partstat === 'TENTATIVE') {
+      } else if (userAsAttendee.partstat === 'TENTATIVE') {
         element.addClass('event-tentative');
         angular.element('<i class="mdi mdi-help-circle"/>').insertBefore(timeSpan);
-      } else if (invitedAttendee.partstat === 'ACCEPTED') {
+      } else if (userAsAttendee.partstat === 'ACCEPTED') {
         element.addClass('event-accepted');
-      } else if (invitedAttendee.partstat === 'DECLINED') {
+      } else if (userAsAttendee.partstat === 'DECLINED') {
         element.addClass('event-declined');
       }
     }
