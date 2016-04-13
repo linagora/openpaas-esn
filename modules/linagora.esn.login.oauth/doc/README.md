@@ -10,27 +10,31 @@ The login providers can be activated of not from the config/default.json configu
 
     "auth": {
       "oauth": {
-        "strategies": ["facebook", "twitter"]
+        "strategies": ["facebook", "twitter", "google"]
       }
     }
 
-Once the provider is added to the list of strategies (facebook and twitter strategies are activated from example above), you have to configure client secrets as defined in the section below.
+Once the provider is added to the list of strategies (facebook, twitter and google strategies are activated from example above), you have to configure client secrets as defined in the section below.
 
 ### Global configuration
 
 The configuration for each provider must be defined in the oauth document in the configuration collection like:
 
-{
-  "_id": "oauth",
-  "facebook": {
-    "client_id": "YOUR CONSUMER KEY",
-    "client_secret": "YOUR CONSUMER SECRET"
-  },
-  "twitter": {
-    "consumer_key": "YOUR TWITTER CONSUMER KEY",
-    "consumer_secret": "YOUR TWITTER CONSUMER SECRET"
-  }
-}
+    {
+      "_id": "oauth",
+      "facebook": {
+        "client_id": "YOUR CONSUMER KEY",
+        "client_secret": "YOUR CONSUMER SECRET"
+      },
+      "google": {
+        "client_id": "YOUR GOOGLE CLIENT ID",
+        "client_secret": "YOUR GOOGLE CLIENT SECRET"
+      },
+      "twitter": {
+        "consumer_key": "YOUR TWITTER CONSUMER KEY",
+        "consumer_secret": "YOUR TWITTER CONSUMER SECRET"
+      }
+    }
 
 Check the main OAuth documentation under [../../doc/configuration.md](../../doc/configuration.md) for more details on how to get and set OAuth providers secrets.
 
