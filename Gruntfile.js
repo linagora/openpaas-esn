@@ -146,7 +146,7 @@ module.exports = function(grunt) {
 
       esn_full_down: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-remover',
-          command: ['down']
+          command: ['down', '-v']
         },
         new RegExp('Removing network platform_default'),
         'All ESN docker containers have been removed'),
