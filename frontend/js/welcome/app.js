@@ -9,6 +9,7 @@ angular.module('welcomeApp', [
     'esn.http',
     'ngRoute',
     'materialAdmin',
+    'op.dynamicDirective',
     'esn.ui'
   ].concat(angularInjections))
   .config(function($routeProvider) {
