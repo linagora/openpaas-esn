@@ -1,26 +1,25 @@
 'use strict';
 
-var extend = require('extend');
 var jobModule = require('./job');
 var registry = {};
 
 module.exports = function() {
 
-  function save(job, callback) {
-    jobModule.save(job, function(err, savedJob) {
+  function _save(meta, cronjob, callback) {
+    jobModule.save(meta, function(err, savedJob) {
       if (err) {
         return callback(err);
       }
       registry[savedJob.jobId] = savedJob;
-      registry[savedJob.jobId].job = job;
+      registry[savedJob.jobId].cronjob = cronjob;
 
       return callback(null, savedJob);
     });
   }
 
-  function store(jobId, description, job, context, callback) {
-    if (!jobId || !description || !job) {
-      return callback(new Error('id, description and job are required'));
+  function store(jobId, description, cronjob, context, callback) {
+    if (!jobId || !description || !cronjob) {
+      return callback(new Error('id, description and cronjob are required'));
     }
 
     var meta = {
@@ -29,7 +28,11 @@ module.exports = function() {
       context: context
     };
 
-    save(meta, callback);
+    _save(meta, cronjob, callback);
+  }
+
+  function getInMemory(id) {
+    return registry[id];
   }
 
   function get(id, callback) {
@@ -40,6 +43,20 @@ module.exports = function() {
       return callback(null, registry[id]);
     }
     jobModule.getById(id, callback);
+  }
+
+  function getByExactContext(context, callback) {
+    if (!context) {
+      return callback();
+    }
+    jobModule.getByExactContext(context, callback);
+  }
+
+  function getAllBySubContext(context, callback) {
+    if (!context) {
+      return callback();
+    }
+    jobModule.getAllBySubContext(context, callback);
   }
 
   function update(job, callback) {
@@ -54,7 +71,7 @@ module.exports = function() {
       foundJob.state = job.state || foundJob.state;
       foundJob.timestamps.updatedAt = new Date();
 
-      save(foundJob, callback);
+      _save(foundJob, foundJob.cronJob, callback);
     });
   }
 
@@ -69,6 +86,9 @@ module.exports = function() {
   return {
     store: store,
     get: get,
+    getInMemory: getInMemory,
+    getByExactContext: getByExactContext,
+    getAllBySubContext: getAllBySubContext,
     update: update,
     remove: remove
   };

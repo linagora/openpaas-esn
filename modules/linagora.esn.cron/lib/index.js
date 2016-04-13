@@ -3,6 +3,7 @@
 var cron = require('cron');
 var JOB_STATES = require('./constants').JOB_STATES;
 var uuid = require('node-uuid');
+var async = require('async');
 
 module.exports = function(dependencies) {
 
@@ -31,22 +32,41 @@ module.exports = function(dependencies) {
     });
   }
 
-  function abort(id, callback) {
-    registry.get(id, function(err, job) {
+  function _abortByFn(fn, context, callback) {
+    fn(context, function(err, jobs) {
       if (err) {
         return callback(err);
       }
 
-      if (!job) {
-        return callback(new Error('No such job'));
+      if (!jobs || (Array.isArray(jobs) && !jobs.length)) {
+        return callback(new Error('No jobs found for context', context));
       }
 
-      if (job.job) {
-        job.job.stop();
+      if (!Array.isArray(jobs)) {
+        jobs = [jobs];
       }
 
-      registry.remove(id, callback);
+      async.each(jobs, function(job, cb) {
+        var inMemory = registry.getInMemory(job.jobId);
+        if (inMemory && inMemory.cronjob) {
+          inMemory.cronjob.stop();
+        }
+
+        registry.remove(job.jobId, cb);
+      }, callback);
     });
+  }
+
+  function abort(id, callback) {
+    _abortByFn(registry.get, id, callback);
+  }
+
+  function abortByContext(context, callback) {
+    _abortByFn(registry.getByExactContext, context, callback);
+  }
+
+  function abortAll(context, callback) {
+    _abortByFn(registry.getAllBySubContext, context, callback);
   }
 
   function submit(description, cronTime, job, context, onStopped, callback) {
@@ -80,7 +100,7 @@ module.exports = function(dependencies) {
 
       setJobState(id, 'running', function(err) {
         if (err) {
-          logger.warning('Can not update the job state', err);
+          logger.warn('Can not update the job state', err);
         }
 
         job(function(err) {
@@ -90,7 +110,7 @@ module.exports = function(dependencies) {
           }
           setJobState(id, err ? JOB_STATES.FAILED : JOB_STATES.COMPLETE, function(err) {
             if (err) {
-              logger.warning('Can not update the job state', err);
+              logger.warn('Can not update the job state', err);
             }
           });
         });
@@ -109,7 +129,7 @@ module.exports = function(dependencies) {
         logger.info('Job %s is stopped', id);
         setJobState(id, JOB_STATES.STOPPED, function(err) {
           if (err) {
-            logger.warning('Can not update the job state', err);
+            logger.warn('Can not update the job state', err);
           }
           onStopped();
         });
@@ -119,7 +139,7 @@ module.exports = function(dependencies) {
 
     registry.store(id, description, cronjob, context, function(err, saved) {
       if (err) {
-        logger.warning('Error while storing the job', err);
+        logger.warn('Error while storing the job', err);
       }
       cronjob.start();
       return callback(null, saved);
@@ -129,6 +149,8 @@ module.exports = function(dependencies) {
   return {
     submit: submit,
     abort: abort,
+    abortByContext: abortByContext,
+    abortAll: abortAll,
     registry: registry
   };
 };

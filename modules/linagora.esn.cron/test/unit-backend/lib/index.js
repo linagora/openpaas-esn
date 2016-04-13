@@ -22,6 +22,10 @@ describe('The Cron Module', function() {
       return callback();
     }
 
+    function getInMemory(id) {
+      return;
+    }
+
     function update(job, callback) {
       return callback(null, job);
     }
@@ -34,6 +38,7 @@ describe('The Cron Module', function() {
       return {
         store: mock.store || store,
         get: mock.get || get,
+        getInMemory: mock.getInMemory || getInMemory,
         update: mock.update || update,
         remove: mock.remove || remove
       };
@@ -49,7 +54,7 @@ describe('The Cron Module', function() {
     logger: {
       error: function() {},
       info: function() {},
-      warning: function() {}
+      warn: function() {}
     }
   };
 
@@ -268,7 +273,7 @@ describe('The Cron Module', function() {
       });
       var module = require('../../../lib/index')(dependencies);
       module.abort('123', function(err) {
-        expect(err).to.match(/No such job/);
+        expect(err).to.match(/No jobs found/);
         done();
       });
     });
@@ -280,10 +285,19 @@ describe('The Cron Module', function() {
         get: function(id, callback) {
           expect(id).to.equal(testId);
           return callback(null, {
-            job: {
+            jobId: testId,
+            cronjob: {
               stop: stopSpy
             }
           });
+        },
+        getInMemory: function(id) {
+          expect(id).to.equal(testId);
+          return {
+            cronjob: {
+              stop: stopSpy
+            }
+          };
         },
         remove: function(id, callback) {
           expect(id).to.equal(testId);

@@ -45,7 +45,7 @@ function _sendAlarmEmail(ics, email) {
   return defer.promise;
 }
 
-function _registerNewAlarm(date, ics, email) {
+function _registerNewAlarm(date, ics, email, context) {
   function job(callback) {
     logger.info('Try sending event alarm email to', email);
     _sendAlarmEmail(ics, email).then(function() {
@@ -54,10 +54,10 @@ function _registerNewAlarm(date, ics, email) {
   }
 
   function onComplete() {
-    logger.info('Succesfully sent event alarm email to', email);
+    logger.info('Succesfully computed event alarm email for', email);
   }
 
-  cron.submit('Will send an event alarm once at ' + date.toString() + ' to ' + email, date, job, onComplete, function(err, job) {
+  cron.submit('Will send an event alarm once at ' + date.toString() + ' to ' + email, date, job, context, onComplete, function(err, job) {
     if (err) {
       logger.error('Error while submitting the job send alarm email', err);
     } else {
@@ -66,33 +66,59 @@ function _registerNewAlarm(date, ics, email) {
   });
 }
 
+function _onCreate(msg) {
+  var vcalendar = new ICAL.Component(msg.event);
+  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  var valarm = vevent.getFirstSubcomponent('valarm');
+
+  if (!valarm) {
+    logger.debug('No alarm: doing nothing for', msg);
+    return;
+  }
+
+  var action = valarm.getFirstPropertyValue('action');
+  if (action !== 'EMAIL') {
+    logger.warn('VALARM not supported: doing nothing for', msg, 'and action', action);
+    return;
+  }
+
+  var alarm = jcalHelper.getVAlarmAsObject(valarm, vevent.getFirstPropertyValue('dtstart'));
+  var context = {
+    alarmDueDate: alarm.alarmDueDate,
+    attendee: alarm.attendee,
+    eventUid: vevent.getFirstPropertyValue('uid'),
+    action: alarm.action
+  };
+  logger.info('Register new event alarm email for', alarm.email, 'at', alarm.alarmDueDate.clone().local().format());
+  _registerNewAlarm(alarm.alarmDueDate.toDate(), vcalendar.toString(), alarm.email, context);
+}
+
+function _onDelete(msg) {
+  var vcalendar = new ICAL.Component(msg.event);
+  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  var eventUid = vevent.getFirstPropertyValue('uid');
+
+  cron.abortAll({
+    eventUid: eventUid
+  }, function(err) {
+    if (err) {
+      logger.error('Error while deleting all the job for event ' + eventUid, err);
+    } else {
+      logger.info('All jobs about event ' + eventUid + ' have been deleted.');
+    }
+  });
+}
+
 function _handleAlarm(msg) {
   switch (msg.type) {
     case 'created':
-      var vcalendar = new ICAL.Component(msg.event);
-      var vevent = vcalendar.getFirstSubcomponent('vevent');
-      var valarm = vevent.getFirstSubcomponent('valarm');
-
-      if (!valarm) {
-        logger.debug('No alarm: doing nothing for', msg);
-        return;
-      }
-
-      var action = valarm.getFirstPropertyValue('action');
-      if (action !== 'EMAIL') {
-        logger.warn('VALARM not supported: doing nothing for', msg, 'and action', action);
-        return;
-      }
-
-      var alarm = jcalHelper.getVAlarmAsObject(valarm, vevent.getFirstPropertyValue('dtstart'));
-      logger.info('Register new event alarm email for', alarm.email, 'at', alarm.alarmDueDate.clone().local().format());
-      _registerNewAlarm(alarm.alarmDueDate.toDate(), vcalendar.toString(), alarm.email);
+      _onCreate(msg);
       break;
     case 'updated':
       logger.warn('Handling alarm and event modification is not supported yet');
       break;
     case 'deleted':
-      logger.warn('Handling alarm and event deletion is not supported yet');
+      _onDelete(msg);
       break;
   }
 }
