@@ -40,6 +40,9 @@ angular.module('esn.calendar')
   }])
   .directive('eventAlarmEdition', function(session, TRIGGER) {
     function link(scope) {
+      if (scope.event.alarm) {
+        scope.trigger = scope.event.alarm.trigger.toICALString();
+      }
       scope.setEventAlarm = function() {
         scope.event.alarm = {
           trigger: scope.trigger,

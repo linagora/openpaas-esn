@@ -7,3 +7,11 @@
     .col-xs-6.nopadding
       span.all-centered
         | #{__('Consult')}
+    .col-xs-3.nopadding
+      button.btn.btn-primary(ng-if="!isEdit", ng-click="changeConsultState()")
+        | #{__('Edit')}
+        i.mdi.mdi-pencil
+      button.btn.btn-primary(ng-if="isEdit", ng-click="changeConsultState()")
+        | #{__('Save')}
+        i.mdi.mdi-check
+

@@ -81,7 +81,7 @@ angular.module('esn.calendar')
    * When checking if an event has been modified in the event form, these JSON
    * keys on the calendar shell will be checked.
    */
-  .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description', 'rrule'])
+  .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description', 'rrule', 'alarm'])
 
   /**
    * When checking rrule comparison, these JSON keys on the rrule shell will be checked.

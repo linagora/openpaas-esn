@@ -96,7 +96,7 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, eventUtils, CALENDAR_EVENTS, CalendarShell) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, eventUtils, CALENDAR_EVENTS, CalendarShell, TRIGGER) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -104,6 +104,7 @@ describe('The event-form module controllers', function() {
     this.eventUtils = eventUtils;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     this.CalendarShell = CalendarShell;
+    this.TRIGGER = TRIGGER;
   }));
 
   describe('The eventFormController controller', function() {
@@ -692,6 +693,62 @@ describe('The event-form module controllers', function() {
           expect(broadcastSpy).to.not.have.been.called;
           done();
         });
+      });
+    });
+
+    describe('updateAlarm function', function() {
+      it('should does nothing if the alarm has not changed', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          title: 'title',
+          start: this.moment('2016-12-08 12:30'),
+          end: this.moment('2016-12-08 13:30'),
+          location: 'aLocation',
+          etag: '123456',
+          alarm: {
+            trigger: this.TRIGGER[0].value,
+            attendee: 'test@open-paas.org'
+          }
+        });
+        this.initController();
+        this.calendarServiceMock.modifyEvent = sinon.spy(function() {
+          return $q.when();
+        });
+
+        this.scope.editedEvent = this.scope.event.clone();
+        this.scope.updateAlarm();
+        expect(this.calendarServiceMock.modifyEvent).to.have.not.been.called;
+      });
+
+      it('should call calendarService.modifyEvent with updateAlarm when alarm is changed', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          title: 'title',
+          path: '/path/to/event',
+          start: this.moment('2016-12-08 12:30'),
+          end: this.moment('2016-12-08 13:30'),
+          location: 'aLocation',
+          etag: '123456',
+          alarm: {
+            trigger: '-PT1M',
+            attendee: 'test@open-paas.org'
+          }
+        });
+        this.initController();
+        this.scope.editedEvent = this.scope.event.clone();
+        this.scope.editedEvent.alarm = {
+          trigger: '-P2D',
+          attendee: 'test@open-paas.org'
+        };
+
+        this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel) {
+          expect(path).to.equal('/path/to/event');
+          expect(etag).to.equal('123456');
+          expect(event.alarm.trigger.toICALString()).to.equal('-P2D');
+          expect(oldEvent.alarm.trigger.toICALString()).to.equal('-PT1M');
+          return $q.when();
+        });
+
+        this.scope.updateAlarm();
+        expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
       });
     });
   });

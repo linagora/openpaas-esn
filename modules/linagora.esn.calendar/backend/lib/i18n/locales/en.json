@@ -60,5 +60,12 @@
   "Day": "Day",
   "Week": "Week",
   "Month": "Month",
-  "Please input a name if you want to save this calendar": "Please input a name if you want to save this calendar"
+  "Please input a name if you want to save this calendar": "Please input a name if you want to save this calendar",
+  "hour": "hour",
+  "hours": "hours",
+  "minute": "minute",
+  "minutes": "minutes",
+  "day": "day",
+  "week": "week",
+  "before": "before"
 }
