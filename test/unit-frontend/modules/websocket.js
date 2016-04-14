@@ -277,6 +277,22 @@ describe('The esn.websocket Angular module', function() {
       expect(this.livenotification().on).to.be.a.function;
       expect(this.livenotification().removeListener).to.be.a.function;
     });
+
+    it('should not duplicate interface for same channel and same room', function() {
+      expect(this.livenotification('channel', 'room')).to.equal(this.livenotification('channel', 'room'));
+    });
+
+    it('should create two different interface for differents room', function() {
+      expect(this.livenotification('channel', 'room')).to.not.equal(this.livenotification('channel', 'room2'));
+    });
+
+    it('should not duplicate interface for same channel if no room', function() {
+      expect(this.livenotification('channel', null)).to.equal(this.livenotification('channel', undefined));
+    });
+
+    it('should create two different interface for differents channel without room', function() {
+      expect(this.livenotification('channel')).to.not.equal(this.livenotification('channel2'));
+    });
   });
 
   describe('IoAction service', function() {
