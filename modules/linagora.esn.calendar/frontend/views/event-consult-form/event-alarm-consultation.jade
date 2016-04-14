@@ -1,9 +1,0 @@
-.row
-  .col-xs-12
-    .form-group
-      .input-group
-        span.input-group-addon
-          i.mdi.mdi-email
-        .description
-          span(ng-if='trigger', ng-repeat="item in TRIGGER | filter:{value:trigger} | limitTo : 1 : 0")  {{item.label}}
-            | before 
