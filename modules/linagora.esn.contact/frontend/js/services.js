@@ -193,6 +193,16 @@ angular.module('linagora.esn.contact')
       $scope.formattedBirthday = getFormattedBirthday(contact.birthday);
     }
 
+    function getOrderType($scope) {
+      var type = CONTACT_ATTRIBUTES_ORDER.social;
+      for (var j = type.length; j--;) {
+        if (type[j] === 'Other') {
+          type.splice(j, 1);
+        }
+      }
+      $scope.socialTypeOrder = type;
+    }
+
     return {
       getFormattedName: getFormattedName,
       getFormattedBirthday: getFormattedBirthday,
@@ -201,7 +211,8 @@ angular.module('linagora.esn.contact')
       getOrderedValues: getOrderedValues,
       orderData: orderData,
       fillScopeContactData: fillScopeContactData,
-      isTextAvatar: isTextAvatar
+      isTextAvatar: isTextAvatar,
+      getOrderType: getOrderType
     };
   })
   .factory('deleteContact', function(
