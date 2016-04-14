@@ -36,10 +36,10 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     IoAction.prototype.isSubscription = function() {
-      return this.subscription ? true : false;
+      return !!this.subscription;
     };
     IoAction.prototype.isUnsubscribe = function() {
-      return this.removeListenerRequest ? true : false;
+      return !!this.removeListenerRequest;
     };
     IoAction.prototype.equalsSubscription = function(other) {
       return (!this.namespace && !other.namespace || this.namespace === other.namespace) &&
@@ -487,9 +487,10 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
      * livenotification(namespace).removeListener(event, callback);
      */
     return function(namespace, room) {
-      if (!socketCache[namespace + '/' + room]) {
-        socketCache[namespace + '/' + room] = socketIORoom(namespace, room, socket(namespace));
+      var path = [namespace, room].filter(Boolean).join('/');
+      if (!socketCache[path]) {
+        socketCache[path] = socketIORoom(namespace, room, socket(namespace));
       }
-      return socketCache[namespace + '/' + room];
+      return socketCache[path];
     };
   });
