@@ -1,5 +1,6 @@
 @facebookBlue: #3b5998;
 @twitterMainColor: #4099FF;
+@googleMainColor: #DD4B39;
 
 .login-oauth {
 
@@ -17,4 +18,10 @@
     }
   }
 
+  a.google-login {
+    background-color: @googleMainColor;
+    &:hover {
+      background-color: lighten(@googleMainColor, 10%);
+    }
+  }
 }
