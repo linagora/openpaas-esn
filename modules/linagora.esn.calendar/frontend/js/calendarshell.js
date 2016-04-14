@@ -154,6 +154,9 @@ angular.module('esn.calendar')
       },
       set rrule(value) {
         this.__rrule = undefined;
+        if (!value) {
+          return;
+        }
         if (value.until) {
           value.until = ICAL.Time.fromJSDate(value.until);
         }

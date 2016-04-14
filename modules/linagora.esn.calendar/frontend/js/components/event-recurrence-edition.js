@@ -32,18 +32,11 @@ angular.module('esn.calendar')
       scope._event.getModifiedMaster().then(function(master) {
         scope.readOnly = !scope.isOrganizer || scope._event.isInstance();
         scope.event = master;
-
-        if (!scope.event.rrule) {
-          scope.event.rrule = {
-            freq: RECUR_FREQ[0].value,
-            interval: null
-          };
-        }
+        scope.freq = scope.event.rrule ? scope.event.rrule.freq : undefined;
       });
 
       scope.RECUR_FREQ = RECUR_FREQ;
       scope.WEEK_DAYS = Object.keys(WEEK_DAYS);
-      scope.animateFlexContainer = false;
       var weekDaysValues = Object.keys(WEEK_DAYS).map(function(key) {
         return WEEK_DAYS[key];
       });
@@ -86,6 +79,17 @@ angular.module('esn.calendar')
 
       scope.resetCount = function() {
         scope.event.rrule.count = undefined;
+      };
+
+      scope.setRRULE = function() {
+        if (!scope.freq) {
+          scope.event.rrule = undefined;
+        } else {
+          scope.event.rrule = {
+            freq: scope.freq,
+            interval: null
+          };
+        }
       };
     }
 
