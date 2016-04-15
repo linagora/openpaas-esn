@@ -35,8 +35,10 @@ angular.module('esn.calendar')
         }
 
         scope.selectAttendee = function(attendee) {
-          attendee.clicked = !attendee.clicked;
-          scope.attendeeClickedCount += attendee.clicked ? 1 : -1;
+          if (scope.organizer.email !== attendee.email) {
+            attendee.clicked = !attendee.clicked;
+            scope.attendeeClickedCount += attendee.clicked ? 1 : -1;
+          }
         };
 
         scope.deleteSelectedAttendees = function() {
