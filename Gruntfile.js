@@ -5,6 +5,7 @@ var util = require('util');
 var conf_path = './test/config/';
 var servers = require(conf_path + 'servers-conf');
 var config = require('./config/default.json');
+var dockerodeConfig = require('./docker/config/dockerode');
 var GruntfileUtils = require('./tasks/utils/Gruntfile-utils');
 var fixtures = require('./fixtures');
 
@@ -16,14 +17,6 @@ module.exports = function(grunt) {
   var container = gruntfileUtils.container();
   var command = gruntfileUtils.command();
   var runGrunt = gruntfileUtils.runGrunt();
-
-  function readDockerCert(name) {
-    try {
-      return grunt.file.read(process.env.DOCKER_CERT_PATH + '/' + name, 'utf-8');
-    } catch (e) {
-      return '';
-    }
-  }
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -108,19 +101,7 @@ module.exports = function(grunt) {
       webdriver_install: { command: './node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update' }
     },
     container: {
-      options: {
-        localhost: {
-          socketPath: '/var/run/docker.sock'
-        },
-        remote: {
-          host: process.env.DOCKER_HOST || '192.168.99.100',
-          port: process.env.DOCKER_PORT || 2376,
-          ca: readDockerCert('ca.pem'),
-          cert: readDockerCert('cert.pem'),
-          key: readDockerCert('key.pem'),
-          pass: process.env.DOCKER_CERT_PASS || 'mypass'
-        }
-      },
+      options: dockerodeConfig(grunt.option('docker')),
 
       esn_full_pull: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-pull',
@@ -294,11 +275,12 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e-prepare', ['shell:webdriver_install', 'container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);
 
   grunt.registerTask('test-e2e-pull', ['container:esn_full_pull', 'container:esn_full_pull:remove']);
-  grunt.registerTask('test-e2e-build', ['container:esn_full_build', 'container:esn_full_build:remove']);
+  grunt.registerTask('test-e2e-build', ['test-e2e-build-esn_base', 'container:esn_full_build', 'container:esn_full_build:remove']);
   grunt.registerTask('test-e2e-up', ['container:esn_full_up', 'test-e2e-wait-servers', 'container:esn_full_up:remove']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_down', 'container:esn_full_down:remove']);
   grunt.registerTask('test-e2e-down-selenium', 'stop selenium server', gruntfileUtils.stopSeleniumServer());
   grunt.registerTask('test-e2e-clean', 'Clean all compose containers', ['continue:on', 'container:esn_full_pull:remove', 'container:esn_full_build:remove', 'container:esn_full_up:remove', 'container:esn_full_down:remove', 'continue:off']);
+  grunt.registerTask('test-e2e-build-esn_base', gruntfileUtils.buildEsnBaseImage());
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
