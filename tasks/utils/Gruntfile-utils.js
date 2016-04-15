@@ -23,13 +23,10 @@ function _args(grunt) {
 }
 
 function _taskSuccessIfMatch(grunt, regex, info) {
-  return function(chunk) {
-
+  return function(chunk, done) {
     if (regex) {
-      var done = grunt.task.current.async();
-
       if (regex.test('' + chunk)) {
-        grunt.log.write(info);
+        grunt.log.oklns(info);
         done(true);
       }
     }
@@ -37,9 +34,9 @@ function _taskSuccessIfMatch(grunt, regex, info) {
 }
 
 function _taskSuccessIfStreamEnds(grunt, verbose) {
-  return function(chunk) {
+  return function(chunk, done) {
     if (chunk === null) {
-      grunt.task.current.async()(true);
+      done(true);
     } else if (verbose) {
       grunt.log.writeln(chunk);
     }
@@ -110,9 +107,14 @@ GruntfileUtils.prototype.container = function container() {
   var grunt = this.grunt;
 
   function newContainer(createContainerOptions, startContainerOptions, removeContainerOptions, taskOptions) {
+    taskOptions = extend({ async: false }, taskOptions);
+
+    if (taskOptions.regex) {
+      taskOptions.matchOutput = _taskSuccessIfMatch(grunt, taskOptions.regex, taskOptions.info);
+    }
+
     createContainerOptions.options = {
-      tasks: { async: !!taskOptions.async },
-      matchOutput: taskOptions.regex ? _taskSuccessIfMatch(grunt, taskOptions.regex, taskOptions.info) : _taskSuccessIfStreamEnds(grunt, taskOptions.verbose),
+      taskOptions: taskOptions,
       startContainerOptions: startContainerOptions,
       removeContainerOptions: removeContainerOptions
     };
@@ -120,22 +122,22 @@ GruntfileUtils.prototype.container = function container() {
     return createContainerOptions;
   }
 
-  function newEsnFullContainer(options, regex, info) {
+  function newEsnFullContainer(containerOptions, taskOptions) {
+    taskOptions = extend({
+      async: false,
+      matchOutput: _taskSuccessIfStreamEnds(grunt, grunt.option('show-logs'))
+    }, taskOptions);
+
     return newContainer({
         Image: 'docker/compose:1.6.2',
-        name: options.name,
-        Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml'].concat(options.command),
+        name: containerOptions.name,
+        Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml'].concat(containerOptions.command),
         WorkingDir: '/compose',
-        Env: options.env || [],
+        Env: containerOptions.env || [],
         HostConfig: {
           Binds: [path.normalize(__dirname + '../../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
         }
-      }, {}, {}, {
-        async: false,
-        regex: regex,
-        info: info,
-        verbose: grunt.option('show-logs')
-      });
+      }, {}, {}, taskOptions);
   }
 
   return {
