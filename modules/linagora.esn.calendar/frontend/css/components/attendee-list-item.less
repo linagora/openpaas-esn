@@ -1,11 +1,20 @@
 .attendee-list-item {
+  .flex-row;
+  .flex-vertical-centered;
   height: 50px;
   margin-left: 5px;
 
-  span {
-    position: absolute;
-    bottom: 15px;
-    left: 60px;
+  .ellipsis {
+    width: 100%;
+    -webkit-flex: auto;
+    flex: auto;
+  }
+
+  .attendee-send-email {
+    .mdi {
+      color: grey;
+      font-size: 1.5em;
+    }
   }
 }
 
