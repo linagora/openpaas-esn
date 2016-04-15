@@ -6,9 +6,9 @@
           i.mdi.mdi-repeat
         .fg-line.select
           select.form-control(
-            ng-model="event.rrule.freq",
+            ng-model="freq",
             ng-options="item.value as item.label for item in RECUR_FREQ",
-            ng-change="updateFlexClass()",
+            ng-change="setRRULE()",
             ng-disabled="readOnly")
     .form-group.event-recurrence-flex-container(ng-show="event.rrule.freq !== undefined")
       .interval
