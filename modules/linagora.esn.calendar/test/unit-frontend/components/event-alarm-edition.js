@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The event-alarm-edition component', function() {
-  var asSession, TRIGGER;
+  var asSession;
 
   beforeEach(function() {
 
@@ -51,11 +51,11 @@ describe('The event-alarm-edition component', function() {
 
   it('should scope.setEventAlarm set the event alarm', function() {
     this.initDirective(this.$scope);
-    this.eleScope.trigger = this.TRIGGER[0].value;
+    this.eleScope.trigger = this.TRIGGER[1].value;
     this.eleScope.setEventAlarm();
     expect(this.eleScope.event).to.deep.equal({
       alarm: {
-        trigger: this.TRIGGER[0].value,
+        trigger: this.TRIGGER[1].value,
         attendee: 'test@open-paas.org'
       }
     });

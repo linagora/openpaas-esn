@@ -2,6 +2,10 @@
 angular.module('esn.calendar')
 
   .constant('TRIGGER', [{
+    // TODO i18n
+    value: undefined,
+    label: 'No alarm'
+  }, {
     value: '-PT1M',
     label: '1 minute'
   }, {
@@ -40,16 +44,23 @@ angular.module('esn.calendar')
   }])
   .directive('eventAlarmEdition', function(session, TRIGGER) {
     function link(scope) {
+      scope.TRIGGER = TRIGGER;
+
       if (scope.event.alarm) {
         scope.trigger = scope.event.alarm.trigger.toICALString();
       }
+
       scope.setEventAlarm = function() {
-        scope.event.alarm = {
-          trigger: scope.trigger,
-          attendee: session.user.emails[0]
-        };
+        if (!scope.trigger) {
+          scope.event.alarm = undefined;
+        } else {
+          scope.event.alarm = {
+            trigger: scope.trigger,
+            attendee: session.user.emails[0]
+          };
+        }
       };
-      scope.TRIGGER = TRIGGER;
+
     }
 
     return {

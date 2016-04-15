@@ -697,7 +697,7 @@ describe('The event-form module controllers', function() {
     });
 
     describe('updateAlarm function', function() {
-      it('should does nothing if the alarm has not changed', function() {
+      it('should do nothing if the alarm has not changed', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           title: 'title',
           start: this.moment('2016-12-08 12:30'),
@@ -705,7 +705,7 @@ describe('The event-form module controllers', function() {
           location: 'aLocation',
           etag: '123456',
           alarm: {
-            trigger: this.TRIGGER[0].value,
+            trigger: this.TRIGGER[1].value,
             attendee: 'test@open-paas.org'
           }
         });

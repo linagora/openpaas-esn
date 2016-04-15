@@ -17,7 +17,7 @@ angular.module('esn.calendar')
         event: '='
       },
       replace: true,
-      templateUrl: '/calendar/views/event-consult-form/event-alarm-consultation.html',
+      templateUrl: '/calendar/views/components/event-alarm-consultation.html',
       link: link
     };
   });
