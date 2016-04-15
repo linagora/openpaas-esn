@@ -109,13 +109,38 @@ function _onDelete(msg) {
   });
 }
 
+function _onUpdate(msg) {
+  var vcalendar = new ICAL.Component(msg.old_event);
+  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  var eventUid = vevent.getFirstPropertyValue('uid');
+  var valarm = vevent.getFirstSubcomponent('valarm');
+
+  var abortFunction = valarm ? function(callback) {
+    var alarm = jcalHelper.getVAlarmAsObject(valarm, vevent.getFirstPropertyValue('dtstart'));
+    cron.abortAll({
+      eventUid: eventUid,
+      attendee: alarm.attendee
+    }, callback);
+  } : function(callback) {
+    return callback();
+  };
+
+  abortFunction(function(err) {
+    if (err) {
+      return logger.error('Error while deleting all the job for event ' + eventUid, err);
+    } else {
+      _onCreate(msg);
+    }
+  });
+}
+
 function _handleAlarm(msg) {
   switch (msg.type) {
     case 'created':
       _onCreate(msg);
       break;
     case 'updated':
-      logger.warn('Handling alarm and event modification is not supported yet');
+      _onUpdate(msg);
       break;
     case 'deleted':
       _onDelete(msg);
