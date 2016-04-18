@@ -446,6 +446,9 @@ angular.module('esn.calendar')
             case 'rrule':
               if (self.rrule === that.rrule) { return true; }
               return self.rrule.equals(that.rrule);
+            case 'alarm':
+              if (self.alarm === that.alarm) { return true; }
+              return self.alarm.equals(that.alarm);
             default:
               return angular.equals(self[key], that[key]);
           }
@@ -568,9 +571,8 @@ angular.module('esn.calendar')
 
     RRuleShell.prototype = {
       equals: function(that) {
-        if (!that) {
-          return false;
-        }
+        if (!that) { return false; }
+        if (that === this) { return true; }
         var self = this;
         return RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
           return angular.equals(self[key], that[key]);
@@ -656,13 +658,26 @@ angular.module('esn.calendar')
     return RRuleShell;
   })
 
-  .factory('VAlarmShell', function() {
+  .factory('VAlarmShell', function(ALARM_MODIFY_COMPARE_KEYS) {
     function VAlarmShell(valarm, vevent) {
       this.valarm = valarm;
       this.vevent = vevent;
     }
 
     VAlarmShell.prototype = {
+      equals: function(that) {
+        if (!that) { return false; }
+        if (that === this) { return true; }
+        var self = this;
+        return ALARM_MODIFY_COMPARE_KEYS.every(function(key) {
+          if (key === 'trigger') {
+            return self.trigger.compare(that.trigger) === 0;
+          } else {
+            return angular.equals(self[key], that[key]);
+          }
+        });
+      },
+
       get action() { return this.valarm.getFirstPropertyValue('action'); },
       get trigger() { return this.valarm.getFirstPropertyValue('trigger'); },
       get description() { return this.valarm.getFirstPropertyValue('description'); },

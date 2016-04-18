@@ -89,6 +89,11 @@ angular.module('esn.calendar')
   .constant('RRULE_MODIFY_COMPARE_KEYS', ['freq', 'interval', 'until', 'count', 'byday'])
 
   /**
+   * When checking alarm comparison, these JSON keys on the alarm shell will be checked.
+   */
+  .constant('ALARM_MODIFY_COMPARE_KEYS', ['action', 'attendee', 'description', 'summary', 'trigger'])
+
+  /**
    * see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
    */
   .constant('SIGNIFICANT_CHANGE_KEYS', ['start', 'end', 'duration', 'due', 'rrule', 'rdate', 'exdate', 'status'])

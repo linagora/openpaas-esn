@@ -856,6 +856,60 @@ describe('CalendarShell factory', function() {
 
       expect(eventA.equals(eventB)).to.be.false;
     });
+
+    it('should return true if alarm are equals', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        alarm: {
+          action: 'EMAIL',
+          summary: 'summary',
+          description: 'description',
+          trigger: '-PT15M',
+          attendee: 'attendee'
+        }
+      });
+      var eventB = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        alarm: {
+          action: 'EMAIL',
+          summary: 'summary',
+          description: 'description',
+          trigger: '-PT15M',
+          attendee: 'attendee'
+        }
+      });
+
+      expect(eventA.equals(eventB)).to.be.true;
+    });
+
+    it('should return false if alarm are not equals', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        alarm: {
+          action: 'EMAIL',
+          summary: 'summary',
+          description: 'description',
+          trigger: '-PT15M',
+          attendee: 'attendee'
+        }
+      });
+      var eventB = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        alarm: {
+          action: 'EMAIL',
+          summary: 'summary',
+          description: 'description',
+          trigger: '-PT30M',
+          attendee: 'attendee'
+        }
+      });
+
+      expect(eventA.equals(eventB)).to.be.false;
+    });
   });
 
   describe('Alarm', function() {
