@@ -39,7 +39,8 @@ module.exports = function(dependencies) {
       }
 
       if (!jobs || (Array.isArray(jobs) && !jobs.length)) {
-        return callback(new Error('No jobs found for context', context));
+        logger.debug('No jobs found for context', context);
+        return callback();
       }
 
       if (!Array.isArray(jobs)) {
