@@ -55,6 +55,20 @@ describe('CalendarShell factory', function() {
       expect(shell.vevent.getFirstPropertyValue('dtend').tzid).to.be.undefined;
       expect(shell.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2015-12-11T19:00:00Z');
     });
+
+    it('should not lose allday', function() {
+      var start =  fcMoment(new Date(2014, 11, 29));
+      var end = fcMoment(new Date(2014, 11, 29));
+      start.stripTime();
+      end.stripTime();
+      var shell = CalendarShell.fromIncompleteShell({
+        start: start,
+        end: end
+      });
+
+      expect(shell.start.hasTime()).to.be.false;
+      expect(shell.end.hasTime()).to.be.false;
+    });
   });
 
   describe('Attendees', function() {

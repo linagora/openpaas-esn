@@ -97,7 +97,7 @@ angular.module('esn.calendar')
 
       get start() {
         if (!this.__start) {
-          this.__start = fcMoment(this.icalEvent.startDate.toJSDate());
+          this.__start = fcMoment(this.icalEvent.startDate);
         }
         return this.__start;
       },
@@ -112,7 +112,7 @@ angular.module('esn.calendar')
 
       get end() {
         if (!this.__end) {
-          this.__end = fcMoment(this.icalEvent.endDate.toJSDate());
+          this.__end = fcMoment(this.icalEvent.endDate);
         }
         return this.__end;
       },
