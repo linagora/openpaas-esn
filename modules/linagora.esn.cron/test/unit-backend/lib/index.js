@@ -266,19 +266,6 @@ describe('The Cron Module', function() {
       });
     });
 
-    it('should fail if job is not found', function(done) {
-      mockRegistry({
-        get: function(id, callback) {
-          return callback();
-        }
-      });
-      var module = require('../../../lib/index')(dependencies);
-      module.abort('123', function(err) {
-        expect(err).to.match(/No jobs found/);
-        done();
-      });
-    });
-
     it('should stop the job if any and delete the job in the registry', function(done) {
       var testId = '123';
       var stopSpy = sinon.spy();
