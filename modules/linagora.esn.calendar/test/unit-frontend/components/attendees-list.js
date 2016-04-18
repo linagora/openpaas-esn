@@ -27,8 +27,10 @@ describe('The attendees-list component', function() {
         { email: 'other5@example.com', partstat: 'YOLO' }
       ];
 
+      this.$scope.organizer = { email: 'organizer@openpaas.org' };
+
       this.initDirective = function(scope) {
-        var html = '<attendees-list attendees="attendees"/>';
+        var html = '<attendees-list attendees="attendees" organizer="organizer"/>';
         var element = this.$compile(html)(scope);
         scope.$digest();
         this.eleScope = element.isolateScope();
@@ -68,21 +70,33 @@ describe('The attendees-list component', function() {
     });
 
     describe('scope.selectAttendee', function() {
-      it('should set clicked and increase attendee click count', function() {
-        var attendee = { email: 'other1@example.com', partstat: 'NEEDS-ACTION' };
-        this.initDirective(this.$scope);
-        this.eleScope.selectAttendee(attendee);
-        expect(attendee.clicked).to.be.true;
-        expect(this.eleScope.attendeeClickedCount).to.equal(1);
+      describe('when user is organizer', function() {
+        it('should do nothing if the user is organizer', function() {
+          var attendee = { email: 'organizer@openpaas.org', partstat: 'ACCEPTED', clicked: false };
+          this.initDirective(this.$scope);
+          this.eleScope.selectAttendee(attendee);
+          expect(attendee.clicked).to.be.false;
+          expect(this.eleScope.attendeeClickedCount).to.equal(0);
+        });
       });
 
-      it('should unset clicked and decrease attendee click count', function() {
-        var attendee = { email: 'other1@example.com', partstat: 'NEEDS-ACTION' };
-        this.initDirective(this.$scope);
-        this.eleScope.selectAttendee(attendee);
-        this.eleScope.selectAttendee(attendee);
-        expect(attendee.clicked).to.be.false;
-        expect(this.eleScope.attendeeClickedCount).to.equal(0);
+      describe('when user is not the organizer', function() {
+        it('should set clicked and increase attendee click count', function() {
+          var attendee = { email: 'other1@example.com', partstat: 'NEEDS-ACTION' };
+          this.initDirective(this.$scope);
+          this.eleScope.selectAttendee(attendee);
+          expect(attendee.clicked).to.be.true;
+          expect(this.eleScope.attendeeClickedCount).to.equal(1);
+        });
+
+        it('should unset clicked and decrease attendee click count', function() {
+          var attendee = { email: 'other1@example.com', partstat: 'NEEDS-ACTION' };
+          this.initDirective(this.$scope);
+          this.eleScope.selectAttendee(attendee);
+          this.eleScope.selectAttendee(attendee);
+          expect(attendee.clicked).to.be.false;
+          expect(this.eleScope.attendeeClickedCount).to.equal(0);
+        });
       });
     });
 
