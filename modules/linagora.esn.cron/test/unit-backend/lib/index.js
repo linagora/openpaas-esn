@@ -54,7 +54,8 @@ describe('The Cron Module', function() {
     logger: {
       error: function() {},
       info: function() {},
-      warn: function() {}
+      warn: function() {},
+      debug: function() {}
     }
   };
 
