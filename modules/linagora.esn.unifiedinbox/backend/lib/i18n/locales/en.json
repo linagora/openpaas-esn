@@ -12,7 +12,7 @@
   "Start typing...": "Start typing...",
   "Edit": "Edit",
   "Tap to edit": "Tap to edit",
-  "Configuration": "Configuration",
+  "Manage folders": "Manage folders",
   "New": "New",
   "Name": "Name",
   "Child Of": "Child Of",
@@ -33,5 +33,6 @@
   "Retry": "Retry",
   "Upload failed": "Upload failed",
   "Unified Inbox": "Unified Inbox",
-  "Your emails": "Your emails"
+  "Your emails": "Your emails",
+  "Add a new folder": "Add a new folder" 
 }
