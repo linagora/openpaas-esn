@@ -1,8 +1,37 @@
-.contacts-sidebar {
-  h2 {
-    margin: 0;
-    line-height: 100%;
-    font-size: 17px;
-    font-weight: 400;
+.aside#contextual-sidebar .contacts-sidebar {
+  .contact-toggle-switch {
+    margin: 10px 10px 10px 17px;
+    color: lighten(@text-color, 50%);
+
+    .toggle-active {
+      color: @text-color;
+    }
+    .view-label {
+      font-size: 13px;
+    }
+  }
+
+  hr {
+    margin: 0 10px;
+  }
+
+  .import-account {
+    .media {
+      color: lighten(@text-color, 15%);
+
+      .flex-vertical-centered;
+
+      .pull-left {
+        padding-right: 5px;
+
+        .mdi {
+          font-size: xx-large;
+        }
+      }
+      .lv-title {
+        font-size: 13px;
+        color: lighten(@text-color, 10%);
+      }
+    }
   }
 }
