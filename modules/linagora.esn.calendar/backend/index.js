@@ -67,6 +67,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/event-date-consultation.js',
         'components/event-alarm-edition.js',
         'components/event-alarm-consultation.js',
+        'components/mail-to-attendees.js',
         'components/attendee-list-item.js',
         'components/attendees-list.js',
         'components/attendees-autocomplete-input.js',
