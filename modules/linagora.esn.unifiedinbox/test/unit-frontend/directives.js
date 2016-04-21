@@ -794,6 +794,18 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       }).to.throw(Error, 'This directive requires a template attribute');
     });
 
+    it('should bring up email keyboard when editing', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>');
+      var recipientInput = element.find('recipients-auto-complete tags-input');
+      expect(recipientInput.attr('type')).to.equal('email');
+    });
+
+    it('should bring up email keyboard when editing using fullscreen template', function() {
+      compileDirective('<div><recipients-auto-complete ng-model="model" template="fullscreen-recipients-auto-complete"></recipients-auto-complete></div>');
+      var recipientInput = element.find('recipients-auto-complete tags-input');
+      expect(recipientInput.attr('type')).to.equal('email');
+    });
+
     it('should define $scope.search from searchService.searchRecipients', function(done) {
       searchService.searchRecipients = function() { done(); };
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
