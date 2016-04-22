@@ -59,6 +59,10 @@ module.exports = function() {
     jobModule.getAllBySubContext(context, callback);
   }
 
+  function getAll(callback) {
+    jobModule.getAll(callback);
+  }
+
   function update(job, callback) {
     if (!job) {
       return callback(new Error('Job is required'));
@@ -89,6 +93,7 @@ module.exports = function() {
     getInMemory: getInMemory,
     getByExactContext: getByExactContext,
     getAllBySubContext: getAllBySubContext,
+    getAll: getAll,
     update: update,
     remove: remove
   };

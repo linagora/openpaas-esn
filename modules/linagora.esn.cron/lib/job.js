@@ -26,3 +26,7 @@ module.exports.save = function(data, callback) {
 module.exports.remove = function(id, callback) {
   Job.remove({jobId: id}, callback);
 };
+
+module.exports.getAll = function(callback) {
+  Job.find(callback);
+};

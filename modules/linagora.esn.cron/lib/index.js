@@ -2,12 +2,14 @@
 
 var cron = require('cron');
 var JOB_STATES = require('./constants').JOB_STATES;
+var EVENTS = require('./constants').EVENTS;
 var uuid = require('node-uuid');
 var async = require('async');
 
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
+  var pubsub = dependencies('pubsub');
   var registry = require('./registry')(dependencies);
 
   function setJobState(id, state, callback) {
@@ -147,11 +149,27 @@ module.exports = function(dependencies) {
     });
   }
 
+  function reviveJobs(callback) {
+    registry.getAll(function(err, jobs) {
+      if (err) {
+        return callback(err);
+      }
+      var topic = pubsub.local.topic(EVENTS.JOB_REVIVAL);
+      async.each(jobs, function(job, cb) {
+        if (job.state !== JOB_STATES.STOPPED) {
+          topic.publish(job);
+        }
+        cb();
+      }, callback);
+    });
+  }
+
   return {
     submit: submit,
     abort: abort,
     abortByContext: abortByContext,
     abortAll: abortAll,
-    registry: registry
+    registry: registry,
+    reviveJobs: reviveJobs
   };
 };
