@@ -1086,6 +1086,38 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     });
 
+    describe('The swipe feature', function() {
+
+      beforeEach(function() {
+        $scope.item = {
+          email: {
+            isUnread: true,
+            setIsUnread: function(state) {
+              this.isUnread = state;
+
+              return $q.when();
+            }
+          }
+        };
+        compileDirective('<inbox-thread-list-item />');
+      });
+
+      it('should use swipe directive as CSS class', function() {
+        expect(element.find('.clickable').hasClass('swipe')).to.be.true;
+      });
+
+      describe('The onSwipeRight fn', function() {
+
+        it('should mark thread as read by default feature flip', function() {
+          $scope.onSwipeRight().then(function() {
+            expect($scope.item.email.isUnread).to.be.false;
+          });
+        });
+
+      });
+
+    });
+
   });
 
   describe('The inboxMessageListItem directive', function() {
@@ -1129,6 +1161,35 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', { emailId: 'expectedId', mailbox: 'chosenMailbox' });
       });
 
+    });
+
+    describe('The swipe feature', function() {
+
+      beforeEach(function() {
+        $scope.item = {
+          isUnread: true,
+          setIsUnread: function(state) {
+            this.isUnread = state;
+
+            return $q.when();
+          }
+        };
+        compileDirective('<inbox-message-list-item />');
+      });
+
+      it('should use swipe directive as CSS class', function() {
+        expect(element.find('.clickable').hasClass('swipe')).to.be.true;
+      });
+
+      describe('The onSwipeRight fn', function() {
+
+        it('should mark message as read by default feature flip', function() {
+          $scope.onSwipeRight().then(function() {
+            expect($scope.item.isUnread).to.be.false;
+          });
+        });
+
+      });
     });
 
   });

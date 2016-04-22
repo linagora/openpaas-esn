@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('inboxMessageListItem', function($state, newComposerService, _) {
+  .directive('inboxMessageListItem', function($state, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -16,13 +16,19 @@ angular.module('linagora.esn.unifiedinbox')
             });
           }
         };
+
+        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
+          markAsRead: function() {
+            return inboxEmailService.markAsRead($scope.item);
+          }
+        });
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/email/list/list-item.html'
     };
   })
 
-  .directive('inboxThreadListItem', function($state, newComposerService, _) {
+  .directive('inboxThreadListItem', function($state, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -36,6 +42,12 @@ angular.module('linagora.esn.unifiedinbox')
             });
           }
         };
+
+        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
+          markAsRead: function() {
+            return inboxThreadService.markAsRead($scope.item.email);
+          }
+        });
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/thread/list/list-item.html'

@@ -3453,4 +3453,51 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The inboxSwipeHelper service', function() {
+
+    var $rootScope, $timeout, inboxSwipeHelper;
+
+    beforeEach(inject(function(_$rootScope_, _$timeout_, _inboxSwipeHelper_) {
+      $rootScope = _$rootScope_;
+      $timeout = _$timeout_;
+      inboxSwipeHelper = _inboxSwipeHelper_;
+    }));
+
+    describe('The createSwipeRightHandler fn', function() {
+
+      var swipeRightHandler;
+      var scopeMock, handlersMock;
+
+      beforeEach(function() {
+        scopeMock = $rootScope.$new();
+        scopeMock.swipeClose = sinon.spy();
+        handlersMock = {
+          markAsRead: sinon.spy()
+        };
+
+        swipeRightHandler = inboxSwipeHelper.createSwipeRightHandler(scopeMock, handlersMock);
+      });
+
+      it('should return a function', function() {
+        expect(swipeRightHandler).to.be.a.function;
+      });
+
+      it('should return a function to close swipe after a timeout', function() {
+        swipeRightHandler();
+        $timeout.flush();
+
+        expect(scopeMock.swipeClose).to.have.been.calledOnce;
+      });
+
+      it('should return a function to call markAsRead handle by default feature flip', function() {
+        swipeRightHandler();
+        $rootScope.$digest();
+
+        expect(handlersMock.markAsRead).to.have.been.calledOnce;
+      });
+
+    });
+
+  });
+
 });
