@@ -6,5 +6,5 @@
       i.mdi.mdi-pencil
   .ellipsis
     span {{::attendee.name}}
-  a.attendee-send-email(ng-href="mailto:{{::attendee.email}}" op-inbox-compose op-inbox-compose-display-name="{{::attendee.name}}")
+  a.attendee-send-email(ng-if='composerExists', ng-href="mailto:{{::attendee.email}}" op-inbox-compose op-inbox-compose-display-name="{{::attendee.name}}")
       i.mdi.mdi-email

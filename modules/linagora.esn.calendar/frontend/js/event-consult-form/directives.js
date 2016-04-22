@@ -10,9 +10,10 @@ angular.module('esn.calendar')
     MORE: 'more'
   })
 
-  .directive('eventConsultForm', function() {
+  .directive('eventConsultForm', function($injector) {
     function link(scope) {
       scope.isEdit = false;
+      scope.composerExists = $injector.has('composerDirective');
 
       scope.modifyEventParticipation = function(partstat) {
         scope.changeParticipation(partstat);

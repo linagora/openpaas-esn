@@ -29,7 +29,11 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('attendeeListItemConsult', function() {
+  .directive('attendeeListItemConsult', function($injector) {
+    function link(scope) {
+      scope.composerExists = $injector.has('composerDirective');
+    }
+
     return {
       restrict: 'E',
       replace: true,
@@ -37,6 +41,7 @@ angular.module('esn.calendar')
       scope: {
         attendee: '=',
         isOrganizer: '='
-      }
+      },
+      link: link
     };
   });
