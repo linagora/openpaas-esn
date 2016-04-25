@@ -15,12 +15,14 @@ describe('jcalHelper', function() {
     it('should return an empty array if the ical component has no attendee', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/noAttendee.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getAttendeesEmails(vcalendar)).to.deep.equal([]);
     });
 
     it('should get the attendees emails from the ical component', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getAttendeesEmails(vcalendar)).to.deep.equal(['johndoe@open-paas.org', 'janedoe@open-paas.org']);
     });
   });
@@ -29,12 +31,14 @@ describe('jcalHelper', function() {
     it('should return undefined if the ical component has no organizer', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/noOrganizer.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getOrganizerEmail(vcalendar)).to.be.undefined;
     });
 
     it('should return the organizer email from the ical component', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getOrganizerEmail(vcalendar)).to.deep.equal('johndoe@open-paas.org');
     });
   });
@@ -50,6 +54,7 @@ describe('jcalHelper', function() {
 
     it('should return the good attendee if a valid email is provided', function() {
       var attendee = this.jcalHelper.getVeventAttendeeByMail(this.vevent, 'johndoe@open-paas.org').toJSON();
+
       expect(attendee[1].cn).to.equal('John Doe');
     });
   });
