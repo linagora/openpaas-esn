@@ -39,6 +39,7 @@ describe('The Cron Module', function() {
         store: mock.store || store,
         get: mock.get || get,
         getInMemory: mock.getInMemory || getInMemory,
+        storeInMemory: mock.storeInMemory || store,
         update: mock.update || update,
         remove: mock.remove || remove,
         getAll: mock.getAll
@@ -220,7 +221,7 @@ describe('The Cron Module', function() {
       });
     });
 
-    it('should use onStopped as callback if callback is undefined', function(done) {
+    it('should use opts as callback if callback is undefined', function(done) {
       var called = false;
       var job = function() {
         called = true;
@@ -235,18 +236,56 @@ describe('The Cron Module', function() {
     });
 
     it('should return the job', function(done) {
-      var job = function() {
-      };
-      var complete = function() {
-      };
+      var job = function() {};
       var description = 'My Description';
 
-      module.submit(description, '* * * * * *', job, {}, complete, function(err, created) {
+      module.submit(description, '* * * * * *', job, {}, {}, function(err, created) {
         expect(err).to.not.exist;
         expect(created).to.exist;
         expect(created.id).to.exist;
         expect(created.description).to.equals(description);
         expect(created.job).to.exist;
+        done();
+      });
+    });
+
+    it('should not call the storage in the db by default', function(done) {
+      var job = function() {};
+      var description = 'My Description';
+
+      var storeSpy = sinon.spy();
+      mockRegistry({
+        store: storeSpy
+      });
+      var module = require('../../../lib/index')(dependencies);
+      module.submit(description, '* * * * * *', job, {}, {}, function(err, created) {
+        expect(err).to.not.exist;
+        expect(created).to.exist;
+        expect(storeSpy).to.not.have.been.called;
+        done();
+      });
+    });
+
+    it('should call the storage in the db if the option is set', function(done) {
+      var job = function() {};
+      var description = 'My Description';
+
+      var storeSpy = sinon.spy();
+      var storeInMemorySpy = sinon.spy();
+      mockRegistry({
+        store: storeSpy(function(jobId, description, cronjob, context, callback) {
+          callback();
+        }),
+        storeInMemory: storeInMemorySpy(function(jobId, description, cronjob, context, callback) {
+          callback();
+        })
+      });
+      var module = require('../../../lib/index')(dependencies);
+      module.submit(description, '* * * * * *', job, {}, {dbStorage: true}, function(err, created) {
+        expect(err).to.not.exist;
+        expect(created).to.exist;
+        expect(storeSpy).to.have.been.called;
+        expect(storeInMemorySpy).to.have.been.called;
         done();
       });
     });

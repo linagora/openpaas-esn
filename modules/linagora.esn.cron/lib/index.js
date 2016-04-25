@@ -72,13 +72,15 @@ module.exports = function(dependencies) {
     _abortByFn(registry.getAllBySubContext, context, callback);
   }
 
-  function submit(description, cronTime, job, context, onStopped, callback) {
+  function submit(description, cronTime, job, context, opts, callback) {
     description = description || 'No description';
 
     if (!callback) {
-      callback = onStopped;
-      onStopped = function() {};
+      callback = opts;
     }
+
+    var onStopped = (opts && opts.onStopped) || function() {};
+    var dbStorageOpt = opts && opts.dbStorage;
 
     if (!cronTime) {
       logger.error('Can not submit a cron job without a crontime');
@@ -140,13 +142,19 @@ module.exports = function(dependencies) {
       true
     );
 
-    registry.store(id, description, cronjob, context, function(err, saved) {
+    function finishSubmit(err, saved) {
       if (err) {
         logger.warn('Error while storing the job', err);
       }
       cronjob.start();
       return callback(null, saved);
-    });
+    }
+
+    if (dbStorageOpt) {
+      registry.store(id, description, cronjob, context, finishSubmit);
+    } else {
+      registry.storeInMemory(id, description, cronjob, context, finishSubmit);
+    }
   }
 
   function reviveJobs(callback) {
