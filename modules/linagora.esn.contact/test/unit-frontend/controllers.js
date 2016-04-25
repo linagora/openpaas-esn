@@ -2701,6 +2701,86 @@ describe('The Contacts controller module', function() {
         expect(ContactLocationHelper.contact.edit).to.have.been.calledWith(addressbook.bookId, addressbook.bookName, contact.id);
       });
     });
+    describe('The hasContactInformationMatchQuery fn', function() {
+      it('should return falsy value if there is no underneath contact of contact informations', function() {
+        this.initController();
+        this.scope.keySearch = 'q';
+        var contact = {nickname: '', notes: '', orgName: '', orgRole: '', addresses: [], social: [], birthday: '', tags: [], urls: []};
+        this.scope.contact = contact;
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+      });
+
+      it('should return falsy value if there are some underneath contact of contact informations but no matching', function() {
+        this.initController();
+        this.scope.keySearch = 'Q';
+        var contactInfo = {nickname: '', notes: '', orgName: '', orgRole: '', addresses: [], social: [], birthday: '', tags: [], urls: []};
+        this.scope.contact = contactInfo;
+
+        this.scope.contact.nickname = 'nick';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.notes = 'some comment';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        scope.contact.orgName = 'company';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.orgRole = 'Jobs';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.addresses = [{type: 'Home', street: 's', city: 'c', zip: '02', country: 'co'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.social = [{type: 'twitter', value: '@some social'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.birthday = 'Sat Apr 02 2016 00:00:00 GMT+0700 (ICT)';
+        this.scope.formattedBirthday;
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.tags = [{text: 'tags'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+
+        this.scope.contact.urls = [{value: 'some websites'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.not.ok;
+      });
+
+      it('should return truthy value if there are some matching underneath contact of contact informations', function() {
+        this.initController();
+        this.scope.keySearch = '02';
+        var contact = {nickname: '', notes: '', orgName: '', orgRole: '', addresses: [], social: [], birthday: '', tags: [], urls: []};
+        this.scope.contact = contact;
+
+        this.scope.contact.nickname = '02nick';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.notes = 'some comment 02';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.orgName = '02 company';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.orgRole = '02 Jobs';
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.addresses = [{type: 'Home', street: 's', city: 'c', zip: '02', country: 'co'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.social = [{type: 'Skype', value: '02some social'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.birthday = 'Sat Apr 02 2016 00:00:00 GMT+0700 (ICT)';
+        this.scope.formattedBirthday;
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.tags = [{text: '02'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+
+        this.scope.contact.urls = [{value: 'http://02.com'}];
+        expect(this.scope.hasContactInformationMatchQuery()).to.be.ok;
+      });
+
+    });
   });
 
   describe('The contactCategoryLetterController controller', function() {

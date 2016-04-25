@@ -546,10 +546,49 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .controller('contactItemController', function($scope, $location, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper) {
+  .controller('contactItemController', function($scope, $location, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper, ContactHighLightHelper) {
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
+    ContactsHelper.getOrderType($scope);
 
     $scope.keySearch = $location.search().q;
+    $scope.datas = [];
+
+    $scope.hasContactInformationMatchQuery = function() {
+      if ($scope.keySearch === null || angular.isUndefined($scope.keySearch)) {
+        return false;
+      }
+
+      function escapeHTML(str) {
+        return angular.isUndefined(str) || str === null ? '' : str.toString().toLowerCase().trim()
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+      }
+      var contactHighLightHelper = new ContactHighLightHelper();
+      var keySearch = escapeHTML($scope.keySearch);
+
+      var isMatchAddress = (contactHighLightHelper.checkArrAddressMatching($scope.contact.addresses, keySearch, 'mdi-map-marker') > -1),
+          isMatchSocial =  (contactHighLightHelper.checkArrMatching($scope.contact.social, keySearch, 'mdi-earth') > -1),
+          isMatchUrl = (contactHighLightHelper.checkArrMatching($scope.contact.urls, keySearch, 'mdi-web') > -1),
+          isMatchOrganization = (contactHighLightHelper.checkStringMatch($scope.contact.orgName, keySearch, 'mdi-factory') > -1),
+          isMatchJobTitle = (contactHighLightHelper.checkStringMatch($scope.contact.orgRole, keySearch, 'mdi-email') > -1),
+          isMatchNick = (contactHighLightHelper.checkStringMatch($scope.contact.nickname, keySearch, 'mdi-comment-account-outline') > -1),
+          isMatchNote = (contactHighLightHelper.checkStringMatch($scope.contact.notes, keySearch, 'mdi-comment-account') > -1),
+          isMatchTags = (contactHighLightHelper.checkArrMatching($scope.contact.tags, keySearch, 'mdi-tag-multiple') > -1),
+          isMatchBirthDay = (contactHighLightHelper.checkStringMatch($scope.formattedBirthday, keySearch, 'mdi-cake-variant') > -1);
+
+      $scope.datas = contactHighLightHelper.dataHighlight;
+      return isMatchAddress ||
+             isMatchSocial ||
+             isMatchUrl ||
+             isMatchOrganization ||
+             isMatchJobTitle ||
+             isMatchNick ||
+             isMatchBirthDay ||
+             isMatchTags ||
+             isMatchNote;
+    };
+    $scope.hasMatch = $scope.hasContactInformationMatchQuery();
 
     $scope.displayContact = function() {
       // use url instead of path to remove search and hash from URL

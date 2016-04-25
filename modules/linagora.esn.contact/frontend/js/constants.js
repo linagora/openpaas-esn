@@ -30,7 +30,8 @@ angular.module('linagora.esn.contact')
   .constant('CONTACT_ATTRIBUTES_ORDER', {
     email: ['Work', 'Home', 'Other'],
     address: ['Work', 'Home', 'Other'],
-    phone: ['Work', 'Mobile', 'Home', 'Other']
+    phone: ['Work', 'Mobile', 'Home', 'Other'],
+    social: ['Skype', 'Twitter', 'Other']
   })
   .constant('CONTACT_DEFAULT_AVATAR', '/contact/images/default_avatar.png')
   .constant('CONTACT_LIST_DEFAULT_SORT', 'fn')

@@ -607,6 +607,17 @@ describe('The Contacts service module', function() {
       });
 
     });
+
+    describe('The getOrderType fn', function() {
+
+      it('should return an array not containing Other object', function() {
+        var scope = {};
+        var results = 'Other';
+        this.contactHelper.getOrderType(scope);
+        expect(results).to.not.equals(scope.socialTypeOrder);
+      });
+
+    });
   });
 
   describe('The ContactLocationHelper service', function() {
