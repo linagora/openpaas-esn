@@ -73,8 +73,8 @@ module.exports = function(dependencies) {
 
     var elasticsearchQuery = {
       query: {
-        filtered: {
-          query: {
+        bool: {
+          must: {
             multi_match: {
               query: terms,
               type: 'cross_fields',
@@ -99,7 +99,7 @@ module.exports = function(dependencies) {
       }
     };
     if (filters.length) {
-      elasticsearchQuery.query.filtered.filter = {
+      elasticsearchQuery.query.bool.filter = {
         and: filters
       };
     }

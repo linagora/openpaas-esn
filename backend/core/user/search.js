@@ -67,11 +67,11 @@ function searchByDomain(domains, query, cb) {
         {'firstname.sort': 'asc'}
       ],
       query: {
-        filtered: {
+        bool: {
           filter: {
             or: elasticsearchOrFilters
           },
-          query: {
+          must: {
             multi_match: {
               query: terms,
               type: 'cross_fields',

@@ -12,11 +12,11 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
         git clone https://ci.open-paas.org/stash/scm/or/rse.git
 
-3.Install ElasticSearch 1.3.5
- Download and install ElasticSearch 1.3.5 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-5) from elastic website
+3.Install ElasticSearch 2.2.1
+ Download and install ElasticSearch 2.2.1 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-2-2-1) from elastic website
 
-        wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.3.5.deb
-        sudo dpkg -i elasticsearch-1.3.5.deb
+        wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-2.2.1.deb
+        sudo dpkg -i elasticsearch-2.2.1.deb
 
  Pin the version to avoid unwanted updates
 
