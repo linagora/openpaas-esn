@@ -53,11 +53,7 @@ function _registerNewAlarm(date, ics, email, context) {
     }, callback);
   }
 
-  function onComplete() {
-    logger.info('Succesfully computed event alarm email for', email);
-  }
-
-  cron.submit('Will send an event alarm once at ' + date.toString() + ' to ' + email, date, job, context, onComplete, function(err, job) {
+  cron.submit('Will send an event alarm once at ' + date.toString() + ' to ' + email, date, job, context, {dbStorage: true}, function(err, job) {
     if (err) {
       logger.error('Error while submitting the job send alarm email', err);
     } else {

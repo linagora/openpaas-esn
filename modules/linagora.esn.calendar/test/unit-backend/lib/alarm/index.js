@@ -60,7 +60,10 @@ describe('alarm module', function() {
         });
         return true;
       }),
-      sinon.match.func,
+      sinon.match(function(opts) {
+        expect(opts).to.deep.equal({dbStorage: true});
+        return true;
+      }),
       sinon.match.func);
   }
 
