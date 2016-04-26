@@ -191,4 +191,46 @@ describe('alarm module', function() {
     });
 
   });
+
+  describe('on cron:job:revival', function() {
+    it('should do nothing if the job is not a calendar job', function() {
+      this.requireModule().init();
+      var handleAlarm = localstub.topics['cron:job:revival'].handler;
+      handleAlarm({
+        context: {
+          module: 'otherModule'
+        }
+      });
+      expect(cron.submit).to.not.have.been.called;
+    });
+
+    it('should register a new alarm', function() {
+      this.requireModule().init();
+      var handleAlarm = localstub.topics['cron:job:revival'].handler;
+      var context = {
+        module: 'calendar',
+        alarmDueDate: moment().add(1, 'hours').format(),
+        ics: fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8')
+      };
+      handleAlarm({
+        context: context
+      });
+      expect(cron.submit).to.have.been.calledWith(
+        sinon.match.string,
+        sinon.match(function(date) {
+          var isSame = moment(date).isSame(moment(context.alarmDueDate));
+          return isSame;
+        }),
+        sinon.match.func,
+        sinon.match(function(context) {
+          expect(context).to.deep.equal(context);
+          return true;
+        }),
+        sinon.match(function(opts) {
+          expect(opts).to.deep.equal({dbStorage: false});
+          return true;
+        }),
+        sinon.match.func);
+    });
+  });
 });

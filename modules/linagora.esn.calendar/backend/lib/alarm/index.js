@@ -2,6 +2,7 @@
 
 var q = require('q');
 var ICAL = require('ical.js');
+var moment = require('moment-timezone');
 var jcalHelper = require('../helpers/jcal');
 var contentSender;
 var helpers;
@@ -45,15 +46,16 @@ function _sendAlarmEmail(ics, email) {
   return defer.promise;
 }
 
-function _registerNewAlarm(date, ics, email, context) {
+function _registerNewAlarm(context, dbStorage) {
   function job(callback) {
-    logger.info('Try sending event alarm email to', email);
-    _sendAlarmEmail(ics, email).then(function() {
+    logger.info('Try sending event alarm email to', context.email);
+    _sendAlarmEmail(context.ics, context.email).then(function() {
       callback();
     }, callback);
   }
 
-  cron.submit('Will send an event alarm once at ' + date.toString() + ' to ' + email, date, job, context, {dbStorage: true}, function(err, job) {
+  var alarmDueDate = moment(context.alarmDueDate).toDate();
+  cron.submit('Will send an event alarm once at ' + alarmDueDate.toString() + ' to ' + context.email, alarmDueDate, job, context, {dbStorage: dbStorage}, function(err, job) {
     if (err) {
       logger.error('Error while submitting the job send alarm email', err);
     } else {
@@ -80,13 +82,16 @@ function _onCreate(msg) {
 
   var alarm = jcalHelper.getVAlarmAsObject(valarm, vevent.getFirstPropertyValue('dtstart'));
   var context = {
-    alarmDueDate: alarm.alarmDueDate,
+    module: 'calendar',
+    alarmDueDate: alarm.alarmDueDate.format(),
     attendee: alarm.attendee,
     eventUid: vevent.getFirstPropertyValue('uid'),
-    action: alarm.action
+    action: alarm.action,
+    ics: vcalendar.toString(),
+    email: alarm.email
   };
   logger.info('Register new event alarm email for', alarm.email, 'at', alarm.alarmDueDate.clone().local().format());
-  _registerNewAlarm(alarm.alarmDueDate.toDate(), vcalendar.toString(), alarm.email, context);
+  _registerNewAlarm(context, true);
 }
 
 function _onDelete(msg) {
@@ -144,8 +149,16 @@ function _handleAlarm(msg) {
   }
 }
 
+function _reviveAlarm(msg) {
+  var context = msg.context;
+  if (context && context.module === 'calendar') {
+    _registerNewAlarm(context, false);
+  }
+}
+
 function init() {
   pubsub.local.topic('calendar:event:updated').subscribe(_handleAlarm);
+  pubsub.local.topic('cron:job:revival').subscribe(_reviveAlarm);
 }
 
 module.exports = function(dependencies) {
