@@ -59,27 +59,32 @@ describe('The Cron Registry', function() {
     });
 
     it('should return the job saved in the db', function(done) {
-      var savedJob = {jobId: 'id'};
+      var savedJob = {
+        jobId: 'id',
+        description: description,
+        context: context
+      };
 
       jobModuleMock.save = function(toSave, callback) {
-        expect(toSave).to.deep.equal({
-          jobId: 'id',
-          description: description,
-          context: context
-        });
-
+        expect(toSave).to.deep.equal(savedJob);
         return callback(null, savedJob);
       };
 
       getModule().store('id', description, job, context, function(err, result) {
         expect(err).to.not.exist;
-        expect(result).to.equal(savedJob);
+        var expectedResult = savedJob;
+        savedJob.cronjob = job;
+        expect(result).to.deep.equal(expectedResult);
         done();
       });
     });
 
     it('should add cronjob to the job of the registry', function(done) {
-      var savedJob = {jobId: 'id'};
+      var savedJob = {
+        jobId: 'id',
+        description: description,
+        context: context
+      };
 
       jobModuleMock.save = function(toSave, callback) {
         return callback(null, savedJob);
@@ -90,6 +95,39 @@ describe('The Cron Registry', function() {
         expect(err).to.not.exist;
         var registryJob = module.getInMemory('id');
         expect(registryJob.cronjob).to.equal('acronjobobject');
+        done();
+      });
+    });
+  });
+
+  describe('The storeInMemory function', function() {
+    it('should fail if jobId is undefined', function(done) {
+      getModule().storeInMemory(null, description, job, context, checkError(done, /id, description and cronjob are required/));
+    });
+
+    it('should fail if description is undefined', function(done) {
+      getModule().storeInMemory('id', null, job, context, checkError(done, /id, description and cronjob are required/));
+    });
+
+    it('should fail if job is undefined', function(done) {
+      getModule().storeInMemory('id', description, null, context, checkError(done, /id, description and cronjob are required/));
+    });
+
+    it('should add cronjob to the job of the registry', function(done) {
+      var job = 'acronjobobject';
+
+      var module = getModule();
+      module.storeInMemory('id', description, job, context, function(err, result) {
+        expect(err).to.not.exist;
+        var expectedJob = {
+          jobId: 'id',
+          description: description,
+          context: context,
+          cronjob: job
+        };
+        expect(result).to.deep.equal(expectedJob);
+        var registryJob = module.getInMemory('id');
+        expect(registryJob).to.deep.equal(expectedJob);
         done();
       });
     });
@@ -171,8 +209,6 @@ describe('The Cron Registry', function() {
       var id = 'id';
 
       jobModuleMock.save = function(toSave, callback) {
-        toSave.timestamps = {};
-
         return callback(null, toSave);
       };
 

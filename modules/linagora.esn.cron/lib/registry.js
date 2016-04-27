@@ -10,11 +10,26 @@ module.exports = function() {
       if (err) {
         return callback(err);
       }
-      registry[savedJob.jobId] = savedJob;
-      registry[savedJob.jobId].cronjob = cronjob;
-
-      return callback(null, savedJob);
+      return storeInMemory(savedJob.jobId, savedJob.description, cronjob, savedJob.context, callback);
     });
+  }
+
+  function _buildMeta(jobId, description, context) {
+    return {
+      jobId: jobId,
+      description: description,
+      context: context
+    };
+  }
+
+  function storeInMemory(jobId, description, cronjob, context, callback) {
+    if (!jobId || !description || !cronjob) {
+      return callback(new Error('id, description and cronjob are required'));
+    }
+
+    registry[jobId] = _buildMeta(jobId, description, context);
+    registry[jobId].cronjob = cronjob;
+    return callback(null, registry[jobId]);
   }
 
   function store(jobId, description, cronjob, context, callback) {
@@ -22,13 +37,7 @@ module.exports = function() {
       return callback(new Error('id, description and cronjob are required'));
     }
 
-    var meta = {
-      jobId: jobId,
-      description: description,
-      context: context
-    };
-
-    _save(meta, cronjob, callback);
+    _save(_buildMeta(jobId, description, context), cronjob, callback);
   }
 
   function getInMemory(id) {
@@ -59,6 +68,10 @@ module.exports = function() {
     jobModule.getAllBySubContext(context, callback);
   }
 
+  function getAll(callback) {
+    jobModule.getAll(callback);
+  }
+
   function update(job, callback) {
     if (!job) {
       return callback(new Error('Job is required'));
@@ -69,9 +82,8 @@ module.exports = function() {
         return callback(new Error('Job not found'));
       }
       foundJob.state = job.state || foundJob.state;
-      foundJob.timestamps.updatedAt = new Date();
 
-      _save(foundJob, foundJob.cronJob, callback);
+      return storeInMemory(foundJob.jobId, foundJob.description, foundJob.cronjob, foundJob.context, callback);
     });
   }
 
@@ -87,8 +99,10 @@ module.exports = function() {
     store: store,
     get: get,
     getInMemory: getInMemory,
+    storeInMemory: storeInMemory,
     getByExactContext: getByExactContext,
     getAllBySubContext: getAllBySubContext,
+    getAll: getAll,
     update: update,
     remove: remove
   };
