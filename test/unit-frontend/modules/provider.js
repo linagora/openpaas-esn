@@ -21,6 +21,56 @@ describe('The esn.provider module', function() {
     });
   }));
 
+  describe('The ByTypeElementGroupingTool factory', function() {
+    var ByTypeElementGroupingTool;
+
+    beforeEach(inject(function(_ByTypeElementGroupingTool_) {
+      ByTypeElementGroupingTool = _ByTypeElementGroupingTool_;
+    }));
+
+    it('should build an array of empty types group objects', function() {
+      var elementGroupingTool = new ByTypeElementGroupingTool([
+        'Events',
+        'Contacts',
+        'Emails'
+      ]);
+      expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
+        {name: 'Events', elements: []},
+        {name: 'Contacts', elements: []},
+        {name: 'Emails', elements: []}
+      ]);
+    });
+
+    it('should push a received element into the correct type group', function() {
+      var elementGroupingTool = new ByTypeElementGroupingTool([
+        'Events',
+        'Contacts',
+        'Emails'
+      ], [
+        {type: 'Events', title: 'anEvent'},
+        {type: 'Emails', email: 'anEmail'},
+        {type: 'Events', title: 'anEvent2'},
+        {type: 'Contacts', name: 'aContact'},
+        {type: 'Contacts', name: 'aContact2'}
+      ]);
+
+      expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
+        {name: 'Events', elements: [
+          {type: 'Events', title: 'anEvent'},
+          {type: 'Events', title: 'anEvent2'}
+        ]},
+        {name: 'Contacts', elements: [
+          {type: 'Contacts', name: 'aContact'},
+          {type: 'Contacts', name: 'aContact2'}
+        ]},
+        {name: 'Emails', elements: [
+          {type: 'Emails', email: 'anEmail'}
+        ]}
+      ]);
+    });
+
+  });
+
   describe('The ByDateElementGroupingTool factory', function() {
 
     var ByDateElementGroupingTool;

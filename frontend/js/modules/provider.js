@@ -5,7 +5,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
   .constant('ELEMENTS_PER_REQUEST', 200)
   .constant('ELEMENTS_PER_PAGE', 20)
 
-  .factory('Providers', function($q, toAggregatorSource, ELEMENTS_PER_PAGE) {
+  .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
     function Providers() {
       this.providers = [];
     }
@@ -22,6 +22,9 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             return provider;
           });
         }));
+      },
+      getAllProviderNames: function() {
+        return _.map(this.providers, 'name');
       }
     };
 
@@ -67,6 +70,43 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     };
   })
 
+  .factory('ByTypeElementGroupingTool', function() {
+    function ByTypeElementGroupingTool(types, elements) {
+      this.groupedElements = {};
+      this.allElements = [];
+      types.forEach(function(type) {
+        this.groupedElements[type] = [];
+        this.allElements.push({name: type, elements: this.groupedElements[type]});
+      }, this);
+
+      if (elements) {
+        this.addAll(elements);
+      }
+
+      return this;
+    }
+
+    ByTypeElementGroupingTool.prototype.addAll = function addElement(elements) {
+      elements.forEach(this.addElement.bind(this));
+    };
+
+    ByTypeElementGroupingTool.prototype.addElement = function addElement(element) {
+      this.groupedElements[element.type].push(element);
+    };
+
+    ByTypeElementGroupingTool.prototype.getGroupedElements = function getGroupedElements() {
+      return this.allElements;
+    };
+
+    ByTypeElementGroupingTool.prototype.reset = function reset() {
+      return this.allElements.forEach(function(elementGroup) {
+        elementGroup.elements.length = 0;
+      });
+    };
+
+    return ByTypeElementGroupingTool;
+  })
+
   .factory('ByDateElementGroupingTool', function(moment) {
 
     function ByDateElementGroupingTool(elements) {
@@ -89,7 +129,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     }
 
     ByDateElementGroupingTool.prototype.addAll = function addElement(elements) {
-      elements.forEach(this.addElement.bind(this));
+      elements.forEach(this.addElement, this);
     };
 
     ByDateElementGroupingTool.prototype.addElement = function addElement(element) {
@@ -133,8 +173,8 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
   })
 
   .factory('infiniteScrollHelper', function($q, ByDateElementGroupingTool, _, ELEMENTS_PER_PAGE) {
-    return function(scope, loadNextItems) {
-      var groups = new ByDateElementGroupingTool();
+    return function(scope, loadNextItems, elementGroupingTool) {
+      var groups = elementGroupingTool;
 
       scope.groupedElements = groups.getGroupedElements();
 

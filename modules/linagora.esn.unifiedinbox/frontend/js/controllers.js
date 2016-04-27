@@ -9,7 +9,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('unifiedInboxController', function($state, $scope, infiniteScrollHelper, inboxProviders, headerService,
-                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE) {
+                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, ByDateElementGroupingTool) {
 
     var aggregator;
 
@@ -30,7 +30,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         return load();
       });
-    });
+    }, new ByDateElementGroupingTool());
 
     headerService.subHeader.setInjection('unified-view-subheader', $scope);
   })
@@ -41,16 +41,16 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollHelper) {
+  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollHelper, ByDateElementGroupingTool) {
 
-    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailMessagesProvider.fetch($stateParams.mailbox));
+    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailMessagesProvider.fetch($stateParams.mailbox), new ByDateElementGroupingTool());
 
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
-  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollHelper) {
+  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollHelper, ByDateElementGroupingTool) {
 
-    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailThreadsProvider.fetch($stateParams.mailbox));
+    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxHostedMailThreadsProvider.fetch($stateParams.mailbox), new ByDateElementGroupingTool());
 
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
@@ -318,10 +318,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollHelper, inboxTwitterProvider, session, _) {
+  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollHelper, inboxTwitterProvider, ByDateElementGroupingTool, session, _) {
 
     var account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
 
-    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxTwitterProvider(account.id).fetch());
+    $scope.loadMoreElements = infiniteScrollHelper($scope, inboxTwitterProvider(account.id).fetch(), new ByDateElementGroupingTool());
     $scope.username = account.username;
   });

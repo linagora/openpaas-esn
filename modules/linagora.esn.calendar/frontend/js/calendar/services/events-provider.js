@@ -7,6 +7,7 @@ angular.module('esn.calendar')
       fetch: function() {
         return function() {
           return $q.when([{
+            type: 'Events',
             title: 'Meeting with some people',
             start: moment(),
             end: moment().add(1, 'hour'),

@@ -65,7 +65,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
       'Communities'
     ];
   })
-  .controller('searchResultController', function($scope, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ELEMENTS_PER_PAGE) {
+  .controller('searchResultController', function($scope, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
     var aggregator;
 
     function load() {
@@ -85,5 +85,5 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
 
         return load();
       });
-    });
+    }, new ByTypeElementGroupingTool(searchProviders.getAllProviderNames()));
   });
