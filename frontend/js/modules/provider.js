@@ -86,7 +86,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       return this;
     }
 
-    ByTypeElementGroupingTool.prototype.addAll = function addElement(elements) {
+    ByTypeElementGroupingTool.prototype.addAll = function addAll(elements) {
       elements.forEach(this.addElement.bind(this));
     };
 
@@ -128,7 +128,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       return this;
     }
 
-    ByDateElementGroupingTool.prototype.addAll = function addElement(elements) {
+    ByDateElementGroupingTool.prototype.addAll = function addAll(elements) {
       elements.forEach(this.addElement, this);
     };
 
