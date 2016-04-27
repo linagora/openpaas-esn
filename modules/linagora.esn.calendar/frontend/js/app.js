@@ -24,6 +24,8 @@ angular.module('esn.calendar', [
   'esn.notification',
   'esn.widget.helper',
   'esn.lodash-wrapper',
+  'esn.aggregator',
+  'esn.provider',
   'op.dynamicDirective'
 ])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
@@ -167,4 +169,7 @@ angular.module('esn.calendar', [
 
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
+  })
+  .run(function(searchProviders, eventsProvider) {
+    searchProviders.add(eventsProvider);
   });

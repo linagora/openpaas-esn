@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.search', ['esn.application-menu', 'op.dynamicDirective', 'angularMoment'])
+angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn.aggregator', 'esn.provider', 'op.dynamicDirective', 'angularMoment'])
   .constant('SIGNIFICANT_DIGITS', 3)
   .constant('defaultSpinnerConfiguration', {
     spinnerKey: 'spinnerDefault',
@@ -53,6 +53,9 @@ angular.module('esn.search', ['esn.application-menu', 'op.dynamicDirective', 'an
       };
     };
   })
+  .factory('searchProviders', function(Providers) {
+    return new Providers();
+  })
   .controller('searchSidebarController', function($scope) {
     $scope.filters = [
       'All',
@@ -62,24 +65,25 @@ angular.module('esn.search', ['esn.application-menu', 'op.dynamicDirective', 'an
       'Communities'
     ];
   })
-  .controller('searchResultController', function($scope, moment) {
-    $scope.groupedElements = [
-      {
-        name: 'Events',
-        elements: [{
-          title: 'Meeting with some people',
-          start: moment(),
-          end: moment().add(1, 'hour'),
-          location: 'somewhere',
-          templateUrl: '/calendar/views/components/event-search-item'
-        }]
-      },
-      {
-        name: 'Contacts',
-        elements: [{
-          displayName: 'Leigh Rafe'
-        }]
+  .controller('searchResultController', function($scope, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ELEMENTS_PER_PAGE) {
+    var aggregator;
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'));
+    }
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
+      if (aggregator) {
+        return load();
       }
-    ];
-    $scope.infiniteScrollCompleted = true;
+
+      return searchProviders.getAll().then(function(providers) {
+        aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
+          compare: function(a, b) { return a.start.isBefore(b.start); },
+          results_per_page: ELEMENTS_PER_PAGE
+        });
+
+        return load();
+      });
+    });
   });
