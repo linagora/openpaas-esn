@@ -5,14 +5,14 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('INBOX_MODULE_NAME', 'linagora.esn.unifiedinbox')
   .constant('MAILBOX_ROLE_ICONS_MAPPING', {
     default: 'mdi mdi-email',
-    inbox: 'mdi mdi-email-outline',
-    archive: 'mdi mdi-email',
+    inbox: 'mdi mdi-inbox',
+    archive: 'mdi mdi-archive',
     drafts: 'mdi mdi-file-document',
-    outbox: 'mdi mdi-email',
+    outbox: 'mdi mdi-outbox',
     sent: 'mdi mdi-send',
     trash: 'mdi mdi-delete',
-    spam: 'mdi mdi-email',
-    templates: 'mdi mdi-email'
+    spam: 'mdi mdi-alert-octagon',
+    templates: 'mdi mdi-clipboard-text'
   })
   .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
   .constant('MAILBOX_LEVEL_SEPARATOR', ' / ')
