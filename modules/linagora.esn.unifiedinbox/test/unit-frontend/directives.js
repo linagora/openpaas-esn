@@ -9,7 +9,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $timeout, $window, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      isMobile, searchService, autosize, windowMock, inboxConfigMock;
+      isMobile, searchService, autosize, windowMock, fakeNotification,
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -56,6 +57,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('autosize', autosize = sinon.spy());
     $provide.value('inboxConfig', function(key, defaultValue) {
       return $q.when(angular.isDefined(inboxConfigMock[key]) ? inboxConfigMock[key] : defaultValue);
+    });
+
+    fakeNotification = { update: function() {}, setCancelAction: sinon.spy() };
+    $provide.value('notifyService', function(opt, settings) { return fakeNotification; });
+    $provide.value('sendEmail', sinon.spy(function() { return sendEmailFakePromise; }));
+    $provide.decorator('newComposerService', function($delegate) {
+      $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
+      return $delegate;
     });
   }));
 
@@ -284,9 +293,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl;
+      var directive, ctrl, Offline, sendEmail;
 
-      beforeEach(function() {
+      beforeEach(inject(function(_sendEmail_, _Offline_) {
+        sendEmail = _sendEmail_;
+        Offline = _Offline_;
         $stateParams.previousState = {
           name: 'previousStateName',
           params: 'previousStateParams'
@@ -295,7 +306,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
         $state.go = sinon.spy();
-      });
+      }));
 
       it('should save draft when state has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
@@ -348,6 +359,47 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
       });
 
+      function sendDraftWhileOffline(email) {
+        sendEmailFakePromise = $q.reject(new Error('Cannot send'));
+        directive = compileDirective('<composer />');
+        ctrl = directive.controller('composer');
+        ctrl.initCtrl(email);
+
+        $scope.send();
+        $scope.$digest();
+      }
+
+      it('should notify of error featuring a resume action when sending offline', function() {
+        var aFakeEmail = {
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
+        };
+
+        sendDraftWhileOffline(aFakeEmail);
+
+        expect(fakeNotification.setCancelAction).to.have.been.calledWithMatch(sinon.match({
+          action: sinon.match.func,
+          linkText: 'Reopen the composer'
+        }));
+      });
+
+      it('should reopen composer when resuming after sending failed', inject(function(newComposerService) {
+        var aFakeEmail = {
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
+        };
+
+        sendDraftWhileOffline(aFakeEmail);
+
+        cancellationLinkAction = fakeNotification.setCancelAction.getCalls()[0].args[0].action;
+        // act
+        cancellationLinkAction();
+        // assert
+        expect(newComposerService.open).to.have.been.calledWithMatch(
+          aFakeEmail,
+          'Resume message composition'
+        );
+      }));
     });
 
     describe('The mobile header buttons', function() {

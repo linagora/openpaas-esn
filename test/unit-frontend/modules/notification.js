@@ -33,27 +33,27 @@ describe('The esn.notification Angular modules', function() {
       notifyService = _notifyService_;
     }));
 
-    it('should containt defaultOptions', function() {
-      var options = {};
-      var expectedOptions = {
+    it('should contain defaultSettings', function() {
+      var settings = {};
+      var expectedSettings = {
         placement: { from: 'bottom', align: 'center'},
         animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
         offset: 0,
         template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
-        '<span data-notify="message">{2}</span>' +
-        '<a target="_self" class="action-link cancel-task" data-notify="url"></a>' +
-        '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
+          '<span data-notify="message">{2}</span>' +
+          '<a target="_self" class="action-link cancel-task" data-notify="url"></a>' +
+          '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
         '</div>'
       };
 
       sanitizeMock = angular.noop;
-      notifyMock = sinon.spy(function(data, options) {
-        expect(options).to.shallowDeepEqual(expectedOptions);
+      notifyMock = sinon.spy(function(options, settings) {
+        expect(settings).to.shallowDeepEqual(expectedSettings);
 
         return {};
       });
 
-      notifyService({}, options);
+      notifyService({}, settings);
       expect(notifyMock).to.have.been.calledOnce;
     });
 
@@ -87,12 +87,15 @@ describe('The esn.notification Angular modules', function() {
     });
 
     describe('the returned notify object of notifyService', function() {
-      var notifyObj, rawUpdate, rawClose, wrappedNotifyObj, dirtyValue;
+      var notifyObj, rawUpdate, rawClose, wrappedNotifyObj, dirtyValue, rawFail;
 
       beforeEach(function() {
         notifyObj = {
           update: function() {
             rawUpdate.apply(this, arguments);
+          },
+          fail: function() {
+            rawFail.apply(this, arguments);
           },
           close: function() {
             rawClose.apply(this, arguments);
@@ -144,7 +147,25 @@ describe('The esn.notification Angular modules', function() {
       it('should not alter close', function() {
         expect(wrappedNotifyObj.close).to.equal(notifyObj.close);
       });
-    });
 
+    });
+  });
+
+  describe('The notification service with jQuery.notify plugin', function() {
+    var notifyService;
+
+    beforeEach(inject(function(_notifyService_) {
+      notifyService = _notifyService_;
+    }));
+
+    it('should provide a clickable link that triggers provided function', function() {
+      var cancelActionConfig = {linkText: 'cancel', action: sinon.spy()};
+      var notification = notifyService({title: 'title', message: 'message', type: 'danger'}, {});
+
+      notification.setCancelAction(cancelActionConfig);
+      notification.$ele.find('a.cancel-task').click();
+
+      expect(cancelActionConfig.action).to.have.been.calledOnce;
+    });
   });
 });

@@ -35,6 +35,13 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
           update.call(this, sanitizeFlatObject(strOrObj));
       };
 
+      notification.setCancelAction = function(cancelActionConfig) {
+        if (cancelActionConfig && cancelActionConfig.linkText && cancelActionConfig.action) {
+          notification.$ele.find('a.cancel-task').html(cancelActionConfig.linkText);
+          notification.$ele.find('a.cancel-task').click(cancelActionConfig.action);
+        }
+      };
+
       return notification;
     };
   })

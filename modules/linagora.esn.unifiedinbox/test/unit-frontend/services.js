@@ -2587,7 +2587,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The asyncAction factory', function() {
 
-    var asyncAction, notificationFactory, notification, $rootScope;
+    var asyncAction, notificationFactory, notification, $rootScope, mockedFailureHandler;
 
     function qNoop() {
       return $q.when();
@@ -2601,10 +2601,11 @@ describe('The Unified Inbox Angular module services', function() {
       notification = {
         close: sinon.spy()
       };
+      mockedFailureHandler = sinon.spy();
       notificationFactory = {
         strongInfo: sinon.spy(function() { return notification; }),
         weakSuccess: sinon.spy(),
-        weakError: sinon.spy()
+        weakError: sinon.stub().returns({ setCancelAction: mockedFailureHandler })
       };
 
       $provide.value('notificationFactory', notificationFactory);
@@ -2657,6 +2658,23 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
 
       expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+    });
+
+    it('should provide a link when failure options is provided', function() {
+      var failureConfig = { linkText: 'Test', action: function() {} };
+      asyncAction('Test', qReject, { onFailure: failureConfig });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+      expect(mockedFailureHandler).to.have.been.calledWith(failureConfig);
+    });
+
+    it('should NOT provide any link when no failure option is provided', function() {
+      asyncAction('Test', qReject);
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+      expect(mockedFailureHandler).to.have.not.been.called;
     });
 
     it('should return a promise resolving to the resolved value of the action', function(done) {
@@ -2804,7 +2822,6 @@ describe('The Unified Inbox Angular module services', function() {
         });
       $rootScope.$digest();
     });
-
   });
 
   describe('The asyncJmapAction factory', function() {
