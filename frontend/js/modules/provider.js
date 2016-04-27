@@ -67,9 +67,9 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     };
   })
 
-  .factory('ElementGroupingTool', function(moment) {
+  .factory('ByDateElementGroupingTool', function(moment) {
 
-    function ElementGroupingTool(elements) {
+    function ByDateElementGroupingTool(elements) {
       this.todayElements = [];
       this.weeklyElements = [];
       this.monthlyElements = [];
@@ -88,11 +88,11 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       return this;
     }
 
-    ElementGroupingTool.prototype.addAll = function addElement(elements) {
+    ByDateElementGroupingTool.prototype.addAll = function addElement(elements) {
       elements.forEach(this.addElement.bind(this));
     };
 
-    ElementGroupingTool.prototype.addElement = function addElement(element) {
+    ByDateElementGroupingTool.prototype.addElement = function addElement(element) {
       var currentMoment = moment().utc();
       var elementMoment = moment(element.date).utc();
 
@@ -107,34 +107,34 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       }
     };
 
-    ElementGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
+    ByDateElementGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('day').isBefore(targetMoment);
     };
 
-    ElementGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
+    ByDateElementGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().subtract(7, 'days').startOf('day').isBefore(targetMoment);
     };
 
-    ElementGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
+    ByDateElementGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('month').isBefore(targetMoment);
     };
 
-    ElementGroupingTool.prototype.getGroupedElements = function getGroupedElements() {
+    ByDateElementGroupingTool.prototype.getGroupedElements = function getGroupedElements() {
       return this.allElements;
     };
 
-    ElementGroupingTool.prototype.reset = function reset() {
+    ByDateElementGroupingTool.prototype.reset = function reset() {
       return this.allElements.forEach(function(elementGroup) {
         elementGroup.elements.length = 0;
       });
     };
 
-    return ElementGroupingTool;
+    return ByDateElementGroupingTool;
   })
 
-  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, _, ELEMENTS_PER_PAGE) {
+  .factory('infiniteScrollHelper', function($q, ByDateElementGroupingTool, _, ELEMENTS_PER_PAGE) {
     return function(scope, loadNextItems) {
-      var groups = new ElementGroupingTool();
+      var groups = new ByDateElementGroupingTool();
 
       scope.groupedElements = groups.getGroupedElements();
 
