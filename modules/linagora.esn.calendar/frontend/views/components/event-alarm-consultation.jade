@@ -1,7 +1,7 @@
-.row.event-alarm-consultation
+.row.event-alarm-consultation(ng-if='trigger')
   .col-xs-12
     .flex-start.flex-vertical-centered
-      i.mdi.mdi-email
+      i.mdi.mdi-alarm
       .description
-        span(ng-if='trigger', ng-repeat="item in TRIGGER | filter:{value:trigger} | limitTo : 1 : 0")  {{item.label}}
+        span(ng-repeat="item in TRIGGER | filter:{value:trigger} | limitTo : 1 : 0")  {{item.label}}
           | before 
