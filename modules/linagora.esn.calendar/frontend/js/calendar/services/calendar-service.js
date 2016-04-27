@@ -4,6 +4,7 @@ angular.module('esn.calendar')
   .service('calendarService', function(
     $q,
     $rootScope,
+    moment,
     cachedEventSource,
     CalendarShell,
     CalendarCollectionShell,
@@ -436,6 +437,16 @@ angular.module('esn.calendar')
         });
     }
 
+    function searchEvents(query) {
+      return $q.when([{
+        type: 'Events',
+        title: 'Meeting with some people',
+        start: moment(),
+        end: moment().add(1, 'hour'),
+        location: 'somewhere'
+      }]);
+    }
+
     this.listCalendars = listCalendars;
     this.getCalendar = getCalendar;
     this.getInvitedAttendees = getInvitedAttendees;
@@ -447,5 +458,5 @@ angular.module('esn.calendar')
     this.modifyEvent = modifyEvent;
     this.removeEvent = removeEvent;
     this.getEvent = getEvent;
-
+    this.searchEvents = searchEvents;
   });

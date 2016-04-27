@@ -1,18 +1,17 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('eventsProvider', function($q, moment, newProvider) {
+  .factory('eventsProvider', function($q, calendarService, newProvider) {
     return newProvider({
       name: 'Events',
       fetch: function() {
         return function() {
-          return $q.when([{
-            type: 'Events',
-            title: 'Meeting with some people',
-            start: moment(),
-            end: moment().add(1, 'hour'),
-            location: 'somewhere'
-          }]);
+          return calendarService.searchEvents().then(function(events) {
+            return events.map(function(event) {
+              event.type = 'Events';
+              return event;
+            });
+          });
         };
       },
       getDefaultContainer: function() { return $q.when(); },
