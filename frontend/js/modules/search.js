@@ -56,14 +56,8 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   .factory('searchProviders', function(Providers) {
     return new Providers();
   })
-  .controller('searchSidebarController', function($scope) {
-    $scope.filters = [
-      'All',
-      'Events',
-      'Mails',
-      'Members',
-      'Communities'
-    ];
+  .controller('searchSidebarController', function($scope, searchProviders) {
+    $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
   .controller('searchResultController', function($scope, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
     var aggregator;
@@ -79,7 +73,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
 
       return searchProviders.getAll().then(function(providers) {
         aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
-          compare: function(a, b) { return a.start.isBefore(b.start); },
+          compare: function(a, b) { return a.start.isBefore(b.start); }, // TODO This is not right for other things than Events.
           results_per_page: ELEMENTS_PER_PAGE
         });
 
