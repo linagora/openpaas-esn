@@ -1,106 +1,54 @@
 version: '2'
+
 services:
+
   esn:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: esn
     image: linagora/esn:latest
-    container_name: esn
-    ports:
-     - "8080:8080"
     links:
       - redis
       - mongo
       - sabre
       - elasticsearch
-    depends_on:
-      - redis
-      - mongo
-      - sabre
-      - elasticsearch
-    volumes:
-      - ${ESN_PATH}/docker/config:/var/www/docker/config:ro
-    env_file:
-      - ../../config/oauth.env
-    environment:
-      - PROVISION=${PROVISION}
-      - CONFIG_DIR=/var/www/docker/config
-      - MONGO_HOST=mongo
-      - MONGO_PORT=27017
-      - MONGO_DBNAME=esn_docker
-      - MONGO_TIMEOUT=100000
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - WEB_HOST=${DOCKER_IP}
-      - WEB_PORT=8080
-      - DAV_SERVER_HOST=sabre
-      - DAV_SERVER_PORT=80
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-      - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
-      - JMAP_SERVER_HOST=${DOCKER_IP}
-      - JMAP_SERVER_PORT=1080
 
   redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: redis
 
   mongo:
-    image: mongo:2.6.5
-    command: ["mongod", "--smallfiles"]
-    ports:
-      - "27017:27017"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: mongo
 
   elasticsearch:
-    image: linagora/esn-elasticsearch:latest
-    ports:
-      - "9200:9200"
-    environment:
-      - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
+    extends:
+      file: ../docker-compose-commons.yml
+      service: elasticsearch
 
   sabre:
-    image: linagora/esn-sabre:latest
-    ports:
-      - "8001:80"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: sabre
     links:
       - mongo
-    environment:
-      - SABRE_MONGO_HOST=mongo
-      - SABRE_MONGO_PORT=27017
-      - ESN_MONGO_HOST=mongo
-      - ESN_MONGO_PORT=27017
-      - ESN_MONGO_DBNAME=esn_docker
-      - MONGO_TIMEOUT=100000
-      - ESN_HOST=esn
-      - ESN_PORT=8080
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
 
   james:
-    entrypoint: bash -c "java -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:latest
-    container_name: esn_james
-    ports:
-      - "1080:80"
-      - "1025:25"
-      - "1110:110"
-      - "1143:143"
-      - "1465:465"
-      - "1587:587"
-      - "1993:993"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james
     links:
       - cassandra:cassandra
       - james_elastic:elasticsearch
-    depends_on:
-      - cassandra
-      - james_elastic
-    volumes:
-      - ${ESN_PATH}/docker/config/james:/root/conf
-      - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey
-    hostname: open-paas.org
 
   james_elastic:
-    image: elasticsearch:1.5.2
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james_elastic
 
   cassandra:
-    image: cassandra:2.2.3
-    ports:
-      - "9042:9042"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: cassandra
