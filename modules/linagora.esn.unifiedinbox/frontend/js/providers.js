@@ -10,65 +10,13 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxProviders', function($q, toAggregatorSource, ELEMENTS_PER_PAGE) {
-    var providers = [];
-
-    return {
-      add: function(provider) { providers.push(provider); },
-      getAll: function() {
-        return $q.all(providers.map(function(provider) {
-          return provider.getDefaultContainer().then(function(container) {
-            provider.loadNextItems = toAggregatorSource(provider.fetch(container), ELEMENTS_PER_PAGE);
-
-            return provider;
-          });
-        }));
-      }
-    };
+  .factory('inboxProviders', function(Providers) {
+    return new Providers();
   })
 
-  .factory('toAggregatorSource', function() {
-    return function(fetcher, length) {
-      return function() {
-        return fetcher().then(function(results) {
-          return { data: results, lastPage: results.length < length };
-        });
-      };
-    };
-  })
-
-  .factory('newInboxProvider', function(PageAggregatorService, toAggregatorSource, _, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
-    return function(provider) {
-      return {
-        name: provider.name,
-        fetch: function(container) {
-          var aggregator = new PageAggregatorService(provider.name, [{
-            loadNextItems: toAggregatorSource(provider.fetch(container), ELEMENTS_PER_REQUEST)
-          }], { results_per_page: ELEMENTS_PER_PAGE });
-
-          return function() {
-            return aggregator.loadNextItems()
-              .then(_.property('data'))
-              .then(function(results) {
-                return results.map(function(result) {
-                  if (!(result.date instanceof Date)) {
-                    result.date = new Date(result.date);
-                  }
-                  result.templateUrl = provider.templateUrl;
-
-                  return result;
-                });
-              });
-          };
-        },
-        getDefaultContainer: provider.getDefaultContainer
-      };
-    };
-  })
-
-  .factory('inboxTwitterProvider', function($q, $http, newInboxProvider, _, ELEMENTS_PER_REQUEST) {
+  .factory('inboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST) {
     return function(accountId) {
-      return newInboxProvider({
+      return newProvider({
         name: 'inboxTwitterProvider',
         fetch: function() {
           var oldestTweetId = null;
@@ -99,8 +47,8 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, findInboxMailboxId,
-                                                       newInboxProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
-    return newInboxProvider({
+                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+    return newProvider({
       name: 'inboxHostedMailMessagesProvider',
       fetch: function(container) {
         return pagedJmapRequest(function(position) {
@@ -128,7 +76,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, _, findInboxMailboxId,
-                                                      newInboxProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+                                                      newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
     function _prepareThreads(data) {
       var threads = data[0],
           messages = data[1];
@@ -140,7 +88,7 @@ angular.module('linagora.esn.unifiedinbox')
       return threads;
     }
 
-    return newInboxProvider({
+    return newProvider({
       name: 'inboxHostedMailThreadsProvider',
       fetch: function(container) {
         return pagedJmapRequest(function(position) {
