@@ -1,7 +1,13 @@
 .event-search-item {
-  .mdi {
-    font-size: 1.4em;
-    margin: 0 5px;
+  .media-body {
+    .flex {
+      .mdi {
+        font-size: 1.4em;
+      }
+      .mdi:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
   }
 
   .pull-left {
@@ -10,6 +16,13 @@
     margin-right: 10px;
     .mdi-calendar {
       font-size: 3em;
+    }
+  }
+
+  .event-date-consultation {
+    margin-bottom: 0;
+    .mdi.mdi-clock {
+      display: none;
     }
   }
 }

@@ -1,10 +1,21 @@
 'use strict';
 
-angular.module('esn.search', [])
+angular.module('esn.search', ['esn.application-menu', 'op.dynamicDirective', 'angularMoment'])
   .constant('SIGNIFICANT_DIGITS', 3)
   .constant('defaultSpinnerConfiguration', {
     spinnerKey: 'spinnerDefault',
     spinnerConf: {lines: 17, length: 15, width: 7, radius: 33, corners: 1, rotate: 0, direction: 1, color: '#555', speed: 1, trail: 60, shadow: false, hwaccel: false, className: 'spinner', zIndex: 2e9, top: 'auto', left: 'auto'}
+  })
+  .config(function(dynamicDirectiveServiceProvider) {
+    var search = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-search', {priority: 34}); // after 35 of contact
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', search);
+  })
+  .directive('applicationMenuSearch', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/search', 'mdi-magnify', 'Search')
+    };
   })
   .directive('searchForm', function(defaultSpinnerConfiguration) {
     return {
@@ -41,4 +52,34 @@ angular.module('esn.search', [])
         isFormatted: true
       };
     };
+  })
+  .controller('searchSidebarController', function($scope) {
+    $scope.filters = [
+      'All',
+      'Events',
+      'Mails',
+      'Members',
+      'Communities'
+    ];
+  })
+  .controller('searchResultController', function($scope, moment) {
+    $scope.groupedElements = [
+      {
+        name: 'Events',
+        elements: [{
+          title: 'Meeting with some people',
+          start: moment(),
+          end: moment().add(1, 'hour'),
+          location: 'somewhere',
+          templateUrl: '/calendar/views/components/event-search-item'
+        }]
+      },
+      {
+        name: 'Contacts',
+        elements: [{
+          displayName: 'Leigh Rafe'
+        }]
+      }
+    ];
+    $scope.infiniteScrollCompleted = true;
   });

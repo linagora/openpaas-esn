@@ -4,7 +4,8 @@
   .media-body
     .flex-space-between
       .flex-start
-        .lv-title {{::item.start}} to {{::item.end}}
+        .lv-title
+          event-date-consultation(event="item")
       .flex
         i.mdi.mdi-account-multiple-plus
         i.mdi.mdi-alarm
