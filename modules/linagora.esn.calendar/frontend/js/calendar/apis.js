@@ -65,11 +65,11 @@ angular.module('esn.calendar')
      * Query the home calendar, searching for indexed events depending on the query. The dav:calendar resources will include their dav:item resources.
      * @method searchEvents
      * @param  {[type]} calendarHomeId The calendar home id.
-     * @param  {[type]} query          The query parameter
+     * @param  {[type]} options        The query parameters {query: '', limit: 20, offset: 0}
      * @return {Object}                An array of dav:item items.
      */
-    function searchEvents(calendarHomeId, query) {
-      return calendarRestangular.one(calendarHomeId).getList('events.json', {query: query})
+    function searchEvents(calendarHomeId, options) {
+      return calendarRestangular.one(calendarHomeId).getList('events.json', {query: options.query, limit: options.limit, offset: options.offset})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
