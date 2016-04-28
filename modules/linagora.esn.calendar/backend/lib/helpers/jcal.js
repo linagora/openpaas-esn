@@ -178,15 +178,18 @@ function jcal2content(icalendar, baseUrl) {
     };
   }
 
-  var organizer = vevent.getFirstProperty('organizer');
-  var cn = organizer.getParameter('cn');
-  var mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
+  var organizer = vevent.getFirstProperty('organizer') || undefined;
 
-  organizer = {
-    cn: cn,
-    email: mail,
-    avatar: urljoin(baseUrl, 'api/avatars?objectType=user&email=' + mail)
-  };
+  if (organizer) {
+    var cn = organizer.getParameter('cn');
+    var mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
+
+    organizer = {
+      cn: cn,
+      email: mail,
+      avatar: urljoin(baseUrl, 'api/avatars?objectType=user&email=' + mail)
+    };
+  }
 
   var content = {
     method: method,

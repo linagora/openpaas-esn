@@ -101,6 +101,41 @@ describe('jcalHelper', function() {
       });
     });
 
+    it('should parse jcal formatted event without organizer', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting-without-organizer.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
+        method: 'REQUEST',
+        sequence: 0,
+        summary: 'Démo OPENPAAS',
+        uid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c',
+        start: {
+          date: '06/12/2015',
+          time: '1:00 PM',
+          timezone: 'UTC'
+        },
+        end: {
+          date: '06/12/2015',
+          time: '1:30 PM',
+          timezone: 'UTC'
+        },
+        allDay: false,
+        durationInDays: 0,
+        location: 'https://hubl.in/openpaas',
+        description: 'Présentation de OPENPAAS',
+        organizer: undefined,
+        attendees: {
+          'johndoe@open-paas.org': {
+            cn: 'John Doe',
+            partstat: 'ACCEPTED'
+          },
+          'janedoe@open-paas.org': {
+            cn: 'Jane Doe',
+            partstat: 'NEEDS-ACTION'
+          }
+        }
+      });
+    });
+
     it('should correctly parse date with a specified timezone', function() {
       ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting-tzid.ics').toString('utf8');
       expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.shallowDeepEqual({
