@@ -3,8 +3,9 @@
 angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
 
   .factory('notifyService', function($window, $sanitize) {
-    var defaultOptions = {
+    var defaultSettings = {
       placement: { from: 'bottom', align: 'center'},
+      mouse_over: 'pause',
       animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
       offset: 0,
       template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
@@ -13,19 +14,19 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
         '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
       '</div>'
     };
-    function sanitizeFlatObject(val) {
+    function sanitizeFlatObject(options) {
       var result = {};
 
-      angular.forEach(val, function(value, key) {
+      angular.forEach(options, function(value, key) {
         result[key] = angular.isString(value) ? $sanitize(value) : value;
       });
 
       return result;
     }
 
-    return function(data, options) {
+    return function(options, settings) {
 
-      var notification = $window.$.notify(sanitizeFlatObject(data), angular.extend({}, defaultOptions, options));
+      var notification = $window.$.notify(sanitizeFlatObject(options), angular.extend({}, defaultSettings, settings));
       var update = notification.update;
 
       notification.update = function(strOrObj, value) {
