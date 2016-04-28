@@ -70,7 +70,7 @@ describe('search helpers', function() {
         calendarId: 'calendarId'
       };
       expect(this.denormalize.denormalize(data)).to.shallowDeepEqual({
-        start: '2015-06-12T11:00:00.000Z',
+        start: '2015-06-12T17:00:00.000Z',
         end: '2015-06-12T15:00:00.000Z'
       });
     });
