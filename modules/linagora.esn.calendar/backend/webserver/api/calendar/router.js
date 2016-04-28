@@ -30,5 +30,9 @@ module.exports = function(dependencies) {
     davMiddleware.getDavEndpoint,
     controller.changeParticipation);
 
+  router.get('/api/calendars/:calendarId/events.json',
+    authorizationMW.requiresAPILogin,
+    controller.searchEvents);
+
   return router;
 };

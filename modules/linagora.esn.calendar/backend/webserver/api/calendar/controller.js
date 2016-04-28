@@ -139,6 +139,10 @@ function changeParticipation(req, res) {
   tryUpdateParticipation(url, ESNToken, res, req.eventPayload);
 }
 
+function searchEvents(req, res) {
+
+}
+
 module.exports = function(dependencies) {
   logger = dependencies('logger');
   calendar = require('./core')(dependencies);
@@ -147,6 +151,7 @@ module.exports = function(dependencies) {
   return {
     dispatchEvent: dispatchEvent,
     inviteAttendees: inviteAttendees,
-    changeParticipation: changeParticipation
+    changeParticipation: changeParticipation,
+    searchEvents: searchEvents
   };
 };
