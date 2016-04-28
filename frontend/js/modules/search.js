@@ -59,8 +59,9 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   .controller('searchSidebarController', function($scope, searchProviders) {
     $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
-  .controller('searchResultController', function($scope, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
+  .controller('searchResultController', function($scope, $location, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
     var aggregator;
+    var query = $location.search().q || '';
 
     function load() {
       return aggregator.loadNextItems().then(_.property('data'));
@@ -71,7 +72,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
         return load();
       }
 
-      return searchProviders.getAll().then(function(providers) {
+      return searchProviders.getAll(query).then(function(providers) {
         aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
           compare: function(a, b) { return a.start.isBefore(b.start); }, // TODO This is not right for other things than Events.
           results_per_page: ELEMENTS_PER_PAGE
