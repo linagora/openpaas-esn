@@ -15,12 +15,14 @@ describe('jcalHelper', function() {
     it('should return an empty array if the ical component has no attendee', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/noAttendee.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getAttendeesEmails(vcalendar)).to.deep.equal([]);
     });
 
     it('should get the attendees emails from the ical component', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getAttendeesEmails(vcalendar)).to.deep.equal(['johndoe@open-paas.org', 'janedoe@open-paas.org']);
     });
   });
@@ -29,12 +31,14 @@ describe('jcalHelper', function() {
     it('should return undefined if the ical component has no organizer', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/noOrganizer.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getOrganizerEmail(vcalendar)).to.be.undefined;
     });
 
     it('should return the organizer email from the ical component', function() {
       var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
       var vcalendar = icaljs.Component.fromString(ics).toJSON();
+
       expect(this.jcalHelper.getOrganizerEmail(vcalendar)).to.deep.equal('johndoe@open-paas.org');
     });
   });
@@ -50,6 +54,7 @@ describe('jcalHelper', function() {
 
     it('should return the good attendee if a valid email is provided', function() {
       var attendee = this.jcalHelper.getVeventAttendeeByMail(this.vevent, 'johndoe@open-paas.org').toJSON();
+
       expect(attendee[1].cn).to.equal('John Doe');
     });
   });
@@ -83,6 +88,41 @@ describe('jcalHelper', function() {
           email: 'johndoe@open-paas.org',
           avatar: 'http://localhost:8080/api/avatars?objectType=user&email=johndoe@open-paas.org'
         },
+        attendees: {
+          'johndoe@open-paas.org': {
+            cn: 'John Doe',
+            partstat: 'ACCEPTED'
+          },
+          'janedoe@open-paas.org': {
+            cn: 'Jane Doe',
+            partstat: 'NEEDS-ACTION'
+          }
+        }
+      });
+    });
+
+    it('should parse jcal formatted event without organizer', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting-without-organizer.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
+        method: 'REQUEST',
+        sequence: 0,
+        summary: 'Démo OPENPAAS',
+        uid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c',
+        start: {
+          date: '06/12/2015',
+          time: '1:00 PM',
+          timezone: 'UTC'
+        },
+        end: {
+          date: '06/12/2015',
+          time: '1:30 PM',
+          timezone: 'UTC'
+        },
+        allDay: false,
+        durationInDays: 0,
+        location: 'https://hubl.in/openpaas',
+        description: 'Présentation de OPENPAAS',
+        organizer: undefined,
         attendees: {
           'johndoe@open-paas.org': {
             cn: 'John Doe',
