@@ -122,6 +122,28 @@ angular.module('esn.calendar')
     }
 
     /**
+     * Search all events depending of the query parameter, in the calendar home.
+     * @param  {[type]} calendarHomeId The calendar home id.
+     * @param  {[type]} query          The query parameter
+     * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
+     */
+    function searchEvents(calendarHomeId, query) {
+      return calendarAPI.searchEvents(calendarHomeId, query)
+        .then(function(events) {
+          return events.reduce(function(shells, icaldata) {
+            var vcalendar = new ICAL.Component(icaldata.data);
+            var vevents = vcalendar.getAllSubcomponents('vevent');
+            vevents.forEach(function(vevent) {
+              var shell = new CalendarShell(vevent, {path: icaldata._links.self.href, etag: icaldata.etag});
+              shells.push(shell);
+            });
+            return shells;
+          }, []);
+        })
+        .catch($q.reject);
+    }
+
+    /**
      * Get all invitedAttendees in a vcalendar object.
      * @param  {ICAL.Component}      vcalendar The ICAL.component object
      * @param  {[String]}            emails    The array of emails against which we will filter vcalendar attendees
@@ -435,16 +457,6 @@ angular.module('esn.calendar')
             return $q.reject(response);
           }
         });
-    }
-
-    function searchEvents(query) {
-      return $q.when([{
-        type: 'Events',
-        title: 'Meeting with some people',
-        start: moment(),
-        end: moment().add(1, 'hour'),
-        location: 'somewhere'
-      }]);
     }
 
     this.listCalendars = listCalendars;

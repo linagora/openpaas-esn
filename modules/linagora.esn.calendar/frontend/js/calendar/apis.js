@@ -31,12 +31,12 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarAPI', function(request, pathBuilder, CALENDAR_ACCEPT_HEADER) {
+  .factory('calendarAPI', function(calendarRestangular, request, pathBuilder, CALENDAR_ACCEPT_HEADER) {
 
     var davDateFormat = 'YYYYMMDD[T]HHmmss';
 
     /**
-     * Queries one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
+     * Query one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHref The href of the calendar.
      * @param  {fcMoment} start        fcMoment type of Date, specifying the start of the range.
      * @param  {fcMoment} end          fcMoment type of Date, specifying the end of the range.
@@ -62,7 +62,27 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Queries one or more calendars for events. The dav:calendar resources will include their dav:item resources.
+     * Query the home calendar, searching for indexed events depending on the query. The dav:calendar resources will include their dav:item resources.
+     * @method searchEvents
+     * @param  {[type]} calendarHomeId The calendar home id.
+     * @param  {[type]} query          The query parameter
+     * @return {Object}                An array of dav:item items.
+     */
+    function searchEvents(calendarHomeId, query) {
+      return calendarRestangular.one(calendarHomeId).getList('events.json', {query: query})
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+          if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
+            return [];
+          }
+          return response.data._embedded['dav:item'];
+        });
+    }
+
+    /**
+     * Query one or more calendars for events. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHomeId The calendarHomeId.
      * @param  {String}   calendarId     The calendarId.
      * @param  {fcMoment} start          fcMoment type of Date, specifying the start of the range.
@@ -180,6 +200,7 @@ angular.module('esn.calendar')
 
     return {
       listEvents: listEvents,
+      searchEvents: searchEvents,
       listCalendars: listCalendars,
       getCalendar: getCalendar,
       listEventsForCalendar: listEventsForCalendar,
