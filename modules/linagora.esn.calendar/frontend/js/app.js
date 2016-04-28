@@ -13,6 +13,8 @@ angular.module('esn.calendar', [
   'AngularJstz',
   'angularMoment',
   'matchMedia',
+  'linagora.esn.graceperiod',
+  'op.dynamicDirective',
   'esn.router',
   'esn.core',
   'esn.header',
@@ -26,7 +28,7 @@ angular.module('esn.calendar', [
   'esn.lodash-wrapper',
   'esn.aggregator',
   'esn.provider',
-  'op.dynamicDirective'
+  'esn.search'
 ])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider
