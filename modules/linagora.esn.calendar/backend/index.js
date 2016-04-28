@@ -10,6 +10,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.elasticsearch', 'elasticsearch'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.collaboration', 'collaboration'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.activitystreams', 'activitystreams'),
@@ -48,10 +49,12 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
       // Register the new message type event
       var message = dependencies('message');
+
       message.registerMessageType('event', 'EventMessage');
 
       // Register the webapp
       var app = require('./webserver/application')(dependencies);
+
       app.use('/', this.api.calendar);
 
       var webserverWrapper = dependencies('webserver-wrapper');
@@ -100,8 +103,10 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-quick-form/directives.js',
         'event-full-form/directives.js'
       ];
+
       webserverWrapper.injectAngularModules('calendar', jsFiles, ['esn.calendar', 'esn.ical'], ['esn']);
       var lessFile = path.resolve(__dirname, '../frontend/css/styles.less');
+
       webserverWrapper.injectLess('calendar', [lessFile], 'esn');
       webserverWrapper.addApp('calendar', app);
 
@@ -110,6 +115,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
     start: function(dependencies, callback) {
       require('./ws/calendar').init(dependencies);
+      require('./lib/search')(dependencies).listen();
       callback();
     }
   }

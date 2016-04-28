@@ -3,15 +3,46 @@
 var initialized = false;
 var NAMESPACE = '/calendars';
 var PUBSUB_EVENT = 'calendar:event:updated';
+var CONSTANTS = require('../lib/constants');
+var WS_EVENT = CONSTANTS.WS_EVENT;
+var NOTIFICATIONS = CONSTANTS.NOTIFICATIONS;
+var ICAL = require('ical.js');
+
+function parseEventPath(eventPath) {
+  //eventPath = /calendars/{{userId}}/calendarId/{{eventUid}}
+  var pathParts = eventPath.replace(/^\//, '').split('/');
+
+  return {
+    userId: pathParts[1],
+    calendarId: pathParts[2],
+    eventUid: pathParts[3].replace(/\.ics$/, '')
+  };
+}
 
 function notify(io, ioHelper, event, msg) {
-  //eventPath = /calendars/{{userId}}/calendarId/{{eventId}}
-  var id = msg.eventPath.replace(/^\//, '').split('/')[1];
-  var clientSockets = ioHelper.getUserSocketsFromNamespace(id, io.of(NAMESPACE).sockets) || [];
+  var userId = parseEventPath(msg.eventPath).userId;
+  var clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(NAMESPACE).sockets) || [];
 
   clientSockets.forEach(function(socket) {
     socket.emit(event, msg);
   });
+}
+
+function emitElasticSearchEvent(pubsub, msg) {
+  var data = parseEventPath(msg.eventPath);
+  var action = msg.websocketEvent;
+
+  data.ics = (new ICAL.Component(msg.event)).toString();
+
+  if (action === WS_EVENT.EVENT_CREATED  || action === WS_EVENT.EVENT_REQUEST) {
+    pubsub.local.topic(NOTIFICATIONS.EVENT_ADDED).publish(data);
+  } else if (action === WS_EVENT.EVENT_UPDATED || action === WS_EVENT.EVENT_REPLY) {
+    pubsub.local.topic(NOTIFICATIONS.EVENT_UPDATED).publish(data);
+  } else if (action === WS_EVENT.EVENT_DELETED || action === WS_EVENT.EVENT_CANCEL) {
+    pubsub.local.topic(NOTIFICATIONS.EVENT_DELETED).publish(data);
+  } else {
+    throw new Error('Unknow ws_event for calendar CRUD', action);
+  }
 }
 
 function init(dependencies) {
@@ -22,12 +53,14 @@ function init(dependencies) {
 
   if (initialized) {
     logger.warn('The calendar notification service is already initialized');
+
     return;
   }
 
   pubsub.global.topic(PUBSUB_EVENT).subscribe(function(msg) {
     pubsub.local.topic(PUBSUB_EVENT).publish(msg);
     notify(io, ioHelper, msg.websocketEvent, msg);
+    emitElasticSearchEvent(pubsub, msg);
   });
 
   io.of(NAMESPACE)
