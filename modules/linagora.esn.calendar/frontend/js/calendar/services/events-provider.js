@@ -4,9 +4,9 @@ angular.module('esn.calendar')
   .factory('eventsProvider', function($q, calendarService, newProvider) {
     return newProvider({
       name: 'Events',
-      fetch: function() {
+      fetch: function(context) {
         return function() {
-          return calendarService.searchEvents().then(function(events) {
+          return calendarService.searchEvents(context).then(function(events) {
             return events.map(function(event) {
               event.type = 'Events';
               return event;
@@ -14,7 +14,7 @@ angular.module('esn.calendar')
           });
         };
       },
-      getDefaultContainer: function() { return $q.when(); },
+      getDefaultContext: function(context) { return $q.when(context); },
       templateUrl: '/calendar/views/components/event-search-item'
     });
   });

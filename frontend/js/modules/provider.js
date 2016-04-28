@@ -14,10 +14,10 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       add: function(provider) {
         this.providers.push(provider);
       },
-      getAll: function() {
+      getAll: function(context) {
         return $q.all(this.providers.map(function(provider) {
-          return provider.getDefaultContainer().then(function(container) {
-            provider.loadNextItems = toAggregatorSource(provider.fetch(container), ELEMENTS_PER_PAGE);
+          return provider.getDefaultContext(context).then(function(context) {
+            provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
 
             return provider;
           });
@@ -45,9 +45,9 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     return function(provider) {
       return {
         name: provider.name,
-        fetch: function(container) {
+        fetch: function(context) {
           var aggregator = new PageAggregatorService(provider.name, [{
-            loadNextItems: toAggregatorSource(provider.fetch(container), ELEMENTS_PER_REQUEST)
+            loadNextItems: toAggregatorSource(provider.fetch(context), ELEMENTS_PER_REQUEST)
           }], { results_per_page: ELEMENTS_PER_PAGE });
 
           return function() {
@@ -65,7 +65,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
               });
           };
         },
-        getDefaultContainer: provider.getDefaultContainer
+        getDefaultContext: provider.getDefaultContext
       };
     };
   })
