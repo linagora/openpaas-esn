@@ -21,6 +21,7 @@ angular.module('esn.aggregator', [])
         self.lastPage = !!result.lastPage;
         return {id: self.source.id, lastPage: self.lastPage, data: result.data || []};
       }, function(err) {
+        self.lastPage = true;
         $log.error('Fail to load new items', err);
         return $q.reject(new Error('Fail to load data from source ' + self.source.id));
       });

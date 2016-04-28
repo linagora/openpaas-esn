@@ -49,6 +49,25 @@ describe('The Aggregator module', function() {
         $rootScope = _$rootScope_;
       }));
 
+      it('should force lastPage if rejected', function(done) {
+        var id = 123;
+
+        var wrapper = new this.PageAggregatorSourceWrapper({
+          id: id,
+          loadNextItems: function() {
+            return $q.reject(new Error('this is an error'));
+          }
+        });
+
+        wrapper.loadNextItems().then(function(result) {
+          done(new Error('should not be here'));
+        }, function(err) {
+          expect(wrapper.lastPage).to.be.true;
+          done();
+        });
+        $rootScope.$apply();
+      });
+
       it('should reject when !hasNext', function(done) {
         var data = [1, 2, 3];
         var id = 123;
