@@ -16,7 +16,6 @@ angular.module('esn.calendar')
       scope: {
         event: '='
       },
-      replace: true,
       templateUrl: '/calendar/views/components/event-alarm-consultation.html',
       link: link
     };
