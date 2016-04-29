@@ -1,6 +1,6 @@
-@inboxAsideFontSize: 1.6em;
-@inboxAsideHeadingFontSize: 1.8em;
-@inboxAsideIconFontSize: 2.2em;
+@inboxAsideFontSize: 1.2em;
+@inboxAsideHeadingFontSize: 1.6em;
+@inboxAsideIconFontSize: 2em;
 @inboxAsideMailboxNameHeight: 30px;
 
 .inbox-aside {
@@ -8,7 +8,7 @@
   color: @secondaryTextColor;
 
   hr {
-    margin: 8px 5px;
+    margin: 5px 0;
     border-top: 1px solid @darkenBgColor;
   }
 
@@ -85,8 +85,21 @@
 
         margin-left: 5px;
         font-weight: bold;
-        font-size: @inboxAsideFontSize;
+        font-size: @inboxAsideHeadingFontSize;
         color: @primaryColor;
+      }
+    }
+
+    &.account-label {
+      border-bottom: 1px solid @darkenBgColor;
+      padding: 8px 0 4px 15px;
+      margin-bottom: 5px;
+
+      .title .text {
+        font-size: @inboxAsideFontSize;
+        color: @secondaryTextColor;
+        margin-left: 13px;
+        margin-top: 3px;
       }
     }
   }
@@ -96,12 +109,12 @@
   }
 
   &.inbox-desktop-menu {
-    margin-top: 20px;
+    margin-top: 50px;
     max-width: 300px;
 
     .listview:not(.lv-lg):not(.lv-message) {
       .lv-item.menu-heading {
-        padding: 8px 0 8px 15px;
+        padding: 8px 0 8px 20px;
       }
     }
 
