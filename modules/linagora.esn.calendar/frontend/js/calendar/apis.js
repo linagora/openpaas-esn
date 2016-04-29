@@ -69,7 +69,7 @@ angular.module('esn.calendar')
      * @return {Object}                An array of dav:item items.
      */
     function searchEvents(calendarHomeId, options) {
-      return calendarRestangular.one(calendarHomeId).getList('events.json', {query: options.query, limit: options.limit, offset: options.offset})
+      return calendarRestangular.one(calendarHomeId).one('events.json').get({query: options.query, limit: options.limit, offset: options.offset})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);

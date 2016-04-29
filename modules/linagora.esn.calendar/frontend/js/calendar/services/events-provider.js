@@ -4,11 +4,11 @@ angular.module('esn.calendar')
   .factory('eventsProvider', function($q, session, calendarService, newProvider, ELEMENTS_PER_REQUEST) {
     return newProvider({
       name: 'Events',
-      fetch: function(context) {
+      fetch: function(query) {
         var offset = 0;
         return function() {
           var context = {
-            query: context,
+            query: query,
             offset: offset,
             limit: ELEMENTS_PER_REQUEST
           };
