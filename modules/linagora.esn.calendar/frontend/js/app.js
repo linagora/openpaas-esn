@@ -28,7 +28,8 @@ angular.module('esn.calendar', [
   'esn.lodash-wrapper',
   'esn.aggregator',
   'esn.provider',
-  'esn.search'
+  'esn.search',
+  'esn.highlight'
 ])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider

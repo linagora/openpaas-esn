@@ -130,6 +130,10 @@ describe('The Search Form Angular module', function() {
       initController();
     }));
 
+    it('should init $scope.query for highlight', function() {
+      expect($scope.query).to.deep.equal(query);
+    });
+
     it('should have call searchProviders with the correct arguments', function() {
       expect(searchProviders.getAll).to.have.been.calledWith(query);
     });
