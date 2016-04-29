@@ -8,10 +8,15 @@ div
         .lv-item.menu-heading.account-label
           .title
             i.inbox-icon.mdi.mdi-email
-            .text #{__('Your emails')}
-          .add-folder(ui-sref='unifiedinbox.configuration.folders-add')
-            i.inbox-icon.mdi.mdi-plus
-
+            .text #{__('All emails')}
+        hr
         mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: ''} | orderBy: ['sortOrder', 'qualifiedName'] track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
         hr
         mailbox-display.lv-item(settings-overlay-sref='unifiedinbox.configuration.folders-edit({ mailbox: mailbox.id })', mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: '!'} | orderBy: ['sortOrder', 'qualifiedName']  track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
+        hr
+        .lv-item.clickable(ui-sref='unifiedinbox.configuration.folders-add')
+          .badge-container
+            i.inbox-icon.mdi.mdi-plus
+          .menu-item
+            bdi
+              | #{__('New folder')}

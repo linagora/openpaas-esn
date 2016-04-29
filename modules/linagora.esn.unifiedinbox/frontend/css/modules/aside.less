@@ -2,14 +2,15 @@
 @inboxAsideHeadingFontSize: 1.6em;
 @inboxAsideIconFontSize: 2em;
 @inboxAsideMailboxNameHeight: 30px;
+@dividerColor: darken(@darkenBgColor, 10%);
 
 .inbox-aside {
 
   color: @secondaryTextColor;
 
   hr {
-    margin: 5px 0;
-    border-top: 1px solid @darkenBgColor;
+    margin: 5px 15px;
+    border-top: 1px solid @dividerColor;
   }
 
   .clickable {
@@ -91,15 +92,17 @@
     }
 
     &.account-label {
-      border-bottom: 1px solid @darkenBgColor;
       padding: 8px 0 4px 15px;
-      margin-bottom: 5px;
 
       .title .text {
         font-size: @inboxAsideFontSize;
         color: @secondaryTextColor;
         margin-left: 13px;
         margin-top: 3px;
+      }
+
+      & + hr {
+        margin: 0  15px 5px 15px;
       }
     }
   }
