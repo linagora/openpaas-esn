@@ -95,6 +95,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'calendar/services/event-utils.js',
         'calendar/services/master-event-cache.js',
         'calendar/services/cached-event-source.js',
+        'calendar/services/events-provider.js',
         'event-form/controllers.js',
         'event-form/services.js',
         'event-form/filters.js',

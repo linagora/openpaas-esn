@@ -1,0 +1,17 @@
+.event-search-item
+  .pull-left
+    i.mdi.mdi-calendar
+  .media-body
+    .flex-space-between
+      .flex-start
+        .lv-title
+          event-date-consultation(event="item")
+      .flex
+        i.mdi.mdi-account-multiple-plus
+        i.mdi.mdi-alarm
+        i.mdi.mdi-refresh
+    .flex-space-between
+      .lv-title
+        {{::item.title}} - {{::item.location}}
+      .lv-title
+        | show more details

@@ -80,43 +80,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('infiniteScrollHelper', function($q, ElementGroupingTool, _, ELEMENTS_PER_PAGE) {
-    return function(scope, loadNextItems) {
-      var groups = new ElementGroupingTool();
-
-      scope.groupedElements = groups.getGroupedElements();
-
-      return function() {
-        if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
-          return $q.reject();
-        }
-
-        scope.infiniteScrollDisabled = true;
-
-        return loadNextItems()
-          .then(function(elements) {
-            if (elements) {
-              groups.addAll(elements);
-            }
-
-            return elements || [];
-          })
-          .then(function(elements) {
-            if (elements.length < ELEMENTS_PER_PAGE) {
-              scope.infiniteScrollCompleted = true;
-
-              return $q.reject();
-            }
-
-            return elements;
-          })
-          .finally(function() {
-            scope.infiniteScrollDisabled = false;
-          });
-      };
-    };
-  })
-
   .factory('asyncJmapAction', function(backgroundAction, withJmapClient) {
     return function(message, action, options) {
       return backgroundAction(message, function() {
@@ -131,71 +94,6 @@ angular.module('linagora.esn.unifiedinbox')
 
       return $q.reject(new Error(message));
     };
-  })
-
-  .factory('ElementGroupingTool', function(moment) {
-
-    function ElementGroupingTool(elements) {
-      this.todayElements = [];
-      this.weeklyElements = [];
-      this.monthlyElements = [];
-      this.otherElements = [];
-      this.allElements = [
-        {name: 'Today', dateFormat: 'shortTime', elements: this.todayElements},
-        {name: 'This Week', dateFormat: 'short', elements: this.weeklyElements},
-        {name: 'This Month', dateFormat: 'short', elements: this.monthlyElements},
-        {name: 'Older than a month', dateFormat: 'fullDate', elements: this.otherElements}
-      ];
-
-      if (elements) {
-        this.addAll(elements);
-      }
-
-      return this;
-    }
-
-    ElementGroupingTool.prototype.addAll = function addElement(elements) {
-      elements.forEach(this.addElement.bind(this));
-    };
-
-    ElementGroupingTool.prototype.addElement = function addElement(element) {
-      var currentMoment = moment().utc();
-      var elementMoment = moment(element.date).utc();
-
-      if (this._isToday(currentMoment, elementMoment)) {
-        this.todayElements.push(element);
-      } else if (this._isThisWeek(currentMoment, elementMoment)) {
-        this.weeklyElements.push(element);
-      } else if (this._isThisMonth(currentMoment, elementMoment)) {
-        this.monthlyElements.push(element);
-      } else {
-        this.otherElements.push(element);
-      }
-    };
-
-    ElementGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
-      return currentMoment.clone().startOf('day').isBefore(targetMoment);
-    };
-
-    ElementGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
-      return currentMoment.clone().subtract(7, 'days').startOf('day').isBefore(targetMoment);
-    };
-
-    ElementGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
-      return currentMoment.clone().startOf('month').isBefore(targetMoment);
-    };
-
-    ElementGroupingTool.prototype.getGroupedElements = function getGroupedElements() {
-      return this.allElements;
-    };
-
-    ElementGroupingTool.prototype.reset = function reset() {
-      return this.allElements.forEach(function(elementGroup) {
-        elementGroup.elements.length = 0;
-      });
-    };
-
-    return ElementGroupingTool;
   })
 
   .factory('sendEmail', function($http, $q, inboxConfig, inBackground, jmap, withJmapClient, jmapHelper) {

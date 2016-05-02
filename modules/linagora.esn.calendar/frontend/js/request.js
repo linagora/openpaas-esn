@@ -2,6 +2,13 @@
 
 angular.module('esn.calendar')
 
+  .factory('calendarRestangular', function(Restangular) {
+    return Restangular.withConfig(function(RestangularConfigurer) {
+      RestangularConfigurer.setBaseUrl('/calendar/api/calendars');
+      RestangularConfigurer.setFullResponse(true);
+    });
+  })
+
   .factory('request', function($http, $q, DAV_PATH) {
     function ensurePathToProxy(path) {
       return path.substring(path.indexOf('/calendars'), path.length);

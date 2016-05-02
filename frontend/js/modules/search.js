@@ -1,10 +1,21 @@
 'use strict';
 
-angular.module('esn.search', [])
+angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn.aggregator', 'esn.provider', 'op.dynamicDirective', 'angularMoment'])
   .constant('SIGNIFICANT_DIGITS', 3)
   .constant('defaultSpinnerConfiguration', {
     spinnerKey: 'spinnerDefault',
     spinnerConf: {lines: 17, length: 15, width: 7, radius: 33, corners: 1, rotate: 0, direction: 1, color: '#555', speed: 1, trail: 60, shadow: false, hwaccel: false, className: 'spinner', zIndex: 2e9, top: 'auto', left: 'auto'}
+  })
+  .config(function(dynamicDirectiveServiceProvider) {
+    var search = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-search', {priority: 34}); // after 35 of contact
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', search);
+  })
+  .directive('applicationMenuSearch', function(applicationMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      replace: true,
+      template: applicationMenuTemplateBuilder('/#/search', 'mdi-magnify', 'Search')
+    };
   })
   .directive('searchForm', function(defaultSpinnerConfiguration) {
     return {
@@ -41,4 +52,33 @@ angular.module('esn.search', [])
         isFormatted: true
       };
     };
+  })
+  .factory('searchProviders', function(Providers) {
+    return new Providers();
+  })
+  .controller('searchSidebarController', function($scope, searchProviders) {
+    $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
+  })
+  .controller('searchResultController', function($scope, $location, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
+    var aggregator;
+    var query = $location.search().q || '';
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'));
+    }
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
+      if (aggregator) {
+        return load();
+      }
+
+      return searchProviders.getAll(query).then(function(providers) {
+        aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
+          compare: function(a, b) { return a.start.isBefore(b.start); }, // TODO This is not right for other things than Events.
+          results_per_page: ELEMENTS_PER_PAGE
+        });
+
+        return load();
+      });
+    }, new ByTypeElementGroupingTool(searchProviders.getAllProviderNames()));
   });

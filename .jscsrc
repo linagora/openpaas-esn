@@ -10,5 +10,6 @@
   "requireSpacesInAnonymousFunctionExpression": {
       "beforeOpeningCurlyBrace": true
   },
-  "requireSpacesInsideObjectBrackets": null
+  "requireSpacesInsideObjectBrackets": null,
+  "maximumLineLength": null
 }

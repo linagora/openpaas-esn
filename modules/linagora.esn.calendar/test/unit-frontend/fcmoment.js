@@ -30,6 +30,7 @@ describe('fcMoment factory', function() {
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('$window', self.window);
+      $provide.value('_', function() {});
       $provide.value('jstz', self.jstz);
       $provide.constant('moment', self.moment);
     });

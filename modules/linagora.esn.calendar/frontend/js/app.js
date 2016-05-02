@@ -13,6 +13,8 @@ angular.module('esn.calendar', [
   'AngularJstz',
   'angularMoment',
   'matchMedia',
+  'linagora.esn.graceperiod',
+  'op.dynamicDirective',
   'esn.router',
   'esn.core',
   'esn.header',
@@ -24,7 +26,9 @@ angular.module('esn.calendar', [
   'esn.notification',
   'esn.widget.helper',
   'esn.lodash-wrapper',
-  'op.dynamicDirective'
+  'esn.aggregator',
+  'esn.provider',
+  'esn.search'
 ])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider
@@ -167,4 +171,7 @@ angular.module('esn.calendar', [
 
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
+  })
+  .run(function(searchProviders, eventsProvider) {
+    searchProviders.add(eventsProvider);
   });

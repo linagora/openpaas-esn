@@ -239,7 +239,7 @@ describe('The Unified Inbox Angular module providers', function() {
 
       it('should return an array of providers, with the "loadNextItems" property initialized', function(done) {
         inboxProviders.add({
-          getDefaultContainer: sinon.spy(function() { return $q.when('container'); }),
+          getDefaultContext: sinon.spy(function() { return $q.when('container'); }),
           fetch: sinon.spy(function(container) {
             expect(container).to.equal('container');
 
@@ -250,7 +250,7 @@ describe('The Unified Inbox Angular module providers', function() {
           templateUrl: 'templateUrl'
         });
         inboxProviders.add({
-          getDefaultContainer: sinon.spy(function() { return $q.when('container_2'); }),
+          getDefaultContext: sinon.spy(function() { return $q.when('container_2'); }),
           fetch: sinon.spy(function(container) {
             expect(container).to.equal('container_2');
 

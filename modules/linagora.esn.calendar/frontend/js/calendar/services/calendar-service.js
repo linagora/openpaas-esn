@@ -4,6 +4,7 @@ angular.module('esn.calendar')
   .service('calendarService', function(
     $q,
     $rootScope,
+    moment,
     cachedEventSource,
     CalendarShell,
     CalendarCollectionShell,
@@ -106,6 +107,28 @@ angular.module('esn.calendar')
      */
     function listEvents(calendarPath, start, end, timezone) {
       return calendarAPI.listEvents(calendarPath, start, end, timezone)
+        .then(function(events) {
+          return events.reduce(function(shells, icaldata) {
+            var vcalendar = new ICAL.Component(icaldata.data);
+            var vevents = vcalendar.getAllSubcomponents('vevent');
+            vevents.forEach(function(vevent) {
+              var shell = new CalendarShell(vevent, {path: icaldata._links.self.href, etag: icaldata.etag});
+              shells.push(shell);
+            });
+            return shells;
+          }, []);
+        })
+        .catch($q.reject);
+    }
+
+    /**
+     * Search all events depending of the query parameter, in the calendar home.
+     * @param  {[type]} calendarHomeId The calendar home id.
+     * @param  {[type]} options        The query parameters {query: '', limit: 20, offset: 0}
+     * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
+     */
+    function searchEvents(calendarHomeId, options) {
+      return calendarAPI.searchEvents(calendarHomeId, options)
         .then(function(events) {
           return events.reduce(function(shells, icaldata) {
             var vcalendar = new ICAL.Component(icaldata.data);
@@ -447,5 +470,5 @@ angular.module('esn.calendar')
     this.modifyEvent = modifyEvent;
     this.removeEvent = removeEvent;
     this.getEvent = getEvent;
-
+    this.searchEvents = searchEvents;
   });
