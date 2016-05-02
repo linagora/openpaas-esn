@@ -1,0 +1,70 @@
+'use strict';
+
+var _ = require('lodash');
+
+var API_VERSIONS = {
+  'v0.1': {
+    label: 'OpenPaaS API version 0.1',
+    path: 'v0.1'
+  }
+};
+
+var API_BASE = '/api';
+var API_FIRST_VERSION = 'v0.1';
+var API_CURRENT_VERSION = API_FIRST_VERSION;
+
+function getVersions(req, res) {
+  return res.json(200, _.map(API_VERSIONS, function(apiversion) {
+    return apiversion;
+  }));
+}
+
+function getVersionById(req, res) {
+  var version = API_VERSIONS[req.params.id];
+
+  if (version) {
+    return res.json(200, version);
+  } else {
+    return res.json(404, { error: { code: 404, message: 'Version does not exist.'}});
+  }
+}
+
+function getLatestVersion(req, res) {
+  return res.json(200, {latest: API_CURRENT_VERSION});
+}
+
+function setupAPI(application) {
+  var router  = require('express').Router();
+
+  router.get('/versions', getVersions);
+  router.get('/versions/latest', getLatestVersion);
+  router.get('/versions/:id', getVersionById);
+
+  require('./activitystreams')(router);
+  require('./authentication')(router);
+  require('./avatars')(router);
+  require('./collaborations')(router);
+  require('./communities')(router);
+  require('./companies')(router);
+  require('./document-store')(router);
+  require('./domains')(router);
+  require('./feedback')(router);
+  require('./files')(router);
+  require('./invitations')(router);
+  require('./jwt')(router);
+  require('./locales')(router);
+  require('./login')(router);
+  require('./messages')(router);
+  require('./monitoring')(router);
+  require('./notifications')(router);
+  require('./oauth')(router);
+  require('./user')(router);
+  require('./users')(router);
+
+  application.use('/api', router);
+  application.use('/api/v0.1', router);
+}
+
+module.exports.setupAPI = setupAPI;
+module.exports.API_VERSIONS = API_VERSIONS;
+module.exports.API_CURRENT_VERSION = API_CURRENT_VERSION;

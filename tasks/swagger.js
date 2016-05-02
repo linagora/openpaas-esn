@@ -5,7 +5,7 @@ module.exports = function(grunt) {
   var fs = require('fs');
   var swaggerJSDoc = require('swagger-jsdoc');
   var swaggerDefinitionFiles = path.normalize(__dirname + '/../doc/REST_API/swagger/definitions/*.js');
-  var swaggerRoutesFiles = path.normalize(__dirname + '/../backend/webserver/routes.js');
+  var swaggerRoutesFiles = path.normalize(__dirname + '/../backend/webserver/api/*.js');
   var swaggerOutputFile = path.normalize(__dirname + '/../doc/REST_API/swagger/swagger.json');
 
   var options = {
@@ -13,8 +13,8 @@ module.exports = function(grunt) {
       swagger: '2.0',
       info: {
         title: 'OpenPaaS',
-        description: 'move your app forward with the OpenPaaS API',
-        version: '0.0.1'
+        description: 'OpenPaaS API',
+        version: '0.1'
       },
       host: 'localhost:8080',
       basePath: '/',
