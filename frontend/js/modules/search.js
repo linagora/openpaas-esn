@@ -34,7 +34,8 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
       scope: true,
       controller: function($scope, $location) {
         $scope.searchInput = $location.search().q;
-        $scope.search = function() {
+        $scope.search = function($event) {
+          $event.preventDefault();
           $location.search('q', $scope.searchInput);
         };
       },
@@ -86,9 +87,9 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   .controller('searchSidebarController', function($scope, searchProviders) {
     $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
-  .controller('searchResultController', function($scope, $location, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
+  .controller('searchResultController', function($scope, $stateParams, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
     var aggregator;
-    var query = $location.search().q || '';
+    var query = $stateParams.q;
 
     function load() {
       return aggregator.loadNextItems().then(_.property('data'));

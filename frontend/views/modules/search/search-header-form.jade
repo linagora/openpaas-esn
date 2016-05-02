@@ -1,4 +1,4 @@
 .search-form.fg-line
   .search-input.form-control
-    form(ng-submit='search()')
+    form(name='form', ng-submit='search($event)')
       input(type="text", ng-model="searchInput")

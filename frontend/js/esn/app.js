@@ -1,6 +1,6 @@
 'use strict';
 
-var angularInjections = angularInjections || [];
+var angularInjections = window.angularInjections || [];
 
 angular.module('esnApp', [
   'restangular',
@@ -97,6 +97,7 @@ angular.module('esnApp', [
         return activitystreamAPI.getResource($stateParams.asuuid).then(function(response) {
           var objectType = response.data.objectType;
           var id = response.data.object._id;
+
           return objectTypeResolver.resolve(objectType, id).then(function(collaboration) {
             return collaboration.data;
           }, function() {
@@ -175,7 +176,13 @@ angular.module('esnApp', [
     templateUrl: '/views/modules/search/index'
   })
   .state('search.main', {
-    url: '',
+    url: '?q',
+    params: {
+      q: {
+        value: '',
+        squash: true
+      }
+    },
     views: {
       'search-desktop-sidebar': {
         templateUrl: '/views/modules/search/desktop-sidebar.html',

@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -42,8 +42,95 @@ describe('The Search Form Angular module', function() {
       this.$rootScope.spinnerConf = {radius: 30, width: 8, length: 16};
 
       var element = this.$compile(html)(this.$rootScope);
+
       this.$rootScope.$digest();
       this.checkGeneratedElement(element, 'spinnerKey', {radius: 30, width: 8, length: 16});
+    });
+  });
+
+  describe('The searchHeaderFormDirective', function() {
+    var $locationMock, element, $compile, $rootScope;
+
+    beforeEach(function() {
+      $locationMock = {
+        search: sinon.stub().returns({q: 'search'})
+      };
+      angular.mock.module('jadeTemplates');
+      angular.mock.module('esn.search', function($provide) {
+        $provide.value('$location', $locationMock);
+      });
+    });
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+    }));
+
+    beforeEach(function() {
+      var html = '<search-sub-header></search-sub-header>';
+
+      element = $compile(html)($rootScope);
+      $rootScope.$digest();
+    });
+
+    it('should init search field with q get parameter', function() {
+      expect($locationMock.search).to.have.been.calledOnce;
+      expect(element.find('input').val()).to.equal('search');
+    });
+
+    it('when form submitted it should update q get parameter', function() {
+      element.find('input').val('cow').trigger('input');
+      element.find('form').trigger('submit');
+      expect($locationMock.search).to.have.been.calledWith('q', 'cow');
+    });
+
+  });
+
+  describe('searchResultController', function() {
+    var $controller, $scope, $stateParams, $q, query, infiniteScrollHelper, infiniteScrollHelperResult, searchProviders, ByTypeElementGroupingTool;
+
+    function initController() {
+      $scope = {};
+      $controller('searchResultController', {$scope: $scope});
+    }
+
+    beforeEach(function() {
+      query = {};
+      searchProviders = {
+        getAll: sinon.spy(function() {
+          return $q.when({});
+        }),
+        getAllProviderNames: sinon.spy()
+      };
+      infiniteScrollHelperResult = {};
+      infiniteScrollHelper = sinon.stub().returns(infiniteScrollHelperResult);
+      $stateParams = {q: query};
+      ByTypeElementGroupingTool = sinon.spy();
+      angular.mock.module('esn.search', function($provide) {
+        $provide.value('$stateParams', $stateParams);
+        $provide.value('infiniteScrollHelper', infiniteScrollHelper);
+        $provide.value('searchProviders', searchProviders);
+        $provide.value('ByTypeElementGroupingTool', ByTypeElementGroupingTool);
+      });
+    });
+
+    beforeEach(inject(function(_$controller_, _ByTypeElementGroupingTool_, _searchProviders_, _$q_) {
+      $controller = _$controller_;
+      initController();
+      $q = _$q_;
+    }));
+
+    describe('$scope.loadMoreElements', function() {
+
+      it('should be the result of infiniteScrollHelper called with correct params', function() {
+        expect($scope.loadMoreElements).to.equal(infiniteScrollHelperResult);
+        expect(infiniteScrollHelper).to.have.been.calledWith($scope, sinon.match.func.and(sinon.match(function(func) {
+          func();
+          expect(searchProviders.getAll).to.have.been.calledWith(query);
+
+          return true;
+        })), sinon.match.instanceOf(ByTypeElementGroupingTool));
+      });
     });
   });
 
