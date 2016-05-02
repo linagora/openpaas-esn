@@ -36,11 +36,33 @@ module.exports = function(dependencies) {
 
   function searchEvents(query, callback) {
     var terms = query.search;
-    var page = query.page || 1;
-    var offset = query.offset;
+    var offset = query.offset || 0;
     var limit = query.limit || SEARCH.DEFAULT_LIMIT;
-    var filters = [];
 
+    var elasticsearchQuery = {
+      query: {
+        bool: {
+          must: {
+            multi_match: {
+              query: terms,
+              type: 'cross_fields',
+              fields: [
+                'summary',
+                'description',
+                'organizer.cn',
+                'organizer.email',
+                'attendees.email',
+                'attendees.cn'
+              ],
+              operator: 'and',
+              tie_breaker: 0.5
+            }
+          }
+        }
+      }
+    };
+
+    var filters = [];
     if (query.calendarId) {
       filters.push({
         term: {
@@ -52,37 +74,21 @@ module.exports = function(dependencies) {
     if (query.userId) {
       filters.push({
         term: {
-          userId: query.userId
+          userId: query.userId.toString()
         }
       });
     }
-
-    var elasticsearchQuery = {
-      query: {
-        bool: {
-          must: {
-            match: {
-              _all: terms
-            }
-          }
-        }
-      }
-    };
 
     if (filters.length) {
       elasticsearchQuery.query.bool.filter = {
         and: filters
       };
     }
-    if (!offset) {
-      offset = (page - 1) * limit;
-    }
 
     logger.debug('Searching events with options', {
-      userId: query.userId,
+      userId: query.userId.toString(),
       calendarId: query.calendarId,
       search: terms,
-      page: page,
       offset: offset,
       limit: limit
     });
@@ -99,7 +105,6 @@ module.exports = function(dependencies) {
       }
 
       return callback(null, {
-        current_page: page,
         total_count: result.hits.total,
         list: result.hits.hits
       });
