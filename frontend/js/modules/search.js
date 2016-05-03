@@ -8,6 +8,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   })
   .config(function(dynamicDirectiveServiceProvider) {
     var search = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-search', {priority: 34}); // after 35 of contact
+
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', search);
   })
   .directive('applicationMenuSearch', function(applicationMenuTemplateBuilder) {
@@ -24,7 +25,33 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
         $scope.spinnerKey = angular.isDefined($scope.spinnerKey) ? $scope.spinnerKey : defaultSpinnerConfiguration.spinnerKey;
         $scope.spinnerConf = angular.isDefined($scope.spinnerConf) ? $scope.spinnerConf : defaultSpinnerConfiguration.spinnerConf;
       },
-      templateUrl: '/views/modules/search/searchForm.html'
+      templateUrl: '/views/modules/search/search-form.html'
+    };
+  })
+  .directive('searchHeaderForm', function(defaultSpinnerConfiguration) {
+    return {
+      restrict: 'E',
+      scope: true,
+      controller: function($scope, $location) {
+        $scope.searchInput = $location.search().q;
+        $scope.search = function($event) {
+          $event.preventDefault();
+          $location.search('q', $scope.searchInput);
+        };
+      },
+      templateUrl: '/views/modules/search/search-header-form.html'
+    };
+  })
+  .directive('searchSubHeader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/search/search-sub-header.html'
+    };
+  })
+  .directive('searchHeader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/search/header.html'
     };
   })
   .factory('searchResultSizeFormatter', function(SIGNIFICANT_DIGITS) {
@@ -47,6 +74,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
       }
 
       var len = Math.ceil(Math.log(count + 1) / Math.LN10);
+
       return {
         hits: Math.round(count * Math.pow(10, -(len - SIGNIFICANT_DIGITS))) * Math.pow(10, len - SIGNIFICANT_DIGITS),
         isFormatted: true
@@ -59,9 +87,9 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   .controller('searchSidebarController', function($scope, searchProviders) {
     $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
-  .controller('searchResultController', function($scope, $location, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
+  .controller('searchResultController', function($scope, $stateParams, _, moment, searchProviders, PageAggregatorService, infiniteScrollHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
     var aggregator;
-    var query = $location.search().q || '';
+    var query = $stateParams.q;
 
     function load() {
       return aggregator.loadNextItems().then(_.property('data'));
