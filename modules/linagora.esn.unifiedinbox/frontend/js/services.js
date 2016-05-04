@@ -822,6 +822,14 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function moveToMailbox(message, mailbox) {
+      return backgroundAction(
+        'Move of message "' + message.subject + '" to ' + mailbox.name,
+        function() {
+          return message.move([mailbox.id]);
+        }, { silent: true });
+    }
+
     function reply(email) {
       emailSendingService.createReplyEmailObject(email, session.user).then(function(replyEmail) {
         newComposerService.open(replyEmail, 'Start writing your reply email');
@@ -864,7 +872,8 @@ angular.module('linagora.esn.unifiedinbox')
       markAsRead: markAsRead,
       markAsFlagged: markAsFlagged,
       unmarkAsFlagged: unmarkAsFlagged,
-      moveToTrash: moveToTrash
+      moveToTrash: moveToTrash,
+      moveToMailbox: moveToMailbox
     };
   })
 
@@ -875,6 +884,16 @@ angular.module('linagora.esn.unifiedinbox')
       }).then(function() {
         $state.go('^');
       });
+    }
+
+    function moveToMailbox(thread, mailbox) {
+      var subject = thread.subject || (thread.email ? thread.email.subject : '');
+
+      return backgroundAction(
+        'Move of thread "' + subject + '" to ' + mailbox.name,
+        function() {
+          return thread.move([mailbox.id]);
+        }, { silent: true });
     }
 
     function markAsRead(thread) {
@@ -898,7 +917,8 @@ angular.module('linagora.esn.unifiedinbox')
       markAsRead: markAsRead,
       markAsFlagged: markAsFlagged,
       unmarkAsFlagged: unmarkAsFlagged,
-      moveToTrash: moveToTrash
+      moveToTrash: moveToTrash,
+      moveToMailbox: moveToMailbox
     };
   })
 
