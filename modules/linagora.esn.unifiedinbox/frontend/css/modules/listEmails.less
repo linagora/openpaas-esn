@@ -1,7 +1,11 @@
 .groupedEmails {
 
   .listview .lv-item {
-    padding: 7px 10px;
+    padding: 0;
+
+    .clickable {
+      padding: 7px 10px;
+    }
   }
 
   .preview {
@@ -15,7 +19,7 @@
 }
 
 @media (min-width: @screen-sm-min) {
-  .groupedEmails .listview .lv-item {
+  .groupedEmails .listview .lv-item .clickable {
     padding: 17px 20px;
   }
 }

@@ -1,6 +1,10 @@
 infinite-list.list-emails {
   .lv-body .lv-item {
-    padding: 7px 10px;
+    padding: 0;
+
+    .clickable {
+      padding: 7px 10px;
+    }
   }
 }
 
@@ -17,7 +21,7 @@ infinite-list.list-emails {
 }
 
 @media (min-width: @screen-sm-min) {
-  infinite-list.list-emails .lv-body .lv-item {
+  infinite-list.list-emails .lv-body .lv-item .clickable {
     padding: 17px 20px;
   }
 }
