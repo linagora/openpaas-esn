@@ -197,14 +197,13 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             if (elements) {
               groups.addAll(elements);
             }
-
-            return elements || [];
-          })
-          .then(function(elements) {
+            elements = elements || [];
             if (elements.length < ELEMENTS_PER_PAGE) {
               scope.infiniteScrollCompleted = true;
+            }
 
-              return $q.reject();
+            if (!elements.length) {
+              return $q.reject('No more element');
             }
 
             return elements;

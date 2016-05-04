@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global moment: false */
+/* global sinon: false */
 var expect = chai.expect;
 
 describe('The esn.provider module', function() {
@@ -307,7 +308,88 @@ describe('The esn.provider module', function() {
         {name: 'Older than a month', dateFormat: 'fullDate', elements: [element]}
       ]);
     });
+  });
 
+  describe('infiniteScrollHelper', function() {
+    var ELEMENTS_PER_PAGE, infiniteScrollHelper, $q, $rootScope;
+
+    beforeEach(function() {
+      ELEMENTS_PER_PAGE = 3;
+      angular.mock.module(function($provide) {
+        $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE);
+      });
+    });
+
+    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_) {
+      infiniteScrollHelper = _infiniteScrollHelper_;
+      $q = _$q_;
+      $rootScope = _$rootScope_;
+    }));
+
+    describe('The return iterator', function() {
+      var sourceIterator, resultingIterator, scope, elementGroupingTool;
+
+      beforeEach(function() {
+        scope = {};
+        sourceIterator = sinon.stub();
+
+        sourceIterator.onCall(0).returns($q.when([1, 2, 3]))
+          .onCall(1).returns($q.when([4, 5, 6]))
+          .onCall(2).returns($q.when([7, 8]))
+          .onCall(3).returns($q.when([]));
+
+        elementGroupingTool = {
+          getGroupedElements: sinon.spy(),
+          addAll: sinon.spy()
+        };
+
+        resultingIterator = infiniteScrollHelper(scope, sourceIterator, elementGroupingTool);
+      });
+
+      function iteratorToList(iterator, betweenEachStep) {
+        return $q(function(resolve, reject) {
+          var result = [];
+
+          function step() {
+            iterator().then(function(data) {
+              result.push(data);
+              betweenEachStep && betweenEachStep();
+
+              return step();
+            }, function(error) {
+              resolve(result);
+            });
+          }
+
+          step();
+        });
+      }
+
+      it('should correctly iterate over given iterator', function() {
+        var thenSpy = sinon.spy();
+
+        iteratorToList(resultingIterator).then(thenSpy);
+        $rootScope.$digest();
+        expect(thenSpy).to.have.been.calledWith([[1, 2, 3], [4, 5, 6], [7, 8]]);
+      });
+
+      it('should set infiniteScrollCompleted when given iterator return less elements than ELEMENTS_PER_PAGE', function() {
+        var infiniteScrollCompletedTracker = [];
+
+        iteratorToList(resultingIterator, function() {
+          infiniteScrollCompletedTracker.push(scope.infiniteScrollCompleted);
+        });
+        $rootScope.$digest();
+        expect(infiniteScrollCompletedTracker).to.be.deep.equal([undefined, undefined, true]);
+      });
+
+      it('should disable scroll while first iterator is fetching data', function() {
+        resultingIterator();
+        expect(scope.infiniteScrollDisabled).to.be.true;
+        $rootScope.$digest();
+        expect(scope.infiniteScrollDisabled).to.be.false;
+      });
+    });
   });
 
 });
