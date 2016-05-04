@@ -64,6 +64,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('sendEmail', sinon.spy(function() { return sendEmailFakePromise; }));
     $provide.decorator('newComposerService', function($delegate) {
       $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
+
       return $delegate;
     });
   }));
@@ -105,6 +106,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     $compile(element)($scope);
     $scope.$digest();
+
     return element;
   }
 
@@ -118,6 +120,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     it('should call the open fn from newComposerService when clicked', function() {
       var testee = compileDirective('<div new-composer/>');
+
       newComposerService.open = sinon.spy();
 
       testee.click();
@@ -168,6 +171,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         preventDefault: sinon.spy(),
         stopPropagation: sinon.spy()
       };
+
       emailElement.trigger(event);
 
       expect(event.preventDefault).to.have.been.called;
@@ -275,6 +279,109 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(element.isolateScope().mailboxIcons).to.equal('testclass');
     });
 
+    describe('The dragndrop feature', function() {
+
+      var isolateScope;
+
+      beforeEach(function() {
+        $scope.mailbox = {
+          id: '1',
+          role: {
+            value: 'testrole'
+          }
+        };
+        compileDirective('<mailbox-display mailbox="mailbox" />');
+
+        isolateScope = element.isolateScope();
+      });
+
+      it('should be droppable element', function() {
+        expect(element.attr('esn-droppable')).to.equal('esn-droppable');
+      });
+
+      describe('The onDrop function', function() {
+        var inboxThreadService, inboxEmailService;
+
+        beforeEach(inject(function(_inboxThreadService_, _inboxEmailService_) {
+          inboxThreadService = _inboxThreadService_;
+          inboxEmailService = _inboxEmailService_;
+
+          inboxThreadService.moveToMailbox = sinon.spy();
+          inboxEmailService.moveToMailbox = sinon.spy();
+        }));
+
+        it('should move thread to mailbox if dragData is a thread', function() {
+          var thread = {
+            messageIds: ['m1'],
+            email: {
+              mailboxIds: ['2']
+            }
+          };
+
+          isolateScope.onDrop(thread);
+
+          expect(inboxThreadService.moveToMailbox).to.have.been.calledOnce;
+          expect(inboxThreadService.moveToMailbox).to.have.been.calledWith(thread, $scope.mailbox);
+        });
+
+        it('should move message to mailbox if dragData is a message', function() {
+          var message = {
+            id: 'm1',
+            mailboxIds: ['2']
+          };
+
+          isolateScope.onDrop(message);
+
+          expect(inboxEmailService.moveToMailbox).to.have.been.calledOnce;
+          expect(inboxEmailService.moveToMailbox).to.have.been.calledWith(message, $scope.mailbox);
+        });
+
+      });
+
+      describe('The isDropZone function', function() {
+        it('should return true if dragData is a thread and not belong to the mailbox', function() {
+          var thread = {
+            messageIds: ['m1'],
+            email: {
+              mailboxIds: ['2']
+            }
+          };
+
+          expect(isolateScope.isDropZone(thread)).to.be.true;
+        });
+
+        it('should return false if dragData is a thread and belong to the mailbox', function() {
+          var thread = {
+            messageIds: ['m1'],
+            email: {
+              mailboxIds: ['1']
+            }
+          };
+
+          expect(isolateScope.isDropZone(thread)).to.be.false;
+        });
+
+        it('should return true if dragData is a message and not belong to the mailbox', function() {
+          var message = {
+            id: 'm1',
+            mailboxIds: ['2']
+          };
+
+          expect(isolateScope.isDropZone(message)).to.be.true;
+        });
+
+        it('should return false if dragData is a message and belong to the mailbox', function() {
+          var message = {
+            id: 'm1',
+            mailboxIds: ['1']
+          };
+
+          expect(isolateScope.isDropZone(message)).to.be.false;
+        });
+      });
+
+    });
+
   });
 
   describe('The composer directive', function() {
@@ -295,6 +402,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     it('should call state.go with the given type and the controller composition', function(done) {
       var directive = compileDirective('<composer />');
+
       directive.controller('composer').initCtrl({});
 
       $state.go = sinon.spy(function(recipientsType, params) {
@@ -630,6 +738,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     it('should save draft when the composer is destroyed', function() {
       var ctrl = compileDirective('<composer-desktop />').controller('composerDesktop');
+
       ctrl.saveDraft = sinon.spy();
 
       $scope.$emit('$destroy');
@@ -749,6 +858,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
             expect(target).to.equal('*');
 
             var contentWithoutRandomPort = content.replace(/localhost:\d*/g, 'localhost:PORT');
+
             expect(contentWithoutRandomPort).to.equal(
               '[linagora.esn.unifiedinbox]<html><body>' +
                 '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="remote.png" />' +
@@ -792,7 +902,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     function compileFabDirective() {
       var fab = compileDirective('<inbox-fab></inbox-fab>');
+
       $timeout.flush();
+
       return findInnerFabButton(fab);
     }
 
@@ -865,12 +977,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     it('should bring up email keyboard when editing', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>');
       var recipientInput = element.find('recipients-auto-complete tags-input');
+
       expect(recipientInput.attr('type')).to.equal('email');
     });
 
     it('should bring up email keyboard when editing using fullscreen template', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="fullscreen-recipients-auto-complete"></recipients-auto-complete></div>');
       var recipientInput = element.find('recipients-auto-complete tags-input');
+
       expect(recipientInput.attr('type')).to.equal('email');
     });
 
@@ -1218,6 +1332,58 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
           $rootScope.$digest();
         });
+
+      });
+    });
+
+    describe('The dragndrop feature', function() {
+
+      it('should be draggable element', function() {
+        compileDirective('<inbox-thread-list-item />');
+
+        expect(element.find('.clickable').attr('esn-draggable')).to.equal('esn-draggable');
+      });
+
+      it('should remove item from list on drag end with a drop', function() {
+        compileDirective('<inbox-thread-list-item />');
+
+        $scope.item = 'an item';
+        $scope.groups = {
+          removeElement: sinon.spy()
+        };
+
+        $scope.onDragEnd(true);
+
+        expect($scope.groups.removeElement).to.have.been.calledOnce;
+        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+      });
+
+      it('should not remove item from list on drag end with no drop', function() {
+        compileDirective('<inbox-thread-list-item />');
+
+        $scope.item = 'an item';
+        $scope.groups = {
+          removeElement: sinon.spy()
+        };
+
+        $scope.onDragEnd(false);
+
+        expect($scope.groups.removeElement).to.have.been.callCount(0);
+      });
+
+      it('should add item back to the list on drop failure', function() {
+        compileDirective('<inbox-thread-list-item />');
+
+        $scope.item = 'an item';
+        $scope.groups = {
+          addElement: sinon.spy()
+        };
+
+        $scope.onDropFailure();
+
+        expect($scope.groups.addElement).to.have.been.calledOnce;
+        expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+
       });
 
     });
@@ -1312,6 +1478,57 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
           $rootScope.$digest();
         });
+      });
+    });
+
+    describe('The dragndrop feature', function() {
+
+      it('should be draggable element', function() {
+        compileDirective('<inbox-message-list-item />');
+
+        expect(element.find('.clickable').attr('esn-draggable')).to.equal('esn-draggable');
+      });
+
+      it('should remove item from list on drag end with a drop', function() {
+        compileDirective('<inbox-message-list-item />');
+
+        $scope.item = 'an item';
+        $scope.groups = {
+          removeElement: sinon.spy()
+        };
+
+        $scope.onDragEnd(true);
+
+        expect($scope.groups.removeElement).to.have.been.calledOnce;
+        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+      });
+
+      it('should not remove item from list on drag end with no drop', function() {
+        compileDirective('<inbox-message-list-item />');
+
+        $scope.item = 'an item';
+        $scope.groups = {
+          removeElement: sinon.spy()
+        };
+
+        $scope.onDragEnd(false);
+
+        expect($scope.groups.removeElement).to.have.been.callCount(0);
+      });
+
+      it('should add item back to the list on drop failure', function() {
+        compileDirective('<inbox-message-list-item />');
+
+        $scope.item = 'an item';
+        $scope.groups = {
+          addElement: sinon.spy()
+        };
+
+        $scope.onDropFailure();
+
+        expect($scope.groups.addElement).to.have.been.calledOnce;
+        expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+
       });
 
     });

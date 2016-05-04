@@ -26,7 +26,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.url',
   'esn.background',
   'esn.aggregator',
-  'esn.provider'
+  'esn.provider',
+  'esn.dragndrop'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {

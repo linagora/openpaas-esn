@@ -1,9 +1,15 @@
+@inboxDraggingItemBgColor: #FFF9C4;
+
 infinite-list.list-emails {
   .lv-body .lv-item {
     padding: 0;
 
     .clickable {
       padding: 7px 10px;
+
+      &.dragging {
+        background-color: @inboxDraggingItemBgColor;
+      }
     }
   }
 }

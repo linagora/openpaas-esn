@@ -3,6 +3,7 @@
 @inboxAsideIconFontSize: 2em;
 @inboxAsideMailboxNameHeight: 30px;
 @dividerColor: darken(@darkenBgColor, 10%);
+@inboxAsideDragOverBgColor: #FFCC80;
 
 .inbox-aside {
 
@@ -156,6 +157,10 @@
       .menu-item .menu-item-after:after {
         background-color: @darkenBgColor;
       }
+    }
+
+    .clickable.droptarget {
+      background-color: @inboxAsideDragOverBgColor;
     }
   }
 
