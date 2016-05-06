@@ -27,7 +27,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.background',
   'esn.aggregator',
   'esn.provider',
-  'esn.dragndrop'
+  'esn.dragndrop',
+  'esn.autolinker-wrapper'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -178,5 +179,17 @@ angular.module('linagora.esn.unifiedinbox', [
           inboxProviders.add(inboxTwitterProvider(account.id));
         });
       }
+    });
+  })
+
+  .run(function(newComposerService, listenToPrefixedWindowMessage, MAILTO_URL_MESSAGE_PREFIX) {
+    listenToPrefixedWindowMessage(MAILTO_URL_MESSAGE_PREFIX, function(emailAddress) {
+      newComposerService.open({
+          to: [{
+            email: emailAddress,
+            name: emailAddress
+          }]
+        }
+      );
     });
   });

@@ -1,6 +1,6 @@
 'use strict';
 
-var messagePrefix = '[linagora.esn.unifiedinbox]',
+var messagePrefix = '[linagora.esn.unifiedinbox.changeDocument]',
     messagePrefixLength = messagePrefix.length;
 
 function getNewDocument(messageData) {
@@ -35,11 +35,24 @@ function setDocument(newDocument) {
   });
 }
 
+function handleClickOnMailtoLinks(event, element) {
+  event.preventDefault();
+  parent.postMessage('[linagora.esn.unifiedinbox.mailtoClick]' + element.href.replace('mailto:', ''), '*');
+}
+
 function onMessageReceived(event) {
   var newDocument = getNewDocument(event.data);
   if (newDocument) {
     setDocument(newDocument);
   }
+  var elements = document.querySelectorAll('a[href^="mailto"]');
+
+  Array.prototype.forEach.call(elements, function(element) {
+    element.onclick = function(event) {
+      handleClickOnMailtoLinks(event, element);
+    };
+  });
+
   window.removeEventListener('message', onMessageReceived, false);
 }
 

@@ -106,6 +106,18 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     };
   })
 
+  .directive('esnStringToDom', function($compile) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        var template = scope.$eval(attrs.esnStringToDom);
+
+        element.html(template);
+        $compile(element.contents())(scope);
+      }
+    };
+  })
+
   .factory('createHtmlElement', function() {
     return function(tag, attributes) {
       var element = document.createElement(tag);
@@ -118,8 +130,43 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     };
   })
 
-  .filter('autolink', function($window) {
-    return function(text) {
-      return $window.Autolinker.link(text, { className: 'autolink' });
+  .filter('autolink', function(autolinker) {
+    return function(input) {
+      return autolinker.link(input, {
+        className: 'autolink',
+
+        replaceFn: function(autolinker, match) {
+          var href = match.getAnchorHref();
+          var text = match.getAnchorText();
+
+          if (match.getType() === 'email') {
+            return '<a op-inbox-compose ng-href="' + href + '" class="autolink">' + text + '</a>';
+          }
+        }
+      });
+    };
+  })
+
+  .factory('listenToPrefixedWindowMessage', function($window) {
+    function isMessagePrefixed(message, prefix) {
+      return prefix === message.substr(0, prefix.length);
+    }
+
+    return function(prefix, callback) {
+      function handler(event) {
+        var message = String(event.data);
+
+        if (isMessagePrefixed(message, prefix)) {
+          event.stopPropagation();
+
+          callback(message.substring(prefix.length));
+        }
+      }
+
+      $window.addEventListener('message', handler, false);
+
+      return function() {
+        $window.removeEventListener('message', handler, false);
+      };
     };
   });
