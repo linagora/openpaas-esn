@@ -87,49 +87,72 @@ describe('The Search Form Angular module', function() {
   });
 
   describe('searchResultController', function() {
-    var $controller, $scope, $stateParams, $q, query, infiniteScrollOnGroupsHelper, infiniteScrollOnGroupsHelperResult, searchProviders, ByTypeElementGroupingTool;
+    var $controller, $scope, $stateParams, $q, query, searchProviders, $rootScope;
 
     function initController() {
       $scope = {};
       $controller('searchResultController', {$scope: $scope});
+      $rootScope.$digest();
+    }
+
+    function buildIterator(list) {
+      var i = 0;
+      return function() {
+        return $q.when({data: list[i++]});
+      };
     }
 
     beforeEach(function() {
       query = {};
       searchProviders = {
         getAll: sinon.spy(function() {
-          return $q.when({});
-        }),
-        getAllProviderNames: sinon.spy()
+          return $q.when([{
+            name: 'cat',
+            loadNextItems: buildIterator([['cat1', 'cat2'], ['cat3', 'cat4']])
+          }, {
+            name: 'dog',
+            loadNextItems: buildIterator([['dog1', 'dog2'], ['dog3', 'dog4']])
+          }]);
+        })
       };
-      infiniteScrollOnGroupsHelperResult = {};
-      infiniteScrollOnGroupsHelper = sinon.stub().returns(infiniteScrollOnGroupsHelperResult);
       $stateParams = {q: query};
-      ByTypeElementGroupingTool = sinon.spy();
       angular.mock.module('esn.search', function($provide) {
         $provide.value('$stateParams', $stateParams);
-        $provide.value('infiniteScrollOnGroupsHelper', infiniteScrollOnGroupsHelper);
         $provide.value('searchProviders', searchProviders);
-        $provide.value('ByTypeElementGroupingTool', ByTypeElementGroupingTool);
+        $provide.constant('ELEMENTS_PER_PAGE', 2);
       });
     });
 
-    beforeEach(inject(function(_$controller_, _ByTypeElementGroupingTool_, _searchProviders_, _$q_) {
+    beforeEach(inject(function(_$controller_, _ByTypeElementGroupingTool_, _searchProviders_, _$q_, _$rootScope_) {
       $controller = _$controller_;
-      initController();
       $q = _$q_;
+      $rootScope = _$rootScope_;
+      initController();
     }));
 
-    describe('$scope.loadMoreElements', function() {
+    it('should have call searchProviders with the correct arguments', function() {
+      expect(searchProviders.getAll).to.have.been.calledWith(query);
+    });
 
-      it('should be the result of infiniteScrollOnGroupsHelper called with correct params', function() {
-        expect($scope.loadMoreElements).to.equal(infiniteScrollOnGroupsHelperResult);
-        expect(infiniteScrollOnGroupsHelper).to.have.been.calledWith($scope, sinon.match.func.and(sinon.match(function(func) {
-          func();
-          expect(searchProviders.getAll).to.have.been.calledWith(query);
+    describe('$scope.groupedElements', function() {
 
-          return true;
-        })), sinon.match.instanceOf(ByTypeElementGroupingTool));
+      it('should contain the name of the group', function() {
+        expect($scope.groupedElements).to.shallowDeepEqual([{name: 'cat'}, {name: 'dog'}]);
+      });
+
+      it('should contain the beginning of the list', function() {
+        expect($scope.groupedElements).to.shallowDeepEqual([{elements: ['cat1', 'cat2']}, {elements: ['dog1', 'dog2']}]);
+      });
+
+      describe('$scope.groupedElements loadMoreElements function', function() {
+        it('should add next elements in getGroupedElements', function() {
+          $scope.groupedElements[0].loadMoreElements();
+          $rootScope.$digest();
+          expect($scope.groupedElements).to.shallowDeepEqual([{elements: ['cat1', 'cat2', 'cat3', 'cat4']}, {elements: ['dog1', 'dog2']}]);
+          $scope.groupedElements[1].loadMoreElements();
+          $rootScope.$digest();
+          expect($scope.groupedElements).to.shallowDeepEqual([{elements: ['cat1', 'cat2', 'cat3', 'cat4']}, {elements: ['dog1', 'dog2', 'dog3', 'dog4']}]);
+        });
       });
     });
   });

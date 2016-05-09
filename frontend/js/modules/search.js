@@ -87,26 +87,20 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   .controller('searchSidebarController', function($scope, searchProviders) {
     $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
-  .controller('searchResultController', function($scope, $stateParams, _, moment, searchProviders, PageAggregatorService, infiniteScrollOnGroupsHelper, ByTypeElementGroupingTool, ELEMENTS_PER_PAGE) {
-    var aggregator;
-    var query = $stateParams.q;
+  .controller('searchResultController', function($scope, $stateParams, searchProviders, infiniteScrollHelper, _) {
+    searchProviders.getAll($stateParams.q).then(function(providers) {
+      $scope.groupedElements = providers.map(function(provider) {
+        var groupSearch = {
+          name: provider.name
+        };
 
-    function load() {
-      return aggregator.loadNextItems().then(_.property('data'));
-    }
-
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, function() {
-      if (aggregator) {
-        return load();
-      }
-
-      return searchProviders.getAll(query).then(function(providers) {
-        aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
-          compare: function(a, b) { return a.start.isBefore(b.start); }, // TODO This is not right for other things than Events.
-          results_per_page: ELEMENTS_PER_PAGE
+        groupSearch.loadMoreElements = infiniteScrollHelper(groupSearch, function() {
+          return provider.loadNextItems().then(_.property('data'));
         });
 
-        return load();
+        groupSearch.loadMoreElements();
+
+        return groupSearch;
       });
-    }, new ByTypeElementGroupingTool(searchProviders.getAllProviderNames()));
+    });
   });
