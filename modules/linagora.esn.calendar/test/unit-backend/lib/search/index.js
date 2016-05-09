@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 var sinon = require('sinon');
 var _ = require('lodash');
+var ObjectId = require('bson').ObjectId;
 
 describe('The calendar search Module', function() {
 
@@ -111,7 +112,8 @@ describe('The calendar search Module', function() {
       var query = {
         search: 'Bruce',
         offset: 10,
-        limit: 100
+        limit: 100,
+        userId: new ObjectId()
       };
 
       deps.elasticsearch.searchDocuments = sinon.spy();
@@ -131,7 +133,8 @@ describe('The calendar search Module', function() {
       var query = {
         search: 'Bruce',
         offset: 10,
-        limit: 100
+        limit: 100,
+        userId: new ObjectId()
       };
 
       deps.elasticsearch.searchDocuments = function(options, callback) {
@@ -147,7 +150,8 @@ describe('The calendar search Module', function() {
       var query = {
         search: 'Bruce',
         offset: 10,
-        limit: 100
+        limit: 100,
+        userId: new ObjectId()
       };
       var total = 10;
       var hits = [{_id: 1}, {_id: 2}];

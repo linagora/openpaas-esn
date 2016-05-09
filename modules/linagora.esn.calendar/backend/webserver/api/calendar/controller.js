@@ -140,7 +140,47 @@ function changeParticipation(req, res) {
 }
 
 function searchEvents(req, res) {
+  var query = {
+    search: req.query.query,
+    limit: req.query.limit,
+    offset: req.query.offset,
+    userId: req.user._id,
+    calendarId: req.params.calendarId
+  };
 
+  calendar.searchEvents(query, function(err, eventsData) {
+    if (err) {
+      return res.status(500).json({error: {code: 500, message: 'Error while searching for events', details: err.message}});
+    }
+
+    var davItems = [];
+    var json = {
+      _links: {
+        self: {
+          href: req.originalUrl
+        }
+      },
+      _total_hits: eventsData.total_count,
+      _embedded: {
+        'dav:item': davItems
+      }
+    };
+    res.header('X-ESN-Items-Count', eventsData.total_count);
+
+    eventsData.results.forEach(function(eventData) {
+      if (eventData.error) {
+        return logger.error('The search cannot fetch event', eventData.eventUid, eventData.error);
+      }
+      davItems.push({
+        _links: {
+          self: eventData.path
+        },
+        data: eventData.event
+      });
+    });
+
+    return res.status(200).json(json);
+  });
 }
 
 module.exports = function(dependencies) {

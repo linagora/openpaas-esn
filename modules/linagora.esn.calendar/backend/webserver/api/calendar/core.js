@@ -17,7 +17,9 @@ var eventMessage,
     collaborationPermission,
     contentSender,
     jwt,
-    configHelpers;
+    configHelpers,
+    searchModule,
+    caldavClient;
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -325,6 +327,42 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
   });
 }
 
+function searchEvents(query, callback) {
+  searchModule.searchEvents(query, function(err, esResult) {
+    if (err) {
+      return callback(err);
+    }
+    var output = {
+      total_count: esResult.total_count,
+      results: []
+    };
+
+    if (!esResult.list || esResult.list.length === 0) {
+      return callback(null, output);
+    }
+
+    var eventPromises = esResult.list.map(function(esEvent, index) {
+      var eventUid = esEvent._id;
+      return caldavClient.getEvent(query.userId, query.calendarId, eventUid).then(function(event) {
+        output.results[index] = {
+          uid: eventUid,
+          path: caldavClient.getEventPath(query.userId, query.calendarId, eventUid),
+          event: event
+        };
+      }, function(error) {
+        output.results[index] = {
+          uid: eventUid,
+          error: error
+        };
+      });
+    });
+
+    q.allSettled(eventPromises).finally(function() {
+      callback(null, output);
+    });
+  });
+}
+
 module.exports = function(dependencies) {
   eventMessage = require('./../../../lib/message/eventmessage.core')(dependencies);
   i18n = require('../../../lib/i18n')(dependencies);
@@ -339,10 +377,13 @@ module.exports = function(dependencies) {
   collaborationPermission = dependencies('collaboration').permission;
   contentSender = dependencies('content-sender');
   jwt = dependencies('auth').jwt;
+  searchModule = require('../../../lib/search')(dependencies);
+  caldavClient = require('../../../lib/caldav-client')(dependencies);
 
   return {
     dispatch: dispatch,
     inviteAttendees: inviteAttendees,
-    generateActionLinks: generateActionLinks
+    generateActionLinks: generateActionLinks,
+    searchEvents: searchEvents
   };
 };

@@ -17,6 +17,10 @@ describe('The calendar core module', function() {
   var contentSenderMock;
   var configMock;
   var authMock;
+  var searchLibMock;
+  var searchLibModule;
+  var caldavClientMock;
+  var caldavClientLib;
 
   function initMock() {
     collaborationMock = {
@@ -89,11 +93,21 @@ describe('The calendar core module', function() {
         }
       }
     };
+    searchLibMock = {};
+    searchLibModule = function() {
+      return searchLibMock;
+    };
+    caldavClientMock = {};
+    caldavClientLib = function() {
+      return caldavClientMock;
+    };
   }
 
   beforeEach(function() {
     initMock();
     mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
+    mockery.registerMock('../../../lib/search', searchLibModule);
+    mockery.registerMock('../../../lib/caldav-client', caldavClientLib);
     this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
     this.moduleHelpers.addDep('user', userMock);
     this.moduleHelpers.addDep('collaboration', collaborationMock);
@@ -814,6 +828,65 @@ describe('The calendar core module', function() {
         this.getFilter({allDay: true, durationInDays: 1}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.false;
         });
+      });
+    });
+  });
+
+  describe('the searchEvents function', function() {
+    beforeEach(function() {
+      this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
+    });
+
+    it('should call the search module with good params and fail if it fails', function() {
+      var query = {
+        search: 'search',
+        limit: '50',
+        offset: 100
+      };
+      searchLibMock.searchEvents = function(q, callback) {
+        expect(q).to.deep.equal(query);
+        return callback(new Error());
+      };
+
+      this.module.searchEvents(query, function(err, results) {
+        expect(err).to.exist;
+        expect(results).to.not.exist;
+      });
+    });
+
+    it('should call the search module with good params and return the events retireved through the caldav-client', function(done) {
+      var query = {
+        search: 'search',
+        userId: 'userId',
+        calendarId: 'calendarId'
+      };
+      var esResult = {
+        total_count: 3,
+        list: [{_id: 'event1'}, {_id: 'event2'}, {_id: 'event3'}]
+      };
+      searchLibMock.searchEvents = function(q, callback) {
+        expect(q).to.deep.equal(query);
+        return callback(null, esResult);
+      };
+      caldavClientMock.getEvent = sinon.stub();
+      caldavClientMock.getEvent.onFirstCall().returns(q.when('event1')).onSecondCall().returns(q.reject('error2')).onThirdCall().returns(q.when('event3'));
+
+      caldavClientMock.getEventPath = sinon.stub();
+      caldavClientMock.getEventPath.onFirstCall().returns('event1path').onSecondCall().returns('event3path');
+
+      this.module.searchEvents(query, function(err, results) {
+        expect(err).to.not.exist;
+        [0, 1, 2].forEach(function(i) {expect(caldavClientMock.getEvent).to.have.been.calledWith(query.userId, query.calendarId, esResult.list[i]._id);});
+        [0, 2].forEach(function(i) {expect(caldavClientMock.getEventPath).to.have.been.calledWith(query.userId, query.calendarId, esResult.list[i]._id);});
+        expect(results).to.deep.equal({
+          total_count: esResult.total_count,
+          results: [
+            { uid: 'event1', event: 'event1', path: 'event1path'},
+            { uid: 'event2', error: 'error2'},
+            { uid: 'event3', event: 'event3', path: 'event3path'}
+          ]
+        });
+        done();
       });
     });
   });

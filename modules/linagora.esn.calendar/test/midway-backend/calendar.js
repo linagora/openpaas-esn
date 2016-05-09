@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
+var fs = require('fs');
 
 describe('The calendars API', function() {
   var user, user2, user3, domain, community;
@@ -299,6 +300,83 @@ describe('The calendars API', function() {
         });
         req.expect(200, done);
       });
+    });
+  });
+
+  describe('/api/calendars/:calendarId/events.json', function() {
+    var localpubsub, message;
+
+    var search = function(term, expectedSize, done) {
+      var self = this;
+      localpubsub.topic('events:event:add').publish(message);
+
+      this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+
+        self.helpers.elasticsearch.checkDocumentsIndexed({index: 'events.idx', type: 'events', ids: [message.eventUid]}, function(err) {
+          if (err) {
+            return done(err);
+          }
+          var req = requestAsMember(request(self.app).get('/api/calendars/' + message.calendarId + '/events.json'));
+          req.query({query: term}).expect(200).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(String(expectedSize));
+            done();
+          });
+        });
+      });
+    };
+
+    beforeEach(function() {
+      var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
+      expressApp.use('/', this.helpers.modules.current.lib.api.calendar);
+      this.app = this.helpers.modules.getWebServer(expressApp);
+      require('../../backend/lib/search')(this.helpers.modules.current.deps).listen();
+    });
+
+    beforeEach(function(done) {
+      localpubsub = this.helpers.requireBackend('core/pubsub').local;
+      message = {
+        userId: user._id,
+        calendarId: 'myCalendar',
+        eventUid: '8f043139-d7c3-4bf3-bf9d-eb31d4b067bf'
+      };
+      message.ics = fs.readFileSync(__dirname + '/fixtures/completeMeeting.ics').toString('utf8');
+      this.helpers.redis.publishConfiguration();
+      this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
+    });
+
+    it('should return nothing with non matching string', function(done) {
+      search.bind(this)('anonmatchingstring', 0, done);
+    });
+
+    it('should return nothing with empty string', function(done) {
+      search.bind(this)('', 0, done);
+    });
+
+    it('should return event with matching summary', function(done) {
+      search.bind(this)('withuser012edi', 1, done);
+    });
+
+    it('should return event with matching description', function(done) {
+      search.bind(this)('Lunch', 1, done);
+    });
+
+    it('should return event with matching organizer', function(done) {
+      search.bind(this)('robert', 1, done);
+    });
+
+    it('should return event with matching attendees', function(done) {
+      var self = this;
+      var searchFunctions = ['first0', 'last1', 'user2', 'Edinson'].map(function(attendee) {
+        return function(callback) {
+          search.bind(self)(attendee, 1, callback);
+        };
+      });
+      async.parallel(searchFunctions, done);
     });
   });
 });

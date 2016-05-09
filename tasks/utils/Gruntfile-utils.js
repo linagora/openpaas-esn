@@ -396,6 +396,20 @@ GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
   };
 };
 
+GruntfileUtils.prototype.setupElasticsearchEventsIndex = function() {
+  var grunt = this.grunt;
+  var servers = this.servers;
+
+  return function() {
+    var done = this.async();
+    var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
+    esnConf.createIndex('events').then(function() {
+      grunt.log.write('Elasticsearch events settings are successfully added');
+      done(true);
+    }, done);
+  };
+};
+
 GruntfileUtils.prototype.stopSeleniumServer = function() {
   var grunt = this.grunt;
 

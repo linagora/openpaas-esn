@@ -167,7 +167,6 @@ Search for events in Elasticsearch
         }
       },
       "_total_hits": 1,
-      "_current_page": 1,
       "_embedded": {
         "dav:item": [
           {
