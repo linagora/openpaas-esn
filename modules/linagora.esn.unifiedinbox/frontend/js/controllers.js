@@ -203,7 +203,7 @@ angular.module('linagora.esn.unifiedinbox')
     }.bind(this));
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxEmailService, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
 
     withJmapClient(function(client) {
       client
@@ -229,11 +229,17 @@ angular.module('linagora.esn.unifiedinbox')
         });
     });
 
-    ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+    ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
         inboxThreadService[action]($scope.thread);
       };
     }.bind(this));
+
+    this.markAsUnread = function() {
+      inboxThreadService.markAsUnread($scope.thread).then(function() {
+        $state.go('^');
+      });
+    };
 
     ['reply', 'replyAll', 'forward'].forEach(function(action) {
       this[action] = function() {

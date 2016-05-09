@@ -94,7 +94,7 @@ angular.module('esn.actionList', [])
             event.stopImmediatePropagation();
             event.preventDefault();
 
-            controller.open(scope);
+            controller.open();
           });
         }
 

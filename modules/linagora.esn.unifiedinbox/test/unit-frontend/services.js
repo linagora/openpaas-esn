@@ -3228,16 +3228,6 @@ describe('The Unified Inbox Angular module services', function() {
         expect(jmapEmailService.setFlag).to.have.been.calledWith({ id: '1' }, 'isUnread', true);
       });
 
-      it('should should update location to the parent mailbox when the thread was successfully marked as unread', function() {
-        jmapEmailService.setFlag = function() {
-          return $q.when();
-        };
-
-        inboxThreadService.markAsUnread({ id: '1' });
-        $rootScope.$digest();
-
-        expect($state.go).to.have.been.calledWithExactly('^');
-      });
     });
 
     describe('The markAsRead function', function() {
@@ -3494,6 +3484,32 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
 
         expect(handlersMock.markAsRead).to.have.been.calledOnce;
+      });
+
+    });
+
+    describe('The createSwipeLeftHandler fn', function() {
+
+      var swipeLeftHandler;
+      var scopeMock, handlersMock;
+
+      beforeEach(function() {
+        scopeMock = $rootScope.$new();
+        scopeMock.swipeClose = sinon.spy();
+        handlersMock = sinon.spy();
+
+        swipeLeftHandler = inboxSwipeHelper.createSwipeLeftHandler(scopeMock, handlersMock);
+      });
+
+      it('should return a function', function() {
+        expect(swipeLeftHandler).to.be.a.function;
+      });
+
+      it('should return a function to close swipe after a timeout', function() {
+        swipeLeftHandler();
+        $timeout.flush();
+
+        expect(scopeMock.swipeClose).to.have.been.calledOnce;
       });
 
     });

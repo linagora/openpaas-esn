@@ -842,6 +842,18 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(_.pluck(scope.thread.emails, 'isCollapsed')).to.deep.equal([false, false, false]);
     });
 
+    describe('The markAsUnread fn', function() {
+      it('should mark thread as unread then update location to parent state', function() {
+        var controller = initController('viewThreadController');
+
+        controller.markAsUnread();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(scope.thread.setIsUnread).to.have.been.calledWith(true);
+      });
+    });
+
   });
 
   describe('The listThreadsController', function() {

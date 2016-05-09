@@ -31,7 +31,7 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('inboxThreadListItem', function($state, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
     return {
       restrict: 'E',
-      controller: function($scope) {
+      controller: function($scope, $element) {
         this.openThread = function(thread) {
           if (thread.email.isDraft) {
             newComposerService.openDraft(thread.email.id);
@@ -43,10 +43,19 @@ angular.module('linagora.esn.unifiedinbox')
           }
         };
 
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+          this[action] = function() {
+            inboxThreadService[action]($scope.item);
+          };
+        }.bind(this));
+
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
           markAsRead: function() {
             return inboxThreadService.markAsRead($scope.item.email);
           }
+        });
+        $scope.onSwipeLeft = inboxSwipeHelper.createSwipeLeftHandler($scope, function() {
+          $element.controller('actionList').open();
         });
       },
       controllerAs: 'ctrl',
