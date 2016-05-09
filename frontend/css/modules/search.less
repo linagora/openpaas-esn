@@ -1,3 +1,6 @@
+@searchInputHeight: 35px;
+@searchHeaderBackground: darken(@primaryColor, 3%);
+
 .listview.search-desktop-sidebar {
   .fg-line {
     top: -6px;
@@ -87,7 +90,7 @@ search-header-form {
   .search-input {
     z-index: 2;
     top: 0;
-    height: @contact-toolbar-item-height;
+    height: @searchInputHeight;
     background: rgba(0, 0, 0, 0);
     input[type="text"] {
       font-size: 18px;
@@ -136,7 +139,7 @@ search-header-form {
   width: 100%;
   left: 0;
   right: 0;
-  background: @contact-subheader-background;
+  background: @searchHeaderBackground;
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
   padding: 5px 10px;
   color: @textPrimaryColor;
