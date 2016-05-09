@@ -1,7 +1,7 @@
 sub-header
   block subheader
 
-infinite-list.list-emails
+infinite-list(load-more-elements='loadMoreElements()').list-emails
 
   .groupedEmails(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
     .block-header

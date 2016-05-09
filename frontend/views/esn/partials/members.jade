@@ -9,7 +9,7 @@
         .row.alert.alert-danger(ng-show="error", role="alert")
           p #{__('Error while searching members')}.
     div
-      infinite-list
+      infinite-list(load-more-elements='loadMoreElements()')
         .row(ng-repeat="member in members")
           hr
           member-display(member="member")
