@@ -178,13 +178,8 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
 
     return ByDateElementGroupingTool;
   })
-
-  .factory('infiniteScrollOnGroupsHelper', function($q,  _, ELEMENTS_PER_PAGE) {
-    return function(scope, loadNextItems, elementGroupingTool) {
-      var groups = elementGroupingTool;
-
-      scope.groupedElements = groups.getGroupedElements();
-
+  .factory('infiniteScrollHelperBuilder', function($q, ELEMENTS_PER_PAGE) {
+    return function(scope, loadNextItems, updateScope) {
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
           return $q.reject();
@@ -194,16 +189,17 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
 
         return loadNextItems()
           .then(function(elements) {
-            if (elements) {
-              groups.addAll(elements);
+            if (!elements || !elements.length) {
+              scope.infiniteScrollCompleted = true;
+
+              return $q.reject(new Error('No more element'));
             }
+
+            updateScope(elements);
+
             elements = elements || [];
             if (elements.length < ELEMENTS_PER_PAGE) {
               scope.infiniteScrollCompleted = true;
-            }
-
-            if (!elements.length) {
-              return $q.reject('No more element');
             }
 
             return elements;
@@ -212,5 +208,28 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             scope.infiniteScrollDisabled = false;
           });
       };
+    };
+  })
+  .factory('infiniteScrollHelper', function(infiniteScrollHelperBuilder) {
+    return function(scope, loadNextItems) {
+
+      scope.elements = scope.elements || [];
+
+      return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
+        newElements.forEach(function(element) {
+          scope.elements.push(element);
+        });
+      });
+    };
+  })
+  .factory('infiniteScrollOnGroupsHelper', function(infiniteScrollHelperBuilder) {
+    return function(scope, loadNextItems, elementGroupingTool) {
+      var groups = elementGroupingTool;
+
+      scope.groupedElements = groups.getGroupedElements();
+
+      return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
+        groups.addAll(newElements);
+      });
     };
   });
