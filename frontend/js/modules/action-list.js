@@ -7,22 +7,21 @@ angular.module('esn.actionList', [])
 
     return {
       restrict: 'A',
-      link: function(scope, element, attrs) {
+      controller: function($scope, $element, $attrs) {
         var boundOpenFn, dialogLock;
 
         function hide() {
           dialogOpened && dialogOpened.hide();
         }
 
-        function destroy() {
-          if (isDialogOfThisScope() && !dialogOpened.$isShown) {
-            dialogOpened.destroy();
-            dialogLock && dialogLock.destroy();
+        function handleWindowResizement() {
+          if (isDialogOpened()) {
+            boundOpenFn();
           }
         }
 
         function isDialogOfThisScope() {
-          return dialogOpened && dialogOpened.scope === scope;
+          return dialogOpened && dialogOpened.scope === $scope;
         }
 
         function isDialogOpened() {
@@ -32,43 +31,34 @@ angular.module('esn.actionList', [])
         function openForMobile() {
           hide();
           dialogOpened = $modal({
-            scope: scope,
-            template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionList + '\'"></div></div>',
+            scope: $scope,
+            template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + $attrs.actionList + '\'"></div></div>',
             placement: 'center',
             prefixEvent: 'action-list'
           });
 
-          dialogOpened.scope = scope;
+          dialogOpened.scope = $scope;
         }
 
         function openForDesktop() {
           hide();
-          dialogOpened = $popover(element, {
-            scope: scope,
+          dialogOpened = $popover($element, {
+            scope: $scope,
             trigger: 'manual',
             show: true,
             prefixEvent: 'action-list',
             autoClose: true,
-            template: '<div class="action-list-container popover"><div class="popover-content" ng-include="\'' + attrs.actionList + '\'"></div></div>',
+            template: '<div class="action-list-container popover"><div class="popover-content" ng-include="\'' + $attrs.actionList + '\'"></div></div>',
             html: false,
             placement: 'bottom-right',
             animation: 'am-fade',
-            container: element
+            container: $element
           });
 
-          dialogOpened.scope = scope;
+          dialogOpened.scope = $scope;
         }
 
-        function handleWindowResizement() {
-          if (isDialogOpened()) {
-            boundOpenFn();
-          }
-        }
-
-        element.click(function(event) {
-          event.stopImmediatePropagation();
-          event.preventDefault();
-
+        this.open = function() {
           boundOpenFn = screenSize.is('xs, sm') ? openForMobile : openForDesktop;
 
           if (isDialogOpened()) {
@@ -88,11 +78,25 @@ angular.module('esn.actionList', [])
               handleWindowResizement();
             }
           });
+        };
+
+        this.destroy = function() {
+          if (isDialogOfThisScope() && !dialogOpened.$isShown) {
+            dialogOpened.destroy();
+            dialogLock && dialogLock.destroy();
+          }
+        };
+      },
+      link: function(scope, element, attrs, controller) {
+        element.click(function(event) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+
+          controller.open(scope);
         });
 
-        scope.$on('action-list.hide', destroy);
-
-        scope.$on('$destroy', destroy);
+        scope.$on('action-list.hide', controller.destroy);
+        scope.$on('$destroy', controller.destroy);
       }
     };
   });
