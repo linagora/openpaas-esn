@@ -64,6 +64,44 @@ function _registerNewAlarm(context, dbStorage) {
   });
 }
 
+function _registerNewReccuringAlarm(context, dbStorage) {
+  function job(callback) {
+    logger.info('Try sending event alarm email to', context.email);
+    _sendAlarmEmail(context.ics, context.email).then(function() {
+      var vcalendar = ICAL.Component.fromString(context.ics);
+      var vevent = vcalendar.getFirstSubcomponent('vevent');
+      var valarm = vevent.getFirstSubcomponent('valarm');
+      var trigger = valarm.getFirstPropertyValue('trigger');
+      var triggerDuration = moment.duration(trigger);
+
+      var expandStart = moment().add(triggerDuration).format();
+      expandStart = new Date(expandStart);
+      expandStart = new Date(expandStart.getTime() + 60000);
+      expandStart = new ICAL.Time.fromDateTimeString(expandStart.toISOString());
+      var expand = new ICAL.RecurExpansion({
+        component: vevent,
+        dtstart: expandStart
+      });
+      var nextInstance = expand.next();
+
+      if (nextInstance) {
+        context.alarmDueDate = nextInstance.clone().add(triggerDuration).format();
+        _registerNewReccuringAlarm(context, dbStorage);
+      }
+
+      callback();
+    }, callback);
+  }
+  var alarmDueDate = moment(context.alarmDueDate).toDate();
+  cron.submit('Will send an event alarm once at ' + alarmDueDate.toString() + ' to ' + context.email, alarmDueDate, job, context, {dbStorage: dbStorage}, function(err, job) {
+    if (err) {
+      logger.error('Error while submitting the job send alarm email', err);
+    } else {
+      logger.info('Job send alarm email has been submitted', job);
+    }
+  });
+}
+
 function _onCreate(msg) {
   var vcalendar = new ICAL.Component(msg.event);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
@@ -91,7 +129,11 @@ function _onCreate(msg) {
     email: alarm.email
   };
   logger.info('Register new event alarm email for', alarm.email, 'at', alarm.alarmDueDate.clone().local().format());
-  _registerNewAlarm(context, true);
+  if (new ICAL.Event(vevent).isRecurring()) {
+    _registerNewReccuringAlarm(context, true);
+  } else {
+    _registerNewAlarm(context, true);
+  }
 }
 
 function _onDelete(msg) {
