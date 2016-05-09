@@ -75,6 +75,7 @@ module.exports = function(config) {
       'frontend/components/jquery.focus/dist/jquery.focus.js',
       'frontend/components/angular-feature-flags/dist/featureFlags.js',
       'frontend/components/angular-auto-focus/angular-auto-focus.js',
+      'frontend/components/awesome-angular-swipe/lib/awesome-angular-swipe.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',
