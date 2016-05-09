@@ -33,7 +33,7 @@ angular.module('esn.actionList', [])
           hide();
           dialogOpened = $modal({
             scope: scope,
-            template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
+            template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + attrs.actionList + '\'"></div></div>',
             placement: 'center',
             prefixEvent: 'action-list'
           });
@@ -49,7 +49,7 @@ angular.module('esn.actionList', [])
             show: true,
             prefixEvent: 'action-list',
             autoClose: true,
-            template: '<div class="action-list-container popover"><div class="popover-content" ng-include="\'' + attrs.actionListUrl + '\'"></div></div>',
+            template: '<div class="action-list-container popover"><div class="popover-content" ng-include="\'' + attrs.actionList + '\'"></div></div>',
             html: false,
             placement: 'bottom-right',
             animation: 'am-fade',
@@ -93,7 +93,6 @@ angular.module('esn.actionList', [])
         scope.$on('action-list.hide', destroy);
 
         scope.$on('$destroy', destroy);
-
       }
     };
   });

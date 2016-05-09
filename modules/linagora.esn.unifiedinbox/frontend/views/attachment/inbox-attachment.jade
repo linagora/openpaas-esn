@@ -5,5 +5,5 @@
     .name.ellipsis {{ ::attachment.name }}
     .size {{ ::attachment.size | bytes }}
   .actions
-    a(href='', action-list, action-list-url="/unifiedinbox/views/attachment/attachment-action-list.html" title="#{__('More')}")
+    a(href='', action-list="/unifiedinbox/views/attachment/attachment-action-list.html", title="#{__('More')}")
       i.mdi.mdi-dots-vertical

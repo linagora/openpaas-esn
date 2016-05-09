@@ -213,7 +213,7 @@ describe('directive : action-list', function() {
     screenSize.is = function() {
       return true;
     };
-    this.initDirective('<button action-list action-list-url="expected-url.html">Click Me</button>');
+    this.initDirective('<button action-list="expected-url.html">Click Me</button>');
     element.click();
 
     expect($modal).to.have.been.calledWith(sinon.match({
@@ -225,7 +225,7 @@ describe('directive : action-list', function() {
     screenSize.is = function() {
       return false;
     };
-    this.initDirective('<button action-list action-list-url="expected-url.html">Click Me</button>');
+    this.initDirective('<button action-list="expected-url.html">Click Me</button>');
     element.click();
 
     expect($popover).to.have.been.calledWith(sinon.match.any, sinon.match({

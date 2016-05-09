@@ -7,7 +7,7 @@ sub-header
       inbox-header-back-button
       .header-label {{ ::thread.subject }}
       div
-        button.btn.btn-primary(type='button', action-list, action-list-url='/unifiedinbox/views/thread/view/action-list.html', title="#{__('More')}")
+        button.btn.btn-primary(type='button', action-list='/unifiedinbox/views/thread/view/action-list.html', title="#{__('More')}")
           | #{__(' More')}
           i.mdi.mdi-dots-vertical
 
