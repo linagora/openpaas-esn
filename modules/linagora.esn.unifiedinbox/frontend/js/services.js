@@ -827,7 +827,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsRead(email) {
-      jmapEmailService.setFlag(email, 'isUnread', false);
+      return jmapEmailService.setFlag(email, 'isUnread', false);
     }
 
     function markAsFlagged(email) {
@@ -860,7 +860,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsRead(thread) {
-      jmapEmailService.setFlag(thread, 'isUnread', false);
+      return jmapEmailService.setFlag(thread, 'isUnread', false);
     }
 
     function markAsUnread(thread) {
@@ -930,5 +930,22 @@ angular.module('linagora.esn.unifiedinbox')
 
     return {
       uploadFile: uploadFile
+    };
+  })
+
+  .factory('inboxSwipeHelper', function($timeout, inboxConfig, INBOX_SWIPE_DURATION) {
+    function createSwipeRightHandler(scope, handlers) {
+      return function() {
+        $timeout(scope.swipeClose, INBOX_SWIPE_DURATION, false);
+
+        return inboxConfig('swipeRightAction', 'markAsRead')
+          .then(function(action) {
+            return handlers[action]();
+          });
+      };
+    }
+
+    return {
+      createSwipeRightHandler: createSwipeRightHandler
     };
   });

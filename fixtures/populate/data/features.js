@@ -15,6 +15,7 @@ module.exports = function(domains) {
   var api = 'http://' + host + ':' + port + '/' + path;
   var uploadUrl = process.env.JMAP_UPLOAD_URL || api + '/upload';
   var view = process.env.JMAP_VIEW || 'messages';
+  var swipeRightAction = process.env.JMAP_SWIPE_RIGHT_ACTION || 'markAsRead';
 
   function createInboxFeature() {
     var promises = domains.map(function(domain) {
@@ -53,6 +54,9 @@ module.exports = function(domains) {
             }, {
               name: 'view',
               value: view
+            }, {
+              name: 'swipeRightAction',
+              value: swipeRightAction
             }
           ]
         }]

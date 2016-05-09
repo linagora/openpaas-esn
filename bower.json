@@ -95,7 +95,8 @@
     "angular-feature-flags": "~1.0.0",
     "angular-auto-focus": "~1.0.4",
     "Autolinker.js": "^0.24.1",
-    "angular-web-notification": "^0.0.66"
+    "angular-web-notification": "^0.0.66",
+    "awesome-angular-swipe": "https://github.com/linagora/awesome-angular-swipe.git#59f369eab7ddb8d68177a12c1531138224d28ecf"
   },
   "resolutions": {
     "jquery": "2.1.1",

@@ -72,7 +72,8 @@ angular.module('esnApp', [
   'esn.application-menu',
   'esn.router',
   'esn.beforeunload',
-  'esn.configuration'
+  'esn.configuration',
+  'awesome-angular-swipe'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...

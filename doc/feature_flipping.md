@@ -74,3 +74,9 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
     "value" : false
 }
 ```
+```
+{
+    "name" : "swipeRightAction",
+    "value" : "" (default: "markAsRead")
+}
+```

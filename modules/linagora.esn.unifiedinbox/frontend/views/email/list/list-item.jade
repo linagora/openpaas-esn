@@ -1,7 +1,7 @@
-.clickable(ng-click="ctrl.openEmail(item)")
+.clickable.swipe(ng-click="ctrl.openEmail(item)", swipe-right="onSwipeRight", icon-left="mdi-check")
   .list-image.badge-container
     img(ng-src='/images/user.png')
-  .media-body(ng-class="::{bold: item.isUnread}")
+  .media-body(ng-class="{bold: item.isUnread}")
     .flex-space-between
       .lv-title.ellipsis {{ ::item.subject}}
       .date-container {{ ::item.date | date: group.dateFormat }}
