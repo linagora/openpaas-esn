@@ -87,7 +87,7 @@ describe('The Search Form Angular module', function() {
   });
 
   describe('searchResultController', function() {
-    var $controller, $scope, $stateParams, $q, query, infiniteScrollHelper, infiniteScrollHelperResult, searchProviders, ByTypeElementGroupingTool;
+    var $controller, $scope, $stateParams, $q, query, infiniteScrollOnGroupsHelper, infiniteScrollOnGroupsHelperResult, searchProviders, ByTypeElementGroupingTool;
 
     function initController() {
       $scope = {};
@@ -102,13 +102,13 @@ describe('The Search Form Angular module', function() {
         }),
         getAllProviderNames: sinon.spy()
       };
-      infiniteScrollHelperResult = {};
-      infiniteScrollHelper = sinon.stub().returns(infiniteScrollHelperResult);
+      infiniteScrollOnGroupsHelperResult = {};
+      infiniteScrollOnGroupsHelper = sinon.stub().returns(infiniteScrollOnGroupsHelperResult);
       $stateParams = {q: query};
       ByTypeElementGroupingTool = sinon.spy();
       angular.mock.module('esn.search', function($provide) {
         $provide.value('$stateParams', $stateParams);
-        $provide.value('infiniteScrollHelper', infiniteScrollHelper);
+        $provide.value('infiniteScrollOnGroupsHelper', infiniteScrollOnGroupsHelper);
         $provide.value('searchProviders', searchProviders);
         $provide.value('ByTypeElementGroupingTool', ByTypeElementGroupingTool);
       });
@@ -122,9 +122,9 @@ describe('The Search Form Angular module', function() {
 
     describe('$scope.loadMoreElements', function() {
 
-      it('should be the result of infiniteScrollHelper called with correct params', function() {
-        expect($scope.loadMoreElements).to.equal(infiniteScrollHelperResult);
-        expect(infiniteScrollHelper).to.have.been.calledWith($scope, sinon.match.func.and(sinon.match(function(func) {
+      it('should be the result of infiniteScrollOnGroupsHelper called with correct params', function() {
+        expect($scope.loadMoreElements).to.equal(infiniteScrollOnGroupsHelperResult);
+        expect(infiniteScrollOnGroupsHelper).to.have.been.calledWith($scope, sinon.match.func.and(sinon.match(function(func) {
           func();
           expect(searchProviders.getAll).to.have.been.calledWith(query);
 

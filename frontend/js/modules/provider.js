@@ -179,7 +179,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     return ByDateElementGroupingTool;
   })
 
-  .factory('infiniteScrollHelper', function($q,  _, ELEMENTS_PER_PAGE) {
+  .factory('infiniteScrollOnGroupsHelper', function($q,  _, ELEMENTS_PER_PAGE) {
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
 

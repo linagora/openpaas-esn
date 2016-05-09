@@ -310,8 +310,8 @@ describe('The esn.provider module', function() {
     });
   });
 
-  describe('infiniteScrollHelper', function() {
-    var ELEMENTS_PER_PAGE, infiniteScrollHelper, $q, $rootScope;
+  describe('infiniteScrollOnGroupsHelper', function() {
+    var ELEMENTS_PER_PAGE, infiniteScrollOnGroupsHelper, $q, $rootScope;
 
     beforeEach(function() {
       ELEMENTS_PER_PAGE = 3;
@@ -320,8 +320,8 @@ describe('The esn.provider module', function() {
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_) {
-      infiniteScrollHelper = _infiniteScrollHelper_;
+    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_) {
+      infiniteScrollOnGroupsHelper = _infiniteScrollOnGroupsHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
     }));
@@ -343,7 +343,7 @@ describe('The esn.provider module', function() {
           addAll: sinon.spy()
         };
 
-        resultingIterator = infiniteScrollHelper(scope, sourceIterator, elementGroupingTool);
+        resultingIterator = infiniteScrollOnGroupsHelper(scope, sourceIterator, elementGroupingTool);
       });
 
       function iteratorToList(iterator, betweenEachStep) {
