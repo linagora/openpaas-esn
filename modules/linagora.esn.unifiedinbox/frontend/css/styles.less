@@ -97,20 +97,8 @@
   margin-right: 5px;
 }
 
-@media (min-width: @screen-sm-min) {
-
-  .inbox-main-content, .inbox-desktop-menu {
-
-    .clickable:hover {
-      color: @text-color;
-    }
-
-  }
-
-}
-
 .inbox-main-col {
-  margin-top: 25px;
+  margin-top: 0;
 
   .card {
     margin-bottom: 20px;
@@ -126,4 +114,20 @@
       text-transform: capitalize;
     }
   }
+}
+
+@media (min-width: @screen-sm-min) {
+
+  .inbox-main-content, .inbox-desktop-menu {
+
+    .clickable:hover {
+      color: @text-color;
+    }
+
+  }
+
+  .inbox-main-col {
+    margin-top: 25px;
+  }
+
 }
