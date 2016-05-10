@@ -190,7 +190,7 @@ angular.module('esnApp', [
         controller: 'searchSidebarController'
       },
       'search-result': {
-        templateUrl: '/views/modules/search/result',
+        templateUrl: '/views/modules/search/search-result',
         controller: 'searchResultController'
       }
     }
