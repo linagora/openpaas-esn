@@ -60,6 +60,9 @@ describe('The eventUtils service', function() {
     angular.mock.module('ngSanitize');
     angular.mock.module(function($provide) {
       $provide.value('session', asSession);
+      $provide.factory('eventsProviders', function($q) {
+        return $q.when([]);
+      });
       $provide.value('calendarService', calendarService);
       $provide.value('$sanitize', sanitizeMock);
     });

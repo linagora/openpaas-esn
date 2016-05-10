@@ -122,16 +122,16 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Search all events depending of the query parameter, in the calendar home.
-     * @param  {[type]} calendarHomeId The calendar home id.
+     * Search all events depending of the query parameter, in a calendar.
+     * @param  {[type]} calendarId     The calendar id.
      * @param  {[type]} options        The query parameters {query: '', limit: 20, offset: 0}
      * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
      */
-    function searchEvents(calendarHomeId, options) {
-      return calendarAPI.searchEvents(calendarHomeId, options)
+    function searchEvents(calendarId, options) {
+      return calendarAPI.searchEvents(calendarId, options)
         .then(function(events) {
           return events.reduce(function(shells, icaldata) {
-            var vcalendar = new ICAL.Component(icaldata.data);
+            var vcalendar = ICAL.Component.fromString(icaldata.data);
             var vevents = vcalendar.getAllSubcomponents('vevent');
             vevents.forEach(function(vevent) {
               var shell = new CalendarShell(vevent, {path: icaldata._links.self.href, etag: icaldata.etag});

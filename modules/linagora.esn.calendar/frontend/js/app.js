@@ -173,6 +173,10 @@ angular.module('esn.calendar', [
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
   })
-  .run(function(searchProviders, eventsProvider) {
-    searchProviders.add(eventsProvider);
+  .run(function(searchProviders, eventsProviders) {
+    eventsProviders.then(function(eventsProviders) {
+      eventsProviders.forEach(function(eventsProvider) {
+        searchProviders.add(eventsProvider);
+      });
+    });
   });
