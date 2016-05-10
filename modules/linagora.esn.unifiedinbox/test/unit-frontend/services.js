@@ -3131,17 +3131,6 @@ describe('The Unified Inbox Angular module services', function() {
         expect(jmapEmailService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
       });
 
-      it('should update location to the parent mailbox when the message was successfully marked as unread', function() {
-        jmapEmailService.setFlag = function() {
-          return $q.when();
-        };
-
-        inboxEmailService.markAsUnread({});
-        $rootScope.$digest();
-
-        expect($state.go).to.have.been.calledWithExactly('^');
-      });
-
     });
 
     describe('The markAsRead function', function() {

@@ -929,26 +929,31 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxSwipeHelper', function($timeout, inboxConfig, INBOX_SWIPE_DURATION) {
-    function autoCloseSwipeHandler(scope, action) {
-      return function() {
-        $timeout(scope.swipeClose, INBOX_SWIPE_DURATION, false);
+  .factory('inboxSwipeHelper', function($timeout, $q, inboxConfig, INBOX_SWIPE_DURATION) {
+    function _autoCloseSwipeHandler(scope) {
+      $timeout(scope.swipeClose, INBOX_SWIPE_DURATION, false);
 
-        return action();
+      return $q.when();
+    }
+
+    function createSwipeLeftHandler(scope, handler) {
+      return function() {
+        return _autoCloseSwipeHandler(scope).then(handler);
       };
     }
 
     function createSwipeRightHandler(scope, handlers) {
-      return autoCloseSwipeHandler(scope, function() {
-        return inboxConfig('swipeRightAction', 'markAsRead')
+      return function() {
+        return _autoCloseSwipeHandler(scope)
+          .then(inboxConfig.bind(null, 'swipeRightAction', 'markAsRead'))
           .then(function(action) {
             return handlers[action]();
           });
-      });
+      };
     }
 
     return {
       createSwipeRightHandler: createSwipeRightHandler,
-      createSwipeLeftHandler: autoCloseSwipeHandler
+      createSwipeLeftHandler: createSwipeLeftHandler
     };
   });
