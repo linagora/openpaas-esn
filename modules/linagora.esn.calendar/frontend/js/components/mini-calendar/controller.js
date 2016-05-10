@@ -11,7 +11,6 @@ angular.module('esn.calendar')
         UI_CONFIG,
         CALENDAR_EVENTS,
         uiCalendarConfig,
-        session,
         calendarEventSource,
         calendarService,
         miniCalendarService,
@@ -24,7 +23,6 @@ angular.module('esn.calendar')
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
-    var userId = session.user._id;
 
     $scope.miniCalendarConfig = angular.extend({}, UI_CONFIG.calendar,
         UI_CONFIG.miniCalendar);
@@ -120,7 +118,7 @@ angular.module('esn.calendar')
 
     var calendarWrapperPromise = $q.all({
       calendar: calendarPromise,
-      calendars: calendarService.listCalendars(userId)
+      calendars: calendarService.listCalendars($scope.calendarHomeId)
     }).then(function(resolved) {
       var eventSources = resolved.calendars.map(function(cal) {
         var rawSource = calendarEventSource(cal.href, function(error) {

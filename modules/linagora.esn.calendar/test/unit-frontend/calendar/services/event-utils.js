@@ -50,6 +50,7 @@ describe('The eventUtils service', function() {
         company_name: 'test'
       }
     };
+    asSession.ready = $q.when(asSession);
     calendarService = {};
 
     sanitizeMock = sinon.spy(angular.identity);

@@ -11,8 +11,8 @@ angular.module('esn.calendar')
       return '/calendars';
     }
 
-    function forCalendarHomeId(calendarId) {
-      return rootPath() + '/' + calendarId + '.json';
+    function forCalendarHomeId(calendarHomeId) {
+      return rootPath() + '/' + calendarHomeId + '.json';
     }
 
     function forCalendarId(calendarHomeId, calendarId) {
@@ -130,8 +130,8 @@ angular.module('esn.calendar')
 
     /**
      * List all calendars in the calendar home. A dav:home resource, containing all dav:calendar resources in it.
-     * @param  {String} calendarId The calendarId.
-     * @return {Object}            An array of dav:calendar
+     * @param  {String} calendarHomeId The calendarHomeId.
+     * @return {Object}                An array of dav:calendar
      */
     function listCalendars(calendarId) {
       var path = pathBuilder.forCalendarHomeId(calendarId);

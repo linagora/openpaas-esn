@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.calendar').service('eventUtils', function($q, $sanitize, session, SIGNIFICANT_CHANGE_KEYS, CALENDAR_DEDAULT_EVENT_COLOR, _) {
+angular.module('esn.calendar').service('eventUtils', function($sanitize, session, SIGNIFICANT_CHANGE_KEYS, CALENDAR_DEDAULT_EVENT_COLOR, _) {
   var editedEvent = null;
   var newAttendees = null;
 

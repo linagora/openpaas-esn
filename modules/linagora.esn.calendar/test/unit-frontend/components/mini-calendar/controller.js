@@ -5,7 +5,7 @@ var expect = chai.expect;
 describe('The mini-calendar controller', function() {
 
   var $scope, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
-    sessionMock, miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
+    miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
     calendarCurrentViewMock, CALENDAR_EVENTS, cachedEventSourceMock, uniqueId, uuid4Mock, calWrapper;
 
   function sameDayMatcher(day) {
@@ -20,15 +20,9 @@ describe('The mini-calendar controller', function() {
       $provide.constant('uiCalendarConfig', uiCalendarConfigMock);
     });
 
-    sessionMock = {
-      user: {
-        _id: 'userId'
-      }
-    };
-
     calendarServiceMock = {
       listCalendars: function(userId) {
-        expect(userId).to.equals(sessionMock.user._id);
+        expect(userId).to.equals($scope.calendarHomeId);
         var deferred = $q.defer();
         deferred.resolve([{
           href: 'href',
@@ -104,7 +98,6 @@ describe('The mini-calendar controller', function() {
     miniCalendarServiceMock.miniCalendarWrapper = sinon.stub().returns(calWrapper);
 
     angular.mock.module(function($provide) {
-      $provide.value('session', sessionMock);
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarEventSource', calendarEventSourceMock);
       $provide.value('uiCalendarConfig', uiCalendarConfigMock);
@@ -125,6 +118,7 @@ describe('The mini-calendar controller', function() {
     $q = _$q_;
     $window = _$window_;
     CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+    $scope.calendarHomeId = 'userId';
     initController = function() {
       $controller('miniCalendarController', {$scope: $scope});
     };

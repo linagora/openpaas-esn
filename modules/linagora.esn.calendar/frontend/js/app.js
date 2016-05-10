@@ -62,11 +62,12 @@ angular.module('esn.calendar', [
       templateUrl: '/calendar/views/calendar/user-calendar',
       abstract: true,
       resolve: {
-        calendarHomeId: function($stateParams, calendarService, session) {
-          return session.ready.then(function() {
-            return session.user._id;
-          });
+        calendarHomeId: function(calendarHomeService) {
+          return calendarHomeService.getUserCalendarHomeId();
         }
+      },
+      controller: function($scope, calendarHomeId) {
+        $scope.calendarHomeId = calendarHomeId;
       },
       reloadOnSearch: false
     })

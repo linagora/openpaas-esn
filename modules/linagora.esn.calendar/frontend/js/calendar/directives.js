@@ -65,7 +65,9 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      scope: true,
+      scope: {
+        calendarHomeId: '='
+      },
       templateUrl: '/calendar/views/calendar/calendar-left-pane.html',
       link: link
     };
