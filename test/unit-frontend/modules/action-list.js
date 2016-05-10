@@ -6,7 +6,8 @@
 var expect = chai.expect;
 
 describe('directive : action-list', function() {
-  var element, $scope, $compile, $rootScope, screenSize, $modal, $popover, onResize;
+  var element, controller;
+  var $scope, $compile, $rootScope, screenSize, $modal, $popover, onResize;
 
   beforeEach(function() {
     screenSize = {
@@ -21,6 +22,7 @@ describe('directive : action-list', function() {
       hide: sinon.spy()
     };
     var self = this;
+
     $modal = sinon.spy(function() {
       return self.opened;
     });
@@ -48,6 +50,8 @@ describe('directive : action-list', function() {
     this.initDirective = function(html) {
       element = $compile(html)($scope);
       $scope.$digest();
+      controller = element.controller('actionList');
+
       return element;
     };
   }));
@@ -55,6 +59,7 @@ describe('directive : action-list', function() {
   it('should not propagate the click to the parent elements', function() {
     screenSize.is = function(match) {
       expect(match).to.equal('xs, sm');
+
       return true;
     };
 
@@ -67,6 +72,7 @@ describe('directive : action-list', function() {
   it('should not run the default handlers of parent links', function(done) {
     screenSize.is = function(match) {
       expect(match).to.equal('xs, sm');
+
       return true;
     };
 
@@ -84,6 +90,7 @@ describe('directive : action-list', function() {
   it('should open a $modal when screen size is <= sm', function() {
     screenSize.is = function(match) {
       expect(match).to.equal('xs, sm');
+
       return true;
     };
     this.initDirective('<button action-list>Click Me</button>');
@@ -238,6 +245,7 @@ describe('directive : action-list', function() {
     screenSize.is.onCall(0).returns(false);
     screenSize.is.onCall(1).returns(true);
     var onResize;
+
     screenSize.onChange = function(scope, event, callback) {
       onResize = callback;
     };
@@ -257,7 +265,7 @@ describe('directive : action-list', function() {
     element.click();
     this.opened.$isShown = true;
 
-    $scope.$destroy();
+    controller.destroy();
 
     expect(this.opened.destroy).to.not.have.been.called;
   });
@@ -267,17 +275,19 @@ describe('directive : action-list', function() {
     element.click();
     this.opened.$isShown = false;
 
-    $scope.$destroy();
+    controller.destroy();
 
     expect(this.opened.destroy).to.have.been.calledTwice;
   });
 
-  it('should destroy the dialog on $destroy', function() {
+  it('should hide the dialog on $destroy', function() {
     this.initDirective('<button action-list>Click Me</button>');
+    var hideFnSpy = sinon.spy(controller, 'hide');
+
     element.click();
     $scope.$destroy();
 
-    expect(this.opened.destroy).to.have.been.called;
+    expect(hideFnSpy).to.have.been.calledOnce;
   });
 
   it('should destroy the dialog on action-list.hide', function() {
@@ -288,8 +298,9 @@ describe('directive : action-list', function() {
     expect(this.opened.destroy).to.have.been.called;
   });
 
-  it('should not destroy the dialog belong to other element on $destroy', function() {
+  it('should not destroy the dialog belong to other element on action-list.hide', function() {
     var scope1, scope2;
+
     scope1 = $scope = $rootScope.$new();
     this.initDirective('<button action-list>1</button>');
 
@@ -297,9 +308,27 @@ describe('directive : action-list', function() {
     var element2 = this.initDirective('<button action-list>2</button>');
 
     element2.click(); // dialog is now belong to scope2
-    scope1.$destroy();
+    scope1.$broadcast('action-list.hide');
 
     expect(this.opened.destroy).to.have.been.callCount(0);
+  });
+
+  it('should not open dialog onclick when actionListNoClick attribute is provided', function() {
+    this.initDirective('<button action-list action-list-no-click></button>');
+    var openFnSpy = sinon.spy(controller, 'open');
+
+    element.click();
+
+    expect(openFnSpy).to.have.been.callCount(0);
+  });
+
+  it('should open dialog on click when actionListNoClick attribute is not provide', function() {
+    this.initDirective('<button action-list></button>');
+    var openFnSpy = sinon.spy(controller, 'open');
+
+    element.click();
+
+    expect(openFnSpy).to.have.been.calledOnce;
   });
 
 });

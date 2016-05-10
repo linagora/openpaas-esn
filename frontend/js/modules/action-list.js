@@ -8,17 +8,8 @@ angular.module('esn.actionList', [])
     return {
       restrict: 'A',
       controller: function($scope, $element, $attrs) {
+        var self = this;
         var boundOpenFn, dialogLock;
-
-        function hide() {
-          dialogOpened && dialogOpened.hide();
-        }
-
-        function handleWindowResizement() {
-          if (isDialogOpened()) {
-            boundOpenFn();
-          }
-        }
 
         function isDialogOfThisScope() {
           return dialogOpened && dialogOpened.scope === $scope;
@@ -28,8 +19,14 @@ angular.module('esn.actionList', [])
           return isDialogOfThisScope() && dialogOpened.$isShown;
         }
 
+        function handleWindowResizement() {
+          if (isDialogOpened()) {
+            boundOpenFn();
+          }
+        }
+
         function openForMobile() {
-          hide();
+          self.hide();
           dialogOpened = $modal({
             scope: $scope,
             template: '<div class="action-list-container modal"><div class="modal-dialog modal-content" ng-include="\'' + $attrs.actionList + '\'"></div></div>',
@@ -41,7 +38,7 @@ angular.module('esn.actionList', [])
         }
 
         function openForDesktop() {
-          hide();
+          self.hide();
           dialogOpened = $popover($element, {
             scope: $scope,
             trigger: 'manual',
@@ -58,7 +55,7 @@ angular.module('esn.actionList', [])
           dialogOpened.scope = $scope;
         }
 
-        this.open = function() {
+        self.open = function() {
           boundOpenFn = screenSize.is('xs, sm') ? openForMobile : openForDesktop;
 
           if (isDialogOpened()) {
@@ -80,7 +77,11 @@ angular.module('esn.actionList', [])
           });
         };
 
-        this.destroy = function() {
+        self.hide = function() {
+          dialogOpened && dialogOpened.hide();
+        };
+
+        self.destroy = function() {
           if (isDialogOfThisScope() && !dialogOpened.$isShown) {
             dialogOpened.destroy();
             dialogLock && dialogLock.destroy();
@@ -88,15 +89,17 @@ angular.module('esn.actionList', [])
         };
       },
       link: function(scope, element, attrs, controller) {
-        element.click(function(event) {
-          event.stopImmediatePropagation();
-          event.preventDefault();
+        if (!attrs.hasOwnProperty('actionListNoClick')) {
+          element.click(function(event) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
 
-          controller.open(scope);
-        });
+            controller.open(scope);
+          });
+        }
 
         scope.$on('action-list.hide', controller.destroy);
-        scope.$on('$destroy', controller.destroy);
+        scope.$on('$destroy', controller.hide);
       }
     };
   });
