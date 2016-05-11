@@ -121,6 +121,18 @@ describe('The Unified Inbox Angular module providers', function() {
 
   describe('The inboxHostedMailThreadsProvider factory', function() {
 
+    it('should have fetch function to resolve an array of thread', function(done) {
+      var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
+
+      fetcher().then(function(threads) {
+        expect(threads).to.be.an.instanceof(Array);
+        expect(threads[0].emails).to.be.an.instanceof(Array);
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+
     it('should request the backend using the JMAP client, and return pages of threads', function(done) {
       var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
 

@@ -821,9 +821,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsUnread(email) {
-      jmapEmailService.setFlag(email, 'isUnread', true).then(function() {
-        $state.go('^');
-      });
+      return jmapEmailService.setFlag(email, 'isUnread', true);
     }
 
     function markAsRead(email) {
@@ -864,9 +862,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsUnread(thread) {
-      jmapEmailService.setFlag(thread, 'isUnread', true).then(function() {
-        $state.go('^');
-      });
+      return jmapEmailService.setFlag(thread, 'isUnread', true);
     }
 
     function markAsFlagged(thread) {
@@ -933,12 +929,23 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxSwipeHelper', function($timeout, inboxConfig, INBOX_SWIPE_DURATION) {
+  .factory('inboxSwipeHelper', function($timeout, $q, inboxConfig, INBOX_SWIPE_DURATION) {
+    function _autoCloseSwipeHandler(scope) {
+      $timeout(scope.swipeClose, INBOX_SWIPE_DURATION, false);
+
+      return $q.when();
+    }
+
+    function createSwipeLeftHandler(scope, handler) {
+      return function() {
+        return _autoCloseSwipeHandler(scope).then(handler);
+      };
+    }
+
     function createSwipeRightHandler(scope, handlers) {
       return function() {
-        $timeout(scope.swipeClose, INBOX_SWIPE_DURATION, false);
-
-        return inboxConfig('swipeRightAction', 'markAsRead')
+        return _autoCloseSwipeHandler(scope)
+          .then(inboxConfig.bind(null, 'swipeRightAction', 'markAsRead'))
           .then(function(action) {
             return handlers[action]();
           });
@@ -946,6 +953,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      createSwipeRightHandler: createSwipeRightHandler
+      createSwipeRightHandler: createSwipeRightHandler,
+      createSwipeLeftHandler: createSwipeLeftHandler
     };
   });

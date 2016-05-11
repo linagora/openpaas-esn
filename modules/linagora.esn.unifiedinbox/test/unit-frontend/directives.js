@@ -7,9 +7,9 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $q, $timeout, $window, element, jmapClient,
+  var $compile, $rootScope, $scope, $timeout, $window, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      isMobile, searchService, autosize, windowMock;
+      isMobile, searchService, autosize, windowMock, inboxConfigMock;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -27,6 +27,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     windowMock = {
       open: sinon.spy()
     };
+    inboxConfigMock = {};
 
     $provide.constant('MAILBOX_ROLE_ICONS_MAPPING', {
       testrole: 'testclass',
@@ -53,12 +54,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
     $provide.value('autosize', autosize = sinon.spy());
+    $provide.value('inboxConfig', function(key, defaultValue) {
+      return $q.when(angular.isDefined(inboxConfigMock[key]) ? inboxConfigMock[key] : defaultValue);
+    });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$q_, _$timeout_, _$stateParams_, _$window_, session) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$window_, session) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
-    $q = _$q_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
     $window = _$window_;
@@ -901,7 +904,21 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The email directive', function() {
 
-    describe('the toggleIsCollapsed function', function() {
+    describe('The markAsUnread fn', function() {
+      it('should mark email as unread then update location to parent state', inject(function($state) {
+        $scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
+        $state.go = sinon.spy();
+        compileDirective('<email email="email" />');
+
+        element.controller('email').markAsUnread();
+        $scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect($scope.email.setIsUnread).to.have.been.calledWith(true);
+      }));
+    });
+
+    describe('The toggleIsCollapsed function', function() {
 
       it('should do nothing if email.isCollapsed is not defined', function() {
         var email = {}, spyFn = sinon.spy();
@@ -1108,12 +1125,34 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       describe('The onSwipeRight fn', function() {
 
-        it('should mark thread as read by default feature flip', function() {
+        it('should mark thread as read by default feature flip', function(done) {
           $scope.onSwipeRight().then(function() {
             expect($scope.item.email.isUnread).to.be.false;
+            done();
           });
+
+          $rootScope.$digest();
         });
 
+      });
+
+      describe('The onSwipeLeft fn', function() {
+        it('should open action list', function(done) {
+          var openFnSpy = sinon.spy();
+
+          compileDirective('<inbox-thread-list-item />', {
+            $actionListController: {
+              open: openFnSpy
+            }
+          });
+
+          $scope.onSwipeLeft().then(function() {
+            expect(openFnSpy).to.have.been.calledOnce;
+            done();
+          });
+
+          $rootScope.$digest();
+        });
       });
 
     });
@@ -1190,6 +1229,26 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         });
 
       });
+
+      describe('The onSwipeLeft fn', function() {
+        it('should open action list', function(done) {
+          var openFnSpy = sinon.spy();
+
+          compileDirective('<inbox-message-list-item />', {
+            $actionListController: {
+              open: openFnSpy
+            }
+          });
+
+          $scope.onSwipeLeft().then(function() {
+            expect(openFnSpy).to.have.been.calledOnce;
+            done();
+          });
+
+          $rootScope.$digest();
+        });
+      });
+
     });
 
   });
