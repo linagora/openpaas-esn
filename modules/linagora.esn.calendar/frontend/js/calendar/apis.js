@@ -11,8 +11,8 @@ angular.module('esn.calendar')
       return '/calendars';
     }
 
-    function forCalendarHomeId(calendarId) {
-      return rootPath() + '/' + calendarId + '.json';
+    function forCalendarHomeId(calendarHomeId) {
+      return rootPath() + '/' + calendarHomeId + '.json';
     }
 
     function forCalendarId(calendarHomeId, calendarId) {
@@ -62,14 +62,14 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Query the home calendar, searching for indexed events depending on the query. The dav:calendar resources will include their dav:item resources.
+     * Query a calendar, searching for indexed events depending on the query. The dav:calendar resources will include their dav:item resources.
      * @method searchEvents
-     * @param  {[type]} calendarHomeId The calendar home id.
+     * @param  {[type]} calendarId     The calendar id.
      * @param  {[type]} options        The query parameters {query: '', limit: 20, offset: 0}
      * @return {Object}                An array of dav:item items.
      */
-    function searchEvents(calendarHomeId, options) {
-      return calendarRestangular.one(calendarHomeId).one('events.json').get({query: options.query, limit: options.limit, offset: options.offset})
+    function searchEvents(calendarId, options) {
+      return calendarRestangular.one(calendarId).one('events.json').get({query: options.query, limit: options.limit, offset: options.offset})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -130,8 +130,8 @@ angular.module('esn.calendar')
 
     /**
      * List all calendars in the calendar home. A dav:home resource, containing all dav:calendar resources in it.
-     * @param  {String} calendarId The calendarId.
-     * @return {Object}            An array of dav:calendar
+     * @param  {String} calendarHomeId The calendarHomeId.
+     * @return {Object}                An array of dav:calendar
      */
     function listCalendars(calendarId) {
       var path = pathBuilder.forCalendarHomeId(calendarId);

@@ -62,11 +62,12 @@ angular.module('esn.calendar', [
       templateUrl: '/calendar/views/calendar/user-calendar',
       abstract: true,
       resolve: {
-        calendarHomeId: function($stateParams, calendarService, session) {
-          return session.ready.then(function() {
-            return session.user._id;
-          });
+        calendarHomeId: function(calendarHomeService) {
+          return calendarHomeService.getUserCalendarHomeId();
         }
+      },
+      controller: function($scope, calendarHomeId) {
+        $scope.calendarHomeId = calendarHomeId;
       },
       reloadOnSearch: false
     })
@@ -172,6 +173,10 @@ angular.module('esn.calendar', [
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
   })
-  .run(function(searchProviders, eventsProvider) {
-    searchProviders.add(eventsProvider);
+  .run(function(searchProviders, eventsProviders) {
+    eventsProviders.then(function(eventsProviders) {
+      eventsProviders.forEach(function(eventsProvider) {
+        searchProviders.add(eventsProvider);
+      });
+    });
   });

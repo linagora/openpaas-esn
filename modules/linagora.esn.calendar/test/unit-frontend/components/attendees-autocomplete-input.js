@@ -39,6 +39,9 @@ describe('The attendees-autocomplete-input component', function() {
     angular.mock.module(function($provide) {
       $provide.value('calendarAttendeeService', attendeeServiceMock);
       $provide.value('session', asSession);
+      $provide.factory('eventsProviders', function($q) {
+        return $q.when([]);
+      });
       $provide.value('gracePeriodService', {});
       $provide.constant('AUTOCOMPLETE_MAX_RESULTS', autoCompleteMax);
     });

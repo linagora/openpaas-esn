@@ -75,8 +75,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       this.groupedElements = {};
       this.allElements = [];
       types.forEach(function(type) {
-        this.groupedElements[type] = [];
-        this.allElements.push({name: type, elements: this.groupedElements[type]});
+        this.initType(type);
       }, this);
 
       if (elements) {
@@ -86,11 +85,19 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       return this;
     }
 
+    ByTypeElementGroupingTool.prototype.initType = function(type) {
+      this.groupedElements[type] = [];
+      this.allElements.push({name: type, elements: this.groupedElements[type]});
+    };
+
     ByTypeElementGroupingTool.prototype.addAll = function addAll(elements) {
       elements.forEach(this.addElement.bind(this));
     };
 
     ByTypeElementGroupingTool.prototype.addElement = function addElement(element) {
+      if (!this.groupedElements[element.type]) {
+        this.initType(element.type);
+      }
       this.groupedElements[element.type].push(element);
     };
 

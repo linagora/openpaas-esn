@@ -8,7 +8,7 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/components/mini-calendar.html',
       scope: {
-        calendarId: '='
+        calendarHomeId: '='
       },
       controller: 'miniCalendarController',
       link: function(scope) {
@@ -22,7 +22,7 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/components/mini-calendar.html',
       scope: {
-        calendarId: '='
+        calendarHomeId: '='
       },
       controller: 'miniCalendarController',
       link: function(scope, element) {
