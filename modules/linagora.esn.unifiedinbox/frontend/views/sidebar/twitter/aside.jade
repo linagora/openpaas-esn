@@ -1,9 +1,5 @@
 .listview(ng-if="::getTwitterAccounts().length > 0")
   .lv-body
-    .menu-heading
-      .title
-        i.inbox-icon.mdi.mdi-twitter
-        .text #{__('Twitter')}
-
     ul.nav.nav-pills.nav-stacked
       twitter-display.lv-item(account="account", ng-repeat="account in ::getTwitterAccounts()")
+    hr

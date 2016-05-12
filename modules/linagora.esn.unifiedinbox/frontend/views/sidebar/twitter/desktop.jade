@@ -1,7 +1,3 @@
-div
-  .lv-item.menu-heading(ng-if="::getTwitterAccounts().length > 0")
-    .title
-      i.inbox-icon.mdi.mdi-twitter
-      .text #{__('Twitter')}
-
+div(ng-if="::getTwitterAccounts().length > 0")
   twitter-display.lv-item(account="account", ng-repeat="account in ::getTwitterAccounts()")
+  hr
