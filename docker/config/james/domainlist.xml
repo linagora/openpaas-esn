@@ -24,5 +24,4 @@
     </domainnames>
     <autodetect>true</autodetect>
     <autodetectIP>true</autodetectIP>
-    <defaultDomain>open-paas.org</defaultDomain>
 </domainlist>
