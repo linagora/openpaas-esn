@@ -50,6 +50,13 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('asyncAction', function($q, $log, notificationFactory) {
+
+    function notifyFailure(cancelActionConfig, errorMessage) {
+      var notification = notificationFactory.weakError('Error', errorMessage);
+
+      cancelActionConfig && notification.setCancelAction(cancelActionConfig);
+    }
+
     return function(message, action, options) {
 
       var isSilent = (options && options.silent),
@@ -61,8 +68,8 @@ angular.module('linagora.esn.unifiedinbox')
 
           return value;
         }, function(err) {
-          notificationFactory.weakError('Error', message + ' failed');
           $log.error(err);
+          notifyFailure(options && options.onFailure, message + ' failed');
 
           return $q.reject(err);
         })
@@ -448,14 +455,6 @@ angular.module('linagora.esn.unifiedinbox')
         }});
     }
 
-    function newBoxedComposer() {
-      newBoxedComposerCustomTitle(defaultTitle);
-    }
-
-    function newBoxedDraftComposer(email) {
-      newBoxedComposerCustomTitle('Continue your draft', email);
-    }
-
     function newBoxedComposerCustomTitle(title, email) {
       boxOverlayOpener.open({
         id: email && email.id,
@@ -465,7 +464,11 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function openEmailCustomTitle(title, email) {
+    function newBoxedDraftComposer(email) {
+      newBoxedComposerCustomTitle('Continue your draft', email);
+    }
+
+    function open(email, title) {
       choseByPlatform(
         newMobileComposer.bind(null, email),
         newBoxedComposerCustomTitle.bind(null, title || defaultTitle, email)
@@ -488,14 +491,13 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      open: choseByPlatform.bind(null, newMobileComposer, newBoxedComposer),
-      openDraft: openDraft,
-      openEmailCustomTitle: openEmailCustomTitle
+      open: open,
+      openDraft: openDraft
     };
   })
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
-                                   backgroundAction, jmap, emailBodyService, waitUntilMessageIsComplete,
+                                   backgroundAction, jmap, emailBodyService, waitUntilMessageIsComplete, newComposerService,
                                    DRAFT_SAVING_DEBOUNCE_DELAY) {
 
     function prepareEmail(email) {
@@ -576,6 +578,17 @@ angular.module('linagora.esn.unifiedinbox')
       return $q.when(email);
     }
 
+    function buildSendNotificationOptions(messageContent) {
+      return {
+        onFailure: {
+          linkText: 'Reopen the composer',
+          action: function() {
+            newComposerService.open(messageContent, 'Resume message composition');
+          }
+        }
+      };
+    }
+
     Composition.prototype.send = function() {
       this._cancelDelayedDraftSave();
 
@@ -587,7 +600,8 @@ angular.module('linagora.esn.unifiedinbox')
           .then(function(email) {
             return emailSendingService.sendEmail(email);
           });
-      }.bind(this)).then(this.draft.destroy.bind(this.draft));
+      }.bind(this), buildSendNotificationOptions(this.email))
+        .then(this.draft.destroy.bind(this.draft));
     };
 
     return Composition;
@@ -809,15 +823,21 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function reply(email) {
-      emailSendingService.createReplyEmailObject(email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply email'));
+      emailSendingService.createReplyEmailObject(email, session.user).then(function(replyEmail) {
+        newComposerService.open(replyEmail, 'Start writing your reply email');
+      });
     }
 
     function replyAll(email) {
-      emailSendingService.createReplyAllEmailObject(email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your reply all email'));
+      emailSendingService.createReplyAllEmailObject(email, session.user).then(function(replyEmail) {
+        newComposerService.open(replyEmail, 'Start writing your reply all email');
+      });
     }
 
     function forward(email) {
-      emailSendingService.createForwardEmailObject(email, session.user).then(newComposerService.openEmailCustomTitle.bind(null, 'Start writing your forward email'));
+      emailSendingService.createForwardEmailObject(email, session.user).then(function(forwardedEmail) {
+        newComposerService.open(forwardedEmail, 'Start writing your forward email');
+      });
     }
 
     function markAsUnread(email) {

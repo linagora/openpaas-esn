@@ -1694,14 +1694,14 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should delegate to deviceDetector to know if the device is mobile', function(done) {
         deviceDetector.isMobile = done;
-        newComposerService.openEmailCustomTitle('title', {id: 'value'});
+        newComposerService.open({id: 'value'}, 'title');
       });
 
       it('should update the location with the email id if deviceDetector returns true', function() {
         deviceDetector.isMobile = sinon.stub().returns(true);
         $state.go = sinon.spy();
 
-        newComposerService.openEmailCustomTitle('title', {expected: 'field'});
+        newComposerService.open({expected: 'field'}, 'title');
         $timeout.flush();
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
@@ -1711,7 +1711,7 @@ describe('The Unified Inbox Angular module services', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.openEmailCustomTitle('title', { id: '1234', subject: 'object' });
+        newComposerService.open({ id: '1234', subject: 'object' }, 'title');
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           id: '1234',
@@ -1725,7 +1725,7 @@ describe('The Unified Inbox Angular module services', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.openEmailCustomTitle(null, { id: '1234', subject: 'object' });
+        newComposerService.open({ id: '1234', subject: 'object' });
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           id: '1234',
@@ -2587,7 +2587,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The asyncAction factory', function() {
 
-    var asyncAction, notificationFactory, notification, $rootScope;
+    var asyncAction, notificationFactory, notification, $rootScope, mockedFailureHandler;
 
     function qNoop() {
       return $q.when();
@@ -2601,10 +2601,11 @@ describe('The Unified Inbox Angular module services', function() {
       notification = {
         close: sinon.spy()
       };
+      mockedFailureHandler = sinon.spy();
       notificationFactory = {
         strongInfo: sinon.spy(function() { return notification; }),
         weakSuccess: sinon.spy(),
-        weakError: sinon.spy()
+        weakError: sinon.stub().returns({ setCancelAction: mockedFailureHandler })
       };
 
       $provide.value('notificationFactory', notificationFactory);
@@ -2657,6 +2658,23 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
 
       expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+    });
+
+    it('should provide a link when failure options is provided', function() {
+      var failureConfig = { linkText: 'Test', action: function() {} };
+      asyncAction('Test', qReject, { onFailure: failureConfig });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+      expect(mockedFailureHandler).to.have.been.calledWith(failureConfig);
+    });
+
+    it('should NOT provide any link when no failure option is provided', function() {
+      asyncAction('Test', qReject);
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Test failed');
+      expect(mockedFailureHandler).to.have.not.been.called;
     });
 
     it('should return a promise resolving to the resolved value of the action', function(done) {
@@ -2804,7 +2822,6 @@ describe('The Unified Inbox Angular module services', function() {
         });
       $rootScope.$digest();
     });
-
   });
 
   describe('The asyncJmapAction factory', function() {
@@ -3038,17 +3055,18 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxEmailService service', function() {
 
-    var $rootScope, $state, jmap, jmapEmailService, inboxEmailService, newComposerService, emailSendingService;
+    var $rootScope, $state, jmap, jmapEmailService, inboxEmailService, newComposerService, emailSendingService,
+        quoteEmail = function(email) { return {transformed: 'value'}; };
 
     beforeEach(module(function($provide) {
       $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
       $provide.value('withJmapClient', angular.noop);
       $provide.value('$state', $state = { go: sinon.spy() });
-      $provide.value('newComposerService', newComposerService = { openEmailCustomTitle: sinon.spy() });
+      $provide.value('newComposerService', newComposerService = { open: sinon.spy() });
       $provide.value('emailSendingService', emailSendingService = {
-        createReplyEmailObject: sinon.spy(function() { return $q.when(); }),
-        createReplyAllEmailObject: sinon.spy(function() { return $q.when(); }),
-        createForwardEmailObject: sinon.spy(function() { return $q.when(); })
+        createReplyEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); }),
+        createReplyAllEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); }),
+        createForwardEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); })
       });
     }));
 
@@ -3083,36 +3101,39 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The reply function', function() {
 
-      it('should leverage openEmailCustomTitle() and createReplyEmailObject()', function() {
-        inboxEmailService.reply({});
+      it('should leverage open() and createReplyEmailObject()', function() {
+        var inputEmail = {input: 'value'};
+        inboxEmailService.reply(inputEmail);
         $rootScope.$digest();
 
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply email');
-        expect(emailSendingService.createReplyEmailObject).to.have.been.calledWith();
+        expect(emailSendingService.createReplyEmailObject).to.have.been.calledWith(inputEmail);
+        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your reply email');
       });
 
     });
 
     describe('The replyAll function', function() {
 
-      it('should leverage openEmailCustomTitle() and createReplyAllEmailObject()', function() {
-        inboxEmailService.replyAll({});
+      it('should leverage open() and createReplyAllEmailObject()', function() {
+        var inputEmail = {input: 'value'};
+        inboxEmailService.replyAll(inputEmail);
         $rootScope.$digest();
 
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your reply all email');
-        expect(emailSendingService.createReplyAllEmailObject).to.have.been.calledWith();
+        expect(emailSendingService.createReplyAllEmailObject).to.have.been.calledWith(inputEmail);
+        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your reply all email');
       });
 
     });
 
     describe('The forward function', function() {
 
-      it('should leverage openEmailCustomTitle() and createForwardEmailObject()', function() {
-        inboxEmailService.forward({});
+      it('should leverage open() and createForwardEmailObject()', function() {
+        var inputEmail = {input: 'value'};
+        inboxEmailService.forward(inputEmail);
         $rootScope.$digest();
 
-        expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith('Start writing your forward email');
-        expect(emailSendingService.createForwardEmailObject).to.have.been.calledWith();
+        expect(emailSendingService.createForwardEmailObject).to.have.been.calledWith(inputEmail);
+        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your forward email');
       });
 
     });

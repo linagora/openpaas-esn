@@ -9,7 +9,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   var $compile, $rootScope, $scope, $timeout, $window, element, jmapClient,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      isMobile, searchService, autosize, windowMock, inboxConfigMock;
+      isMobile, searchService, autosize, windowMock, fakeNotification,
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -56,6 +57,14 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('autosize', autosize = sinon.spy());
     $provide.value('inboxConfig', function(key, defaultValue) {
       return $q.when(angular.isDefined(inboxConfigMock[key]) ? inboxConfigMock[key] : defaultValue);
+    });
+
+    fakeNotification = { update: function() {}, setCancelAction: sinon.spy() };
+    $provide.value('notifyService', function(opt, settings) { return fakeNotification; });
+    $provide.value('sendEmail', sinon.spy(function() { return sendEmailFakePromise; }));
+    $provide.decorator('newComposerService', function($delegate) {
+      $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
+      return $delegate;
     });
   }));
 
@@ -126,34 +135,30 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       newComposerService = _newComposerService_;
     }));
 
-    it('should call the openEmailCustomTitle fn when clicked on mailto link', function() {
+    it('should call the open fn when clicked on mailto link', function() {
       emailElement = compileDirective('<a ng-href="mailto:SOMEONE" op-inbox-compose op-inbox-compose-display-name="SOMETHING"/>');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
-        {
-          to:[{
-            email: 'SOMEONE',
-            name: 'SOMETHING'
-          }]
-        }
-      );
+      expect(newComposerService.open).to.have.been.calledWith({
+        to:[{
+          email: 'SOMEONE',
+          name: 'SOMETHING'
+        }]
+      });
     });
 
-    it('should call the openEmailCustomTitle fn when put email in opInboxCompose attribute', function() {
+    it('should call the open fn when put email in opInboxCompose attribute', function() {
       emailElement = compileDirective('<a op-inbox-compose="SOMEONE" op-inbox-compose-display-name="SOMETHING"/>');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
-        {
-          to:[{
-            email: 'SOMEONE',
-            name: 'SOMETHING'
-          }]
-        }
-      );
+      expect(newComposerService.open).to.have.been.calledWith({
+        to:[{
+          email: 'SOMEONE',
+          name: 'SOMETHING'
+        }]
+      });
     });
 
     it('should call the preventDefault and stopPropagation fn when clicked on mailto link', function() {
@@ -169,63 +174,59 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       expect(event.stopPropagation).to.have.been.called;
     });
 
-    it('should not call the openEmailCustomTitle fn when the link does not contain mailto', function() {
+    it('should not call the open fn when the link does not contain mailto', function() {
       emailElement = compileDirective('<a ng-href="tel:SOMEONE"/>');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+      expect(newComposerService.open).to.have.not.been.called;
     });
 
-    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribute is undefined', function() {
+    it('should not call the open fn when the link does not mailto and opInboxCompose attribute is undefined', function() {
       emailElement = compileDirective('<a op-inbox-compose />');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+      expect(newComposerService.open).to.have.not.been.called;
     });
 
-    it('should not call the openEmailCustomTitle fn when the link does not mailto and opInboxCompose attribute is default', function() {
+    it('should not call the open fn when the link does not mailto and opInboxCompose attribute is default', function() {
       emailElement = compileDirective('<a op-inbox-compose="op-inbox-compose" />');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.not.been.called;
+      expect(newComposerService.open).to.have.not.been.called;
     });
 
-    it('should call the openEmailCustomTitle fn with correct email', function() {
+    it('should call the open fn with correct email', function() {
       emailElement = compileDirective('<a ng-href="mailto:SOMEONE" op-inbox-compose="SOMEBODY" />');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
-        {
-          to:[{
-            email: 'SOMEONE',
-            name: 'SOMEONE'
-          }]
-        }
-      );
+      expect(newComposerService.open).to.have.been.calledWith({
+        to:[{
+          email: 'SOMEONE',
+          name: 'SOMEONE'
+        }]
+      });
     });
 
     it('should it should use the email address as the display name if display name is not defined', function() {
       emailElement = compileDirective('<a op-inbox-compose ng-href="mailto:SOMEONE"/>');
-      newComposerService.openEmailCustomTitle = sinon.spy();
+      newComposerService.open = sinon.spy();
 
       emailElement.click();
 
-      expect(newComposerService.openEmailCustomTitle).to.have.been.calledWith(null,
-        {
-          to:[{
-            email: 'SOMEONE',
-            name: 'SOMEONE'
-          }]
-        }
-      );
+      expect(newComposerService.open).to.have.been.calledWith({
+        to:[{
+          email: 'SOMEONE',
+          name: 'SOMEONE'
+        }]
+      });
     });
   });
 
@@ -292,9 +293,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl;
+      var directive, ctrl, Offline, sendEmail;
 
-      beforeEach(function() {
+      beforeEach(inject(function(_sendEmail_, _Offline_) {
+        sendEmail = _sendEmail_;
+        Offline = _Offline_;
         $stateParams.previousState = {
           name: 'previousStateName',
           params: 'previousStateParams'
@@ -303,7 +306,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
         $state.go = sinon.spy();
-      });
+      }));
 
       it('should save draft when state has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
@@ -356,6 +359,47 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
       });
 
+      function sendDraftWhileOffline(email) {
+        sendEmailFakePromise = $q.reject(new Error('Cannot send'));
+        directive = compileDirective('<composer />');
+        ctrl = directive.controller('composer');
+        ctrl.initCtrl(email);
+
+        $scope.send();
+        $scope.$digest();
+      }
+
+      it('should notify of error featuring a resume action when sending offline', function() {
+        var aFakeEmail = {
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
+        };
+
+        sendDraftWhileOffline(aFakeEmail);
+
+        expect(fakeNotification.setCancelAction).to.have.been.calledWithMatch(sinon.match({
+          action: sinon.match.func,
+          linkText: 'Reopen the composer'
+        }));
+      });
+
+      it('should reopen composer when resuming after sending failed', inject(function(newComposerService) {
+        var aFakeEmail = {
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
+        };
+
+        sendDraftWhileOffline(aFakeEmail);
+
+        cancellationLinkAction = fakeNotification.setCancelAction.getCalls()[0].args[0].action;
+        // act
+        cancellationLinkAction();
+        // assert
+        expect(newComposerService.open).to.have.been.calledWithMatch(
+          aFakeEmail,
+          'Resume message composition'
+        );
+      }));
     });
 
     describe('The mobile header buttons', function() {

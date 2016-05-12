@@ -46,14 +46,12 @@ angular.module('linagora.esn.unifiedinbox')
             event.preventDefault();
             event.stopPropagation();
 
-            newComposerService.openEmailCustomTitle(null, // To use the default title
-              {
-                to:[{
-                  email: email,
-                  name: attrs.opInboxComposeDisplayName || email
-                }]
-              }
-            );
+            newComposerService.open({
+              to:[{
+                email: email,
+                name: attrs.opInboxComposeDisplayName || email
+              }]
+            });
           }
         });
       }
