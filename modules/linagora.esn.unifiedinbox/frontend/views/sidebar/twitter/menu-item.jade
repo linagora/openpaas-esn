@@ -1,7 +1,7 @@
 .clickable(ui-sref="unifiedinbox.twitter({ username: account.username })", ui-sref-opts="{ reload: true }", ui-sref-active="selected", title="{{ ::account.username }}")
   .badge-container
-    i.inbox-icon.mdi.mdi-at
+    i.inbox-icon.mdi.mdi-twitter
     span.menu-item-inner
   .menu-item
-      bdi {{ ::account.username }}
+      bdi @{{ ::account.username }}
     span.menu-item-after

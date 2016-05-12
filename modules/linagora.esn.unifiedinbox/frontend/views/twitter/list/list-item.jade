@@ -6,7 +6,6 @@
     .flex-space-between
       .flex-start.ellipsis
         .lv-title {{ ::item.author.displayName }}
+          span.account-inline(ng-bind-html="::item.author.screenName | autolink")
       .date-container {{ ::item.date | date: group.dateFormat }}
-    .flex-space-between
-      .lv-title(ng-bind-html="::item.author.screenName | autolink")
-  .lv-small.preview(ng-bind-html="::item.text | autolink")
+    .lv-small.preview(ng-bind-html="::item.text | autolink")
