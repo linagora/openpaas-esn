@@ -1148,9 +1148,22 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The editFolder method', function() {
 
-      it('should go to unifiedinbox', function() {
+      it('should support the adaptive user interface concept: it goes to unifiedinbox if updateMailbox is resolved', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         jmapClient.updateMailbox = function() { return $q.when([]); };
+
+        initController('editFolderController');
+
+        scope.mailbox = { name: 'Name' };
+        scope.editFolder();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
+      });
+
+      it('should support the adaptive user interface concept: it goes to unifiedinbox if updateMailbox is rejected', function() {
+        jmapClient.getMailboxes = function() { return $q.when([]); };
+        jmapClient.updateMailbox = function() { return $q.reject([]); };
 
         initController('editFolderController');
 
@@ -1184,7 +1197,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       beforeEach(function() {
         jmapClient.getMailboxes = function() {return $q.when([]);};
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
         weakSuccessSpy = sinon.spy();
         weakErrorSpy = sinon.spy();
         weakInfoSpy = sinon.spy();
@@ -1194,6 +1206,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should call client.destroyMailbox', function() {
+        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
         initController('editFolderController');
 
         scope.mailbox = {
@@ -1205,7 +1218,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(jmapClient.destroyMailbox).to.have.been.calledWith(123);
       });
 
-      it('should go to unifiedinbox afterwards', function() {
+      it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is resolved', function() {
+        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
+        initController('editFolderController');
+
+        scope.mailbox = {
+          id: 123
+        };
+        scope.deleteFolder();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
+      });
+
+      it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is rejected', function() {
+        jmapClient.destroyMailbox = sinon.spy(function() {return $q.reject([]);});
         initController('editFolderController');
 
         scope.mailbox = {
