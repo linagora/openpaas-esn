@@ -7,21 +7,23 @@ This directive uses ngInfiniteScroll [(more)](http://binarymuse.github.io/ngInfi
 
     <div ng-controller="CTRL">
         ...
-        <infinite-list >
+        <infinite-list load-more-elements='loadMoreElements()'>
             <div ng-repeat="elt in list">...</div>
         </infinite-list>
         ...
     </div>
 
-The controller attribute (CTRL) must have a "loadMoreElements" function which will fetch/build and add new elements to the list from the ng-repeat in order to provide infinite scrolling.
+The directive must be used with a "loadMoreElements" function which will fetch/build and add new elements to the list from the ng-repeat in order to provide infinite scrolling.
 
 ## Configuration
 
-This directive watches for three properties from the scope for its configuration.
+The directive has three optional attributes.
 
-* $scope.infiniteScrollDistance (int)
-* $scope.infiniteScrollDisabled (boolean)
-* $scope.infiniteScrollImmediateCheck (boolean)
+* infiniteScrollDistance (int)
+* infiniteScrollDisabled (boolean)
+* infiniteScrollImmediateCheck (boolean)
+* scrollInsideContainer (boolean)
 
 If these properties are not defined in the scope, they are set to their default values (1, false, true).
 See [ngInfiniteScroll documentation](http://binarymuse.github.io/ngInfiniteScroll/documentation.html) for properties meaning.
+

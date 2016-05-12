@@ -17,11 +17,24 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
     return {
       restrict: 'E',
       transclude: true,
-      controller: function($scope) {
-        //default values for the infinite list attribute configuration
-        $scope.infiniteScrollDistance = angular.isDefined($scope.infiniteScrollDistance) ? $scope.infiniteScrollDistance : defaultConfiguration.scrollDistance;
-        $scope.infiniteScrollDisabled = angular.isDefined($scope.infiniteScrollDisabled) ? $scope.infiniteScrollDisabled : defaultConfiguration.scrollDisabled;
-        $scope.infiniteScrollImmediateCheck = angular.isDefined($scope.infiniteScrollImmediateCheck) ? $scope.infiniteScrollImmediateCheck : defaultConfiguration.scrollImmediateCheck;
+      scope: {
+        loadMoreElements: '&',
+        infiniteScrollDistance: '=?',
+        infiniteScrollDisabled: '=?',
+        infiniteScrollImmediateCheck: '=?',
+        scrollInsideContainer: '=?'
+      },
+      compile: function() {
+        return {
+          pre: function(scope, element, attrs) {
+            scope.infiniteScrollDistance = angular.isDefined(scope.infiniteScrollDistance) ? scope.infiniteScrollDistance : defaultConfiguration.scrollDistance;
+            scope.infiniteScrollDisabled = angular.isDefined(scope.infiniteScrollDisabled) ? scope.infiniteScrollDisabled : defaultConfiguration.scrollDisabled;
+            scope.infiniteScrollImmediateCheck = angular.isDefined(scope.infiniteScrollImmediateCheck) ? scope.infiniteScrollImmediateCheck : defaultConfiguration.scrollImmediateCheck;
+            scope.infiniteScrollContainer = scope.scrollInsideContainer ? element.parent() : null;
+            scope.marker = 'test';
+          },
+          post: angular.noop
+        };
       },
       templateUrl: '/views/modules/infinite-list/infinite-list.html'
     };
