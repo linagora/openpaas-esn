@@ -3,11 +3,14 @@
 var less = require('less');
 var path = require('path');
 var css = require('../../core').css;
+var logger = require('../../core/logger');
 
 function getFilesList(injections, appName) {
   var list = [];
+
   Object.keys(injections).forEach(function(k) {
     var moduleInjections = injections[k];
+
     if (!moduleInjections[appName] || !moduleInjections[appName].less) {
       return;
     }
@@ -15,12 +18,13 @@ function getFilesList(injections, appName) {
       list.push(filePath.filename);
     });
   });
+
   return list;
 }
 
 function getCss(req, res) {
   if (!req.params || !req.params.app) {
-    return res.send(404, { error: { status: 404, message: 'Not Found', details: 'No app defined'}});
+    return res.status(404).json({ error: { status: 404, message: 'Not Found', details: 'No app defined'}});
   }
   var productionMode = process.env.NODE_ENV === 'production';
   var appName = req.params.app;
@@ -37,6 +41,7 @@ function getCss(req, res) {
   }
   var lessContents = '@import \'' + lessMainFile + '\';\n';
   var injections = css.getInjections();
+
   getFilesList(injections, appName).forEach(function(filePath) {
     lessContents += '@import \'' + filePath + '\';\n';
   });
@@ -46,7 +51,15 @@ function getCss(req, res) {
     res.set('Content-Type', 'text/css');
     res.send(output.css);
   }, function(err) {
-    return res.send(500, { error: { status: 500, message: 'Less compilation failed', details: err.stack}});
+    logger.error('Less compilation failed:', err);
+
+    return res.status(500).json({
+      error: {
+        status: 500,
+        message: 'Server Error',
+        details: 'Less compilation failed: ' + err.message
+      }
+    });
   });
 }
 
