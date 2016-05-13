@@ -281,26 +281,25 @@ angular.module('linagora.esn.unifiedinbox')
       if (!$scope.mailbox.name) {
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
+      $state.go('unifiedinbox');
 
       return asyncJmapAction('Modification of folder ' + $scope.mailbox.name, function(client) {
         return client.updateMailbox($scope.mailbox.id, {
           name: $scope.mailbox.name,
           parentId: $scope.mailbox.parentId
         });
-      }).then(function() {
-        $state.go('unifiedinbox');
       });
     };
 
     $scope.confirmationDialog = function() {
-      $scope.modal = $modal({scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center'});
+      $modal({scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center'});
     };
 
     $scope.deleteFolder = function() {
+      $state.go('unifiedinbox');
+
       return asyncJmapAction('Deletion of folder ' + $scope.mailbox.name, function(client) {
         return client.destroyMailbox($scope.mailbox.id);
-      }).then(function() {
-        $state.go('unifiedinbox');
       });
     };
   })
