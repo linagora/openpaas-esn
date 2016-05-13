@@ -3,8 +3,9 @@
 angular.module('esn.calendar')
 
   .factory('CalendarShell', function($q, _, ICAL, eventAPI, fcMoment, uuid4, jstz, calendarUtils, masterEventCache, RRuleShell, VAlarmShell, ICAL_PROPERTIES, EVENT_MODIFY_COMPARE_KEYS) {
+    var localTimezone = jstz.determine().name();
 
-    function setDatetimePropertyWithUtc(component, propertyName, icalTime) {
+    function setDatetimePropertyFromIcalTime(component, propertyName, icalTime) {
       var property = component.getFirstProperty(propertyName);
 
       if (!property) {
@@ -13,7 +14,11 @@ angular.module('esn.calendar')
       }
 
       property.setValue(icalTime.convertToZone(ICAL.Timezone.utcTimezone));
-      property.removeParameter('tzid');
+      if (icalTime.zone.tzid === ICAL.Timezone.utcTimezone.tzid) {
+        property.removeParameter('tzid');
+      } else {
+        property.setParameter('tzid', icalTime.zone.tzid);
+      }
     }
 
     /**
@@ -35,6 +40,7 @@ angular.module('esn.calendar')
      */
     function CalendarShell(vcomponent, extendedProperties) {
       var vcalendar, vevent;
+
       if (vcomponent.name === 'vcalendar') {
         vevent = vcomponent.getFirstSubcomponent('vevent');
         vcalendar = vcomponent;
@@ -66,6 +72,12 @@ angular.module('esn.calendar')
         if (this.icalEvent.endDate) {
           this.icalEvent.endDate.zone = this.timezones[this.icalEvent.endDate.timezone] || this.icalEvent.endDate.zone;
         }
+      }
+
+      var localTimezoneFound = _.chain(this.timezones).contains(localTimezone).value();
+
+      if (!localTimezoneFound) {
+        this.vcalendar.addSubcomponent(ICAL.TimezoneService.get(localTimezone).component);
       }
     }
 
@@ -99,14 +111,16 @@ angular.module('esn.calendar')
         if (!this.__start) {
           this.__start = fcMoment(this.icalEvent.startDate);
         }
+
         return this.__start;
       },
       set start(value) {
         this.__start = undefined;
         if (value) {
           var dtstart = ICAL.Time.fromJSDate(value.toDate(), true);
+
           dtstart.isDate = !value.hasTime();
-          this.vevent.updatePropertyWithValue('dtstart', dtstart);
+          this.vevent.updatePropertyWithValue('dtstart', dtstart.convertToZone(ICAL.TimezoneService.get(localTimezone))).setParameter('tzid', localTimezone);
         }
       },
 
@@ -114,14 +128,16 @@ angular.module('esn.calendar')
         if (!this.__end) {
           this.__end = fcMoment(this.icalEvent.endDate);
         }
+
         return this.__end;
       },
       set end(value) {
         this.__end = undefined;
         if (value) {
           var dtend = ICAL.Time.fromJSDate(value.toDate(), true);
+
           dtend.isDate = !value.hasTime();
-          this.vevent.updatePropertyWithValue('dtend', dtend);
+          this.vevent.updatePropertyWithValue('dtend', dtend.convertToZone(ICAL.TimezoneService.get(localTimezone))).setParameter('tzid', localTimezone);
         }
       },
 
@@ -130,10 +146,12 @@ angular.module('esn.calendar')
       get recurrenceId() {
         if (!this.__recurrenceId) {
           var recurrenceId = this.vevent.getFirstPropertyValue('recurrence-id');
+
           if (recurrenceId) {
             this.__recurrenceId = fcMoment(recurrenceId);
           }
         }
+
         return this.__recurrenceId;
       },
       set recurrenceId(value) {
@@ -181,6 +199,7 @@ angular.module('esn.calendar')
         this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
           if (vevent.getFirstPropertyValue('recurrence-id')) {
             var event = new ICAL.Event(vevent);
+
             if (event.startDate) {
               event.startDate.zone = this.timezones[event.startDate.timezone] || event.startDate.zone;
               //trying to acesss endDate if startDate is not define crash ICAL.js
@@ -194,6 +213,7 @@ angular.module('esn.calendar')
 
         var iterator = this.icalEvent.iterator(this.icalEvent.startDate);
         var currentDatetime, currentEvent, currentDetails, result = [];
+
         while ((currentDatetime = iterator.next()) &&
             (!endDate || endDate.isAfter(currentDatetime.toJSDate() || (!endDate.hasTime() && endDate.isSame(currentDatetime.toJSDate(), 'day')))) &&
             (!maxElement || result.length < maxElement)) {
@@ -205,9 +225,9 @@ angular.module('esn.calendar')
             currentEvent.vevent.removeProperty('rrule');
             currentEvent.vevent.removeProperty('exdate');
 
-            setDatetimePropertyWithUtc(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
-            setDatetimePropertyWithUtc(currentEvent.vevent, 'dtstart', currentDetails.startDate);
-            setDatetimePropertyWithUtc(currentEvent.vevent, 'dtend', currentDetails.endDate);
+            setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
+            setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
+            setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
 
             result.push(currentEvent);
           }
@@ -219,9 +239,11 @@ angular.module('esn.calendar')
       get organizer() {
         if (!this.__organizer) {
           var organizer = this.vevent.getFirstProperty('organizer');
+
           if (organizer) {
             var mail = calendarUtils.removeMailto(organizer.getFirstValue());
             var cn = organizer.getParameter('cn');
+
             this.__organizer = {
               fullmail: calendarUtils.fullmailOf(cn, mail),
               email: mail,
@@ -230,6 +252,7 @@ angular.module('esn.calendar')
             };
           }
         }
+
         return this.__organizer;
       },
       set organizer(value) {
