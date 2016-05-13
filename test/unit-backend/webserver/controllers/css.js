@@ -15,9 +15,12 @@ describe('the css webserver controller', function() {
     });
     it('should return a 404 error if the params.app is not defined', function(done) {
       var res = {
-        send: function(code) {
+        status: function(code) {
           expect(code).to.equal(404);
-          done();
+
+          return {
+            json: done.bind(null, null)
+          };
         }
       };
       this.controller.getCss({params: {}}, res);
@@ -71,9 +74,12 @@ describe('the css webserver controller', function() {
     });
     it('should send a 500 error when the less compilation fails', function(done) {
       var res = {
-        send: function(code) {
+        status: function(code) {
           expect(code).to.equal(500);
-          done();
+
+          return {
+            json: done.bind(null, null)
+          };
         }
       };
       var css = this.helpers.requireBackend('core').css;
