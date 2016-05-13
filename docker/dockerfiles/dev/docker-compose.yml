@@ -26,4 +26,21 @@ services:
     environment:
       - ESN_MONGO_DBNAME=esn
       - ESN_HOST=${ESN_HOST}
-      
+
+  james:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james
+    links:
+      - cassandra:cassandra
+      - james_elastic:elasticsearch
+
+  james_elastic:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james_elastic
+
+  cassandra:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: cassandra
