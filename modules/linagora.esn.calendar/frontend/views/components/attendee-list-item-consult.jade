@@ -4,8 +4,8 @@
       img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{attendee.email|urlencode}}')
     .organizer(ng-if='isOrganizer')
       i.mdi.mdi-pencil
-  .ellipsis.col-xs-9
+  .ellipsis.col-xs-8
     span {{::attendee.name}}
-  .col-xs-1
+  .col-xs-2
     a.attendee-send-email(ng-if='composerExists', ng-href="mailto:{{::attendee.email}}" op-inbox-compose op-inbox-compose-display-name="{{::attendee.name}}")
         i.mdi.mdi-email
