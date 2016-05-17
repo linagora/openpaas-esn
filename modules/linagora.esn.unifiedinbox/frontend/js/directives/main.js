@@ -27,32 +27,33 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
-        var _isEmailDefinedByOpInboxCompose = function() {
+        function _isEmailDefinedByOpInboxCompose() {
           return attrs.opInboxCompose && attrs.opInboxCompose !== 'op-inbox-compose';
-        };
+        }
 
-        var _findRecipientEmails = function() {
+        function _findRecipientEmails() {
           if (_.contains(attrs.ngHref, 'mailto:')) {
             return attrs.ngHref.replace(/^mailto:/, '').split(',');
           }
           if (_isEmailDefinedByOpInboxCompose()) {
             return [attrs.opInboxCompose];
           }
-        };
+        }
 
         element.on('click', function(event) {
           var emails = _findRecipientEmails();
+
           if (emails) {
             event.preventDefault();
             event.stopPropagation();
-            var to = emails.map(function(email) {
-              return {
-                email: email,
-                name: attrs.opInboxComposeDisplayName || email
-              };
-            });
+
             newComposerService.open({
-              to: to
+              to: emails.map(function(email) {
+                return {
+                  email: email,
+                  name: attrs.opInboxComposeDisplayName || email
+                };
+              })
             });
           }
         });
