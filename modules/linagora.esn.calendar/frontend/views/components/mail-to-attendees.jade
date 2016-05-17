@@ -1,4 +1,6 @@
-.row.mail-to-attendees
-  a(ng-href="mailto:{{attendeesMail}}" op-inbox-compose)
+.row.mail-to-attendees.col-xs-12
+  .col-xs-10
     span #{__('Mail to Attendees')}
-    i.mdi.mdi-email
+  .col-xs-2
+    a(ng-href="mailto:{{attendeesMail}}", op-inbox-compose)
+      i.mdi.mdi-email

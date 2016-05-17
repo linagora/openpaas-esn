@@ -228,6 +228,27 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         }]
       });
     });
+
+    it('should call the open fn when clicked on mailto link with multiple mails', function() {
+      emailElement = compileDirective('<a ng-href="mailto:SOMEONE1,SOMEONE2,SOMEONE3" op-inbox-compose/>');
+      newComposerService.open = sinon.spy();
+
+      emailElement.click();
+      expect(newComposerService.open).to.have.been.calledWith({
+        to:[{
+          email: 'SOMEONE1',
+          name: 'SOMEONE1'
+        },
+        {
+          email: 'SOMEONE2',
+          name: 'SOMEONE2'
+        },
+        {
+          email: 'SOMEONE3',
+          name: 'SOMEONE3'
+        }]
+      });
+    });
   });
 
   describe('The mailboxDisplay directive', function() {
