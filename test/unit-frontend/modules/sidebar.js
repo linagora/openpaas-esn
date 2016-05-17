@@ -69,6 +69,20 @@ describe('The Sidebar Angular module', function() {
       });
     });
 
+    it('should allow overriding only template, templateUrl, controller, contentTemplate and placement if it is set to right', function() {
+      this.initDirective(
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-right" placement="right"/>',
+        this.$scope
+      );
+      expect(options).to.shallowDeepEqual({
+        template: 'template',
+        templateUrl: 'templateUrl',
+        controller: 'controller',
+        contentTemplate: 'contentTemplate',
+        placement: 'right'
+      });
+    });
+
     it('should automatically set animation to "am-fade-and-slide-left" if placement is set to left', function() {
       this.initDirective(
         '<div contextual-sidebar placement="left"/>',
@@ -78,13 +92,16 @@ describe('The Sidebar Angular module', function() {
       expect(options.animation).to.equal('am-fade-and-slide-left');
     });
 
-    it('should animation be set to default if placement has a value other than left', function() {
+    it('should automatically set animation to "am-fade-and-slide-right" if placement is set to right', function() {
       this.initDirective(
         '<div contextual-sidebar placement="right"/>',
         this.$scope
       );
-      expect(options.animation).to.be.undefined;
 
+      expect(options.animation).to.equal('am-fade-and-slide-right');
+    });
+
+    it('should animation be set to default if placement has a value other than left or right', function() {
       this.initDirective(
         '<div contextual-sidebar placement="top"/>',
         this.$scope
@@ -92,9 +109,9 @@ describe('The Sidebar Angular module', function() {
       expect(options.animation).to.be.undefined;
     });
 
-    it('should allow overriding only template, templateUrl, controller and contentTemplate if placement is set to any value other than left', function() {
+    it('should allow overriding only template, templateUrl, controller and contentTemplate if placement is set to any value other than left or right', function() {
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="right"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="top"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
@@ -106,7 +123,7 @@ describe('The Sidebar Angular module', function() {
       expect(options.placement).to.be.undefined;
 
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="top"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-right" placement="top"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
