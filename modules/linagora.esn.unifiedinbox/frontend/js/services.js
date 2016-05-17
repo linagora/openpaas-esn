@@ -763,11 +763,22 @@ angular.module('linagora.esn.unifiedinbox')
       }
     }
 
+    function updateUnreadMessages(mailboxIds, adjust) {
+      mailboxIds.forEach(function(mailboxId) {
+        var mailbox = _.find(mailboxesCache, { id: mailboxId });
+
+        if (mailbox) {
+          mailbox.unreadMessages = Math.max(mailbox.unreadMessages + adjust, 0);
+        }
+      });
+    }
+
     return {
       filterSystemMailboxes: filterSystemMailboxes,
       assignMailboxesList: assignMailboxesList,
       assignMailbox: assignMailbox,
-      flagIsUnreadChanged: flagIsUnreadChanged
+      flagIsUnreadChanged: flagIsUnreadChanged,
+      updateUnreadMessages: updateUnreadMessages
     };
   })
 
@@ -813,7 +824,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxEmailService', function($state, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService) {
+  .service('inboxEmailService', function($state, $q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(email) {
       backgroundAction('Move of message "' + email.subject + '" to trash', function() {
         return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -822,12 +833,31 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function _adjustUnreadMessage(oldMailboxIds, newMailboxIds, adjust) {
+      mailboxesService.updateUnreadMessages(oldMailboxIds, -adjust);
+      mailboxesService.updateUnreadMessages(newMailboxIds, adjust);
+    }
+
     function moveToMailbox(message, mailbox) {
+      var oldMailboxIds = message.mailboxIds.slice(0);
+      var newMailboxIds = [mailbox.id];
+
+      if (message.isUnread) {
+        _adjustUnreadMessage(oldMailboxIds, newMailboxIds, 1);
+      }
+
       return backgroundAction(
         'Move of message "' + message.subject + '" to ' + mailbox.name,
         function() {
           return message.move([mailbox.id]);
-        }, { silent: true });
+        }, { silent: true }
+      ).catch(function(err) {
+        if (message.isUnread) {
+          _adjustUnreadMessage(newMailboxIds, oldMailboxIds, 1);
+        }
+
+        return $q.reject(err);
+      });
     }
 
     function reply(email) {

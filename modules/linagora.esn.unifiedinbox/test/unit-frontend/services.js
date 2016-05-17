@@ -2583,6 +2583,53 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
     });
+
+    describe('The updateUnreadMessages function', function() {
+
+      it('should update unreadMessages of all available mailboxes corresponding to given mailboxIds', function() {
+        var destObject = {};
+
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, unreadMessages: 1},
+            { id: 2, unreadMessages: 2},
+            { id: 3, unreadMessages: 3}
+          ]);
+        };
+
+        mailboxesService.assignMailboxesList(destObject);
+        $rootScope.$digest();
+        mailboxesService.updateUnreadMessages([1, 3, 4], 1);
+
+        expect(destObject.mailboxes).to.shallowDeepEqual([
+          { id: 1, unreadMessages: 2},
+          { id: 2, unreadMessages: 2},
+          { id: 3, unreadMessages: 4}
+        ]);
+      });
+
+      it('should guarantee that the unreadMessages of the mailboxes is never negative', function() {
+        var destObject = {};
+
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, unreadMessages: 1},
+            { id: 2, unreadMessages: 2}
+          ]);
+        };
+
+        mailboxesService.assignMailboxesList(destObject);
+        $rootScope.$digest();
+        mailboxesService.updateUnreadMessages([1, 2], -2);
+
+        expect(destObject.mailboxes).to.shallowDeepEqual([
+          { id: 1, unreadMessages: 0},
+          { id: 2, unreadMessages: 0}
+        ]);
+      });
+
+    });
+
   });
 
   describe('The asyncAction factory', function() {
@@ -3104,9 +3151,16 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The moveToMailbox function', function() {
 
+      var mailboxesService;
+
+      beforeEach(inject(function(_mailboxesService_) {
+        mailboxesService = _mailboxesService_;
+      }));
+
       it('should use move method of message to move the message to new mailbox', function(done) {
         var message = {
           id: 'm111',
+          mailboxIds: [],
           move: sinon.stub().returns($q.when())
         };
 
@@ -3117,6 +3171,76 @@ describe('The Unified Inbox Angular module services', function() {
           });
 
         $rootScope.$digest();
+      });
+
+      it('should immediately update unreadMessages of old and new mailboxes if the message is unread', function() {
+        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+        var newMailbox = { id: 1 };
+        var message = {
+          id: 'm111',
+          isUnread: true,
+          mailboxIds: [2, 3],
+          move: function() { return $q.when(); }
+        };
+
+        inboxEmailService.moveToMailbox(message, newMailbox);
+
+        expect(updateUnreadMessagesSpy).to.have.been.calledTwice;
+        expect(updateUnreadMessagesSpy).to.have.been.calledWith(message.mailboxIds, -1);
+        expect(updateUnreadMessagesSpy).to.have.been.calledWith([newMailbox.id], 1);
+      });
+
+      it('should not update unreadMessages of old and new mailboxes if the message is read', function() {
+        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+        var newMailbox = { id: 1 };
+        var message = {
+          id: 'm111',
+          isUnread: false,
+          mailboxIds: [2, 3],
+          move: function() { return $q.when(); }
+        };
+
+        inboxEmailService.moveToMailbox(message, newMailbox);
+
+        expect(updateUnreadMessagesSpy).to.have.been.callCount(0);
+      });
+
+      it('should revert unreadMessages changes on failure of the move if the message is unread', function() {
+        var newMailbox = { id: 1 };
+        var message = {
+          id: 'm111',
+          isUnread: true,
+          mailboxIds: [2, 3],
+          move: function() { return $q.reject(); }
+        };
+
+        inboxEmailService.moveToMailbox(message, newMailbox);
+
+        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+
+        $rootScope.$digest();
+
+        expect(updateUnreadMessagesSpy).to.have.been.calledTwice;
+        expect(updateUnreadMessagesSpy).to.have.been.calledWith(message.mailboxIds, 1);
+        expect(updateUnreadMessagesSpy).to.have.been.calledWith([newMailbox.id], -1);
+      });
+
+      it('should not revert unreadMessages changes on failure of the move if the message is read', function() {
+        var newMailbox = { id: 1 };
+        var message = {
+          id: 'm111',
+          isUnread: false,
+          mailboxIds: [2, 3],
+          move: function() { return $q.reject(); }
+        };
+
+        inboxEmailService.moveToMailbox(message, newMailbox);
+
+        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+
+        $rootScope.$digest();
+
+        expect(updateUnreadMessagesSpy).to.have.been.callCount(0);
       });
     });
 
