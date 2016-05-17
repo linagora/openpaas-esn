@@ -35,6 +35,7 @@ describe('The esn.provider module', function() {
         'Contacts',
         'Emails'
       ]);
+
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
         {name: 'Events', elements: []},
         {name: 'Contacts', elements: []},
@@ -308,6 +309,25 @@ describe('The esn.provider module', function() {
         {name: 'Older than a month', dateFormat: 'fullDate', elements: [element]}
       ]);
     });
+
+    describe('The removeElement method', function() {
+
+      it('should remove the element from group', function() {
+        var element1 = { date: '2015-05-31T04:00:00Z' },
+          element2 = { date: '2015-07-31T04:00:00Z' },
+          elementGroupingTool = new ByDateElementGroupingTool([element1, element2]);
+
+        elementGroupingTool.removeElement(element2);
+
+        expect(elementGroupingTool.getGroupedElements()).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', elements: []},
+          {name: 'This Week', dateFormat: 'short', elements: []},
+          {name: 'This Month', dateFormat: 'short', elements: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', elements: [element1]}
+        ]);
+      });
+
+    });
   });
 
   function iteratorToList(iterator, betweenEachStep) {
@@ -386,6 +406,7 @@ describe('The esn.provider module', function() {
         expect(scope.infiniteScrollDisabled).to.be.false;
       });
     });
+
   });
 
   describe('infiniteScrollOnGroupsHelper', function() {

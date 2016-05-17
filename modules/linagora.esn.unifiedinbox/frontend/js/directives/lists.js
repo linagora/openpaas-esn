@@ -36,7 +36,18 @@ angular.module('linagora.esn.unifiedinbox')
         });
       },
       controllerAs: 'ctrl',
-      templateUrl: '/unifiedinbox/views/email/list/list-item.html'
+      templateUrl: '/unifiedinbox/views/email/list/list-item.html',
+      link: function(scope, element) {
+        scope.onDragEnd = function($dropped) {
+          if ($dropped) {
+            scope.groups.removeElement(scope.item);
+          }
+        };
+
+        scope.onDropFailure = function() {
+          return scope.groups.addElement(scope.item);
+        };
+      }
     };
   })
 
@@ -74,7 +85,18 @@ angular.module('linagora.esn.unifiedinbox')
         });
       },
       controllerAs: 'ctrl',
-      templateUrl: '/unifiedinbox/views/thread/list/list-item.html'
+      templateUrl: '/unifiedinbox/views/thread/list/list-item.html',
+      link: function(scope, element) {
+        scope.onDragEnd = function($dropped) {
+          if ($dropped) {
+            scope.groups.removeElement(scope.item);
+          }
+        };
+
+        scope.onDropFailure = function() {
+          return scope.groups.addElement(scope.item);
+        };
+      }
     };
   })
 

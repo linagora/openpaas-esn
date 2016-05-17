@@ -1,4 +1,16 @@
-.clickable.swipe(ng-click="ctrl.openEmail(item)", swipe-right="onSwipeRight", icon-left="mdi-check", swipe-left="onSwipeLeft", icon-right="mdi-view-module")
+.clickable.swipe(
+    ng-click="ctrl.openEmail(item)",
+    swipe-right="onSwipeRight",
+    icon-left="mdi-check",
+    swipe-left="onSwipeLeft",
+    icon-right="mdi-view-module",
+    esn-draggable,
+    esn-drag-message="{{ ::item.subject }}",
+    esn-drag-data="item",
+    esn-drag-class="dragging",
+    esn-on-drag-end="onDragEnd($dropped)",
+    esn-on-drop-failure="onDropFailure()"
+  )
   .list-image.badge-container
     img(ng-src='/images/user.png')
   .media-body(ng-class="{bold: item.isUnread}")

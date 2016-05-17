@@ -154,6 +154,16 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       }
     };
 
+    ByDateElementGroupingTool.prototype.removeElement = function removeElement(element) {
+      angular.forEach(this.allElements, function(group) {
+        var index = group.elements.indexOf(element);
+
+        if (index > -1) {
+          group.elements.splice(index, 1);
+        }
+      });
+    };
+
     ByDateElementGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('day').isBefore(targetMoment);
     };
@@ -226,6 +236,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
 
+      scope.groups = groups;
       scope.groupedElements = groups.getGroupedElements();
 
       return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {

@@ -3056,11 +3056,14 @@ describe('The Unified Inbox Angular module services', function() {
   describe('The inboxEmailService service', function() {
 
     var $rootScope, $state, jmap, jmapEmailService, inboxEmailService, newComposerService, emailSendingService,
-        quoteEmail = function(email) { return {transformed: 'value'}; };
+        quoteEmail, jmapClientMock;
 
     beforeEach(module(function($provide) {
+      jmapClientMock = {};
+      quoteEmail = function(email) { return {transformed: 'value'}; };
+
       $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
-      $provide.value('withJmapClient', angular.noop);
+      $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
       $provide.value('$state', $state = { go: sinon.spy() });
       $provide.value('newComposerService', newComposerService = { open: sinon.spy() });
       $provide.value('emailSendingService', emailSendingService = {
@@ -3097,6 +3100,24 @@ describe('The Unified Inbox Angular module services', function() {
         expect($state.go).to.have.been.calledWith('^');
       });
 
+    });
+
+    describe('The moveToMailbox function', function() {
+
+      it('should use move method of message to move the message to new mailbox', function(done) {
+        var message = {
+          id: 'm111',
+          move: sinon.stub().returns($q.when())
+        };
+
+        inboxEmailService.moveToMailbox(message, { id: '1' })
+          .then(function() {
+            expect(message.move).to.have.been.calledWith(['1']);
+            done();
+          });
+
+        $rootScope.$digest();
+      });
     });
 
     describe('The reply function', function() {
@@ -3187,11 +3208,13 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxThreadService service', function() {
 
-    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService;
+    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService, jmapClientMock;
 
     beforeEach(module(function($provide) {
+      jmapClientMock = {};
+
       $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
-      $provide.value('withJmapClient', angular.noop);
+      $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
       $provide.value('$state', $state = { go: sinon.spy() });
     }));
 
@@ -3222,6 +3245,24 @@ describe('The Unified Inbox Angular module services', function() {
         expect($state.go).to.have.been.calledWith('^');
       });
 
+    });
+
+    describe('The moveToMailbox function', function() {
+
+      it('should use move method of thread to move the thread to new mailbox', function(done) {
+        var thread = {
+          messageIds: ['m1', 'm2', 'm3'],
+          move: sinon.stub().returns($q.when())
+        };
+
+        inboxThreadService.moveToMailbox(thread, { id: '1' })
+          .then(function() {
+            expect(thread.move).to.have.been.calledWith(['1']);
+            done();
+          });
+
+        $rootScope.$digest();
+      });
     });
 
     describe('The markAsUnread function', function() {

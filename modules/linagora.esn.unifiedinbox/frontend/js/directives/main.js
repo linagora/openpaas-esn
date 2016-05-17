@@ -101,7 +101,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING) {
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxThreadService, inboxEmailService) {
     return {
       restrict: 'E',
       replace: true,
@@ -109,8 +109,29 @@ angular.module('linagora.esn.unifiedinbox')
         mailbox: '='
       },
       templateUrl: '/unifiedinbox/views/sidebar/email/menu-item.html',
-      link: function(scope) {
+      link: function(scope, element) {
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
+
+        function isThread($dragData) {
+          return $dragData.hasOwnProperty('messageIds');
+        }
+
+        scope.onDrop = function($dragData) {
+          if (isThread($dragData)) {
+            return inboxThreadService.moveToMailbox($dragData, scope.mailbox);
+          } else {
+            return inboxEmailService.moveToMailbox($dragData, scope.mailbox);
+          }
+        };
+
+        scope.isDropZone = function($dragData) {
+          if (isThread($dragData)) {
+            return $dragData.email.mailboxIds.indexOf(scope.mailbox.id) === -1;
+          } else {
+            return $dragData.mailboxIds.indexOf(scope.mailbox.id) === -1;
+          }
+
+        };
       }
     };
   })
