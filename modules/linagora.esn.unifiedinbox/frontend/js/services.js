@@ -551,11 +551,13 @@ angular.module('linagora.esn.unifiedinbox')
     Composition.prototype.canBeSentOrNotify = function() {
       if (emailSendingService.noRecipient(this.email)) {
         notificationFactory.weakError('Note', 'Your email should have at least one recipient');
+
         return false;
       }
 
       if (!Offline.state || Offline.state === 'down') {
         notificationFactory.weakError('Note', 'Your device loses its Internet connection. Try later!');
+
         return false;
       }
 
@@ -695,6 +697,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     function _modifyUnreadMessages(id, number) {
       var mailbox = _.find(mailboxesCache, { id: id });
+
       if (mailbox && angular.isDefined(mailbox.unreadMessages)) {
         mailbox.unreadMessages = Math.max(mailbox.unreadMessages + number, 0);
       }
@@ -711,6 +714,7 @@ angular.module('linagora.esn.unifiedinbox')
     function _updateMailboxCache(mailbox) {
       if (mailbox) {
         var index = _.findIndex(mailboxesCache, { id: mailbox.id });
+
         if (index > -1) {
           mailboxesCache[index] = mailbox;
         }
@@ -773,12 +777,18 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function moveUnreadMessages(fromMailboxIds, toMailboxIds, numberOfUnreadMessage) {
+      updateUnreadMessages(fromMailboxIds, -numberOfUnreadMessage);
+      updateUnreadMessages(toMailboxIds, numberOfUnreadMessage);
+    }
+
     return {
       filterSystemMailboxes: filterSystemMailboxes,
       assignMailboxesList: assignMailboxesList,
       assignMailbox: assignMailbox,
       flagIsUnreadChanged: flagIsUnreadChanged,
-      updateUnreadMessages: updateUnreadMessages
+      updateUnreadMessages: updateUnreadMessages,
+      moveUnreadMessages: moveUnreadMessages
     };
   })
 
@@ -790,6 +800,7 @@ angular.module('linagora.esn.unifiedinbox')
             .filter(_.property('email'))
             .map(function(recipient) {
               recipient.name = recipient.name || recipient.displayName || recipient.email;
+
               return recipient;
             });
         });
@@ -809,6 +820,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       element[flag] = state; // Be optimist!
+
       return backgroundAction('Changing a message flag', function() {
         return element['set' + jmap.Utils.capitalize(flag)](state)
           .then(_.constant(element), function(err) {
@@ -833,27 +845,22 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function _adjustUnreadMessage(oldMailboxIds, newMailboxIds, adjust) {
-      mailboxesService.updateUnreadMessages(oldMailboxIds, -adjust);
-      mailboxesService.updateUnreadMessages(newMailboxIds, adjust);
-    }
-
     function moveToMailbox(message, mailbox) {
-      var oldMailboxIds = message.mailboxIds.slice(0);
-      var newMailboxIds = [mailbox.id];
+      var fromMailboxIds = message.mailboxIds.slice(0);
+      var toMailboxIds = [mailbox.id];
 
       if (message.isUnread) {
-        _adjustUnreadMessage(oldMailboxIds, newMailboxIds, 1);
+        mailboxesService.moveUnreadMessages(fromMailboxIds, toMailboxIds, 1);
       }
 
       return backgroundAction(
         'Move of message "' + message.subject + '" to ' + mailbox.name,
         function() {
-          return message.move([mailbox.id]);
+          return message.move(toMailboxIds);
         }, { silent: true }
       ).catch(function(err) {
         if (message.isUnread) {
-          _adjustUnreadMessage(newMailboxIds, oldMailboxIds, 1);
+          mailboxesService.moveUnreadMessages(toMailboxIds, fromMailboxIds, 1);
         }
 
         return $q.reject(err);
@@ -907,7 +914,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxThreadService', function($state, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService) {
+  .service('inboxThreadService', function($state, $q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(thread) {
       backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
         return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -918,12 +925,25 @@ angular.module('linagora.esn.unifiedinbox')
 
     function moveToMailbox(thread, mailbox) {
       var subject = thread.subject || (thread.email ? thread.email.subject : '');
+      var fromMailboxIds = thread.email.mailboxIds.slice(0);
+      var toMailboxIds = [mailbox.id];
+
+      if (thread.isUnread) {
+        mailboxesService.moveUnreadMessages(fromMailboxIds, toMailboxIds, 1);
+      }
 
       return backgroundAction(
         'Move of thread "' + subject + '" to ' + mailbox.name,
         function() {
-          return thread.move([mailbox.id]);
-        }, { silent: true });
+          return thread.move(toMailboxIds);
+        }, { silent: true }
+      ).catch(function(err) {
+        if (thread.isUnread) {
+          mailboxesService.moveUnreadMessages(toMailboxIds, fromMailboxIds, 1);
+        }
+
+        return $q.reject(err);
+      });
     }
 
     function markAsRead(thread) {

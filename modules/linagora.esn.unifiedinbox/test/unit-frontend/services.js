@@ -2630,6 +2630,30 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    describe('The moveUnreadMessages function', function() {
+
+      it('should decrease unread messages of from mailboxes and increase it for to mailboxes', function() {
+        var destObject = {};
+
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, unreadMessages: 1},
+            { id: 2, unreadMessages: 2}
+          ]);
+        };
+
+        mailboxesService.assignMailboxesList(destObject);
+        $rootScope.$digest();
+        mailboxesService.moveUnreadMessages([1], [2], 1);
+
+        expect(destObject.mailboxes).to.shallowDeepEqual([
+          { id: 1, unreadMessages: 0},
+          { id: 2, unreadMessages: 3}
+        ]);
+      });
+
+    });
+
   });
 
   describe('The asyncAction factory', function() {
@@ -3174,7 +3198,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should immediately update unreadMessages of old and new mailboxes if the message is unread', function() {
-        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
         var newMailbox = { id: 1 };
         var message = {
           id: 'm111',
@@ -3185,13 +3209,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         inboxEmailService.moveToMailbox(message, newMailbox);
 
-        expect(updateUnreadMessagesSpy).to.have.been.calledTwice;
-        expect(updateUnreadMessagesSpy).to.have.been.calledWith(message.mailboxIds, -1);
-        expect(updateUnreadMessagesSpy).to.have.been.calledWith([newMailbox.id], 1);
+        expect(moveUnreadMessagesSpy).to.have.been.calledOnce;
+        expect(moveUnreadMessagesSpy)
+          .to.have.been.calledWith(message.mailboxIds, [newMailbox.id], 1);
       });
 
       it('should not update unreadMessages of old and new mailboxes if the message is read', function() {
-        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
         var newMailbox = { id: 1 };
         var message = {
           id: 'm111',
@@ -3202,7 +3226,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         inboxEmailService.moveToMailbox(message, newMailbox);
 
-        expect(updateUnreadMessagesSpy).to.have.been.callCount(0);
+        expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
       });
 
       it('should revert unreadMessages changes on failure of the move if the message is unread', function() {
@@ -3216,13 +3240,13 @@ describe('The Unified Inbox Angular module services', function() {
 
         inboxEmailService.moveToMailbox(message, newMailbox);
 
-        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
 
         $rootScope.$digest();
 
-        expect(updateUnreadMessagesSpy).to.have.been.calledTwice;
-        expect(updateUnreadMessagesSpy).to.have.been.calledWith(message.mailboxIds, 1);
-        expect(updateUnreadMessagesSpy).to.have.been.calledWith([newMailbox.id], -1);
+        expect(moveUnreadMessagesSpy).to.have.been.calledOnce;
+        expect(moveUnreadMessagesSpy)
+          .to.have.been.calledWith([newMailbox.id], message.mailboxIds, 1);
       });
 
       it('should not revert unreadMessages changes on failure of the move if the message is read', function() {
@@ -3236,11 +3260,11 @@ describe('The Unified Inbox Angular module services', function() {
 
         inboxEmailService.moveToMailbox(message, newMailbox);
 
-        var updateUnreadMessagesSpy = sinon.spy(mailboxesService, 'updateUnreadMessages');
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
 
         $rootScope.$digest();
 
-        expect(updateUnreadMessagesSpy).to.have.been.callCount(0);
+        expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
       });
     });
 
@@ -3373,9 +3397,19 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The moveToMailbox function', function() {
 
+      var mailboxesService;
+
+      beforeEach(inject(function(_mailboxesService_) {
+        mailboxesService = _mailboxesService_;
+      }));
+
       it('should use move method of thread to move the thread to new mailbox', function(done) {
         var thread = {
           messageIds: ['m1', 'm2', 'm3'],
+          isUnread: true,
+          email: {
+            mailboxIds: [2, 3]
+          },
           move: sinon.stub().returns($q.when())
         };
 
@@ -3387,6 +3421,85 @@ describe('The Unified Inbox Angular module services', function() {
 
         $rootScope.$digest();
       });
+
+      it('should immediately update unreadMessages of old and new mailboxes if the thread is unread', function() {
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
+        var newMailbox = { id: 1 };
+        var thread = {
+          messageIds: ['m1', 'm2', 'm3'],
+          isUnread: true,
+          email: {
+            mailboxIds: [2, 3]
+          },
+          move: function() { return $q.when(); }
+        };
+
+        inboxThreadService.moveToMailbox(thread, newMailbox);
+
+        expect(moveUnreadMessagesSpy).to.have.been.calledOnce;
+        expect(moveUnreadMessagesSpy)
+          .to.have.been.calledWith(thread.email.mailboxIds, [newMailbox.id], 1);
+      });
+
+      it('should not update unreadMessages of old and new mailboxes if the thread is read', function() {
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
+        var newMailbox = { id: 1 };
+        var thread = {
+          messageIds: ['m1', 'm2', 'm3'],
+          isUnread: false,
+          email: {
+            mailboxIds: [2, 3]
+          },
+          move: function() { return $q.when(); }
+        };
+
+        inboxThreadService.moveToMailbox(thread, newMailbox);
+
+        expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
+      });
+
+      it('should revert unreadMessages changes on failure of the move if the thread is unread', function() {
+        var newMailbox = { id: 1 };
+        var thread = {
+          messageIds: ['m1', 'm2', 'm3'],
+          isUnread: true,
+          email: {
+            mailboxIds: [2, 3]
+          },
+          move: function() { return $q.reject(); }
+        };
+
+        inboxThreadService.moveToMailbox(thread, newMailbox);
+
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
+
+        $rootScope.$digest();
+
+        expect(moveUnreadMessagesSpy).to.have.been.calledOnce;
+        expect(moveUnreadMessagesSpy)
+          .to.have.been.calledWith([newMailbox.id], thread.email.mailboxIds, 1);
+      });
+
+      it('should not revert unreadMessages changes on failure of the move if the thread is read', function() {
+        var newMailbox = { id: 1 };
+        var thread = {
+          messageIds: ['m1', 'm2', 'm3'],
+          isUnread: false,
+          email: {
+            mailboxIds: [2, 3]
+          },
+          move: function() { return $q.reject(); }
+        };
+
+        inboxThreadService.moveToMailbox(thread, newMailbox);
+
+        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
+
+        $rootScope.$digest();
+
+        expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
+      });
+
     });
 
     describe('The markAsUnread function', function() {
