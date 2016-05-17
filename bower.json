@@ -28,7 +28,6 @@
     "angular-mocks": "1.3.0",
     "angular-animate": "1.3.0",
     "angular-sanitize": "1.3.0",
-    "angular-touch": "1.3.0",
     "bootstrap": "~3.3.5",
     "angular-strap": "2.3.6",
     "restangular": "~1.3.1",
@@ -96,7 +95,7 @@
     "angular-auto-focus": "~1.0.4",
     "Autolinker.js": "^0.24.1",
     "angular-web-notification": "^0.0.66",
-    "awesome-angular-swipe": "https://github.com/linagora/awesome-angular-swipe.git#59f369eab7ddb8d68177a12c1531138224d28ecf"
+    "awesome-angular-swipe": "https://github.com/linagora/awesome-angular-swipe.git#0.0.5"
   },
   "resolutions": {
     "jquery": "2.1.1",
