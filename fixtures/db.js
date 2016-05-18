@@ -3,6 +3,7 @@
 var q = require('q');
 var fs = require('fs-extra');
 var mongoose = require('mongoose');
+var path = require('path');
 
 function connect(config) {
   var defer = q.defer();
