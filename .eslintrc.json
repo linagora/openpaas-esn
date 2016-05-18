@@ -174,7 +174,7 @@
     "no-unmodified-loop-condition": "warn",
     "no-unneeded-ternary": "off",
     "no-unused-expressions": "off",
-    "no-unused-vars": ["off", {"args": "none" }],
+    "no-unused-vars": ["warn", { "vars": "all", "args": "all" }],
     "no-use-before-define": ["warn", { "functions": false }],
     "no-useless-call": "error",
     "no-useless-concat": "error",
