@@ -61,6 +61,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       var jsFiles = [
         'app.js',
         'constants.js',
+        'timezone.js',
         'ical.js',
         'fcmoment.js',
         'request.js',

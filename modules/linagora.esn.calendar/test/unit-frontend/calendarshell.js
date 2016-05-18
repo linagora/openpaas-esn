@@ -1,8 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
-/* global __FIXTURES__: false */
+/* global chai, sinon, _, __FIXTURES__: false */
 
 var expect = chai.expect;
 
@@ -26,12 +24,21 @@ describe('CalendarShell factory', function() {
       save: angular.noop
     };
 
+    this.localTimezone = 'Asia/Ho_Chi_Minh';
+
+    this.jstzMock = {
+      determine: _.constant({
+        name: _.constant(this.localTimezone)
+      })
+    };
+
     var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('uuid4', self.uuid4);
       $provide.value('eventAPI', self.eventApiMock);
       $provide.value('masterEventCache', self.masterEventCache);
+      $provide.value('jstz', self.jstzMock);
     });
   });
 
@@ -45,15 +52,16 @@ describe('CalendarShell factory', function() {
   });
 
   describe('set date', function() {
-    it('should convert date to utc', function() {
+    it('should convert date to localTimezone', function() {
       var shell = CalendarShell.fromIncompleteShell({});
+
       shell.start  = fcMoment.tz([2015, 11, 11, 19, 0, 0], 'Europe/Paris');
-      expect(shell.vevent.getFirstPropertyValue('dtstart').tzid).to.be.undefined;
-      expect(shell.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2015-12-11T18:00:00Z');
+      expect(shell.vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal(this.localTimezone);
+      expect(shell.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2015-12-12T01:00:00');
 
       shell.end  = fcMoment.utc([2015, 11, 11, 19, 0, 0]);
-      expect(shell.vevent.getFirstPropertyValue('dtend').tzid).to.be.undefined;
-      expect(shell.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2015-12-11T19:00:00Z');
+      expect(shell.vevent.getFirstProperty('dtend').getParameter('tzid')).to.equal(this.localTimezone);
+      expect(shell.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2015-12-12T02:00:00');
     });
 
     it('should not lose allday', function() {
@@ -122,15 +130,19 @@ describe('CalendarShell factory', function() {
               ],
               [
                 'dtstart',
-                {},
+                {
+                  tzid: 'Asia/Ho_Chi_Minh'
+                },
                 'date-time',
-                '2014-12-29T18:00:00Z'
+                '2014-12-30T01:00:00'
               ],
               [
                 'dtend',
-                 {},
+                {
+                  tzid: 'Asia/Ho_Chi_Minh'
+                },
                 'date-time',
-                '2014-12-29T19:00:00Z'
+                '2014-12-30T02:00:00'
               ],
               [
                 'summary',
@@ -141,6 +153,49 @@ describe('CalendarShell factory', function() {
               rrule
             ],
             []
+          ],
+          [
+            'vtimezone',
+            [
+              [
+                'tzid',
+                {},
+                'text',
+                'Asia/Ho_Chi_Minh'
+              ]
+            ],
+            [
+              [
+                'standard',
+                [
+                  [
+                    'tzoffsetfrom',
+                    {},
+                    'utc-offset',
+                    '+07:00'
+                  ],
+                  [
+                    'tzoffsetto',
+                    {},
+                    'utc-offset',
+                    '+07:00'
+                  ],
+                  [
+                    'tzname',
+                    {},
+                    'text',
+                    'ICT'
+                  ],
+                  [
+                    'dtstart',
+                    {},
+                    'date-time',
+                    '1970-01-01T00:00:00'
+                  ]
+                ],
+                []
+              ]
+            ]
           ]
         ]
       ];

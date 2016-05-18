@@ -138,6 +138,7 @@ angular.module('esn.calendar', [
       resolve: {
         event: function($stateParams, $state, pathBuilder, calendarService, eventUtils, notificationFactory) {
           var eventPath = pathBuilder.forEventId($stateParams.calendarId, $stateParams.eventId);
+
           return eventUtils.getEditedEvent() || calendarService.getEvent(eventPath).catch(function(error) {
             if (error.status !== 404) {
               notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
@@ -171,9 +172,12 @@ angular.module('esn.calendar', [
     });
 
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});
+
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
   })
-  .run(function(searchProviders, eventsProviders) {
+  .run(function(searchProviders, eventsProviders, registerTimezones) {
+    registerTimezones();
+
     eventsProviders.then(function(eventsProviders) {
       eventsProviders.forEach(function(eventsProvider) {
         searchProviders.add(eventsProvider);
