@@ -268,7 +268,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           var broadcastSelection = function(x) {
             selectionService.broadcastSelection({cords: x, ratio: ratio});
           };
-          
+
           angular.element(myImg).Jcrop({
             bgColor: 'black',
             bgOpacity: 0.6,
