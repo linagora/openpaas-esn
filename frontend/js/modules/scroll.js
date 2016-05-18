@@ -45,11 +45,11 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
       scope: true,
       link: function(scope, element, attrs) {
 
-        var position = $(window).scrollTop(),
+        var position = angular.element(window).scrollTop(),
             toggled = false;
 
         var scrollHandler = function() {
-          var scroll = $(window).scrollTop();
+          var scroll = angular.element(window).scrollTop();
           var diff = scroll - position;
           if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
             toggled = true;
@@ -66,10 +66,10 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
           position = scroll;
         };
 
-        $(window).scroll(scrollHandler);
+        angular.element(window).scroll(scrollHandler);
 
         scope.$on('$destroy', function() {
-          $(window).off('scroll', scrollHandler);
+          angular.element(window).off('scroll', scrollHandler);
           $parse(scope[attrs.onDestroy])();
         });
       }
@@ -116,7 +116,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
         // the animation rendering is often bad with mobiles
         $window.scrollTo(0, 0);
       } else {
-        $('html, body').animate({ scrollTop: 0 });
+        angular.element('html, body').animate({ scrollTop: 0 });
       }
     }
 
