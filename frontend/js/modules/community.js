@@ -379,12 +379,12 @@ angular.module('esn.community', [
         var calling = false;
 
         function getErrorElement() {
-          return $($element.find('[error-container]')[0]);
+          return angular.element($element.find('[error-container]')[0]);
 
         }
 
         function getLoadingElement() {
-          return $($element.find('[loading-container]')[0]);
+          return angular.element($element.find('[loading-container]')[0]);
         }
 
         $scope.updatePendingRequestsList = function() {

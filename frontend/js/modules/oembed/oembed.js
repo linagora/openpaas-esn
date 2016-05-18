@@ -20,7 +20,7 @@ angular.module('esn.oembed', [])
           $log.debug('Processing oembed for link', link);
           var oembed = oembedService.getProvider(link);
           if (oembed) {
-            var e = $('<' + oembed.name + '-oembed></' + oembed.name + '-oembed>');
+            var e = angular.element('<' + oembed.name + '-oembed></' + oembed.name + '-oembed>');
             e.attr({url: link, maxwidth: $scope.maxwidth, maxheight: $scope.maxheight});
             var template = angular.element(e);
             var newElt = $compile(template)($scope);

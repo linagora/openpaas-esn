@@ -170,7 +170,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
 
         $scope.goToSection = function(id) {
           var prefix = $scope.prefix || 'scrollto_';
-          var e = angular.element($('[data-' + prefix + '="' + id + '"]'));
+          var e = angular.element('[data-' + prefix + '="' + id + '"]');
           if (e) {
             $document.scrollToElementAnimated(e);
           }

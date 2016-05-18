@@ -16,7 +16,7 @@ angular.module('esn.injection', [])
               attributes[attribute.name] = attribute.value;
             });
           }
-          var e = $('<' + injectionData.directive + '/>');
+          var e = angular.element('<' + injectionData.directive + '/>');
           e.attr(attributes);
           return e;
         };
