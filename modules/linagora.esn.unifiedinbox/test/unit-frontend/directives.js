@@ -7,10 +7,10 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $timeout, $window, element, jmapClient,
+  var $compile, $rootScope, $scope, $timeout, $window, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
-      isMobile, searchService, autosize, windowMock, fakeNotification,
-      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock;
+      isMobile, searchService, autosize, windowMock, fakeNotification, $state,
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -67,14 +67,22 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       return $delegate;
     });
+    $provide.decorator('$state', function($delegate) {
+      $delegate.go = sinon.spy();
+
+      return $delegate;
+    });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$window_, session) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$window_, session, _inboxEmailService_, _$state_, _jmap_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
     $window = _$window_;
+    inboxEmailService = _inboxEmailService_;
+    $state = _$state_;
+    jmap = _jmap_;
 
     session.user = {
       preferredEmail: 'user@open-paas.org',
@@ -1097,6 +1105,34 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       }));
     });
 
+    describe('The moveToTrash fn', function() {
+      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
+        inboxEmailService.moveToTrash = sinon.spy(function() {
+          return $q.when({});
+        });
+        compileDirective('<email/>');
+
+        element.controller('email').moveToTrash();
+        $scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+
+      it('should not update location if the email is not deleted', function() {
+        inboxEmailService.moveToTrash = sinon.spy(function() {
+          return $q.reject({});
+        });
+        compileDirective('<email/>');
+
+        element.controller('email').moveToTrash();
+        $scope.$digest();
+
+        expect($state.go).to.have.not.been.called;
+        expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+    });
+
     describe('The toggleIsCollapsed function', function() {
 
       it('should do nothing if email.isCollapsed is not defined', function() {
@@ -1286,6 +1322,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       beforeEach(function() {
         $scope.item = {
+          moveToMailboxWithRole: sinon.spy(function() {return $q.when();}),
           email: {
             isUnread: true,
             setIsUnread: function(state) {
@@ -1294,6 +1331,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
               return $q.when();
             }
           }
+        };
+
+        $scope.groups = {
+          addElement: sinon.spy(),
+          removeElement: sinon.spy()
         };
         compileDirective('<inbox-thread-list-item />');
       });
@@ -1307,6 +1349,43 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         it('should mark thread as read by default feature flip', function(done) {
           $scope.onSwipeRight().then(function() {
             expect($scope.item.email.isUnread).to.be.false;
+            done();
+          });
+
+          $rootScope.$digest();
+        });
+
+        it('should delete immediately the thread then ask JMAP to delete it', function(done) {
+          inboxConfigMock.swipeRightAction = 'moveToTrash';
+
+          var promise = $scope.onSwipeRight();
+
+          $rootScope.$digest();
+
+          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+
+          promise.then(function() {
+            expect($scope.groups.addElement).to.have.not.been.called;
+            done();
+          });
+
+          $rootScope.$digest();
+        });
+
+        it('should add the deleted thread again when it is not deleted by JMAP', function(done) {
+          inboxConfigMock.swipeRightAction = 'moveToTrash';
+          $scope.item.moveToMailboxWithRole = sinon.spy(function() {return $q.reject();});
+
+          var promise = $scope.onSwipeRight();
+
+          $rootScope.$digest();
+
+          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+
+          promise.then(null, function() {
+            expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
             done();
           });
 
@@ -1437,12 +1516,18 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       beforeEach(function() {
         $scope.item = {
+          moveToMailboxWithRole: sinon.spy(function() {return $q.when();}),
           isUnread: true,
           setIsUnread: function(state) {
             this.isUnread = state;
 
             return $q.when();
           }
+        };
+
+        $scope.groups = {
+          addElement: sinon.spy(),
+          removeElement: sinon.spy()
         };
         compileDirective('<inbox-message-list-item />');
       });
@@ -1457,6 +1542,43 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
           $scope.onSwipeRight().then(function() {
             expect($scope.item.isUnread).to.be.false;
           });
+        });
+
+        it('should delete immediately the email then ask JMAP to delete it', function(done) {
+          inboxConfigMock.swipeRightAction = 'moveToTrash';
+
+          var promise = $scope.onSwipeRight();
+
+          $rootScope.$digest();
+
+          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+
+          promise.then(function() {
+            expect($scope.groups.addElement).to.have.not.been.called;
+            done();
+          });
+
+          $rootScope.$digest();
+        });
+
+        it('should add the deleted email again when it is not deleted by JMAP', function(done) {
+          inboxConfigMock.swipeRightAction = 'moveToTrash';
+          $scope.item.moveToMailboxWithRole = sinon.spy(function() {return $q.reject();});
+
+          var promise = $scope.onSwipeRight();
+
+          $rootScope.$digest();
+
+          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+
+          promise.then(null, function() {
+            expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+            done();
+          });
+
+          $rootScope.$digest();
         });
 
       });

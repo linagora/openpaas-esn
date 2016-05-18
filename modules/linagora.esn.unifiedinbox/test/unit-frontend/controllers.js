@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       emailSendingService, Composition, newComposerService = {}, $state, $modal,
-      mailboxesService, inboxEmailService, _, windowMock, fileUploadMock, config;
+      mailboxesService, inboxEmailService, inboxThreadService, _, windowMock, fileUploadMock, config;
   var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
       DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
 
@@ -79,7 +79,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
                                           _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_) {
+                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -87,6 +87,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
     inboxEmailService = _inboxEmailService_;
+    inboxThreadService = _inboxThreadService_;
     _ = ___;
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
     JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
@@ -851,6 +852,34 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         expect($state.go).to.have.been.calledWith('^');
         expect(scope.thread.setIsUnread).to.have.been.calledWith(true);
+      });
+    });
+
+    describe('The moveToTrash fn', function() {
+      it('should delete the thread then update location to parent state if the thread is deleted successfully', function() {
+        inboxThreadService.moveToTrash = sinon.spy(function() {
+          return $q.when({});
+        });
+        var controller = initController('viewThreadController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(inboxThreadService.moveToTrash).to.have.been.called;
+      });
+
+      it('should not update location if the thread is not deleted', function() {
+        inboxThreadService.moveToTrash = sinon.spy(function() {
+          return $q.reject({});
+        });
+        var controller = initController('viewThreadController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.not.been.called;
+        expect(inboxThreadService.moveToTrash).to.have.been.called;
       });
     });
 

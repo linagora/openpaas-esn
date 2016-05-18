@@ -837,12 +837,10 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxEmailService', function($state, $q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
-    function moveToTrash(email) {
-      backgroundAction('Move of message "' + email.subject + '" to trash', function() {
+    function moveToTrash(email, options) {
+      return backgroundAction('Move of message "' + email.subject + '" to trash', function() {
         return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
-      }).then(function() {
-        $state.go('^');
-      });
+      }, options);
     }
 
     function moveToMailbox(message, mailbox) {
@@ -915,12 +913,10 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxThreadService', function($state, $q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
-    function moveToTrash(thread) {
-      backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
+    function moveToTrash(thread, options) {
+      return backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
         return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
-      }).then(function() {
-        $state.go('^');
-      });
+      }, options);
     }
 
     function moveToMailbox(thread, mailbox) {

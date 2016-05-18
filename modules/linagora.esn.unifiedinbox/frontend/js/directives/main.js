@@ -442,17 +442,19 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       controller: function($scope) {
-        ['reply', 'replyAll', 'forward', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           this[action] = function() {
             inboxEmailService[action]($scope.email);
           };
         }.bind(this));
 
-        this.markAsUnread = function() {
-          inboxEmailService.markAsUnread($scope.email).then(function() {
-            $state.go('^');
-          });
-        };
+        ['markAsUnread', 'moveToTrash'].forEach(function(action) {
+          this[action] = function() {
+            inboxEmailService[action]($scope.email).then(function() {
+              $state.go('^');
+            });
+          };
+        }.bind(this));
 
         this.toggleIsCollapsed = function(email) {
           if (angular.isDefined(email.isCollapsed)) {

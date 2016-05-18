@@ -3127,7 +3127,7 @@ describe('The Unified Inbox Angular module services', function() {
   describe('The inboxEmailService service', function() {
 
     var $rootScope, $state, jmap, jmapEmailService, inboxEmailService, newComposerService, emailSendingService,
-        quoteEmail, jmapClientMock;
+        quoteEmail, jmapClientMock, backgroundAction;
 
     beforeEach(module(function($provide) {
       jmapClientMock = {};
@@ -3137,6 +3137,7 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
       $provide.value('$state', $state = { go: sinon.spy() });
       $provide.value('newComposerService', newComposerService = { open: sinon.spy() });
+      $provide.value('backgroundAction', sinon.spy(function(message, action) { return action(); }));
       $provide.value('emailSendingService', emailSendingService = {
         createReplyEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); }),
         createReplyAllEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); }),
@@ -3144,10 +3145,11 @@ describe('The Unified Inbox Angular module services', function() {
       });
     }));
 
-    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxEmailService_) {
+    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxEmailService_, _backgroundAction_) {
       $rootScope = _$rootScope_;
       jmap = _jmap_;
       inboxEmailService = _inboxEmailService_;
+      backgroundAction = _backgroundAction_;
     }));
 
     describe('The moveToTrash fn', function() {
@@ -3162,13 +3164,14 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
-      it('should update location to the parent mailbox when the message was successfully moved', function() {
-        inboxEmailService.moveToTrash({
-          moveToMailboxWithRole: function() { return $q.when(); }
-        });
-        $rootScope.$digest();
+      it('should pass options to backgroundAction', function() {
+        var email = {
+          moveToMailboxWithRole: sinon.spy()
+        };
+        inboxEmailService.moveToTrash(email, {option: 'option'});
 
-        expect($state.go).to.have.been.calledWith('^');
+        expect(email.moveToMailboxWithRole).to.have.been.called;
+        expect(backgroundAction).to.have.been.calledWith(sinon.match.string, sinon.match.func, {option: 'option'});
       });
 
     });
@@ -3356,7 +3359,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxThreadService service', function() {
 
-    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService, jmapClientMock;
+    var $rootScope, $state, jmap, jmapEmailService, inboxThreadService, jmapClientMock, backgroundAction;
 
     beforeEach(module(function($provide) {
       jmapClientMock = {};
@@ -3364,12 +3367,14 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('jmapEmailService', jmapEmailService = { setFlag: sinon.spy() });
       $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
       $provide.value('$state', $state = { go: sinon.spy() });
+      $provide.value('backgroundAction', sinon.spy(function(message, action) { return action(); }));
     }));
 
-    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxThreadService_) {
+    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxThreadService_, _backgroundAction_) {
       $rootScope = _$rootScope_;
       jmap = _jmap_;
       inboxThreadService = _inboxThreadService_;
+      backgroundAction = _backgroundAction_;
     }));
 
     describe('The moveToTrash fn', function() {
@@ -3384,15 +3389,15 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
-      it('should update location to the parent mailbox when the message was successfully moved', function() {
-        inboxThreadService.moveToTrash({
-          moveToMailboxWithRole: function() { return $q.when(); }
-        });
-        $rootScope.$digest();
+      it('should pass options to backgroundAction', function() {
+        var thread = {
+          moveToMailboxWithRole: sinon.spy()
+        };
+        inboxThreadService.moveToTrash(thread, {option: 'option'});
 
-        expect($state.go).to.have.been.calledWith('^');
+        expect(thread.moveToMailboxWithRole).to.have.been.called;
+        expect(backgroundAction).to.have.been.calledWith(sinon.match.string, sinon.match.func, {option: 'option'});
       });
-
     });
 
     describe('The moveToMailbox function', function() {

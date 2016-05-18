@@ -229,17 +229,19 @@ angular.module('linagora.esn.unifiedinbox')
         });
     });
 
-    ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
+    ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
       this[action] = function() {
         inboxThreadService[action]($scope.thread);
       };
     }.bind(this));
 
-    this.markAsUnread = function() {
-      inboxThreadService.markAsUnread($scope.thread).then(function() {
-        $state.go('^');
-      });
-    };
+    ['markAsUnread', 'moveToTrash'].forEach(function(action) {
+      this[action] = function() {
+        inboxThreadService[action]($scope.thread).then(function() {
+          $state.go('^');
+        });
+      };
+    }.bind(this));
 
     ['reply', 'replyAll', 'forward'].forEach(function(action) {
       this[action] = function() {
