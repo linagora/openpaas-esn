@@ -910,6 +910,38 @@ describe('CalendarShell factory', function() {
 
       expect(eventA.equals(eventB)).to.be.false;
     });
+
+    it('should return true if both of eventA.alarm and eventB.alarm is undefined', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00')
+      });
+      var eventB = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00')
+      });
+
+      expect(eventA.equals(eventB)).to.be.true;
+    });
+
+    it('should return false if one of alarms is undefined', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00')
+      });
+      var eventB = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        alarm: {
+          action: 'EMAIL',
+          summary: 'summary',
+          description: 'description',
+          trigger: '-PT30M',
+          attendee: 'attendee'
+        }
+      });
+      expect(eventA.equals(eventB)).to.be.false;
+    });
   });
 
   describe('Alarm', function() {

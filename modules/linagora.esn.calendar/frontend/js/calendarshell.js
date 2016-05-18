@@ -294,37 +294,45 @@ angular.module('esn.calendar')
         return this.__alarm;
       },
       set alarm(value) {
-        if (!value.trigger || !value.attendee) {
-          throw new Error('invalid alarm set value, missing trigger or attendee');
+        if (!value) {
+          this.__alarm = undefined;
+          this.vevent.removeSubcomponent('valarm');
+        } else {
+          if (!value.trigger || !value.attendee) {
+            throw new Error('invalid alarm set value, missing trigger or attendee');
+          }
+          this.__alarm = undefined;
+          this.vevent.removeSubcomponent('valarm');
+
+          var SUMMARY_TEMPLATE = 'Pending event! <%- summary %>';
+          var DESCRIPTION_TEMPLATE =
+            'This is an automatic alarm sent by OpenPaas\\n' +
+            'PENDING EVENT!\\n' +
+            'The event <%- summary %> will start <%- diffStart %>\\n' +
+            'start: <%- start %> \\n' +
+            'end: <%- end %> \\n' +
+            'location: <%- location %> \\n' +
+            'More details:\\n' +
+            'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
+
+          var valarm = new ICAL.Component('valarm');
+          valarm.addPropertyWithValue('trigger', value.trigger);
+          valarm.addPropertyWithValue('action', 'EMAIL');
+          valarm.addPropertyWithValue('summary', _.template(SUMMARY_TEMPLATE)({summary: this.summary}));
+          valarm.addPropertyWithValue('description', _.template(DESCRIPTION_TEMPLATE)({
+            summary: this.summary,
+            start: this.start,
+            end: this.end,
+            diffStart: fcMoment(new Date()).to(this.start),
+            location: this.location,
+            calendarId: this.calendarId,
+            eventId: this.id
+          }));
+
+          var mailto = calendarUtils.prependMailto(value.attendee);
+          valarm.addPropertyWithValue('attendee', mailto);
+          this.vevent.addSubcomponent(valarm);
         }
-        this.__alarm = undefined;
-        this.vevent.removeSubcomponent('valarm');
-        var SUMMARY_TEMPLATE = 'Pending event! <%- summary %>';
-        var DESCRIPTION_TEMPLATE =
-          'This is an automatic alarm sent by OpenPaas\\n' +
-          'PENDING EVENT!\\n' +
-          'The event <%- summary %> will start <%- diffStart %>\\n' +
-          'start: <%- start %> \\n' +
-          'end: <%- end %> \\n' +
-          'location: <%- location %> \\n' +
-          'More details:\\n' +
-          'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
-        var valarm = new ICAL.Component('valarm');
-        valarm.addPropertyWithValue('trigger', value.trigger);
-        valarm.addPropertyWithValue('action', 'EMAIL');
-        valarm.addPropertyWithValue('summary', _.template(SUMMARY_TEMPLATE)({summary: this.summary}));
-        valarm.addPropertyWithValue('description', _.template(DESCRIPTION_TEMPLATE)({
-          summary: this.summary,
-          start: this.start,
-          end: this.end,
-          diffStart: fcMoment(new Date()).to(this.start),
-          location: this.location,
-          calendarId: this.calendarId,
-          eventId: this.id
-        }));
-        var mailto = calendarUtils.prependMailto(value.attendee);
-        valarm.addPropertyWithValue('attendee', mailto);
-        this.vevent.addSubcomponent(valarm);
       },
       removeAlarm: function() {
         this.vevent.removeSubcomponent('valarm');
@@ -447,6 +455,7 @@ angular.module('esn.calendar')
               if (self.rrule === that.rrule) { return true; }
               return self.rrule.equals(that.rrule);
             case 'alarm':
+              if (!self.alarm) { return !that.alarm; }
               if (self.alarm === that.alarm) { return true; }
               return self.alarm.equals(that.alarm);
             default:
