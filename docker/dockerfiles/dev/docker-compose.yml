@@ -1,37 +1,46 @@
 version: '2'
+
 services:
+
   redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: redis
 
   mongo:
-    image: mongo:2.6.5
-    command: ["mongod", "--smallfiles"]
-    ports:
-      - "27017:27017"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: mongo
 
   elasticsearch:
-    image: linagora/esn-elasticsearch:latest
-    ports:
-      - "9200:9200"
-    environment:
-      - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
+    extends:
+      file: ../docker-compose-commons.yml
+      service: elasticsearch
 
   sabre:
-    image: linagora/esn-sabre:latest
-    ports:
-      - "8001:80"
+    extends:
+      file: ../docker-compose-commons.yml
+      service: sabre
     links:
       - mongo
     environment:
-      - SABRE_MONGO_HOST=mongo
-      - SABRE_MONGO_PORT=27017
-      - ESN_MONGO_HOST=mongo
-      - ESN_MONGO_PORT=27017
       - ESN_MONGO_DBNAME=esn
-      - MONGO_TIMEOUT=100000
       - ESN_HOST=${ESN_HOST}
-      - ESN_PORT=8080
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+
+  james:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james
+    links:
+      - cassandra:cassandra
+      - james_elastic:elasticsearch
+
+  james_elastic:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james_elastic
+
+  cassandra:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: cassandra

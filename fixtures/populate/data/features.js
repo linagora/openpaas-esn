@@ -5,14 +5,14 @@ var mongoose = require('mongoose');
 require('../../../backend/core/db/mongo/models/features');
 var Features = mongoose.model('Features');
 
-module.exports = function(domains) {
-  var host = process.env.JMAP_SERVER_HOST || 'localhost';
-  var port = process.env.JMAP_SERVER_PORT || 80;
+module.exports = function(domains, host) {
+  var jmapHost = process.env.JMAP_SERVER_HOST || host || 'localhost';
+  var port = process.env.JMAP_SERVER_PORT || 1080;
   var path = process.env.JMAP_SERVER_PATH || 'jmap';
   var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED || true;
   var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED || false;
   var maxSizeUpload = process.env.JMAP_MAX_SIZE_UPLOAD || 20971520;
-  var api = 'http://' + host + ':' + port + '/' + path;
+  var api = 'http://' + jmapHost + ':' + port + '/' + path;
   var uploadUrl = process.env.JMAP_UPLOAD_URL || api + '/upload';
   var view = process.env.JMAP_VIEW || 'messages';
   var swipeRightAction = process.env.JMAP_SWIPE_RIGHT_ACTION || 'markAsRead';

@@ -4,7 +4,7 @@ You can launch the minimum set of OpenPaaS required services (Mongo, Redis, Elas
 and start the current OpenPaaS ESN repository in your preferred NodeJS environment with the help of docker-compose and some initial setup.
 
 ```
-ESN_HOST=<YOUR_ESN_IP> docker-compose -f ./docker/dockerfiles/dev/docker-compose.yml up
+ESN_HOST=<YOUR_ESN_IP> ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/dev/docker-compose.yml up
 ```
 
 - The YOUR_ESN_IP environment variable is used by components to access to the ESN API (This is the case for SabreDAV for example).

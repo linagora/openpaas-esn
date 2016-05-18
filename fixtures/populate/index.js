@@ -117,23 +117,23 @@ function _populateMembers(community, domain) {
   return q.allSettled(createUsers);
 }
 
-function _populateConfiguration(admin, domain) {
+function _populateConfiguration(host, admin, domain) {
   console.log('[INFO] POPULATE Configuration');
 
   var technicalUsers = require('./data/technical-users');
   var features = require('./data/features');
 
-  return q.all([technicalUsers([domain]), features([domain])])
+  return q.all([technicalUsers([domain]), features([domain], host)])
     .then(function() {
       return q([admin, domain]);
     });
 }
 
-module.exports = function() {
+module.exports = function(host) {
   console.log('[INFO] POPULATE the ESN');
   return _populateAdmin()
     .then(_populateDomain)
-    .spread(_populateConfiguration)
+    .spread(_populateConfiguration.bind(null, host))
     .spread(_joinDomain)
     .spread(_populateCommunity)
     .spread(_populateMembers)
