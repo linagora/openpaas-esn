@@ -56,11 +56,9 @@ In both cases, environment variables are defined like:
 
 Launching the platform may take some time (1-2 minutes), grab a coffee and be ready for the next steps!
 
-There are still some things to configure to have a fully operational platform. Let's create required resources on the James Mail Server:
+The open-paas.org domain is created by default for testing, but you can also create your own domain.
 
 - Add a Domain:
-
-The open-paas.org domain is created by default for testing, but you can also create your own domain.
 
 ```bash
 docker exec esn_james java -jar /root/james-cli.jar -h localhost adddomain my-custom-domain.org

@@ -72,7 +72,7 @@ services:
 
   james:
     entrypoint: bash -c "java -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:barcamp01
+    image: linagora/james-project:latest
     container_name: esn_james
     ports:
       - "1080:80"
@@ -91,6 +91,7 @@ services:
     volumes:
       - ${ESN_PATH}/docker/config/james:/root/conf
       - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey
+    hostname: open-paas.org
 
   james_elastic:
     image: elasticsearch:1.5.2
