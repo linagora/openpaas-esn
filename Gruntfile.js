@@ -32,7 +32,7 @@ module.exports = function(grunt) {
       quick: {
         src: [],
         options: {
-          quiet: false
+          quiet: true
         }
       },
       options: {
