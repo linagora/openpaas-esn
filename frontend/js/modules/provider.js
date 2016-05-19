@@ -118,14 +118,16 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
 
     function ByDateElementGroupingTool(elements) {
       this.todayElements = [];
+      this.yesterdayElements = [];
       this.weeklyElements = [];
       this.monthlyElements = [];
       this.otherElements = [];
       this.allElements = [
         {name: 'Today', dateFormat: 'shortTime', elements: this.todayElements},
-        {name: 'This Week', dateFormat: 'short', elements: this.weeklyElements},
-        {name: 'This Month', dateFormat: 'short', elements: this.monthlyElements},
-        {name: 'Older than a month', dateFormat: 'fullDate', elements: this.otherElements}
+        {name: 'Yesterday', dateFormat: 'shortTime', elements: this.yesterdayElements},
+        {name: 'This Week', dateFormat: 'EEE d', elements: this.weeklyElements},
+        {name: 'This Month', dateFormat: 'EEE d', elements: this.monthlyElements},
+        {name: 'Older than a month', dateFormat: 'mediumDate', elements: this.otherElements}
       ];
 
       if (elements) {
@@ -135,16 +137,18 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       return this;
     }
 
-    ByDateElementGroupingTool.prototype.addAll = function addAll(elements) {
+    ByDateElementGroupingTool.prototype.addAll = function(elements) {
       elements.forEach(this.addElement, this);
     };
 
-    ByDateElementGroupingTool.prototype.addElement = function addElement(element) {
+    ByDateElementGroupingTool.prototype.addElement = function(element) {
       var currentMoment = moment().utc();
       var elementMoment = moment(element.date).utc();
 
       if (this._isToday(currentMoment, elementMoment)) {
         this.todayElements.push(element);
+      } else if (this._isYesterday(currentMoment, elementMoment)) {
+        this.yesterdayElements.push(element);
       } else if (this._isThisWeek(currentMoment, elementMoment)) {
         this.weeklyElements.push(element);
       } else if (this._isThisMonth(currentMoment, elementMoment)) {
@@ -154,7 +158,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       }
     };
 
-    ByDateElementGroupingTool.prototype.removeElement = function removeElement(element) {
+    ByDateElementGroupingTool.prototype.removeElement = function(element) {
       angular.forEach(this.allElements, function(group) {
         var index = group.elements.indexOf(element);
 
@@ -164,15 +168,19 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       });
     };
 
-    ByDateElementGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
+    ByDateElementGroupingTool.prototype._isToday = function(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('day').isBefore(targetMoment);
     };
 
-    ByDateElementGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
-      return currentMoment.clone().subtract(7, 'days').startOf('day').isBefore(targetMoment);
+    ByDateElementGroupingTool.prototype._isYesterday = function(currentMoment, targetMoment) {
+      return currentMoment.clone().subtract(1, 'days').startOf('day').isBefore(targetMoment);
     };
 
-    ByDateElementGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
+    ByDateElementGroupingTool.prototype._isThisWeek = function(currentMoment, targetMoment) {
+      return currentMoment.clone().startOf('week').isBefore(targetMoment);
+    };
+
+    ByDateElementGroupingTool.prototype._isThisMonth = function(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('month').isBefore(targetMoment);
     };
 
@@ -180,7 +188,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       return this.allElements;
     };
 
-    ByDateElementGroupingTool.prototype.reset = function reset() {
+    ByDateElementGroupingTool.prototype.reset = function() {
       return this.allElements.forEach(function(elementGroup) {
         elementGroup.elements.length = 0;
       });
