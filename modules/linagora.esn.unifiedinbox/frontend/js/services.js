@@ -267,12 +267,10 @@ angular.module('linagora.esn.unifiedinbox')
       }
     }
 
-    function getReplyToField(email) {
-      if (email.replyTo && jmap.EMailer.unknown().email !== email.replyTo.email) {
-        return email.replyTo;
-      }
+    function getReplyToRecipients(email) {
+      var replyTo = _.reject(email.replyTo, { email: jmap.EMailer.unknown().email });
 
-      return email.from;
+      return replyTo.length > 0 ? replyTo : [email.from];
     }
 
     function getReplyAllRecipients(email, sender) {
@@ -285,7 +283,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       return {
-        to: _(email.to || []).concat(getReplyToField(email)).uniq('email').value().filter(notMe),
+        to: _(email.to || []).concat(getReplyToRecipients(email)).uniq('email').value().filter(notMe),
         cc: (email.cc || []).filter(notMe),
         bcc: email.bcc || []
       };
@@ -297,7 +295,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       return {
-        to: [getReplyToField(email)],
+        to: getReplyToRecipients(email),
         cc: [],
         bcc: []
       };

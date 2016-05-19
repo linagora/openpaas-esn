@@ -740,13 +740,13 @@ describe('The Unified Inbox Angular module services', function() {
         expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
 
-      it('should leverage the replyTo filed instead of FROM (when provided)', function() {
+      it('should leverage the replyTo field instead of FROM (when provided)', function() {
         email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}],
           from: {displayName: '0', email: '0@linagora.com'},
-          replyTo: {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}
+          replyTo: [{displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}]
         };
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
@@ -807,37 +807,47 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The getReplyRecipients function', function() {
       var email, sender, expectedEmail;
+
       it('should do nothing when email is not provided', function() {
         expect(emailSendingService.getReplyRecipients(null)).to.be.undefined;
       });
 
-      it('should reply to FROM if FROM is not the sender', function() {
+      it('should reply to FROM if ReplyTo is not present', function() {
         email = {
           from: {displayName: '0', email: '0@linagora.com'}
         };
-
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '0', email: '0@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
+        expect(emailSendingService.getReplyRecipients(email)).to.shallowDeepEqual(expectedEmail);
       });
 
-      it('should reply to ReplyTo if ReplyTo is not the sender', function() {
+      it('should reply to ReplyTo if ReplyTo is present', function() {
         email = {
           from: {displayName: '0', email: '0@linagora.com'},
-          replyTo: {displayName: 'replyto', email: 'replyto@linagora.com'}
+          replyTo: [{displayName: 'replyto', email: 'replyto@linagora.com'}]
         };
-
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: 'replyto', email: 'replyto@linagora.com'}]
         };
 
-        expect(emailSendingService.getReplyRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
+        expect(emailSendingService.getReplyRecipients(email)).to.shallowDeepEqual(expectedEmail);
+      });
+
+      it('should reply to ReplyTo if ReplyTo is present, filtering out unknown EMailers', function() {
+        email = {
+          from: {displayName: '0', email: '0@linagora.com'},
+          replyTo: [{displayName: 'replyto', email: 'replyto@linagora.com'}, { email: '@' }, { name: 'second', email: 'second@linagora.com' }]
+        };
+
+        expectedEmail = {
+          to: [{displayName: 'replyto', email: 'replyto@linagora.com'}, { name: 'second', email: 'second@linagora.com' }]
+        };
+
+        expect(emailSendingService.getReplyRecipients(email)).to.shallowDeepEqual(expectedEmail);
       });
 
     });

@@ -79,7 +79,7 @@
     "char-api": "https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "jquery.nicescroll": "3.6.8-fix",
     "angular-nicescroll": "0.0.5",
-    "jmap-client": "0.0.13",
+    "jmap-client": "0.0.14",
     "dynamic-directive": "2.0.0",
     "iframe-resizer": "3.4.2",
     "angularjs-naturalsort": "https://ci.open-paas.org/stash/scm/olibs/angularjs-naturalsort.git",
