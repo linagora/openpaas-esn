@@ -94,7 +94,7 @@ Then 'npm start' to start the OpenPaaS web application:
     npm start
 
 
-Your ESN can be reached at the following address: http://<ip>:8080. Now simply follow the setup wizard. 
+Your ESN can be reached at the following address: http://localhost:8080. Now simply follow the setup wizard. 
 
 ## Develop OpenPaaS
 
