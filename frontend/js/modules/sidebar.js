@@ -28,7 +28,8 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
     function link(scope, element, attr) {
       var options = {scope: scope},
         placementToAnimationMap = {
-          left: 'am-fade-and-slide-left'
+          left: 'am-fade-and-slide-left',
+          right: 'am-fade-and-slide-right'
         };
 
       angular.forEach(['template', 'templateUrl', 'controller', 'contentTemplate'], function(key) {
