@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module directives', function() {
 
-  var $compile, $rootScope, $scope, $timeout, $window, element, jmapClient, jmap,
+  var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
       sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService;
@@ -60,7 +60,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
 
     fakeNotification = { update: function() {}, setCancelAction: sinon.spy() };
-    $provide.value('notifyService', function(opt, settings) { return fakeNotification; });
+    $provide.value('notifyService', function() { return fakeNotification; });
     $provide.value('sendEmail', sinon.spy(function() { return sendEmailFakePromise; }));
     $provide.decorator('newComposerService', function($delegate) {
       $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
@@ -74,12 +74,11 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$window_, session, _inboxEmailService_, _$state_, _jmap_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
-    $window = _$window_;
     inboxEmailService = _inboxEmailService_;
     $state = _$state_;
     jmap = _jmap_;
@@ -394,11 +393,10 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
   describe('The composer directive', function() {
 
-    var draftService, $state, $stateParams;
+    var $state, $stateParams;
 
-    beforeEach(inject(function(_$state_, _draftService_, _$stateParams_) {
+    beforeEach(inject(function(_$state_, _$stateParams_) {
       $state = _$state_;
-      draftService = _draftService_;
       $stateParams = _$stateParams_;
     }));
 
@@ -430,11 +428,9 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl, Offline, sendEmail;
+      var directive, ctrl;
 
-      beforeEach(inject(function(_sendEmail_, _Offline_) {
-        sendEmail = _sendEmail_;
-        Offline = _Offline_;
+      beforeEach(function() {
         $stateParams.previousState = {
           name: 'previousStateName',
           params: 'previousStateParams'
@@ -443,7 +439,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
         $state.go = sinon.spy();
-      }));
+      });
 
       it('should save draft when state has successfully changed', function() {
         $rootScope.$broadcast('$stateChangeSuccess');
@@ -960,11 +956,6 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
   });
 
   describe('The recipientsAutoComplete directive', function() {
-    var unifiedinboxTagsAddedSpy;
-
-    beforeEach(function() {
-      unifiedinboxTagsAddedSpy = sinon.spy();
-    });
 
     function compileDirectiveThenGetScope() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>', {
@@ -1168,6 +1159,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         var element = compileDirective('<email />');
         var scope = element.isolateScope();
 
+        // eslint-disable-next-line no-unused-vars
         scope.$on('email:collapse', function(event, data) {
           expect(data).to.equal(false);
           done();
@@ -1318,24 +1310,62 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     });
 
-    describe('The swipe feature', function() {
+    describe('The moveToTrash function', function() {
+      var controller;
 
       beforeEach(function() {
         $scope.item = {
-          moveToMailboxWithRole: sinon.spy(function() {return $q.when();}),
-          email: {
-            isUnread: true,
-            setIsUnread: function(state) {
-              this.isUnread = state;
-
-              return $q.when();
-            }
-          }
+          moveToMailboxWithRole: sinon.stub().returns($q.when())
         };
 
         $scope.groups = {
           addElement: sinon.spy(),
           removeElement: sinon.spy()
+        };
+
+        compileDirective('<inbox-thread-list-item />');
+        controller = element.controller('inboxThreadListItem');
+      });
+
+      it('should immediately remove thread from the list', function() {
+        controller.moveToTrash();
+        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+      });
+
+      it('should move thread to Trash folder using moveToMailboxWithRole method', function() {
+        controller.moveToTrash();
+        expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+      });
+
+      it('should add thread to the list again on failure', function(done) {
+        $scope.item.moveToMailboxWithRole = function() {return $q.reject(); };
+
+        controller.moveToTrash().then(done.bind(null, 'should reject'), function() {
+          expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The swipe feature', function() {
+
+      beforeEach(function() {
+        $scope.item = {
+          moveToMailboxWithRole: sinon.spy(function() {return $q.when();}),
+          isUnread: true,
+          setIsUnread: function(state) {
+            this.isUnread = state;
+
+            return $q.when();
+          }
+        };
+
+        $scope.groups = {
+          addElement: angular.noop,
+          removeElement: angular.noop
         };
         compileDirective('<inbox-thread-list-item />');
       });
@@ -1348,44 +1378,18 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
         it('should mark thread as read by default feature flip', function(done) {
           $scope.onSwipeRight().then(function() {
-            expect($scope.item.email.isUnread).to.be.false;
+            expect($scope.item.isUnread).to.be.false;
             done();
           });
 
           $rootScope.$digest();
         });
 
-        it('should delete immediately the thread then ask JMAP to delete it', function(done) {
+        it('should move thread to Trash if feature flip is set to moveToTrash', function(done) {
           inboxConfigMock.swipeRightAction = 'moveToTrash';
 
-          var promise = $scope.onSwipeRight();
-
-          $rootScope.$digest();
-
-          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
-          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-
-          promise.then(function() {
-            expect($scope.groups.addElement).to.have.not.been.called;
-            done();
-          });
-
-          $rootScope.$digest();
-        });
-
-        it('should add the deleted thread again when it is not deleted by JMAP', function(done) {
-          inboxConfigMock.swipeRightAction = 'moveToTrash';
-          $scope.item.moveToMailboxWithRole = sinon.spy(function() {return $q.reject();});
-
-          var promise = $scope.onSwipeRight();
-
-          $rootScope.$digest();
-
-          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
-          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-
-          promise.then(null, function() {
-            expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+          $scope.onSwipeRight().then(function() {
+            expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
             done();
           });
 
@@ -1512,6 +1516,46 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     });
 
+    describe('The moveToTrash function', function() {
+      var controller;
+
+      beforeEach(function() {
+        $scope.item = {
+          moveToMailboxWithRole: sinon.stub().returns($q.when())
+        };
+
+        $scope.groups = {
+          addElement: sinon.spy(),
+          removeElement: sinon.spy()
+        };
+
+        compileDirective('<inbox-message-list-item />');
+        controller = element.controller('inboxMessageListItem');
+      });
+
+      it('should immediately remove message from the list', function() {
+        controller.moveToTrash();
+        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+      });
+
+      it('should move message to Trash folder using moveToMailboxWithRole method', function() {
+        controller.moveToTrash();
+        expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+      });
+
+      it('should add message to the list again on failure', function(done) {
+        $scope.item.moveToMailboxWithRole = function() {return $q.reject(); };
+
+        controller.moveToTrash().then(done.bind(null, 'should reject'), function() {
+          expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+    });
+
     describe('The swipe feature', function() {
 
       beforeEach(function() {
@@ -1526,8 +1570,8 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
         };
 
         $scope.groups = {
-          addElement: sinon.spy(),
-          removeElement: sinon.spy()
+          addElement: angular.noop,
+          removeElement: angular.noop
         };
         compileDirective('<inbox-message-list-item />');
       });
@@ -1538,43 +1582,20 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
       describe('The onSwipeRight fn', function() {
 
-        it('should mark message as read by default feature flip', function() {
+        it('should mark message as read by default feature flip', function(done) {
           $scope.onSwipeRight().then(function() {
             expect($scope.item.isUnread).to.be.false;
-          });
-        });
-
-        it('should delete immediately the email then ask JMAP to delete it', function(done) {
-          inboxConfigMock.swipeRightAction = 'moveToTrash';
-
-          var promise = $scope.onSwipeRight();
-
-          $rootScope.$digest();
-
-          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
-          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-
-          promise.then(function() {
-            expect($scope.groups.addElement).to.have.not.been.called;
             done();
           });
 
           $rootScope.$digest();
         });
 
-        it('should add the deleted email again when it is not deleted by JMAP', function(done) {
+        it('should move message to Trash if feature flip is set to moveToTrash', function(done) {
           inboxConfigMock.swipeRightAction = 'moveToTrash';
-          $scope.item.moveToMailboxWithRole = sinon.spy(function() {return $q.reject();});
 
-          var promise = $scope.onSwipeRight();
-
-          $rootScope.$digest();
-
-          expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
-          expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-
-          promise.then(null, function() {
-            expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+          $scope.onSwipeRight().then(function() {
+            expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
             done();
           });
 

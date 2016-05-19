@@ -6,7 +6,12 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       controller: function($scope, $element) {
-        this.openEmail = function(email) {
+        var self = this;
+
+        // need this scope value for action list
+        $scope.email = $scope.item;
+
+        self.openEmail = function(email) {
           if (email.isDraft) {
             newComposerService.openDraft(email.id);
           } else {
@@ -17,26 +22,26 @@ angular.module('linagora.esn.unifiedinbox')
           }
         };
 
-        $scope.email = $scope.item;
-
-        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
-          this[action] = function() {
-            inboxEmailService[action]($scope.email);
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          self[action] = function() {
+            inboxEmailService[action]($scope.item);
           };
-        }.bind(this));
+        });
 
-        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
-          markAsRead: function() {
-            return inboxEmailService.markAsRead($scope.item);
-          },
-          moveToTrash: function() {
-            $scope.groups.removeElement($scope.item);
+        self.moveToTrash = function() {
+          $scope.groups.removeElement($scope.item);
 
-            return inboxEmailService.moveToTrash($scope.item, { silent: true }).then(null, function(err) {
+          return inboxEmailService.moveToTrash($scope.item, { silent: true })
+            .catch(function(err) {
               $scope.groups.addElement($scope.item);
+
               return $q.reject(err);
             });
-          }
+        };
+
+        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
+          markAsRead: self.markAsRead,
+          moveToTrash: self.moveToTrash
         });
 
         $scope.onSwipeLeft = inboxSwipeHelper.createSwipeLeftHandler($scope, function() {
@@ -45,7 +50,7 @@ angular.module('linagora.esn.unifiedinbox')
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/email/list/list-item.html',
-      link: function(scope, element) {
+      link: function(scope) {
         scope.onDragEnd = function($dropped) {
           if ($dropped) {
             scope.groups.removeElement(scope.item);
@@ -63,7 +68,12 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       controller: function($scope, $element) {
-        this.openThread = function(thread) {
+        var self = this;
+
+        // need this scope value for action list
+        $scope.thread = $scope.item;
+
+        self.openThread = function(thread) {
           if (thread.email.isDraft) {
             newComposerService.openDraft(thread.email.id);
           } else {
@@ -74,26 +84,26 @@ angular.module('linagora.esn.unifiedinbox')
           }
         };
 
-        $scope.thread = $scope.item;
+        self.moveToTrash = function() {
+          $scope.groups.removeElement($scope.item);
 
-        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
-          this[action] = function() {
-            inboxThreadService[action]($scope.item);
-          };
-        }.bind(this));
-
-        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
-          markAsRead: function() {
-            return inboxThreadService.markAsRead($scope.item.email);
-          },
-          moveToTrash: function() {
-            $scope.groups.removeElement($scope.item);
-
-            return inboxThreadService.moveToTrash($scope.item, { silent: true }).then(null, function(err) {
+          return inboxThreadService.moveToTrash($scope.item, { silent: true })
+            .catch(function(err) {
               $scope.groups.addElement($scope.item);
+
               return $q.reject(err);
             });
-          }
+        };
+
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          self[action] = function() {
+            inboxThreadService[action]($scope.item);
+          };
+        });
+
+        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
+          markAsRead: self.markAsRead,
+          moveToTrash: self.moveToTrash
         });
 
         $scope.onSwipeLeft = inboxSwipeHelper.createSwipeLeftHandler($scope, function() {
@@ -102,7 +112,7 @@ angular.module('linagora.esn.unifiedinbox')
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/thread/list/list-item.html',
-      link: function(scope, element) {
+      link: function(scope) {
         scope.onDragEnd = function($dropped) {
           if ($dropped) {
             scope.groups.removeElement(scope.item);
