@@ -105,7 +105,7 @@ angular.module('esn.calendar')
     $scope.uiConfig.calendar.viewRender = function(view) {
       calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.calendarHomeId]);
       $timeout($scope.resizeCalendarHeight, 1000);
-      calendarCurrentView.save(view);
+      calendarCurrentView.set(view);
       $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, view);
     };
 

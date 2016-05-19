@@ -28,9 +28,9 @@ describe('The calendarCurrentView factory', function() {
     });
   });
 
-  describe('the save function', function() {
+  describe('the set function', function() {
 
-    it('should save start and name of current view in get parameter for day and weekView', function() {
+    it('should set start and name of current view in get parameter for day and weekView', function() {
       var date = '2015-12-01';
 
       ['agendaWeek', 'agendaDay'].forEach(function(name) {
@@ -40,7 +40,7 @@ describe('The calendarCurrentView factory', function() {
             start: date
           });
         });
-        calendarCurrentView.save({
+        calendarCurrentView.set({
           start: fcMoment(date),
           name: name
         });
@@ -59,12 +59,33 @@ describe('The calendarCurrentView factory', function() {
         });
       });
 
-      calendarCurrentView.save({
+      calendarCurrentView.set({
         start: fcMoment('2015-11-30'),
         name: 'month'
       });
 
       expect(locationMock.search).to.have.been.calledOnce;
+    });
+
+    it('should save the value of the current view', function() {
+
+      locationMock.search = sinon.spy(function(param) {
+        expect(param).to.deep.equals({
+          viewMode: 'month',
+          start: '2015-12-01'
+        });
+      });
+
+      calendarCurrentView.set({
+        name: 'month',
+        start: fcMoment('2015-11-30')
+      });
+
+      var resGet = calendarCurrentView.get();
+
+      expect(locationMock.search).to.have.been.calledOnce;
+      expect(resGet.name).to.equal('month');
+      expect(resGet.start.isSame(fcMoment('2015-12-01'))).to.be.true;
     });
   });
 
@@ -113,6 +134,15 @@ describe('The calendarCurrentView factory', function() {
       expect(locationMock.search).to.have.been.calledOnce;
       expect(screenSizeMock.is).to.have.been.calledWith('xs, sm');
       expect(view.name).to.equal('agendaThreeDays');
+    });
+
+    it('should get the value of location if no set before', function() {
+
+      locationMock.search = sinon.stub().returns({viewMode: 'month', start: '2015-12-01'});
+
+      var resGet = calendarCurrentView.get();
+      expect(resGet.name).to.equal('month');
+      expect(resGet.start.isSame(fcMoment('2015-12-01'))).to.be.true;
     });
   });
 

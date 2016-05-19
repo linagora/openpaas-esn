@@ -90,7 +90,7 @@ describe('The calendar module controllers', function() {
     };
 
     this.calendarCurrentViewMock = {
-      save: angular.noop,
+      set: angular.noop,
       get: angular.identity.bind(null, {})
     };
 
@@ -511,7 +511,7 @@ describe('The calendar module controllers', function() {
 
     it('should save view with calendarCurrentView when view change', function() {
       var view = {};
-      this.calendarCurrentViewMock.save = sinon.spy(function(_view) {
+      this.calendarCurrentViewMock.set = sinon.spy(function(_view) {
         expect(_view).to.equals(view);
       });
 
@@ -522,7 +522,7 @@ describe('The calendar module controllers', function() {
 
       this.scope.uiConfig.calendar.viewRender(view);
 
-      expect(this.calendarCurrentViewMock.save).to.have.been.calledOnce;
+      expect(this.calendarCurrentViewMock.set).to.have.been.calledOnce;
     });
 
     describe('the eventDropAndResize listener', function() {
