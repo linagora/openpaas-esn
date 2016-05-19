@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('inboxMessageListItem', function($state, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
+  .directive('inboxMessageListItem', function($state, $q, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope, $element) {
@@ -28,6 +28,14 @@ angular.module('linagora.esn.unifiedinbox')
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
           markAsRead: function() {
             return inboxEmailService.markAsRead($scope.item);
+          },
+          moveToTrash: function() {
+            $scope.groups.removeElement($scope.item);
+
+            return inboxEmailService.moveToTrash($scope.item, { silent: true }).then(null, function(err) {
+              $scope.groups.addElement($scope.item);
+              return $q.reject(err);
+            });
           }
         });
 
@@ -51,7 +59,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxThreadListItem', function($state, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
+  .directive('inboxThreadListItem', function($state, $q, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope, $element) {
@@ -77,6 +85,14 @@ angular.module('linagora.esn.unifiedinbox')
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
           markAsRead: function() {
             return inboxThreadService.markAsRead($scope.item.email);
+          },
+          moveToTrash: function() {
+            $scope.groups.removeElement($scope.item);
+
+            return inboxThreadService.moveToTrash($scope.item, { silent: true }).then(null, function(err) {
+              $scope.groups.addElement($scope.item);
+              return $q.reject(err);
+            });
           }
         });
 
