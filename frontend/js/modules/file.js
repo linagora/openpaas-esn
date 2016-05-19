@@ -978,8 +978,8 @@ angular.module('esn.file', ['angularFileUpload', 'esn.http'])
   })
 
   // Is here to be mocked
-  .service('XMLHttpRequest', function() {
-    return window.XMLHttpRequest;
+  .service('XMLHttpRequest', function($window) {
+    return $window.XMLHttpRequest;
   })
 
   .factory('xhrWithUploadProgress', function(XMLHttpRequest) {
