@@ -102,7 +102,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxThreadService, inboxEmailService) {
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxThreadService, inboxEmailService, mailboxesService) {
     return {
       restrict: 'E',
       replace: true,
@@ -126,12 +126,7 @@ angular.module('linagora.esn.unifiedinbox')
         };
 
         scope.isDropZone = function($dragData) {
-          if (isThread($dragData)) {
-            return $dragData.email.mailboxIds.indexOf(scope.mailbox.id) === -1;
-          } else {
-            return $dragData.mailboxIds.indexOf(scope.mailbox.id) === -1;
-          }
-
+          return mailboxesService.canMoveMessage($dragData.email || $dragData, scope.mailbox);
         };
       }
     };
