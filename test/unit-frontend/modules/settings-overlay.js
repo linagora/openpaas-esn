@@ -53,6 +53,15 @@ describe('The esn.settings-overlay Angular module', function() {
       expect(element.find('.settings-overlay:visible')).to.have.length(1);
     });
 
+    it('should not make the .settings-overlay element visible on mouseover if user is dragging something', function() {
+      compileDirective('<div settings-overlay-sref="/ui/router/state" />');
+
+      $rootScope.esnIsDragging = true;
+      element.trigger('mouseover');
+
+      expect(element.find('.settings-overlay:visible')).to.have.length(0);
+    });
+
     it('should make the .settings-overlay element hidden on mouseout', function() {
       compileDirective('<div settings-overlay-sref="/ui/router/state" />');
 

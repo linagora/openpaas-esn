@@ -2,7 +2,7 @@
 
 angular.module('esn.settings-overlay', [])
 
-  .directive('settingsOverlaySref', function($compile) {
+  .directive('settingsOverlaySref', function($compile, $rootScope) {
     return {
       restrict: 'A',
       controller: function($scope, $attrs) {
@@ -13,7 +13,14 @@ angular.module('esn.settings-overlay', [])
 
         element
           .append(overlay)
-          .hover(function() { overlay.toggle(); });
+          .mouseenter(function() {
+            if (!$rootScope.esnIsDragging) {
+              overlay.show();
+            }
+          })
+          .mouseleave(function() {
+            overlay.hide();
+          });
 
         overlay
           .hide()

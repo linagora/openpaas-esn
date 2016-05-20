@@ -1,10 +1,11 @@
 .clickable.swipe(
-    ng-click="ctrl.openEmail(item)",
+    ng-click="esnIsDragging || ctrl.openEmail(item)",
     swipe-right="onSwipeRight",
     icon-left="mdi-check",
     swipe-left="onSwipeLeft",
     icon-right="mdi-view-module",
     esn-draggable,
+    inbox-draggable-list-item,
     esn-drag-message="{{ ::item.subject }}",
     esn-drag-data="item",
     esn-drag-class="dragging",

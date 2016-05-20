@@ -61,6 +61,8 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
   $parse,
   $document,
   $timeout,
+  $q,
+  $rootScope,
   deviceDetector,
   esnDragService,
   ESN_DRAG_ANIMATION_CLASS,
@@ -71,7 +73,6 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     if (deviceDetector.isMobile()) { return; }
 
     var tooltipElement;
-    var isDragging = false;
     var startX, startY;
     var centerX, centerY;
 
@@ -81,6 +82,9 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     var esnOnDragEnd = $parse(attrs.esnOnDragEnd);
     var esnOnDropSuccess = $parse(attrs.esnOnDropSuccess);
     var esnOnDropFailure = $parse(attrs.esnOnDropFailure);
+
+    // Exposed so that we can prevent clicks, mousover effect, etc. throughout OP
+    $rootScope.esnIsDragging = false;
 
     function initTooltip(content) {
       tooltipElement = angular.element(
@@ -114,7 +118,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
       esnDragClass && element.removeClass(esnDragClass);
     }
 
-    function onDragStart(event) {
+    function onDragStart() {
       addDragClass();
       esnOnDragStart(scope);
       esnDragService.onDragStart(esnDragData);
@@ -131,7 +135,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
       setTooltipPosition(event.clientY, event.clientX);
     }
 
-    function onDragEnd(event) {
+    function onDragEnd() {
       removeDragClass();
 
       var dropped = esnDragService.onDragEnd({
@@ -143,11 +147,13 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
 
       if (dropped) {
         hideTooltip();
+
+        return $q.when();
       } else {
         tooltipElement.addClass(ESN_DRAG_ANIMATION_CLASS);
         setTooltipPosition(centerY, centerX);
 
-        $timeout(function() {
+        return $timeout(function() {
           tooltipElement.removeClass(ESN_DRAG_ANIMATION_CLASS);
           hideTooltip();
         }, ESN_DRAG_ANIMATION_DURATION, false);
@@ -156,12 +162,12 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     }
 
     function onMouseMove(event) {
-      if (isDragging) {
+      if ($rootScope.esnIsDragging) {
         onDrag(event);
       } else {
         if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
             Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
-          isDragging = true;
+          $rootScope.esnIsDragging = true;
           onDragStart();
           onDrag(event);
         }
@@ -173,9 +179,10 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
         return;
       }
 
-      if (isDragging) {
-        onDragEnd(event);
-        isDragging = false;
+      if ($rootScope.esnIsDragging) {
+        onDragEnd().then(function() {
+          $rootScope.esnIsDragging = false;
+        });
       }
 
       $document.off('mousemove', onMouseMove);
@@ -189,7 +196,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
 
       event.preventDefault(); // to prevent text selection
 
-      isDragging = false;
+      $rootScope.esnIsDragging = false;
       startX = event.clientX;
       startY = event.clientY;
 
