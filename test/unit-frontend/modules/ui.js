@@ -275,4 +275,69 @@ describe('The UI module', function() {
 
   });
 
+  describe('The listenToPrefixedWindowMessage factory', function() {
+
+    var listenToPrefixedWindowMessage, callback, unregisterListener;
+
+    function postMessage(message, prefix) {
+      var event = document.createEvent('Event');
+
+      event.initEvent('message');
+      event.data = prefix + message;
+
+      $window.dispatchEvent(event);
+    }
+
+    beforeEach(inject(function(_$window_, _listenToPrefixedWindowMessage_) {
+      $window = _$window_;
+      listenToPrefixedWindowMessage = _listenToPrefixedWindowMessage_;
+
+      callback = sinon.spy();
+    }));
+
+    afterEach(function() {
+      if (unregisterListener) {
+        unregisterListener();
+      }
+    });
+
+    it('should not invoke callback if message is not prefixed', function() {
+      unregisterListener = listenToPrefixedWindowMessage('ABC', callback);
+      postMessage('Test', '');
+
+      expect(callback).to.have.not.been.calledWith();
+    });
+
+    it('should not invoke callback if message is prefixed by something else', function() {
+      unregisterListener = listenToPrefixedWindowMessage('ABC', callback);
+      postMessage('Test', 'NotMyPrefix');
+
+      expect(callback).to.have.not.been.calledWith();
+    });
+
+    it('should invoke callback if message is prefixed', function() {
+      unregisterListener = listenToPrefixedWindowMessage('ABC', callback);
+      postMessage('Test', 'ABC');
+
+      expect(callback).to.have.been.calledWith('Test');
+    });
+
+    it('should return a function to unregister the listener', function() {
+      listenToPrefixedWindowMessage('Prefix', callback);
+      unregisterListener = listenToPrefixedWindowMessage('Prefix', callback);
+      postMessage('FirstTime', 'Prefix');
+
+      expect(callback).to.have.been.calledWith('FirstTime');
+      expect(callback.calledTwice).to.equal(true);
+
+      callback.reset();
+      unregisterListener();
+      postMessage('SecondTime', 'Prefix');
+
+      expect(callback).to.have.been.calledWith('SecondTime');
+      expect(callback.calledOnce).to.equal(true);
+    });
+
+  });
+
 });

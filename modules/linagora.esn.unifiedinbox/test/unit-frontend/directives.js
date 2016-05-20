@@ -53,6 +53,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
+    $provide.value('autolinker', { link: function() { return null;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
     $provide.value('autosize', autosize = sinon.spy());
     $provide.value('inboxConfig', function(key, defaultValue) {
@@ -864,7 +865,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
             var contentWithoutRandomPort = content.replace(/localhost:\d*/g, 'localhost:PORT');
 
             expect(contentWithoutRandomPort).to.equal(
-              '[linagora.esn.unifiedinbox]<html><body>' +
+              '[linagora.esn.unifiedinbox.changeDocument]<html><body>' +
                 '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="remote.png" />' +
                 '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="http://expected-url" />' +
               '</body></html>');
