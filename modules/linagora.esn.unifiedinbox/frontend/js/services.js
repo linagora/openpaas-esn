@@ -666,8 +666,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('mailboxesService', function(_, withJmapClient, MAILBOX_LEVEL_SEPARATOR) {
+  .factory('mailboxesService', function(_, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap) {
     var mailboxesCache;
+    var RESTRICT_MAILBOXES = [jmap.MailboxRole.OUTBOX.value, jmap.MailboxRole.DRAFTS.value];
 
     function filterSystemMailboxes(mailboxes) {
       return _.reject(mailboxes, function(mailbox) { return mailbox.role.value; });
@@ -782,13 +783,45 @@ angular.module('linagora.esn.unifiedinbox')
       updateUnreadMessages(toMailboxIds, numberOfUnreadMessage);
     }
 
+    function _isMovingRestrictedMailbox(mailbox) {
+      if (mailbox && mailbox.role) {
+        return RESTRICT_MAILBOXES.indexOf(mailbox.role.value) > -1;
+      }
+
+      return false;
+    }
+
+    function canMoveMessage(message, toMailbox) {
+      // do not allow moving draft message
+      if (message.isDraft) {
+        return false;
+      }
+
+      // do not move to the same mailbox
+      if (message.mailboxIds.indexOf(toMailbox.id) > -1) {
+        return false;
+      }
+
+      // do not allow moving to restricted mailboxes
+      if (_isMovingRestrictedMailbox(toMailbox)) {
+        return false;
+      }
+
+      // do not allow moving out restricted mailboxes
+      return message.mailboxIds.every(function(mailboxId) {
+        return !_isMovingRestrictedMailbox(_.find(mailboxesCache, { id: mailboxId }));
+      });
+
+    }
+
     return {
       filterSystemMailboxes: filterSystemMailboxes,
       assignMailboxesList: assignMailboxesList,
       assignMailbox: assignMailbox,
       flagIsUnreadChanged: flagIsUnreadChanged,
       updateUnreadMessages: updateUnreadMessages,
-      moveUnreadMessages: moveUnreadMessages
+      moveUnreadMessages: moveUnreadMessages,
+      canMoveMessage: canMoveMessage
     };
   })
 

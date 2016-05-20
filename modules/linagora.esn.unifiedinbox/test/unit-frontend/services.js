@@ -2654,6 +2654,79 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    describe('The canMoveMessage function', function() {
+
+      var message, mailbox, draftMailbox, outboxMailbox;
+      var jmap;
+
+      beforeEach(function() {
+        message = {
+          isDraft: false,
+          mailboxIds: [0]
+        };
+        mailbox = {
+          id: 1,
+          role: {}
+        };
+      });
+
+      beforeEach(inject(function(_jmap_) {
+        jmap = _jmap_;
+
+        draftMailbox = { id: 11, role: jmap.MailboxRole.DRAFTS };
+        outboxMailbox = { id: 22, role: jmap.MailboxRole.OUTBOX };
+        jmapClient.getMailboxes = function() {
+          return $q.when([draftMailbox, outboxMailbox]);
+        };
+        mailboxesService.assignMailboxesList({});
+        $rootScope.$digest();
+      }));
+
+      function checkResult(result) {
+        expect(mailboxesService.canMoveMessage(message, mailbox)).to.equal(result);
+      }
+
+      it('should allow moving message to mailbox by default value', function() {
+        checkResult(true);
+      });
+
+      it('should disallow moving draft message', function() {
+        message.isDraft = true;
+        checkResult(false);
+      });
+
+      it('should disallow moving message to same mailbox', function() {
+        message.mailboxIds = [1, 2];
+        checkResult(false);
+      });
+
+      it('should disallow moving message to Draft mailbox', function() {
+        mailbox.role = jmap.MailboxRole.DRAFTS;
+        checkResult(false);
+      });
+
+      it('should disallow moving message to Outbox mailbox', function() {
+        mailbox.role = jmap.MailboxRole.OUTBOX;
+        checkResult(false);
+      });
+
+      it('should disallow moving message out from Draft mailbox', function() {
+        message.mailboxIds = [draftMailbox.id];
+        checkResult(false);
+      });
+
+      it('should disallow moving message out from Outbox mailbox', function() {
+        message.mailboxIds = [outboxMailbox.id];
+        checkResult(false);
+      });
+
+      it('should allow moving message out from mailbox that is not in mailboxesCache', function() {
+        message.mailboxIds = [99];
+        checkResult(true);
+      });
+
+    });
+
   });
 
   describe('The asyncAction factory', function() {

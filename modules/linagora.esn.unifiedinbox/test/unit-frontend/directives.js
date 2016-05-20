@@ -347,7 +347,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       describe('The isDropZone function', function() {
-        it('should return true if dragData is a thread and not belong to the mailbox', function() {
+
+        var mailboxesService;
+
+        beforeEach(inject(function(_mailboxesService_) {
+          mailboxesService = _mailboxesService_;
+          mailboxesService.canMoveMessage = sinon.spy();
+        }));
+
+        it('should check result from mailboxesService.canMoveMessage if $dragData is thread', function() {
           var thread = {
             messageIds: ['m1'],
             email: {
@@ -355,36 +363,21 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
             }
           };
 
-          expect(isolateScope.isDropZone(thread)).to.be.true;
+          isolateScope.isDropZone(thread);
+
+          expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(thread.email);
         });
 
-        it('should return false if dragData is a thread and belong to the mailbox', function() {
-          var thread = {
-            messageIds: ['m1'],
-            email: {
-              mailboxIds: ['1']
-            }
-          };
-
-          expect(isolateScope.isDropZone(thread)).to.be.false;
-        });
-
-        it('should return true if dragData is a message and not belong to the mailbox', function() {
+        it('should check result from mailboxesService.canMoveMessage if $dragData is message', function() {
           var message = {
-            id: 'm1',
             mailboxIds: ['2']
           };
 
-          expect(isolateScope.isDropZone(message)).to.be.true;
-        });
+          isolateScope.isDropZone(message);
 
-        it('should return false if dragData is a message and belong to the mailbox', function() {
-          var message = {
-            id: 'm1',
-            mailboxIds: ['1']
-          };
-
-          expect(isolateScope.isDropZone(message)).to.be.false;
+          expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(message);
         });
       });
 
