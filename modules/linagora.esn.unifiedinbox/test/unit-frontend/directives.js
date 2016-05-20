@@ -1365,7 +1365,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should use swipe directive as CSS class', function() {
-        expect(element.find('.clickable').hasClass('swipe')).to.be.true;
+        expect(element.find('.swipe').length).to.equal(1);
       });
 
       describe('The onSwipeRight fn', function() {
@@ -1571,7 +1571,7 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
       });
 
       it('should use swipe directive as CSS class', function() {
-        expect(element.find('.clickable').hasClass('swipe')).to.be.true;
+        expect(element.find('.swipe').length).to.equal(1);
       });
 
       describe('The onSwipeRight fn', function() {
@@ -1670,6 +1670,15 @@ describe('The linagora.esn.unifiedinbox module directives', function() {
 
     });
 
+  });
+
+  describe('the inboxSwipeableListItem directive', function() {
+    it('should expose leftTemplate to the scope', function() {
+      inboxConfigMock.swipeRightAction = 'expectedAction';
+      compileDirective('<div inbox-swipeable-list-item />');
+
+      expect($scope.leftTemplate).to.equal('/unifiedinbox/views/partials/swipe/left-template-expectedAction.html');
+    });
   });
 
 });

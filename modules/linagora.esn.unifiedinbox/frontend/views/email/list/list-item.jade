@@ -1,24 +1,22 @@
-.clickable.swipe(
-    ng-click="esnIsDragging || ctrl.openEmail(item)",
-    swipe-right="onSwipeRight",
-    icon-left="mdi-check",
-    swipe-left="onSwipeLeft",
-    icon-right="mdi-view-module",
-    esn-draggable,
-    inbox-draggable-list-item,
-    esn-drag-message="{{ ::item.subject }}",
-    esn-drag-data="item",
-    esn-drag-class="dragging",
-    esn-on-drag-end="onDragEnd($dropped)",
-    esn-on-drop-failure="onDropFailure()"
-  )
-  .list-image.badge-container
-    img(ng-src='/images/user.png')
-  .media-body(ng-class="{bold: item.isUnread}")
-    .flex-space-between
-      .lv-title.ellipsis {{ ::item.subject}}
-      .date-container {{ ::item.date | date: group.dateFormat }}
-    .flex-space-between
-      emailer.lv-title(emailer="::item.from")
-      inbox-indicators(item="item")
-  .lv-small.preview {{ ::item.preview }}
+.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{leftTemplate}}")
+  .clickable(
+      ng-click="esnIsDragging || ctrl.openEmail(item)",
+      esn-draggable,
+      inbox-draggable-list-item,
+      inbox-swipeable-list-item,
+      esn-drag-message="{{ ::item.subject }}",
+      esn-drag-data="item",
+      esn-drag-class="dragging",
+      esn-on-drag-end="onDragEnd($dropped)",
+      esn-on-drop-failure="onDropFailure()"
+    )
+    .list-image.badge-container
+      img(ng-src='/images/user.png')
+    .media-body(ng-class="{bold: item.isUnread}")
+      .flex-space-between
+        .lv-title.ellipsis {{ ::item.subject}}
+        .date-container {{ ::item.date | date: group.dateFormat }}
+      .flex-space-between
+        emailer.lv-title(emailer="::item.from")
+        inbox-indicators(item="item")
+    .lv-small.preview {{ ::item.preview }}

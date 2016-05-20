@@ -19,6 +19,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('inboxSwipeableListItem', function(inboxConfig) {
+    return {
+      restrict: 'A',
+      link: function(scope) {
+        inboxConfig('swipeRightAction', 'markAsRead').then(function(action) {
+          scope.leftTemplate = '/unifiedinbox/views/partials/swipe/left-template-' + action + '.html';
+        });
+      }
+    };
+  })
+
   .directive('inboxMessageListItem', function($state, $q, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
     return {
       restrict: 'E',
