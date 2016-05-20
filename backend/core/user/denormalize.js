@@ -12,6 +12,7 @@ function denormalize(user) {
 
   function transform(doc, ret) {
     ret.id = getId(ret);
+    delete ret._id;
     delete ret.password;
   }
   var options = {virtuals: true, transform: transform};
