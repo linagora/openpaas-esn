@@ -90,17 +90,6 @@ describe('The esn.dragndrop Angular module', function() {
       expect(element.attr('draggable')).to.equal('false');
     });
 
-    it('should append tooltip element to current element', function() {
-      var dragMessage = 'a message';
-      var element = compileDirective(
-        '<div esn-draggable esn-drag-message="' + dragMessage + '"></div>');
-      var tooltipElement = element.find('.tooltip');
-
-      expect(tooltipElement.length).to.equal(1);
-      expect(tooltipElement.html()).to.contain(dragMessage);
-      expect(tooltipElement.css('opacity')).to.equal('0');
-    });
-
     it('should prevent text selection on mousedown', function() {
       var element = compileDirective('<div esn-draggable></div>');
       var preventDefaultSpy = sinon.spy();
@@ -155,12 +144,27 @@ describe('The esn.dragndrop Angular module', function() {
       expect(onDragStartSpy).to.not.have.been.called;
     });
 
-    it('should move tooltip to near mouse position on dragging', function() {
-      var element = compileDirective('<div esn-draggable></div>');
-      var tooltipElement = element.find('.tooltip');
+    it('should add tooltip to after current element on drag start', function() {
+      var dragMessage = 'a message';
+      var element = compileDirective(
+        '<div esn-draggable esn-drag-message="' + dragMessage + '"></div>');
 
       mouseDownOn(element, 0, 0);
       mouseMoveOn($document, 11, 11);
+
+      var tooltipElement = element.next('.tooltip');
+
+      expect(tooltipElement.length).to.equal(1);
+      expect(tooltipElement.html()).to.contain(dragMessage);
+    });
+
+    it('should move tooltip to near mouse position on dragging', function() {
+      var element = compileDirective('<div esn-draggable></div>');
+
+      mouseDownOn(element, 0, 0);
+      mouseMoveOn($document, 11, 11);
+
+      var tooltipElement = element.next('.tooltip');
 
       expect(tooltipElement.css('top')).to.equal((11 - tooltipElement.height() / 2) + 'px');
       expect(tooltipElement.css('left')).to.equal('11px');
@@ -198,9 +202,8 @@ describe('The esn.dragndrop Angular module', function() {
       });
     });
 
-    it('should hide tooltip immediately after a drop on dropzone', function() {
+    it('should remove tooltip immediately after a drop on dropzone', function() {
       var element = compileDirective('<div esn-draggable></div>');
-      var tooltipElement = element.find('.tooltip');
 
       esnDragService.addDroppableListener('someScopeId', {
         onDragStart: angular.noop,
@@ -213,12 +216,11 @@ describe('The esn.dragndrop Angular module', function() {
       mouseMoveOn($document, 11, 11);
       mouseUpOn($document);
 
-      expect(tooltipElement.css('opacity')).to.equal('0');
+      expect(element.next('.tooltip').length).to.equal(0);
     });
 
     it('should hide tooltip animatedly after a timeout after a drop on non-dropzone', function() {
       var element = compileDirective('<div esn-draggable></div>');
-      var tooltipElement = element.find('.tooltip');
 
       esnDragService.addDroppableListener('someScopeId', {
         onDragStart: angular.noop,
@@ -231,12 +233,11 @@ describe('The esn.dragndrop Angular module', function() {
       mouseMoveOn($document, 11, 11);
       mouseUpOn($document);
 
-      expect(tooltipElement.hasClass('esn-drag-tooltip')).to.be.true;
-      expect(tooltipElement.css('opacity')).to.equal('1');
+      expect(element.next('.tooltip').hasClass('esn-drag-tooltip')).to.be.true;
 
       $timeout.flush();
 
-      expect(tooltipElement.css('opacity')).to.equal('0');
+      expect(element.next('.tooltip').length).to.equal(0);
     });
 
     it('should call esnOnDragEnd with true value after a drop on dropzone', function() {
