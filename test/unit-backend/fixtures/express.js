@@ -14,6 +14,14 @@ exports.express = function() {
   expressMock.urlencoded = function() {};
   expressMock.cookieParser = function() {};
   expressMock.session = function() {};
+  expressMock.Router = function() {
+    return {
+      get: function() {},
+      put: function() {},
+      delete: function() {},
+      post: function() {}
+    };
+  };
   expressMock.constructorResponse = {
     locals: {},
     all: function() {},

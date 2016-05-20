@@ -1,6 +1,16 @@
 # REST API Overview
 
-This describes the implemented REST API of the official OpenPaas API v1. The OpenPaas REST API is implemented using the HTTP protocol, and the JSON data format.
+This describes the implemented REST API of the official OpenPaas API v0.1. The OpenPaas REST API is implemented using the HTTP protocol, and the JSON data format.
+
+OpenPaaS API starts from version 0.1 that is not a release version.
+It means that from now on, all routes are also defined with the base path /api/v0.1
+In fact, all routes have to be exposed like they were before to preserve compatibility.
+As a result, documentation files for REST APIs remain valid.
+
+To deal with future new versions of the API, it will be necessary to increment the version number according to the semver versioning.
+And  before, to deprecate versions that are no more compatible.
+
+Awesome Modules should manage their own version apart from the esn core.
 
 ## Conventions
 

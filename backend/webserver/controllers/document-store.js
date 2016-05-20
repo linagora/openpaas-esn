@@ -1,6 +1,7 @@
 'use strict';
 
-var mongodb = require('../../core').db.mongo;
+var core = require('../../core');
+var mongodb = core.db.mongo;
 
 /**
  * Store the document store configuration values
@@ -10,6 +11,7 @@ var mongodb = require('../../core').db.mongo;
  * @return {json|*|json|json|json|json}
  */
 function store(req, res) {
+
   var data = req.body;
   if (!data.hostname || !data.port || !data.dbname) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'hostname, port and dbname are required'}});
@@ -67,3 +69,17 @@ function test(req, res) {
 }
 module.exports.test = test;
 
+/**
+ * Return error if the database connection is already configured
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {next middleware} next
+ */
+function failIfConfigured(req, res, next) {
+  if (!core.configured()) {
+    return next();
+  }
+  return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'the database connection is already configured'}});
+}
+module.exports.failIfConfigured = failIfConfigured;

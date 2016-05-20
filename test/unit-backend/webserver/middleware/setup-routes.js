@@ -7,11 +7,17 @@ describe('The webserver setup-route middleware', function() {
 
   beforeEach(function() {
     this.configured = false;
+    this.routerMock = {
+      get: function() {},
+      put: function() {},
+      delete: function() {},
+      post: function() {}
+    };
     var configuredMock = function() {
       return this.configured;
     };
 
-    mockery.registerMock('../../core', {configured: configuredMock.bind(this)});
+    mockery.registerMock('../../core', {configured: configuredMock.bind(this), db: {mongo: {}}});
   });
 
   it('should register a callback on the GET / endpoint', function() {
@@ -31,32 +37,25 @@ describe('The webserver setup-route middleware', function() {
   });
 
   it('should register a callback on the PUT /api/document-store/connection endpoint', function(done) {
-    var appMock = {
-      put: function(path, callback) {
-        expect(path).to.equal('/api/document-store/connection');
-        expect(callback).to.be.a.function;
-        done();
-      },
-      get: function() {}
+    this.routerMock.put = function(path, callback) {
+      expect(path).to.equal('/document-store/connection');
+      expect(callback).to.be.a.function;
+      done();
     };
-
-    this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
+    this.helpers.requireBackend('webserver/api/document-store')(this.routerMock);
   });
 
   it('should register a callback on the GET /api/document-store/connection/:hostname/:port/:dbname endpoint', function() {
     var registered = {
     };
-    var appMock = {
-      get: function(path, callback) {
-        registered[path] = callback;
-      },
-      put: function() {}
+    this.routerMock.get =  function(path, callback) {
+      registered[path] = callback;
     };
 
-    this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
+    this.helpers.requireBackend('webserver/api/document-store')(this.routerMock);
 
-    expect(registered).to.have.property('/api/document-store/connection/:hostname/:port/:dbname');
-    expect(registered['/api/document-store/connection/:hostname/:port/:dbname']).to.be.a.function;
+    expect(registered).to.have.property('/document-store/connection/:hostname/:port/:dbname');
+    expect(registered['/document-store/connection/:hostname/:port/:dbname']).to.be.a.function;
   });
 
   describe('GET / callback', function() {
@@ -106,14 +105,11 @@ describe('The webserver setup-route middleware', function() {
       var nextMock = function() {
         done();
       };
-      var appMock = {
-        get: function() {},
-        put: function(path, callback) {
-          callback({}, {}, nextMock);
-        }
+      this.routerMock.put = function(path, callback) {
+        callback[0]({}, {}, nextMock);
       };
 
-      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/api/document-store')(this.routerMock);
     });
 
     it('should call res.json(400) if the system is configured', function(done) {
@@ -125,14 +121,11 @@ describe('The webserver setup-route middleware', function() {
           done();
         }
       };
-      var appMock = {
-        get: function() {},
-        put: function(path, callback) {
-          callback({}, responseMock, null);
-        }
+      this.routerMock.put = function(path, callback) {
+        callback[0]({}, responseMock, null);
       };
 
-      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/api/document-store')(this.routerMock);
     });
 
   });
@@ -144,16 +137,13 @@ describe('The webserver setup-route middleware', function() {
       var nextMock = function() {
         done();
       };
-      var appMock = {
-        put: function() {},
-        get: function(path, callback) {
-          if (path === '/api/document-store/connection/:hostname/:port/:dbname') {
-            callback({}, {}, nextMock);
-          }
+      this.routerMock.get = function(path, callback) {
+        if (path === '/document-store/connection/:hostname/:port/:dbname') {
+          callback[0]({}, {}, nextMock);
         }
       };
 
-      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/api/document-store')(this.routerMock);
     });
 
     it('should call res.json(400) if the system is configured', function(done) {
@@ -165,16 +155,13 @@ describe('The webserver setup-route middleware', function() {
           done();
         }
       };
-      var appMock = {
-        put: function() {},
-        get: function(path, callback) {
-          if (path === '/api/document-store/connection/:hostname/:port/:dbname') {
-            callback({}, responseMock, null);
-          }
+      this.routerMock.get = function(path, callback) {
+        if (path === '/document-store/connection/:hostname/:port/:dbname') {
+          callback[0]({}, responseMock, null);
         }
       };
 
-      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/api/document-store')(this.routerMock);
     });
   });
 
