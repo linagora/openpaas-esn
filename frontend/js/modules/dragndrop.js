@@ -93,8 +93,8 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
           '<div class="tooltip-inner">' + content + '</div>' +
         '</div>');
 
+      tooltipElement.css('opacity', 1);
       tooltipElement.css('position', 'fixed');
-      element.append(tooltipElement);
     }
 
     function setTooltipPosition(top, left) {
@@ -103,11 +103,11 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     }
 
     function showTooltip() {
-      tooltipElement.css('opacity', 1);
+      element.after(tooltipElement);
     }
 
     function hideTooltip() {
-      tooltipElement.css('opacity', 0);
+      tooltipElement.remove();
     }
 
     function addDragClass() {
@@ -126,7 +126,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
       var offset = element.offset();
 
       centerX = offset.left + element.width() / 2;
-      centerY = offset.top + element.height() / 2;
+      centerY = offset.top + element.height() - $document.scrollTop();
 
       showTooltip();
     }
@@ -205,7 +205,6 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     }
 
     initTooltip(attrs.esnDragMessage);
-    hideTooltip();
 
     element.attr('draggable', false); // disable native HTML5 drag
     element.on('mousedown', onMouseDown);
