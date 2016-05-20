@@ -10,6 +10,7 @@ module.exports.getId = getId;
 function denormalize(community) {
   function transform(doc, ret) {
     ret.id = getId(ret);
+    delete ret._id;
   }
   var options = {virtuals: true, transform: transform};
 
