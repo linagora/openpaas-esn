@@ -2,17 +2,22 @@
 
 angular.module('esn.calendar').factory('calendarCurrentView', function($location, screenSize, fcMoment, CALENDAR_AVAILABLE_VIEWS) {
 
-  function save(view) {
+  var currentView = null;
+
+  function set(view) {
     var firstDayOfView = view.name === 'month' ? fcMoment(view.start).add(7, 'days').startOf('month') : view.start;
-    $location.search({
+    currentView = {
       viewMode: view.name,
       start: firstDayOfView.format('YYYY-MM-DD')
-    });
+    };
+
+    $location.search(currentView);
   }
 
   function get() {
     var view = {};
-    var getParam = $location.search();
+
+    var getParam = currentView || $location.search();
 
     if (getParam.viewMode && CALENDAR_AVAILABLE_VIEWS.indexOf(getParam.viewMode) !== -1) {
       view.name = getParam.viewMode;
@@ -30,7 +35,7 @@ angular.module('esn.calendar').factory('calendarCurrentView', function($location
   }
 
   return {
-    get: get,
-    save: save
+    set: set,
+    get: get
   };
 });
