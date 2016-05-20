@@ -13,19 +13,14 @@ angular.module('esn.fcmoment', ['angularMoment'])
   .factory('fcMoment', function($window, ICAL, moment) {
     var fcMoment = function(time) {
       if (time && (time instanceof ICAL.Time)) {
-        if (!time.zone) {
-          time.zone = ICAL.Timezone.localTimezone;
-        }
         var m = $window.$.fullCalendar.moment(time.toJSDate());
 
-        if (time.zone !== ICAL.Timezone.localTimezone && time.utcOffset() !== 0) {
-          m.utcOffset(time.utcOffset());
-        }
         if (time.isDate) {
           m.stripTime();
         }
         return m;
       }
+
       return $window.$.fullCalendar.moment.apply(this, arguments);
     };
 
