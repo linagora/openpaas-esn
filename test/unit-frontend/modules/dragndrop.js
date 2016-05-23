@@ -76,6 +76,11 @@ describe('The esn.dragndrop Angular module', function() {
       $timeout = _$timeout_;
     }));
 
+    afterEach(function() {
+      mouseUpOn($document);
+      $rootScope.esnIsDragging && $timeout.flush();
+    });
+
     it('should do nothing if current device is mobile', function() {
       deviceDetectorMock.isMobile = function() { return true; };
 
@@ -152,7 +157,7 @@ describe('The esn.dragndrop Angular module', function() {
       mouseDownOn(element, 0, 0);
       mouseMoveOn($document, 11, 11);
 
-      var tooltipElement = element.next('.tooltip');
+      var tooltipElement = angular.element(document.body).find('.tooltip');
 
       expect(tooltipElement.length).to.equal(1);
       expect(tooltipElement.html()).to.contain(dragMessage);
@@ -162,11 +167,11 @@ describe('The esn.dragndrop Angular module', function() {
       var element = compileDirective('<div esn-draggable></div>');
 
       mouseDownOn(element, 0, 0);
-      mouseMoveOn($document, 11, 11);
+      mouseMoveOn($document, 11, 11.5);
 
-      var tooltipElement = element.next('.tooltip');
+      var tooltipElement = angular.element(document.body).find('.tooltip');
 
-      expect(tooltipElement.css('top')).to.equal((11 - tooltipElement.height() / 2) + 'px');
+      expect(tooltipElement.css('top')).to.equal((11.5 - tooltipElement.height() / 2) + 'px');
       expect(tooltipElement.css('left')).to.equal('11px');
       expect(tooltipElement.css('opacity')).to.equal('1');
     });
@@ -216,7 +221,7 @@ describe('The esn.dragndrop Angular module', function() {
       mouseMoveOn($document, 11, 11);
       mouseUpOn($document);
 
-      expect(element.next('.tooltip').length).to.equal(0);
+      expect(angular.element(document.body).find('.tooltip').length).to.equal(0);
     });
 
     it('should hide tooltip animatedly after a timeout after a drop on non-dropzone', function() {
@@ -233,11 +238,11 @@ describe('The esn.dragndrop Angular module', function() {
       mouseMoveOn($document, 11, 11);
       mouseUpOn($document);
 
-      expect(element.next('.tooltip').hasClass('esn-drag-tooltip')).to.be.true;
+      expect(angular.element(document.body).find('.tooltip').hasClass('esn-drag-tooltip')).to.be.true;
 
       $timeout.flush();
 
-      expect(element.next('.tooltip').length).to.equal(0);
+      expect(angular.element(document.body).find('.tooltip').length).to.equal(0);
     });
 
     it('should call esnOnDragEnd with true value after a drop on dropzone', function() {

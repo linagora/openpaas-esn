@@ -103,7 +103,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     }
 
     function showTooltip() {
-      element.after(tooltipElement);
+      tooltipElement.appendTo(document.body);
     }
 
     function hideTooltip() {
