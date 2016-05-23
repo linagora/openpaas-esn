@@ -12,6 +12,7 @@ angular.module('esn.calendar')
       timezone: 'local',
       nowIndicator: true,
       forceEventDuration: true,
+      defaultTimedEventDuration: '00:30:00',
       weekNumbers: true,
       firstDay: 1,
       header: {
