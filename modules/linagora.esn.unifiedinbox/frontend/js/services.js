@@ -496,7 +496,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
                                    backgroundAction, jmap, emailBodyService, waitUntilMessageIsComplete, newComposerService,
-                                   DRAFT_SAVING_DEBOUNCE_DELAY) {
+                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest) {
 
     function prepareEmail(email) {
       var preparingEmail = angular.copy(email || {});
@@ -578,15 +578,17 @@ angular.module('linagora.esn.unifiedinbox')
       return $q.when(email);
     }
 
-    function buildSendNotificationOptions(messageContent) {
+    function _buildSendNotificationOptions(email) {
       return {
         onFailure: {
           linkText: 'Reopen the composer',
-          action: function() {
-            newComposerService.open(messageContent, 'Resume message composition');
-          }
+          action: _makeReopenComposerFn(email)
         }
       };
+    }
+
+    function _makeReopenComposerFn(email) {
+      return newComposerService.open.bind(newComposerService, email, 'Resume message composition');
     }
 
     Composition.prototype.send = function() {
@@ -600,8 +602,22 @@ angular.module('linagora.esn.unifiedinbox')
           .then(function(email) {
             return emailSendingService.sendEmail(email);
           });
-      }.bind(this), buildSendNotificationOptions(this.email))
+      }.bind(this), _buildSendNotificationOptions(this.email))
         .then(this.draft.destroy.bind(this.draft));
+    };
+
+    Composition.prototype.destroyDraft = function() {
+      this._cancelDelayedDraftSave();
+
+      return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
+        .then(function(result) {
+          if (result.cancelled) {
+            _makeReopenComposerFn(this.email)();
+            result.success(); // Close the notification
+          } else {
+            this.draft.destroy()
+          }
+        }.bind(this));
     };
 
     return Composition;

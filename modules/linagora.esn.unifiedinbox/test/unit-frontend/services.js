@@ -1753,7 +1753,8 @@ describe('The Unified Inbox Angular module services', function() {
 
     var Composition, draftService, emailSendingService, session, $timeout, Offline,
         notificationFactory, closeNotificationSpy, notificationTitle, notificationText,
-        jmap, jmapClient, firstSaveAck, $rootScope;
+        jmap, jmapClient, firstSaveAck, $rootScope, newComposerService,
+        notifyOfGracedRequest, graceRequestResult;
 
     beforeEach(module(function($provide) {
       jmapClient = {
@@ -1767,13 +1768,21 @@ describe('The Unified Inbox Angular module services', function() {
         })
       };
 
+      graceRequestResult = {
+        cancelled: true,
+        success: sinon.spy()
+      };
+
       $provide.value('withJmapClient', function(callback) {
         return callback(jmapClient);
       });
+      $provide.value('notifyOfGracedRequest', notifyOfGracedRequest = sinon.spy(function() {
+        return {promise: $q.when(graceRequestResult)};
+      }))
     }));
 
     beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
-         _Composition_, _emailSendingService_, _$timeout_, _jmap_, _$rootScope_) {
+         _Composition_, _emailSendingService_, _$timeout_, _jmap_, _$rootScope_, _newComposerService_) {
       draftService = _draftService_;
       notificationFactory = _notificationFactory_;
       session = _session_;
@@ -1783,6 +1792,7 @@ describe('The Unified Inbox Angular module services', function() {
       $timeout = _$timeout_;
       jmap = _jmap_;
       $rootScope = _$rootScope_;
+      newComposerService = _newComposerService_;
 
       Offline.state = 'up';
       notificationTitle = '';
@@ -2119,6 +2129,59 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       $timeout.flush();
+    });
+
+    describe('The "destroyDraft" function', function() {
+
+      it('should generate expected notification when called', function(done) {
+        new Composition({subject: 'a subject'}).destroyDraft().then(function() {
+          expect(notifyOfGracedRequest).to.have.been.calledWith('This draft has been discarded', 'Reopen');
+        }).then(done, done);
+
+        $timeout.flush();
+      });
+
+      it('should reopen the composer with the expected email when the grace period is cancelled', function(done) {
+        var expectedEmail = { to: ['to@to'], cc: [], bcc: [], subject: 'expected subject', htmlBody: 'expected body' };
+        newComposerService.open = sinon.spy();
+
+        new Composition(expectedEmail).destroyDraft().then(function() {
+          expect(newComposerService.open).to.have.been.calledWith(expectedEmail, 'Resume message composition');
+        }).then(done, done);
+
+        $timeout.flush();
+      });
+
+      it('should call "success" on the notification to close it when the grace period is cancelled', function(done) {
+        new Composition().destroyDraft().then(function() {
+          expect(graceRequestResult.success).to.have.been.calledOnce;
+        }).then(done, done);
+
+        $timeout.flush();
+      });
+
+      it('should delete the original draft when the grace period is not cancelled', function(done) {
+        var message = new jmap.Message(jmapClient, 123, 'threadId', ['box1'], {});
+        graceRequestResult.cancelled = false;
+
+        new Composition(message).destroyDraft().then(function() {
+          expect(jmapClient.destroyMessage).to.have.been.calledWith(123);
+        }).then(done, done);
+
+        $timeout.flush();
+      });
+
+      it('should cancel the delayed save request', function() {
+        var composition = new Composition();
+        composition.email.htmlBody = 'content to save';
+
+        composition.saveDraftSilently();
+        composition.destroyDraft();
+
+        $timeout.flush();
+        expect(jmapClient.saveAsDraft).to.have.not.been.called;
+      });
+
     });
 
   });

@@ -179,7 +179,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
     
     $scope.destroyDraft = function() {
-      
+      $scope.hide();
+      return composition.destroyDraft();
     };
 
   })

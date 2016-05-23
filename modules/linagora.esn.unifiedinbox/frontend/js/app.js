@@ -28,7 +28,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.aggregator',
   'esn.provider',
   'esn.dragndrop',
-  'esn.autolinker-wrapper'
+  'esn.autolinker-wrapper',
+  'linagora.esn.graceperiod'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
