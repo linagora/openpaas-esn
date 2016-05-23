@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS) {
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, CALENDAR_MODIFY_COMPARE_KEYS) {
 
     $scope.newCalendar = !$scope.calendar;
     $scope.calendar = $scope.calendar || {};
@@ -37,7 +37,11 @@ angular.module('esn.calendar')
           });
       } else {
         if (!hasModifications($scope.oldCalendar, $scope.calendar)) {
-          $state.go('calendar.list');
+          if (screenSize.is('xs, sm')) {
+            $state.go('calendar.list');
+          } else {
+            $state.go('calendar.main');
+          }
           return;
         }
         calendarService.modifyCalendar($scope.calendarHomeId, shell)

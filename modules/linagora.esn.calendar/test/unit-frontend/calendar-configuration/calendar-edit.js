@@ -19,11 +19,13 @@ describe('The calendarEditionController controller', function() {
     this.notificationFactoryMock = {};
     this.stateMock = {};
     this.calendarMock = null;
+    this.screenSize = {};
 
     var self = this;
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
     angular.mock.module(function($provide) {
+      $provide.value('screenSize', self.screenSize);
       $provide.value('uuid4', self.uuid4);
       $provide.value('calendarService', self.calendarService);
       $provide.value('notificationFactory', self.notificationFactoryMock);
@@ -90,7 +92,9 @@ describe('The calendarEditionController controller', function() {
     });
 
     describe('when newCalendar is false', function() {
-      it('should return to calendar.list if the calendar has not been modified', function() {
+      it('should return to calendar.list if the calendar has not been modified and if screensize is xs or sm', function() {
+        this.screenSize.is = sinon.stub().returns(true);
+
         this.stateMock.go = sinon.spy(function(path) {
           expect(path).to.equal('calendar.list');
         });
@@ -103,6 +107,29 @@ describe('The calendarEditionController controller', function() {
         this.$scope.oldCalendar.color = 'aColor';
         this.$scope.newCalendar = false;
         this.$scope.submit();
+
+        expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+        expect(this.stateMock.go).to.have.been.called;
+        expect(this.calendarService.modifyCalendar).to.have.not.been.called;
+      });
+
+      it('should return to calendar.main if the calendar has not been modified and if screensize is md', function() {
+        this.screenSize.is = sinon.stub().returns(false);
+
+        this.stateMock.go = sinon.spy(function(path) {
+          expect(path).to.equal('calendar.main');
+        });
+        this.calendarService.modifyCalendar = sinon.spy();
+
+        this.initController();
+        this.$scope.calendar.color = 'aColor';
+        this.$scope.calendar.name = 'aName';
+        this.$scope.oldCalendar.name = 'aName';
+        this.$scope.oldCalendar.color = 'aColor';
+        this.$scope.newCalendar = false;
+        this.$scope.submit();
+
+        expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
         expect(this.stateMock.go).to.have.been.called;
         expect(this.calendarService.modifyCalendar).to.have.not.been.called;
       });
