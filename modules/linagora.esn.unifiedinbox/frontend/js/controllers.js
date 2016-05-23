@@ -177,6 +177,10 @@ angular.module('linagora.esn.unifiedinbox')
         $scope.isSendingMessage = false;
       }
     };
+    
+    $scope.destroyDraft = function() {
+      
+    };
 
   })
 
