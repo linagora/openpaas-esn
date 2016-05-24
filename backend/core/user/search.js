@@ -1,6 +1,7 @@
 'use strict';
 
 var utils = require('./utils');
+var _ = require('lodash');
 var CONSTANTS = require('./constants');
 
 var DEFAULT_LIMIT = 50;
@@ -95,7 +96,7 @@ function searchByDomain(domains, query, cb) {
       }
 
       var list = response.hits.hits;
-      var users = list.map(function(hit) { return hit._source; });
+      var users = list.map(function(hit) { return _.extend(hit._source, { _id: hit._source.id }); });
 
       if (collaboration) {
         utils.filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, function(err, results) {
