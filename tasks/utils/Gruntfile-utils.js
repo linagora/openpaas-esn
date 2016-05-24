@@ -25,10 +25,15 @@ function _args(grunt) {
 }
 
 function _taskSuccessIfMatch(grunt, regex, info) {
+  var taskIsDone = false;
+
   return function(chunk, done) {
+    if (taskIsDone) { return; }
+
     if (regex) {
       done = done || grunt.task.current.async();
       if (regex.test('' + chunk)) {
+        taskIsDone = true;
         grunt.log.oklns(info);
         done(true);
       }
