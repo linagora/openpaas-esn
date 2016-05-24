@@ -17,8 +17,6 @@ describe('The Sidebar Angular module', function() {
     var toggle;
     var destroy;
     var options;
-    var nicescollShow = sinon.spy();
-    var nicescollHide = sinon.spy();
 
     beforeEach(function() {
       toggle = sinon.spy();
@@ -33,13 +31,6 @@ describe('The Sidebar Angular module', function() {
       angular.mock.module(function($provide) {
         $provide.value('contextualSidebarService', contextualSidebarService);
       });
-
-      $.fn.getNiceScroll = function() {
-        return {
-          show: nicescollShow,
-          hide: nicescollHide
-        };
-      };
     });
 
     beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _$timeout_) {
@@ -142,28 +133,6 @@ describe('The Sidebar Angular module', function() {
       );
       element.triggerHandler('click');
       expect(toggle).to.have.been.called;
-    });
-
-    it('should call nicescroll show function when the contextual-sidebar.hide event is triggered', function() {
-      this.initDirective(
-        '<div contextual-sidebar/>',
-        this.$scope
-      );
-      this.$rootScope.$broadcast('contextual-sidebar.hide');
-
-      expect(nicescollShow).to.have.been.called;
-    });
-
-    it('should call nicescroll hide function when the contextual-sidebar.show event is triggered', function() {
-      this.initDirective(
-        '<div contextual-sidebar/>',
-        this.$scope
-      );
-      this.$rootScope.$broadcast('contextual-sidebar.show');
-
-      this.$timeout.flush();
-
-      expect(nicescollHide).to.have.been.called;
     });
 
     it('should call destroy on $destroy', function() {
