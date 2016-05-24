@@ -35,7 +35,7 @@ angular.module('esn.calendar')
           buttonText: '3 days'
         },
         month: {
-          eventLimit: 3,
+          eventLimit: true,
           eventLimitClick: 'day'
         }
       }
