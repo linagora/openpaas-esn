@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
+angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
 
-  .factory('notifyService', function($window, $sanitize) {
+  .factory('notifyService', function($window, escapeHtmlUtils) {
     var defaultSettings = {
       placement: { from: 'bottom', align: 'center'},
       mouse_over: 'pause',
@@ -14,11 +14,11 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
         '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
       '</div>'
     };
-    function sanitizeFlatObject(options) {
+    function escapeHtmlFlatObject(options) {
       var result = {};
 
       angular.forEach(options, function(value, key) {
-        result[key] = angular.isString(value) ? $sanitize(value) : value;
+        result[key] = angular.isString(value) ? escapeHtmlUtils.escapeHTML(value) : value;
       });
 
       return result;
@@ -26,13 +26,13 @@ angular.module('esn.notification', ['angularMoment', 'ngSanitize'])
 
     return function(options, settings) {
 
-      var notification = $window.$.notify(sanitizeFlatObject(options), angular.extend({}, defaultSettings, settings));
+      var notification = $window.$.notify(escapeHtmlFlatObject(options), angular.extend({}, defaultSettings, settings));
       var update = notification.update;
 
       notification.update = function(strOrObj, value) {
         return angular.isString(strOrObj) ?
-          update.call(this, strOrObj, $sanitize(value)) :
-          update.call(this, sanitizeFlatObject(strOrObj));
+          update.call(this, escapeHtmlUtils.escapeHTML(strOrObj), value) :
+          update.call(this, escapeHtmlFlatObject(strOrObj));
       };
 
       notification.setCancelAction = function(cancelActionConfig) {
