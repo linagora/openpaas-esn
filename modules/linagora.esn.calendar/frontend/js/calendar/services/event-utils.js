@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.calendar').service('eventUtils', function($sanitize, session, SIGNIFICANT_CHANGE_KEYS, CALENDAR_DEDAULT_EVENT_COLOR, _) {
+angular.module('esn.calendar').service('eventUtils', function(session, escapeHtmlUtils, SIGNIFICANT_CHANGE_KEYS, CALENDAR_DEDAULT_EVENT_COLOR, _) {
   var editedEvent = null;
   var newAttendees = null;
 
@@ -9,11 +9,11 @@ angular.module('esn.calendar').service('eventUtils', function($sanitize, session
     var title = element.find('.fc-title');
 
     if (event.location) {
-      title.append(angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + $sanitize(event.location) + '</div>'));
+      title.append(angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + escapeHtmlUtils.escapeHTML(event.location) + '</div>'));
     }
 
     if (event.description) {
-      element.attr('title', $sanitize(event.description));
+      element.attr('title', escapeHtmlUtils.escapeHTML(event.description));
     }
 
     var userAsAttendee = null;

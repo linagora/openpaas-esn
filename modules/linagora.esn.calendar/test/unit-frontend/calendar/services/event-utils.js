@@ -1,11 +1,11 @@
 'use strict';
 
-/* global chai, sinon: false */
+/* global sinon, chai: false */
 
 var expect = chai.expect;
 
 describe('The eventUtils service', function() {
-  var element, fcTitle, fcContent, event, calendarService, sanitizeMock;
+  var element, fcTitle, fcContent, event, calendarService, self;
 
   function Element() {
     this.innerElements = {};
@@ -38,6 +38,7 @@ describe('The eventUtils service', function() {
 
   var userEmail = 'aAttendee@open-paas.org';
   beforeEach(function() {
+    self = this;
     var emailMap = {};
     emailMap[userEmail] = true;
     var asSession = {
@@ -50,21 +51,19 @@ describe('The eventUtils service', function() {
         company_name: 'test'
       }
     };
-    asSession.ready = $q.when(asSession);
     calendarService = {};
-
-    sanitizeMock = sinon.spy(angular.identity);
 
     angular.mock.module('esn.calendar');
     angular.mock.module('esn.ical');
-    angular.mock.module('ngSanitize');
     angular.mock.module(function($provide) {
-      $provide.value('session', asSession);
+      $provide.factory('session', function($q) {
+        asSession.ready = $q.when(asSession);
+        return asSession;
+      });
       $provide.factory('eventsProviders', function($q) {
         return $q.when([]);
       });
       $provide.value('calendarService', calendarService);
-      $provide.value('$sanitize', sanitizeMock);
     });
 
     var vcalendar = {};
@@ -83,9 +82,18 @@ describe('The eventUtils service', function() {
     fcTitle = new Element();
     element.innerElements['.fc-content'] = fcContent;
     element.innerElements['.fc-title'] = fcTitle;
+
+    this.escapeHTMLMockResult = {};
+    this.escapeHTMLMock = {
+      escapeHTML: sinon.stub().returns(this.escapeHTMLMockResult)
+    };
+
+    angular.mock.module(function($provide) {
+      $provide.value('escapeHtmlUtils', self.escapeHTMLMock);
+    });
   });
 
-  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell) {
+  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell, escapeHtmlUtils) {
     this.eventUtils = eventUtils;
     this.$rootScope = $rootScope;
     this.fcMoment = fcMoment;
@@ -111,6 +119,7 @@ describe('The eventUtils service', function() {
       }];
 
       this.eventUtils.applyReply(origEvent, reply);
+
       expect(origEvent.attendees).to.shallowDeepEqual({
         0: {
           email: 'winston.churchill@demo.open-paas.org',
@@ -126,15 +135,11 @@ describe('The eventUtils service', function() {
   });
 
   describe('render function', function() {
-    it('should sanitize event description', function() {
-      this.eventUtils.render(event, element);
-      expect(sanitizeMock).to.have.been.calledWith(event.description);
-    });
-
     it('should add a title attribute if description is defined', function() {
       event.description = 'aDescription';
       this.eventUtils.render(event, element);
-      expect(element.attributes.title).to.equal('aDescription');
+      expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(event.description);
+      expect(element.attributes.title).to.equal(this.escapeHTMLMockResult);
     });
 
     it('should add event-needs-action class if current user is found in the DECLINED attendees', function() {
