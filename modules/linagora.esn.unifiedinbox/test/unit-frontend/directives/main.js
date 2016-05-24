@@ -753,6 +753,16 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect($scope.$hide).to.have.been.called;
     });
 
+    it('should initialize the controller with expected compositionOptions', function() {
+      $scope.compositionOptions = { expected: 'options' };
+      var controller = compileDirective('<composer-desktop/>').controller('composerDesktop');
+
+      controller.initCtrl = sinon.spy();
+      $timeout.flush();
+
+      expect(controller.initCtrl).to.have.been.calledWith(sinon.match.any, { expected: 'options' });
+    });
+
     it('should initialize the controller with summernote\'s initial value when composing from scratch', function() {
       var controller = compileDirective('<composer-desktop/>').controller('composerDesktop');
 

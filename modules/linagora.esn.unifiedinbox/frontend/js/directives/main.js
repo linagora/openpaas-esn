@@ -346,7 +346,7 @@ angular.module('linagora.esn.unifiedinbox')
         // which allows us to later compare it with the current body, to detect user changes.
         scope.onChange = function() {
           $timeout(function() {
-            controller.initCtrl(scope.email);
+            controller.initCtrl(scope.email, scope.compositionOptions);
           }, 0);
 
           scope.onChange = angular.noop;

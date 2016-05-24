@@ -1632,12 +1632,15 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should update the location if deviceDetector returns true', function() {
         deviceDetector.isMobile = sinon.stub().returns(true);
-        $state.go = sinon.spy();
 
         newComposerService.open();
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', { email: undefined, previousState: { name: 'stateName', params: 'stateParams' }});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
+          email: undefined,
+          compositionOptions: undefined,
+          previousState: { name: 'stateName', params: 'stateParams' }
+        });
       });
 
       it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
@@ -1670,7 +1673,11 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.openDraft('id');
         $rootScope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: { id: 'id' }, previousState: { name: 'stateName', params: 'stateParams' }});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
+          email: { id: 'id' },
+          compositionOptions: undefined,
+          previousState: { name: 'stateName', params: 'stateParams' }
+        });
       });
 
       it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
@@ -1684,7 +1691,8 @@ describe('The Unified Inbox Angular module services', function() {
           id: 'id',
           title: 'Continue your draft',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email:  { id: 'id' }
+          email:  { id: 'id' },
+          compositionOptions: undefined
         });
       });
 
@@ -1709,12 +1717,14 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should update the location with the email id if deviceDetector returns true', function() {
         deviceDetector.isMobile = sinon.stub().returns(true);
-        $state.go = sinon.spy();
 
         newComposerService.open({expected: 'field'}, 'title');
         $timeout.flush();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {email: {expected: 'field'}, previousState: { name: 'stateName', params: 'stateParams' }});
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
+          email: {expected: 'field'},
+          compositionOptions: undefined,
+          previousState: { name: 'stateName', params: 'stateParams' }});
       });
 
       it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
@@ -1727,7 +1737,8 @@ describe('The Unified Inbox Angular module services', function() {
           id: '1234',
           title: 'title',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email: { id: '1234', subject: 'object' }
+          email: { id: '1234', subject: 'object' },
+          compositionOptions: undefined
         });
       });
 
@@ -1741,7 +1752,35 @@ describe('The Unified Inbox Angular module services', function() {
           id: '1234',
           title: 'Compose an email',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email: { id: '1234', subject: 'object' }
+          email: { id: '1234', subject: 'object' },
+          compositionOptions: undefined
+        });
+      });
+
+      it('should forward the compositionOptions when "open" is called and is on mobile', function() {
+        deviceDetector.isMobile = sinon.stub().returns(true);
+
+        newComposerService.open({expected: 'field'}, 'title', {expected: 'options'});
+        $timeout.flush();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
+          email: {expected: 'field'},
+          compositionOptions: {expected: 'options'},
+          previousState: { name: 'stateName', params: 'stateParams' }});
+      });
+
+      it('should forward the compositionOptions when "open" is called and is not on mobile', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
+        boxOverlayOpener.open = sinon.spy();
+
+        newComposerService.open({id: '1234', subject: 'object'}, 'title', {expected: 'options'});
+
+        expect(boxOverlayOpener.open).to.have.been.calledWith({
+          id: '1234',
+          title: 'title',
+          templateUrl: '/unifiedinbox/views/composer/box-compose.html',
+          email: {id: '1234', subject: 'object'},
+          compositionOptions: {expected: 'options'}
         });
       });
 
@@ -1778,7 +1817,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
       $provide.value('notifyOfGracedRequest', notifyOfGracedRequest = sinon.spy(function() {
         return {promise: $q.when(graceRequestResult)};
-      }))
+      }));
     }));
 
     beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
@@ -2147,6 +2186,23 @@ describe('The Unified Inbox Angular module services', function() {
 
         new Composition(expectedEmail).destroyDraft().then(function() {
           expect(newComposerService.open).to.have.been.calledWith(expectedEmail, 'Resume message composition');
+        }).then(done, done);
+
+        $timeout.flush();
+      });
+
+      it('should perform draft saving when the composition has been modified, then restored, then saved', function(done) {
+        var modifyingEmail = { to: [], cc: [], bcc: [], subject: 'original subject', htmlBody: '' };
+        var expectedDraft = draftService.startDraft(angular.copy(modifyingEmail));
+        newComposerService.open = sinon.spy();
+
+        var composition = new Composition(modifyingEmail);
+        composition.email.subject = modifyingEmail.subject = 'modified subject';
+
+        composition.destroyDraft().then(function() {
+          expect(newComposerService.open).to.have.been.calledWith(modifyingEmail, 'Resume message composition', {
+            fromDraft: expectedDraft
+          });
         }).then(done, done);
 
         $timeout.flush();

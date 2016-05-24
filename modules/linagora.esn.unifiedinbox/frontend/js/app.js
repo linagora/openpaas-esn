@@ -55,7 +55,7 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
+        params: { email: {}, compositionOptions: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
