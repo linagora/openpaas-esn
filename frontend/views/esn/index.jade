@@ -27,7 +27,6 @@ html
     link(rel='stylesheet', href='/generated/css/esn/styles.css')
     +injectCSSFromModules('esn', injections)
     script(src='/components/jquery/dist/jquery.min.js')
-    script(src='/components/jquery.nicescroll/dist/jquery.nicescroll.min.js')
     script(src='/components/jquery.focus/dist/jquery.focus.min.js')
     script(src='/components/lodash/dist/lodash.min.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')
@@ -39,7 +38,6 @@ html
     script(src='/components/angular-sanitize/angular-sanitize.min.js')
     script(src='/components/angular-animate/angular-animate.min.js')
     script(src='/components/angular-touch/angular-touch.min.js')
-    script(src='/components/angular-nicescroll/angular-nicescroll.js')
     script(src='/components/restangular/dist/restangular.min.js')
     script(src='/components/ngInfiniteScroll/build/ng-infinite-scroll.min.js')
     script(src='/components/ng-tags-input/ng-tags-input.min.js')
@@ -189,5 +187,5 @@ html
     script(src='js/modules/dragndrop.js')
     script(src='js/modules/esn.autolinker-wrapper.js')
 
-  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController" resize-scrollbar ng-nicescroll nice-option="{cursorcolor: 'rgba(0,0,0,0.4)', cursorborder: 'none', cursorwidth:'6px', autohidemode: false, zindex: 12}")
+  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
     #wrap(ng-include='session.template')

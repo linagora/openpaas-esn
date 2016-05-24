@@ -189,10 +189,7 @@ angular.module('linagora.esn.unifiedinbox')
             inPageLinks: true,
             heightCalculationMethod: 'grow',
             widthCalculationMethod: 'scroll',
-            sizeWidth: true,
-            resizedCallback: function() {
-              scope.$emit('nicescroll:resize');
-            }
+            sizeWidth: true
           }, iFrame);
         });
 

@@ -16,7 +16,6 @@ angular.module('esnApp', [
   'chart.js',
   'FBAngular',
   'materialAdmin',
-  'angular-nicescroll',
   'xeditable',
   'mp.autoFocus',
   'op.dynamicDirective',

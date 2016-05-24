@@ -76,17 +76,6 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
     };
   })
 
-  .directive('resizeScrollbar', function() {
-    return {
-      restrict: 'A',
-      link: function(scope, element) {
-        scope.$on('nicescroll:resize', function() {
-          element.getNiceScroll().resize();
-        });
-      }
-    };
-  })
-
   .factory('elementScrollService', function($timeout, $window, subHeaderService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
     /**
      * Auto-scroll to the end of the given element
