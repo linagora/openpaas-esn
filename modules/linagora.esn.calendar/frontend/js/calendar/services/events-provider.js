@@ -35,5 +35,7 @@ angular.module('esn.calendar')
       return calendars.map(buildProvider);
     }, function(error) {
       $log.error('Could not register search providers for calendar module', error);
+
+      return [];
     });
   });
