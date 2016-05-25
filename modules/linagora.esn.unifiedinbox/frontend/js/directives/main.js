@@ -467,9 +467,19 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl:'/unifiedinbox/views/partials/inbox-indicators.html',
+      templateUrl: '/unifiedinbox/views/partials/inbox-indicators.html',
       scope: {
         item: '='
       }
+    };
+  })
+
+  .directive('messageSenderAvatar', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        message: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/emailer-avatar.html'
     };
   });
