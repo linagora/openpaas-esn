@@ -444,21 +444,23 @@ angular.module('linagora.esn.unifiedinbox')
       deviceDetector.isMobile() ? mobile() : others();
     }
 
-    function newMobileComposer(email) {
+    function newMobileComposer(email, compositionOptions) {
       $state.go('unifiedinbox.compose', {
         email: email,
+        compositionOptions: compositionOptions,
         previousState: {
           name: $state.current.name,
           params: $state.params
         }});
     }
 
-    function newBoxedComposerCustomTitle(title, email) {
+    function newBoxedComposerCustomTitle(title, email, compositionOptions) {
       boxOverlayOpener.open({
         id: email && email.id,
         title: title,
         templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-        email: email
+        email: email,
+        compositionOptions: compositionOptions
       });
     }
 
@@ -466,10 +468,10 @@ angular.module('linagora.esn.unifiedinbox')
       newBoxedComposerCustomTitle('Continue your draft', email);
     }
 
-    function open(email, title) {
+    function open(email, title, compositionOptions) {
       choseByPlatform(
-        newMobileComposer.bind(null, email),
-        newBoxedComposerCustomTitle.bind(null, title || defaultTitle, email)
+        newMobileComposer.bind(null, email, compositionOptions),
+        newBoxedComposerCustomTitle.bind(null, title || defaultTitle, email, compositionOptions)
       );
     }
 
@@ -496,7 +498,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
                                    backgroundAction, jmap, emailBodyService, waitUntilMessageIsComplete, newComposerService,
-                                   DRAFT_SAVING_DEBOUNCE_DELAY) {
+                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest) {
 
     function prepareEmail(email) {
       var preparingEmail = angular.copy(email || {});
@@ -508,9 +510,9 @@ angular.module('linagora.esn.unifiedinbox')
       return preparingEmail;
     }
 
-    function Composition(message) {
+    function Composition(message, options) {
       this.email = prepareEmail(message);
-      this.draft = draftService.startDraft(this.email);
+      this.draft = options && options.fromDraft || draftService.startDraft(this.email);
     }
 
     Composition.prototype._cancelDelayedDraftSave = function() {
@@ -578,15 +580,17 @@ angular.module('linagora.esn.unifiedinbox')
       return $q.when(email);
     }
 
-    function buildSendNotificationOptions(messageContent) {
+    function _buildSendNotificationOptions(email) {
       return {
         onFailure: {
           linkText: 'Reopen the composer',
-          action: function() {
-            newComposerService.open(messageContent, 'Resume message composition');
-          }
+          action: _makeReopenComposerFn(email)
         }
       };
+    }
+
+    function _makeReopenComposerFn(email) {
+      return newComposerService.open.bind(newComposerService, email, 'Resume message composition');
     }
 
     Composition.prototype.send = function() {
@@ -600,8 +604,24 @@ angular.module('linagora.esn.unifiedinbox')
           .then(function(email) {
             return emailSendingService.sendEmail(email);
           });
-      }.bind(this), buildSendNotificationOptions(this.email))
+      }.bind(this), _buildSendNotificationOptions(this.email))
         .then(this.draft.destroy.bind(this.draft));
+    };
+
+    Composition.prototype.destroyDraft = function() {
+      this._cancelDelayedDraftSave();
+
+      return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
+        .then(function(result) {
+          if (result.cancelled) {
+            _makeReopenComposerFn(this.email)({
+              fromDraft: this.draft
+            });
+            result.success(); // Close the notification
+          } else {
+            this.draft.destroy();
+          }
+        }.bind(this));
     };
 
     return Composition;

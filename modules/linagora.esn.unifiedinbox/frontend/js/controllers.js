@@ -66,8 +66,8 @@ angular.module('linagora.esn.unifiedinbox')
       return composition;
     };
 
-    this.initCtrl = function(email) {
-      this.initCtrlWithComposition(new Composition(email));
+    this.initCtrl = function(email, options) {
+      this.initCtrlWithComposition(new Composition(email, options));
     };
 
     this.initCtrlWithComposition = function(comp) {
@@ -150,7 +150,7 @@ angular.module('linagora.esn.unifiedinbox')
     if ($stateParams.composition) {
       this.initCtrlWithComposition($stateParams.composition);
     } else if ($stateParams.email) {
-      this.initCtrl($stateParams.email);
+      this.initCtrl($stateParams.email, $stateParams.compositionOptions);
     }
 
     $scope.isCollapsed = true;
@@ -176,6 +176,11 @@ angular.module('linagora.esn.unifiedinbox')
       } else {
         $scope.isSendingMessage = false;
       }
+    };
+
+    $scope.destroyDraft = function() {
+      $scope.hide();
+      return composition.destroyDraft();
     };
 
   })

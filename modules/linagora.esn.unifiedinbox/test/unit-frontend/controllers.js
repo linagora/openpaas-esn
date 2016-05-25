@@ -175,11 +175,27 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should initialize the controller when an email is given in state params', function() {
       $stateParams.email = { to: [] };
+      $stateParams.compositionOptions = { fromDraft: 'expected value' };
 
       var ctrl = initController('composerController');
 
       expect(ctrl.getComposition()).to.be.an.instanceof(Composition);
+      expect(ctrl.getComposition().draft).to.equal('expected value');
       expect(scope.email).to.be.a('object');
+    });
+
+    describe('The "destroyDraft" function', function() {
+
+      it('should hide the composer then destroy the draft when called', function() {
+        var ctrl = initCtrl({subject: 'a subject'});
+        ctrl.getComposition().destroyDraft = sinon.spy();
+
+        scope.destroyDraft();
+
+        expect(scope.hide).to.have.been.calledOnce;
+        expect(ctrl.getComposition().destroyDraft).to.have.been.calledOnce;
+      });
+
     });
 
     describe('The onAttachmentsSelect function', function() {

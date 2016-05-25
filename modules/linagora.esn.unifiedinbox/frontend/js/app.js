@@ -28,7 +28,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.aggregator',
   'esn.provider',
   'esn.dragndrop',
-  'esn.autolinker-wrapper'
+  'esn.autolinker-wrapper',
+  'linagora.esn.graceperiod'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -54,7 +55,7 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
+        params: { email: {}, compositionOptions: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
