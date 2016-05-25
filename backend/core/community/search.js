@@ -1,6 +1,7 @@
 'use strict';
 
 var elastic = require('../elasticsearch');
+var _ = require('lodash');
 var CONSTANTS = require('./constants');
 
 var defaultLimit = 50;
@@ -62,7 +63,7 @@ module.exports.find = function(domains, query, callback) {
       }
 
       var list = response.hits.hits;
-      var communities = list.map(function(hit) { return hit._source; });
+      var communities = list.map(function(hit) { return _.extend(hit._source, { _id: hit._source.id }); });
       return callback(null, {
         total_count: response.hits.total,
         list: communities
