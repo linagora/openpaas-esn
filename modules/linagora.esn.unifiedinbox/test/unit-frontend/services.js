@@ -3140,6 +3140,17 @@ describe('The Unified Inbox Angular module services', function() {
         expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith('open-paas.org');
       });
 
+      it('should return an empty array if the search fails', function(done) {
+        attendeeService.getAttendeeCandidates = sinon.spy(function() { return $q.reject(); });
+
+        searchService.searchRecipients('open-paas.org').then(function(results) {
+          expect(results).to.deep.equal([]);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
       it('should exclude search results with no email', function(done) {
         attendeeService.getAttendeeCandidates = function(query) {
           expect(query).to.equal('open-paas.org');
@@ -3203,6 +3214,44 @@ describe('The Unified Inbox Angular module services', function() {
           })
           .then(done, done);
 
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The searchByEmail method', function() {
+
+      it('should delegate to attendeeService, requesting a single result, and return the match if there is one', function(done) {
+        attendeeService.getAttendeeCandidates = sinon.spy(function() { return $q.when([{ a: 'b' }]); });
+
+        searchService.searchByEmail('me@open-paas.org').then(function(result) {
+          expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith('me@open-paas.org', 1);
+          expect(result).to.deep.equal({ a: 'b' });
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should return null if there is no match', function(done) {
+        attendeeService.getAttendeeCandidates = sinon.spy(function() { return $q.when([]); });
+
+        searchService.searchByEmail('me@open-paas.org').then(function(result) {
+          expect(result).to.equal(null);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should return null if search fails', function(done) {
+        attendeeService.getAttendeeCandidates = sinon.spy(function() { return $q.reject(); });
+
+        searchService.searchByEmail('me@open-paas.org').then(function(result) {
+          expect(result).to.equal(null);
+
+          done();
+        });
         $rootScope.$digest();
       });
 

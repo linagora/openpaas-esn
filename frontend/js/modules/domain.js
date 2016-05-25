@@ -151,6 +151,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
             user.id = user._id;
             user.email = user.preferredEmail;
             user.displayName = userUtils.displayNameOf(user);
+            user.photo = '/api/users/' + user.id + '/profile/avatar';
           });
           return response.data;
         }, function(error) {

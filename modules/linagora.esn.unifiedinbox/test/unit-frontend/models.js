@@ -12,16 +12,19 @@ describe('The Unified Inbox Angular module models', function() {
   });
 
   describe('The Email factory', function() {
-    var Email, mailboxesService;
+    var $rootScope, Email, mailboxesService, searchService, INBOX_DEFAULT_AVATAR;
 
     beforeEach(module(function($provide) {
       $provide.value('mailboxesService', mailboxesService = {
         flagIsUnreadChanged: sinon.spy()
       });
+      $provide.value('searchService', searchService = {});
     }));
 
-    beforeEach(inject(function(_Email_) {
+    beforeEach(inject(function(_$rootScope_, _Email_, _INBOX_DEFAULT_AVATAR_) {
+      $rootScope = _$rootScope_;
       Email = _Email_;
+      INBOX_DEFAULT_AVATAR = _INBOX_DEFAULT_AVATAR_;
     }));
 
     it('should have a correct initial value for isUnread', function() {
@@ -40,6 +43,117 @@ describe('The Unified Inbox Angular module models', function() {
       new Email({ id: 'id', isUnread: false }).isUnread = false;
 
       expect(mailboxesService.flagIsUnreadChanged).to.not.have.been.calledWith();
+    });
+
+    function resolveAndCheckEmailer(object, key, values) {
+      var i = 0,
+          emailers = object[key];
+
+      if (!Array.isArray(emailers)) {
+        emailers = [emailers];
+      }
+
+      $rootScope.$digest();
+      emailers.forEach(function(emailer) {
+        expect(emailer).to.deep.equal({
+          name: values[i++],
+          email: values[i++],
+          avatarUrl: values[i++]
+        });
+      });
+      expect(i).to.equal(values.length); // To check that the correct number of recipients were there
+    }
+
+    it('should resolve the From emailer to someone in OpenPaas', function() {
+      searchService.searchByEmail = function() {
+        return $q.when({
+          displayName: 'Display Name',
+          photo: '/avatar/from'
+        });
+      };
+
+      resolveAndCheckEmailer(new Email({ from: { email: 'from@linagora.com' }}), 'from', ['Display Name', 'from@linagora.com', '/avatar/from']);
+    });
+
+    it('should use defaults on the From emailer, if no match is found when resolving', function() {
+      searchService.searchByEmail = function() { return $q.when(); };
+
+      resolveAndCheckEmailer(new Email({ from: { name: 'Name', email: 'from@linagora.com' }}), 'from', ['Name', 'from@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should use defaults on the From emailer, if the match does not have photo or displayName', function() {
+      searchService.searchByEmail = function() { return $q.when({}); };
+
+      resolveAndCheckEmailer(new Email({ from: { email: 'from@linagora.com' }}), 'from', [undefined, 'from@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should resolve the To emailers to people in OpenPaas', function() {
+      searchService.searchByEmail = function(query) {
+        return $q.when({
+          displayName: 'Name ' + query,
+          photo: '/avatar/' + query
+        });
+      };
+
+      resolveAndCheckEmailer(new Email({ to: [{ email: 'first' }, { email: 'second' }] }), 'to', ['Name first', 'first', '/avatar/first', 'Name second', 'second', '/avatar/second']);
+    });
+
+    it('should use defaults on the To emailers, if no matches are found when resolving', function() {
+      searchService.searchByEmail = function() { return $q.when(); };
+
+      resolveAndCheckEmailer(new Email({ to: [{ name: 'Name', email: 'to@linagora.com' }] }), 'to', ['Name', 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should use defaults on the To emailers, if the matches does not have photo or displayName', function() {
+      searchService.searchByEmail = function() { return $q.when({}); };
+
+      resolveAndCheckEmailer(new Email({ to: [{ email: 'to@linagora.com' }] }), 'to', [undefined, 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should resolve the CC emailers to people in OpenPaas', function() {
+      searchService.searchByEmail = function(query) {
+        return $q.when({
+          displayName: 'Name ' + query,
+          photo: '/avatar/' + query
+        });
+      };
+
+      resolveAndCheckEmailer(new Email({ cc: [{ email: 'first' }, { email: 'second' }] }), 'cc', ['Name first', 'first', '/avatar/first', 'Name second', 'second', '/avatar/second']);
+    });
+
+    it('should use defaults on the CC emailers, if no matches are found when resolving', function() {
+      searchService.searchByEmail = function() { return $q.when(); };
+
+      resolveAndCheckEmailer(new Email({ cc: [{ name: 'Name', email: 'to@linagora.com' }] }), 'cc', ['Name', 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should use defaults on the CC emailers, if the matches does not have photo or displayName', function() {
+      searchService.searchByEmail = function() { return $q.when({}); };
+
+      resolveAndCheckEmailer(new Email({ cc: [{ email: 'to@linagora.com' }] }), 'cc', [undefined, 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should resolve the BCC emailers to people in OpenPaas', function() {
+      searchService.searchByEmail = function(query) {
+        return $q.when({
+          displayName: 'Name ' + query,
+          photo: '/avatar/' + query
+        });
+      };
+
+      resolveAndCheckEmailer(new Email({ bcc: [{ email: 'first' }, { email: 'second' }] }), 'bcc', ['Name first', 'first', '/avatar/first', 'Name second', 'second', '/avatar/second']);
+    });
+
+    it('should use defaults on the BCC emailers, if no matches are found when resolving', function() {
+      searchService.searchByEmail = function() { return $q.when(); };
+
+      resolveAndCheckEmailer(new Email({ bcc: [{ name: 'Name', email: 'to@linagora.com' }] }), 'bcc', ['Name', 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    it('should use defaults on the BCC emailers, if the matches does not have photo or displayName', function() {
+      searchService.searchByEmail = function() { return $q.when({}); };
+
+      resolveAndCheckEmailer(new Email({ bcc: [{ email: 'to@linagora.com' }] }), 'bcc', [undefined, 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
     });
 
   });
