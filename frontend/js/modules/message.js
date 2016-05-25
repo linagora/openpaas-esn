@@ -105,7 +105,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
           if (!type || type.length === 0) {
             type = DEFAULT_FILE_TYPE;
           }
-          return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
+          return {_id: attachment.response.data._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
         if ($scope.additionalData) {
@@ -281,7 +281,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
           if (!type || type.length === 0) {
             type = DEFAULT_FILE_TYPE;
           }
-          return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
+          return {_id: attachment.response.data._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
         if ($scope.additionalData) {
@@ -558,10 +558,11 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         message: '=',
         activitystream: '=?',
         lastPost: '=',
-        parentMessage: '='
+        parentMessage: '=?'
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
       controller: function($scope) {
+        $scope.parentMessage = !!$scope.parentMessage;
 
         if (!$scope.activitystream) {
           var origins = $scope.message.streamOrigins;

@@ -1,24 +1,57 @@
-.timeline-view(data-tv-type="text" ng-class="{'timeline-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
-  .tv-header.media
-    a.tvh-user.pull-left(ng-href='#/profile/{{::message.author._id}}')
-      img.img-responsive(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
-    .media-body.p-t-5
-      i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
-      strong {{message.author.firstname}} {{message.author.lastname}}
-      br
-      message-date-link(message='message', activitystream='activitystream')
-      .share
-        message-bottom-links
-      activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
-  .tv-body
-    display-position(position='message.position')
-
-    p.multilines
-      text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-    .row
-      message-attachments(message='message')
-    .row
-      message-oembeds(message='message')
-
-  .tv-comments
-    message-comments
+div.whats-up-message-thread(data-ng-switch='parentMessage')
+  .card.thread.esn-panel(data-ng-switch-when='true', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
+    .card-header
+      .media
+        a.pull-left(ng-href='#/profile/{{::message.author._id}}')
+          img.lv-img(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+        .media-body
+          i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
+          a(ng-href='#/profile/{{::message.author._id}}')
+            h2 {{message.author.firstname}} {{message.author.lastname}}
+          small
+            message-date-link(message='message', activitystream='activitystream')
+            .share
+              message-bottom-links
+    .card-body.card-padding
+      p.m-t-5.m-b-0
+        text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
+      .row
+        display-position(position='message.position')
+      .row
+        message-attachments(message='message')
+      .row
+        message-oembeds(message='message')
+      ul.wall-attrs.clearfix.list-inline.list-unstyled
+        li.wa-stats
+          span
+            i.mdi.mdi-comment-multiple-outline.m-r-5
+            | {{message.responses.length}}
+          span.active
+            i.mdi.mdi-heart.m-r-5
+            | 5
+        li.wa-users
+          a(ng-href='#/profile/{{::response.author._id}}', ng-repeat='response in message.responses | limitTo : 5')
+            img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt="")
+    .message-comments-thread
+      message-comments
+  .wall-comment-list(data-ng-switch-when='false', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
+    .wcl-list
+      .media
+        a.pull-left(ng-href='#/profile/{{::message.author._id}}')
+          img.lv-img-sm(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+        .media-body
+          i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
+          a(ng-href='#/profile/{{::message.author._id}}')
+            strong {{message.author.firstname}} {{message.author.lastname}}
+          small.c-gray.m-l-10
+            message-date-link(message='message', activitystream='activitystream')
+              .share
+                message-bottom-links
+          p.m-t-5.m-b-0
+            text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
+          .row
+            display-position(position='message.position')
+          .row
+            message-attachments(message='message')
+          .row
+            message-oembeds(message='message')

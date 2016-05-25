@@ -1,3 +1,152 @@
+.card-message-edition {
+  padding: 23px 25px 15px 25px;
+}
+
+.whats-up-composer, .poll-composer, .comment-composer {
+  
+  .form-group {
+    margin-bottom: 0;
+    
+    &.post-attachments {
+      .flex-vertical-centered;
+      
+      margin-top: 10px;
+      
+      .mdi {
+        font-size: 1.6em;
+      }
+      
+      button {
+          padding: 0;
+          margin-left: auto;
+        }
+    }
+    
+    &.message-textarea-edition {
+      margin-bottom: 15px;  
+    }
+  }
+}
+
+.comment-composer {
+  .wcc-inner {
+    padding-bottom: 50px;
+  }
+}
+
+.whats-up-message-thread, .poll-message-thread {
+  .wall-attrs {
+    margin-top: 10px;
+  }
+  
+  .wall-comment-list {
+    background-color: @app-gray;
+  }
+  
+  .progress {
+    height: 17px;
+  }
+  
+  .poll-vote-form {
+    margin-bottom: 15px;
+  }
+  
+  .card-body, .media-body {
+    .row {
+      padding: 10px 15px;      
+    }
+  }
+  
+  .message-comments-thread {
+    background-color: @app-gray;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    
+    .comment-edition-button-block {
+      margin-bottom: 0;
+  
+      .form-group {
+        .flex-space-between;
+
+        width: 100%;
+        padding: 0 20px;
+        
+        .text-left {
+          font-size: 20px;
+          
+          button {
+            padding: 0;
+            padding-right: 5px;
+            font-size: 15px;
+          }
+          
+          .mdi-paperclip {
+            color: @text-color;
+          }
+        }
+        
+        .text-right {
+          position: absolute;
+          right: 25px;
+          bottom: 30px;
+          width: 100%;
+          
+          button {
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+    
+    .wc-comment {
+      padding: 20px 0;
+    }
+    
+    .display-current-position {
+      padding-left: 20px;
+    }
+  }
+}
+
+.message-edition-button-block {
+  
+  margin-bottom: 0;
+  
+  .form-group {
+    .flex-space-between;
+
+    width: 100%;
+    padding: 0 20px;
+    
+    .text-left {
+      font-size: 20px;
+      
+      button {
+        padding: 0;
+        padding-right: 5px;
+        font-size: 15px;
+      }
+      
+      .mdi-paperclip {
+        color: @text-color;
+      }
+    }
+    
+    .text-right {
+      position: absolute;
+      right: 0;
+      bottom: 9px;
+      width: 100%;
+      
+      button {
+        margin-right: 5px;
+      }
+    }
+  }
+}
+
 .message-input {
   background-color: white;
   padding-left: 12px;
