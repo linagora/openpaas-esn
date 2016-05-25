@@ -2,6 +2,8 @@
 
   .email-header(ng-click="ctrl.toggleIsCollapsed(email)", ng-class='{"clickable": email.isCollapsed != undefined}')
 
+    .sender-avatar.hidden-xs
+      message-sender-avatar(message="::email")
     .avatarify
       .from
         label.line-header #{__('From')}:

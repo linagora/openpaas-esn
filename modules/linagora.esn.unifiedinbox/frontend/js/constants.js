@@ -24,4 +24,5 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('DEFAULT_VIEW', 'messages')
   .constant('IFRAME_MESSAGE_PREFIX', '[linagora.esn.unifiedinbox.changeDocument]')
   .constant('MAILTO_URL_MESSAGE_PREFIX', '[linagora.esn.unifiedinbox.mailtoClick]')
-  .constant('INBOX_SWIPE_DURATION', 500);
+  .constant('INBOX_SWIPE_DURATION', 500)
+  .constant('INBOX_DEFAULT_AVATAR', '/images/user.png');

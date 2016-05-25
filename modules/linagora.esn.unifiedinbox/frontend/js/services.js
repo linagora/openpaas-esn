@@ -844,18 +844,27 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('searchService', function(_, attendeeService, INBOX_AUTOCOMPLETE_LIMIT) {
-    return {
-      searchRecipients: function(query) {
-        return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
-          return recipients
-            .filter(_.property('email'))
-            .map(function(recipient) {
-              recipient.name = recipient.name || recipient.displayName || recipient.email;
+    function searchRecipients(query) {
+      return attendeeService.getAttendeeCandidates(query, INBOX_AUTOCOMPLETE_LIMIT).then(function(recipients) {
+        return recipients
+          .filter(_.property('email'))
+          .map(function(recipient) {
+            recipient.name = recipient.name || recipient.displayName || recipient.email;
 
-              return recipient;
-            });
-        });
-      }
+            return recipient;
+          });
+      }, _.constant([]));
+    }
+
+    function searchByEmail(email) {
+      return attendeeService.getAttendeeCandidates(email, 1).then(function(results) {
+        return results.length > 0 ? results[0] : null;
+      }, _.constant(null));
+    }
+
+    return {
+      searchByEmail: searchByEmail,
+      searchRecipients: searchRecipients
     };
   })
 
