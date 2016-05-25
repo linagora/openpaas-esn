@@ -8,13 +8,10 @@ var q = require('q');
 var sinon = require('sinon');
 
 describe('The calendar controller', function() {
-  var userModuleMock, coreMock;
+  var userModuleMock, coreMock, helpers;
 
   beforeEach(function() {
     coreMock = {
-      getBaseUrl: function(callback) {
-        callback(null, 'baseUrl');
-      },
       generateActionLinks: function() {
         return q.when({});
       }
@@ -22,7 +19,12 @@ describe('The calendar controller', function() {
     mockery.registerMock('./core', function() {
       return coreMock;
     });
-    this.moduleHelpers.addDep('helpers', {});
+    helpers = {
+      config: {
+        getBaseUrl: function(callback) { callback(null, 'baseUrl'); }
+      }
+    };
+    this.moduleHelpers.addDep('helpers', helpers);
     userModuleMock = {
       findByEmail: function(mail, callback) {
         return callback(null, null);
@@ -304,7 +306,7 @@ describe('The calendar controller', function() {
           });
 
           it('should send 500 if the esn baseUrl cannot be retrieved form the config', function(done) {
-            coreMock.getBaseUrl = sinon.spy(function(callback) {
+            helpers.config.getBaseUrl = sinon.spy(function(callback) {
               callback(new Error());
             });
 
@@ -321,7 +323,7 @@ describe('The calendar controller', function() {
                 expect(status).to.equal(500);
                 return {
                   json: function() {
-                    expect(coreMock.getBaseUrl).to.have.been.called;
+                    expect(helpers.config.getBaseUrl).to.have.been.called;
                     done();
                   }
                 };

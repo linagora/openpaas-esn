@@ -7,7 +7,8 @@ var jcalHelper = require('../../../lib/helpers/jcal');
 var calendar,
     arrayHelpers,
     logger,
-    userModule;
+    userModule,
+    configHelpers;
 
 var MAX_TRY_NUMBER = 12;
 
@@ -83,7 +84,7 @@ function changeParticipationSuccess(res, vcalendar, eventData) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Error while redirecting after participation change', details: err.message}});
     } else if (!found) {
-      calendar.getBaseUrl(function(err, baseUrl) {
+      configHelpers.getBaseUrl(function(err, baseUrl) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Error while rendering event consultation page', details: err.message}});
         }
@@ -186,6 +187,7 @@ function searchEvents(req, res) {
 module.exports = function(dependencies) {
   logger = dependencies('logger');
   calendar = require('./core')(dependencies);
+  configHelpers = dependencies('helpers').config;
   arrayHelpers = dependencies('helpers').array;
   userModule = dependencies('user');
   return {
