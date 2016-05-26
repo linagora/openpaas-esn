@@ -41,7 +41,7 @@
               .input-group.force-absolute-center
                 span.input-group-addon #{__('After')}
                 .fg-line
-                  input.input-sm.form-control(type="number", ng-model="event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="readOnly")
+                  input.input-sm.form-control(type="number", min="1", ng-model="event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="readOnly")
                 span.input-group-addon.last #{__('occurrences')}
             label.radio.radio-inline
               input.force-position-initial.form-control(type="radio", name="inlineRadioEndOptions", ng-click="resetCount();", ng-checked="event.rrule.until", ng-disabled="readOnly")
