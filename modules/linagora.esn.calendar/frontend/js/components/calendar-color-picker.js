@@ -18,11 +18,10 @@ angular.module('esn.calendar')
       scope.CALENDAR_LIST_OF_COLORS = CALENDAR_LIST_OF_COLORS;
       scope.colorKeys = Object.keys(CALENDAR_LIST_OF_COLORS);
 
-      var getter = $parse(attrs.ngModel);
-      var setter = getter.assign;
-
       function set() {
-        setter(scope, scope.CALENDAR_LIST_OF_COLORS[scope.selected]);
+        if (scope.selected) {
+          scope.color = scope.CALENDAR_LIST_OF_COLORS[scope.selected];
+        }
       }
 
       function select(color) {
@@ -34,7 +33,14 @@ angular.module('esn.calendar')
       }
 
       function _openModal() {
+        var colorHex = scope.color.toUpperCase();
         scope.selected = undefined;
+        angular.forEach(CALENDAR_LIST_OF_COLORS, function(value, key) {
+          if (colorHex === value) {
+            scope.selected = key;
+          }
+        });
+
         $modal({
           scope: scope,
           templateUrl: '/calendar/views/components/calendar-color-picker.html',
@@ -55,8 +61,10 @@ angular.module('esn.calendar')
     }
 
     return {
-      require: 'ngModel',
       restrict: 'A',
+      scope: {
+        color: '='
+      },
       link: link
     };
   });
