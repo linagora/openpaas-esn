@@ -8,13 +8,11 @@ var q = require('q');
 var sinon = require('sinon');
 
 describe('The calendar controller', function() {
-  var userModuleMock, coreMock;
+  var userModuleMock, coreMock, helpers, self;
 
   beforeEach(function() {
+    self = this;
     coreMock = {
-      getBaseUrl: function(callback) {
-        callback(null, 'baseUrl');
-      },
       generateActionLinks: function() {
         return q.when({});
       }
@@ -22,7 +20,12 @@ describe('The calendar controller', function() {
     mockery.registerMock('./core', function() {
       return coreMock;
     });
-    this.moduleHelpers.addDep('helpers', {});
+    helpers = {
+      config: {
+        getBaseUrl: function(callback) { callback(null, 'baseUrl'); }
+      }
+    };
+    this.moduleHelpers.addDep('helpers', helpers);
     userModuleMock = {
       findByEmail: function(mail, callback) {
         return callback(null, null);
@@ -33,10 +36,10 @@ describe('The calendar controller', function() {
   });
 
   describe('the changeParticipation function', function() {
-    var req, vcalendar, ics, etag, callbackAfterGetDone, requestMock, maxNumTry, setGetRequest;
+    var req, vcalendar, ics, etag, callbackAfterGetDone, requestMock, setGetRequest, url;
 
-    beforeEach(function() {
-      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
+    function setMock() {
+      ics = fs.readFileSync(self.calendarModulePath + url).toString('utf8');
       vcalendar = ICAL.Component.fromString(ics);
       req = {
         eventPayload: {
@@ -53,12 +56,12 @@ describe('The calendar controller', function() {
         headers: ['header1', 'header2']
       };
 
-      maxNumTry = 12;
       etag = 2;
       callbackAfterGetDone = function() { };
       setGetRequest = function() {
         requestMock = function(options, callback) {
           callbackAfterGetDone();
+
           return callback(null, {
             headers: {etag: etag},
             body: ics
@@ -71,6 +74,11 @@ describe('The calendar controller', function() {
       };
 
       setGetRequest();
+    }
+
+    beforeEach(function() {
+      url =  '/test/unit-backend/fixtures/meeting.ics';
+      setMock();
     });
 
     it('should send 400 if the attendee does not exist in the vevent', function(done) {
@@ -84,6 +92,7 @@ describe('The calendar controller', function() {
         },
         davserver: 'davserver'
       };
+
       var res = {
         status: function(status) {
           expect(status).to.equal(400);
@@ -95,8 +104,7 @@ describe('The calendar controller', function() {
           };
         }
       };
-      var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
-      controller.changeParticipation(req, res);
+      require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies).changeParticipation(req, res);
     });
 
     describe('when the vevent has the attendee', function() {
@@ -124,8 +132,7 @@ describe('The calendar controller', function() {
             };
           }
         };
-        var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
-        controller.changeParticipation(req, res);
+        require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies).changeParticipation(req, res);
       });
 
       describe('request if first get request work', function() {
@@ -142,6 +149,7 @@ describe('The calendar controller', function() {
                   vcalendar.getFirstSubcomponent('vevent').getFirstPropertyValue('uid') + '.ics'
               ].join('/'));
               expect(options.body).to.exist;
+
               return callback(new Error());
             };
 
@@ -153,9 +161,11 @@ describe('The calendar controller', function() {
           var res = {
             status: function(status) {
               expect(status).to.equal(500);
+
               return {
                 json: function(err) {
                   expect(err).to.exist;
+
                   return {
                     end: function() {
                       done();
@@ -171,6 +181,7 @@ describe('The calendar controller', function() {
 
         it('should retry doing put if 412 up to 12 time', function(done) {
           var time = 0;
+
           callbackAfterGetDone = function() {
             requestMock = function(options, callback) {
               time++;
@@ -185,6 +196,7 @@ describe('The calendar controller', function() {
               ].join('/'));
               expect(options.body).to.exist;
               setGetRequest();
+
               return callback(null, {statusCode: time === 12 ? 200 : 412});
             };
 
@@ -217,6 +229,7 @@ describe('The calendar controller', function() {
               ].join('/'));
               expect(options.body).to.exist;
               setGetRequest();
+
               return callback(null, {statusCode: 412});
             };
 
@@ -228,6 +241,7 @@ describe('The calendar controller', function() {
           var res = {
             status: function(status) {
               expect(status).to.equal(500);
+
               return {
                 json: function() {
                   done();
@@ -244,6 +258,7 @@ describe('The calendar controller', function() {
       describe('when the event participation change has successed', function() {
         it('should redirect to /#/calendars if the user can be found', function(done) {
           var user = {_id: 'userId'};
+
           userModuleMock.findByEmail = sinon.spy(function(email, callback) {
             expect(email).to.equal(req.eventPayload.attendeeEmail);
             callback(null, user);
@@ -260,6 +275,7 @@ describe('The calendar controller', function() {
           var res = {
             status: function(status) {
               expect(status).to.equal(200);
+
               return {
                 redirect: function(url) {
                   expect(url).to.equal('/#/calendar');
@@ -291,6 +307,7 @@ describe('The calendar controller', function() {
             var res = {
               status: function(status) {
                 expect(status).to.equal(500);
+
                 return {
                   json: function() {
                     expect(userModuleMock.findByEmail).to.have.been.called;
@@ -304,7 +321,7 @@ describe('The calendar controller', function() {
           });
 
           it('should send 500 if the esn baseUrl cannot be retrieved form the config', function(done) {
-            coreMock.getBaseUrl = sinon.spy(function(callback) {
+            helpers.config.getBaseUrl = sinon.spy(function(callback) {
               callback(new Error());
             });
 
@@ -319,9 +336,10 @@ describe('The calendar controller', function() {
             var res = {
               status: function(status) {
                 expect(status).to.equal(500);
+
                 return {
                   json: function() {
-                    expect(coreMock.getBaseUrl).to.have.been.called;
+                    expect(helpers.config.getBaseUrl).to.have.been.called;
                     done();
                   }
                 };
@@ -337,11 +355,13 @@ describe('The calendar controller', function() {
             coreMock.generateActionLinks = sinon.spy(function(url, eventData) {
               expect(url).to.equal('baseUrl');
               expect(eventData).to.deep.equal(req.eventPayload);
+
               return q.when(links);
             });
 
             callbackAfterGetDone = function() {
               requestMock = function(options, callback) {
+
                 return callback(null, {statusCode: 200});
               };
               mockery.registerMock('request', requestMock);
@@ -351,6 +371,7 @@ describe('The calendar controller', function() {
             var res = {
               status: function(status) {
                 expect(status).to.equal(200);
+
                 return {
                   render: function(template, locals) {
                     expect(coreMock.generateActionLinks).to.have.been.called;
@@ -367,6 +388,45 @@ describe('The calendar controller', function() {
             controller.changeParticipation(req, res);
           });
         });
+      });
+    });
+
+    describe('when the vevent is recurring with exception', function() {
+      beforeEach(function() {
+        url =  '/test/unit-backend/fixtures/meeting-recurring-with-exception.ics';
+        setMock();
+      });
+
+      it('should work even if the attendee does not exist in the vevent but does in a subinstance of the event', function(done) {
+        var req = {
+          eventPayload: {
+            calendarURI: 'uri',
+            attendeeEmail: 'lduzan@linagora.com',
+            uid: 'uid'
+          },
+          user: {
+            _id: 'c3po'
+          },
+          davserver: 'davserver'
+        };
+
+        var res = {
+          status: function(status) {
+            expect(status).to.equal(200);
+            done();
+          }
+        };
+
+        callbackAfterGetDone = function() {
+          requestMock = function(options, callback) {
+            return callback(null, {statusCode: 200});
+          };
+          mockery.registerMock('request', requestMock);
+        };
+
+        var controller = require(this.calendarModulePath + '/backend/webserver/api/calendar/controller')(this.moduleHelpers.dependencies);
+
+        controller.changeParticipation(req, res);
       });
     });
   });
