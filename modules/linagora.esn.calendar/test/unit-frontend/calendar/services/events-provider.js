@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The events-providers', function() {
 
-  var $rootScope, eventsProviders, $httpBackend, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE;
+  var $rootScope, eventsProviders, $httpBackend, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE, calendarService;
   var calendarHomeId = 'calendarHomeId';
 
   beforeEach(function() {
@@ -19,12 +19,13 @@ describe('The events-providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _eventsProviders_, _ELEMENTS_PER_REQUEST_, _ELEMENTS_PER_PAGE_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _eventsProviders_, _ELEMENTS_PER_REQUEST_, _ELEMENTS_PER_PAGE_, _calendarService_) {
     $rootScope = _$rootScope_;
     eventsProviders = _eventsProviders_;
     $httpBackend = _$httpBackend_;
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
     ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
+    calendarService = _calendarService_;
   }));
 
   describe('The factory', function() {
@@ -79,6 +80,18 @@ describe('The events-providers', function() {
       }, done);
       $rootScope.$digest();
       $httpBackend.flush();
+    });
+
+    it('should prevent error when sabre is down', function(done) {
+      calendarService.listCalendars = function() {
+        return $q.reject();
+      };
+
+      eventsProviders.then(function(providers) {
+        expect(providers).to.deep.equal([]);
+        done();
+      }, done);
+      $rootScope.$digest();
     });
   });
 });
