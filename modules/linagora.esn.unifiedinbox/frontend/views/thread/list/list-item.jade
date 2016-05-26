@@ -1,5 +1,5 @@
 .swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{leftTemplate}}")
-  .clickable(
+  .clickable.inbox-list-item(
       ng-click="esnIsDragging || ctrl.openThread(item)",
       esn-draggable,
       inbox-draggable-list-item,
@@ -14,7 +14,7 @@
     .media-body(ng-class="{bold: item.email.isUnread}")
       .flex-space-between
         .flex-start.ellipsis
-          .lv-title {{ ::item.email.subject }}
+          .inbox-subject.lv-title {{ ::item.email.subject }}
           .badge-number(ng-if='item.messageIds.length > 1') ({{ item.messageIds.length }})
         .date-container {{ ::item.email.date | date: group.dateFormat }}
       .flex-space-between

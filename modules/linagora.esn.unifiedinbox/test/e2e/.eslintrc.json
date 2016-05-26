@@ -1,5 +1,6 @@
 {
   "globals": {
+    "protractor": false,
     "element": false,
     "by": false
   }

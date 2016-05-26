@@ -7,11 +7,11 @@ module.exports = function() {
   });
 
   this.Given('I logged in to OpenPaas', function() {
-    return this.logIn(this.USERS.admin);
+    return this.logIn(this.USERS.admin.email);
   });
 
   this.Given('I logged in to OpenPaas with "$account" account', function(account) {
-    return this.logIn(this.USERS[account]);
+    return this.logIn(this.USERS[account].email);
   });
 
   this.Given('I use a mobile screen', function() {

@@ -5,6 +5,7 @@ var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 var loginPage = new (require('../login-page/pages/login'))();
+var notifications = new (require('./pages/notifications'))();
 
 var CHANGE_URL_WAIT_MS = 10000;
 
@@ -45,15 +46,25 @@ function logIn(account) {
 function World() {
   this.expect = chai.expect;
 
+  this.notifications = notifications;
   this.waitUrlToBeRedirected = waitUrlToBeRedirected;
   this.logoutAndGoToLoginPage = logoutAndGoToLoginPage;
   this.logIn = logIn;
 }
 
 World.prototype.USERS = {
-  admin: 'admin@open-paas.org',
-  user1: 'user1@open-paas.org',
-  user2: 'user2@open-paas.org'
+  admin: {
+    displayName: 'admin admin',
+    email: 'admin@open-paas.org'
+  },
+  user1: {
+    displayName: 'John1 Doe1',
+    email: 'user1@open-paas.org'
+  },
+  user2: {
+    displayName: 'John2 Doe2',
+    email: 'user2@open-paas.org'
+  }
 };
 
 module.exports = function() {

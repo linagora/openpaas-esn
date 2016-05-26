@@ -8,15 +8,15 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
         .form-group
           label.col-xs-1.control-label #{__('To')}
           .col-xs-10
-            recipients-auto-complete(ng-model="email.to", template="recipients-auto-complete")
+            recipients-auto-complete.recipients-to(ng-model="email.to", template="recipients-auto-complete")
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label #{__('CC')}
           .col-xs-10
-            recipients-auto-complete(ng-model="email.cc", template="recipients-auto-complete")
+            recipients-auto-complete.recipients-cc(ng-model="email.cc", template="recipients-auto-complete")
         .form-group.ng-hide(ng-hide="isCollapsed")
           label.col-xs-1.control-label #{__('BCC')}
           .col-xs-10
-            recipients-auto-complete(ng-model="email.bcc", template="recipients-auto-complete")
+            recipients-auto-complete.recipients-bcc(ng-model="email.bcc", template="recipients-auto-complete")
       .more-recipients.col-xs-1(ng-class="{ 'isCollapsed': isCollapsed }")
         span(ng-click="isCollapsed = !isCollapsed")
           i.mdi(ng-class="isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up'")
