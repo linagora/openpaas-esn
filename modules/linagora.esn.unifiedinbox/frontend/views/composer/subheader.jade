@@ -2,10 +2,10 @@
   .row
     inbox-subheader-close-button(ng-click='close()')
     .button.submit
-      button.attach.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
+      button.action.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
         i.mdi.mdi-paperclip
-      button.attach.btn.btn-link(ng-click='destroyDraft()', ng-disabled="isSendingMessage")
+      button.action.btn.btn-link(ng-click='destroyDraft()', ng-disabled="isSendingMessage")
         i.mdi.mdi-delete
-      button.btn.btn-link.send(ng-click='send()', ng-disabled="isSendingMessage")
+      button.action.send.btn.btn-link(ng-click='send()', ng-disabled="isSendingMessage")
         | #{__('Send')}
         i.mdi.mdi-send.m-l-5.m-r-5
