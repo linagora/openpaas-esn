@@ -2,13 +2,15 @@ tags-input {
   height: inherit !important; /* needed to overwrite styles automatically set using the style attribute */
 
   .tags {
+    .ShadowedShape(none);
+
     border: none;
-    box-shadow: none;
+    -webkit-appearance: none;
     overflow-y: auto;
     max-height: 120px;
 
     &.focused {
-      box-shadow: none;
+      .ShadowedShape(none);
     }
   }
 
