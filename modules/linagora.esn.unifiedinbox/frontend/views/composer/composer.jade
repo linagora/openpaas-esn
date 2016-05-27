@@ -10,11 +10,11 @@ form.form-horizontal.compose.ng-cloak.subheader-margin
           label.col-xs-1.control-label #{__('To')}
           .col-xs-10
             recipients-auto-complete(ng-click='openRecipients("to")', ng-model="email.to", template="fullscreen-recipients-auto-complete")
-        .form-group.ng-hide(ng-hide="isCollapsed")
+        .form-group(ng-if="!isCollapsed")
           label.col-xs-1.control-label #{__('CC')}
           .col-xs-10
             recipients-auto-complete(ng-click='openRecipients("cc")', ng-model="email.cc", template="fullscreen-recipients-auto-complete")
-        .form-group.ng-hide(ng-hide="isCollapsed")
+        .form-group(ng-if="!isCollapsed")
           label.col-xs-1.control-label #{__('BCC')}
           .col-xs-10
             recipients-auto-complete(ng-click='openRecipients("bcc")', ng-model="email.bcc", template="fullscreen-recipients-auto-complete")
