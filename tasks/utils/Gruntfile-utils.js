@@ -24,18 +24,22 @@ function _args(grunt) {
   return args;
 }
 
-function _taskSuccessIfMatch(grunt, regex, info) {
+function _taskEndIfMatch(grunt, regexSuccess, infoSuccess, regexFailed) {
   var taskIsDone = false;
 
   return function(chunk, done) {
     if (taskIsDone) { return; }
 
-    if (regex) {
+    if (regexSuccess || regexFailed) {
       done = done || grunt.task.current.async();
-      if (regex.test('' + chunk)) {
+      if (regexSuccess && regexSuccess.test(String(chunk))) {
         taskIsDone = true;
-        grunt.log.oklns(info);
+        grunt.log.oklns(infoSuccess);
         done(true);
+      } else if (regexFailed && regexFailed.test(String(chunk))) {
+        taskIsDone = true;
+        grunt.log.error(chunk);
+        done(false);
       }
     }
   };
@@ -102,7 +106,7 @@ GruntfileUtils.prototype.shell = function shell() {
         command: command,
         options: {
           async: false,
-          stdout: _taskSuccessIfMatch(grunt, regex, info),
+          stdout: _taskEndIfMatch(grunt, regex, info),
           stderr: grunt.log.error,
           canKill: true
         }
@@ -117,8 +121,8 @@ GruntfileUtils.prototype.container = function container() {
   function newContainer(createContainerOptions, startContainerOptions, removeContainerOptions, taskOptions) {
     taskOptions = extend({ async: false }, taskOptions);
 
-    if (taskOptions.regex) {
-      taskOptions.matchOutput = _taskSuccessIfMatch(grunt, taskOptions.regex, taskOptions.info);
+    if (taskOptions.regex || taskOptions.regexForFailed) {
+      taskOptions.matchOutput = _taskEndIfMatch(grunt, taskOptions.regex, taskOptions.info, taskOptions.regexForFailed);
     }
 
     createContainerOptions.options = {

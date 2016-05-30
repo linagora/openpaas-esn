@@ -123,6 +123,7 @@ module.exports = function(grunt) {
           ]
         }, {
           regex: new RegExp('OpenPaas ESN is now started on node'),
+          regexForFailed: new RegExp('bind: address already in use'),
           info: 'All ESN docker containers are deployed',
           timeout: 300000
         }),
