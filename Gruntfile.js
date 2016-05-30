@@ -97,8 +97,7 @@ module.exports = function(grunt) {
       mongo: shell.newShell(command.mongo(false), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       mongo_replSet: shell.newShell(command.mongo(true), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       ldap: shell.newShell(command.ldap, /LDAP server up at/, 'Ldap server is started.'),
-      elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.'),
-      webdriver_install: { command: './node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update' }
+      elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.')
     },
     container: {
       options: dockerodeConfig(grunt.option('docker')),
@@ -118,7 +117,6 @@ module.exports = function(grunt) {
           command: ['up'],
           env: [
             'DOCKER_IP=' + servers.host,
-            'PROVISION=true',
             'ESN_PATH=' + __dirname
           ]
         }, {
@@ -271,16 +269,15 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
-  grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down', 'continue:fail-on-warning']);
-  grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down-selenium', 'continue:off']);
+  grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down']);
+  grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'run_grunt:e2e']);
   grunt.registerTask('test-e2e-wait-servers', ['waitServer:esn', 'waitServer:mongo', 'waitServer:redis', 'waitServer:elasticsearch', 'waitServer:jmap', 'waitServer:cassandra']);
-  grunt.registerTask('test-e2e-prepare', ['shell:webdriver_install', 'container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);
+  grunt.registerTask('test-e2e-prepare', ['container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);
 
   grunt.registerTask('test-e2e-pull', ['container:esn_full_pull', 'container:esn_full_pull:remove']);
   grunt.registerTask('test-e2e-build', ['test-e2e-build-esn_base', 'container:esn_full_build', 'container:esn_full_build:remove']);
   grunt.registerTask('test-e2e-up', ['continue:on', 'container:esn_full_up', 'container:esn_full_up:remove', 'continue:off', 'continue:fail-on-warning', 'test-e2e-wait-servers']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_down', 'container:esn_full_down:remove']);
-  grunt.registerTask('test-e2e-down-selenium', 'stop selenium server', gruntfileUtils.stopSeleniumServer());
   grunt.registerTask('test-e2e-clean', 'Clean all compose containers', ['continue:on', 'container:esn_full_pull:remove', 'container:esn_full_build:remove', 'container:esn_full_up:remove', 'container:esn_full_down:remove', 'continue:off']);
   grunt.registerTask('test-e2e-build-esn_base', gruntfileUtils.buildEsnBaseImage());
 

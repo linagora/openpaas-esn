@@ -143,7 +143,7 @@ GruntfileUtils.prototype.container = function container() {
     return newContainer({
         Image: 'docker/compose:1.6.2',
         name: containerOptions.name,
-        Cmd: ['-f', 'docker/dockerfiles/platform/docker-compose.yml'].concat(containerOptions.command),
+        Cmd: ['-f', 'docker/dockerfiles/dev/docker-compose-e2e.yml'].concat(containerOptions.command),
         WorkingDir: '/compose',
         Env: containerOptions.env || [],
         HostConfig: {
@@ -416,23 +416,6 @@ GruntfileUtils.prototype.setupElasticsearchEventsIndex = function() {
       grunt.log.write('Elasticsearch events settings are successfully added');
       done(true);
     }, done);
-  };
-};
-
-GruntfileUtils.prototype.stopSeleniumServer = function() {
-  var grunt = this.grunt;
-
-  return function() {
-    var done = this.async(),
-        config = require('../../test/config/protractor.conf.js').config;
-
-    grunt.log.write('Forcing shutdown of the selenium server...');
-    request
-      .post(config.seleniumWebapp + '/selenium-server/driver?cmd=shutDownSeleniumServer')
-      .end(function() {
-        grunt.log.writeln('done!');
-        done(true);
-      });
   };
 };
 
