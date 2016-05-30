@@ -1,6 +1,7 @@
 'use strict';
 
 var messagePage = new (require('../pages/message'))();
+var mainPanel = new (require('../pages/inbox-panel'))().mainPanel;
 
 module.exports = function() {
 
@@ -12,7 +13,7 @@ module.exports = function() {
 
   this.Given('Display Unified Inbox', function(next) {
     messagePage.clickOnModuleInMenu().then(function() {
-      this.expect(messagePage.mainPanel.isDisplayed()).to.eventually.equal(true).and.notify(next);
+      this.expect(mainPanel.isDisplayed()).to.eventually.equal(true).and.notify(next);
     }.bind(this));
   });
 

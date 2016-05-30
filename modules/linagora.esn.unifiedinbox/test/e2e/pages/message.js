@@ -1,5 +1,7 @@
 'use strict';
 
+var mainPanel = new (require('../pages/inbox-panel'))().mainPanel;
+
 module.exports = function() {
 
   // TOP MENU BUTTONS
@@ -8,9 +10,6 @@ module.exports = function() {
   this.clickOnModuleInMenu = function() {
     return this.menuButton.click().then(this.unifiedInboxButton.click);
   }.bind(this);
-
-  // UNIFIED INBOX PANELS
-  this.mainPanel = element(by.css('.inbox-main'));
 
   // MESSAGE
   this.allMessages = element.all(by.css('.inbox-list-item'));
