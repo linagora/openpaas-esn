@@ -220,8 +220,18 @@ angular.module('esn.calendar')
           });
         }
 
+        function beforeEndDate(currentDatetime) {
+          if (endDate.isAfter(currentDatetime.toJSDate())) {
+            return true;
+          } else if (!endDate.hasTime()) {
+            return endDate.isSame(currentDatetime.toJSDate(), 'day');
+          }
+
+          return false;
+        }
+
         while ((currentDatetime = iterator.next()) &&
-            (!endDate || endDate.isAfter(currentDatetime.toJSDate() || (!endDate.hasTime() && endDate.isSame(currentDatetime.toJSDate(), 'day')))) &&
+            (!endDate || beforeEndDate(currentDatetime)) &&
             (!maxElement || result.length < maxElement)) {
 
           if (!startDate || startDate.isBefore(currentDatetime.toJSDate()) || (!startDate.hasTime() && startDate.isSame(currentDatetime.toJSDate(), 'day'))) {
