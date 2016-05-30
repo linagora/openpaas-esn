@@ -7,12 +7,14 @@
   .tags {
 
     .tag-item {
+      .flex-shrink(0);
+      .ShadowedShape(none);
+
       margin: 1px;
       padding: 4px 8px;
 
       font-size: @autocompleteFontSize;
       text-transform: none;
-      box-shadow: none;
     }
 
   }
@@ -41,15 +43,16 @@ composer, composer-desktop {
       border: 1px solid lighten(@m-gray, 30%);
 
       .input {
+        .flex-shrink(0);
+
         height: 25px;
         text-align: right;
       }
 
       .tag-list {
         .flex;
-        .flex-shorthand(1);
+        .flex-shorthand(1, 1);
 
-        width: 70%;
         overflow: hidden;
       }
 
@@ -75,7 +78,6 @@ composer {
   }
 
 }
-
 
 composer-desktop {
 
