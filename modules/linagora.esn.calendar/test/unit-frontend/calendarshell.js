@@ -348,9 +348,9 @@ describe('CalendarShell factory', function() {
   describe('expand method', function() {
 
     function formatDates(event) {
-      event.formattedStart = event.vevent.getFirstPropertyValue('dtstart').toString();
-      event.formattedEnd = event.vevent.getFirstPropertyValue('dtend').toString();
-      event.formattedRecurrenceId = event.vevent.getFirstPropertyValue('recurrence-id').toString();
+      event.formattedStart = event.vevent.getFirstPropertyValue('dtstart').convertToZone(ICAL.Timezone.utcTimezone).toString();
+      event.formattedEnd = event.vevent.getFirstPropertyValue('dtend').convertToZone(ICAL.Timezone.utcTimezone).toString();
+      event.formattedRecurrenceId = event.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone).toString();
       return event;
     }
 
@@ -484,7 +484,6 @@ describe('CalendarShell factory', function() {
       var subevents = shell.expand();
 
       subevents[0].start = fcMoment.utc('2015-01-01T18:30:00');
-
       shell.modifyOccurrence(subevents[0]);
 
       expect(shell.expand().map(formatDates)).to.shallowDeepEqual({

@@ -56,7 +56,7 @@ angular.module('esn.calendar')
       this.vevent = vevent;
 
       // NOTE: adding additional extended properties also requires adjusting
-      // the clone method.
+      // the _getExtendedProperties method.
       extendedProperties = extendedProperties || {};
       this.path = extendedProperties.path;
       this.etag = extendedProperties.etag;
@@ -214,6 +214,12 @@ angular.module('esn.calendar')
         var iterator = this.icalEvent.iterator(this.icalEvent.startDate);
         var currentDatetime, currentEvent, currentDetails, result = [];
 
+        function getException(icalEvent, recurrenceId) {
+          _.find(icalEvent.exceptions, function(exception) {
+            return exception.recurrenceId.compare(recurrenceId) === 0;
+          });
+        }
+
         while ((currentDatetime = iterator.next()) &&
             (!endDate || endDate.isAfter(currentDatetime.toJSDate() || (!endDate.hasTime() && endDate.isSame(currentDatetime.toJSDate(), 'day')))) &&
             (!maxElement || result.length < maxElement)) {
@@ -221,13 +227,19 @@ angular.module('esn.calendar')
           if (!startDate || startDate.isBefore(currentDatetime.toJSDate()) || (!startDate.hasTime() && startDate.isSame(currentDatetime.toJSDate(), 'day'))) {
             currentDetails = this.icalEvent.getOccurrenceDetails(currentDatetime);
 
-            currentEvent = this.clone();
-            currentEvent.vevent.removeProperty('rrule');
-            currentEvent.vevent.removeProperty('exdate');
+            currentEvent = getException(this.icalEvent, currentDetails.recurrenceId);
 
-            setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
-            setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
-            setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
+            if (currentEvent) {
+              currentEvent = new CalendarShell(currentEvent.component, this._getExtendedProperties());
+            } else {
+              currentEvent = this.clone();
+              currentEvent.vevent.removeProperty('rrule');
+              currentEvent.vevent.removeProperty('exdate');
+
+              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
+              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
+              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
+            }
 
             result.push(currentEvent);
           }
@@ -451,12 +463,17 @@ angular.module('esn.calendar')
        */
       clone: function() {
         var clonedComp = new ICAL.Component(_.cloneDeep(this.vcalendar.toJSON()));
-        return new CalendarShell(clonedComp, {
+
+        return new CalendarShell(clonedComp, this._getExtendedProperties());
+      },
+
+      _getExtendedProperties: function() {
+        return {
           path: this.path,
           etag: this.etag,
           backgroundColor: this.backgroundColor,
           gracePeriodTaskId: this.gracePeriodTaskId
-        });
+        };
       },
 
       /**
@@ -467,6 +484,7 @@ angular.module('esn.calendar')
       equals: function(that, optionalSubsetKeys) {
         var keys = optionalSubsetKeys || EVENT_MODIFY_COMPARE_KEYS;
         var self = this;
+
         return keys.every(function(key) {
           switch (key) {
             case 'start':
