@@ -35,16 +35,16 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool) {
+  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, filter) {
 
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailMessagesProvider.fetch($stateParams.mailbox), new ByDateElementGroupingTool());
+    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailMessagesProvider.fetch(filter), new ByDateElementGroupingTool());
 
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
-  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool) {
+  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, filter) {
 
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailThreadsProvider.fetch($stateParams.mailbox), new ByDateElementGroupingTool());
+    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailThreadsProvider.fetch(filter), new ByDateElementGroupingTool());
 
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
@@ -344,9 +344,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     inboxConfig('twitter.tweets').then(function(twitterTweetsEnabled) {
       if (twitterTweetsEnabled) {
-        $scope.$evalAsync(function() {
-          $scope.twitterAccounts = session.getTwitterAccounts();
-        });
+        $scope.twitterAccounts = session.getTwitterAccounts();
       }
     });
   });

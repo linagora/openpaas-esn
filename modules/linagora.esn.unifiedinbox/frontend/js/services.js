@@ -182,7 +182,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, $http, emailService, deviceDetector, jmap, _, emailBodyService, sendEmail) {
+  .factory('emailSendingService', function($q, emailService, jmap, _, emailBodyService, sendEmail) {
 
     /**
      * Add the following logic when sending an email: Check for an invalid email used as a recipient
@@ -352,7 +352,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('draftService', function($q, $log, jmap, session, notificationFactory, asyncJmapAction, emailBodyService, _,
+  .service('draftService', function($q, asyncJmapAction, emailBodyService, _,
                                     jmapHelper, waitUntilMessageIsComplete, ATTACHMENTS_ATTRIBUTES) {
 
     function _keepSomeAttributes(array, attibutes) {
@@ -437,7 +437,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('newComposerService', function($state, withJmapClient, boxOverlayOpener, deviceDetector, notificationFactory, JMAP_GET_MESSAGES_VIEW) {
+  .service('newComposerService', function($state, withJmapClient, boxOverlayOpener, deviceDetector, JMAP_GET_MESSAGES_VIEW) {
     var defaultTitle = 'Compose an email';
 
     function choseByPlatform(mobile, others) {
@@ -497,7 +497,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
-                                   backgroundAction, jmap, emailBodyService, waitUntilMessageIsComplete, newComposerService,
+                                   backgroundAction, emailBodyService, waitUntilMessageIsComplete, newComposerService,
                                    DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest) {
 
     function prepareEmail(email) {
@@ -684,7 +684,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('mailboxesService', function(_, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap) {
+  .factory('mailboxesService', function($q, _, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap, inboxSpecialMailboxes) {
     var mailboxesCache;
     var RESTRICT_MAILBOXES = [jmap.MailboxRole.OUTBOX.value, jmap.MailboxRole.DRAFTS.value];
 
@@ -753,10 +753,16 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function assignMailbox(id, dst) {
+      var specialMailbox = inboxSpecialMailboxes.get(id);
+
+      if (specialMailbox) {
+        _assignToObject(dst)('mailbox', specialMailbox);
+
+        return $q.when(specialMailbox);
+      }
+
       return withJmapClient(function(client) {
-        return client.getMailboxes({
-          ids: [id]
-        })
+        return client.getMailboxes({ ids: [id] })
           .then(function(mailboxes) {
             return mailboxes[0]; // We expect a single mailbox here
           })
@@ -815,8 +821,13 @@ angular.module('linagora.esn.unifiedinbox')
         return false;
       }
 
-      // do not move to the same mailbox
+      // do not allow moving to the same mailbox
       if (message.mailboxIds.indexOf(toMailbox.id) > -1) {
+        return false;
+      }
+
+      // do not allow moving to special mailbox
+      if (_isSpecialMailbox(toMailbox.id)) {
         return false;
       }
 
@@ -832,6 +843,46 @@ angular.module('linagora.esn.unifiedinbox')
 
     }
 
+    function getMessageListFilter(mailboxId) {
+      var specialMailbox = inboxSpecialMailboxes.get(mailboxId);
+      var filter;
+
+      if (specialMailbox) {
+        filter = specialMailbox.filter;
+
+        if (filter && filter.unprocessed) {
+          delete filter.unprocessed;
+
+          return _mailboxRolesToIds(filter.notInMailboxes)
+            .then(function(ids) {
+              filter.notInMailboxes = ids;
+
+              return filter;
+            });
+        }
+      } else {
+        filter = { inMailboxes: [mailboxId] };
+      }
+
+      return $q.when(filter);
+    }
+
+    function _isSpecialMailbox(mailboxId) {
+      return !!inboxSpecialMailboxes.get(mailboxId);
+    }
+
+    function _mailboxRolesToIds(roles) {
+      return withJmapClient(function(jmapClient) {
+        return $q
+          .all(roles.map(function(role) {
+            return jmapClient.getMailboxWithRole(role);
+          }))
+          .then(function(mailboxes) {
+            return mailboxes.filter(Boolean).map(_.property('id'));
+          });
+      });
+    }
+
     return {
       filterSystemMailboxes: filterSystemMailboxes,
       assignMailboxesList: assignMailboxesList,
@@ -839,7 +890,8 @@ angular.module('linagora.esn.unifiedinbox')
       flagIsUnreadChanged: flagIsUnreadChanged,
       updateUnreadMessages: updateUnreadMessages,
       moveUnreadMessages: moveUnreadMessages,
-      canMoveMessage: canMoveMessage
+      canMoveMessage: canMoveMessage,
+      getMessageListFilter: getMessageListFilter
     };
   })
 
@@ -896,7 +948,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxEmailService', function($state, $q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+  .service('inboxEmailService', function($q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(email, options) {
       return backgroundAction('Move of message "' + email.subject + '" to trash', function() {
         return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -972,7 +1024,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxThreadService', function($state, $q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+  .service('inboxThreadService', function($q, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(thread, options) {
       return backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
         return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1041,6 +1093,7 @@ angular.module('linagora.esn.unifiedinbox')
       };
     }
 
+    //eslint-disable-next-line no-unused-vars
     function uploadFile(unusedUrl, file, type, size, options, canceler) {
       return inboxConfig('uploadUrl').then(function(url) {
         var defer = $q.defer(),
@@ -1101,5 +1154,43 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       createSwipeRightHandler: createSwipeRightHandler,
       createSwipeLeftHandler: createSwipeLeftHandler
+    };
+  })
+
+  .factory('inboxSpecialMailboxes', function(jmap, _) {
+    var mailboxes = [{
+      id: 'all',
+      name: 'All Mail',
+      role: { value: 'all' },
+      filter: {
+        unprocessed: true,
+        notInMailboxes: [
+          jmap.MailboxRole.ARCHIVE,
+          jmap.MailboxRole.DRAFTS,
+          jmap.MailboxRole.OUTBOX,
+          jmap.MailboxRole.SENT,
+          jmap.MailboxRole.TRASH,
+          jmap.MailboxRole.SPAM
+        ]
+      }
+    }];
+
+    mailboxes.forEach(function(mailbox) {
+      mailbox.role = mailbox.role || {};
+      mailbox.qualifiedName = mailbox.name;
+      mailbox.unreadMessages = 0;
+    });
+
+    function list() {
+      return mailboxes;
+    }
+
+    function get(mailboxId) {
+      return _.find(mailboxes, { id: mailboxId });
+    }
+
+    return {
+      list: list,
+      get: get
     };
   });

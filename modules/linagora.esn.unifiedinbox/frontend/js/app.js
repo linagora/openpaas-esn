@@ -113,6 +113,11 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/:mailbox',
         views: {
           'main@unifiedinbox': { controller: 'listController' }
+        },
+        resolve: {
+          filter: function($stateParams, mailboxesService) {
+            return mailboxesService.getMessageListFilter($stateParams.mailbox);
+          }
         }
       })
       .state('unifiedinbox.list.messages', {
