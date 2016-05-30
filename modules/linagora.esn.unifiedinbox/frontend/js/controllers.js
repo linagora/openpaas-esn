@@ -2,13 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('rootController', function($scope, session, mailboxesService, twitterTweetsEnabled, _) {
-    mailboxesService.assignMailboxesList($scope);
-
-    $scope.getTwitterAccounts = twitterTweetsEnabled ? session.getTwitterAccounts : _.constant([]);
-  })
-
-  .controller('unifiedInboxController', function($state, $scope, infiniteScrollOnGroupsHelper, inboxProviders, headerService,
+  .controller('unifiedInboxController', function($scope, infiniteScrollOnGroupsHelper, inboxProviders, headerService,
                                                  PageAggregatorService, _, ELEMENTS_PER_PAGE, ByDateElementGroupingTool) {
 
     var aggregator;
@@ -55,7 +49,7 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
-  .controller('composerController', function($scope, $stateParams, $q, headerService, notificationFactory,
+  .controller('composerController', function($scope, $stateParams, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inboxConfig,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
@@ -180,12 +174,13 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.destroyDraft = function() {
       $scope.hide();
+
       return composition.destroyDraft();
     };
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, $state, withJmapClient, jmap, Email, session, asyncAction, emailSendingService, newComposerService, inboxEmailService, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewEmailController', function($scope, $stateParams, withJmapClient, Email, inboxEmailService, JMAP_GET_MESSAGES_VIEW) {
 
     $scope.mailbox = $stateParams.mailbox;
     $scope.emailId = $stateParams.emailId;
@@ -259,7 +254,7 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $q, $state, mailboxesService, rejectWithErrorNotification, asyncJmapAction) {
+  .controller('addFolderController', function($scope, $state, mailboxesService, rejectWithErrorNotification, asyncJmapAction) {
     mailboxesService.assignMailboxesList($scope);
 
     $scope.mailbox = {};
@@ -311,7 +306,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('recipientsFullscreenEditFormController', function($scope, $rootScope, $state, $stateParams) {
+  .controller('recipientsFullscreenEditFormController', function($scope, $state, $stateParams) {
     if (!$stateParams.recipientsType || !$stateParams.composition || !$stateParams.composition.email) {
       return $state.go('unifiedinbox.compose');
     }
@@ -336,4 +331,22 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxTwitterProvider(account.id).fetch(), new ByDateElementGroupingTool());
     $scope.username = account.username;
+  })
+
+  .controller('inboxSidebarEmailController', function($scope, mailboxesService, inboxSpecialMailboxes) {
+    mailboxesService.assignMailboxesList($scope);
+
+    $scope.specialMailboxes = inboxSpecialMailboxes.list();
+  })
+
+  .controller('inboxSidebarTwitterController', function($scope, session, inboxConfig) {
+    $scope.twitterAccounts = [];
+
+    inboxConfig('twitter.tweets').then(function(twitterTweetsEnabled) {
+      if (twitterTweetsEnabled) {
+        $scope.$evalAsync(function() {
+          $scope.twitterAccounts = session.getTwitterAccounts();
+        });
+      }
+    });
   });

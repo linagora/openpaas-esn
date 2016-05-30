@@ -37,10 +37,6 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox', {
         url: '/unifiedinbox',
         templateUrl: '/unifiedinbox/views/home',
-        controller: 'rootController as ctrl',
-        resolve: {
-          twitterTweetsEnabled: function(inboxConfig) { return inboxConfig('twitter.tweets'); }
-        },
         deepStateRedirect: {
           default: 'unifiedinbox.inbox',
           fn: function() {

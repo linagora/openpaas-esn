@@ -5,5 +5,5 @@
         .lv-item.clickable.menu-root.menu-heading
           .title(ui-sref='unifiedinbox')
             .text #{__('Unified Inbox')}
-        ng-include(src="'/unifiedinbox/views/sidebar/twitter/desktop.html'")
-        ng-include(src="'/unifiedinbox/views/sidebar/email/desktop.html'")
+        inbox-sidebar-twitter(template="desktop")
+        inbox-sidebar-email(template="desktop")
