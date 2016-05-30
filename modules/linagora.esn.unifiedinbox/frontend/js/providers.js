@@ -50,13 +50,11 @@ angular.module('linagora.esn.unifiedinbox')
                                                        newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
     return newProvider({
       name: 'inboxHostedMailMessagesProvider',
-      fetch: function(container) {
+      fetch: function(filter) {
         return pagedJmapRequest(function(position) {
           return withJmapClient(function(client) {
             return client.getMessageList({
-              filter: {
-                inMailboxes: [container]
-              },
+              filter: filter,
               sort: ['date desc'],
               collapseThreads: false,
               fetchMessages: false,
@@ -90,13 +88,11 @@ angular.module('linagora.esn.unifiedinbox')
 
     return newProvider({
       name: 'inboxHostedMailThreadsProvider',
-      fetch: function(container) {
+      fetch: function(filter) {
         return pagedJmapRequest(function(position) {
           return withJmapClient(function(client) {
             return client.getMessageList({
-              filter: {
-                inMailboxes: [container]
-              },
+              filter: filter,
               sort: ['date desc'],
               collapseThreads: true,
               fetchThreads: false,

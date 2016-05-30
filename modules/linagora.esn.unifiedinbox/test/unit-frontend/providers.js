@@ -65,7 +65,8 @@ describe('The Unified Inbox Angular module providers', function() {
   describe('The inboxHostedMailMessagesProvider factory', function() {
 
     it('should request the backend using the JMAP client, and return pages of messages', function(done) {
-      var fetcher = inboxHostedMailMessagesProvider.fetch('id_inbox');
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxHostedMailMessagesProvider.fetch(filter);
 
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
@@ -89,7 +90,8 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should paginate requests to the backend', function(done) {
-      var fetcher = inboxHostedMailMessagesProvider.fetch('id_inbox');
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxHostedMailMessagesProvider.fetch(filter);
 
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
@@ -122,7 +124,8 @@ describe('The Unified Inbox Angular module providers', function() {
   describe('The inboxHostedMailThreadsProvider factory', function() {
 
     it('should have fetch function to resolve an array of thread', function(done) {
-      var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxHostedMailThreadsProvider.fetch(filter);
 
       fetcher().then(function(threads) {
         expect(threads).to.be.an.instanceof(Array);
@@ -134,7 +137,8 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should request the backend using the JMAP client, and return pages of threads', function(done) {
-      var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxHostedMailThreadsProvider.fetch(filter);
 
       fetcher().then(function(threads) {
         expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
@@ -158,7 +162,8 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should paginate requests to the backend', function(done) {
-      var fetcher = inboxHostedMailThreadsProvider.fetch('id_inbox');
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxHostedMailThreadsProvider.fetch(filter);
 
       fetcher().then(function(threads) {
         expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
