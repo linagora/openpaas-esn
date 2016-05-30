@@ -74,7 +74,7 @@ angular.module('esn.calendar')
         }
       }
 
-      var localTimezoneFound = _.chain(this.timezones).contains(localTimezone).value();
+      var localTimezoneFound = _.contains(Object.keys(this.timezones), localTimezone);
 
       if (!localTimezoneFound) {
         this.vcalendar.addSubcomponent(ICAL.TimezoneService.get(localTimezone).component);

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarShell factory', function() {
-  var CalendarShell, fcMoment, ICAL, $rootScope;
+  var CalendarShell, fcMoment, ICAL, $rootScope, calendarService;
 
   beforeEach(function() {
     this.uuid4 = {
@@ -43,11 +43,12 @@ describe('CalendarShell factory', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_CalendarShell_, _fcMoment_, _ICAL_, _$rootScope_) {
+    angular.mock.inject(function(_CalendarShell_, _fcMoment_, _ICAL_, _$rootScope_, _calendarService_) {
       CalendarShell = _CalendarShell_;
       fcMoment = _fcMoment_;
       ICAL = _ICAL_;
       $rootScope = _$rootScope_;
+      calendarService = _calendarService_;
     });
   });
 
@@ -76,6 +77,33 @@ describe('CalendarShell factory', function() {
 
       expect(shell.start.hasTime()).to.be.false;
       expect(shell.end.hasTime()).to.be.false;
+    });
+  });
+
+  describe('vtimezone', function() {
+    it('should only have one vtimezone for each tzid used in the event', function() {
+      var vevent = new ICAL.Component('vevent');
+      var newShell = new CalendarShell(vevent);
+
+      expect(newShell.vcalendar.getAllSubcomponents('vtimezone').length).to.equal(1);
+    });
+
+    it('it should not add redundant vtimezone when updating vevent', function() {
+      var event = CalendarShell.fromIncompleteShell({
+        title: 'title',
+        path: '/path/to/event',
+        location: 'aLocation',
+        etag: 'etag'
+      });
+      var editEvent = event.clone();
+      editEvent.location = 'bLocation';
+
+      this.eventApiMock.modify = function(eventPath, vcalendar, etag) {
+        return $q.when({});
+      };
+
+      calendarService.modifyEvent('/path/to/event', editEvent, event, 'etag', angular.noop);
+      expect(event.vcalendar.getAllSubcomponents('vtimezone').length).to.equal(1);
     });
   });
 
