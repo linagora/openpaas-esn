@@ -11,9 +11,16 @@ describe('The esn.notification Angular modules', function() {
   });
 
   describe('The notification service', function() {
-    var notifyService, notifyMock, sanitizeMock;
+    var notifyService, notifyMock, escapeHTMLMock, self;
 
     beforeEach(function() {
+      self = this;
+
+      this.escapeHTMLMockResult = {};
+      this.escapeHTMLMock = {
+        escapeHTML: sinon.stub().returns(this.escapeHTMLMockResult)
+      };
+
       angular.mock.module(function($provide) {
         $provide.value('$window', {
           $: {
@@ -23,9 +30,7 @@ describe('The esn.notification Angular modules', function() {
           }
         });
 
-        $provide.value('$sanitize', function() {
-          return sanitizeMock.apply(this, arguments);
-        });
+        $provide.value('escapeHtmlUtils', self.escapeHTMLMock);
       });
     });
 
@@ -46,7 +51,6 @@ describe('The esn.notification Angular modules', function() {
         '</div>'
       };
 
-      sanitizeMock = angular.noop;
       notifyMock = sinon.spy(function(options, settings) {
         expect(settings).to.shallowDeepEqual(expectedSettings);
 
@@ -57,23 +61,24 @@ describe('The esn.notification Angular modules', function() {
       expect(notifyMock).to.have.been.calledOnce;
     });
 
-    it('should sanitize data before passing it to notify', function() {
+    it('should esecape the html data before passing it to notify', function() {
       var title = '<script>alert("XSS")</script>title';
       var message = '<script>alert("XSS")</script>message';
+      var escapedString = '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;';
       var data = {
         title: title,
         message: message
       };
       var options = {};
 
-      sanitizeMock = sinon.spy(function(val) {
-        return val.replace('<script>alert("XSS")</script>', '');
+      this.escapeHTMLMock.escapeHTML = sinon.spy(function(val) {
+        return val.replace('<script>alert("XSS")</script>', escapedString);
       });
 
       notifyMock = sinon.spy(function(data, options) {
         expect(data).to.deep.equal({
-          title:  'title',
-          message: 'message'
+          title:  escapedString + 'title',
+          message: escapedString + 'message'
         });
         expect(options).to.equal(options);
 
@@ -81,15 +86,18 @@ describe('The esn.notification Angular modules', function() {
       });
 
       notifyService(data, options);
-      expect(sanitizeMock).to.have.been.calledWith(message);
-      expect(sanitizeMock).to.have.been.calledWith(title);
+      expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(message);
+      expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(title);
       expect(notifyMock).to.have.been.calledOnce;
     });
 
     describe('the returned notify object of notifyService', function() {
-      var notifyObj, rawUpdate, rawClose, wrappedNotifyObj, dirtyValue, rawFail;
+      var notifyObj, rawUpdate, rawClose, wrappedNotifyObj, dirtyValue, escapedHTML, rawFail;
 
       beforeEach(function() {
+        rawUpdate = sinon.spy();
+        rawClose = sinon.spy();
+        rawFail = sinon.spy();
         notifyObj = {
           update: function() {
             rawUpdate.apply(this, arguments);
@@ -102,7 +110,6 @@ describe('The esn.notification Angular modules', function() {
           }
         };
 
-        sanitizeMock = angular.identity;
         notifyMock = function() {
           return notifyObj;
         };
@@ -110,37 +117,20 @@ describe('The esn.notification Angular modules', function() {
         wrappedNotifyObj = notifyService(null, null);
 
         dirtyValue = 'value<script></scrit>';
-        sanitizeMock = sinon.spy(function(val) {
-          expect(val).to.equal(dirtyValue);
-          return 'value';
-        });
+        escapedHTML = '&lt;script&gt;&lt;/script&gt;';
+        this.escapeHTMLMock.escapeHTML = sinon.spy();
       });
 
-      it('should have a update method that sanitize his second argument when called with two string', function() {
-        rawUpdate = sinon.spy(function(key, value) {
-          expect(key).to.equal('key');
-          expect(value).to.equal('value');
-        });
-
+      it('should have a update method that escapes his second argument when called with two string', function() {
         wrappedNotifyObj.update('key', dirtyValue);
-        expect(sanitizeMock).to.have.been.calledOnce;
+        expect(this.escapeHTMLMock.escapeHTML).not.to.have.been.calledWith('key');
+        expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(dirtyValue);
         expect(rawUpdate).to.have.been.calledOnce;
       });
 
-      it('should have a update method that sanitize the value of an object when called with this object has an argument', function() {
-        rawUpdate = sinon.spy(function(obj) {
-          expect(obj.key).to.equal('value');
-        });
-
-        var dirtyValue = 'value<script></scrit>';
-
-        sanitizeMock = sinon.spy(function(val) {
-          expect(val).to.equal(dirtyValue);
-          return 'value';
-        });
-
+      it('should have a update method that escapes the html of the value of an object when called with this object has an argument', function() {
         wrappedNotifyObj.update({key: dirtyValue});
-        expect(sanitizeMock).to.have.been.calledOnce;
+        expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(dirtyValue);
         expect(rawUpdate).to.have.been.calledOnce;
       });
 
