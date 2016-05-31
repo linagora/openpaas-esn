@@ -135,6 +135,8 @@ GruntfileUtils.prototype.container = function container() {
   }
 
   function newEsnFullContainer(containerOptions, taskOptions) {
+    var composeFile = 'docker/dockerfiles/dev/docker-compose-e2e' + (process.env.LOCAL ? '-local.yml' : '.yml');
+
     taskOptions = extend({
       async: false,
       matchOutput: _taskSuccessIfStreamEnds(grunt, grunt.option('show-logs'))
@@ -143,7 +145,7 @@ GruntfileUtils.prototype.container = function container() {
     return newContainer({
         Image: 'docker/compose:1.6.2',
         name: containerOptions.name,
-        Cmd: ['-f', 'docker/dockerfiles/dev/docker-compose-e2e.yml'].concat(containerOptions.command),
+        Cmd: ['-f', composeFile].concat(containerOptions.command),
         WorkingDir: '/compose',
         Env: containerOptions.env || [],
         HostConfig: {

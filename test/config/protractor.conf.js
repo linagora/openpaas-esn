@@ -2,10 +2,13 @@
 
 //jscs:disable
 
-var seleniumWebapp = 'http://localhost:4444';
+var seleniumWebapp = 'http://localhost:4444',
+    testConfig = require('./servers-conf.js'),
+    baseHost = process.env.LOCAL ? testConfig.host : 'esn_webapp';
 
 exports.config = {
-  baseUrl: 'http://esn_webapp:8080',
+  baseUrl: 'http://' + baseHost + ':8080',
+  directConnect: process.env.LOCAL,
   seleniumWebapp: seleniumWebapp,
   seleniumAddress: seleniumWebapp + '/wd/hub',
   framework: 'custom',
