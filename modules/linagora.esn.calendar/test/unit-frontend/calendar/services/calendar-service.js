@@ -915,7 +915,7 @@ describe('The calendarService service', function() {
       occShell.recurrenceId = this.fcMoment();
 
       var headers = { ETag: 'etag' };
-      var vcalendar = angular.copy(this.vcalendar.toJSON());
+      var vcalendar = _.cloneDeep(this.vcalendar.toJSON());
       var $httpBackend = this.$httpBackend;
 
       this.gracePeriodService.grace = function() {
