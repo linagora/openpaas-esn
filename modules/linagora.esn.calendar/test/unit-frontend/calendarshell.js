@@ -33,6 +33,7 @@ describe('CalendarShell factory', function() {
     };
 
     var self = this;
+
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('uuid4', self.uuid4);
@@ -379,6 +380,7 @@ describe('CalendarShell factory', function() {
       event.formattedStart = event.vevent.getFirstPropertyValue('dtstart').convertToZone(ICAL.Timezone.utcTimezone).toString();
       event.formattedEnd = event.vevent.getFirstPropertyValue('dtend').convertToZone(ICAL.Timezone.utcTimezone).toString();
       event.formattedRecurrenceId = event.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone).toString();
+
       return event;
     }
 
@@ -512,11 +514,12 @@ describe('CalendarShell factory', function() {
       var subevents = shell.expand();
 
       subevents[0].start = fcMoment.utc('2015-01-01T18:30:00');
+      subevents[0].title = 'benjen stark is alive';
       shell.modifyOccurrence(subevents[0]);
 
       expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
         0: {
-          title: 'reccurent',
+          title: 'benjen stark is alive',
           formattedStart: '2015-01-01T18:30:00Z',
           formattedEnd: '2015-01-01T19:01:00Z',
           backgroundColor: 'red',
@@ -543,6 +546,7 @@ describe('CalendarShell factory', function() {
     it('should expand correctly recurrent event with timezone', function() {
       var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
+
       expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
         0: {
           formattedRecurrenceId: '2016-03-07T15:00:00Z',
@@ -561,6 +565,7 @@ describe('CalendarShell factory', function() {
     it('should expand correctly recurrent event with exdate', function() {
       var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithExdate.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
+
       expect(shell.expand().length).to.equal(2);
     });
 
@@ -710,8 +715,10 @@ describe('CalendarShell factory', function() {
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
       var instances = shell.expand();
       var instanceToDelete = instances.pop();
+
       shell.deleteInstance(instanceToDelete);
       var expandResult = shell.expand();
+
       expect(expandResult.length).to.equal(1);
       expect(expandResult[0].equals(instances[0]));
       expect(shell.vevent.getFirstPropertyValue('exdate')).to.equal(instanceToDelete.vevent.getFirstPropertyValue('recurrence-id'));
@@ -722,8 +729,10 @@ describe('CalendarShell factory', function() {
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
       var instances = shell.expand();
       var instanceToDelete = instances.shift();
+
       shell.deleteInstance(instanceToDelete);
       var expandResult = shell.expand();
+
       expect(expandResult.length).to.equal(1);
       expect(expandResult[0].equals(instances[0]));
       expect(shell.vevent.getFirstPropertyValue('exdate')).to.equal(instanceToDelete.vevent.getFirstPropertyValue('recurrence-id'));
@@ -753,10 +762,12 @@ describe('CalendarShell factory', function() {
       });
 
       var masterFromCache = CalendarShell.fromIncompleteShell({});
+
       this.masterEventCache.get = sinon.stub().returns(masterFromCache);
       this.masterEventCache.save = sinon.spy();
 
       var self = this;
+
       shell.getModifiedMaster().then(function(masterShell) {
         expect(masterShell).to.equal(masterFromCache);
         expect(self.masterEventCache.get).to.have.been.calledWith(shell.path);
@@ -785,10 +796,12 @@ describe('CalendarShell factory', function() {
 
       this.eventApiMock.get = function(_path) {
         expect(_path).to.equal(path);
+
         return $q.when({data: vcalendar.toJSON()});
       };
 
       var self = this;
+
       shell.getModifiedMaster().then(function(masterShell) {
         expect(masterShell.vcalendar.toJSON()).to.deep.equal(vcalendar.toJSON());
         expect(masterShell.etag).to.equal(etag);
@@ -832,6 +845,7 @@ describe('CalendarShell factory', function() {
   describe('calendarId property', function() {
     it('should compute the id from the path', function() {
       var event = CalendarShell.fromIncompleteShell({path: '/calendarHomeId/calendarId/events'});
+
       expect(event.calendarId).to.equal('calendarId');
     });
   });

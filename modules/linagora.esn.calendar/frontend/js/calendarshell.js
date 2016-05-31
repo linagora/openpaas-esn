@@ -215,7 +215,7 @@ angular.module('esn.calendar')
         var currentDatetime, currentEvent, currentDetails, result = [];
 
         function getException(icalEvent, recurrenceId) {
-          _.find(icalEvent.exceptions, function(exception) {
+          return _.find(icalEvent.exceptions, function(exception) {
             return exception.recurrenceId.compare(recurrenceId) === 0;
           });
         }
