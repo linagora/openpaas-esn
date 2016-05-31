@@ -31,7 +31,7 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
 
       notification.update = function(strOrObj, value) {
         return angular.isString(strOrObj) ?
-          update.call(this, escapeHtmlUtils.escapeHTML(strOrObj), value) :
+          update.call(this, strOrObj, escapeHtmlUtils.escapeHTML(value)) :
           update.call(this, escapeHtmlFlatObject(strOrObj));
       };
 
