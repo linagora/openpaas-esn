@@ -1,7 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -19,8 +18,16 @@ describe('The calendar-lists component', function() {
       }
     };
 
+    this.hiddenCalendar = {id: 42};
+    this.calendarVisibilityServiceMock = {
+      getHiddenCalendars: sinon.stub().returns([this.hiddenCalendar]),
+      isHidden: sinon.spy(),
+      toggle: sinon.spy()
+    };
+
     angular.mock.module(function($provide) {
       $provide.value('calendarService', self.calendarServiceMock);
+      $provide.value('calendarVisibilityService', self.calendarVisibilityServiceMock);
     });
   });
 
@@ -57,7 +64,9 @@ describe('The calendar-lists component', function() {
   it('should correctly initialize scope', function() {
     this.initDirective(this.$scope);
 
-    expect(this.eleScope.hiddenCalendars).to.deep.equal({});
+    expect(this.calendarVisibilityServiceMock.getHiddenCalendars).to.have.been.calledOnce;
+
+    expect(this.eleScope.hiddenCalendars).to.deep.equal({42: true});
 
     expect(this.eleScope.onEditClick).to.exist;
   });
@@ -69,28 +78,32 @@ describe('The calendar-lists component', function() {
   });
 
   describe('scope.toggleCalendar', function() {
-    it('should toggle calendar.toggled and emit the calendar into CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW', function() {
-      var toggleSpy = sinon.spy();
-      this.$rootScope.$on(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
-        expect(data.calendar.href).to.equal('href');
-        toggleSpy();
-      });
-      this.$scope.calendars = [this.CalendarCollectionShell.from({
-        href: 'href',
-        name: 'name',
-        color: 'color',
-        description: 'description'
-      }),
-      this.CalendarCollectionShell.from({
-        href: 'href2',
-        name: 'name2',
-        color: 'color2',
-        description: 'description2'
-      })];
+    it('should call calendarVisibilityService.toggle', function() {
       this.initDirective(this.$scope);
       this.eleScope.toggleCalendar(this.eleScope.calendars[0]);
-      expect(this.eleScope.hiddenCalendars[this.eleScope.calendars[0].id]).to.be.true;
-      expect(toggleSpy).to.have.been.calledOnce;
+      expect(this.calendarVisibilityServiceMock.toggle).to.have.been.calledWith(this.calendars[0]);
+    });
+  });
+
+  describe('CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW listener', function() {
+    it('should set the visibility of the calendar', function() {
+      this.initDirective(this.$scope);
+
+      this.$rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
+        calendar: this.calendars[0],
+        hidden: true
+      });
+      this.$rootScope.$apply();
+
+      expect(this.eleScope.hiddenCalendars[this.calendars[0].id]).to.be.true;
+
+      this.$rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
+        calendar: this.calendars[0],
+        hidden: false
+      });
+      this.$rootScope.$apply();
+
+      expect(this.eleScope.hiddenCalendars[this.calendars[0].id]).to.be.false;
     });
   });
 
@@ -109,7 +122,7 @@ describe('The calendar-lists component', function() {
       this.eleScope.hiddenCalendars[cal.id] = true;
 
       this.eleScope.selectCalendar(cal);
-      expect(!!this.eleScope.hiddenCalendars[cal.id]).to.be.false;
+      expect(this.calendarVisibilityServiceMock.toggle).to.have.been.calledWith(cal);
     });
 
     it('should not hide previous selected calendar', function() {
@@ -121,6 +134,5 @@ describe('The calendar-lists component', function() {
       this.eleScope.selectCalendar(cal);
       expect(!!this.eleScope.hiddenCalendars[3]).to.be.false;
     });
-
   });
 });
