@@ -118,7 +118,6 @@
     "grunt-node-inspector": "^0.1.5",
     "grunt-nodemon": "~0.2.0",
     "grunt-protractor-runner": "2.1.2",
-    "grunt-protractor-webdriver": "^0.2.5",
     "grunt-run": "~0.2.1",
     "grunt-run-grunt": "git+https://ci.open-paas.org/stash/scm/or/grunt-run-grunt.git",
     "grunt-shell": "~0.7.0",

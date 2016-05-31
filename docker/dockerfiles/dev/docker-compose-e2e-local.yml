@@ -1,0 +1,57 @@
+version: '2'
+
+services:
+
+  esn:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: esn
+    build: ../../../
+    command: ["sh", "start.sh"]
+    links:
+      - redis
+      - mongo
+      - sabre
+      - elasticsearch
+    environment:
+      - PROVISION=true
+
+  redis:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: redis
+
+  mongo:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: mongo
+
+  elasticsearch:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: elasticsearch
+
+  sabre:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: sabre
+    links:
+      - mongo
+
+  james:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james
+    links:
+      - cassandra:cassandra
+      - james_elastic:elasticsearch
+
+  james_elastic:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james_elastic
+
+  cassandra:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: cassandra

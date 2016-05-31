@@ -2,20 +2,19 @@
 
 //jscs:disable
 
-var testConfig = require('./servers-conf.js'),
-    globalPhantomjsBin = require('fs').existsSync('/usr/local/bin/phantomjs') ? '/usr/local/bin/phantomjs' : undefined,
-    seleniumWebapp = 'http://localhost:4444';
+var seleniumWebapp = 'http://localhost:4444',
+    testConfig = require('./servers-conf.js'),
+    baseHost = process.env.LOCAL ? testConfig.host : 'esn_webapp';
 
 exports.config = {
-  baseUrl: 'http://' + testConfig.host + ':8080',
+  baseUrl: 'http://' + baseHost + ':8080',
+  directConnect: process.env.LOCAL,
   seleniumWebapp: seleniumWebapp,
   seleniumAddress: seleniumWebapp + '/wd/hub',
   framework: 'custom',
   frameworkPath: require.resolve('protractor-cucumber-framework'),
   capabilities: {
-    'browserName': process.env.BROWSER || 'phantomjs',
-    'phantomjs.binary.path': process.env.PHANTOMJS_BIN || globalPhantomjsBin || require('phantomjs').path,
-    'phantomjs.ghostdriver.cli.args': ''
+    'browserName': process.env.BROWSER || 'firefox'
   },
   suites: {
     'modules': '../../modules/**/test/e2e/**/*.feature',
