@@ -20,7 +20,7 @@ E2E testing environment:
 grunt test-e2e-prepare
 ```
 
-Above command will update web driver, pull or build required Docker images, etc.
+Above command will mainly pull or build required Docker images.
 Once it runs successful, you can perform a full E2E test with:
 
 ```bash
@@ -28,16 +28,34 @@ grunt test-e2e
 ```
 
 This is regular way to run end-to-end tests. It will create all required ESN
-containers, wait for each service to be available, run protractor tests and then
-stop/garbage all containers.
+containers, wait for each service to be available, run protractor tests and then stop/garbage all containers.
+
+##### Change the browser target
+
+Tests are run against Firefox by default, but you can change by giving the BROWSER environment variable, like:
+
+```bash
+BROWSER="chrome" grunt test-e2e
+```
+
+##### Watch what really happen
+
+Protractor will target a selenium grid, ran as a container. You can watch what happen on the browser by opening a VNC client with the following settings:
+- server: the server runing the grunt command, usually "localhost"
+- port: 5900
+- password: linagora
 
 ### E2E test in development
+
+##### ESN code has changed
 
 Anytime you change your ESN code, you may want to rebuild your ESN image with:
 
 ```bash
 grunt test-e2e-build
 ```
+
+##### ESN external services has changed
 
 If you have newer version of service images like esn-sabre, esn-elasticsearch, etc.
 You can pull latest version of them with (don't forget to build ESN images again
@@ -47,7 +65,9 @@ after a pull):
 grunt test-e2e-pull
 ```
 
-By running `grunt test-e2e`, it will remove the containers after it finishes.
+##### Save time by not creating all containers each time
+
+Running `grunt test-e2e` will remove the containers after it finishes.
 Instead, you can skip the containers removal to save time while you're writing
 tests. By using the following command, you will reuse the same containers over
 the time. So use it carefully, as for example, your database data won't be
@@ -56,6 +76,16 @@ removed between tests!
 ```bash
 grunt test-e2e-quick
 ```
+
+##### Run tests on your own browser
+
+To ease tests creation and debugging, you can run tests against one your own local browser.
+
+```bash
+LOCAL="true" BROWSER="firefox" grunt test-e2e
+```
+
+##### Clean up
 
 If an unexpected issue makes the container removal failing
 (see `docker ps` output), you can do it manually with:
