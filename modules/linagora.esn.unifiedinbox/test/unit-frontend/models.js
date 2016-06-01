@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module models', function() {
 
   beforeEach(function() {
+    angular.mock.module('esn.core');
     angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox');
   });
@@ -154,6 +155,30 @@ describe('The Unified Inbox Angular module models', function() {
       searchService.searchByEmail = function() { return $q.when({}); };
 
       resolveAndCheckEmailer(new Email({ bcc: [{ email: 'to@linagora.com' }] }), 'bcc', [undefined, 'to@linagora.com', INBOX_DEFAULT_AVATAR]);
+    });
+
+    describe('The hasReplyAll attribute', function() {
+
+      var recipients;
+
+      beforeEach(function() {
+        recipients = [{ email: 'bob@email.com' }, { email: 'alice@email.com' }];
+
+        searchService.searchByEmail = function() { return $q.when(); };
+      });
+
+      it('should allow replying all if there are more than one recipient', function() {
+        var email = new Email({ id: 'id', to: [recipients[0]], cc: [recipients[1]] });
+
+        expect(email.hasReplyAll).to.be.true;
+      });
+
+      it('should not allow replying all if there is only one recipient', function() {
+        var email = new Email({ id: 'id', to: [recipients[0]], cc: [] });
+
+        expect(email.hasReplyAll).to.be.false;
+      });
+
     });
 
   });

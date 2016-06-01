@@ -9,9 +9,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
-      emailSendingService, Composition, newComposerService = {}, $state, $modal,
-      mailboxesService, inboxEmailService, inboxThreadService, _, windowMock, fileUploadMock, config;
-  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_PAGE,
+      Composition, newComposerService = {}, $state, $modal,
+      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config;
+  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
       DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
 
   beforeEach(function() {
@@ -77,22 +77,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_, _$timeout_, _emailSendingService_,
-                                          _Composition_, _mailboxesService_, _inboxEmailService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_, _ELEMENTS_PER_PAGE_, _DEFAULT_FILE_TYPE_,
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
+                                          _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
+                                          _JMAP_GET_MESSAGES_LIST_, _DEFAULT_FILE_TYPE_,
                                           _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
-    emailSendingService = _emailSendingService_;
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
-    inboxEmailService = _inboxEmailService_;
     inboxThreadService = _inboxThreadService_;
     _ = ___;
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
     JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
-    ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
@@ -121,7 +118,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     function initCtrl(email) {
       var ctrl = initController('composerController');
+
       ctrl.initCtrl(email);
+
       return ctrl;
     }
 
@@ -189,6 +188,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should hide the composer then destroy the draft when called', function() {
         var ctrl = initCtrl({subject: 'a subject'});
+
         ctrl.getComposition().destroyDraft = sinon.spy();
 
         scope.destroyDraft();
@@ -422,6 +422,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should cancel an ongoing upload', function(done) {
         var attachment = { upload: { cancel: done } };
+
         scope.email.attachments = [attachment];
 
         ctrl.removeAttachment(attachment);
@@ -429,6 +430,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should remove the attachment from the email', function() {
         var attachment = { blobId: 'willBeRemoved', upload: { cancel: angular.noop } };
+
         scope.email.attachments = [attachment, { blobId: '1' }];
 
         ctrl.removeAttachment(attachment);
@@ -438,6 +440,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should remove attachments that do not have upload attributes', function() {
         var attachment = { blobId: 'willBeRemoved'};
+
         scope.email.attachments = [attachment, { blobId: '1' }];
 
         ctrl.removeAttachment(attachment);
@@ -447,6 +450,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should save the draft silently', function() {
         var attachment = { blobId: 'willBeRemoved'};
+
         scope.email.attachments = [attachment];
 
         ctrl.removeAttachment(attachment);
@@ -639,7 +643,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewEmailController');
 
       scope.$watch('email', function(before, after) {
-        expect(after).to.deep.equal({ isUnread: false, property: 'property', mailboxIds: [] });
+        expect(after).to.shallowDeepEqual({ isUnread: false, property: 'property', mailboxIds: [] });
 
         done();
       });
@@ -656,41 +660,16 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(jmapMessage.isUnread).to.equal(false);
     });
 
-    it('should expose a "reply" function', function() {
-      inboxEmailService.reply = sinon.spy();
-
-      initController('viewEmailController').reply();
-
-      expect(inboxEmailService.reply).to.have.been.calledWith(scope.email);
-    });
-
-    it('should expose a "replyAll" function', function() {
-      inboxEmailService.replyAll = sinon.spy();
-
-      initController('viewEmailController').replyAll();
-
-      expect(inboxEmailService.replyAll).to.have.been.calledWith(scope.email);
-    });
-
-    it('should expose a "forward" function', function() {
-      inboxEmailService.forward = sinon.spy();
-
-      initController('viewEmailController').forward();
-
-      expect(inboxEmailService.forward).to.have.been.calledWith(scope.email);
-    });
-
   });
 
   describe('The viewThreadController', function() {
 
     var jmapThread,
-        threadId = 'thread1',
-        threadMessages;
+        threadId = 'thread1';
 
     function mockGetThreadAndMessages(messages) {
       jmapThread.getMessages = function() {
-        return $q.when(threadMessages = messages);
+        return $q.when(messages);
       };
     }
 
@@ -772,30 +751,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.subject).to.equal('thread subject1');
-    });
-
-    it('should expose a "reply" fn bound to the last email', function() {
-      inboxEmailService.reply = sinon.spy();
-
-      initController('viewThreadController').reply();
-
-      expect(inboxEmailService.reply).to.have.been.calledWith(threadMessages[1]);
-    });
-
-    it('should expose a "reply" fn bound to the last email', function() {
-      inboxEmailService.replyAll = sinon.spy();
-
-      initController('viewThreadController').replyAll();
-
-      expect(inboxEmailService.replyAll).to.have.been.calledWith(threadMessages[1]);
-    });
-
-    it('should expose a "forward" fn bound to the last email', function() {
-      inboxEmailService.forward = sinon.spy();
-
-      initController('viewThreadController').forward();
-
-      expect(inboxEmailService.forward).to.have.been.calledWith(threadMessages[1]);
     });
 
     it('should mark the thread as read once it\'s loaded', function() {
@@ -1027,10 +982,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(messageListResult.getMessages).to.have.been.called;
         expect(messageListResult.getThreads).to.have.been.called;
 
-        expect(thread1.email).to.deep.equal({id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'});
+        expect(thread1.email).to.shallowDeepEqual({id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'});
         expect(thread1.date).to.equalTime(new Date('2016-03-21T10:16:22.628Z'));
 
-        expect(thread2.email).to.deep.equal({id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'});
+        expect(thread2.email).to.shallowDeepEqual({id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'});
         expect(thread2.date).to.equalTime(new Date('2016-03-22T10:16:22.628Z'));
 
       });

@@ -9,6 +9,7 @@ describe('The Unified Inbox Angular module filters', function() {
   var $sce = {}, $filter, isMobile;
 
   beforeEach(function() {
+    angular.mock.module('esn.core');
     angular.mock.module('esn.session');
     angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox');

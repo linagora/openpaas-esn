@@ -11,5 +11,4 @@ sub-header
     h4 {{ ::email.subject }}
     
   email(email='email')
-  
-  ng-include(src="'/unifiedinbox/views/partials/email-footer'")
+  inbox-email-footer(email='email')

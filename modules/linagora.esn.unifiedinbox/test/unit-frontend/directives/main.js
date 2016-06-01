@@ -1086,6 +1086,22 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The email directive', function() {
 
+    it('should show reply button and hide replyAll button if email.hasReplyAll is false', function() {
+      $scope.email = { id: 'id', hasReplyAll: false };
+      compileDirective('<email email="email"/>');
+
+      expect(element.find('.mdi-reply').length).to.equal(1);
+      expect(element.find('.mdi-reply-all').length).to.equal(0);
+    });
+
+    it('should hide reply button and show replyAll button if email.hasReplyAll is true', function() {
+      $scope.email = { id: 'id', hasReplyAll: true };
+      compileDirective('<email email="email"/>');
+
+      expect(element.find('.mdi-reply').length).to.equal(0);
+      expect(element.find('.mdi-reply-all').length).to.equal(1);
+    });
+
     describe('The markAsUnread fn', function() {
       it('should mark email as unread then update location to parent state', inject(function($state) {
         $scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
@@ -1267,6 +1283,58 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $timeout.flush();
 
       expect(document.activeElement).to.not.equal(element.find('.note-editable').get(0));
+    });
+
+  });
+
+  describe('The inboxEmailFooter directive', function() {
+
+    it('should hide replyAll button if email.hasReplyAll is false', function() {
+      $scope.email = { id: 'id', hasReplyAll: false };
+      compileDirective('<inbox-email-footer email="email"/>');
+
+      expect(element.find('.mdi-reply-all').length).to.equal(0);
+    });
+
+    it('should show replyAll button if email.hasReplyAll is true', function() {
+      $scope.email = { id: 'id', hasReplyAll: true };
+      compileDirective('<inbox-email-footer email="email"/>');
+
+      expect(element.find('.mdi-reply-all').length).to.equal(1);
+    });
+
+    describe('its controller', function() {
+      var controller;
+
+      beforeEach(function() {
+        $scope.email = { id: 'id' };
+        compileDirective('<inbox-email-footer email="email"/>');
+        controller = element.controller('inboxEmailFooter');
+      });
+
+      it('should expose a "reply" function', function() {
+        inboxEmailService.reply = sinon.spy();
+
+        controller.reply();
+
+        expect(inboxEmailService.reply).to.have.been.calledWith($scope.email);
+      });
+
+      it('should expose a "replyAll" function', function() {
+        inboxEmailService.replyAll = sinon.spy();
+
+        controller.replyAll();
+
+        expect(inboxEmailService.replyAll).to.have.been.calledWith($scope.email);
+      });
+
+      it('should expose a "forward" function', function() {
+        inboxEmailService.forward = sinon.spy();
+
+        controller.forward();
+
+        expect(inboxEmailService.forward).to.have.been.calledWith($scope.email);
+      });
     });
 
   });

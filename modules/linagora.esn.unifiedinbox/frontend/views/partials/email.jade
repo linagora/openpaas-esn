@@ -18,9 +18,11 @@
 
     .email-header-right
       ul.actions
-        li.action-item
-          a(ng-click="ctrl.replyAll(); $event.stopPropagation()" title="#{__('Reply all')}")
+        li.action-item(ng-switch="::email.hasReplyAll")
+          a(ng-switch-when="true", ng-click="ctrl.replyAll(); $event.stopPropagation()" title="#{__('Reply all')}")
             i.mdi.mdi-reply-all
+          a(ng-switch-when="false", ng-click="ctrl.reply(); $event.stopPropagation()" title="#{__('Reply')}")
+            i.mdi.mdi-reply
         li.action-item
           a(action-list="/unifiedinbox/views/email/view/action-list.html", title="#{__('More')}")
             i.mdi.mdi-view-module

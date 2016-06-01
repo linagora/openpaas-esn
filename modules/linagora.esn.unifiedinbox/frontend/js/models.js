@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('Email', function(mailboxesService, searchService, _, INBOX_DEFAULT_AVATAR) {
+  .factory('Email', function(mailboxesService, searchService, emailSendingService, _, INBOX_DEFAULT_AVATAR) {
 
     function resolveEmailer(emailer) {
       if (!emailer) {
@@ -27,6 +27,8 @@ angular.module('linagora.esn.unifiedinbox')
           }
         }
       });
+
+      email.hasReplyAll = emailSendingService.showReplyAllButton(email);
 
       resolveEmailer(email.from);
       _.forEach(email.to, resolveEmailer);
@@ -57,6 +59,7 @@ angular.module('linagora.esn.unifiedinbox')
     function Thread(thread, emails) {
       thread.subject = emails && emails[0] ? emails[0].subject : '';
       thread.emails = emails || [];
+      thread.lastEmail = _.last(thread.emails);
 
       _defineFlagProperty(thread, 'isUnread');
       _defineFlagProperty(thread, 'isFlagged');
