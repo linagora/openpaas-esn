@@ -15,9 +15,9 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
     .card-body.card-padding
       p.m-t-5.m-b-0
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-      .row
+      .row(ng-if="message.position")
         display-position(position='message.position')
-      .row
+      .row(ng-if="message.attachments && message.attachments.length > 0")
         message-attachments(message='message')
       .row
         message-oembeds(message='message')
@@ -49,9 +49,6 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
                 message-bottom-links
           p.m-t-5.m-b-0
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-          .row
-            display-position(position='message.position')
-          .row
-            message-attachments(message='message')
-          .row
-            message-oembeds(message='message')
+          display-position.row(ng-if="message.position", position='message.position')
+          message-attachments.message-attachments-block(ng-if="message.attachments && message.attachments.length > 0", message='message')
+          message-oembeds(message='message')
