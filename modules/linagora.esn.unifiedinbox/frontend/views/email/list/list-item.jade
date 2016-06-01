@@ -1,5 +1,5 @@
 .swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{leftTemplate}}")
-  .clickable(
+  .clickable.inbox-list-item(
       ng-click="esnIsDragging || ctrl.openEmail(item)",
       esn-draggable,
       inbox-draggable-list-item,
@@ -14,7 +14,7 @@
       message-sender-avatar(message='::item')
     .media-body(ng-class="{bold: item.isUnread}")
       .flex-space-between
-        .lv-title.ellipsis {{ ::item.subject}}
+        .inbox-subject.lv-title.ellipsis {{ ::item.subject}}
         .date-container {{ ::item.date | date: group.dateFormat }}
       .flex-space-between
         emailer.lv-title(emailer="::item.from")

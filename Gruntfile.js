@@ -269,7 +269,7 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
-  grunt.registerTask('test-e2e', ['test-e2e-quick', 'test-e2e-down']);
+  grunt.registerTask('test-e2e', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down', 'continue:off', 'continue:fail-on-warning']);
   grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'run_grunt:e2e']);
   grunt.registerTask('test-e2e-wait-servers', ['waitServer:esn', 'waitServer:mongo', 'waitServer:redis', 'waitServer:elasticsearch', 'waitServer:jmap', 'waitServer:cassandra']);
   grunt.registerTask('test-e2e-prepare', ['container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);

@@ -11,5 +11,5 @@ module.exports = function() {
     this.password.sendKeys(password);
 
     return this.submit.click();
-  };
+  }.bind(this);
 };

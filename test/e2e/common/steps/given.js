@@ -1,8 +1,5 @@
 'use strict';
 
-var LoginPage = require('../../login-page/pages/login');
-var loginPage = new LoginPage();
-
 module.exports = function() {
 
   this.Given('I am not logged in to OpenPaas', function() {
@@ -10,15 +7,11 @@ module.exports = function() {
   });
 
   this.Given('I logged in to OpenPaas', function() {
-    var self = this;
+    return this.logIn(this.USERS.admin.email);
+  });
 
-    return self.logoutAndGoToLoginPage()
-      .then(function() {
-        return loginPage.login('admin@open-paas.org', 'secret');
-      })
-      .then(function() {
-        return self.waitForUrlToChangeTo(/unifiedinbox\/inbox$/);
-      });
+  this.Given('I logged in to OpenPaas with "$account" account', function(account) {
+    return this.logIn(this.USERS[account].email);
   });
 
   this.Given('I use a mobile screen', function() {
