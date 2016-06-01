@@ -500,5 +500,47 @@ angular.module('linagora.esn.unifiedinbox')
       },
       controllerAs: 'ctrl'
     };
+  })
 
+  .directive('inboxFilterButton', function(_) {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/filter/filter-button.html',
+      scope: {
+        filters: '=',
+        placeholder: '@',
+        onChange: '&'
+      },
+      controller: function($scope) {
+        var defaultPlaceholder = $scope.placeholder || 'Filters';
+
+        $scope.filters.forEach(function(filter) {
+          filter.checked = false;
+        });
+
+        $scope.dropdownList = {
+          placeholder: defaultPlaceholder,
+          filtered: false
+        };
+
+        //the index maybe used in next PR that is why I keep it for the time being
+        this.dropdownItemClicked = function(index) {
+          var checkedItems = _.filter($scope.filters, {checked: true});
+
+          if (checkedItems.length > 0) {
+            $scope.dropdownList.filtered = true;
+            $scope.dropdownList.placeholder = (checkedItems.length === 1) ? checkedItems[0].displayName : checkedItems.length + ' selected';
+          } else {
+            $scope.dropdownList.filtered = false;
+            $scope.dropdownList.placeholder = defaultPlaceholder;
+          }
+
+          $scope.onChange({$filters: _.map(checkedItems, 'id')});
+        };
+      },
+
+      link: function(scope, element, attrs, ctrl) {
+        scope.dropdownItemClicked = ctrl.dropdownItemClicked;
+      }
+    };
   });

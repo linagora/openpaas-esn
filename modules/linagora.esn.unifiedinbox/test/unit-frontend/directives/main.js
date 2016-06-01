@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
-      iFrameResize = angular.noop, elementScrollService, $stateParams,
+      iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
       sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService;
 
@@ -19,6 +19,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     angular.mock.module('esn.core');
     angular.mock.module('esn.session');
     angular.mock.module('esn.configuration');
+    angular.mock.module('esn.dropdownList');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
   });
@@ -47,6 +48,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       autoScrollDown: sinon.spy(),
       scrollDownToElement: sinon.spy()
     });
+    $provide.value('$dropdown', $dropdown = sinon.spy());
     $provide.decorator('$window', function($delegate) {
       return angular.extend($delegate, windowMock);
     });
@@ -1223,6 +1225,80 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(windowMock.open).to.have.been.calledWith('url');
     });
 
+  });
+
+  describe('The inboxFilterButton directive', function() {
+    var scope, controller;
+
+    beforeEach(function() {
+      $scope.filters = [
+        {id: 'filter_1', displayName: 'display filter 1'},
+        {id: 'filter_2', displayName: 'display filter 2'},
+        {id: 'filter_3', displayName: 'display filter 3'}
+      ];
+
+      element = compileDirective('<inbox-filter-button filters="filters"/>');
+      scope = element.isolateScope();
+      controller = element.controller('inboxFilterButton');
+    });
+
+    it('should init the scope with the required attributes', function() {
+      expect(scope.dropdownList).to.deep.equal({
+        placeholder: 'Filters',
+        filtered: false
+      });
+
+      scope.filters.forEach(function(filter) {
+        expect(filter.checked).to.be.false;
+      });
+    });
+
+    it('should leverage the placeholder attribute as the default placeholder once passed', function() {
+      scope = compileDirective('<inbox-filter-button filters="filters" placeholder="my placeholder"/>').isolateScope();
+
+      expect(scope.dropdownList.placeholder).to.equal('my placeholder');
+    });
+
+    it('should call the $dropdown service once clicked', function() {
+      element.find('.filter-button').click();
+
+      expect($dropdown).to.have.been.calledOnce;
+    });
+
+    it('should set the dropdownList as filtered when at least one filter is checked', function() {
+      scope.filters[0].checked = true;
+      controller.dropdownItemClicked();
+
+      expect(scope.dropdownList.filtered).to.be.true;
+    });
+
+    it('should set the placeholder to the filter\'s displayName when only one filter is checked', function() {
+      scope.filters[0].checked = true;
+      controller.dropdownItemClicked();
+
+      expect(scope.dropdownList.placeholder).to.equal('display filter 1');
+    });
+
+    it('should set the placeholder to the * selected when several filters are checked', function() {
+      scope.filters[0].checked = true;
+      scope.filters[1].checked = true;
+      controller.dropdownItemClicked();
+
+      expect(scope.dropdownList.placeholder).to.equal('2 selected');
+    });
+
+    it('should call onChange function (once passed) with the checked filters as an argument', function() {
+      $scope.onChange = sinon.spy();
+      element = compileDirective('<inbox-filter-button filters="filters" on-change="onChange($filters)"/>');
+      scope = element.isolateScope();
+      controller = element.controller('inboxFilterButton');
+
+      scope.filters[0].checked = true;
+      scope.filters[1].checked = true;
+      controller.dropdownItemClicked();
+
+      expect($scope.onChange).to.have.been.calledWith(['filter_1', 'filter_2']);
+    });
   });
 
   describe('The composerAttachments directive', function() {
