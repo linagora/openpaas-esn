@@ -88,7 +88,8 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
     $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
   .controller('searchResultController', function($scope, $stateParams, searchProviders, infiniteScrollHelper, _) {
-    searchProviders.getAll($stateParams.q).then(function(providers) {
+    $scope.query = $stateParams.q;
+    searchProviders.getAll($scope.query).then(function(providers) {
       $scope.groupedElements = providers.map(function(provider) {
         var groupSearch = {
           name: provider.name

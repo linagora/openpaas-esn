@@ -12,6 +12,8 @@
         i.mdi.mdi-refresh
     .flex-space-between
       .lv-title
-        {{::item.title}} - {{::item.location}}
+        span(ng-bind-html="::item.title | esnHighlight: query")
+        span &nbsp;-&nbsp;
+        span(ng-bind-html="::item.location | esnHighlight: query")
       .lv-title
         | show more details
