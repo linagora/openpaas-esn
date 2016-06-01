@@ -61,9 +61,22 @@
     background-color: @app-gray;
     padding-left: 20px;
     padding-right: 20px;
+    padding-top: 20px;
     margin-bottom: 10px;
     margin-top: 10px;
-    
+
+    .wall-comment-list {
+      padding: 10px 20px;
+    }
+
+    .media {
+      margin-top: 0;
+    }
+
+    .attachments {
+      padding-top: 10px;
+    }
+
     .comment-edition-button-block {
       margin-bottom: 0;
   
@@ -148,7 +161,7 @@
 }
 
 .message-input {
-  background-color: white;
+  background-color: @m-white;
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 12px;
@@ -178,8 +191,8 @@
   color: @m-white;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
   position: relative;
-  margin-bottom: 15px;
   height: 67px;
+  margin: 5px 0;
   
   .cancel {
     display: flex;
