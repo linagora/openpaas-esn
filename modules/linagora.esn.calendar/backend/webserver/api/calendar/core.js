@@ -192,12 +192,12 @@ function generateActionLinks(baseUrl, jwtPayload) {
   });
 }
 
-function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calendarURI, callback) {
+function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarURI, callback) {
   if (!notify) {
     return q({}).nodeify(callback);
   }
 
-  if (!organizer) {
+  if (!editor) {
     return q.reject(new Error('Organizer must be an User object')).nodeify(callback);
   }
 
@@ -237,7 +237,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
       return q.reject(err).nodeify(callback);
     }
     return q.all(getAllUsersAttendees).then(function(users) {
-      var from = { objectType: 'email', id: organizer.email || organizer.emails[0] };
+      var from = { objectType: 'email', id: editor.email || editor.emails[0] };
       var event = jcal2content(ics, baseUrl);
       var inviteMessage;
       var subject = 'Unknown method';
@@ -245,11 +245,11 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
       switch (method) {
         case 'REQUEST':
           if (event.sequence > 0) {
-            subject = i18n.__('Event %s from %s updated', event.summary, userDisplayName(organizer));
+            subject = i18n.__('Event %s from %s updated', event.summary, userDisplayName(editor));
             template = 'event.update';
             inviteMessage = i18n.__('has updated a meeting!');
           } else {
-            subject = i18n.__('New event from %s: %s', userDisplayName(organizer), event.summary);
+            subject = i18n.__('New event from %s: %s', userDisplayName(editor), event.summary);
             template = 'event.invitation';
             inviteMessage = i18n.__('has invited you to a meeting!');
           }
@@ -260,7 +260,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
           inviteMessage = i18n.__('has changed his participation!');
           break;
         case 'CANCEL':
-          subject = i18n.__('Event %s from %s canceled', event.summary, userDisplayName(organizer));
+          subject = i18n.__('Event %s from %s canceled', event.summary, userDisplayName(editor));
           template = 'event.cancel';
           inviteMessage = i18n.__('has canceled a meeting!');
           break;
@@ -302,7 +302,11 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
       var content = {
         baseUrl: baseUrl,
         inviteMessage: inviteMessage,
-        event: event
+        event: event,
+        editor: {
+          displayName: userDisplayName(editor),
+          email: editor.email || editor.emails[0]
+        }
       };
 
       var sendMailToAllAttendees = users.map(function(user) {
@@ -311,7 +315,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, calenda
 
         var jwtPayload = {
           attendeeEmail: attendeeEmail,
-          organizerEmail: organizer.preferredEmail,
+          organizerEmail: event.organizer.email,
           uid: event.uid,
           calendarURI: calendarURI
         };

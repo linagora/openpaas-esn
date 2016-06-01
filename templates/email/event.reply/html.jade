@@ -1,1 +1,96 @@
-include ../event.invitation/html.jade
+mixin attendeeDisplay(mail, details)
+  div
+    if (details.cn)
+      span #{details.cn} <
+        span.small #{mail}
+      | >,
+    else
+      span.small #{mail}
+
+doctype html
+html.mail
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    style
+      include ../css/media.less
+
+  body
+    .wrapper
+      br
+      .mail-content
+
+        table
+          tr.table-header
+            td.logo(colspan="2")
+              div
+                a(href="#{content.baseUrl}")
+                  img(src="cid:logo", alt="open-paas logo")
+            td.organizer(colspan="3")
+              h5
+                p
+                  | #{content.editor.displayName} (
+                  span.small
+                    a(href='mailto:#{content.editor.email}')
+                      img(src="cid:email", alt="Mail")
+                    | )
+                p.big #{content.inviteMessage}
+            td.avatar.indent-right
+              img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
+          tr
+            th(colspan="6").title.indent #{content.event.summary}
+          tr
+            td.indent
+              if (content.event.end)
+                img(src="cid:clock", alt="From")
+              else
+                img(src="cid:clock", alt="At")
+            td
+              p #{content.event.start.date}
+              if (!content.event.allDay)
+                p #{content.event.start.time}
+            if (content.event.end)
+              td
+                if (content.event.allDay && content.event.end.date == content.event.start.date)
+                  p all day
+                else
+                  img.check-transform(src="cid:check", alt="To")
+              td
+                if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
+                  p #{content.event.end.date}
+                  if (!content.event.allDay)
+                    p #{content.event.end.time}
+            else
+              td(colspan="2")
+            td.recurrence
+            td.indent-right
+              a(href='#{content.baseUrl}/#/calendar') See in calendar
+          if (content.event.location)
+            tr
+              td.indent
+                img(src="cid:map-marker", alt="Location")
+              td(colspan="4") #{content.event.location}
+              td.indent-right
+                a(href='https://www.openstreetmap.org/search?query=#{content.event.location}') Map
+          tr
+            td.indent
+              img(src="cid:account-multiple", alt="Attendees")
+            td(colspan="5")
+              each details, mail in content.event.attendees
+                span
+                  +attendeeDisplay(mail, details)
+          if (content.event.description)
+            tr
+              td
+                img(src="cid:format-align-justify", alt="Description")
+              td(colspan="5") #{content.event.description}
+          if (content.event.files)
+            tr
+              td
+                img(src="cid:folder-download", alt="Files")
+              td(colspan="5")
+                span file.odt
+
+      footer
+        div.footer
+          a(href='#{content.baseUrl}/#/calendar') More details...
