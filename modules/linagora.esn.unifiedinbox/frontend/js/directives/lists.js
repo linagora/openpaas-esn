@@ -30,7 +30,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxMessageListItem', function($state, $q, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
+  .directive('inboxMessageListItem', function($state, $q, $stateParams, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope, $element) {
@@ -44,7 +44,7 @@ angular.module('linagora.esn.unifiedinbox')
             newComposerService.openDraft(email.id);
           } else {
             $state.go('unifiedinbox.list.messages.message', {
-              mailbox: ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
+              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
               emailId: email.id
             });
           }
@@ -81,7 +81,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxThreadListItem', function($state, $q, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
+  .directive('inboxThreadListItem', function($state, $q, $stateParams, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope, $element) {
@@ -95,7 +95,7 @@ angular.module('linagora.esn.unifiedinbox')
             newComposerService.openDraft(thread.email.id);
           } else {
             $state.go('unifiedinbox.list.threads.thread', {
-              mailbox: ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
+              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
               threadId: thread.id
             });
           }

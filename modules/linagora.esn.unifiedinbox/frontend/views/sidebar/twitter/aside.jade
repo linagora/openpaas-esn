@@ -1,5 +1,5 @@
-.listview(ng-if="::getTwitterAccounts().length > 0")
+.listview(ng-if="::twitterAccounts.length > 0")
   .lv-body
     ul.nav.nav-pills.nav-stacked
-      twitter-display.lv-item(account="account", ng-repeat="account in ::getTwitterAccounts()")
+      twitter-display.lv-item(account="account", ng-repeat="account in ::twitterAccounts")
     hr

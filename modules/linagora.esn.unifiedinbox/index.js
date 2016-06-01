@@ -43,7 +43,8 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'directives/main.js',
         'directives/subheaders.js',
         'directives/header.js',
-        'directives/lists.js'
+        'directives/lists.js',
+        'directives/sidebar.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
       webserverWrapper.injectLess('unifiedinbox', [lessFile], 'esn');

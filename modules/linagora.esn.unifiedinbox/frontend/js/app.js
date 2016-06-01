@@ -37,10 +37,6 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox', {
         url: '/unifiedinbox',
         templateUrl: '/unifiedinbox/views/home',
-        controller: 'rootController as ctrl',
-        resolve: {
-          twitterTweetsEnabled: function(inboxConfig) { return inboxConfig('twitter.tweets'); }
-        },
         deepStateRedirect: {
           default: 'unifiedinbox.inbox',
           fn: function() {
@@ -117,6 +113,11 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/:mailbox',
         views: {
           'main@unifiedinbox': { controller: 'listController' }
+        },
+        resolve: {
+          filter: function($stateParams, mailboxesService) {
+            return mailboxesService.getMessageListFilter($stateParams.mailbox);
+          }
         }
       })
       .state('unifiedinbox.list.messages', {

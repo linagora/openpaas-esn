@@ -2786,7 +2786,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The canMoveMessage function', function() {
 
       var message, mailbox, draftMailbox, outboxMailbox;
-      var jmap;
+      var jmap, inboxSpecialMailboxes;
 
       beforeEach(function() {
         message = {
@@ -2799,8 +2799,11 @@ describe('The Unified Inbox Angular module services', function() {
         };
       });
 
-      beforeEach(inject(function(_jmap_) {
+      beforeEach(inject(function(_jmap_, _inboxSpecialMailboxes_) {
         jmap = _jmap_;
+        inboxSpecialMailboxes = _inboxSpecialMailboxes_;
+
+        inboxSpecialMailboxes.get = function() {};
 
         draftMailbox = { id: 11, role: jmap.MailboxRole.DRAFTS };
         outboxMailbox = { id: 22, role: jmap.MailboxRole.OUTBOX };
@@ -2854,8 +2857,86 @@ describe('The Unified Inbox Angular module services', function() {
         checkResult(true);
       });
 
+      it('should disallow moving message to special mailbox', function() {
+        inboxSpecialMailboxes.get = function() {
+          return { id: 'special mailbox id' };
+        };
+        checkResult(false);
+      });
+
     });
 
+    describe('The getMessageListFilter function', function() {
+
+      var inboxSpecialMailboxes;
+
+      beforeEach(inject(function(_inboxSpecialMailboxes_) {
+        inboxSpecialMailboxes = _inboxSpecialMailboxes_;
+      }));
+
+      it('should filter message in the mailbox if input mailbox ID is not special one', function(done) {
+        var mailboxId = '123';
+
+        inboxSpecialMailboxes.get = function() {};
+
+        mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+          expect(filter).to.deep.equal({ inMailboxes: [mailboxId] });
+          done();
+        });
+
+        $rootScope.$digest();
+
+      });
+
+      it('should use filter of the mailbox if input mailbox ID is a special one', function(done) {
+        var mailboxId = '123';
+        var specialMailbox = {
+          id: mailboxId,
+          filter: { filter: 'condition' }
+        };
+
+        inboxSpecialMailboxes.get = function() {
+          return specialMailbox;
+        };
+
+        mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+          expect(filter).to.deep.equal(specialMailbox.filter);
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should convert mailbox role to mailbox ID in filter of special mailbox in the first use', function(done) {
+        var mailboxId = '123';
+        var excludedMailboxRoles = [{ value: 'role' }];
+        var excludedMailboxId = '456';
+        var specialMailbox = {
+          id: mailboxId,
+          filter: {
+            unprocessed: true,
+            notInMailboxes: excludedMailboxRoles
+          }
+        };
+
+        inboxSpecialMailboxes.get = function() {
+          return specialMailbox;
+        };
+
+        jmapClient.getMailboxWithRole = sinon.stub().returns($q.when({ id: excludedMailboxId }));
+
+        mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+          expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(excludedMailboxRoles[0]);
+          expect(filter).to.deep.equal({
+            notInMailboxes: [excludedMailboxId]
+          });
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+    });
   });
 
   describe('The asyncAction factory', function() {
@@ -4054,6 +4135,49 @@ describe('The Unified Inbox Angular module services', function() {
         $timeout.flush();
 
         expect(scopeMock.swipeClose).to.have.been.calledOnce;
+      });
+
+    });
+
+  });
+
+  describe('The inboxSpecialMailboxes service', function() {
+
+    var inboxSpecialMailboxes;
+
+    beforeEach(inject(function(_inboxSpecialMailboxes_) {
+      inboxSpecialMailboxes = _inboxSpecialMailboxes_;
+    }));
+
+    describe('The list fn', function() {
+
+      it('should return an array of special mailboxes with fake data', function() {
+        var specialMailboxes = inboxSpecialMailboxes.list();
+
+        expect(specialMailboxes).to.be.an.instanceof(Array);
+        expect(specialMailboxes.length).to.equal(1);
+        expect(specialMailboxes[0]).to.shallowDeepEqual({
+          id: 'all',
+          name: 'All Mail',
+          role: { value: 'all' },
+          qualifiedName: 'All Mail',
+          unreadMessages: 0
+        });
+      });
+
+    });
+
+    describe('The get fn', function() {
+
+      it('should return a mailbox if found', function() {
+        var mailbox = inboxSpecialMailboxes.list()[0];
+        var foundMailbox = inboxSpecialMailboxes.get(mailbox.id);
+
+        expect(foundMailbox).to.deep.equal(mailbox);
+      });
+
+      it('should return undefined if not found', function() {
+        expect(inboxSpecialMailboxes.get('not_found')).to.be.undefined;
       });
 
     });

@@ -72,7 +72,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return angular.isDefined(config[key]) ? config[key] : defaultValue;
         });
       });
-      $provide.value('twitterTweetsEnabled', false);
+      $provide.value('filter', { filter: 'condition' });
       $provide.value('searchService', { searchByEmail: function() { return $q.when(); }});
     });
   });
@@ -507,6 +507,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         initController('listEmailsController');
 
         var promise = scope.loadMoreElements();
+
         scope.$digest();
 
         return promise;
@@ -516,7 +517,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         jmapClient.getMessageList = function(options) {
           expect(options).to.deep.equal({
             filter: {
-              inMailboxes: ['chosenMailbox']
+              filter: 'condition'
             },
             sort: ['date desc'],
             collapseThreads: false,
@@ -953,6 +954,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         initController('listThreadsController');
 
         var promise = scope.loadMoreElements();
+
         scope.$digest();
 
         return promise;
@@ -962,7 +964,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         jmapClient.getMessageList = function(options) {
           expect(options).to.deep.equal({
             filter: {
-              inMailboxes: ['chosenMailbox']
+              filter: 'condition'
             },
             collapseThreads: true,
             fetchThreads: false,
@@ -1066,19 +1068,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
-  });
-
-  describe('The rootController', function() {
-
-    beforeEach(function() {
-      mailboxesService.assignMailboxesList = sinon.spy();
-    });
-
-    it('should call the mailboxesService.assignMailboxesLis function', function() {
-      initController('rootController');
-
-      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
-    });
   });
 
   describe('The configurationController', function() {
@@ -1396,6 +1385,70 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listTwitterController');
 
       expect(scope.username).to.equal('AwesomePaas');
+    });
+
+  });
+
+  describe('The inboxSidebarEmailController', function() {
+
+    var inboxSpecialMailboxes;
+
+    beforeEach(inject(function(_inboxSpecialMailboxes_) {
+      inboxSpecialMailboxes = _inboxSpecialMailboxes_;
+
+      mailboxesService.assignMailboxesList = sinon.spy();
+    }));
+
+    it('should call the mailboxesService.assignMailboxesList function', function() {
+      initController('inboxSidebarEmailController');
+
+      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
+    });
+
+    it('should assign specialMailboxes from inboxSpecialMailboxes service', function() {
+      var specialMailboxes = [{ id: 'all' }, { id: 'unread' }];
+
+      inboxSpecialMailboxes.list = sinon.stub().returns(specialMailboxes);
+
+      initController('inboxSidebarEmailController');
+
+      expect(inboxSpecialMailboxes.list).to.have.been.calledWith();
+      expect(scope.specialMailboxes).to.deep.equal(specialMailboxes);
+    });
+  });
+
+  describe('The inboxSidebarTwitterController controller', function() {
+
+    var session;
+
+    beforeEach(inject(function(_session_) {
+      session = _session_;
+    }));
+
+    it('should assign twitterAccounts to $scope if the feature is enabled', function() {
+      var twitterAccounts = [{ id: 1 }, { id: 2 }];
+
+      config['linagora.esn.unifiedinbox.twitter.tweets'] = true;
+      session.getTwitterAccounts = function() {
+        return twitterAccounts;
+      };
+
+      initController('inboxSidebarTwitterController');
+
+      expect(scope.twitterAccounts).to.deep.equal(twitterAccounts);
+    });
+
+    it('should not assign twitterAccounts to $scope if the feature is disabled', function() {
+      var twitterAccounts = [{ id: 1 }, { id: 2 }];
+
+      config['linagora.esn.unifiedinbox.twitter.tweets'] = false;
+      session.getTwitterAccounts = function() {
+        return twitterAccounts;
+      };
+
+      initController('inboxSidebarTwitterController');
+
+      expect(scope.twitterAccounts).to.deep.equal([]);
     });
 
   });
