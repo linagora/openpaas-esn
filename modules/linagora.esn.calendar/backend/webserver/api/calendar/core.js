@@ -298,7 +298,6 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
           }
         }
       };
-
       var content = {
         baseUrl: baseUrl,
         inviteMessage: inviteMessage,
@@ -306,7 +305,8 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
         editor: {
           displayName: userDisplayName(editor),
           email: editor.email || editor.emails[0]
-        }
+        },
+        calendarHomeId: editor._id
       };
 
       var sendMailToAllAttendees = users.map(function(user) {
