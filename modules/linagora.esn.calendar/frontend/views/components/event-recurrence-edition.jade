@@ -10,7 +10,7 @@
             ng-options="item.value as item.label for item in RECUR_FREQ",
             ng-change="setRRULE()",
             ng-disabled="readOnly")
-    .form-group.event-recurrence-flex-container(ng-show="event.rrule.freq !== undefined")
+    .form-group.event-recurrence-flex-container(ng-show="freq")
       .interval
         span.col-xs-3 #{__('Interval')}:
         .col-xs-9
