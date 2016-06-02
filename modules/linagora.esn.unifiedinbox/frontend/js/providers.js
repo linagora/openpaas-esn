@@ -20,9 +20,10 @@ angular.module('linagora.esn.unifiedinbox')
     return new Providers();
   })
 
-  .factory('inboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST) {
+  .factory('inboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(accountId) {
       return newProvider({
+        type: PROVIDER_TYPES.SOCIAL,
         name: 'inboxTwitterProvider',
         fetch: function() {
           var oldestTweetId = null;
@@ -53,8 +54,9 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxDefaultProviderContext,
-                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return newProvider({
+      type: PROVIDER_TYPES.JMAP,
       name: 'inboxHostedMailMessagesProvider',
       fetch: function(filter) {
         return pagedJmapRequest(function(position) {
@@ -80,7 +82,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxDefaultProviderContext,
-                                                      newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+                                                      newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     function _prepareThreads(data) {
       var threads = data[0],
           messages = data[1];
@@ -93,6 +95,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return newProvider({
+      type: PROVIDER_TYPES.JMAP,
       name: 'inboxHostedMailThreadsProvider',
       fetch: function(filter) {
         return pagedJmapRequest(function(position) {

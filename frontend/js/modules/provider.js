@@ -44,6 +44,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
   .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
     return function(provider) {
       return {
+        type: provider.type,
         name: provider.name,
         fetch: function(context) {
           var aggregator = new PageAggregatorService(provider.name, [{
