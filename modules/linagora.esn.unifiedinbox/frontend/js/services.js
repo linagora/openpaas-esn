@@ -851,10 +851,9 @@ angular.module('linagora.esn.unifiedinbox')
         filter = specialMailbox.filter;
 
         if (filter && filter.unprocessed) {
-          delete filter.unprocessed;
-
           return _mailboxRolesToIds(filter.notInMailboxes)
             .then(function(ids) {
+              delete filter.unprocessed;
               filter.notInMailboxes = ids;
 
               return filter;
@@ -873,13 +872,16 @@ angular.module('linagora.esn.unifiedinbox')
 
     function _mailboxRolesToIds(roles) {
       return withJmapClient(function(jmapClient) {
-        return $q
-          .all(roles.map(function(role) {
-            return jmapClient.getMailboxWithRole(role);
-          }))
+        return jmapClient.getMailboxes()
           .then(function(mailboxes) {
-            return mailboxes.filter(Boolean).map(_.property('id'));
-          });
+            return roles
+              .map(function(role) {
+                return _.find(mailboxes, { role: role });
+              })
+              .filter(Boolean)
+              .map(_.property('id'));
+          })
+          .catch(_.constant([]));
       });
     }
 

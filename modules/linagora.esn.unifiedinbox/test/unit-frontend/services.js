@@ -2909,8 +2909,14 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should convert mailbox role to mailbox ID in filter of special mailbox in the first use', function(done) {
         var mailboxId = '123';
-        var excludedMailboxRoles = [{ value: 'role' }];
-        var excludedMailboxId = '456';
+        var excludedMailboxRoles = [{ value: 'role' }, { value: 'not found role' }];
+        var mailboxes = [{
+          id: 'matched role',
+          role: excludedMailboxRoles[0]
+        }, {
+          id: 'unmatched role',
+          role: { value: 'unmatched role' }
+        }];
         var specialMailbox = {
           id: mailboxId,
           filter: {
@@ -2923,12 +2929,40 @@ describe('The Unified Inbox Angular module services', function() {
           return specialMailbox;
         };
 
-        jmapClient.getMailboxWithRole = sinon.stub().returns($q.when({ id: excludedMailboxId }));
+        jmapClient.getMailboxes = sinon.stub().returns($q.when(mailboxes));
 
         mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
-          expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(excludedMailboxRoles[0]);
+          expect(jmapClient.getMailboxes).to.have.been.calledWith();
           expect(filter).to.deep.equal({
-            notInMailboxes: [excludedMailboxId]
+            notInMailboxes: [mailboxes[0].id]
+          });
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should use empty array in filter if JMAP client fails to get mailboxes', function(done) {
+        var mailboxId = '123';
+        var excludedMailboxRoles = [{ value: 'role' }];
+        var specialMailbox = {
+          id: mailboxId,
+          filter: {
+            unprocessed: true,
+            notInMailboxes: excludedMailboxRoles
+          }
+        };
+
+        inboxSpecialMailboxes.get = function() {
+          return specialMailbox;
+        };
+
+        jmapClient.getMailboxes = sinon.stub().returns($q.reject());
+
+        mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+          expect(jmapClient.getMailboxes).to.have.been.calledWith();
+          expect(filter).to.deep.equal({
+            notInMailboxes: []
           });
           done();
         });
