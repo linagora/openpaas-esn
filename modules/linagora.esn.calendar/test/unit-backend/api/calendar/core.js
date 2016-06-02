@@ -707,6 +707,31 @@ describe('The calendar core module', function() {
           done();
         });
       });
+
+      it('should call content-sender.send with correct content', function(done) {
+        var method = 'REPLY';
+        var ics = fs.readFileSync(__dirname + '/../../fixtures/reply.ics', 'utf-8');
+
+        userMock.findByEmail = function(email, callback) {
+          return callback(null, attendee1);
+        };
+
+        var editor = {
+          displayName: attendee1.firstname + ' ' + attendee1.lastname,
+          email: attendee1.emails[0]
+        };
+
+        contentSenderMock.send = function(from, to, content, options, type) {
+          expect(content.editor).to.deep.equal(editor);
+          return q();
+        };
+
+        this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
+        this.module.inviteAttendees(attendee1, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
     });
 
     describe('when method is CANCEL', function() {
@@ -777,55 +802,55 @@ describe('The calendar core module', function() {
       });
 
       it('should return map-marker.png when location is specified', function() {
-        this.getFilter({location: 'aLocation'}, function(err, filter) {
+        this.getFilter({organizer: organizer, location: 'aLocation'}, function(err, filter) {
           expect(filter[0]('map-marker.png')).to.be.true;
         });
       });
 
       it('should not return map-marker.png when location is not specified', function() {
-        this.getFilter({}, function(err, filter) {
+        this.getFilter({organizer: organizer}, function(err, filter) {
           expect(filter[0]('map-marker.png')).to.be.false;
         });
       });
 
       it('should return format-align-justify.png when description is specified', function() {
-        this.getFilter({description: 'aDescription'}, function(err, filter) {
+        this.getFilter({organizer: organizer, description: 'aDescription'}, function(err, filter) {
           expect(filter[0]('format-align-justify.png')).to.be.true;
         });
       });
 
       it('should not return format-align-justify.png when description is not specified', function() {
-        this.getFilter({}, function(err, filter) {
+        this.getFilter({organizer: organizer}, function(err, filter) {
           expect(filter[0]('format-align-justify.png')).to.be.false;
         });
       });
 
       it('should return folder-download.png when files is specified', function() {
-        this.getFilter({files: 'someFiles'}, function(err, filter) {
+        this.getFilter({organizer: organizer, files: 'someFiles'}, function(err, filter) {
           expect(filter[0]('folder-download.png')).to.be.true;
         });
       });
 
       it('should not return folder-download.png when files is not specified', function() {
-        this.getFilter({}, function(err, filter) {
+        this.getFilter({organizer: organizer}, function(err, filter) {
           expect(filter[0]('folder-download.png')).to.be.false;
         });
       });
 
       it('should return check.png for a timed event', function() {
-        this.getFilter({allDay: false}, function(err, filter) {
+        this.getFilter({organizer: organizer, allDay: false}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.true;
         });
       });
 
       it('should return check.png for a multi-allday event', function() {
-        this.getFilter({allDay: true, durationInDays: 2}, function(err, filter) {
+        this.getFilter({organizer: organizer, allDay: true, durationInDays: 2}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.true;
         });
       });
 
       it('should not return check.png for an allday event that lasts for one day', function() {
-        this.getFilter({allDay: true, durationInDays: 1}, function(err, filter) {
+        this.getFilter({organizer: organizer, allDay: true, durationInDays: 1}, function(err, filter) {
           expect(filter[0]('check.png')).to.be.false;
         });
       });
