@@ -173,6 +173,7 @@ angular.module('esn.calendar')
       set rrule(value) {
         this.__rrule = undefined;
         if (!value) {
+          this.vevent.removeProperty('rrule');
           return;
         }
         if (value.until) {

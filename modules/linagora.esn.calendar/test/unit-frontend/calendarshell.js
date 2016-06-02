@@ -1336,7 +1336,28 @@ describe('CalendarShell factory', function() {
       });
     });
   });
+  describe('RRule property', function() {
 
+    it('should set rrule', function() {
+      var rrule = {
+        freq: 'WEEKLY'
+      };
+
+      var shell = new  CalendarShell.fromIncompleteShell({rrule: rrule});
+      expect(shell.rrule.freq).to.be.equal('WEEKLY');
+    });
+
+    it('should set rrule to undefined', function() {
+      var rrule = {
+        freq: 'WEEKLY'
+      };
+      var shell = new  CalendarShell.fromIncompleteShell({rrule: rrule});
+      expect(shell.rrule).to.exist;
+
+      shell.rrule = undefined;
+      expect(shell.rrule).to.be.undefined;
+    });
+  });
 });
 
 describe('RRuleShell Factory', function() {
@@ -1352,14 +1373,14 @@ describe('RRuleShell Factory', function() {
   });
 
   describe('should create RRuleShell object funcation', function() {
-    it('should call updateParentEvent when create RRuleShell object with interval does not exist', function(done) {
+    it('should call updateParentEvent when create RRuleShell object with interval does not exist', function() {
       var rrule = {
         freq: RECUR_FREQ[0]
       };
       var vevent = new ICAL.Component('vevent');
       var shell = new  RRuleShell(rrule, vevent);
       expect(shell.vevent.getFirstPropertyValue('rrule').interval).to.deep.equal([1]);
-      done();
     });
+
   });
 });
