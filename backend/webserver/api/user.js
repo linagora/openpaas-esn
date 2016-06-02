@@ -49,14 +49,19 @@ module.exports = function(router) {
   /**
    * @swagger
    * /user/profile/{attribute_name} :
+   * /api/user/profile/ :
    *   put:
    *     tags:
    *      - User
    *      - Profile
-   *     description: Update an element of the current user profile.
+   *     description: Update the current user profile.
    *     parameters:
-   *       - $ref: "#/parameters/us_attribute_name"
-   *       - $ref: "#/parameters/us_attribute_value"
+   *       - name: profile
+   *         in: body
+   *         schema:
+   *           $ref: "#/definitions/Profile"
+   *         description: The new profile value attributes
+   *         required: true
    *     responses:
    *       200:
    *         $ref: "#/responses/us_update_profile"
@@ -69,7 +74,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.put('/user/profile/:attribute', authorize.requiresAPILogin, users.updateProfile);
+  router.put('/user/profile', authorize.requiresAPILogin, users.updateProfile);
 
   /**
    * @swagger

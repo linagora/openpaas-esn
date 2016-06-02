@@ -6,7 +6,8 @@ angular.module('linagora.esn.profile', [
   'esn.http',
   'esn.user',
   'esn.session',
-  'esn.profile'
+  'esn.profile',
+  'esn.notification'
   ])
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     $stateProvider
@@ -14,6 +15,20 @@ angular.module('linagora.esn.profile', [
         url: '/profile',
         templateUrl: '/profile/views/profile',
         controller: 'profileController',
+        resolve: {
+          user: function($location, userAPI) {
+            return userAPI.currentUser().then(function(response) {
+              return response.data;
+            }, function() {
+              $location.path('/');
+            });
+          }
+        }
+      })
+      .state('controlcenter.profileEdition', {
+        url: '/edit',
+        templateUrl: '/profile/views/profile-edit',
+        controller: 'profileEditionController',
         resolve: {
           user: function($location, userAPI) {
             return userAPI.currentUser().then(function(response) {

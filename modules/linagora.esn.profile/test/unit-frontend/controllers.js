@@ -62,158 +62,57 @@ describe('The linagora.esn.profile Angular module controllers', function() {
 
       expect($scope.me).to.be.false;
     });
+  });
+  describe('The profileEditionController', function() {
+    var userMock;
+    var profileAPIMock;
+    var sessionMock;
+    var $scope;
 
-    describe('updateName() method', function() {
-
-      var getMoreThan100CharString = function() {
-        return new Array(1000).join('a');
+    beforeEach(function() {
+      userMock = {
+        name: 'Foo',
+        address: 'foo@bar.com',
+        _id: '123'
       };
-
-      beforeEach(function() {
-        initProfileController();
-      });
-
-      it('should return a message error if the provided name is not "firstname /space/ lastname"', function() {
-        var res = $scope.updateName('incorrectName');
-
-        expect(res).to.be.not.null;
-        expect(typeof res === 'string').to.be.true;
-      });
-
-      it('should return an error message if the firstname is too long', function() {
-        var res = $scope.updateName(getMoreThan100CharString() + ' Doe');
-
-        expect(res).to.be.not.null;
-        expect(typeof res === 'string').to.be.true;
-      });
-
-      it('should return an error message if the lastname is too long', function() {
-        var res = $scope.updateName('John ' + getMoreThan100CharString());
-
-        expect(res).to.be.not.null;
-        expect(typeof res === 'string').to.be.true;
-      });
-
-      it('should call the profileAPI.updateProfileField() twice method with the correct parameters', function(done) {
-        //this method should consecutively update the first name and the last name
-        var newFirstName = 'newFirstName';
-        var newLastName = 'newLastName';
-        var newName = newFirstName + ' ' + newLastName;
-
-        var count = 0;
-
-        profileAPIMock.updateProfileField = function(fieldName, fieldValue) {
-          if (count === 0) {
-            count++;
-
-            expect(fieldName).to.equal('firstname');
-            expect(fieldValue).to.equal(newFirstName);
-
-            var promise = {then: function(callback, errorCallBack) {
-              callback(null); //emulates that the first call executed right
-            }};
-
-            return promise;
-          } else {
-            expect(fieldName).to.equal('lastname');
-            expect(fieldValue).to.equal(newLastName);
-            done();
-          }
-        };
-
-        $scope.updateName(newName);
-      });
+      profileAPIMock = {};
+      sessionMock = { user: userMock };
+      $scope = $rootScope.$new();
     });
 
-    describe('updateJob() method', function() {
+    function initProfileEditionController(scope) {
+      $scope = scope || $scope;
 
-      beforeEach(function() {
-        initProfileController();
+      return $controller('profileEditionController', {
+        $scope: $scope,
+        profileAPI: profileAPIMock,
+        user: userMock,
+        session: sessionMock
       });
-
-      it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
-        var newJob = 'newJob';
-
-        profileAPIMock.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('job_title');
-          expect(fieldValue).to.equal(newJob);
-          done();
-        };
-        $scope.updateJob(newJob);
-      });
+    }
+    beforeEach(function() {
+      initProfileEditionController();
     });
 
-    describe('updateService() method', function() {
+    var getMoreThan100CharString = function() {
+      return new Array(1000).join('a');
+    };
 
-      beforeEach(function() {
-        initProfileController();
-      });
-
-      it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
-        var newService = 'newService';
-
-        profileAPIMock.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('service');
-          expect(fieldValue).to.equal(newService);
-          done();
-        };
-        $scope.updateService(newService);
-      });
-    });
-
-    describe('updateBuildingLocation() method', function() {
-
-      beforeEach(function() {
-        initProfileController();
-      });
-
-      it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
-        var newBuilding = 'newBuilding';
-
-        profileAPIMock.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('building_location');
-          expect(fieldValue).to.equal(newBuilding);
-          done();
-        };
-        $scope.updateBuildingLocation(newBuilding);
-      });
-    });
-
-    describe('updateOfficeLocation() method', function() {
-
-      beforeEach(function() {
-        initProfileController();
-      });
-
-      it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
-        var newOffice = 'newOffice';
-
-        profileAPIMock.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('office_location');
-          expect(fieldValue).to.equal(newOffice);
-          done();
-        };
-        $scope.updateOfficeLocation(newOffice);
-      });
-    });
-
-    describe('updatePhone() method', function() {
-
-      beforeEach(function() {
-        initProfileController();
-      });
-
-      it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
-        var newPhone = 'newPhone';
-
-        profileAPIMock.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('main_phone');
-          expect(fieldValue).to.equal(newPhone);
-          done();
-        };
-        $scope.updatePhone(newPhone);
-      });
+    it('should call the profileAPI.updateProfile() method if we would like to update profile and should not display error if profile attributes are too long', function(done) {
+      var profile = {
+        firstname: getMoreThan100CharString(),
+        lastname: getMoreThan100CharString(),
+        job_title: getMoreThan100CharString(),
+        service: getMoreThan100CharString(),
+        building_location: getMoreThan100CharString(),
+        office_location: getMoreThan100CharString(),
+        main_phone: getMoreThan100CharString()
+      };
+      profileAPIMock.updateProfile = function(user) {
+        expect(user).to.equal(profile);
+        done();
+      };
+       $scope.updateProfile(profile);
     });
   });
-
 });

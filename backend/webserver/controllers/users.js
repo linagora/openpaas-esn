@@ -70,52 +70,31 @@ module.exports.profile = profile;
  * @param {Request} req
  * @param {Response} res
  */
-function updateProfile(req, res) {
 
+function updateProfile(req, res) {
   if (!req.user) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   if (!req.body) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'No value defined'}});
+    return res.status(400).json({error: 400, message: 'Bad Request', details: 'No value defined'});
   }
 
-  //these empty function are necessary to check if the paramter is known
-  var validate = {
-    firstname: function() {
-      return true;
-    },
-    lastname: function() {
-      return true;
-    },
-    job_title: function() {
-      return true;
-    },
-    service: function() {
-      return true;
-    },
-    building_location: function() {
-      return true;
-    },
-    office_location: function() {
-      return true;
-    },
-    main_phone: function() {
-      return true;
-    }
+  var newProfile = {
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    job_title: req.body.job_title,
+    service: req.body.service,
+    building_location: req.body.building_location,
+    office_location: req.body.office_location,
+    main_phone: req.body.main_phone
   };
 
-  var parameter = req.params.attribute;
-
-  if (!validate[parameter]) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Unknown parameter ' + parameter}});
-  }
-
-  userModule.updateProfile(req.user, parameter, req.body.value || '', function(err) {
+  userModule.updateProfile(req.user, newProfile, function(err, profile) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Server Error', details: err.message});
+      return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
     }
-    return res.json(200);
+    return res.status(200).json(profile);
   });
 }
 module.exports.updateProfile = updateProfile;

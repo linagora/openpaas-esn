@@ -42,59 +42,17 @@ angular.module('linagora.esn.profile')
         $scope.running[runningMarker] = false;
       });
     };
-
-    $scope.updateName = function(data) {
-      var nameParts = data.split(' ');
-
-      if (nameParts.length < 2) {
-        return 'Incorrect Name';
-      }
-      var firstName = nameParts.shift();
-      var lastName = nameParts.join(' ');
-
-      if (firstName.length > maxNameLength) {
-        return 'First name is too long';
-      }
-      if (lastName.length > maxNameLength) {
-        return 'Last name is too long';
-      }
-
-      $scope.running.name = true;
-
-      return profileAPI.updateProfileField('firstname', firstName).then(
+  })
+  .controller('profileEditionController', function($scope, user, session, profileAPI, notificationFactory) {
+    $scope.user = user;
+    $scope.updateProfile = function(user) {
+      return profileAPI.updateProfile(user).then(
         function(data) {
-          $scope.running.name = false;
-
-          return updateField(lastName, $scope.running.name, 'lastname');
+          return notificationFactory.weakInfo('Profile updated', 'Your profile has been updated');
         },
         function(error) {
-          $scope.running.name = false;
-
-          return error.statusText;
+          return notificationFactory.weakError('Error in the profile update', 'Error while updating your profile, please retry later.');
         }
-      ).finally(function() {
-        $scope.$emit('username:updated');
-      });
+      );
     };
-
-    $scope.updateJob = function(data) {
-      return updateField(data, 'job', 'job_title');
-    };
-
-    $scope.updateService = function(data) {
-      return updateField(data, 'service', 'service');
-    };
-
-    $scope.updateBuildingLocation = function(data) {
-      return updateField(data, 'building_location', 'building_location');
-    };
-
-    $scope.updateOfficeLocation = function(data) {
-      return updateField(data, 'office_location', 'office_location');
-    };
-
-    $scope.updatePhone = function(data) {
-      return updateField(data, 'phone', 'main_phone');
-    };
-
   });
