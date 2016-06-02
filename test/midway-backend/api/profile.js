@@ -71,7 +71,7 @@ describe('The profile API', function() {
     });
 
     it('should create a profile link when authenticated user looks at a user profile', function(done) {
-      var Link = mongoose.model('Link');
+      var Link = mongoose.model('ResourceLink');
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -80,14 +80,21 @@ describe('The profile API', function() {
         req.expect(200)
           .end(function(err) {
             expect(err).to.not.exist;
-            Link.find({user: foouser._id}, function(err, links) {
+            Link.find({}, function(err, links) {
               expect(err).to.not.exist;
-              expect(links).to.exist;
-              expect(links.length).to.equal(1);
-              expect(links[0].type).to.equal('profile');
-              expect(links[0].target).to.exist;
-              expect(links[0].target.resource).to.deep.equal(baruser._id);
-              expect(links[0].target.type).to.equal('User');
+              expect(links).to.shallowDeepEqual([
+                {
+                  type: 'profile',
+                  source: {
+                    id: String(foouser._id),
+                    objectType: 'user'
+                  },
+                  target: {
+                    id: String(baruser._id),
+                    objectType: 'user'
+                  }
+                }
+              ]);
               done();
             });
           });
