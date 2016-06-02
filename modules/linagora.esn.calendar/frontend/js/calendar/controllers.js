@@ -25,6 +25,7 @@ angular.module('esn.calendar')
       livenotification,
       gracePeriodService,
       calendarCurrentView,
+      calendarVisibilityService,
       CALENDAR_EVENTS,
       MAX_CALENDAR_RESIZE_HEIGHT,
       CALENDAR_DEDAULT_EVENT_COLOR,
@@ -144,9 +145,12 @@ angular.module('esn.calendar')
             events: cachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
-          calendarPromise.then(function(cal) {
-            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
-          });
+
+          if (!calendarVisibilityService.isHidden(calendar)) {
+            calendarPromise.then(function(cal) {
+              cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+            });
+          }
         });
       })
       .catch($scope.displayCalendarError);

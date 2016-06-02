@@ -1,8 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
-/* global _: false */
+/* global chai, sinon, _: false */
 
 var expect = chai.expect;
 
@@ -49,6 +47,10 @@ describe('The calendar module controllers', function() {
       this.clone = function() {
         return this;
       };
+    };
+
+    this.calendarVisibilityServiceMock = {
+      isHidden: sinon.stub().returns(false)
     };
 
     this.CalendarShellMock = function() {
@@ -149,6 +151,7 @@ describe('The calendar module controllers', function() {
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       $provide.value('CalendarShell', self.CalendarShellMock);
       $provide.value('masterEventCache', self.masterEventCacheMock);
+      $provide.value('calendarVisibilityService', self.calendarVisibilityServiceMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -286,7 +289,7 @@ describe('The calendar module controllers', function() {
       expect(fullCalendarSpy).to.have.been.calledWith('next');
     });
 
-    it('The list calendars and call addEventSource for each', function() {
+    it('should init list calendars and list of eventsSourceMap', function() {
       this.controller('calendarController', {$scope: this.scope});
       this.scope.uiConfig.calendar.viewRender({});
       this.scope.$digest();
@@ -299,7 +302,18 @@ describe('The calendar module controllers', function() {
       expect(this.scope.eventSourcesMap.href2.backgroundColor).to.equal('color2');
       expect(this.scope.eventSourcesMap.href.events).to.be.a('Array');
       expect(this.scope.eventSourcesMap.href2.events).to.be.a('Array');
-      expect(fullCalendarSpy).to.have.been.calledTwice;
+    });
+
+    it('should add source for each calendar which is not hidden', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      this.calendarVisibilityServiceMock.isHidden = sinon.stub();
+      this.calendarVisibilityServiceMock.isHidden.onFirstCall().returns(false);
+      this.calendarVisibilityServiceMock.isHidden.onSecondCall().returns(true);
+      this.scope.uiConfig.calendar.viewRender({});
+      this.scope.$digest();
+      expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[0].href]);
+      expect(fullCalendarSpy).to.not.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[1].href]);
+      expect(fullCalendarSpy).to.have.been.calledOnce;
     });
 
     it('should have wrap each calendar with cachedEventSource.wrapEventSource', function() {
