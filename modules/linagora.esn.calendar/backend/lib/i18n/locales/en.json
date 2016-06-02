@@ -71,5 +71,8 @@
   "Manage calendars": "Manage calendars",
   "Add a new calendar": "Add a new calendar",
   "Mail to Attendees": "Mail to Attendees",
-  "Return to calendar": "Return to calendar"
+  "Return to calendar": "Return to calendar",
+  "is a repeating event": "is a repeating event",
+  "Edit just this occurence": "Edit just this occurence",
+  "Edit all occurences": "Edit all occurences"
 }

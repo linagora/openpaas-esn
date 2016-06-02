@@ -9,6 +9,7 @@ angular.module('esn.calendar', [
   'restangular',
   'mgcrea.ngStrap.datepicker',
   'mgcrea.ngStrap.aside',
+  'mgcrea.ngStrap.modal',
   'materialAdmin',
   'AngularJstz',
   'angularMoment',
