@@ -482,4 +482,23 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/partials/emailer-avatar.html'
     };
+  })
+
+  .directive('inboxEmailFooter', function(inboxEmailService) {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/email-footer.html',
+      scope: {
+        email: '='
+      },
+      controller: function($scope) {
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
+          this[action] = function() {
+            inboxEmailService[action]($scope.email);
+          };
+        }.bind(this));
+      },
+      controllerAs: 'ctrl'
+    };
+
   });

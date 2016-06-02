@@ -23,6 +23,7 @@ describe('The Unified Inbox Angular module providers', function() {
   }
 
   beforeEach(function() {
+    angular.mock.module('esn.core');
     angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {

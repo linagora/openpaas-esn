@@ -15,5 +15,4 @@ sub-header
     h4 {{ ::thread.subject }}
 
   email(ng-repeat='email in thread.emails', email='email')
-
-  ng-include(src="'/unifiedinbox/views/partials/email-footer'")
+  inbox-email-footer(email='thread.lastEmail')

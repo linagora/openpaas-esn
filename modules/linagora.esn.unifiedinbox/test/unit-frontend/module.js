@@ -9,6 +9,7 @@ describe('The Unified Inbox Angular module', function() {
   var jmapClient;
 
   beforeEach(function() {
+    angular.mock.module('esn.core');
     angular.mock.module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {
         getMailboxWithRole: function(role) {

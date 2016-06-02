@@ -9,7 +9,7 @@
       i.mdi.mdi-reply
       span.label
         | #{__('Reply')}
-  .action
+  .action(ng-if="::email.hasReplyAll")
     a(ng-click="ctrl.replyAll()", title="#{__('Reply all')}")
       i.mdi.mdi-reply-all
       span.label
