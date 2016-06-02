@@ -295,4 +295,24 @@ describe('The Unified Inbox Angular module providers', function() {
 
   });
 
+  describe('The inboxDefaultProviderContext', function() {
+
+    var inboxDefaultProviderContext;
+
+    beforeEach(inject(function(_inboxDefaultProviderContext_) {
+      inboxDefaultProviderContext = _inboxDefaultProviderContext_;
+    }));
+
+    it('should resolve default context as a filter to get message list in Inbox folder', function() {
+      inboxDefaultProviderContext().then(function(context) {
+        expect(context).to.deep.equal({
+          inMailboxes: ['id_inbox']
+        });
+
+        $rootScope.$digest();
+      });
+    });
+
+  });
+
 });

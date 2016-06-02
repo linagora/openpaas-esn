@@ -2,10 +2,16 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('findInboxMailboxId', function(withJmapClient, jmap, _) {
+  .factory('inboxDefaultProviderContext', function(withJmapClient, jmap) {
     return function() {
       return withJmapClient(function(client) {
-        return client.getMailboxWithRole(jmap.MailboxRole.INBOX).then(_.property('id'));
+        return client
+          .getMailboxWithRole(jmap.MailboxRole.INBOX)
+          .then(function(mailbox) {
+            return {
+              inMailboxes: [mailbox.id]
+            };
+          });
       });
     };
   })
@@ -46,7 +52,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, findInboxMailboxId,
+  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxDefaultProviderContext,
                                                        newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
     return newProvider({
       name: 'inboxHostedMailMessagesProvider',
@@ -68,12 +74,12 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      getDefaultContext: findInboxMailboxId,
+      getDefaultContext: inboxDefaultProviderContext,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
     });
   })
 
-  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, findInboxMailboxId,
+  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxDefaultProviderContext,
                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
     function _prepareThreads(data) {
       var threads = data[0],
@@ -115,7 +121,7 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      getDefaultContext: findInboxMailboxId,
+      getDefaultContext: inboxDefaultProviderContext,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
     });
   })
