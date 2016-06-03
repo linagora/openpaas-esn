@@ -176,6 +176,7 @@ angular.module('esn.calendar')
         this.__recurrenceId = undefined;
         if (value) {
           var recid = ICAL.Time.fromJSDate(value.toDate(), true);
+
           recid.isDate = !value.hasTime();
           this.vevent.updatePropertyWithValue('recurrence-id', recid);
         }
@@ -656,6 +657,7 @@ angular.module('esn.calendar')
         if (!that) { return false; }
         if (that === this) { return true; }
         var self = this;
+
         return RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
           return angular.equals(self[key], that[key]);
         });
@@ -668,6 +670,7 @@ angular.module('esn.calendar')
       updateParentEvent: function() {
         if (this.isValid()) {
           var intervalTmp = this.rrule.interval;
+
           this.rrule.interval = this.rrule.interval || [1];
           this.vevent.updatePropertyWithValue('rrule', new ICAL.Recur.fromData(this.rrule));
           this.rrule.interval = intervalTmp;
@@ -690,6 +693,7 @@ angular.module('esn.calendar')
         } else {
           this.__interval = this.__interval || null;
         }
+
         return this.__interval;
       },
       set interval(value) {
@@ -703,6 +707,7 @@ angular.module('esn.calendar')
           return null;
         }
         this.__until = this.__until || fcMoment(this.rrule.until.toJSDate());
+
         return this.__until;
       },
       set until(value) {
@@ -716,6 +721,7 @@ angular.module('esn.calendar')
           return null;
         }
         this.__count = this.__count || parseInt(this.rrule.count, 10);
+
         return this.__count;
       },
       set count(value) {
@@ -728,6 +734,7 @@ angular.module('esn.calendar')
         if (!this.__byday) {
           this.__byday = this.rrule && this.rrule.byday ? this.rrule.byday : [];
         }
+
         return this.__byday;
       },
       set byday(value) {

@@ -1,7 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai, sinon, _: false */
 
 var expect = chai.expect;
 
@@ -476,6 +475,7 @@ describe('The event-form module controllers', function() {
             expect(oldEvent.title).to.equal('oldtitle');
             expect(path).to.equal('/path/to/event');
             expect(etag).to.equal('123123');
+
             return $q.when();
           });
 
@@ -483,6 +483,64 @@ describe('The event-form module controllers', function() {
 
           this.scope.$digest();
           expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
+        });
+
+        it('should removeAllException if rrule has been changed', function() {
+          var editedEvent = {
+            title: 'title',
+            path: '/path/to/event',
+            etag: '123123',
+            getOrganizerPartStat: _.constant(),
+            attendees: [],
+            equals: _.constant(false),
+            deleteAllException: sinon.spy(),
+            setOrganizerPartStat: _.constant()
+          };
+
+          this.scope.event = {
+            title: 'oldtitle',
+            path: '/path/to/event',
+            rrule: {
+              equals: _.constant(false)
+            },
+            etag: '123123',
+            clone: _.constant(editedEvent)
+          };
+
+          this.initController();
+
+          this.scope.modifyEvent();
+
+          expect(this.scope.editedEvent.deleteAllException).to.have.been.calledOnce;
+        });
+
+        it('should not removeAllException if rrule has not been changed', function() {
+          var editedEvent = {
+            title: 'title',
+            path: '/path/to/event',
+            etag: '123123',
+            getOrganizerPartStat: _.constant(),
+            attendees: [],
+            equals: _.constant(true),
+            deleteAllException: sinon.spy(),
+            setOrganizerPartStat: _.constant()
+          };
+
+          this.scope.event = {
+            title: 'oldtitle',
+            path: '/path/to/event',
+            rrule: {
+              equals: _.constant(false)
+            },
+            etag: '123123',
+            clone: _.constant(editedEvent)
+          };
+
+          this.initController();
+
+          this.scope.modifyEvent();
+
+          expect(this.scope.editedEvent.deleteAllException).to.not.have.been.called;
         });
       });
 
