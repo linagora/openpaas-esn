@@ -68,6 +68,9 @@ angular.module('esn.calendar')
       default: 'No title',
       maxlength: 1024
     }
+    location: {
+      maxlength: 1024
+    }
   })
 
   .constant('AUTOCOMPLETE_MAX_RESULTS', 5)

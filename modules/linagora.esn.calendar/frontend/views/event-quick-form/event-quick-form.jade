@@ -32,7 +32,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
               span.input-group-addon
                 i.mdi.mdi-map-marker
               .fg-line
-                input.input.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
         .col-xs-12.hidden-xs(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0')
           .form-group.status
             span.col-xs-12.col-sm-6 #{__('Will you attend?')}
