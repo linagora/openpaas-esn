@@ -14,5 +14,4 @@
         attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'NEEDS-ACTION' track by attendee.email")
         attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'TENTATIVE' track by attendee.email")
     .trash
-      a(href="")
-        i.mdi.mdi-delete(ng-show='!readOnly && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
+      i.mdi.mdi-delete(ng-if='!readOnly && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
