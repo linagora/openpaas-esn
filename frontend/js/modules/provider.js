@@ -16,7 +16,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       },
       getAll: function(context) {
         return $q.all(this.providers.map(function(provider) {
-          return provider.getDefaultContext(context).then(function(context) {
+          return provider.buildFetchContext(context).then(function(context) {
             provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
 
             return provider;
@@ -66,7 +66,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
               });
           };
         },
-        getDefaultContext: provider.getDefaultContext
+        buildFetchContext: provider.buildFetchContext
       };
     };
   })

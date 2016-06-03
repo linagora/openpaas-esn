@@ -47,7 +47,7 @@ angular.module('linagora.esn.unifiedinbox')
               });
           };
         },
-        getDefaultContext: function() { return $q.when(); },
+        buildFetchContext: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
       });
     };
@@ -76,7 +76,7 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      getDefaultContext: inboxDefaultProviderContext,
+      buildFetchContext: inboxDefaultProviderContext,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
     });
   })
@@ -124,7 +124,7 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      getDefaultContext: inboxDefaultProviderContext,
+      buildFetchContext: inboxDefaultProviderContext,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
     });
   })
