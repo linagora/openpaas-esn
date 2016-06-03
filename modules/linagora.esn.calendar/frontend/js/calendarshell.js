@@ -21,6 +21,14 @@ angular.module('esn.calendar')
       }
     }
 
+    function sameIcalTime(a, b) {
+      if (!a) {
+        return !b;
+      }
+
+      return a.compare(b) === 0 && Boolean(a.isDate) === Boolean(b.isDate);
+    }
+
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -117,10 +125,15 @@ angular.module('esn.calendar')
       set start(value) {
         this.__start = undefined;
         if (value) {
-          var dtstart = ICAL.Time.fromJSDate(value.toDate(), true);
+          var dtstart = ICAL.Time.fromJSDate(value.toDate(), true).convertToZone(ICAL.TimezoneService.get(localTimezone));
 
           dtstart.isDate = !value.hasTime();
-          this.vevent.updatePropertyWithValue('dtstart', dtstart.convertToZone(ICAL.TimezoneService.get(localTimezone))).setParameter('tzid', localTimezone);
+
+          if (this.isRecurring() && !sameIcalTime(this.icalEvent.startDate, dtstart)) {
+            this.deleteAllException();
+          }
+
+          this.vevent.updatePropertyWithValue('dtstart', dtstart).setParameter('tzid', localTimezone);
         }
       },
 
@@ -134,10 +147,15 @@ angular.module('esn.calendar')
       set end(value) {
         this.__end = undefined;
         if (value) {
-          var dtend = ICAL.Time.fromJSDate(value.toDate(), true);
+          var dtend = ICAL.Time.fromJSDate(value.toDate(), true).convertToZone(ICAL.TimezoneService.get(localTimezone));
 
           dtend.isDate = !value.hasTime();
-          this.vevent.updatePropertyWithValue('dtend', dtend.convertToZone(ICAL.TimezoneService.get(localTimezone))).setParameter('tzid', localTimezone);
+
+          if (this.isRecurring() && !sameIcalTime(this.icalEvent.endDate, dtend)) {
+            this.deleteAllException();
+          }
+
+          this.vevent.updatePropertyWithValue('dtend', dtend).setParameter('tzid', localTimezone);
         }
       },
 
@@ -188,6 +206,13 @@ angular.module('esn.calendar')
       deleteInstance: function(instance) {
         this._removeOccurenceFromVcalendar(instance);
         this.vevent.addPropertyWithValue('exdate', instance.vevent.getFirstPropertyValue('recurrence-id'));
+      },
+      deleteAllException: function() {
+        this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
+          if (vevent.getFirstPropertyValue('recurrence-id')) {
+            this.vcalendar.removeSubcomponent(vevent);
+          }
+        }, this);
       },
       expand: function(startDate, endDate, maxElement) {
         if (!this.icalEvent.isRecurring()) {
@@ -537,11 +562,7 @@ angular.module('esn.calendar')
 
         // Not found, we need to retrieve the event
         return eventAPI.get(this.path).then(function(response) {
-          var mastershell = new CalendarShell(new ICAL.Component(response.data), {
-            path: this.path,
-            etag: this.etag,
-            gracePeriodTaskId: this.gracePeriodTaskId
-          });
+          var mastershell = new CalendarShell(new ICAL.Component(response.data), this._getExtendedProperties());
           mastershell.modifyOccurrence(this);
           return mastershell;
         }.bind(this));

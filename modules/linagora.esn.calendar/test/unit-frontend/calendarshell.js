@@ -67,17 +67,53 @@ describe('CalendarShell factory', function() {
     });
 
     it('should not lose allday', function() {
-      var start =  fcMoment(new Date(2014, 11, 29));
+      var shell, start =  fcMoment(new Date(2014, 11, 29));
       var end = fcMoment(new Date(2014, 11, 29));
+
       start.stripTime();
       end.stripTime();
-      var shell = CalendarShell.fromIncompleteShell({
+      shell = CalendarShell.fromIncompleteShell({
         start: start,
         end: end
       });
 
       expect(shell.start.hasTime()).to.be.false;
       expect(shell.end.hasTime()).to.be.false;
+    });
+
+    it('if recurrent it should remove exception if start or end date change', function() {
+      ['end', 'start'].forEach(function(date) {
+        var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+        var shell = new CalendarShell(vcalendar);
+
+        shell[date] = fcMoment([2015, 1, 6, 10, 40]);
+        expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
+      });
+    });
+
+    it('if recurrent it should not remove exception if start or end date change to the same value', function() {
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+      var shell = new CalendarShell(vcalendar);
+
+      shell.start = fcMoment.utc([2016, 2, 7, 15, 0]);
+      shell.end = fcMoment.utc([2016, 2, 7, 16, 0]);
+      expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(2);
+    });
+
+    it('if recurrent it should remove exception if start pass to allDay', function() {
+      var midnight = fcMoment.utc([2016, 2, 7, 17, 0]);
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+
+      vcalendar.getFirstSubcomponent('vevent').updatePropertyWithValue('dtstart', ICAL.Time.fromJSDate(midnight.toDate(), true).convertToZone(ICAL.TimezoneService.get(this.localTimezone)));
+
+      midnight.hasTime = function() {
+        return false;
+      };
+
+      var shell = new CalendarShell(vcalendar);
+
+      shell.start = midnight;
+      expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
     });
   });
 
@@ -97,9 +133,10 @@ describe('CalendarShell factory', function() {
         etag: 'etag'
       });
       var editEvent = event.clone();
+
       editEvent.location = 'bLocation';
 
-      this.eventApiMock.modify = function(eventPath, vcalendar, etag) {
+      this.eventApiMock.modify = function() {
         return $q.when({});
       };
 
