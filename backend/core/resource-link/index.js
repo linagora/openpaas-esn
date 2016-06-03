@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var q = require('q');
 var ResourceLink = mongoose.model('ResourceLink');
 var logger = require('../logger');
+var pubsub = require('../pubsub');
 
 function create(link) {
   logger.debug('Creating link of type %s', link.type, link);
@@ -14,9 +15,10 @@ function create(link) {
     if (err) {
       return defer.reject(err);
     }
+
+    pubsub.local.topic('resource:link:' + link.type + ':' + link.target.objectType).publish(link);
     defer.resolve(linked);
   });
   return defer.promise;
 }
-
 module.exports.create = create;

@@ -99,6 +99,7 @@ function setupAPI(application) {
   require('./monitoring')(router);
   require('./notifications')(router);
   require('./oauthclients')(router);
+  require('./resource-link')(router);
   require('./user')(router);
   require('./users')(router);
 
