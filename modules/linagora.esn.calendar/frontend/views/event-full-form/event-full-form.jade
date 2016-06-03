@@ -51,7 +51,7 @@
                       span.input-group-addon
                         i.mdi.mdi-map-marker
                       .fg-line
-                        input.input.location.form-control.fg-input(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                        input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
               .row.visible-xs
                 attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')

@@ -67,7 +67,7 @@ angular.module('esn.calendar')
       // TODO: i18n
       default: 'No title',
       maxlength: 1024
-    }
+    },
     location: {
       maxlength: 1024
     }
