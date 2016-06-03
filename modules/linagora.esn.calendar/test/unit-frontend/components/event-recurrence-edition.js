@@ -97,4 +97,17 @@ describe('The event-recurrence-edition component', function() {
     });
   });
 
+  describe('scope.setRRULE', function() {
+    it('should set rrule to undefined if scope.freq equal undefined', function() {
+      this.eleScope.freq = undefined;
+      this.eleScope.setRRULE();
+      expect(this.eleScope.event.rrule).to.be.undefined;
+    });
+
+    it('should set rrule if scope is not undefined', function() {
+      this.eleScope.freq = 'WEEKLY';
+      this.eleScope.setRRULE();
+      expect(this.eleScope.event.rrule.freq).to.be.equal('WEEKLY');
+    });
+  });
 });
