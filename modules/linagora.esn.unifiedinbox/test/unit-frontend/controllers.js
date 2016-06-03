@@ -107,6 +107,64 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     return controller;
   }
 
+  describe('The unifiedInboxController', function() {
+
+    beforeEach(inject(function(PROVIDER_TYPES, inboxProviders) {
+      this.PROVIDER_TYPES = PROVIDER_TYPES;
+      this.inboxProviders = inboxProviders;
+    }));
+
+    it('should leverage inboxProviders.getAll with options when loadMoreElements is called', function() {
+      initController('unifiedInboxController');
+      $stateParams.filter = { custom: 'filter' };
+      this.inboxProviders.getAll = sinon.stub().returns($q.when([]));
+
+      scope.loadMoreElements();
+      scope.$digest();
+
+      expect(this.inboxProviders.getAll).to.have.been.calledWith({
+        acceptedTypes: [this.PROVIDER_TYPES.JMAP, this.PROVIDER_TYPES.SOCIAL],
+        filterByType: {
+          JMAP: { custom: 'filter' }
+        }
+      });
+    });
+
+    it('should call our inbox provider as expected when loadMoreElements is called twice', function() {
+      initController('unifiedInboxController');
+
+      jmapClient.getMailboxWithRole = sinon.stub().returns($q.when(
+        { role: jmap.MailboxRole.INBOX, name: 'a name', id: 'chosenMailbox' }
+      ));
+      jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient)));
+      jmapClient.getMessages = sinon.stub().returns($q.when([]));
+
+      scope.loadMoreElements();
+      scope.$digest();
+
+      expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.INBOX);
+      expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
+        inMailboxes: ['chosenMailbox']
+      }));
+      expect(jmapClient.getMessages).to.have.been.calledOnce;
+    });
+
+    it('should forward stateParams filter to our jmap provider', function() {
+      initController('unifiedInboxController');
+      $stateParams.filter = { custom: 'filter' };
+
+      jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient)));
+      jmapClient.getMessages = sinon.stub().returns($q.when([]));
+
+      scope.loadMoreElements();
+      scope.$digest();
+
+      expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', $stateParams.filter));
+      expect(jmapClient.getMessages).to.have.been.calledOnce;
+    });
+
+  });
+
   describe('The composerController', function() {
 
     beforeEach(inject(function() {

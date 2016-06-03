@@ -98,7 +98,8 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'unifiedInboxController',
             templateUrl: '/unifiedinbox/views/unified-inbox/index'
           }
-        }
+        },
+        params: { filter: {} }
       })
       .state('unifiedinbox.twitter', {
         url: '/twitter/:username',
@@ -114,9 +115,12 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'main@unifiedinbox': { controller: 'listController' }
         },
+        params: { filter: {} },
         resolve: {
           filter: function($stateParams, mailboxesService) {
-            return mailboxesService.getMessageListFilter($stateParams.mailbox);
+            return mailboxesService.getMessageListFilter($stateParams.mailbox).then(function(mailboxFilter) {
+              return angular.extend(mailboxFilter, $stateParams.filter);
+            });
           }
         }
       })
