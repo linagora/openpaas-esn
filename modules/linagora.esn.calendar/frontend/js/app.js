@@ -129,7 +129,7 @@ angular.module('esn.calendar', [
       }
     })
     .state('calendar.event', {
-      url: '/:calendarId/event/:eventId',
+      url: '/:calendarHomeId/event/:eventId',
       abstract: true,
       views: {
         content: {
@@ -138,7 +138,7 @@ angular.module('esn.calendar', [
       },
       resolve: {
         event: function($stateParams, $state, pathBuilder, calendarService, eventUtils, notificationFactory) {
-          var eventPath = pathBuilder.forEventId($stateParams.calendarId, $stateParams.eventId);
+          var eventPath = pathBuilder.forEventId($stateParams.calendarHomeId, $stateParams.eventId);
 
           return eventUtils.getEditedEvent() || calendarService.getEvent(eventPath).catch(function(error) {
             if (error.status !== 404) {
