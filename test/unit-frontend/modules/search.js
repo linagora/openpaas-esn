@@ -123,7 +123,7 @@ describe('The Search Form Angular module', function() {
       });
     });
 
-    beforeEach(inject(function(_$controller_, _ByTypeElementGroupingTool_, _searchProviders_, _$q_, _$rootScope_) {
+    beforeEach(inject(function(_$controller_, _$q_, _$rootScope_) {
       $controller = _$controller_;
       $q = _$q_;
       $rootScope = _$rootScope_;
@@ -135,7 +135,7 @@ describe('The Search Form Angular module', function() {
     });
 
     it('should have call searchProviders with the correct arguments', function() {
-      expect(searchProviders.getAll).to.have.been.calledWith(query);
+      expect(searchProviders.getAll).to.have.been.calledWith({ query: query });
     });
 
     describe('$scope.groupedElements', function() {

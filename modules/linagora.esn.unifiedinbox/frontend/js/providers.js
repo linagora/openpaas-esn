@@ -2,8 +2,12 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('inboxDefaultProviderContext', function(withJmapClient, jmap) {
-    return function() {
+  .factory('inboxJmapProviderContextBuilder', function($q, withJmapClient, jmap, PROVIDER_TYPES) {
+    return function(options) {
+      if (options.filterByType[PROVIDER_TYPES.JMAP]) {
+        return $q.when(options.filterByType[PROVIDER_TYPES.JMAP]);
+      }
+
       return withJmapClient(function(client) {
         return client
           .getMailboxWithRole(jmap.MailboxRole.INBOX)
@@ -53,7 +57,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxDefaultProviderContext,
+  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
                                                        newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return newProvider({
       type: PROVIDER_TYPES.JMAP,
@@ -76,12 +80,12 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      buildFetchContext: inboxDefaultProviderContext,
+      buildFetchContext: inboxJmapProviderContextBuilder,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
     });
   })
 
-  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxDefaultProviderContext,
+  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxJmapProviderContextBuilder,
                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     function _prepareThreads(data) {
       var threads = data[0],
@@ -124,7 +128,7 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      buildFetchContext: inboxDefaultProviderContext,
+      buildFetchContext: inboxJmapProviderContextBuilder,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
     });
   })

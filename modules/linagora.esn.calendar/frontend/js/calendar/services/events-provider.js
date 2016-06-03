@@ -24,7 +24,7 @@ angular.module('esn.calendar')
               });
           };
         },
-        buildFetchContext: function(context) { return $q.when(context); },
+        buildFetchContext: function(options) { return $q.when(options.query); },
         templateUrl: '/calendar/views/components/event-search-item'
       });
     }
