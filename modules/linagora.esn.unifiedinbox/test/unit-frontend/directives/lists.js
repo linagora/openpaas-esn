@@ -216,25 +216,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
       });
 
-      describe('The onSwipeLeft fn', function() {
-        it('should open action list', function(done) {
-          var openFnSpy = sinon.spy();
-
-          compileDirective('<inbox-thread-list-item />', {
-            $actionListController: {
-              open: openFnSpy
-            }
-          });
-
-          $scope.onSwipeLeft().then(function() {
-            expect(openFnSpy).to.have.been.calledOnce;
-            done();
-          });
-
-          $rootScope.$digest();
-        });
-
-      });
     });
 
     describe('The dragndrop feature', function() {
@@ -444,24 +425,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
       });
 
-      describe('The onSwipeLeft fn', function() {
-        it('should open action list', function(done) {
-          var openFnSpy = sinon.spy();
-
-          compileDirective('<inbox-message-list-item />', {
-            $actionListController: {
-              open: openFnSpy
-            }
-          });
-
-          $scope.onSwipeLeft().then(function() {
-            expect(openFnSpy).to.have.been.calledOnce;
-            done();
-          });
-
-          $rootScope.$digest();
-        });
-      });
     });
 
     describe('The dragndrop feature', function() {
@@ -518,13 +481,50 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
   });
 
-  describe('the inboxSwipeableListItem directive', function() {
+  describe('The inboxSwipeableListItem directive', function() {
+
     it('should expose leftTemplate to the scope', function() {
       inboxConfigMock.swipeRightAction = 'expectedAction';
       compileDirective('<div inbox-swipeable-list-item />');
 
       expect($scope.leftTemplate).to.equal('/unifiedinbox/views/partials/swipe/left-template-expectedAction.html');
     });
+
+    describe('The onSwipeLeft fn', function() {
+
+      it('should open action list, and keep swipe open', function() {
+        var openFnSpy = sinon.spy();
+
+        compileDirective('<div inbox-swipeable-list-item />', {
+          $actionListController: {
+            open: openFnSpy
+          }
+        });
+        $scope.swipeClose = sinon.spy($scope.swipeClose);
+
+        $scope.onSwipeLeft();
+
+        expect(openFnSpy).to.have.been.calledWith();
+        expect($scope.swipeClose).to.not.have.been.calledWith();
+      });
+
+      it('should close swipe when action list is closed', function() {
+        compileDirective('<div inbox-swipeable-list-item />', {
+          $actionListController: {
+            open: function() {
+              $scope.$emit('action-list.hide');
+            }
+          }
+        });
+        $scope.swipeClose = sinon.spy($scope.swipeClose);
+
+        $scope.onSwipeLeft();
+
+        expect($scope.swipeClose).to.have.been.calledWith();
+      });
+
+    });
+
   });
 
 });
