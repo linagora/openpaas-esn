@@ -489,7 +489,20 @@ describe('CalendarShell factory', function() {
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.expand()[0].vevent.getFirstProperty('recurrence-id').getParameter('tzid')).to.be.undefined;
       expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T23:01:00Z');
+    });
+
+    it('should compute start date and end date of instance in same start date of master', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      var event = shell.expand()[0];
+
+      expect(event.vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal('America/Chicago');
+      expect(event.vevent.getFirstProperty('dtend').getParameter('tzid')).to.equal('America/Chicago');
+
+      expect(event.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2016-03-07T10:00:00');
+      expect(event.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2016-03-07T11:00:00');
     });
 
     it('should expand correctly all subevent if no start and end date specified', function() {

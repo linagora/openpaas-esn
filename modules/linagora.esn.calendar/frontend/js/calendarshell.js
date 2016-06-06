@@ -274,7 +274,7 @@ angular.module('esn.calendar')
               currentEvent.vevent.removeProperty('rrule');
               currentEvent.vevent.removeProperty('exdate');
 
-              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
+              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone));
               setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
               setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
             }
