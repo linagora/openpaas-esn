@@ -132,3 +132,18 @@
     font-size: 16px;
   }
 }
+
+.inbox-list-item {
+  max-height: 250px;
+
+  &.ng-leave {
+    .transition(0.2s ease-out all);
+
+    opacity: 1;
+
+    &.ng-leave-active {
+      max-height: 0;
+      opacity: 0;
+    }
+  }
+}
