@@ -22,6 +22,16 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('inboxSwipeableListItem', function(inboxConfig) {
     return {
       restrict: 'A',
+      controller: function($scope, $element) {
+        $scope.onSwipeLeft = function() {
+          var unregisterActionListCloseListener = $scope.$on('action-list.hide', function() {
+            $scope.swipeClose();
+            unregisterActionListCloseListener();
+          });
+
+          $element.controller('actionList').open();
+        };
+      },
       link: function(scope) {
         inboxConfig('swipeRightAction', 'markAsRead').then(function(action) {
           scope.leftTemplate = '/unifiedinbox/views/partials/swipe/left-template-' + action + '.html';
@@ -33,7 +43,7 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('inboxMessageListItem', function($state, $q, $stateParams, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
     return {
       restrict: 'E',
-      controller: function($scope, $element) {
+      controller: function($scope) {
         var self = this;
 
         // need this scope value for action list
@@ -71,10 +81,6 @@ angular.module('linagora.esn.unifiedinbox')
           markAsRead: self.markAsRead,
           moveToTrash: self.moveToTrash
         });
-
-        $scope.onSwipeLeft = inboxSwipeHelper.createSwipeLeftHandler($scope, function() {
-          $element.controller('actionList').open();
-        });
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/email/list/list-item.html'
@@ -84,7 +90,7 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('inboxThreadListItem', function($state, $q, $stateParams, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
     return {
       restrict: 'E',
-      controller: function($scope, $element) {
+      controller: function($scope) {
         var self = this;
 
         // need this scope value for action list
@@ -121,10 +127,6 @@ angular.module('linagora.esn.unifiedinbox')
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
           markAsRead: self.markAsRead,
           moveToTrash: self.moveToTrash
-        });
-
-        $scope.onSwipeLeft = inboxSwipeHelper.createSwipeLeftHandler($scope, function() {
-          $element.controller('actionList').open();
         });
       },
       controllerAs: 'ctrl',

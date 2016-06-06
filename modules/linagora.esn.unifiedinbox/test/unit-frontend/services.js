@@ -4147,32 +4147,6 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
-    describe('The createSwipeLeftHandler fn', function() {
-
-      var swipeLeftHandler;
-      var scopeMock, handlersMock;
-
-      beforeEach(function() {
-        scopeMock = $rootScope.$new();
-        scopeMock.swipeClose = sinon.spy();
-        handlersMock = sinon.spy();
-
-        swipeLeftHandler = inboxSwipeHelper.createSwipeLeftHandler(scopeMock, handlersMock);
-      });
-
-      it('should return a function', function() {
-        expect(swipeLeftHandler).to.be.a.function;
-      });
-
-      it('should return a function to close swipe after a timeout', function() {
-        swipeLeftHandler();
-        $timeout.flush();
-
-        expect(scopeMock.swipeClose).to.have.been.calledOnce;
-      });
-
-    });
-
   });
 
   describe('The inboxSpecialMailboxes service', function() {

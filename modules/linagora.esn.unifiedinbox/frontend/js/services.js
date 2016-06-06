@@ -1137,12 +1137,6 @@ angular.module('linagora.esn.unifiedinbox')
       return $q.when();
     }
 
-    function createSwipeLeftHandler(scope, handler) {
-      return function() {
-        return _autoCloseSwipeHandler(scope).then(handler);
-      };
-    }
-
     function createSwipeRightHandler(scope, handlers) {
       return function() {
         return _autoCloseSwipeHandler(scope)
@@ -1154,8 +1148,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      createSwipeRightHandler: createSwipeRightHandler,
-      createSwipeLeftHandler: createSwipeLeftHandler
+      createSwipeRightHandler: createSwipeRightHandler
     };
   })
 
