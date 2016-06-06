@@ -21,11 +21,10 @@ function absoluteUrl(url) {
 }
 
 function setDocument(newDocument) {
-  // The new document can declare a <base href="xxx">,
-  // so we ask for absolute urls before updating the document
+  // The new document can declare a <base href="xxx"> so we ask for absolute urls before updating the document
   var scriptsToInclude = [
-    absoluteUrl('/components/iframe-resizer/js/iframeResizer.contentWindow.js'),
-    absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js')
+    absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js'), // This one must come first, see the script for details
+    absoluteUrl('/components/iframe-resizer/js/iframeResizer.contentWindow.js')
   ];
 
   document.documentElement.innerHTML = newDocument;
