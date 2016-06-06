@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.ui', ['op.dynamicDirective'])
+angular.module('esn.ui', ['op.dynamicDirective', 'esn.autolinker-wrapper'])
 
   .constant('DEFAULT_COLOR_CLASS', 'accent')
   .constant('FAB_ICONS', {
@@ -110,10 +110,10 @@ angular.module('esn.ui', ['op.dynamicDirective'])
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
-        var template = scope.$eval(attrs.esnStringToDom);
-
-        element.html(template);
-        $compile(element.contents())(scope);
+        scope.$watch(attrs.esnStringToDom, function(value) {
+          element.html(value);
+          $compile(element.contents())(scope);
+        });
       }
     };
   })
@@ -132,6 +132,10 @@ angular.module('esn.ui', ['op.dynamicDirective'])
 
   .filter('autolink', function(autolinker) {
     return function(input) {
+      if (!input) {
+        return input;
+      }
+
       return autolinker.link(input, {
         className: 'autolink',
 
