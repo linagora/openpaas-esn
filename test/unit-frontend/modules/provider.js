@@ -22,6 +22,109 @@ describe('The esn.provider module', function() {
     });
   }));
 
+  describe('The Providers factory', function() {
+    var $rootScope, providers;
+
+    beforeEach(inject(function(_$rootScope_, _Providers_) {
+      $rootScope = _$rootScope_;
+      providers = new _Providers_();
+    }));
+
+    describe('The add function', function() {
+
+      it('should make any added provider included in the internal list', function() {
+        providers.add({ name: 'provider' });
+        providers.add({ name: 'provider' });
+        providers.add({ name: 'provider2' });
+
+        expect(providers.providers).to.deep.equal([
+          { name: 'provider' },
+          { name: 'provider' },
+          { name: 'provider2' }
+        ]);
+      });
+
+    });
+
+    describe('The getAllProviderNames function', function() {
+
+      it('should return an array containing all names of added providers', function() {
+        providers.add({ name: 'provider' });
+        providers.add({ name: 'provider2' });
+
+        expect(providers.getAllProviderNames()).to.deep.equal(['provider', 'provider2']);
+      });
+
+    });
+
+    describe('The getAll function', function() {
+
+      it('should return all providers when no acceptedTypes is given', function() {
+        providers.add({ name: 'provider', type: 'type1',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+        providers.add({ name: 'provider2', type: 'type2',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll({}).then(function(resolvedProviders) {
+          expect(resolvedProviders).to.shallowDeepEqual([
+            { name: 'provider', type: 'type1'},
+            { name: 'provider2', type: 'type2'}
+          ]);
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should filter providers that are not in the acceptedTypes array', function() {
+        providers.add({ name: 'provider', type: 'type1',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+        providers.add({ name: 'provider2', type: 'type2',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll({acceptedTypes: ['type1']}).then(function(resolvedProviders) {
+          expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider', type: 'type1'}]);
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should build the fetch context of each provider using its own buildFetchContext function', function() {
+        var getAllOptions = {expected: 'options'},
+            provider1 = { name: 'provider', type: 'type1',
+              buildFetchContext: sinon.stub().returns($q.when('context1')),
+              fetch: sinon.stub().returns($q.when())
+            },
+            provider2 = { name: 'provider2', type: 'type2',
+              buildFetchContext: sinon.stub().returns($q.when('context2')),
+              fetch: sinon.stub().returns($q.when())
+            };
+
+        providers.add(provider1);
+        providers.add(provider2);
+
+        providers.getAll(getAllOptions).then(function(resolvedProviders) {
+          expect(provider1.buildFetchContext).to.have.been.calledWith(getAllOptions);
+          expect(provider2.buildFetchContext).to.have.been.calledWith(getAllOptions);
+
+          expect(provider1.fetch).to.have.been.calledWith('context1');
+          expect(provider2.fetch).to.have.been.calledWith('context2');
+        });
+
+        $rootScope.$digest();
+      });
+
+    });
+
+  });
+
   describe('The ByTypeElementGroupingTool factory', function() {
     var ByTypeElementGroupingTool;
 

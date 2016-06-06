@@ -3,7 +3,8 @@
 angular.module('linagora.esn.unifiedinbox')
 
   .controller('unifiedInboxController', function($scope, infiniteScrollOnGroupsHelper, inboxProviders, headerService,
-                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, ByDateElementGroupingTool) {
+                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, ByDateElementGroupingTool,
+                                                 PROVIDER_TYPES, $stateParams) {
 
     var aggregator;
 
@@ -11,12 +12,22 @@ angular.module('linagora.esn.unifiedinbox')
       return aggregator.loadNextItems().then(_.property('data'));
     }
 
+    function _buildJmapFilter() {
+      var filterByType = {};
+      filterByType[PROVIDER_TYPES.JMAP] = $stateParams.filter;
+
+      return filterByType;
+    }
+
     $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, function() {
       if (aggregator) {
         return load();
       }
 
-      return inboxProviders.getAll().then(function(providers) {
+      return inboxProviders.getAll({
+        acceptedTypes: [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL],
+        filterByType: _buildJmapFilter()
+      }).then(function(providers) {
         aggregator = new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
           compare: function(a, b) { return b.date - a.date; },
           results_per_page: ELEMENTS_PER_PAGE

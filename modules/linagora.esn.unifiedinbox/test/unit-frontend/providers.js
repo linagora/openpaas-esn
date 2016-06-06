@@ -257,7 +257,7 @@ describe('The Unified Inbox Angular module providers', function() {
 
       it('should return an array of providers, with the "loadNextItems" property initialized', function(done) {
         inboxProviders.add({
-          getDefaultContext: sinon.spy(function() { return $q.when('container'); }),
+          buildFetchContext: sinon.spy(function() { return $q.when('container'); }),
           fetch: sinon.spy(function(container) {
             expect(container).to.equal('container');
 
@@ -268,7 +268,7 @@ describe('The Unified Inbox Angular module providers', function() {
           templateUrl: 'templateUrl'
         });
         inboxProviders.add({
-          getDefaultContext: sinon.spy(function() { return $q.when('container_2'); }),
+          buildFetchContext: sinon.spy(function() { return $q.when('container_2'); }),
           fetch: sinon.spy(function(container) {
             expect(container).to.equal('container_2');
 
@@ -296,22 +296,36 @@ describe('The Unified Inbox Angular module providers', function() {
 
   });
 
-  describe('The inboxDefaultProviderContext', function() {
+  describe('The inboxJmapProviderContextBuilder', function() {
 
-    var inboxDefaultProviderContext;
+    var inboxJmapProviderContextBuilder;
 
-    beforeEach(inject(function(_inboxDefaultProviderContext_) {
-      inboxDefaultProviderContext = _inboxDefaultProviderContext_;
+    beforeEach(inject(function(_inboxJmapProviderContextBuilder_) {
+      inboxJmapProviderContextBuilder = _inboxJmapProviderContextBuilder_;
     }));
 
-    it('should resolve default context as a filter to get message list in Inbox folder', function() {
-      inboxDefaultProviderContext().then(function(context) {
+    it('should build default context as a filter to get message list in Inbox folder', function() {
+      inboxJmapProviderContextBuilder({ filterByType: {} }).then(function(context) {
         expect(context).to.deep.equal({
           inMailboxes: ['id_inbox']
         });
-
-        $rootScope.$digest();
       });
+
+      $rootScope.$digest();
+    });
+
+    it('should return back the JMAP filter when its is given', function() {
+      inboxJmapProviderContextBuilder({
+        filterByType: {
+          JMAP: { isUnread: true }
+        }
+      }).then(function(context) {
+        expect(context).to.deep.equal({
+          isUnread: true
+        });
+      });
+
+      $rootScope.$digest();
     });
 
   });

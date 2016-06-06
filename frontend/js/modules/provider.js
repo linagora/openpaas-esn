@@ -6,6 +6,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
   .constant('ELEMENTS_PER_PAGE', 20)
 
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
+
     function Providers() {
       this.providers = [];
     }
@@ -14,14 +15,36 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       add: function(provider) {
         this.providers.push(provider);
       },
-      getAll: function(context) {
-        return $q.all(this.providers.map(function(provider) {
-          return provider.getDefaultContext(context).then(function(context) {
-            provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
 
-            return provider;
-          });
-        }));
+      /**
+       * @param {Object} [options] - should follow the following template,
+       *   all fields are optional.
+       *   {
+       *     query: 'keyword to search for',
+       *     acceptedTypes: ['providerType1', 'providerType2'],
+       *     filterByType: {
+       *       providerType1: { custom: 'object' },
+       *       providerType2: { custom: 'object' }
+       *     }
+       *   }
+       */
+      getAll: function(options) {
+        options = options || {};
+
+        return $q.all(this.providers
+          .filter(function(provider) {
+            return !provider.type || !options.acceptedTypes || options.acceptedTypes.indexOf(provider.type) >= 0;
+          })
+          .map(function(provider) {
+            options.filterByType = options.filterByType || {};
+
+            return provider.buildFetchContext(options).then(function(context) {
+              provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
+
+              return provider;
+            });
+          })
+        );
       },
       getAllProviderNames: function() {
         return _.map(this.providers, 'name');
@@ -44,6 +67,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
   .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
     return function(provider) {
       return {
+        type: provider.type,
         name: provider.name,
         fetch: function(context) {
           var aggregator = new PageAggregatorService(provider.name, [{
@@ -65,7 +89,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
               });
           };
         },
-        getDefaultContext: provider.getDefaultContext
+        buildFetchContext: provider.buildFetchContext
       };
     };
   })

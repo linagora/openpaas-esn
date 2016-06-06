@@ -2,8 +2,12 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('inboxDefaultProviderContext', function(withJmapClient, jmap) {
-    return function() {
+  .factory('inboxJmapProviderContextBuilder', function($q, withJmapClient, jmap, PROVIDER_TYPES) {
+    return function(options) {
+      if (options.filterByType[PROVIDER_TYPES.JMAP]) {
+        return $q.when(options.filterByType[PROVIDER_TYPES.JMAP]);
+      }
+
       return withJmapClient(function(client) {
         return client
           .getMailboxWithRole(jmap.MailboxRole.INBOX)
@@ -20,9 +24,10 @@ angular.module('linagora.esn.unifiedinbox')
     return new Providers();
   })
 
-  .factory('inboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST) {
+  .factory('inboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(accountId) {
       return newProvider({
+        type: PROVIDER_TYPES.SOCIAL,
         name: 'inboxTwitterProvider',
         fetch: function() {
           var oldestTweetId = null;
@@ -46,15 +51,16 @@ angular.module('linagora.esn.unifiedinbox')
               });
           };
         },
-        getDefaultContext: function() { return $q.when(); },
+        buildFetchContext: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
       });
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxDefaultProviderContext,
-                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
+                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return newProvider({
+      type: PROVIDER_TYPES.JMAP,
       name: 'inboxHostedMailMessagesProvider',
       fetch: function(filter) {
         return pagedJmapRequest(function(position) {
@@ -74,13 +80,13 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      getDefaultContext: inboxDefaultProviderContext,
+      buildFetchContext: inboxJmapProviderContextBuilder,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
     });
   })
 
-  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxDefaultProviderContext,
-                                                      newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST) {
+  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxJmapProviderContextBuilder,
+                                                      newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     function _prepareThreads(data) {
       var threads = data[0],
           messages = data[1];
@@ -93,6 +99,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return newProvider({
+      type: PROVIDER_TYPES.JMAP,
       name: 'inboxHostedMailThreadsProvider',
       fetch: function(filter) {
         return pagedJmapRequest(function(position) {
@@ -121,7 +128,7 @@ angular.module('linagora.esn.unifiedinbox')
           });
         });
       },
-      getDefaultContext: inboxDefaultProviderContext,
+      buildFetchContext: inboxJmapProviderContextBuilder,
       templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
     });
   })
