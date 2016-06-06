@@ -340,4 +340,82 @@ describe('The UI module', function() {
 
   });
 
+  describe('The esnStringToDom directive', function() {
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    it('should evaluate the given expression on the scope, compile the result and put it in the DOM', function() {
+      $scope.condition = false;
+      $scope.link = '<a ng-if="condition">Link</a>';
+
+      initDirective('<div esn-string-to-dom="link"></div>');
+
+      expect(element.find('a')).to.have.length(0);
+    });
+
+    it('should support onetime bindings in the expression, and update the DOM once value is stable', function() {
+      $scope.condition = true;
+
+      initDirective('<div esn-string-to-dom="::link"></div>');
+
+      expect(element.find('a')).to.have.length(0);
+
+      $scope.link = '<a ng-if="condition">Link</a>';
+      $scope.$digest();
+
+      expect(element.find('a')).to.have.length(1);
+    });
+
+    it('should update the DOM when the given expression changes', function() {
+      $scope.link = '<a>Link</a>';
+
+      initDirective('<div esn-string-to-dom="link"></div>');
+
+      expect(element.find('a').text()).to.equal('Link');
+
+      $scope.link = '<a>NotALink</a>';
+      $scope.$digest();
+
+      expect(element.find('a').text()).to.equal('NotALink');
+    });
+
+  });
+
+  describe('The autolink filter', function() {
+    var autolinkFilter;
+
+    beforeEach(inject(function(_autolinkFilter_) {
+      autolinkFilter = _autolinkFilter_;
+    }));
+
+    it('should return undefined when undefined given', function() {
+      expect(autolinkFilter()).to.equal(undefined);
+    });
+
+    it('should return null when undefined given', function() {
+      expect(autolinkFilter(null)).to.equal(null);
+    });
+
+    it('should return the empty String when the empty String is given', function() {
+      expect(autolinkFilter('')).to.equal('');
+    });
+
+    it('should leverage op-inbox-compose for email links', function() {
+      expect(autolinkFilter('This text has linagora@open-paas.org in it')).to.equal(
+        'This text has <a op-inbox-compose ng-href="mailto:linagora@open-paas.org" class="autolink">linagora@open-paas.org</a> in it'
+      );
+    });
+
+    it('should leverage default autolinker behavior for http links', function() {
+      expect(autolinkFilter('This text has http://open-paas.org in it')).to.equal(
+        'This text has <a href="http://open-paas.org" class="autolink autolink-url" target="_blank">open-paas.org</a> in it'
+      );
+    });
+
+  });
+
 });
