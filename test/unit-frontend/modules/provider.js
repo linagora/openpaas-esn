@@ -30,29 +30,17 @@ describe('The esn.provider module', function() {
       providers = new _Providers_();
     }));
 
-    describe('The add function', function() {
-
-      it('should make any added provider included in the internal list', function() {
-        providers.add({ name: 'provider' });
-        providers.add({ name: 'provider' });
-        providers.add({ name: 'provider2' });
-
-        expect(providers.providers).to.deep.equal([
-          { name: 'provider' },
-          { name: 'provider' },
-          { name: 'provider2' }
-        ]);
-      });
-
-    });
-
     describe('The getAllProviderNames function', function() {
 
       it('should return an array containing all names of added providers', function() {
-        providers.add({ name: 'provider' });
-        providers.add({ name: 'provider2' });
+        providers.add($q.when({name: 'provider1'}));
+        providers.add({name: 'provider2'});
 
-        expect(providers.getAllProviderNames()).to.deep.equal(['provider', 'provider2']);
+        var spy = sinon.spy();
+        providers.getAllProviderNames().then(spy);
+
+        $rootScope.$digest();
+        expect(spy).to.have.been.calledWith(['provider1', 'provider2']);
       });
 
     });
@@ -64,10 +52,10 @@ describe('The esn.provider module', function() {
           buildFetchContext: sinon.stub().returns($q.when()),
           fetch: sinon.stub().returns($q.when())
         });
-        providers.add({ name: 'provider2', type: 'type2',
+        providers.add($q.when({ name: 'provider2', type: 'type2',
           buildFetchContext: sinon.stub().returns($q.when()),
           fetch: sinon.stub().returns($q.when())
-        });
+        }));
 
         providers.getAll({}).then(function(resolvedProviders) {
           expect(resolvedProviders).to.shallowDeepEqual([

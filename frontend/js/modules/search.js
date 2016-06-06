@@ -85,7 +85,9 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
     return new Providers();
   })
   .controller('searchSidebarController', function($scope, searchProviders) {
-    $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
+    searchProviders.getAllProviderNames().then(function(names) {
+      $scope.filters = ['All'].concat(names);
+    });
   })
   .controller('searchResultController', function($scope, $stateParams, searchProviders, infiniteScrollHelper, _) {
     $scope.query = $stateParams.q;
