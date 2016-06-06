@@ -493,6 +493,18 @@ describe('CalendarShell factory', function() {
       expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T23:01:00Z');
     });
 
+    it('should not mute master event', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      var masterIcsAfterExpand, masterIcsBeforeExpand;
+
+      masterIcsBeforeExpand = shell.vcalendar.toString();
+      shell.expand();
+      shell.vcalendar.addSubcomponent(ICAL.TimezoneService.get(this.localTimezone).component);
+      masterIcsAfterExpand = shell.vcalendar.toString();
+      expect(masterIcsAfterExpand).to.equal(masterIcsBeforeExpand);
+    });
+
     it('should compute start date and end date of instance in same start date of master', function() {
       var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));

@@ -267,7 +267,7 @@ angular.module('esn.calendar')
             currentEvent = getException(this.icalEvent, currentDetails.recurrenceId);
 
             if (currentEvent) {
-              currentEvent = new CalendarShell(currentEvent.component, this._getExtendedProperties());
+              currentEvent = new CalendarShell(new ICAL.Component(currentEvent.component.toJSON()), this._getExtendedProperties());
             } else {
               currentEvent = this.clone();
               currentEvent.deleteAllException();
