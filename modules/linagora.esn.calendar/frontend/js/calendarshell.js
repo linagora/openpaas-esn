@@ -270,6 +270,7 @@ angular.module('esn.calendar')
               currentEvent = new CalendarShell(currentEvent.component, this._getExtendedProperties());
             } else {
               currentEvent = this.clone();
+              currentEvent.deleteAllException();
               currentEvent.vevent.removeProperty('rrule');
               currentEvent.vevent.removeProperty('exdate');
 

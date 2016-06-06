@@ -533,6 +533,15 @@ describe('CalendarShell factory', function() {
       });
     });
 
+    it('should expand in element that has no trace of others exceptions', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+
+      shell.expand().forEach(function(shell) {
+        expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
+      });
+    });
+
     it('should take mutation of subevent into consideration', function() {
       var shell = {
         start: fcMoment.utc('2015-01-01 18:01'),
