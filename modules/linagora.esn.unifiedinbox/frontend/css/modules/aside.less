@@ -91,28 +91,16 @@
         color: @primaryColor;
       }
     }
-
-    &.account-label {
-      padding: 8px 0 4px 15px;
-
-      .title .text {
-        font-size: @inboxAsideFontSize;
-        color: @secondaryTextColor;
-        margin-left: 13px;
-        margin-top: 3px;
-      }
-
-      & + hr {
-        margin: 0  15px 5px 15px;
-      }
-    }
   }
 
-  .configuration-menu {
-    margin-top: 5px;
+  .settings-overlay {
+    display: none;
   }
 
-  &.inbox-desktop-menu {
+}
+
+@media(min-width: @screen-md-min) {
+  .inbox-aside {
     margin-top: 50px;
     max-width: 300px;
 
@@ -167,5 +155,4 @@
       }
     }
   }
-
 }
