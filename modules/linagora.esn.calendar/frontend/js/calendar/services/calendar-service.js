@@ -355,7 +355,9 @@ angular.module('esn.calendar')
       if (event.isInstance()) {
         return event.getModifiedMaster().then(function(newMasterEvent) {
           var oldMasterEvent = newMasterEvent.clone();
-          oldMasterEvent.modifyOccurrence(oldEvent);
+
+          oldMasterEvent.modifyOccurrence(oldEvent, true);
+
           return modifyEvent(path, newMasterEvent, oldMasterEvent, etag, onCancel, options);
         });
       }

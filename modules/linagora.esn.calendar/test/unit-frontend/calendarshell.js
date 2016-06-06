@@ -987,6 +987,19 @@ describe('CalendarShell factory', function() {
       expect(this.masterEventCache.save).to.have.been.calledWith(masterEvent);
     });
 
+    it('should not register the masterShell in the masterEventCache if notRefreshCache is true', function() {
+      var recurrenceId = fcMoment();
+      var nonMasterEvent = CalendarShell.fromIncompleteShell({
+        recurrenceId: recurrenceId
+      });
+
+      this.masterEventCache.save = sinon.spy();
+
+      var masterEvent = CalendarShell.fromIncompleteShell({});
+
+      masterEvent.modifyOccurrence(nonMasterEvent, true);
+      expect(this.masterEventCache.save).to.not.have.been.called;
+    });
   });
 
   describe('equals method', function() {

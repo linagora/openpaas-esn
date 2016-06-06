@@ -575,15 +575,16 @@ angular.module('esn.calendar')
        * modified occurrence in the vcalendar. Can not be called on instances.
        *
        * @param {CalendarShell} instance        The instance to add as modified.
+       * @param {CalendarShell} notRefreshCache Do not refresh cache
        */
-      modifyOccurrence: function(instance) {
+      modifyOccurrence: function(instance, notRefreshCache) {
         if (this.isInstance()) {
           throw new Error('Cannot modify occurrence on an instance');
         }
 
         this._removeOccurenceFromVcalendar(instance);
         this.vcalendar.addSubcomponent(instance.clone().vevent);
-        masterEventCache.save(this);
+        !notRefreshCache && masterEventCache.save(this);
       },
 
       _removeOccurenceFromVcalendar: function(instance) {
@@ -759,6 +760,7 @@ angular.module('esn.calendar')
         if (!that) { return false; }
         if (that === this) { return true; }
         var self = this;
+
         return ALARM_MODIFY_COMPARE_KEYS.every(function(key) {
           if (key === 'trigger') {
             return self.trigger.compare(that.trigger) === 0;
