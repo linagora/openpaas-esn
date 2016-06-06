@@ -5,8 +5,7 @@ ul.actions
     a(ng-href="")
       i.mdi.mdi-comment
   li(ng-show='::writable')
-    a(ng-href="")
-      i.mdi.mdi-thumb-up
+    like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.liked')
   li
     a(ng-href="")
       i.mdi.mdi-dots-vertical
