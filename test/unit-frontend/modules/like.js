@@ -116,6 +116,24 @@ describe('The esn.like Angular module', function() {
         $scope.$digest();
         expect(element.isolateScope().liked).to.not.be.ok;
       });
+
+      it('should call scope.onLiked on like success', function(done) {
+        var messageId = '123';
+
+        $scope.message = {
+          _id: messageId
+        };
+
+        $scope.onMessageLiked = done;
+
+        ResourceLinkAPIMock.create = function() {
+          return $q.when();
+        };
+
+        var element = compileDirective('<like-button target-object-type="\'esn.message\'" target-id="message._id" liked="message.liked" on-liked="onMessageLiked()"/>');
+        element.isolateScope().like();
+        $scope.$digest();
+      });
     });
   });
 });

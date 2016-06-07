@@ -13,7 +13,8 @@ function likeButton($log, ResourceLinkAPI, session, LIKE_LINK_TYPE) {
     scope: {
       liked: '=',
       targetId: '=',
-      targetObjectType: '='
+      targetObjectType: '=',
+      onLiked: '&'
     },
     templateUrl: '/views/modules/like/like-button.html',
     link: function(scope) {
@@ -34,6 +35,7 @@ function likeButton($log, ResourceLinkAPI, session, LIKE_LINK_TYPE) {
 
         ResourceLinkAPI.create(source, target, LIKE_LINK_TYPE).then(function() {
           scope.liked = true;
+          scope.onLiked();
         }, function(err) {
           $log.error('Error while liking resource', err);
         });
