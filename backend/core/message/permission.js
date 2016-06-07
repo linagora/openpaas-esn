@@ -6,7 +6,7 @@ var async = require('async');
 /**
  * User can read a message if he has at least read access to one of the collaboration the message belongs to.
  */
-module.exports.canRead = function(message, tuple, callback) {
+function canRead(message, tuple, callback) {
   if (!message || !tuple) {
     return callback(new Error('Message and tuple are required'));
   }
@@ -34,7 +34,8 @@ module.exports.canRead = function(message, tuple, callback) {
   }, function(result) {
     return callback(null, result);
   });
-};
+}
+module.exports.canRead = canRead;
 
 /**
  * User can always read response message.
@@ -72,29 +73,6 @@ module.exports.canReply = function(message, user, callback) {
 };
 
 /**
- * User can like a message if he has at least write access to one of the communities the message has been shared to.
+ * User can like a message if he has at least read access to one of the communities the message has been shared to.
  */
-module.exports.canLike = function canLike(message, tuple, callback) {
-  if (!message || !tuple) {
-    return callback(new Error('Message and tuple are required'));
-  }
-
-  async.some(message.shares, function(share, found) {
-    if (share.objectType !== 'activitystream') {
-      return found(false);
-    }
-
-    collaborationModule.findCollaborationFromActivityStreamID(share.id, function(err, collaborations) {
-      if (err || !collaborations || collaborations.length === 0 || !collaborations[0]) {
-        return found(false);
-      }
-
-      collaborationModule.permission.canWrite(collaborations[0], tuple, function(err, writable) {
-        return found(!err && writable === true);
-      });
-    });
-
-  }, function(result) {
-    return callback(null, result);
-  });
-};
+module.exports.canLike = canRead;
