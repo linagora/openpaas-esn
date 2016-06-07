@@ -32,9 +32,15 @@ angular.module('esn.calendar')
         agendaThreeDays: {
           type: 'agendaWeek',
           duration: { days: 3 },
-          buttonText: '3 days'
+          buttonText: '3 days',
+          eventLimit: true,
+          eventLimitClick: 'day'
         },
         month: {
+          eventLimit: true,
+          eventLimitClick: 'day'
+        },
+        week: {
           eventLimit: true,
           eventLimitClick: 'day'
         }
