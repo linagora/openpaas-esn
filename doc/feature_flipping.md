@@ -52,6 +52,12 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 ```
 ```
 {
+    "name" : "downloadUrl",
+    "value" : "http://host:port/download/{blobId}/{name}"
+}
+```
+```
+{
     "name" : "isJmapSendingEnabled",
     "value" : false
 }

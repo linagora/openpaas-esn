@@ -20,10 +20,12 @@ angular.module('linagora.esn.unifiedinbox')
     function _initializeJmapClient() {
       return $q.all([
         generateJwtToken(),
-        inboxConfig('api')
+        inboxConfig('api'),
+        inboxConfig('downloadUrl')
       ]).then(function(data) {
         return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
           .withAPIUrl(data[1])
+          .withDownloadUrl(data[2])
           .withAuthenticationToken('Bearer ' + data[0]);
       });
     }

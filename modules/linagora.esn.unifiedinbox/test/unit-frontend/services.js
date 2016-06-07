@@ -142,12 +142,14 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
       config['linagora.esn.unifiedinbox.api'] = 'expected jmap api';
+      config['linagora.esn.unifiedinbox.downloadUrl'] = 'expected jmap downloadUrl';
       injectServices.bind(this)();
 
       jmapClientProvider.get().then(function(client) {
         expect(client).to.be.an.instanceof(jmap.Client);
         expect(client.authToken).to.equal('Bearer expected jwt');
         expect(client.apiUrl).to.equal('expected jmap api');
+        expect(client.downloadUrl).to.equal('expected jmap downloadUrl');
 
         done();
       }, done.bind(null, 'should resolve'));
