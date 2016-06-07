@@ -1,5 +1,5 @@
-sub-header(sub-header-visible-md="true")
+sub-header
   fullscreen-edit-form-subheader
 
-.fullscreen-edit-form.subheader-margin
+.fullscreen-edit-form(sub-header-aware)
   recipients-auto-complete(auto-focus-ngtagsinput, auto-scroll-down-ngtagsinput, ng-model="recipients", template="recipients-auto-complete")
