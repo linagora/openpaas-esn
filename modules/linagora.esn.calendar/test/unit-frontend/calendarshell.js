@@ -67,17 +67,53 @@ describe('CalendarShell factory', function() {
     });
 
     it('should not lose allday', function() {
-      var start =  fcMoment(new Date(2014, 11, 29));
+      var shell, start =  fcMoment(new Date(2014, 11, 29));
       var end = fcMoment(new Date(2014, 11, 29));
+
       start.stripTime();
       end.stripTime();
-      var shell = CalendarShell.fromIncompleteShell({
+      shell = CalendarShell.fromIncompleteShell({
         start: start,
         end: end
       });
 
       expect(shell.start.hasTime()).to.be.false;
       expect(shell.end.hasTime()).to.be.false;
+    });
+
+    it('if recurrent it should remove exception if start or end date change', function() {
+      ['end', 'start'].forEach(function(date) {
+        var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+        var shell = new CalendarShell(vcalendar);
+
+        shell[date] = fcMoment([2015, 1, 6, 10, 40]);
+        expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
+      });
+    });
+
+    it('if recurrent it should not remove exception if start or end date change to the same value', function() {
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+      var shell = new CalendarShell(vcalendar);
+
+      shell.start = fcMoment.utc([2016, 2, 7, 15, 0]);
+      shell.end = fcMoment.utc([2016, 2, 7, 16, 0]);
+      expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(2);
+    });
+
+    it('if recurrent it should remove exception if start pass to allDay', function() {
+      var midnight = fcMoment.utc([2016, 2, 7, 17, 0]);
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+
+      vcalendar.getFirstSubcomponent('vevent').updatePropertyWithValue('dtstart', ICAL.Time.fromJSDate(midnight.toDate(), true).convertToZone(ICAL.TimezoneService.get(this.localTimezone)));
+
+      midnight.hasTime = function() {
+        return false;
+      };
+
+      var shell = new CalendarShell(vcalendar);
+
+      shell.start = midnight;
+      expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
     });
   });
 
@@ -97,9 +133,10 @@ describe('CalendarShell factory', function() {
         etag: 'etag'
       });
       var editEvent = event.clone();
+
       editEvent.location = 'bLocation';
 
-      this.eventApiMock.modify = function(eventPath, vcalendar, etag) {
+      this.eventApiMock.modify = function() {
         return $q.when({});
       };
 
@@ -452,7 +489,32 @@ describe('CalendarShell factory', function() {
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
+      expect(shell.expand()[0].vevent.getFirstProperty('recurrence-id').getParameter('tzid')).to.be.undefined;
       expect(shell.expand()[0].vevent.getFirstPropertyValue('recurrence-id').toString()).to.equals('2015-01-01T23:01:00Z');
+    });
+
+    it('should not mute master event', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      var masterIcsAfterExpand, masterIcsBeforeExpand;
+
+      masterIcsBeforeExpand = shell.vcalendar.toString();
+      shell.expand();
+      shell.vcalendar.addSubcomponent(ICAL.TimezoneService.get(this.localTimezone).component);
+      masterIcsAfterExpand = shell.vcalendar.toString();
+      expect(masterIcsAfterExpand).to.equal(masterIcsBeforeExpand);
+    });
+
+    it('should compute start date and end date of instance in same start date of master', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+      var event = shell.expand()[0];
+
+      expect(event.vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal('America/Chicago');
+      expect(event.vevent.getFirstProperty('dtend').getParameter('tzid')).to.equal('America/Chicago');
+
+      expect(event.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2016-03-07T10:00:00');
+      expect(event.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2016-03-07T11:00:00');
     });
 
     it('should expand correctly all subevent if no start and end date specified', function() {
@@ -493,6 +555,15 @@ describe('CalendarShell factory', function() {
           rrule: undefined
         },
         length: 3
+      });
+    });
+
+    it('should expand in element that has no trace of others exceptions', function() {
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var shell = new CalendarShell(new ICAL.Component(vcalendar));
+
+      shell.expand().forEach(function(shell) {
+        expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
       });
     });
 
@@ -916,6 +987,19 @@ describe('CalendarShell factory', function() {
       expect(this.masterEventCache.save).to.have.been.calledWith(masterEvent);
     });
 
+    it('should not register the masterShell in the masterEventCache if notRefreshCache is true', function() {
+      var recurrenceId = fcMoment();
+      var nonMasterEvent = CalendarShell.fromIncompleteShell({
+        recurrenceId: recurrenceId
+      });
+
+      this.masterEventCache.save = sinon.spy();
+
+      var masterEvent = CalendarShell.fromIncompleteShell({});
+
+      masterEvent.modifyOccurrence(nonMasterEvent, true);
+      expect(this.masterEventCache.save).to.not.have.been.called;
+    });
   });
 
   describe('equals method', function() {

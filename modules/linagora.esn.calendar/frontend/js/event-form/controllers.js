@@ -6,7 +6,6 @@ angular.module('esn.calendar')
         $scope,
         $alert,
         $state,
-        CalendarShell,
         calendarUtils,
         calendarService,
         eventUtils,
@@ -14,9 +13,7 @@ angular.module('esn.calendar')
         notificationFactory,
         openEventForm,
         EVENT_FORM,
-        EVENT_MODIFY_COMPARE_KEYS,
         CALENDAR_EVENTS,
-        DEFAULT_CALENDAR_ID,
         _) {
 
     $scope.restActive = false;
@@ -66,6 +63,7 @@ angular.module('esn.calendar')
 
     function initOrganizer() {
       var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
+
       $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
       $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
     }
@@ -153,6 +151,7 @@ angular.module('esn.calendar')
     function _modifyOrganizerEvent() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
         _displayError(new Error('You must define an event title'));
+
         return;
       }
 
@@ -166,11 +165,19 @@ angular.module('esn.calendar')
 
       if (!eventUtils.hasAnyChange($scope.editedEvent, $scope.event)) {
         _hideModal();
+
         return;
       }
+
       var path = $scope.event.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
+
       $scope.restActive = true;
       _hideModal();
+
+      if ($scope.event.rrule && !$scope.event.rrule.equals($scope.editedEvent.rrule)) {
+        $scope.editedEvent.deleteAllException();
+      }
+
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
@@ -195,6 +202,7 @@ angular.module('esn.calendar')
         return;
       }
       var path = $scope.editedEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
+
       $scope.restActive = true;
       calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop)
         .then(function(completed) {

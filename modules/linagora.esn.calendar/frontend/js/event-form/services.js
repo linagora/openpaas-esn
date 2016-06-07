@@ -12,26 +12,60 @@ angular.module('esn.calendar')
    */
   .factory('openEventForm', function($state, $modal, screenSize, calendarService, eventUtils) {
     return function openEventForm(event) {
-      eventUtils.setEditedEvent(event);
-      if (screenSize.is('xs, sm')) {
-        if (eventUtils.isOrganizer(event)) {
-          $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: event.id});
+
+      function openForm(event) {
+        eventUtils.setEditedEvent(event);
+        if (screenSize.is('xs, sm')) {
+          if (eventUtils.isOrganizer(event)) {
+            $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: event.id});
+          } else {
+            $state.go('calendar.event.consult', {calendarId: calendarService.calendarHomeId, eventId: event.id});
+          }
         } else {
-          $state.go('calendar.event.consult', {calendarId: calendarService.calendarHomeId, eventId: event.id});
+          $modal({
+            templateUrl: '/calendar/views/event-quick-form/event-quick-form-view',
+            resolve: {
+              event: function(eventUtils) {
+                return eventUtils.getEditedEvent();
+              }
+            },
+            controller: function($scope, event) {
+              $scope.event = event;
+            },
+            backdrop: 'static',
+            placement: 'center'
+          });
         }
+      }
+
+      if (!event.isInstance()) {
+        openForm(event);
       } else {
         $modal({
-          templateUrl: '/calendar/views/event-quick-form/event-quick-form-view',
+          templateUrl: '/calendar/views/event-quick-form/edit-instance-or-all-instance',
           resolve: {
-            event: function(eventUtils) {
-              return eventUtils.getEditedEvent();
+            event: function() {
+              return event;
+            },
+            openForm: function() {
+              return openForm;
             }
           },
-          controller: function($scope, event) {
+          controller: function($scope, event, openForm) {
             $scope.event = event;
+            $scope.editAllInstances = function() {
+              $scope.$hide();
+              event.getModifiedMaster().then(openForm);
+            };
+
+            $scope.editInstance = function() {
+              $scope.$hide();
+              openForm(event);
+            };
           },
-          backdrop: 'static',
-          placement: 'center'});
+          openForm: openForm,
+          placement: 'center'
+        });
       }
     };
   });

@@ -21,6 +21,14 @@ angular.module('esn.calendar')
       }
     }
 
+    function sameIcalTime(a, b) {
+      if (!a) {
+        return !b;
+      }
+
+      return a.compare(b) === 0 && Boolean(a.isDate) === Boolean(b.isDate);
+    }
+
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -117,10 +125,15 @@ angular.module('esn.calendar')
       set start(value) {
         this.__start = undefined;
         if (value) {
-          var dtstart = ICAL.Time.fromJSDate(value.toDate(), true);
+          var dtstart = ICAL.Time.fromJSDate(value.toDate(), true).convertToZone(ICAL.TimezoneService.get(localTimezone));
 
           dtstart.isDate = !value.hasTime();
-          this.vevent.updatePropertyWithValue('dtstart', dtstart.convertToZone(ICAL.TimezoneService.get(localTimezone))).setParameter('tzid', localTimezone);
+
+          if (this.isRecurring() && !sameIcalTime(this.icalEvent.startDate, dtstart)) {
+            this.deleteAllException();
+          }
+
+          this.vevent.updatePropertyWithValue('dtstart', dtstart).setParameter('tzid', localTimezone);
         }
       },
 
@@ -134,10 +147,15 @@ angular.module('esn.calendar')
       set end(value) {
         this.__end = undefined;
         if (value) {
-          var dtend = ICAL.Time.fromJSDate(value.toDate(), true);
+          var dtend = ICAL.Time.fromJSDate(value.toDate(), true).convertToZone(ICAL.TimezoneService.get(localTimezone));
 
           dtend.isDate = !value.hasTime();
-          this.vevent.updatePropertyWithValue('dtend', dtend.convertToZone(ICAL.TimezoneService.get(localTimezone))).setParameter('tzid', localTimezone);
+
+          if (this.isRecurring() && !sameIcalTime(this.icalEvent.endDate, dtend)) {
+            this.deleteAllException();
+          }
+
+          this.vevent.updatePropertyWithValue('dtend', dtend).setParameter('tzid', localTimezone);
         }
       },
 
@@ -158,6 +176,7 @@ angular.module('esn.calendar')
         this.__recurrenceId = undefined;
         if (value) {
           var recid = ICAL.Time.fromJSDate(value.toDate(), true);
+
           recid.isDate = !value.hasTime();
           this.vevent.updatePropertyWithValue('recurrence-id', recid);
         }
@@ -188,6 +207,13 @@ angular.module('esn.calendar')
       deleteInstance: function(instance) {
         this._removeOccurenceFromVcalendar(instance);
         this.vevent.addPropertyWithValue('exdate', instance.vevent.getFirstPropertyValue('recurrence-id'));
+      },
+      deleteAllException: function() {
+        this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
+          if (vevent.getFirstPropertyValue('recurrence-id')) {
+            this.vcalendar.removeSubcomponent(vevent);
+          }
+        }, this);
       },
       expand: function(startDate, endDate, maxElement) {
         if (!this.icalEvent.isRecurring()) {
@@ -241,13 +267,14 @@ angular.module('esn.calendar')
             currentEvent = getException(this.icalEvent, currentDetails.recurrenceId);
 
             if (currentEvent) {
-              currentEvent = new CalendarShell(currentEvent.component, this._getExtendedProperties());
+              currentEvent = new CalendarShell(new ICAL.Component(currentEvent.component.toJSON()), this._getExtendedProperties());
             } else {
               currentEvent = this.clone();
+              currentEvent.deleteAllException();
               currentEvent.vevent.removeProperty('rrule');
               currentEvent.vevent.removeProperty('exdate');
 
-              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId);
+              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone));
               setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
               setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
             }
@@ -537,11 +564,7 @@ angular.module('esn.calendar')
 
         // Not found, we need to retrieve the event
         return eventAPI.get(this.path).then(function(response) {
-          var mastershell = new CalendarShell(new ICAL.Component(response.data), {
-            path: this.path,
-            etag: this.etag,
-            gracePeriodTaskId: this.gracePeriodTaskId
-          });
+          var mastershell = new CalendarShell(new ICAL.Component(response.data), this._getExtendedProperties());
           mastershell.modifyOccurrence(this);
           return mastershell;
         }.bind(this));
@@ -552,15 +575,16 @@ angular.module('esn.calendar')
        * modified occurrence in the vcalendar. Can not be called on instances.
        *
        * @param {CalendarShell} instance        The instance to add as modified.
+       * @param {CalendarShell} notRefreshCache Do not refresh cache
        */
-      modifyOccurrence: function(instance) {
+      modifyOccurrence: function(instance, notRefreshCache) {
         if (this.isInstance()) {
           throw new Error('Cannot modify occurrence on an instance');
         }
 
         this._removeOccurenceFromVcalendar(instance);
         this.vcalendar.addSubcomponent(instance.clone().vevent);
-        masterEventCache.save(this);
+        !notRefreshCache && masterEventCache.save(this);
       },
 
       _removeOccurenceFromVcalendar: function(instance) {
@@ -635,6 +659,7 @@ angular.module('esn.calendar')
         if (!that) { return false; }
         if (that === this) { return true; }
         var self = this;
+
         return RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
           return angular.equals(self[key], that[key]);
         });
@@ -647,6 +672,7 @@ angular.module('esn.calendar')
       updateParentEvent: function() {
         if (this.isValid()) {
           var intervalTmp = this.rrule.interval;
+
           this.rrule.interval = this.rrule.interval || [1];
           this.vevent.updatePropertyWithValue('rrule', new ICAL.Recur.fromData(this.rrule));
           this.rrule.interval = intervalTmp;
@@ -669,6 +695,7 @@ angular.module('esn.calendar')
         } else {
           this.__interval = this.__interval || null;
         }
+
         return this.__interval;
       },
       set interval(value) {
@@ -682,6 +709,7 @@ angular.module('esn.calendar')
           return null;
         }
         this.__until = this.__until || fcMoment(this.rrule.until.toJSDate());
+
         return this.__until;
       },
       set until(value) {
@@ -695,6 +723,7 @@ angular.module('esn.calendar')
           return null;
         }
         this.__count = this.__count || parseInt(this.rrule.count, 10);
+
         return this.__count;
       },
       set count(value) {
@@ -707,6 +736,7 @@ angular.module('esn.calendar')
         if (!this.__byday) {
           this.__byday = this.rrule && this.rrule.byday ? this.rrule.byday : [];
         }
+
         return this.__byday;
       },
       set byday(value) {
@@ -730,6 +760,7 @@ angular.module('esn.calendar')
         if (!that) { return false; }
         if (that === this) { return true; }
         var self = this;
+
         return ALARM_MODIFY_COMPARE_KEYS.every(function(key) {
           if (key === 'trigger') {
             return self.trigger.compare(that.trigger) === 0;
