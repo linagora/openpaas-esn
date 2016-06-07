@@ -100,7 +100,7 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/unified-inbox/index'
           }
         },
-        params: { filter: {} }
+        params: { filter: null }
       })
       .state('unifiedinbox.twitter', {
         url: '/twitter/:username',
@@ -116,7 +116,7 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'main@unifiedinbox': { controller: 'listController' }
         },
-        params: { filter: {} },
+        params: { filter: null },
         resolve: {
           filter: function($stateParams, mailboxesService) {
             return mailboxesService.getMessageListFilter($stateParams.mailbox).then(function(mailboxFilter) {
