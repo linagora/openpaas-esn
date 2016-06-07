@@ -1,8 +1,12 @@
 'use strict';
 
-angular.module('esn.subheader', [])
+angular.module('esn.subheader', ['matchMedia'])
 
-  .factory('subHeaderService', function() {
+  .constant('SUBHEADER_VISIBLE_EVENT', 'subHeaderVisible')
+
+  .constant('SUBHEADER_AWARE_CLASS', 'subheader-aware')
+
+  .factory('subHeaderService', function($rootScope, SUBHEADER_VISIBLE_EVENT) {
     var subHeaderQueue = [];
     var injectSubHeader;
     var destroySubHeader;
@@ -14,7 +18,7 @@ angular.module('esn.subheader', [])
 
       if (subHeaderQueue.length > 0) {
         subHeaderQueue.forEach(function(item) {
-          injectHandler(item.content, item.options);
+          injectHandler(item.content);
         });
         subHeaderQueue = [];
       }
@@ -23,15 +27,15 @@ angular.module('esn.subheader', [])
     function unregisterContainer() {
       subHeaderQueue = [];
       injectSubHeader = destroySubHeader = null;
+      setVisible(false);
     }
 
-    function inject(content, options) {
+    function inject(content) {
       if (injectSubHeader) {
-        injectSubHeader(content, options);
+        injectSubHeader(content);
       } else {
         subHeaderQueue.push({
-          content: content,
-          options: options
+          content: content
         });
       }
     }
@@ -43,7 +47,10 @@ angular.module('esn.subheader', [])
     }
 
     function setVisible(_visible) {
-      visible = _visible;
+      if (_visible !== visible) {
+        visible = _visible;
+        $rootScope.$broadcast(SUBHEADER_VISIBLE_EVENT, visible);
+      }
     }
 
     function isVisible() {
@@ -65,13 +72,10 @@ angular.module('esn.subheader', [])
       // only be used as element to avoid conflict with other directives on transclude
       restrict: 'E',
       transclude: true,
-      scope: {
-        subHeaderVisibleMd: '='
-      },
       link: function(scope, element, attrs, ctrl, transclude) {
         transclude(function(transcludedContent, transcludedScope) {
-          var options = { visibleMd: scope.subHeaderVisibleMd };
-          subHeaderService.inject(transcludedContent, options);
+          subHeaderService.inject(transcludedContent);
+
           scope.$on('$destroy', function() {
             transcludedContent.remove();
             transcludedScope.$destroy();
@@ -82,49 +86,64 @@ angular.module('esn.subheader', [])
     };
   })
 
-  .directive('subHeaderContainer', function(subHeaderService) {
+  .directive('subHeaderContainer', function(subHeaderService, screenSize) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/subheader/sub-header-container.html',
-      scope: {
-        hideOnEmpty: '='
-      },
       link: function(scope, element) {
         var container = element.find('#sub-header');
 
-        function hideOnEmpty() {
-          if (scope.hideOnEmpty && container.html().trim().length === 0) {
-            container.hide();
-            subHeaderService.setVisible(false);
-          }
-        }
-
-        function injectHandler(content, options) {
-          container.append(content);
-          container.show();
-          subHeaderService.setVisible(true);
-
-          if (options.visibleMd) {
-            element.addClass('visible-md');
-          }
-        }
-
-        function destroyHandler() {
-          hideOnEmpty();
-        }
-
         subHeaderService.registerContainer(injectHandler, destroyHandler);
+        ensureVisible();
 
-        scope.$on('$stateChangeStart', function() {
-          element.removeClass('visible-md');
+        screenSize.onChange(scope, 'xs, sm', function() {
+          ensureVisible();
         });
 
         scope.$on('$destroy', function() {
           subHeaderService.unregisterContainer();
         });
 
-        subHeaderService.setVisible(true);
-        hideOnEmpty();
+        function hasVisibleElement() {
+          return container.children(':visible').length;
+        }
+
+        function ensureVisible() {
+          container.show();
+
+          if (hasVisibleElement()) {
+            subHeaderService.setVisible(true);
+          } else {
+            container.hide();
+            subHeaderService.setVisible(false);
+          }
+        }
+
+        function injectHandler(content) {
+          container.append(content);
+          ensureVisible();
+        }
+
+        function destroyHandler() {
+          ensureVisible();
+        }
       }
+    };
+  })
+
+  .directive('subHeaderAware', function(subHeaderService, SUBHEADER_AWARE_CLASS, SUBHEADER_VISIBLE_EVENT) {
+    function link(scope, element) {
+      if (subHeaderService.isVisible()) {
+        element.addClass(SUBHEADER_AWARE_CLASS);
+      }
+
+      scope.$on(SUBHEADER_VISIBLE_EVENT, function(event, visible) {
+        element.toggleClass(SUBHEADER_AWARE_CLASS, visible);
+      });
+    }
+
+    return {
+      restrict: 'A',
+      link: link
     };
   });
