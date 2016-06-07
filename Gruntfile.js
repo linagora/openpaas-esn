@@ -174,12 +174,12 @@ module.exports = function(grunt) {
         })
     },
     waitServer: {
-      options: { timeout: 60 * 1000, interval: 200, print: false },
-      esn: { options: { net: { port: 8080 } } },
+      options: { timeout: 120 * 1000, interval: 200, print: false },
+      esn: { options: { req: { url: 'http://' + servers.host + ':8080', method: 'GET' } } },
       mongo: { options: { net: { port: 27017 } } },
       redis: { options: { net: { port: 6379 } } },
-      elasticsearch: { options: { net: { port: 9200 } } },
-      jmap: { options: { net: { port: 1080 } } },
+      elasticsearch: { options: { req: { url: 'http://' + servers.host + ':9200', method: 'GET' } } },
+      jmap: { options: { req: { url: 'http://' + servers.host + ':1080', method: 'OPTIONS' } } },
       cassandra: { options: { net: { port: 9042 } } }
     },
     nodemon: {
