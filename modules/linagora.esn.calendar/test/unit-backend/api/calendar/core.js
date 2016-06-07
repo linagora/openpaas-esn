@@ -866,7 +866,9 @@ describe('The calendar core module', function() {
       var query = {
         search: 'search',
         limit: '50',
-        offset: 100
+        offset: 100,
+        sortKey: 'date',
+        sortOrder: 'desc'
       };
       searchLibMock.searchEvents = function(q, callback) {
         expect(q).to.deep.equal(query);
