@@ -8,16 +8,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     var aggregator;
 
-    function load() {
-      return aggregator.loadNextItems().then(_.property('data'));
-    }
-
-    function _buildJmapFilter() {
-      var filterByType = {};
-      filterByType[PROVIDER_TYPES.JMAP] = $stateParams.filter;
-
-      return filterByType;
-    }
+    $scope.listFilter = $stateParams.filter;
 
     $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, function() {
       if (aggregator) {
@@ -37,27 +28,24 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }, new ByDateElementGroupingTool());
 
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'));
+    }
+
+    function _buildJmapFilter() {
+      var filterByType = {};
+      filterByType[PROVIDER_TYPES.JMAP] = $stateParams.filter;
+
+      return filterByType;
+    }
+
     headerService.subHeader.setInjection('unified-view-subheader', $scope);
   })
 
   .controller('listController', function($state, $stateParams, inboxConfig, DEFAULT_VIEW) {
     inboxConfig('view', DEFAULT_VIEW).then(function(view) {
-      $state.go('unifiedinbox.list.' + view, { mailbox: $stateParams.mailbox });
+      $state.go('unifiedinbox.list.' + view);
     });
-  })
-
-  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, filter) {
-
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailMessagesProvider.fetch(filter), new ByDateElementGroupingTool());
-
-    mailboxesService.assignMailbox($stateParams.mailbox, $scope);
-  })
-
-  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, filter) {
-
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailThreadsProvider.fetch(filter), new ByDateElementGroupingTool());
-
-    mailboxesService.assignMailbox($stateParams.mailbox, $scope);
   })
 
   .controller('composerController', function($scope, $stateParams, notificationFactory,
