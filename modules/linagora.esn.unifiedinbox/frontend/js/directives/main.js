@@ -147,10 +147,22 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       replace: true,
+      controller: 'resolveEmailerController',
       scope: {
         emailer: '='
       },
       templateUrl: '/unifiedinbox/views/partials/emailer.html'
+    };
+  })
+
+  .directive('emailerAvatar', function() {
+    return {
+      restrict: 'E',
+      controller: 'resolveEmailerController',
+      scope: {
+        emailer: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/emailer-avatar.html'
     };
   })
 
@@ -471,16 +483,6 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         item: '='
       }
-    };
-  })
-
-  .directive('messageSenderAvatar', function() {
-    return {
-      restrict: 'E',
-      scope: {
-        message: '='
-      },
-      templateUrl: '/unifiedinbox/views/partials/emailer-avatar.html'
     };
   })
 

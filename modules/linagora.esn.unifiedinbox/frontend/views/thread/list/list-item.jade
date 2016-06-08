@@ -10,7 +10,7 @@
       esn-on-drop-failure="onDropFailure()"
     )
     .list-image.badge-container
-      message-sender-avatar(message='::item.email')
+      emailer-avatar(emailer='::item.email.from')
     .media-body(ng-class="{bold: item.email.isUnread}")
       .flex-space-between
         .flex-start.ellipsis

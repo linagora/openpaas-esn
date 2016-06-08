@@ -335,4 +335,12 @@ angular.module('linagora.esn.unifiedinbox')
         $scope.twitterAccounts = session.getTwitterAccounts();
       }
     });
+  })
+
+  .controller('resolveEmailerController', function($scope) {
+    $scope.$watch('emailer', function(emailer) {
+      if (emailer) {
+        emailer.resolve();
+      }
+    });
   });

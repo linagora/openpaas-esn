@@ -1415,4 +1415,54 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   });
 
+  describe('The emailer directive', function() {
+
+    it('should resolve the emailer', function() {
+      $scope.emailer = {
+        resolve: sinon.spy()
+      };
+
+      compileDirective('<emailer emailer="emailer"/>');
+
+      expect($scope.emailer.resolve).to.have.been.calledWith();
+    });
+
+    it('should resolve the emailer when it becomes available', function() {
+      compileDirective('<emailer emailer="emailer"/>');
+
+      $scope.emailer = {
+        resolve: sinon.spy()
+      };
+      $scope.$digest();
+
+      expect($scope.emailer.resolve).to.have.been.calledWith();
+    });
+
+  });
+
+  describe('The emailerAvatar directive', function() {
+
+    it('should resolve the emailer', function() {
+      $scope.emailer = {
+        resolve: sinon.spy()
+      };
+
+      compileDirective('<emailer-avatar emailer="emailer"/>');
+
+      expect($scope.emailer.resolve).to.have.been.calledWith();
+    });
+
+    it('should resolve the emailer when it becomes available', function() {
+      compileDirective('<emailer-avatar emailer="emailer"/>');
+
+      $scope.emailer = {
+        resolve: sinon.spy()
+      };
+      $scope.$digest();
+
+      expect($scope.emailer.resolve).to.have.been.calledWith();
+    });
+
+  });
+
 });

@@ -2,18 +2,28 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('Email', function(mailboxesService, searchService, emailSendingService, _, INBOX_DEFAULT_AVATAR) {
+  .factory('Emailer', function(searchService, INBOX_DEFAULT_AVATAR) {
+    function Emailer(emailer) {
+      var resolver;
 
-    function resolveEmailer(emailer) {
-      if (!emailer) {
-        return;
-      }
+      emailer.resolve = function() {
+        if (!resolver) {
+          resolver = searchService.searchByEmail(emailer.email).then(function(result) {
+            emailer.name = result && result.displayName || emailer.name;
+            emailer.avatarUrl = result && result.photo || INBOX_DEFAULT_AVATAR;
+          });
+        }
 
-      searchService.searchByEmail(emailer.email).then(function(result) {
-        emailer.name = result && result.displayName || emailer.name;
-        emailer.avatarUrl = result && result.photo || INBOX_DEFAULT_AVATAR;
-      });
+        return resolver;
+      };
+
+      return emailer;
     }
+
+    return Emailer;
+  })
+
+  .factory('Email', function(mailboxesService, emailSendingService, Emailer, _) {
 
     function Email(email) {
       var isUnread = email.isUnread;
@@ -29,11 +39,10 @@ angular.module('linagora.esn.unifiedinbox')
       });
 
       email.hasReplyAll = emailSendingService.showReplyAllButton(email);
-
-      resolveEmailer(email.from);
-      _.forEach(email.to, resolveEmailer);
-      _.forEach(email.cc, resolveEmailer);
-      _.forEach(email.bcc, resolveEmailer);
+      email.from = email.from && Emailer(email.from);
+      email.to = _.map(email.to, Emailer);
+      email.cc = _.map(email.cc, Emailer);
+      email.bcc = _.map(email.bcc, Emailer);
 
       return email;
     }
