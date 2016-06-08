@@ -1,16 +1,11 @@
 .col-xs-12.col-md-10.nopadding
   div(ng-controller="memberscontroller")
-    .row
-      .col-xs-12
-        h2
-          i.mdi.mdi-account
-          | #{__("Members")}
-        search-form(search-spinner-key="membersSpinner")
-        .row.alert.alert-danger(ng-show="error", role="alert")
-          p #{__('Error while searching members')}.
-    div
-      infinite-list(load-more-elements='loadMoreElements()')
-        .row(ng-repeat="member in members")
-          hr
-          member-display(member="member")
-        .vertiz-space
+    .block-header
+      h2 #{__("Members")}
+    .card
+      .listview.lv-bordered
+        .lv-header.p-20
+          search-form(search-spinner-key="membersSpinner")
+        infinite-list.lv-body(load-more-elements='loadMoreElements()')
+          .lv-item.media(ng-repeat="member in members")
+            member-display(member="member")
