@@ -48,20 +48,6 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('listEmailsController', function($scope, $stateParams, inboxHostedMailMessagesProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, filter) {
-    $scope.listFilter = $stateParams.filter;
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailMessagesProvider.fetch(filter), new ByDateElementGroupingTool());
-
-    mailboxesService.assignMailbox($stateParams.mailbox, $scope);
-  })
-
-  .controller('listThreadsController', function($scope, $stateParams, inboxHostedMailThreadsProvider, mailboxesService, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, filter) {
-    $scope.listFilter = $stateParams.filter;
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxHostedMailThreadsProvider.fetch(filter), new ByDateElementGroupingTool());
-
-    mailboxesService.assignMailbox($stateParams.mailbox, $scope);
-  })
-
   .controller('composerController', function($scope, $stateParams, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inboxConfig,

@@ -29,6 +29,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.provider',
   'esn.dragndrop',
   'esn.autolinker-wrapper',
+  'esn.configuration',
+  'esn.core',
   'linagora.esn.graceperiod',
   'ngAnimate'
 ])
@@ -130,8 +132,11 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/email/list/index',
-            controller: 'listEmailsController as ctrl'
+            controller: 'listItemsController as ctrl'
           }
+        },
+        resolve: {
+          hostedMailProvider: 'inboxHostedMailMessagesProvider'
         }
       })
       .state('unifiedinbox.list.messages.message', {
@@ -148,8 +153,11 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/thread/list/index',
-            controller: 'listThreadsController as ctrl'
+            controller: 'listItemsController as ctrl'
           }
+        },
+        resolve: {
+          hostedMailProvider: 'inboxHostedMailThreadsProvider'
         }
       })
       .state('unifiedinbox.list.threads.thread', {
