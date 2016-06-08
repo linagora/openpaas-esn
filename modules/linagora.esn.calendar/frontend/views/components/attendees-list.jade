@@ -1,5 +1,5 @@
-.attendees-list.picture-list
-  .col-xs-12
+.attendees-list.picture-list.col-xs-12
+  .col-xs-10
     div(ng-if='attendeesPerPartstat.ACCEPTED > 0')
       .fg-line.accepted #{__('Accepted')}
       .fg-line.pl-body(ng-if='attendeesPerPartstat.ACCEPTED > 0')
@@ -13,5 +13,6 @@
       .fg-line.pl-body(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
         attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'NEEDS-ACTION' track by attendee.email")
         attendee-list-item(attendee='attendee', read-only='::readOnly', is-organizer='organizer.email===attendee.email', mode='::mode', ng-click= "selectAttendee(attendee)", ng-repeat="attendee in attendees | partstat:'TENTATIVE' track by attendee.email")
+  .col-xs-2.attendees-bin(ng-if='!readOnly && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
     .trash
       i.mdi.mdi-delete(ng-if='!readOnly && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
