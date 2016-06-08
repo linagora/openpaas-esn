@@ -35,7 +35,7 @@ angular.module('esn.calendar')
         event: '='
       },
       controller: 'eventFormController',
-      template: '<div><sub-header><event-consult-form-subheader /></sub-header><event-consult-form-body/></div>',
+      template: '<div><sub-header><event-consult-form-subheader class="hidden-md" /></sub-header><event-consult-form-body/></div>',
       link: link
     };
   })
@@ -83,4 +83,3 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/event-consult-form/event-consult-form-subheader.html'
     };
   });
-

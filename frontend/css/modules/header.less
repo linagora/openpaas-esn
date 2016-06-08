@@ -1,3 +1,5 @@
+@subHeaderBackground: darken(@primaryColor, 3%);
+
 #header {
   background-color: @primaryColor;
   padding-right: 0;
@@ -134,12 +136,8 @@
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
 
-  .subheader-aware {
-    margin-top: 0;
+  #sub-header {
+    background-color: @subHeaderBackground;
   }
 
-}
-
-.subheader-margin {
-  margin-top: @sub-header-height;
 }

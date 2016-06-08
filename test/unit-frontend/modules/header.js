@@ -85,7 +85,8 @@ describe('The esn.header Angular module', function() {
           screenSizeMedia = media;
           screenSizeCallback = callback;
           return true;
-        }
+        },
+        onChange: angular.noop
       });
       $provide.value('headerService', {
         subHeader: {
