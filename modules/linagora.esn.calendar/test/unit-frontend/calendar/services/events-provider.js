@@ -45,6 +45,9 @@ describe('The events-providers', function() {
         var fetcher = provider.fetch('abcd');
         var firstFetchSpy = function(events) {
           expect(events.length).to.equal(1);
+          events.forEach(function(event) {
+            expect(event).to.have.ownProperty('date');
+          });
           if (index === 1) {
             done();
           }

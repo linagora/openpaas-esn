@@ -8,6 +8,11 @@ angular.module('esn.calendar')
         name: name,
         fetch: function(query) {
           var offset = 0;
+
+          function _setRelevance(event) {
+            event.date = event.start;
+          }
+
           return function() {
             var context = {
               query: query,
@@ -19,6 +24,7 @@ angular.module('esn.calendar')
                 offset += events.length;
                 return events.map(function(event) {
                   event.type = name;
+                  _setRelevance(event);
                   return event;
                 });
               });

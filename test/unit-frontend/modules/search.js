@@ -87,7 +87,7 @@ describe('The Search Form Angular module', function() {
   });
 
   describe('searchResultController', function() {
-    var $controller, $scope, $stateParams, $q, query, searchProviders, $rootScope;
+    var $controller, $scope, $stateParams, $q, query, searchProviders, $rootScope, ELEMENTS_PER_PAGE;
 
     function initController() {
       $scope = {};
@@ -102,16 +102,27 @@ describe('The Search Form Angular module', function() {
       };
     }
 
+    function callLoadMoreElements(iterations) {
+      for (var i = 0; i < iterations; i++) {
+        $scope.loadMoreElements();
+        $rootScope.$digest();
+      }
+    }
+
     beforeEach(function() {
       query = {};
       searchProviders = {
         getAll: sinon.spy(function() {
           return $q.when([{
             name: 'cat',
-            loadNextItems: buildIterator([['cat1', 'cat2'], ['cat3', 'cat4']])
+            loadNextItems: buildIterator([
+              [{name: 'cat1', date: new Date(2016, 4, 1)}, {name: 'cat2', date: new Date(2016, 3, 1)}],
+              [{name: 'cat3', date: new Date(2016, 2, 1)}, {name: 'cat4', date: new Date(2016, 1, 1)}]])
           }, {
             name: 'dog',
-            loadNextItems: buildIterator([['dog1', 'dog2'], ['dog3', 'dog4']])
+            loadNextItems: buildIterator([
+              [{name: 'dog1', date: new Date(2016, 4, 2)}, {name: 'dog2', date: new Date(2016, 3, 2)}],
+              [{name: 'dog3', date: new Date(2016, 2, 2)}, {name: 'dog4', date: new Date(2016, 1, 2)}]])
           }]);
         })
       };
@@ -119,7 +130,7 @@ describe('The Search Form Angular module', function() {
       angular.mock.module('esn.search', function($provide) {
         $provide.value('$stateParams', $stateParams);
         $provide.value('searchProviders', searchProviders);
-        $provide.constant('ELEMENTS_PER_PAGE', 2);
+        $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE = 2);
       });
     });
 
@@ -134,29 +145,28 @@ describe('The Search Form Angular module', function() {
       expect($scope.query).to.deep.equal(query);
     });
 
-    it('should have call searchProviders with the correct arguments', function() {
+    it('should have call searchProviders with the correct arguments when loadMoreElements is called', function() {
+      $scope.loadMoreElements();
       expect(searchProviders.getAll).to.have.been.calledWith({ query: query });
     });
 
-    describe('$scope.groupedElements', function() {
+    describe('$scope.elements', function() {
 
-      it('should contain the name of the group', function() {
-        expect($scope.groupedElements).to.shallowDeepEqual([{name: 'cat'}, {name: 'dog'}]);
+      it('should contain as many elements "ordered by date" as specified in ELEMENTS_PER_PAGE after the first loadMoreElements()', function() {
+        callLoadMoreElements(1);
+
+        expect($scope.elements.length).to.equal(ELEMENTS_PER_PAGE);
+        expect($scope.elements).to.shallowDeepEqual([{name: 'dog1'}, {name: 'cat1'}]);
       });
 
-      it('should contain the beginning of the list', function() {
-        expect($scope.groupedElements).to.shallowDeepEqual([{elements: ['cat1', 'cat2']}, {elements: ['dog1', 'dog2']}]);
-      });
+      it('should be pushed by ELEMENTS_PER_PAGE elements after each loadMoreElements() and always respect the order by date', function() {
+        var iterations = 3;
+        callLoadMoreElements(iterations);
 
-      describe('$scope.groupedElements loadMoreElements function', function() {
-        it('should add next elements in getGroupedElements', function() {
-          $scope.groupedElements[0].loadMoreElements();
-          $rootScope.$digest();
-          expect($scope.groupedElements).to.shallowDeepEqual([{elements: ['cat1', 'cat2', 'cat3', 'cat4']}, {elements: ['dog1', 'dog2']}]);
-          $scope.groupedElements[1].loadMoreElements();
-          $rootScope.$digest();
-          expect($scope.groupedElements).to.shallowDeepEqual([{elements: ['cat1', 'cat2', 'cat3', 'cat4']}, {elements: ['dog1', 'dog2', 'dog3', 'dog4']}]);
-        });
+        expect($scope.elements.length).to.equal(ELEMENTS_PER_PAGE * iterations);
+        expect($scope.elements).to.shallowDeepEqual(
+          [{name: 'dog1'}, {name: 'cat1'}, {name: 'dog2'}, {name: 'cat2'}, {name: 'dog3'}, {name: 'cat3'}]
+        );
       });
     });
   });

@@ -87,21 +87,27 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
   .controller('searchSidebarController', function($scope, searchProviders) {
     $scope.filters = ['All'].concat(searchProviders.getAllProviderNames());
   })
-  .controller('searchResultController', function($scope, $stateParams, searchProviders, infiniteScrollHelper, _) {
+  .controller('searchResultController', function($scope, $stateParams, searchProviders, infiniteScrollHelper, _,
+                                                 PageAggregatorService, ELEMENTS_PER_PAGE) {
     $scope.query = $stateParams.q;
-    searchProviders.getAll({ query: $scope.query }).then(function(providers) {
-      $scope.groupedElements = providers.map(function(provider) {
-        var groupSearch = {
-          name: provider.name
-        };
+    var aggregator;
 
-        groupSearch.loadMoreElements = infiniteScrollHelper(groupSearch, function() {
-          return provider.loadNextItems().then(_.property('data'));
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'));
+    }
+
+    $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
+      if (aggregator) {
+        return load();
+      }
+
+      return searchProviders.getAll({ query: $scope.query }).then(function(providers) {
+        aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
+          compare: function(a, b) { return b.date - a.date; },
+          results_per_page: ELEMENTS_PER_PAGE
         });
 
-        groupSearch.loadMoreElements();
-
-        return groupSearch;
+        return load();
       });
     });
   });

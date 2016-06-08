@@ -38,6 +38,12 @@ module.exports = function(dependencies) {
     var terms = query.search;
     var offset = query.offset || 0;
     var limit = query.limit || SEARCH.DEFAULT_LIMIT;
+    var sortKey = query.sortKey || SEARCH.DEFAULT_SORT_KEY;
+    var sortOrder = query.sortOrder || SEARCH.DEFAULT_SORT_ORDER;
+    var sort = {};
+    sort[sortKey] = {
+      order: sortOrder
+    };
 
     var elasticsearchQuery = {
       query: {
@@ -59,7 +65,8 @@ module.exports = function(dependencies) {
             }
           }
         }
-      }
+      },
+      sort: sort
     };
 
     var filters = [];
@@ -90,7 +97,8 @@ module.exports = function(dependencies) {
       calendarId: query.calendarId,
       search: terms,
       offset: offset,
-      limit: limit
+      limit: limit,
+      sort: sort
     });
 
     elasticsearch.searchDocuments({

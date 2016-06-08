@@ -12,7 +12,9 @@ module.exports = {
   SEARCH: {
     INDEX_NAME: 'events.idx',
     TYPE_NAME: 'events',
-    DEFAULT_LIMIT: 20
+    DEFAULT_LIMIT: 20,
+    DEFAULT_SORT_KEY: 'start',
+    DEFAULT_SORT_ORDER: 'desc'
   },
   WS_EVENT: {
     EVENT_CREATED: 'calendar:ws:event:created',

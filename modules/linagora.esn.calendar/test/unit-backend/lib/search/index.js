@@ -108,11 +108,41 @@ describe('The calendar search Module', function() {
   });
 
   describe('The searchEvents function', function() {
+    it('should call search.searchDocuments with right parameters using default parameters for unset ones', function() {
+      var query = {
+        search: 'Bruce',
+        offset: 10,
+        limit: 100,
+        userId: new ObjectId()
+      };
+
+      deps.elasticsearch.searchDocuments = sinon.spy();
+
+      var module = require('../../../../backend/lib/search')(dependencies);
+      var searchConstants = require('../../../../backend/lib/constants').SEARCH;
+      var defaultSort = {};
+
+      defaultSort[searchConstants.DEFAULT_SORT_KEY] = { order: searchConstants.DEFAULT_SORT_ORDER };
+
+      module.searchEvents(query);
+      expect(deps.elasticsearch.searchDocuments).to.have.been.calledWith(sinon.match({
+        index: 'events.idx',
+        type: 'events',
+        from: query.offset,
+        size: query.limit,
+        body: {
+          sort: defaultSort
+        }
+      }));
+    });
+
     it('should call search.searchDocuments with right parameters', function() {
       var query = {
         search: 'Bruce',
         offset: 10,
         limit: 100,
+        sortKey: 'sortKey',
+        sortOrder: 'sortOrder',
         userId: new ObjectId()
       };
 
@@ -125,7 +155,12 @@ describe('The calendar search Module', function() {
         index: 'events.idx',
         type: 'events',
         from: query.offset,
-        size: query.limit
+        size: query.limit,
+        body: {
+          sort: {
+            sortKey: { order: 'sortOrder' }
+          }
+        }
       }));
     });
 

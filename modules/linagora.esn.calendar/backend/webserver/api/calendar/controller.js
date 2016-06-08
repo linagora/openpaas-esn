@@ -167,6 +167,8 @@ function searchEvents(req, res) {
     search: req.query.query,
     limit: req.query.limit,
     offset: req.query.offset,
+    sortKey: req.query.sortKey,
+    sortOrder: req.query.sortOrder,
     userId: req.user._id,
     calendarId: req.params.calendarId
   };
