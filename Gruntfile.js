@@ -1,6 +1,7 @@
 'use strict';
 
-var util = require('util');
+var util = require('util'),
+    os = require('os');
 
 var conf_path = './test/config/';
 var servers = require(conf_path + 'servers-conf');
@@ -117,7 +118,10 @@ module.exports = function(grunt) {
           command: ['up'],
           env: [
             'DOCKER_IP=' + servers.host,
-            'ESN_PATH=' + __dirname
+            'ESN_PATH=' + __dirname,
+            'VIDEO=' + !!process.env.VIDEO,
+            'VIDEO_DIR=' + (process.env.VIDEO_DIR || os.tmpdir() + '/videos'),
+            'VIDEO_FILE_NAME=' + (process.env.VIDEO_FILE_NAME || 'open-paas.e2e')
           ]
         }, {
           regex: new RegExp('OpenPaas ESN is now started on node'),

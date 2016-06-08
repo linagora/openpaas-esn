@@ -38,12 +38,27 @@ Tests are run against Firefox by default, but you can change by giving the BROWS
 BROWSER="chrome" grunt test-e2e
 ```
 
-##### Watch what really happen
+##### Watch what is going on
 
 Protractor will target a selenium grid, ran as a container. You can watch what happen on the browser by opening a VNC client with the following settings:
+
 - server: the server runing the grunt command, usually "localhost"
 - port: 5900
 - password: linagora
+
+##### Record a video of the run
+
+You can ask for recording a video, only by giving some environment variables on your command:
+
+```bash
+VIDEO=true grunt test-e2e
+```
+
+Available variables are:
+
+- VIDEO: default is _false_
+- VIDEO_FILE_NAME: what will be the name of the generated file suffixed by .mkv, default is _open-paas.e2e_
+- VIDEO_DIR: where will be located the generated file, default is under _videos_ of _your OS tmp directory_. So _/tmp/videos_ on Linux.
 
 ### E2E test in development
 

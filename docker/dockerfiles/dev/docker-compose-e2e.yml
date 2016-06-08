@@ -66,6 +66,10 @@ services:
      - "5900:25900"
     environment:
       - VNC_PASSWORD=linagora
+      - VIDEO=${VIDEO}
+      - VIDEO_FILE_NAME=${VIDEO_FILE_NAME}
     links:
       - esn:esn_webapp
       - james:jmap
+    volumes:
+      - ${VIDEO_DIR}:/videos
