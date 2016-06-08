@@ -42,7 +42,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('listController', function($state, $stateParams, inboxConfig, DEFAULT_VIEW) {
     inboxConfig('view', DEFAULT_VIEW).then(function(view) {
-      $state.go('unifiedinbox.list.' + view, { mailbox: $stateParams.mailbox });
+      $state.go('unifiedinbox.list.' + view);
     });
   })
 
