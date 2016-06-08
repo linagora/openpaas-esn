@@ -114,6 +114,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       this.inboxProviders = inboxProviders;
     }));
 
+    it('should expose to the scope stateParams.filter as listFilter', function() {
+      $stateParams.filter = { custom: 'filter' };
+      initController('unifiedInboxController');
+
+      expect(scope.listFilter).to.deep.equal($stateParams.filter);
+    });
+
     it('should leverage inboxProviders.getAll with options when loadMoreElements is called', function() {
       initController('unifiedInboxController');
       $stateParams.filter = { custom: 'filter' };
@@ -538,6 +545,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       };
     });
 
+    it('should expose to the scope stateParams.filter as listFilter', function() {
+      $stateParams.filter = { custom: 'filter' };
+      initController('listEmailsController');
+
+      expect(scope.listFilter).to.deep.equal($stateParams.filter);
+    });
+
     it('should set $scope.mailbox from the \'mailbox\' route parameter', function() {
       initController('listEmailsController');
       expect(scope.mailbox.id).to.equal('chosenMailbox');
@@ -928,6 +942,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           getThreads: function() {return [];}
         });
       };
+    });
+
+    it('should expose to the scope stateParams.filter as listFilter', function() {
+      $stateParams.filter = { custom: 'filter' };
+      initController('listEmailsController');
+
+      expect(scope.listFilter).to.deep.equal($stateParams.filter);
     });
 
     it('should set $scope.mailbox to the mailbox parameter passed by state', function() {
