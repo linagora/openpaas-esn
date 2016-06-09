@@ -8,12 +8,12 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
 
     function Providers() {
-      this.providers = [];
+      this.providersPromises = [];
     }
 
     Providers.prototype = {
-      add: function(provider) {
-        this.providers.push(provider);
+      add: function(providerPromise) {
+        this.providersPromises.push($q.when(providerPromise));
       },
 
       /**
@@ -31,23 +31,26 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       getAll: function(options) {
         options = options || {};
 
-        return $q.all(this.providers
-          .filter(function(provider) {
-            return !provider.type || !options.acceptedTypes || options.acceptedTypes.indexOf(provider.type) >= 0;
-          })
-          .map(function(provider) {
-            options.filterByType = options.filterByType || {};
+        return $q.all(this.providersPromises).then(function(providers) {
+          return $q.all(_.flatten(providers)
+            .filter(function(provider) {
+              return !provider.type || !options.acceptedTypes || options.acceptedTypes.indexOf(provider.type) >= 0;
+            })
+            .map(function(provider) {
+              options.filterByType = options.filterByType || {};
 
-            return provider.buildFetchContext(options).then(function(context) {
-              provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
+              return provider.buildFetchContext(options).then(function(context) {
+                provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
 
-              return provider;
-            });
-          })
-        );
+                return provider;
+              });
+            }));
+        });
       },
       getAllProviderNames: function() {
-        return _.map(this.providers, 'name');
+        return $q.all(this.providersPromises).then(function(providers) {
+          return _.map(_.flatten(providers), 'name');
+        });
       }
     };
 

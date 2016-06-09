@@ -180,9 +180,5 @@ angular.module('esn.calendar', [
   .run(function(searchProviders, eventsProviders, registerTimezones) {
     registerTimezones();
 
-    eventsProviders.then(function(eventsProviders) {
-      eventsProviders.forEach(function(eventsProvider) {
-        searchProviders.add(eventsProvider);
-      });
-    });
+    searchProviders.add(eventsProviders);
   });
