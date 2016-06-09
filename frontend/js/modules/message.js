@@ -565,7 +565,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         $scope.parentMessage = !!$scope.parentMessage;
 
         $scope.onMessageLiked = function() {
-          $scope.message.likes.total_count ++;
+          $scope.message.likes.total_count++;
         };
 
         if (!$scope.activitystream) {

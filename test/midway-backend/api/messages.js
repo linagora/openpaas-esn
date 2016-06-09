@@ -1182,10 +1182,10 @@ describe('The messages API', function() {
   });
 
   describe('Check message likes', function() {
-    describe('When user wants to like a message', function () {
+    describe('When user wants to like a message', function() {
       var ENDPOINT = '/api/resource-links';
 
-      it('should be able to like a message when message belongs to a "likable" stream', function (done) {
+      it('should be able to like a message when message belongs to a "likable" stream', function(done) {
         var self = this;
         var link = {
           type: 'like',
@@ -1193,19 +1193,19 @@ describe('The messages API', function() {
           target: {objectType: 'esn.message', id: String(message1._id)}
         };
 
-        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function (loggedInAsUser) {
+        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
           loggedInAsUser(request(app)
             .post(ENDPOINT))
             .send(link)
             .expect(201)
-            .end(self.helpers.callbacks.noErrorAnd(function (res) {
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
               expect(res.body).to.shallowDeepEqual(link);
               done();
             }));
         }));
       });
 
-      it('should not be able to like the same message several times', function (done) {
+      it('should not be able to like the same message several times', function(done) {
         var self = this;
         var link = {
           type: 'like',
@@ -1218,12 +1218,12 @@ describe('The messages API', function() {
         }
 
         like().then(function() {
-          self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function (loggedInAsUser) {
+          self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
             loggedInAsUser(request(app)
               .post(ENDPOINT))
               .send(link)
               .expect(400)
-              .end(self.helpers.callbacks.noErrorAnd(function (res) {
+              .end(self.helpers.callbacks.noErrorAnd(function(res) {
                 expect(res.body).to.shallowDeepEqual({
                   error: {
                     details: 'Message is already liked by user'
@@ -1235,7 +1235,7 @@ describe('The messages API', function() {
         }, done);
       });
 
-      it('should not be able to like a message which belongs to a private stream', function (done) {
+      it('should not be able to like a message which belongs to a private stream', function(done) {
         var self = this;
         var link = {
           type: 'like',
@@ -1243,19 +1243,19 @@ describe('The messages API', function() {
           target: {objectType: 'esn.message', id: String(message5._id)}
         };
 
-        self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, self.helpers.callbacks.noErrorAnd(function (loggedInAsUser) {
+        self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
           loggedInAsUser(request(app)
             .post(ENDPOINT))
             .send(link)
             .expect(400)
-            .end(self.helpers.callbacks.noErrorAnd(function (res) {
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
               expect(res.body.error.details).to.match(/Resources are not linkable/);
               done();
             }));
         }));
       });
 
-      it('should not be able to like a message for another user', function (done) {
+      it('should not be able to like a message for another user', function(done) {
         var self = this;
         var link = {
           type: 'like',
@@ -1263,19 +1263,19 @@ describe('The messages API', function() {
           target: {objectType: 'esn.message', id: String(message1._id)}
         };
 
-        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function (loggedInAsUser) {
+        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
           loggedInAsUser(request(app)
             .post(ENDPOINT))
             .send(link)
             .expect(400)
-            .end(self.helpers.callbacks.noErrorAnd(function (res) {
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
               expect(res.body.error.details).to.match(/You can not like a message for someone else/);
               done();
             }));
         }));
       });
 
-      it('should not be able to like an unknown message', function (done) {
+      it('should not be able to like an unknown message', function(done) {
         var self = this;
         var link = {
           type: 'like',
@@ -1283,12 +1283,12 @@ describe('The messages API', function() {
           target: {objectType: 'esn.message', id: String(self.mongoose.Types.ObjectId())}
         };
 
-        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function (loggedInAsUser) {
+        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
           loggedInAsUser(request(app)
             .post(ENDPOINT))
             .send(link)
             .expect(400)
-            .end(self.helpers.callbacks.noErrorAnd(function (res) {
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
               expect(res.body.error.details).to.match(/Can not find message to like/);
               done();
             }));
@@ -1296,8 +1296,7 @@ describe('The messages API', function() {
       });
     });
 
-    describe('When messages are liked', function () {
-
+    describe('When messages are liked', function() {
 
       beforeEach(function() {
         var likeModule = this.helpers.requireBackend('core/like');
@@ -1326,7 +1325,7 @@ describe('The messages API', function() {
           });
         });
 
-        it('should return message.likes.me.liked=true when current user liked the message', function (done) {
+        it('should return message.likes.me.liked=true when current user liked the message', function(done) {
 
           var self = this;
           function test() {
