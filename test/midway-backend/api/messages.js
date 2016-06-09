@@ -1205,6 +1205,36 @@ describe('The messages API', function() {
         }));
       });
 
+      it('should not be able to like the same message several times', function (done) {
+        var self = this;
+        var link = {
+          type: 'like',
+          source: {objectType: 'user', id: String(testuser._id)},
+          target: {objectType: 'esn.message', id: String(message1._id)}
+        };
+
+        function like() {
+          return self.helpers.requireBackend('core/like').like({objectType: 'user', id: String(testuser._id)}, {objectType: 'esn.message', id: String(message1._id)});
+        }
+
+        like().then(function() {
+          self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function (loggedInAsUser) {
+            loggedInAsUser(request(app)
+              .post(ENDPOINT))
+              .send(link)
+              .expect(400)
+              .end(self.helpers.callbacks.noErrorAnd(function (res) {
+                expect(res.body).to.shallowDeepEqual({
+                  error: {
+                    details: 'Message is already liked by user'
+                  }
+                });
+                done();
+              }));
+          }));
+        }, done);
+      });
+
       it('should not be able to like a message which belongs to a private stream', function (done) {
         var self = this;
         var link = {

@@ -143,14 +143,25 @@ function canLike(req, res, next) {
       return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Can not find message to like'}});
     }
 
-    messagePermission.canLike(message, link.source, function(err, result) {
-      if (err) {
-        logger.error('Error while checking like permission');
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user can like message'}});
+    messageModule.like.isMessageLikedByUser(message, req.user).then(function(result) {
+
+      if (result) {
+        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Message is already liked by user'}});
       }
 
-      req.linkable = result;
-      next();
+      messagePermission.canLike(message, link.source, function(err, result) {
+        if (err) {
+          logger.error('Error while checking like permission');
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user can like message'}});
+        }
+
+        req.linkable = result;
+        next();
+      });
+
+    }, function(err) {
+      logger.error('Error while checking if message is already liked by user', err);
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user already liked the message'}});
     });
   });
 }
