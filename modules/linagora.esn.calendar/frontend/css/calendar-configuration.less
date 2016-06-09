@@ -13,7 +13,7 @@
   overflow: auto;
   font-size: 1.4em;
   color: @secondaryTextColor;
-  padding: 15px;
+  padding: 0px 15px 15px 15px;
 }
 
 .calendars-edit.card {
@@ -39,6 +39,31 @@
 }
 
 .calendar-edit {
+  .btn-group-justified {
+    padding-top: 5px;
+    background-color: lighten(@body-bg, 5%);
+    box-shadow: none;
+
+    .btn {
+      background-color: lighten(@body-bg, 5%);
+      color: @m-gray;
+    }
+
+    .btn:hover {
+      background-color: lighten(@body-bg, 5%);
+      border-bottom-color: @m-gray;
+      color: @m-gray;
+    }
+
+    .btn-primary {
+      border-bottom: 3px solid;
+      border-bottom-color: @accentColor;
+    }
+
+    .btn-primary:hover {
+      border-bottom-color: @accentColor;
+    }
+  }
   .color-picker-container {
     width: 50px;
     margin-left: 40px;
@@ -56,6 +81,23 @@
   .delete-calendar-button {
     font-size: 15px;
     .underlined-button;
+  }
+
+  .delegation {
+    .mdi {
+      font-size: 40px;
+    }
+
+    .public {
+      .mdi.big {
+        font-size: 60px;
+        margin-right: 25px;
+      }
+
+      span.vertical-align, i.vertical-align {
+        vertical-align: middle;
+      }
+    }
   }
 }
 
