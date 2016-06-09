@@ -60,11 +60,6 @@ describe('The eventUtils service', function() {
         asSession.ready = $q.when(asSession);
         return asSession;
       });
-      $provide.factory('eventsProviders', function($q) {
-        return {
-          getAll: function() { return $q.when([]); }
-        };
-      });
       $provide.value('calendarService', calendarService);
     });
 

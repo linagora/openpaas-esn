@@ -267,7 +267,6 @@ describe('The calendarService service', function() {
 
       this.$rootScope.$broadcast = sinon.spy(angular.identity);
 
-      var self = this;
       this.calendarService.createCalendar('homeId', calendar).then(function() {});
 
       this.$httpBackend.flush();

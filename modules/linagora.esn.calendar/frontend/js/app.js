@@ -177,12 +177,7 @@ angular.module('esn.calendar', [
 
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
   })
-  .run(function($rootScope, searchProviders, eventsProviders, registerTimezones, CALENDAR_EVENTS) {
+  .run(function(eventsProviders, registerTimezones) {
     registerTimezones();
-
-    searchProviders.add(eventsProviders.getAll());
-
-    $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) {
-      searchProviders.add(eventsProviders.getForCalendar(calendar));
-    });
+    eventsProviders.setUpSearchProviders();
   });

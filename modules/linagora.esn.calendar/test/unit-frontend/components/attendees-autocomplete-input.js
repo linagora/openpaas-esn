@@ -39,9 +39,9 @@ describe('The attendees-autocomplete-input component', function() {
     angular.mock.module(function($provide) {
       $provide.value('calendarAttendeeService', attendeeServiceMock);
       $provide.value('session', asSession);
-      $provide.factory('eventsProviders', function($q) {
+      $provide.factory('eventsProviders', function() {
         return {
-          getAll: function() { return $q.when([]); }
+          setUpSearchProviders: function() {}
         };
       });
       $provide.value('gracePeriodService', {});
