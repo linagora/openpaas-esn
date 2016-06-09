@@ -133,6 +133,11 @@ describe('The calendar module controllers', function() {
       }
     };
 
+    this.usSpinnerServiceMock = {
+      spin: sinon.spy(),
+      stop: sinon.spy()
+    };
+
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
       $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
@@ -152,6 +157,7 @@ describe('The calendar module controllers', function() {
       $provide.value('CalendarShell', self.CalendarShellMock);
       $provide.value('masterEventCache', self.masterEventCacheMock);
       $provide.value('calendarVisibilityService', self.calendarVisibilityServiceMock);
+      $provide.value('usSpinnerService', self.usSpinnerServiceMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -537,6 +543,23 @@ describe('The calendar module controllers', function() {
       this.scope.uiConfig.calendar.viewRender(view);
 
       expect(this.calendarCurrentViewMock.set).to.have.been.calledOnce;
+    });
+
+    it('should call loading function to wait the events loading', function(done) {
+      this.controller('calendarController', {$scope: this.scope});
+
+      var isLoading = true;
+      this.scope.uiConfig.calendar.loading(isLoading);
+      expect(this.scope.hideCalendar).to.equal(isLoading);
+
+      isLoading = false;
+      this.scope.uiConfig.calendar.loading(isLoading);
+      expect(this.scope.hideCalendar).to.equal(isLoading);
+
+      expect(this.usSpinnerServiceMock.spin).to.have.been.calledOnce;
+      expect(this.usSpinnerServiceMock.stop).to.have.been.calledOnce;
+
+      done();
     });
 
     describe('the eventDropAndResize listener', function() {

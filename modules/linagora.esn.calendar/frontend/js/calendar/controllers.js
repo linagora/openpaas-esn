@@ -29,7 +29,8 @@ angular.module('esn.calendar')
       CALENDAR_EVENTS,
       MAX_CALENDAR_RESIZE_HEIGHT,
       CALENDAR_DEDAULT_EVENT_COLOR,
-      DEFAULT_CALENDAR_ID) {
+      DEFAULT_CALENDAR_ID,
+      usSpinnerService) {
 
     var windowJQuery = angular.element($window);
 
@@ -37,6 +38,8 @@ angular.module('esn.calendar')
 
     var calendarDeffered = $q.defer();
     var calendarPromise = calendarDeffered.promise;
+
+    var spinnerKey = 'calendar';
 
     $scope.resizeCalendarHeight = calendarPromise.then.bind(calendarPromise, function(calendar) {
       var height = windowJQuery.height() - calendar.offset().top;
@@ -120,6 +123,16 @@ angular.module('esn.calendar')
         end: date.end
       });
       openEventForm(event);
+    };
+
+    $scope.uiConfig.calendar.loading = function(isLoading) {
+      if (isLoading) {
+        usSpinnerService.spin(spinnerKey);
+        $scope.hideCalendar = true;
+      } else {
+        usSpinnerService.stop(spinnerKey);
+        $scope.hideCalendar = false;
+      }
     };
 
     $scope.displayCalendarError = function(err, errorMessage) {
