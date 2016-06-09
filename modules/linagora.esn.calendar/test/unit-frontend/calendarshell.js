@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarShell factory', function() {
-  var CalendarShell, fcMoment, ICAL, $rootScope, calendarService;
+  var CalendarShell, fcMoment, ICAL, $rootScope, eventService;
 
   beforeEach(function() {
     this.uuid4 = {
@@ -16,9 +16,7 @@ describe('CalendarShell factory', function() {
       }
     };
 
-    this.eventApiMock = {
-
-    };
+    this.eventApiMock = {};
 
     this.masterEventCache = {
       save: angular.noop
@@ -44,12 +42,12 @@ describe('CalendarShell factory', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_CalendarShell_, _fcMoment_, _ICAL_, _$rootScope_, _calendarService_) {
+    angular.mock.inject(function(_CalendarShell_, _fcMoment_, _ICAL_, _$rootScope_, _eventService_) {
       CalendarShell = _CalendarShell_;
       fcMoment = _fcMoment_;
       ICAL = _ICAL_;
       $rootScope = _$rootScope_;
-      calendarService = _calendarService_;
+      eventService = _eventService_;
     });
   });
 
@@ -140,7 +138,7 @@ describe('CalendarShell factory', function() {
         return $q.when({});
       };
 
-      calendarService.modifyEvent('/path/to/event', editEvent, event, 'etag', angular.noop);
+      eventService.modifyEvent('/path/to/event', editEvent, event, 'etag', angular.noop);
       expect(event.vcalendar.getAllSubcomponents('vtimezone').length).to.equal(1);
     });
   });

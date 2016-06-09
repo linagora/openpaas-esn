@@ -138,10 +138,10 @@ angular.module('esn.calendar', [
         }
       },
       resolve: {
-        event: function($stateParams, $state, pathBuilder, calendarService, eventUtils, notificationFactory) {
+        event: function($stateParams, $state, pathBuilder, eventService, eventUtils, notificationFactory) {
           var eventPath = pathBuilder.forEventId($stateParams.calendarHomeId, $stateParams.eventId);
 
-          return eventUtils.getEditedEvent() || calendarService.getEvent(eventPath).catch(function(error) {
+          return eventUtils.getEditedEvent() || eventService.getEvent(eventPath).catch(function(error) {
             if (error.status !== 404) {
               notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
             }

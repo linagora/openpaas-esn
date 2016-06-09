@@ -70,7 +70,7 @@ describe('The event-message Angular module directives', function() {
         user: { emails: 'emails' }
       };
 
-      this.calendarServiceMock = {
+      this.eventServiceMock = {
         getEvent: sinon.spy(function() {
           return $q.when(self.event);
         }),
@@ -93,7 +93,7 @@ describe('The event-message Angular module directives', function() {
 
       angular.mock.module(function($provide) {
         $provide.value('eventMessageService', self.eventMessageServiceMock);
-        $provide.value('calendarService', self.calendarServiceMock);
+        $provide.value('eventService', self.eventServiceMock);
         $provide.value('session', self.sessionMock);
         $provide.factory('eventsProviders', function() {
           return {
@@ -121,13 +121,13 @@ describe('The event-message Angular module directives', function() {
     }));
 
     it('should fetch event and his getInvitedAttendees correctly', function() {
-      expect(this.calendarServiceMock.getEvent).to.have.been.calledWith(this.$scope.message.eventId);
-      expect(this.calendarServiceMock.getInvitedAttendees).to.have.been.calledWith(this.$scope.event.vcalendar, this.sessionMock.user.emails);
+      expect(this.eventServiceMock.getEvent).to.have.been.calledWith(this.$scope.message.eventId);
+      expect(this.eventServiceMock.getInvitedAttendees).to.have.been.calledWith(this.$scope.event.vcalendar, this.sessionMock.user.emails);
     });
 
     it('should remove loading and set error if getEvent failed', function() {
       var statusText = 'status are made of stone';
-      this.calendarServiceMock.getEvent = function() {
+      this.eventServiceMock.getEvent = function() {
         return $q.reject({
           statusText: statusText
         });
@@ -149,7 +149,7 @@ describe('The event-message Angular module directives', function() {
 
     it('should take partstat of organizer if any', function() {
       var orgPartstat = 'orgPartstat';
-      this.calendarServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
+      this.eventServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
       this.initDirective();
       expect(this.$scope.partstat).to.equal(orgPartstat);
     });
@@ -167,10 +167,10 @@ describe('The event-message Angular module directives', function() {
     });
 
     describe('scope.changeParticipation ', function() {
-      it('should call calendarService.changeParticipation correctly', function() {
+      it('should call eventService.changeParticipation correctly', function() {
         var partstat = 'ACCEPTED';
         this.$scope.changeParticipation(partstat);
-        expect(this.calendarServiceMock.changeParticipation).to.have.been.calledWith(this.event.path, this.event, this.sessionMock.user.emails, partstat);
+        expect(this.eventServiceMock.changeParticipation).to.have.been.calledWith(this.event.path, this.event, this.sessionMock.user.emails, partstat);
       });
 
       it('should update event ', function() {
@@ -206,10 +206,11 @@ describe('The event-message Angular module directives', function() {
         })
       };
 
-      this.responsesHeaders = 'hat';
-
       this.calendarServiceMock = {
-        calendarHomeId: 'calendarHomeId',
+        calendarHomeId: 'calendarHomeId'
+      };
+
+      this.eventServiceMock = {
         createEvent: sinon.spy(function() {
           return self.$q.when({
             headers: function() {
@@ -233,6 +234,7 @@ describe('The event-message Angular module directives', function() {
         $provide.value('CalendarShell', self.CalendarShellMock);
         $provide.value('calendarUtils', self.calendarUtilsMock);
         $provide.value('calendarService', self.calendarServiceMock);
+        $provide.value('eventService', self.eventServiceMock);
         $provide.value('notificationFactory', self.notificationFactoryMock);
         $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       });
@@ -300,26 +302,26 @@ describe('The event-message Angular module directives', function() {
         expect(this.$scope.event.title).to.equal(title);
       });
 
-      it('should call calendarService.createEvent with $scope.calendarHomeId if defined', function() {
+      it('should call eventService.createEvent with $scope.calendarHomeId if defined', function() {
         this.$scope.calendarHomeId = 'et';
         this.$scope.submit();
-        expect(this.calendarServiceMock.createEvent).to.have.been.calledWith(this.$scope.calendarHomeId);
+        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(this.$scope.calendarHomeId);
       });
 
-      it('should call calendarService.createEvent with calendarService.calendarHomeId if $scope.calendarHomeId is not defined', function() {
+      it('should call eventService.createEvent with calendarService.calendarHomeId if $scope.calendarHomeId is not defined', function() {
         this.$scope.submit();
-        expect(this.calendarServiceMock.createEvent).to.have.been.calledWith(this.calendarServiceMock.calendarHomeId);
+        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(this.calendarServiceMock.calendarHomeId);
       });
 
       it('should give path to default calendars "/events"', function() {
         this.$scope.submit();
-        expect(this.calendarServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, '/calendars/calendarHomeId/events');
+        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, '/calendars/calendarHomeId/events');
       });
 
       it('should path the event and option that disable graceperiod', function() {
         this.$scope.event = 'telephon maison';
         this.$scope.submit();
-        expect(this.calendarServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, sinon.match.any, this.$scope.event, { graceperiod: false });
+        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, sinon.match.any, this.$scope.event, { graceperiod: false });
       });
 
       it('should not call createEvent and display an error if no activity_stream.uuid', function() {
@@ -328,16 +330,16 @@ describe('The event-message Angular module directives', function() {
           this.$scope.activitystream = activitystream;
           this.$scope.submit();
           expect(this.$scope.displayError).to.have.been.calledOnce;
-          expect(this.calendarServiceMock.createEvent).to.have.not.been.called;
+          expect(this.eventServiceMock.createEvent).to.have.not.been.called;
 
         }, this);
       });
 
-      it('should set $scope.restActive to true only meanwhile calendarService.createEvent resolve', function() {
+      it('should set $scope.restActive to true only meanwhile eventService.createEvent resolve', function() {
         expect(this.$scope.restActive).to.be.false;
 
         var defer = this.$q.defer();
-        this.calendarServiceMock.createEvent = _.constant(defer.promise);
+        this.eventServiceMock.createEvent = _.constant(defer.promise);
         this.$scope.submit();
         expect(this.$scope.restActive).to.be.true;
         defer.resolve(null);
@@ -345,8 +347,8 @@ describe('The event-message Angular module directives', function() {
         expect(this.$scope.restActive).to.be.false;
       });
 
-      it('should call notificationFactory.weakError if calendarService.createEvent fail', function() {
-        this.calendarServiceMock.createEvent = function() {
+      it('should call notificationFactory.weakError if eventService.createEvent fail', function() {
+        this.eventServiceMock.createEvent = function() {
           return self.$q.reject({});
         };
         this.$scope.submit();

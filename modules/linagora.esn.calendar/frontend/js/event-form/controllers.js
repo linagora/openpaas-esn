@@ -7,6 +7,7 @@ angular.module('esn.calendar')
         $alert,
         $state,
         calendarUtils,
+        eventService,
         calendarService,
         eventUtils,
         session,
@@ -90,7 +91,7 @@ angular.module('esn.calendar')
       var path = '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
       $scope.restActive = true;
       _hideModal();
-      calendarService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
+      eventService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');
@@ -112,7 +113,7 @@ angular.module('esn.calendar')
       }
       $scope.restActive = true;
       _hideModal();
-      calendarService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
+      eventService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been deleted.');
@@ -132,7 +133,7 @@ angular.module('esn.calendar')
       var status = $scope.userAsAttendee.partstat;
 
       $scope.restActive = true;
-      calendarService.changeParticipation($scope.editedEvent.path, $scope.event, session.user.emails, status).then(function(response) {
+      eventService.changeParticipation($scope.editedEvent.path, $scope.event, session.user.emails, status).then(function(response) {
         if (!response) {
           return _hideModal();
         }
@@ -178,7 +179,7 @@ angular.module('esn.calendar')
         $scope.editedEvent.deleteAllException();
       }
 
-      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
+      eventService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');
@@ -204,7 +205,7 @@ angular.module('esn.calendar')
       var path = $scope.editedEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
 
       $scope.restActive = true;
-      calendarService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop)
+      eventService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop)
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Alarm of ', $scope.event.title + ' has been modified.');

@@ -31,22 +31,25 @@ describe('The event-form module controllers', function() {
       color: 'color2'
     }];
 
-    this.calendarServiceMock = {
-      calendarId: '1234',
+    this.eventServiceMock = {
       createEvent: sinon.spy(function() {
         return $q.when({});
       }),
-      listCalendars: sinon.spy(function() {
-        return $q.when(self.calendars);
+      changeParticipation:  sinon.spy(function() {
+        return $q.when({});
       }),
       modifyEvent: function(path, e) {
         event = e;
         return $q.when();
-      },
-      calendarHomeId: 'calendarHomeId',
-      changeParticipation: sinon.spy(function() {
-        return $q.when({});
-      })
+      }
+    };
+
+    this.calendarServiceMock = {
+      calendarId: '1234',
+      listCalendars: sinon.spy(function() {
+        return $q.when(self.calendars);
+      }),
+      calendarHomeId: 'calendarHomeId'
     };
 
     var sessionMock = {
@@ -91,6 +94,7 @@ describe('The event-form module controllers', function() {
       $provide.decorator('calendarUtils', function($delegate) {
         return angular.extend($delegate, calendarUtilsMock);
       });
+      $provide.value('eventService', self.eventServiceMock);
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('session', sessionMock);
       $provide.value('notificationFactory', self.notificationFactory);
@@ -135,7 +139,7 @@ describe('The event-form module controllers', function() {
           end: this.moment('2013-02-08 13:30'),
           location: 'aLocation'
         });
-        this.calendarServiceMock.createEvent = function() {
+        this.eventServiceMock.createEvent = function() {
           done();
         };
         this.initController();
@@ -150,7 +154,7 @@ describe('The event-form module controllers', function() {
           location: 'aLocation',
           gracePeriodTaskId: '123456'
         });
-        this.calendarServiceMock.modifyEvent = function() {
+        this.eventServiceMock.modifyEvent = function() {
           done();
         };
         this.initController();
@@ -168,7 +172,7 @@ describe('The event-form module controllers', function() {
           location: 'aLocation',
           etag: '123456'
         });
-        this.calendarServiceMock.modifyEvent = function() {
+        this.eventServiceMock.modifyEvent = function() {
           done();
         };
         this.initController();
@@ -273,7 +277,7 @@ describe('The event-form module controllers', function() {
         it('should call modifyEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
           this.scope.event = this.CalendarShell.fromIncompleteShell({ title: 'title' });
           this.$state.is = sinon.stub().returns(true);
-          this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) {
+          this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) {
             expect(options).to.deep.equal({
               graceperiod: true,
               notifyFullcalendar: true
@@ -342,12 +346,12 @@ describe('The event-form module controllers', function() {
             }]
           });
 
-          this.calendarServiceMock.modifyEvent = sinon.spy(function() { return $q.when(); });
+          this.eventServiceMock.modifyEvent = sinon.spy(function() { return $q.when(); });
 
           this.scope.modifyEvent();
           this.scope.$digest();
 
-          expect(this.calendarServiceMock.modifyEvent).to.have.been.calledWith(sinon.match.any, this.scope.editedEvent);
+          expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(sinon.match.any, this.scope.editedEvent);
         });
 
         it('should send modify request if deep changes (attendees)', function() {
@@ -382,7 +386,7 @@ describe('The event-form module controllers', function() {
             }]
           });
 
-          this.calendarServiceMock.modifyEvent = sinon.spy(function() {
+          this.eventServiceMock.modifyEvent = sinon.spy(function() {
             return $q.when();
           });
 
@@ -394,7 +398,7 @@ describe('The event-form module controllers', function() {
           var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
 
           expect(this.$state.is).to.have.been.called;
-          expect(this.calendarServiceMock.modifyEvent).to.have.been.calledWith(expectedPath, this.scope.editedEvent, this.scope.event, this.scope.etag, sinon.match.any, {graceperiod: true, notifyFullcalendar: this.$state.is()});
+          expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(expectedPath, this.scope.editedEvent, this.scope.event, this.scope.etag, sinon.match.any, {graceperiod: true, notifyFullcalendar: this.$state.is()});
         });
 
         it('should not send modify request if properties not visible in the UI changed', function(done) {
@@ -476,7 +480,7 @@ describe('The event-form module controllers', function() {
             etag: '123123'
           });
 
-          this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
+          this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
             expect(event.title).to.equal('title');
             expect(oldEvent.title).to.equal('oldtitle');
             expect(path).to.equal('/path/to/event');
@@ -488,7 +492,7 @@ describe('The event-form module controllers', function() {
           this.scope.modifyEvent();
 
           this.scope.$digest();
-          expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
+          expect(this.eventServiceMock.modifyEvent).to.have.been.called;
         });
 
         it('should removeAllException if rrule has been changed', function() {
@@ -566,7 +570,7 @@ describe('The event-form module controllers', function() {
             done();
           };
 
-          this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) {
             status = _status_;
             return $q.when({});
           };
@@ -584,7 +588,7 @@ describe('The event-form module controllers', function() {
           var status = null;
           var self = this;
           this.scope.event = this.CalendarShell.fromIncompleteShell({});
-          this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) {
             status = _status_;
             return $q.when(null);
           };
@@ -617,7 +621,7 @@ describe('The event-form module controllers', function() {
       it('should update the event', function() {
         this.scope.isOrganizer = false;
         var status;
-        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+        this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) {
           status = _status_;
           return $q.when({});
         };
@@ -628,11 +632,11 @@ describe('The event-form module controllers', function() {
         expect(status).to.equal('ACCEPTED');
       });
 
-      it('should call calendarService.changeParticipation', function() {
+      it('should call eventService.changeParticipation', function() {
         this.scope.isOrganizer = false;
         this.scope.changeParticipation('ACCEPTED');
 
-        expect(this.calendarServiceMock.changeParticipation).to.have.been.called;
+        expect(this.eventServiceMock.changeParticipation).to.have.been.called;
       });
 
       it('should go to the calendar view if user is attendee and view is full form', function() {
@@ -663,7 +667,7 @@ describe('The event-form module controllers', function() {
 
       it('should call createEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
         this.$state.is = sinon.stub().returns(true);
-        this.calendarServiceMock.createEvent = sinon.spy(function(calendarId, path, event, options) {
+        this.eventServiceMock.createEvent = sinon.spy(function(calendarId, path, event, options) {
           expect(options).to.deep.equal({
             graceperiod: true,
             notifyFullcalendar: true
@@ -705,7 +709,7 @@ describe('The event-form module controllers', function() {
       });
 
       it('should call openEventForm on cancelled task', function() {
-        this.calendarServiceMock.createEvent = function() {
+        this.eventServiceMock.createEvent = function() {
           return $q.when(false);
         };
 
@@ -714,12 +718,12 @@ describe('The event-form module controllers', function() {
         expect(this.openEventForm).to.have.been.called;
       });
 
-      it('should call calendarService.createEvent with the correct parameters', function() {
+      it('should call eventService.createEvent with the correct parameters', function() {
         this.scope.createEvent();
         var calendarId = this.calendars[0].id;
         var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
         expect(this.$state.is).to.have.been.called;
-        expect(this.calendarServiceMock.createEvent).to.have.been.calledWith(calendarId, expectedPath, this.scope.editedEvent, {graceperiod: true, notifyFullcalendar: this.$state.is()});
+        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(calendarId, expectedPath, this.scope.editedEvent, {graceperiod: true, notifyFullcalendar: this.$state.is()});
       });
     });
 
@@ -827,16 +831,16 @@ describe('The event-form module controllers', function() {
           }
         });
         this.initController();
-        this.calendarServiceMock.modifyEvent = sinon.spy(function() {
+        this.eventServiceMock.modifyEvent = sinon.spy(function() {
           return $q.when();
         });
 
         this.scope.editedEvent = this.scope.event.clone();
         this.scope.updateAlarm();
-        expect(this.calendarServiceMock.modifyEvent).to.have.not.been.called;
+        expect(this.eventServiceMock.modifyEvent).to.have.not.been.called;
       });
 
-      it('should call calendarService.modifyEvent with updateAlarm when alarm is changed', function() {
+      it('should call eventService.modifyEvent with updateAlarm when alarm is changed', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           title: 'title',
           path: '/path/to/event',
@@ -856,7 +860,7 @@ describe('The event-form module controllers', function() {
           attendee: 'test@open-paas.org'
         };
 
-        this.calendarServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel) {
+        this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel) {
           expect(path).to.equal('/path/to/event');
           expect(etag).to.equal('123456');
           expect(event.alarm.trigger.toICALString()).to.equal('-P2D');
@@ -865,7 +869,7 @@ describe('The event-form module controllers', function() {
         });
 
         this.scope.updateAlarm();
-        expect(this.calendarServiceMock.modifyEvent).to.have.been.called;
+        expect(this.eventServiceMock.modifyEvent).to.have.been.called;
       });
     });
   });
