@@ -257,6 +257,23 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
       this.$rootScope.$digest();
     });
+
+    it('should broadcast a CALENDARS.ADD event when the calendar has been created', function() {
+      var calendar = {id: 'calId'};
+
+      CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+      this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
+
+      this.$rootScope.$broadcast = sinon.spy(angular.identity);
+
+      this.calendarService.createCalendar('homeId', calendar).then(function() {});
+
+      this.$httpBackend.flush();
+      this.$rootScope.$digest();
+
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+    });
   });
 
   describe('The modify calendar fn', function() {

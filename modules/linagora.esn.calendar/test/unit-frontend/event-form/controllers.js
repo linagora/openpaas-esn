@@ -92,8 +92,10 @@ describe('The event-form module controllers', function() {
       $provide.value('notificationFactory', self.notificationFactory);
       $provide.value('openEventForm', self.openEventForm);
       $provide.value('$state', self.$state);
-      $provide.factory('eventsProviders', function($q) {
-        return $q.when([]);
+      $provide.factory('eventsProviders', function() {
+        return {
+          setUpSearchProviders: function() {}
+        };
       });
     });
   });

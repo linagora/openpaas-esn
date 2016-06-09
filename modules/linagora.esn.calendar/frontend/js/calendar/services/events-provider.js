@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('eventsProviders', function($log, $q, calendarService, calendarHomeService, newProvider, ELEMENTS_PER_REQUEST) {
+  .factory('eventsProviders', function($log, $q, $rootScope, calendarService, calendarHomeService, newProvider, searchProviders, ELEMENTS_PER_REQUEST, CALENDAR_EVENTS) {
     function buildProvider(calendar) {
       var name = 'Events from ' + calendar.name;
       return newProvider({
@@ -35,13 +35,32 @@ angular.module('esn.calendar')
       });
     }
 
-    return calendarHomeService.getUserCalendarHomeId().then(function(calendarHomeId) {
-      return calendarService.listCalendars(calendarHomeId);
-    }).then(function(calendars) {
-      return calendars.map(buildProvider);
-    }, function(error) {
-      $log.error('Could not register search providers for calendar module', error);
+    function getAll() {
+      return calendarHomeService.getUserCalendarHomeId().then(function(calendarHomeId) {
+        return calendarService.listCalendars(calendarHomeId);
+      }).then(function(calendars) {
+        return calendars.map(buildProvider);
+      }, function(error) {
+        $log.error('Could not register search providers for calendar module', error);
+        return [];
+      });
+    }
 
-      return [];
-    });
+    function getForCalendar(calendar) {
+      return buildProvider(calendar);
+    }
+
+    function setUpSearchProviders() {
+      searchProviders.add(getAll());
+
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) {
+        searchProviders.add(getForCalendar(calendar));
+      });
+    }
+
+    return {
+      setUpSearchProviders: setUpSearchProviders,
+      getAll: getAll,
+      getForCalendar: getForCalendar
+    };
   });

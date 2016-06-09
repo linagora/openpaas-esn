@@ -70,8 +70,9 @@ angular.module('esn.calendar')
      */
     function createCalendar(calendarHomeId, calendar) {
       return calendarAPI.createCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
-        .then(function(response) {
+        .then(function() {
           (calendarsCache[calendarHomeId] || []).push(calendar);
+          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
           return calendar;
         })
         .catch($q.reject);
@@ -84,7 +85,7 @@ angular.module('esn.calendar')
      */
     function modifyCalendar(calendarHomeId, calendar) {
       return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
-        .then(function(response) {
+        .then(function() {
           (calendarsCache[calendarHomeId] || []).forEach(function(cal, index) {
             if (calendar.id === cal.id) {
               calendar.selected = calendarsCache[calendarHomeId][index].selected;
