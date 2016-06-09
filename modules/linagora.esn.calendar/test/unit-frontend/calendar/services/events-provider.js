@@ -28,7 +28,7 @@ describe('The events-providers', function() {
     calendarService = _calendarService_;
   }));
 
-  describe('The factory', function() {
+  describe('The getAll function', function() {
 
     it('should build providers for each calendar which request events from the backend, return pages of events and paginate next request', function(done) {
       var calendarIds = ['calendar1', 'calendar2'];
@@ -78,7 +78,7 @@ describe('The events-providers', function() {
         }
       });
 
-      eventsProviders.then(function(providers) {
+      eventsProviders.getAll().then(function(providers) {
         providers.forEach(testEventProvider);
       }, done);
       $rootScope.$digest();
@@ -90,7 +90,7 @@ describe('The events-providers', function() {
         return $q.reject();
       };
 
-      eventsProviders.then(function(providers) {
+      eventsProviders.getAll().then(function(providers) {
         expect(providers).to.deep.equal([]);
         done();
       }, done);

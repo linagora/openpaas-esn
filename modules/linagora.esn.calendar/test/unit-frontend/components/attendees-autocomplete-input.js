@@ -40,7 +40,9 @@ describe('The attendees-autocomplete-input component', function() {
       $provide.value('calendarAttendeeService', attendeeServiceMock);
       $provide.value('session', asSession);
       $provide.factory('eventsProviders', function($q) {
-        return $q.when([]);
+        return {
+          getAll: function() { return $q.when([]); }
+        };
       });
       $provide.value('gracePeriodService', {});
       $provide.constant('AUTOCOMPLETE_MAX_RESULTS', autoCompleteMax);

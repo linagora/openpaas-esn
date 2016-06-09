@@ -93,7 +93,9 @@ describe('The event-form module controllers', function() {
       $provide.value('openEventForm', self.openEventForm);
       $provide.value('$state', self.$state);
       $provide.factory('eventsProviders', function($q) {
-        return $q.when([]);
+        return {
+          getAll: function() { return $q.when([]); }
+        };
       });
     });
   });

@@ -96,7 +96,9 @@ describe('The event-message Angular module directives', function() {
         $provide.value('calendarService', self.calendarServiceMock);
         $provide.value('session', self.sessionMock);
         $provide.factory('eventsProviders', function($q) {
-          return $q.when([]);
+          return {
+            getAll: function() { return $q.when([]); }
+          };
         });
       });
     });

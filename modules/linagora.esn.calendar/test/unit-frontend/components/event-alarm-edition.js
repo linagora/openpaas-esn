@@ -26,7 +26,9 @@ describe('The event-alarm-edition component', function() {
     angular.mock.module(function($provide) {
       $provide.value('session', asSession);
       $provide.factory('eventsProviders', function($q) {
-        return $q.when([]);
+        return {
+          getAll: function() { return $q.when([]); }
+        };
       });
     });
   });

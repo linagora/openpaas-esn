@@ -35,13 +35,23 @@ angular.module('esn.calendar')
       });
     }
 
-    return calendarHomeService.getUserCalendarHomeId().then(function(calendarHomeId) {
-      return calendarService.listCalendars(calendarHomeId);
-    }).then(function(calendars) {
-      return calendars.map(buildProvider);
-    }, function(error) {
-      $log.error('Could not register search providers for calendar module', error);
+    function getAll() {
+      return calendarHomeService.getUserCalendarHomeId().then(function(calendarHomeId) {
+        return calendarService.listCalendars(calendarHomeId);
+      }).then(function(calendars) {
+        return calendars.map(buildProvider);
+      }, function(error) {
+        $log.error('Could not register search providers for calendar module', error);
+        return [];
+      });
+    }
 
-      return [];
-    });
+    function getForCalendar(calendar) {
+      return buildProvider(calendar);
+    }
+
+    return {
+      getAll: getAll,
+      getForCalendar: getForCalendar
+    };
   });

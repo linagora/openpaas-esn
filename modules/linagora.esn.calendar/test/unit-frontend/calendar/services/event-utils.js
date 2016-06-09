@@ -61,7 +61,9 @@ describe('The eventUtils service', function() {
         return asSession;
       });
       $provide.factory('eventsProviders', function($q) {
-        return $q.when([]);
+        return {
+          getAll: function() { return $q.when([]); }
+        };
       });
       $provide.value('calendarService', calendarService);
     });
