@@ -10,7 +10,7 @@
       esn-on-drop-failure="onDropFailure()"
     )
     .list-image.badge-container
-      emailer-avatar(emailer='::item.email.from')
+      inbox-emailer-avatar(emailer='::item.email.from')
     .media-body(ng-class="{bold: item.email.isUnread}")
       .flex-space-between
         .flex-start.ellipsis
@@ -18,6 +18,6 @@
           .badge-number(ng-if='item.messageIds.length > 1') ({{ item.messageIds.length }})
         .date-container {{ ::item.email.date | date: group.dateFormat }}
       .flex-space-between
-        emailer.lv-title(emailer="::item.email.from")
+        inbox-emailer.lv-title(emailer="::item.email.from")
         inbox-indicators(item="item.email")
     .lv-small.preview {{ ::item.email.preview }}

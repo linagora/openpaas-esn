@@ -1,4 +1,4 @@
 .emailer-group
   .emailer(ng-repeat="emailer in ::group")
-    emailer(emailer="::emailer")
+    inbox-emailer(emailer="::emailer")
     span.comma(ng-if="!$last") ,

@@ -11,12 +11,12 @@
       esn-on-drop-failure="onDropFailure()"
     )
     .list-image.badge-container
-      emailer-avatar(emailer='::item.from')
+      inbox-emailer-avatar(emailer='::item.from')
     .media-body(ng-class="{bold: item.isUnread}")
       .flex-space-between
         .inbox-subject.lv-title.ellipsis {{ ::item.subject}}
         .date-container {{ ::item.date | date: group.dateFormat }}
       .flex-space-between
-        emailer.lv-title(emailer="::item.from")
+        inbox-emailer.lv-title(emailer="::item.from")
         inbox-indicators(item="item")
     .lv-small.preview {{ ::item.preview }}
