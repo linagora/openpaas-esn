@@ -1122,6 +1122,22 @@ describe('CalendarShell factory', function() {
       });
       expect(eventA.equals(eventB)).to.be.false;
     });
+
+    it('should return false if change from recurrent event to non-recurrent', function() {
+      var eventA = CalendarShell.fromIncompleteShell({
+        start: fcMoment('2015-01-01 18:00'),
+        end: fcMoment('2015-01-01 18:00'),
+        recurrendId: fcMoment('2015-01-01 18:00'),
+        rrule: {
+          freq: 'DAILY',
+          interval: 2
+        }
+      });
+
+      var eventB = eventA.clone();
+      eventB.rrule = undefined;
+      expect(eventA.equals(eventB)).to.be.false;
+    });
   });
 
   describe('Alarm', function() {
