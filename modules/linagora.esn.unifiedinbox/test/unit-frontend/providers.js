@@ -314,13 +314,14 @@ describe('The Unified Inbox Angular module providers', function() {
       $rootScope.$digest();
     });
 
-    it('should return back the JMAP filter when its is given', function() {
+    it('should extend the JMAP filter when its is given', function() {
       inboxJmapProviderContextBuilder({
         filterByType: {
           JMAP: { isUnread: true }
         }
       }).then(function(context) {
         expect(context).to.deep.equal({
+          inMailboxes: ['id_inbox'],
           isUnread: true
         });
       });

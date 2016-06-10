@@ -1296,15 +1296,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(scope.dropdownList.placeholder).to.equal('2 selected');
     });
-
-    it('should broadcast an inboxFilterChanged once clicked', function() {
-      var listener = sinon.spy();
-      $rootScope.$on('inboxFilterChanged', listener);
-
-      controller.dropdownItemClicked();
-
-      expect(listener).to.have.been.called;
-    });
   });
 
   describe('The composerAttachments directive', function() {

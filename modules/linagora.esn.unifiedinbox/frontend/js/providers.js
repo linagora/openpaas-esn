@@ -4,17 +4,11 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('inboxJmapProviderContextBuilder', function($q, withJmapClient, jmap, PROVIDER_TYPES) {
     return function(options) {
-      if (options.filterByType[PROVIDER_TYPES.JMAP]) {
-        return $q.when(options.filterByType[PROVIDER_TYPES.JMAP]);
-      }
-
       return withJmapClient(function(client) {
         return client
           .getMailboxWithRole(jmap.MailboxRole.INBOX)
           .then(function(mailbox) {
-            return {
-              inMailboxes: [mailbox.id]
-            };
+            return angular.extend({}, { inMailboxes: [mailbox.id] }, options.filterByType[PROVIDER_TYPES.JMAP]);
           });
       });
     };

@@ -2,47 +2,40 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('unifiedInboxController', function($scope, infiniteScrollOnGroupsHelper, inboxProviders, headerService,
-                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, ByDateElementGroupingTool,
-                                                 PROVIDER_TYPES, $stateParams) {
-
+  .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders,
+                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, inboxFilteringService) {
     var aggregator;
 
-    $scope.listFilter = $stateParams.filter;
-
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, function() {
-      if (aggregator) {
-        return load();
-      }
-
-      return inboxProviders.getAll({
-        acceptedTypes: [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL],
-        filterByType: _buildJmapFilter()
-      }).then(function(providers) {
-        aggregator = new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
-          compare: function(a, b) { return b.date - a.date; },
-          results_per_page: ELEMENTS_PER_PAGE
-        });
-
-        return load();
-      });
-    }, new ByDateElementGroupingTool());
-
     function load() {
-      return aggregator.loadNextItems().then(_.property('data'));
+      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
     }
 
-    function _buildJmapFilter() {
-      var filterByType = {};
-      filterByType[PROVIDER_TYPES.JMAP] = $stateParams.filter;
+    inboxFilteringAwareInfiniteScroll($scope, function() {
+      return inboxFilteringService.getFiltersForUnifiedInbox();
+    }, function() {
+      aggregator = null;
 
-      return filterByType;
-    }
+      return function() {
+        if (aggregator) {
+          return load();
+        }
 
-    headerService.subHeader.setInjection('unified-view-subheader', $scope);
+        return inboxProviders.getAll({
+          acceptedTypes: inboxFilteringService.getAcceptedTypesFilter(),
+          filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
+        }).then(function(providers) {
+          aggregator = new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
+            compare: function(a, b) { return b.date - a.date; },
+            results_per_page: ELEMENTS_PER_PAGE
+          });
+
+          return load();
+        });
+      };
+    });
   })
 
-  .controller('listController', function($state, $stateParams, inboxConfig, DEFAULT_VIEW) {
+  .controller('listController', function($state, inboxConfig, DEFAULT_VIEW) {
     inboxConfig('view', DEFAULT_VIEW).then(function(view) {
       $state.go('unifiedinbox.list.' + view);
     });

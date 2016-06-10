@@ -4194,4 +4194,254 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The inboxFilteringService service', function() {
+
+    var _, service, filters, PROVIDER_TYPES;
+
+    beforeEach(inject(function(inboxFilteringService, inboxFilters, ___, _PROVIDER_TYPES_) {
+      service = inboxFilteringService;
+      filters = inboxFilters;
+      _ = ___;
+      PROVIDER_TYPES = _PROVIDER_TYPES_;
+    }));
+
+    afterEach(function() {
+      service.uncheckFilters();
+    });
+
+    function checkFilter(id) {
+      _.find(filters, { id: id }).checked = true;
+    }
+
+    describe('The getFiltersForJmapMailbox function', function() {
+
+      it('should return only JMAP filters', function() {
+        expect(_.every(service.getFiltersForJmapMailbox(), { type: PROVIDER_TYPES.JMAP })).to.equal(true);
+      });
+
+      it('should not reset filters if called multiple times for the same mailbox', function() {
+        var filters = service.getFiltersForJmapMailbox('mailbox1');
+
+        filters[0].checked = true;
+        filters = service.getFiltersForJmapMailbox('mailbox1');
+
+        expect(filters[0].checked).to.equal(true);
+      });
+
+      it('should reset filters if called for another mailbox', function() {
+        var filters = service.getFiltersForJmapMailbox('mailbox1');
+
+        filters[0].checked = true;
+        filters = service.getFiltersForJmapMailbox('other_mailbox');
+
+        expect(_.every(filters, { checked: false })).to.equal(true);
+      });
+
+      it('should reset filters if filters are requested for a unified inbox afterwards', function() {
+        var filters = service.getFiltersForJmapMailbox('mailbox1');
+
+        filters[0].checked = true;
+        filters = service.getFiltersForUnifiedInbox();
+
+        expect(_.every(filters, { checked: false })).to.equal(true);
+      });
+
+    });
+
+    describe('The getFiltersForUnifiedInbox function', function() {
+
+      it('should return all filters', function() {
+        expect(service.getFiltersForUnifiedInbox()).to.deep.equal(filters);
+      });
+
+      it('should not reset filters if called multiple times', function() {
+        var filters = service.getFiltersForUnifiedInbox();
+
+        filters[0].checked = true;
+        filters = service.getFiltersForUnifiedInbox();
+
+        expect(filters[0].checked).to.equal(true);
+      });
+
+      it('should reset filters if filters are requested for a JMAP mailbox afterwards', function() {
+        var filters = service.getFiltersForUnifiedInbox();
+
+        filters[0].checked = true;
+        filters = service.getFiltersForJmapMailbox('mailbox1');
+
+        expect(_.every(filters, { checked: false })).to.equal(true);
+      });
+
+    });
+
+    describe('The getJmapFilter function', function() {
+
+      it('should build a JMAP filter object, with a single selected filter', function() {
+        checkFilter('isUnread');
+
+        expect(service.getJmapFilter()).to.deep.equal({ isUnread: true });
+      });
+
+      it('should build a JMAP filter object, with multiple selected filters', function() {
+        checkFilter('isUnread');
+        checkFilter('hasAttachment');
+
+        expect(service.getJmapFilter()).to.deep.equal({ isUnread: true, hasAttachment: true });
+      });
+
+      it('should build a empty JMAP filter object, when no filters are selected', function() {
+        expect(service.getJmapFilter()).to.deep.equal({});
+      });
+
+    });
+
+    describe('The isAnyFilterOfTypeSelected function', function() {
+
+      it('should return false when no filters are checked', function() {
+        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(false);
+      });
+
+      it('should return false when no filters of the given type are checked', function() {
+        checkFilter('isSocial');
+
+        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(false);
+      });
+
+      it('should return true when 1 filter of the given type is checked', function() {
+        checkFilter('isUnread');
+
+        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(true);
+      });
+
+      it('should return true when multiple filters of the given type are checked', function() {
+        checkFilter('isUnread');
+        checkFilter('isFlagged');
+
+        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(true);
+      });
+
+    });
+
+    describe('The getAcceptedTypesFilter function', function() {
+
+      it('should return a list of all provider types when nothing is selected', function() {
+        expect(service.getAcceptedTypesFilter()).to.deep.equal(_.values(PROVIDER_TYPES));
+      });
+
+      it('should return an empty list when the selection is eclectic', function() {
+        checkFilter('isSocial');
+        checkFilter('isUnread');
+
+        expect(service.getAcceptedTypesFilter()).to.deep.equal([]);
+      });
+
+      it('should return only JMAP provider if the selction is JMAP-only', function() {
+        checkFilter('isUnread');
+
+        expect(service.getAcceptedTypesFilter()).to.deep.equal([PROVIDER_TYPES.JMAP]);
+      });
+
+      it('should return only SOCIAL provider if the selction is SOCIAL-only', function() {
+        checkFilter('isSocial');
+
+        expect(service.getAcceptedTypesFilter()).to.deep.equal([PROVIDER_TYPES.SOCIAL]);
+      });
+
+    });
+
+    describe('The uncheckFilters function', function() {
+
+      it('should uncheck all filters', function() {
+        filters.forEach(function(filter) {
+          filter.checked = true;
+        });
+
+        service.uncheckFilters();
+
+        expect(_.every(filters, { checked: false })).to.equal(true);
+      });
+
+    });
+
+  });
+
+  describe('The inboxFilteringAwareInfiniteScroll service', function() {
+
+    var $scope, service;
+
+    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope) {
+      service = inboxFilteringAwareInfiniteScroll;
+
+      $scope = $rootScope.$new();
+    }));
+
+    afterEach(function() {
+      $scope.$destroy();
+    });
+
+    it('should publish available filters as scope.filters', function() {
+      service($scope, function() {
+        return { id: 'filter' };
+      }, function() { return angular.noop; });
+
+      expect($scope.filters).to.deep.equal({ id: 'filter'});
+    });
+
+    it('should initialize the scope.loadMoreElements function, calling the passed-in builder', function() {
+      var spy = sinon.spy();
+
+      service($scope, function() {
+        return { id: 'filter' };
+      }, spy);
+
+      expect($scope.loadMoreElements).to.be.a('function');
+      expect(spy).to.have.been.calledWith();
+    });
+
+    it('should listen to "inboxFilterChanged" event, refreshing the loadMoreElements function and loading first batch of items', function() {
+      var loadMoreElements = sinon.spy(function() {
+        return function() {
+          return $q.when([]);
+        };
+      });
+      var spy = sinon.spy(loadMoreElements);
+
+      service($scope, function() {
+        return { id: 'filter' };
+      }, spy);
+
+      $scope.$emit('inboxFilterChanged');
+
+      expect($scope.loadMoreElements).to.be.a('function');
+      expect(spy).to.have.been.calledTwice; // 1 at init time, 1 after the event is fired
+      expect(loadMoreElements).to.have.been.calledWith(); // To load the list when the event is fired
+    });
+
+    it('should listen to "inboxFilterChanged" event, resetting infinite scroll', function() {
+      var loadMoreElements = sinon.spy(function() {
+        return function() {
+          return $q.when([]);
+        };
+      });
+      var spy = sinon.spy(loadMoreElements);
+
+      service($scope, function() {
+        return { id: 'filter' };
+      }, spy);
+      // Simulate end of initial infinite scroll
+      $scope.infiniteScrollCompleted = true;
+      $scope.infiniteScrollDisabled = true;
+
+      $scope.$emit('inboxFilterChanged');
+
+      expect($scope.infiniteScrollCompleted).to.equal(false);
+
+      $scope.$digest();
+
+      expect($scope.infiniteScrollDisabled).to.equal(false);
+      expect($scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning no items
+    });
+
+  });
+
 });

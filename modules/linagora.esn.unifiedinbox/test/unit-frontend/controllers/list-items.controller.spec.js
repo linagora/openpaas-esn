@@ -11,7 +11,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
   var scope, $controller, jmap, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
     ELEMENTS_PER_REQUEST, JMAP_GET_MESSAGES_LIST;
   // Mocked
-  var $stateParams, jmapClient, filter, resolvedProvider;
+  var $stateParams, jmapClient, mailboxIdsFilter, resolvedProvider;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     $stateParams = {
@@ -30,7 +30,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
       }
     };
 
-    $provide.value('filter', { resolved: 'filter' });
+    $provide.value('mailboxIdsFilter', { resolved: 'mailboxIdsFilter' });
     $provide.value('$stateParams', $stateParams);
     $provide.value('withJmapClient', function(callback) {
       return callback(jmapClient);
@@ -62,13 +62,6 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
     return controller;
   }
-
-  it('should expose to the scope stateParams.filter as listFilter', function() {
-    $stateParams.filter = {custom: 'filter'};
-    initController('listItemsController');
-
-    expect(scope.listFilter).to.deep.equal($stateParams.filter);
-  });
 
   it('should set $scope.mailbox from the \'mailbox\' route parameter', function() {
     initController('listItemsController');
@@ -127,7 +120,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
       it('should call jmapClient.getMessageList with correct arguments', function(done) {
         jmapClient.getMessageList = function(options) {
           expect(options).to.deep.equal({
-            filter: { resolved: 'filter' },
+            filter: { resolved: 'mailboxIdsFilter' },
             sort: ['date desc'],
             collapseThreads: false,
             fetchMessages: false,
@@ -205,7 +198,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
       it('should call jmapClient.getMessageList with correct arguments', function(done) {
         jmapClient.getMessageList = function(options) {
           expect(options).to.deep.equal({
-            filter: { resolved: 'filter' },
+            filter: { resolved: 'mailboxIdsFilter' },
             collapseThreads: true,
             fetchThreads: false,
             fetchMessages: false,
