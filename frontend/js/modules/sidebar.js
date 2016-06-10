@@ -50,7 +50,7 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
       });
 
       scope.$on('$destroy', function() {
-        if (sidebar) { sidebar.destroy(); }
+        if (sidebar) { sidebar.hide(); }
         options = null;
         sidebar = null;
       });
