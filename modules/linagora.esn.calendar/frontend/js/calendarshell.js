@@ -531,6 +531,7 @@ angular.module('esn.calendar')
               if (self[key] === that[key]) { return true; }
               return self[key]._isAMomentObject && that[key]._isAMomentObject && self[key].isSame(that[key]);
             case 'rrule':
+              if (!self.rrule) { return !that.rrule; }
               if (self.rrule === that.rrule) { return true; }
               return self.rrule.equals(that.rrule);
             case 'alarm':
