@@ -5,8 +5,25 @@ var inboxAside = new (require('../pages/inbox-aside'))();
 
 module.exports = function() {
 
-  this.Then('I have at least $count message', function(count) {
-    return this.expect(messagePage.allMessages.count()).to.eventually.be.at.least(parseInt(count, 10));
+  this.Then('I have at least $count message', { timeout: 60 * 1000 }, function(messageCount) {
+    var self = this,
+        expectedMessageCount = parseInt(messageCount, 10),
+        maxTryCount = 10;
+
+    function _try(tryCount) {
+      return browser.refresh()
+        .then(messagePage.clickOnModuleInMenu.bind(messagePage))
+        .then(function() { return messagePage.allMessages.count(); })
+        .then(function(messageCount) {
+          if (messageCount < expectedMessageCount && tryCount <= maxTryCount) {
+            return _try(tryCount + 1);
+          }
+
+          return self.expect(messageCount).to.be.at.least(expectedMessageCount);
+        });
+    }
+
+    return _try(1);
   });
 
   this.Then('My first message is from "$from" with subject "$subject" and preview contains "$preview"', function(from, subject, preview) {
