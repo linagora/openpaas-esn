@@ -236,6 +236,18 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Thread({}, [{ isFlagged: false }, { isFlagged: false }]).isFlagged).to.equal(false);
     });
 
+    it('should have hasAttachment=false when no email', function() {
+      expect(new Thread({}, []).hasAttachment).to.equal(false);
+    });
+
+    it('should have hasAttachment=false when the last email has no attachment', function() {
+      expect(new Thread({}, [{ hasAttachment: true }, { hasAttachment: false }]).hasAttachment).to.equal(false);
+    });
+
+    it('should have hasAttachment=true when the last email has attachment', function() {
+      expect(new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]).hasAttachment).to.equal(true);
+    });
+
   });
 
 });
