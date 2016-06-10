@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
-      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService;
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -77,7 +77,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_, ___) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
@@ -85,6 +85,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     inboxEmailService = _inboxEmailService_;
     $state = _$state_;
     jmap = _jmap_;
+    _ = ___;
 
     session.user = {
       preferredEmail: 'user@open-paas.org',
@@ -1247,10 +1248,19 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         placeholder: 'Filters',
         filtered: false
       });
+    });
 
-      scope.filters.forEach(function(filter) {
-        expect(filter.checked).to.be.false;
-      });
+    it('should keep the checked filter and indicate set filtered to true', function() {
+      $scope.filters = [
+        {id: 'filter_1', displayName: 'display filter 1', checked: true},
+        {id: 'filter_2', displayName: 'display filter 2'},
+        {id: 'filter_3', displayName: 'display filter 3', checked: true}
+      ];
+      scope = compileDirective('<inbox-filter-button filters="filters"/>').isolateScope();
+
+      expect(scope.dropdownList.filtered).to.be.true;
+      expect(_.map($scope.filters, 'checked')).to.deep.equal([true, undefined, true]);
+      expect(scope.dropdownList.placeholder).to.equal('2 selected');
     });
 
     it('should leverage the placeholder attribute as the default placeholder once passed', function() {
@@ -1287,17 +1297,13 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(scope.dropdownList.placeholder).to.equal('2 selected');
     });
 
-    it('should call onChange function (once passed) with the checked filters as an argument', function() {
-      $scope.onChange = sinon.spy();
-      element = compileDirective('<inbox-filter-button filters="filters" on-change="onChange($filters)"/>');
-      scope = element.isolateScope();
-      controller = element.controller('inboxFilterButton');
+    it('should broadcast an inboxFilterChanged once clicked', function() {
+      var listener = sinon.spy();
+      $rootScope.$on('inboxFilterChanged', listener);
 
-      scope.filters[0].checked = true;
-      scope.filters[1].checked = true;
       controller.dropdownItemClicked();
 
-      expect($scope.onChange).to.have.been.calledWith(['filter_1', 'filter_2']);
+      expect(listener).to.have.been.called;
     });
   });
 
