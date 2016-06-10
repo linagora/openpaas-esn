@@ -488,12 +488,18 @@ describe('The Unified Inbox Angular module services', function() {
   });
 
   describe('The emailSendingService factory', function() {
-    var emailSendingService, email, $rootScope;
+    var emailSendingService, email, $rootScope, jmapClient;
 
     beforeEach(function() {
+      jmapClient = {};
+
       angular.mock.module(function($provide) {
         $provide.value('sendEmail', angular.noop);
+        $provide.value('withJmapClient', function(callback) {
+          return callback(jmapClient);
+        });
       });
+
       angular.mock.inject(function(_emailSendingService_, _$rootScope_) {
         emailSendingService = _emailSendingService_;
         $rootScope = _$rootScope_;
@@ -808,7 +814,7 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     describe('The getReplyRecipients function', function() {
-      var email, sender, expectedEmail;
+      var email, expectedEmail;
 
       it('should do nothing when email is not provided', function() {
         expect(emailSendingService.getReplyRecipients(null)).to.be.undefined;
@@ -854,6 +860,12 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    function mockGetMessages(message) {
+      jmapClient.getMessages = function() {
+        return $q.when([message]);
+      };
+    }
+
     describe('The createReplyAllEmailObject function', function() {
       var email, sender, expectedAnswer;
 
@@ -879,7 +891,8 @@ describe('The Unified Inbox Angular module services', function() {
           isQuoting: true
         };
 
-        emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createReplyAllEmailObject('id', sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
         }).then(done, done);
 
@@ -909,7 +922,8 @@ describe('The Unified Inbox Angular module services', function() {
           isQuoting: false
         };
 
-        emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createReplyAllEmailObject('id', sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
         }).then(done, done);
 
@@ -924,7 +938,8 @@ describe('The Unified Inbox Angular module services', function() {
 
         sender =  {displayName: 'sender', email: 'sender@linagora.com'};
 
-        emailSendingService.createReplyAllEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createReplyAllEmailObject('id', sender).then(function(email) {
           expect(email.attachments).to.be.undefined;
         }).then(done, done);
 
@@ -956,7 +971,8 @@ describe('The Unified Inbox Angular module services', function() {
           isQuoting: true
         };
 
-        emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createReplyEmailObject('id', sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
         }).then(done, done);
 
@@ -984,7 +1000,8 @@ describe('The Unified Inbox Angular module services', function() {
           isQuoting: false
         };
 
-        emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createReplyEmailObject('id', sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
         }).then(done, done);
 
@@ -996,7 +1013,8 @@ describe('The Unified Inbox Angular module services', function() {
           attachments: [{attachment: 'A'}, {attachment: 'B'}]
         };
 
-        emailSendingService.createReplyEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createReplyEmailObject('id', sender).then(function(email) {
           expect(email.attachments).to.be.undefined;
         }).then(done, done);
 
@@ -1036,7 +1054,8 @@ describe('The Unified Inbox Angular module services', function() {
           isQuoting: true
         };
 
-        emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createForwardEmailObject('id', sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
         }).then(done, done);
 
@@ -1062,7 +1081,8 @@ describe('The Unified Inbox Angular module services', function() {
           isQuoting: false
         };
 
-        emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createForwardEmailObject('id', sender).then(function(email) {
           expect(email).to.shallowDeepEqual(expectedAnswer);
         }).then(done, done);
 
@@ -1074,7 +1094,8 @@ describe('The Unified Inbox Angular module services', function() {
           attachments: [{attachment: 'A'}, {attachment: 'B'}]
         };
 
-        emailSendingService.createForwardEmailObject(email, sender).then(function(email) {
+        mockGetMessages(email);
+        emailSendingService.createForwardEmailObject('id', sender).then(function(email) {
           expect(email.attachments).to.shallowDeepEqual([{attachment: 'A'}, {attachment: 'B'}]);
         }).then(done, done);
 
@@ -3378,7 +3399,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The jmapEmailService factory', function() {
 
-    var $rootScope, jmapEmailService, jmap, mailboxesService, notificationFactory, backgroundProcessorService;
+    var $rootScope, jmapEmailService, jmap, mailboxesService, notificationFactory, backgroundProcessorService, jmapClient;
 
     function newEmail(isUnread) {
       var email = new jmap.Message({}, 'id', 'threadId', ['inbox'], { isUnread: isUnread });
@@ -3389,8 +3410,13 @@ describe('The Unified Inbox Angular module services', function() {
     }
 
     beforeEach(module(function($provide) {
+      jmapClient = {};
+
       $provide.value('mailboxesService', mailboxesService = {
         flagIsUnreadChanged: sinon.spy()
+      });
+      $provide.value('withJmapClient', function(callback) {
+        return callback(jmapClient);
       });
     }));
 
@@ -3483,6 +3509,36 @@ describe('The Unified Inbox Angular module services', function() {
 
         jmapEmailService.setFlag(email, 'isUnread', true).then(function(resolvedValue) {
           expect(resolvedValue).to.deep.equal(email);
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The getMessageById function', function() {
+
+      it('should fetch the message, and reject upon failure', function(done) {
+        jmapClient.getMessages = function(options) {
+          expect(options.ids).to.deep.equal(['id']);
+
+          return $q.reject();
+        };
+
+        jmapEmailService.getMessageById('id').then(null, done);
+        $rootScope.$digest();
+      });
+
+      it('should fetch the message, and return it upon success', function(done) {
+        jmapClient.getMessages = function(options) {
+          expect(options.ids).to.deep.equal(['id']);
+
+          return $q.when([{ id: 'id' }]);
+        };
+
+        jmapEmailService.getMessageById('id').then(function(message) {
+          expect(message).to.deep.equal({ id: 'id' });
+
           done();
         });
         $rootScope.$digest();
@@ -3642,11 +3698,11 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The reply function', function() {
 
       it('should leverage open() and createReplyEmailObject()', function() {
-        var inputEmail = {input: 'value'};
+        var inputEmail = { id: 'id', input: 'value' };
         inboxEmailService.reply(inputEmail);
         $rootScope.$digest();
 
-        expect(emailSendingService.createReplyEmailObject).to.have.been.calledWith(inputEmail);
+        expect(emailSendingService.createReplyEmailObject).to.have.been.calledWith('id');
         expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your reply email');
       });
 
@@ -3655,11 +3711,11 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The replyAll function', function() {
 
       it('should leverage open() and createReplyAllEmailObject()', function() {
-        var inputEmail = {input: 'value'};
+        var inputEmail = { id: 'id', input: 'value' };
         inboxEmailService.replyAll(inputEmail);
         $rootScope.$digest();
 
-        expect(emailSendingService.createReplyAllEmailObject).to.have.been.calledWith(inputEmail);
+        expect(emailSendingService.createReplyAllEmailObject).to.have.been.calledWith('id');
         expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your reply all email');
       });
 
@@ -3668,11 +3724,11 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The forward function', function() {
 
       it('should leverage open() and createForwardEmailObject()', function() {
-        var inputEmail = {input: 'value'};
+        var inputEmail = { id: 'id', input: 'value' };
         inboxEmailService.forward(inputEmail);
         $rootScope.$digest();
 
-        expect(emailSendingService.createForwardEmailObject).to.have.been.calledWith(inputEmail);
+        expect(emailSendingService.createForwardEmailObject).to.have.been.calledWith('id');
         expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your forward email');
       });
 

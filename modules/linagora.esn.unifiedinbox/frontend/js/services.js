@@ -184,7 +184,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, emailService, jmap, _, emailBodyService, sendEmail) {
+  .factory('emailSendingService', function($q, emailService, jmap, _, emailBodyService, sendEmail, jmapEmailService) {
 
     /**
      * Add the following logic when sending an email: Check for an invalid email used as a recipient
@@ -315,27 +315,29 @@ angular.module('linagora.esn.unifiedinbox')
       return email;
     }
 
-    function _createQuotedEmail(subjectPrefix, recipients, templateName, includeAttachments, email, sender) {
-      var newRecipients = recipients ? recipients(email, sender) : {},
+    function _createQuotedEmail(subjectPrefix, recipients, templateName, includeAttachments, messageId, sender) {
+      return jmapEmailService.getMessageById(messageId).then(function(message) {
+        var newRecipients = recipients ? recipients(message, sender) : {},
           newEmail = {
             from: getEmailAddress(sender),
             to: newRecipients.to || [],
             cc: newRecipients.cc || [],
             bcc: newRecipients.bcc || [],
-            subject: prefixSubject(email.subject, subjectPrefix),
-            quoted: email,
+            subject: prefixSubject(message.subject, subjectPrefix),
+            quoted: message,
             isQuoting: false,
             quoteTemplate: templateName
           };
 
-      includeAttachments && (newEmail.attachments = email.attachments);
+        includeAttachments && (newEmail.attachments = message.attachments);
 
-      if (!emailBodyService.supportsRichtext()) {
-        return $q.when(newEmail);
-      }
+        if (!emailBodyService.supportsRichtext()) {
+          return $q.when(newEmail);
+        }
 
-      return emailBodyService.quote(email, templateName).then(function(body) {
-        return _enrichWithQuote(newEmail, body);
+        return emailBodyService.quote(message, templateName).then(function(body) {
+          return _enrichWithQuote(newEmail, body);
+        });
       });
     }
 
@@ -439,7 +441,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('newComposerService', function($state, withJmapClient, boxOverlayOpener, deviceDetector, JMAP_GET_MESSAGES_VIEW) {
+  .service('newComposerService', function($state, jmapEmailService, boxOverlayOpener, deviceDetector) {
     var defaultTitle = 'Compose an email';
 
     function choseByPlatform(mobile, others) {
@@ -477,18 +479,12 @@ angular.module('linagora.esn.unifiedinbox')
       );
     }
 
-    function openDraft(emailId) {
-      withJmapClient(function(client) {
-        client
-          .getMessages({ ids: [emailId], properties: JMAP_GET_MESSAGES_VIEW })
-          .then(function(messages) {
-            var email = messages[0];
-
-            choseByPlatform(
-              newMobileComposer.bind(this, email),
-              newBoxedDraftComposer.bind(this, email)
-            );
-          });
+    function openDraft(id) {
+      jmapEmailService.getMessageById(id).then(function(message) {
+        choseByPlatform(
+          newMobileComposer.bind(this, message),
+          newBoxedDraftComposer.bind(this, message)
+        );
       });
     }
 
@@ -924,7 +920,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('jmapEmailService', function($q, jmap, _, backgroundAction) {
+  .service('jmapEmailService', function($q, jmap, _, backgroundAction, withJmapClient, JMAP_GET_MESSAGES_VIEW) {
 
     function setFlag(element, flag, state) {
       if (!element || !flag || !angular.isDefined(state)) {
@@ -947,8 +943,17 @@ angular.module('linagora.esn.unifiedinbox')
       }, { silent: true });
     }
 
+    function getMessageById(id) {
+      return withJmapClient(function(client) {
+        return client
+          .getMessages({ ids: [id], properties: JMAP_GET_MESSAGES_VIEW })
+          .then(_.head);
+      });
+    }
+
     return {
-      setFlag: setFlag
+      setFlag: setFlag,
+      getMessageById: getMessageById
     };
   })
 
@@ -981,21 +986,21 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function reply(email) {
-      emailSendingService.createReplyEmailObject(email, session.user).then(function(replyEmail) {
-        newComposerService.open(replyEmail, 'Start writing your reply email');
+    function reply(message) {
+      emailSendingService.createReplyEmailObject(message.id, session.user).then(function(replyMessage) {
+        newComposerService.open(replyMessage, 'Start writing your reply email');
       });
     }
 
-    function replyAll(email) {
-      emailSendingService.createReplyAllEmailObject(email, session.user).then(function(replyEmail) {
-        newComposerService.open(replyEmail, 'Start writing your reply all email');
+    function replyAll(message) {
+      emailSendingService.createReplyAllEmailObject(message.id, session.user).then(function(replyMessage) {
+        newComposerService.open(replyMessage, 'Start writing your reply all email');
       });
     }
 
-    function forward(email) {
-      emailSendingService.createForwardEmailObject(email, session.user).then(function(forwardedEmail) {
-        newComposerService.open(forwardedEmail, 'Start writing your forward email');
+    function forward(message) {
+      emailSendingService.createForwardEmailObject(message.id, session.user).then(function(forwardMessage) {
+        newComposerService.open(forwardMessage, 'Start writing your forward email');
       });
     }
 
