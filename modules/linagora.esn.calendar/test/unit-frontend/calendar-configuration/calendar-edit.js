@@ -52,6 +52,29 @@ describe('The calendarEditionController controller', function() {
     expect(this.$scope.calendar.color).to.exist;
   });
 
+  it('should select main tab when initializing', function() {
+    this.initController();
+    expect(this.$scope.selectedTab).to.equal('main');
+  });
+
+  describe('scope.getMainView', function() {
+    it('should select main tab', function() {
+      this.initController();
+      this.$scope.selectedTab = 'delegation';
+      this.$scope.getMainView();
+      expect(this.$scope.selectedTab).to.equal('main');
+    });
+  });
+
+  describe('scope.getDelegationView', function() {
+    it('should select delegation tab', function() {
+      this.initController();
+      this.$scope.selectedTab = 'main';
+      this.$scope.getDelegationView();
+      expect(this.$scope.selectedTab).to.equal('delegation');
+    });
+  });
+
   describe('scope.submit', function() {
     it('should do nothing if the calendar name is empty', function() {
       this.stateMock.go = sinon.spy();

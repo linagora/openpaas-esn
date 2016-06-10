@@ -67,6 +67,17 @@ angular.module('esn.calendar')
     $scope.cancelMobile = function() {
       $state.go('calendar.list');
     };
+
+    $scope.selectedTab = 'main';
+
+    $scope.getMainView = function() {
+      $scope.selectedTab = 'main';
+    };
+
+    $scope.getDelegationView = function() {
+      $scope.selectedTab = 'delegation';
+    };
+
   })
   .directive('calendarEdit', function() {
     return {
