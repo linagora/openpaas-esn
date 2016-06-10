@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('esn.calendar').factory('calendarEventSource', function($log, calendarService) {
+angular.module('esn.calendar').factory('calendarEventSource', function($log, eventService) {
   return function(calendarPath, errorCallback) {
     return function(start, end, timezone, callback) {
       $log.debug('Getting events for %s', calendarPath);
-      return calendarService.listEvents(calendarPath, start, end, timezone).then(
+      return eventService.listEvents(calendarPath, start, end, timezone).then(
         function(events) {
           callback(events.filter(function(calendarShell) {
             return !calendarShell.status || calendarShell.status !== 'CANCELLED';

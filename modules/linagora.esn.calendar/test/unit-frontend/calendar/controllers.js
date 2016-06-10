@@ -73,15 +73,18 @@ describe('The calendar module controllers', function() {
       color: 'color2'
     }];
 
-    this.calendarServiceMock = {
-      calendarId: '1234',
+    this.eventServiceMock = {
       createEvent: function() {
         return $q.when({});
       },
       modifyEvent: sinon.spy(function(path, e) {
         event = e;
         return $q.when();
-      }),
+      })
+    };
+
+    this.calendarServiceMock = {
+      calendarId: '1234',
       listCalendars: function() {
         return $q.when(self.calendars);
       },
@@ -146,6 +149,7 @@ describe('The calendar module controllers', function() {
       $provide.decorator('calendarUtils', function($delegate) {
         return angular.extend($delegate, calendarUtilsMock);
       });
+      $provide.value('eventService', self.eventServiceMock);
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('gracePeriodService', self.gracePeriodService);
@@ -579,7 +583,7 @@ describe('The calendar module controllers', function() {
         this.scope.event = event;
         this.controller('calendarController', {$scope: this.scope});
         this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
-        expect(this.calendarServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, event, newEvent.etag);
+        expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, event, newEvent.etag);
       });
 
       it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event after calling fullcalendar revert when the drap and drop if reverted', function(done) {
@@ -600,7 +604,7 @@ describe('The calendar module controllers', function() {
           done();
         });
 
-        this.calendarServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) {
+        this.eventServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) {
           oldEvent = _oldEvent;
           revertFunc();
           return $q.when({});
@@ -625,7 +629,7 @@ describe('The calendar module controllers', function() {
         this.scope.calendarHomeId = calendarHomeId;
         this.scope.event = event;
 
-        this.calendarServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
+        this.eventServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
           expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
           expect(etag).to.equal(event.etag);
           done();

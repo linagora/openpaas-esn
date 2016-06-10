@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('eventsProviders', function($log, $q, $rootScope, calendarService, calendarHomeService, newProvider, searchProviders, ELEMENTS_PER_REQUEST, CALENDAR_EVENTS) {
+  .factory('eventsProviders', function($log, $q, $rootScope, calendarService, eventService, calendarHomeService, newProvider, searchProviders, ELEMENTS_PER_REQUEST, CALENDAR_EVENTS) {
     function buildProvider(calendar) {
       var name = 'Events from ' + calendar.name;
       return newProvider({
@@ -19,7 +19,7 @@ angular.module('esn.calendar')
               offset: offset,
               limit: ELEMENTS_PER_REQUEST
             };
-            return calendarService.searchEvents(calendar.id, context)
+            return eventService.searchEvents(calendar.id, context)
               .then(function(events) {
                 offset += events.length;
                 return events.map(function(event) {

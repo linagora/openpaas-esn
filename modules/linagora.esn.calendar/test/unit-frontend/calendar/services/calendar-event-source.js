@@ -26,7 +26,7 @@ describe('The calendarEventSource', function() {
   });
 
   it('should use the correct path', function(done) {
-    angular.mock.inject(function(calendarEventSource, $httpBackend, fcMoment, CalendarShell) {
+    angular.mock.inject(function(calendarEventSource, $httpBackend, fcMoment) {
       this.$httpBackend = $httpBackend;
       this.calendarEventSource = calendarEventSource;
       this.fcMoment = fcMoment;
@@ -110,7 +110,7 @@ describe('The calendarEventSource', function() {
     var localTimezone = 'local';
 
     angular.mock.module(function($provide) {
-      $provide.factory('calendarService', function() {
+      $provide.factory('eventService', function() {
         return {
           listEvents: function(id, startMoment, endMoment, timezone) {
             expect(id).to.equals('test');

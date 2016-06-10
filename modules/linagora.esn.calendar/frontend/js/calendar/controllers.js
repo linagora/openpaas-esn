@@ -16,6 +16,7 @@ angular.module('esn.calendar')
       masterEventCache,
       CalendarShell,
       uiCalendarConfig,
+      eventService,
       calendarService,
       calendarEventEmitter,
       calendarUtils,
@@ -76,7 +77,7 @@ angular.module('esn.calendar')
         $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, event);
       }
 
-      calendarService.modifyEvent(newEvent.path, newEvent, event, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
+      eventService.modifyEvent(newEvent.path, newEvent, event, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');

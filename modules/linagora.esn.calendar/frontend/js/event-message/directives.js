@@ -21,7 +21,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('eventMessage', function(calendarService, session, eventMessageService) {
+  .directive('eventMessage', function(eventService, session, eventMessageService) {
     return {
       restrict: 'E',
       replace: true,
@@ -38,7 +38,7 @@ angular.module('esn.calendar')
           var etag = scope.event.etag;
           var emails = session.user.emails;
 
-          calendarService.changeParticipation(path, event, emails, partstat, etag, false)
+          eventService.changeParticipation(path, event, emails, partstat, etag, false)
             .then(function(shell) {
               scope.partstat = partstat;
               if (shell) {
@@ -49,7 +49,7 @@ angular.module('esn.calendar')
         };
 
         function updateEvent() {
-          calendarService.getEvent(scope.message.eventId).then(function(event) {
+          eventService.getEvent(scope.message.eventId).then(function(event) {
             // Set up dom nodes
             scope.event = event;
             element.find('>div>div.loading').addClass('hidden');
@@ -58,7 +58,7 @@ angular.module('esn.calendar')
             // Load participation status
             var vcalendar = event.vcalendar;
             var emails = session.user.emails;
-            var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
+            var attendees = eventService.getInvitedAttendees(vcalendar, emails);
             var organizer = attendees.filter(function(att) {
               return att.name === 'organizer' && att.getParameter('partstat');
             });
@@ -87,7 +87,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .controller('eventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM, DEFAULT_CALENDAR_ID) {
+  .controller('eventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, eventService, calendarEventEmitter, notificationFactory, EVENT_FORM, DEFAULT_CALENDAR_ID) {
 
     function _initFormData() {
       $scope.event = CalendarShell.fromIncompleteShell({
@@ -130,7 +130,7 @@ angular.module('esn.calendar')
       var calendarHomeId = $scope.calendarHomeId || calendarService.calendarHomeId;
       var path = '/calendars/' + calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
       $scope.restActive = true;
-      calendarService.createEvent(calendarHomeId, path, event, { graceperiod: false })
+      eventService.createEvent(calendarHomeId, path, event, { graceperiod: false })
         .then(function(response) {
           _emitPostedMessage(response);
           _resetEvent();
