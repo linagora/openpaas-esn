@@ -55,7 +55,7 @@ describe('The calendar module apis', function() {
           ]
         }];
 
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', this.data).respond({
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data).respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
           },
@@ -74,7 +74,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an empty array if response.data is not defined', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', this.data).respond(null);
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data).respond(null);
         this.calendarAPI.listEvents('/dav/api/calendars/test/events.json', this.start, this.end)
           .then(function(data) {
             expect(data).to.deep.equal([]);
@@ -85,7 +85,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an empty array if response.data._embedded is not defined', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', this.data).respond({
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data).respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
           },
@@ -100,7 +100,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an empty array if response.data._embedded[\'dav:item\'] is not defined', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', this.data).respond({
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data).respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
           },
@@ -118,7 +118,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 200', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', this.data).respond(500, 'Error');
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data).respond(500, 'Error');
         this.calendarAPI.listEvents('/dav/api/calendars/test/events.json', this.start, this.end)
           .catch(function(err) {
             expect(err).to.exist;
@@ -149,7 +149,7 @@ describe('The calendar module apis', function() {
           ]
         }];
 
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', this.data).respond({
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data).respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
           },
@@ -168,7 +168,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an empty array if response.data is not defined', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', this.data).respond(null);
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data).respond(null);
 
         this.calendarAPI.listEventsForCalendar('test', 'subtest', this.start, this.end)
           .then(function(data) {
@@ -179,7 +179,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an empty array if response.data._embedded is not defined', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', this.data).respond({
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data).respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
           },
@@ -194,7 +194,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an empty array if response.data._embedded[\'dav:item\'] is not defined', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', this.data).respond({
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data).respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
           },
@@ -212,7 +212,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 200', function(done) {
-        this.$httpBackend.expectPOST('/dav/api/calendars/test/subtest.json', this.data).respond(500, 'Error');
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data).respond(500, 'Error');
         this.calendarAPI.listEventsForCalendar('test', 'subtest', this.start, this.end)
           .catch(function(err) {
             expect(err).to.exist;

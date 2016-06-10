@@ -35,7 +35,7 @@ describe('The calendarEventSource', function() {
     var data = {
       match: {start: '20140101T000000', end: '20140102T000000'}
     };
-    this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
+    this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
       _links: {self: {href: '/prepath/path/to/calendar.json'}},
       _embedded: {'dav:item': []}
     });
@@ -64,7 +64,7 @@ describe('The calendarEventSource', function() {
     var data = {
       match: {start: '20140101T000000', end: '20140102T000000'}
     };
-    this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
+    this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
       _links: {
         self: { href: '/prepath/path/to/calendar.json' }
       },
