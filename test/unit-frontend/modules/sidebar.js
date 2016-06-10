@@ -15,17 +15,17 @@ describe('The Sidebar Angular module', function() {
 
   describe('contextualSidebar directive', function() {
     var toggle;
-    var destroy;
+    var hide;
     var options;
 
     beforeEach(function() {
       toggle = sinon.spy();
-      destroy = sinon.spy();
+      hide = sinon.spy();
       var contextualSidebarService = function(opt) {
         options = opt;
         return {
           toggle: toggle,
-          destroy: destroy
+          hide: hide
         };
       };
       angular.mock.module(function($provide) {
@@ -135,13 +135,13 @@ describe('The Sidebar Angular module', function() {
       expect(toggle).to.have.been.called;
     });
 
-    it('should call destroy on $destroy', function() {
+    it('should call hide on $destroy', function() {
       var element = this.initDirective(
         '<div contextual-sidebar/>',
         this.$scope
       );
       element.scope().$destroy();
-      expect(destroy).to.have.been.called;
+      expect(hide).to.have.been.called;
     });
 
   });
