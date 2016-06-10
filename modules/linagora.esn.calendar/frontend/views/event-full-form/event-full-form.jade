@@ -7,11 +7,11 @@
         .row.flex-vertical-centered(ng-if='isOrganizer')
           .col-xs-12.col-sm-7
             h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
-            h1(ng-if='!isNew(editedEvent)') #{__('Modify event')}
+            h1(ng-if='!isNew(editedEvent)') #{__('Save event')}
           .col-xs-12.col-sm-5.buttons
               button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goToCalendar(submit);')
                 span(ng-if='isNew(editedEvent)') #{__('Create')}
-                span(ng-if='!isNew(editedEvent)') #{__('Modify')}
+                span(ng-if='!isNew(editedEvent)') #{__('Save')}
               button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goToCalendar(deleteEvent);', ng-if="isInvolvedInATask(editedEvent) || !isNew(editedEvent)")
                 | #{__('Delete')}
               button.btn.btn-default.pull-right(type='button', ng-click="goToCalendar()")
