@@ -502,30 +502,22 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFilterButton', function(_) {
+  .directive('inboxFilterButton', function($rootScope, _) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/filter/filter-button.html',
       scope: {
         filters: '=',
-        placeholder: '@',
-        onChange: '&'
+        placeholder: '@'
       },
+      controllerAs: 'ctrl',
       controller: function($scope) {
         var defaultPlaceholder = $scope.placeholder || 'Filters';
 
-        $scope.filters.forEach(function(filter) {
-          filter.checked = false;
-        });
+        $scope.dropdownList = {};
 
-        $scope.dropdownList = {
-          placeholder: defaultPlaceholder,
-          filtered: false
-        };
-
-        //the index maybe used in next PR that is why I keep it for the time being
-        this.dropdownItemClicked = function(index) {
-          var checkedItems = _.filter($scope.filters, {checked: true});
+        function updateDropdownList() {
+          var checkedItems = _.filter($scope.filters, { checked: true });
 
           if (checkedItems.length > 0) {
             $scope.dropdownList.filtered = true;
@@ -534,13 +526,16 @@ angular.module('linagora.esn.unifiedinbox')
             $scope.dropdownList.filtered = false;
             $scope.dropdownList.placeholder = defaultPlaceholder;
           }
+        }
 
-          $scope.onChange({$filters: _.map(checkedItems, 'id')});
+        this.dropdownItemClicked = function() {
+          updateDropdownList();
+
+          $rootScope.$broadcast('inboxFilterChanged');
         };
-      },
 
-      link: function(scope, element, attrs, ctrl) {
-        scope.dropdownItemClicked = ctrl.dropdownItemClicked;
+        // Define proper initial state of the button
+        updateDropdownList();
       }
     };
   });

@@ -1190,4 +1190,119 @@ angular.module('linagora.esn.unifiedinbox')
       list: list,
       get: get
     };
+  })
+
+  .factory('inboxFilters', function(PROVIDER_TYPES) {
+    return [
+      {
+        id: 'isUnread',
+        displayName: 'Unread',
+        type: PROVIDER_TYPES.JMAP
+      },
+      {
+        id: 'isFlagged',
+        displayName: 'Starred',
+        type: PROVIDER_TYPES.JMAP
+      },
+      {
+        id: 'hasAttachment',
+        displayName: 'With attachments',
+        type: PROVIDER_TYPES.JMAP
+      },
+      {
+        id: 'isSocial',
+        displayName: 'Social',
+        type: PROVIDER_TYPES.SOCIAL
+      }
+    ];
+  })
+
+  .factory('inboxFilteringService', function(inboxFilters, _, PROVIDER_TYPES) {
+    var latestMailbox;
+
+    function uncheckFilters() {
+      inboxFilters.forEach(function(filter) {
+        filter.checked = false;
+      });
+    }
+
+    function getFiltersByType(type) {
+      if (!type) {
+        return inboxFilters;
+      }
+
+      return _.filter(inboxFilters, { type: type });
+    }
+
+    function maybeResetAndGetFilters(type, mailbox) {
+      if (latestMailbox !== mailbox) {
+        latestMailbox = mailbox;
+
+        uncheckFilters();
+      }
+
+      return getFiltersByType(type);
+    }
+
+    function getJmapFilter() {
+      return getFiltersByType(PROVIDER_TYPES.JMAP).reduce(function(result, filter) {
+        if (filter.checked) {
+          result[filter.id] = true;
+        }
+
+        return result;
+      }, {});
+    }
+
+    function isAnyFilterOfTypeSelected(type) {
+      return _.some(inboxFilters, { type: type, checked: true });
+    }
+
+    function getAcceptedTypesFilter() {
+      var jmap = isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP),
+          social = isAnyFilterOfTypeSelected(PROVIDER_TYPES.SOCIAL);
+
+      if (social && jmap) {
+        return [];
+      } else if (jmap) {
+        return [PROVIDER_TYPES.JMAP];
+      } else if (social) {
+        return [PROVIDER_TYPES.SOCIAL];
+      } else {
+        return [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL];
+      }
+    }
+
+    return {
+      getFiltersForJmapMailbox: maybeResetAndGetFilters.bind(null, PROVIDER_TYPES.JMAP),
+      getFiltersForUnifiedInbox: maybeResetAndGetFilters.bind(null, null, 'unifiedinbox'),
+      getJmapFilter: getJmapFilter,
+      isAnyFilterOfTypeSelected: isAnyFilterOfTypeSelected,
+      getAcceptedTypesFilter: getAcceptedTypesFilter,
+      uncheckFilters: uncheckFilters
+    };
+  })
+
+  .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool) {
+    return function(scope, getAvailableFilters, buildLoadNextItemsFunction) {
+      function setFilter() {
+        scope.loadMoreElements = infiniteScrollOnGroupsHelper(
+          scope,
+          buildLoadNextItemsFunction(),
+          new ByDateElementGroupingTool()
+        );
+      }
+
+      scope.filters = getAvailableFilters();
+
+      scope.$on('inboxFilterChanged', function() {
+        scope.infiniteScrollDisabled = false;
+        scope.infiniteScrollCompleted = false;
+
+        setFilter();
+        scope.loadMoreElements();
+      });
+
+      setFilter();
+    };
   });

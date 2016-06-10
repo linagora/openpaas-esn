@@ -72,4 +72,14 @@ angular.module('linagora.esn.unifiedinbox')
     return function(text) {
       return text.replace(/<img([^]*?)src=["']([^]+?)["']/gim, '<img$1src="' + throbberUrl + '" data-async-src="$2"');
     };
+  })
+
+  .filter('inboxFilterJmapItems', function(inboxFilteringService, _, PROVIDER_TYPES) {
+    return function(items) {
+      if (!inboxFilteringService.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)) {
+        return items;
+      }
+
+      return _.filter(items, inboxFilteringService.getJmapFilter());
+    };
   });

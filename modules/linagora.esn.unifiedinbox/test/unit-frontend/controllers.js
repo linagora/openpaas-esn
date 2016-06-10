@@ -109,21 +109,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The unifiedInboxController', function() {
 
-    beforeEach(inject(function(PROVIDER_TYPES, inboxProviders) {
+    var inboxFilters, inboxFilteringService;
+
+    beforeEach(inject(function(PROVIDER_TYPES, inboxProviders, _inboxFilteringService_, _inboxFilters_) {
       this.PROVIDER_TYPES = PROVIDER_TYPES;
       this.inboxProviders = inboxProviders;
+      inboxFilters = _inboxFilters_;
+      inboxFilteringService = _inboxFilteringService_;
     }));
 
-    it('should expose to the scope stateParams.filter as listFilter', function() {
-      $stateParams.filter = { custom: 'filter' };
-      initController('unifiedInboxController');
-
-      expect(scope.listFilter).to.deep.equal($stateParams.filter);
+    afterEach(function() {
+      inboxFilteringService.uncheckFilters();
     });
 
     it('should leverage inboxProviders.getAll with options when loadMoreElements is called', function() {
       initController('unifiedInboxController');
-      $stateParams.filter = { custom: 'filter' };
       this.inboxProviders.getAll = sinon.stub().returns($q.when([]));
 
       scope.loadMoreElements();
@@ -132,7 +132,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(this.inboxProviders.getAll).to.have.been.calledWith({
         acceptedTypes: [this.PROVIDER_TYPES.JMAP, this.PROVIDER_TYPES.SOCIAL],
         filterByType: {
-          JMAP: { custom: 'filter' }
+          JMAP: {}
         }
       });
     });
@@ -156,17 +156,23 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
 
-    it('should forward stateParams filter to our jmap provider', function() {
+    it('should forward filters to our jmap provider', function() {
+      inboxFilteringService.getFiltersForUnifiedInbox();
+      _.find(inboxFilters, { id: 'isUnread' }).checked = true; // This simulated the selection of isUnread
+
       initController('unifiedInboxController');
-      $stateParams.filter = { custom: 'filter' };
 
       jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient)));
       jmapClient.getMessages = sinon.stub().returns($q.when([]));
+      jmapClient.getMailboxWithRole = sinon.stub().returns($q.when({ id: 'inbox' }));
 
       scope.loadMoreElements();
       scope.$digest();
 
-      expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', $stateParams.filter));
+      expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
+        inMailboxes: ['inbox'],
+        isUnread: true
+      }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
 
