@@ -238,6 +238,13 @@ angular.module('esn.calendar')
       } else {
         $scope.editedEvent.changeParticipation(status, [$scope.userAsAttendee.email]);
         $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
+
+        _changeparticipationAsAttendee();
+        if ($state.is('calendar.event.form')) {
+          $state.go('calendar.main');
+        } else {
+          _hideModal();
+        }
       }
     }
 

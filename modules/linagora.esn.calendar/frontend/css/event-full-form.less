@@ -1,5 +1,9 @@
 .event-full-form {
 
+  hr {
+    border-top: 1px solid lighten(@m-gray, 20%);
+  }
+
   .mdi {
     font-size: 3em;
   }
@@ -42,6 +46,18 @@
     }
   }
 
+  .accepted  {
+    color: @m-green;
+  }
+
+  .undecided {
+    color: @m-blue;
+  }
+
+  .declined {
+    color: @m-red;
+  }
+
   .form {
     margin-top: 40px;
     font-size: @formFontSize;
@@ -60,6 +76,7 @@
 
     .form-group {
       .FormMargin();
+      margin-top: 20px;
       textarea.form-control {
         z-index: 0;
       }
@@ -73,14 +90,12 @@
       }
 
       .undecided {
-        margin-top: 25px;
         font-size: @formFontSize;
       }
       .accepted {
         font-size: @formFontSize;
       }
       .declined {
-        margin-top: 25px;
         font-size: @formFontSize;
       }
     }

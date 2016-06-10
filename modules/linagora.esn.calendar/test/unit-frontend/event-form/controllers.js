@@ -43,7 +43,10 @@ describe('The event-form module controllers', function() {
         event = e;
         return $q.when();
       },
-      calendarHomeId: 'calendarHomeId'
+      calendarHomeId: 'calendarHomeId',
+      changeParticipation: sinon.spy(function() {
+        return $q.when({});
+      })
     };
 
     var sessionMock = {
@@ -76,7 +79,8 @@ describe('The event-form module controllers', function() {
 
     this.openEventForm = sinon.spy();
     this.$state = {
-      is: sinon.stub().returns('to be or not to be')
+      is: sinon.stub().returns('to be or not to be'),
+      go: sinon.stub().returns('toto')
     };
 
     angular.mock.module('esn.calendar');
@@ -602,6 +606,55 @@ describe('The event-form module controllers', function() {
       });
     });
 
+    describe('modifyEvent function', function() {
+      beforeEach(function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+        this.$state.go = sinon.spy();
+        this.scope.$hide = sinon.spy();
+        this.initController();
+      });
+
+      it('should update the event', function() {
+        this.scope.isOrganizer = false;
+        var status;
+        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          status = _status_;
+          return $q.when({});
+        };
+
+        this.scope.changeParticipation('ACCEPTED');
+        this.scope.$digest();
+
+        expect(status).to.equal('ACCEPTED');
+      });
+
+      it('should call calendarService.changeParticipation', function() {
+        this.scope.isOrganizer = false;
+        this.scope.changeParticipation('ACCEPTED');
+
+        expect(this.calendarServiceMock.changeParticipation).to.have.been.called;
+      });
+
+      it('should go to the calendar view if user is attendee and view is full form', function() {
+        this.$state.is = sinon.stub().returns(true);
+        this.scope.isOrganizer = false;
+        this.scope.changeParticipation('ACCEPTED');
+        this.scope.$digest();
+
+        expect(this.$state.go).to.have.been.calledWith('calendar.main');
+      });
+
+      it('should hide the modal if user is attendee and view is quick form', function() {
+        this.$state.is = sinon.stub().returns(false);
+        this.scope.isOrganizer = false;
+        this.scope.changeParticipation('ACCEPTED');
+        this.scope.$digest();
+
+        expect(this.scope.$hide).to.have.been.called;
+      });
+
+    });
+
     describe('createEvent function', function() {
       beforeEach(function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({});
@@ -752,6 +805,7 @@ describe('The event-form module controllers', function() {
           this.scope.userAsAttendee = {
             email: 'user@test.com'
           };
+
           this.scope.changeParticipation('DECLINED');
           expect(broadcastSpy).to.not.have.been.called;
           done();
