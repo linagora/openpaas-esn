@@ -3,17 +3,17 @@
   .email-header(ng-click="ctrl.toggleIsCollapsed(email)", ng-class='{"clickable": email.isCollapsed != undefined}')
 
     .sender-avatar.hidden-xs
-      message-sender-avatar(message="::email")
+      inbox-emailer-avatar(emailer="::email.from")
     .avatarify
       .from
         label.line-header #{__('From')}:
-        emailer(emailer="::email.from")
+        inbox-emailer(emailer="::email.from")
       .to
         label.line-header #{__('To')}:
-        emailer-group(group="::email.to")
+        inbox-emailer-group(group="::email.to")
       .cc
         label.line-header #{__('CC')}:
-        emailer-group(group="::email.cc")
+        inbox-emailer-group(group="::email.cc")
       .preview.ellipsis.line-header {{::email.preview}}
 
     .email-header-right
