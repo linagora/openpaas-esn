@@ -20,10 +20,13 @@
     .title {
       text-align: center;
       font-size: 1.4em;
-      margin-left: 35px;
+      margin-left: 40px;
       margin-right: 35px;
-
       color: @textPrimaryColor;
+    }
+
+    inbox-filter-button {
+      margin-right: 15px;
     }
 
     &.composer {
@@ -32,6 +35,20 @@
       }
     }
 
+    .left-container {
+      .close.button {
+        top: 0;
+      }
+    }
   }
+}
 
+@media (min-width: @screen-md-min) {
+  #header {
+    .inbox-subheader {
+      inbox-filter-button {
+        margin-right: 30px;
+      }
+    }
+  }
 }

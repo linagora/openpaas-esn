@@ -1,51 +1,59 @@
-.filter-button {
-  .flex-vertical-centered;
+#sub-header {
+  .filter-button {
+    .flex-vertical-centered;
 
-  width: 25px;
-  font-size: 14px;
-  text-transform: capitalize;
-  color: @textPrimaryColor;
-  padding-bottom: 2px;
-  border-bottom: 2px solid transparent;
+    width: 35px;
+    font-size: 14px;
+    text-transform: capitalize;
+    color: @textPrimaryColor;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
 
-  &.filtered {
-    border-bottom: 2px solid @accentColor;
-    .mdi-filter {
-      color: @accentColor;
-    }
-  }
-
-  .filter-label {
-    width: 100px;
-    text-align: left;
-    margin: 0 5px 0 15px;
-  }
-
-  .dropdown-menu {
-    padding: 5px 15px;
-
-    .checkbox {
-      color: @secondaryTextColor;
-      margin-bottom: 20px;
-
-      &:last-child {
-        margin-bottom: 10px;
-      }
-
-      .dropdown-item {
-        margin: 0;
+    &.filtered {
+      border-bottom: 2px solid @accentColor;
+      .mdi-filter {
+        color: @accentColor;
       }
     }
 
-    .dropdown-list .dropdown-item {
-      width: 100%;
+    .filter-label {
+      width: 125px;
+      text-align: left;
+      margin: 0 5px 0 15px;
+    }
+
+    .dropdown-menu {
+      padding: 5px 15px;
+
+      .checkbox {
+        color: @secondaryTextColor;
+        margin-bottom: 20px;
+
+        &:last-child {
+          margin-bottom: 10px;
+        }
+
+        .dropdown-item {
+          margin: 0;
+        }
+      }
+
+      .dropdown-list .dropdown-item {
+        width: 100%;
+      }
+    }
+
+    .caret {
+      border-top: 4px solid;
+      border-right: 4px solid transparent;
+      border-left: 4px solid transparent;
     }
   }
-}
 
-@media (min-width: @screen-md-min) {
+  @media (min-width: @screen-md-min) {
 
-  .inbox-root .filter-button {
-    width: 150px;
+    .filter-button {
+      width: 180px;
+    }
   }
 }

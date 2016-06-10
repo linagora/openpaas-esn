@@ -1,3 +1,8 @@
 .inbox-subheader.row
-  inbox-subheader-burger-button.hidden-md
-  .title.ellipsis {{ ::mailbox.name }}
+  .col-md-3.hidden-xs
+  .col-md-8.col-xs-12.no-padding-xs
+    .flex-space-between
+      .left-container
+        inbox-subheader-burger-button.hidden-md
+        span.title.ellipsis {{ ::mailbox.name }}
+      inbox-filter-button.clickable(filters="filters")

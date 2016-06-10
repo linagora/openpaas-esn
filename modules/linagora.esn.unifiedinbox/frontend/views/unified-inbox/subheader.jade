@@ -1,3 +1,8 @@
 .inbox-subheader.row
-  inbox-subheader-burger-button.hidden-md
-  .title.ellipsis #{__('Unified Inbox')}
+  .col-md-3.hidden-xs
+  .col-md-8.col-xs-12.no-padding-xs
+    .flex-space-between
+      .left-container
+        inbox-subheader-burger-button.hidden-md
+        span.title.ellipsis #{__('Unified Inbox')}
+      inbox-filter-button.clickable(filters="filters")
