@@ -36,8 +36,49 @@ function getLatestVersion(req, res) {
 function setupAPI(application) {
   var router  = require('express').Router();
 
+  /**
+   * @swagger
+   * /versions:
+   *   get:
+   *     tags:
+   *       - Version
+   *     description: Get available versions of the OpenPaaS API.
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/vs_versions"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   */
   router.get('/versions', getVersions);
+
+  /**
+   * @swagger
+   * /versions/latest:
+   *   get:
+   *     tags:
+   *       - Version
+   *     description: Get the latest available version of the OpenPaaS API.
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/vs_latest"
+   */
   router.get('/versions/latest', getLatestVersion);
+
+  /**
+   * @swagger
+   * /versions/{id}:
+   *   get:
+   *     tags:
+   *       - Version
+   *     description: Get the version with the given id.
+   *     parameters:
+   *       - $ref: "#/parameters/vs_id"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/vs_version"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   */
   router.get('/versions/:id', getVersionById);
 
   require('./activitystreams')(router);
@@ -57,7 +98,7 @@ function setupAPI(application) {
   require('./messages')(router);
   require('./monitoring')(router);
   require('./notifications')(router);
-  require('./oauth')(router);
+  require('./oauthclients')(router);
   require('./user')(router);
   require('./users')(router);
 
