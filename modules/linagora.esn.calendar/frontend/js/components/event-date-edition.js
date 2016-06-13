@@ -20,20 +20,6 @@ angular.module('esn.calendar')
       scope.allDayOnChange = scope.allDayOnChange || function() {};
       scope.allDay = scope.event.allDay;
 
-      scope.getMinDate = function() {
-        if (scope.event.start) {
-          return fcMoment(scope.event.start).subtract(1, 'days').format('YYYY-MM-DD');
-        }
-        return null;
-      };
-
-      scope.getMinTime = function() {
-        if (scope.event.start && scope.event.start.isSame(scope.event.end, 'day')) {
-          return scope.event.start;
-        }
-        return null;
-      };
-
       scope.setEventDates = function() {
         var start, end;
         if (scope.allDay) {
@@ -56,8 +42,6 @@ angular.module('esn.calendar')
         scope.event.end = end;
         scope.diff = scope.event.end.diff(scope.event.start);
       };
-
-      scope.today = fcMoment().format('YYYY-MM-DD');
 
       scope.onStartDateChange = function() {
         if (!scope.event.start || !scope.event.start.isValid()) {
