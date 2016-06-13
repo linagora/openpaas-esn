@@ -49,7 +49,7 @@ angular.module('esn.calendar')
           end: end.format(davDateFormat)
         }
       };
-      return request('post', calendarHref, null, body)
+      return request('report', calendarHref, null, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -97,7 +97,7 @@ angular.module('esn.calendar')
         }
       };
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
-      return request('post', path, null, body)
+      return request('report', path, null, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);

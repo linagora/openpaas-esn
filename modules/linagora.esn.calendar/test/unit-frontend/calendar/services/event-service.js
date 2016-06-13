@@ -112,7 +112,7 @@ describe('The eventService service', function() {
       var data = {
         match: { start: '20140101T000000', end: '20140102T000000' }
       };
-      this.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
+      this.$httpBackend.expect('REPORT', '/dav/api/calendars/uid/events.json', data).respond({
         _links: {
           self: { href: '/prepath/path/to/calendar.json' }
         },
@@ -163,7 +163,7 @@ describe('The eventService service', function() {
       var data = {
         match: { start: '20140101T000000', end: '20140103T000000' }
       };
-      this.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
+      this.$httpBackend.expect('REPORT', '/dav/api/calendars/uid/events.json', data).respond({
         _links: {
           self: { href: '/prepath/path/to/calendar.json' }
         },
