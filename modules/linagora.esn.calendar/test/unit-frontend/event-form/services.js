@@ -94,7 +94,7 @@ describe('The event-form module services', function() {
     it('if event is a recurring event, it should ask for editting master or instance', function() {
       this.openEventForm(this.instance);
       expect(this.$modal).to.have.been.calledWith(sinon.match({
-        templateUrl: '/calendar/views/event-quick-form/edit-instance-or-all-instance',
+        templateUrl: '/calendar/views/event-quick-form/edit-instance-or-serie',
         resolve: {
           event: sinon.match.func.and(sinon.match(function(eventGetter) {
             return eventGetter() === self.instance;

@@ -1,0 +1,12 @@
+.modal.edit-instance-or-serie(tabindex="-1", role="dialog")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Edit')}:
+      .modal-body.flex-column
+        button.btn.btn-default.waves-effect(ng-click='editInstance()')
+          | #{__('Only this event')}
+        button.btn.btn-default.waves-effect(ng-click='editAllInstances()')
+          | #{__('All events in the serie')}
+        button.btn.btn-default.cancel.pull-right.waves-effect(ng-click='$hide()')
+          | #{__('Cancel')}
