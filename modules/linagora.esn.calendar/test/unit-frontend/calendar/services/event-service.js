@@ -1477,35 +1477,29 @@ describe('The eventService service', function() {
       att.setParameter('partstat', 'ACCEPTED');
       att.setParameter('rsvp', 'TRUE');
       att.setParameter('role', 'REQ-PARTICIPANT');
-
-      this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
+      this.event.attendees = [{emails: emails}];
+      this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', copy.toJSON()).respond(200, new ICAL.Component('vcalendar').jCal);
 
       this.eventService.changeParticipation('/path/to/uid.ics', this.event, emails, 'ACCEPTED').then(
-        function(response) { done(); }, unexpected.bind(null, done)
+        function(response) {
+          expect(response).to.exist;
+          done();
+        }, unexpected.bind(null, done)
       );
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
     });
 
-    it('should not change the participation status when the status is the actual attendee status', function(done) {
+    it('should not change the participation status when the status is the actual attendee status', function() {
       var emails = ['test@example.com'];
 
-      var copy = new ICAL.Component(ICAL.helpers.clone(this.vcalendar.jCal, true));
-      var vevent = copy.getFirstSubcomponent('vevent');
-      var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
-      att.setParameter('partstat', 'DECLINED');
-      att.setParameter('rsvp', 'TRUE');
-      att.setParameter('role', 'REQ-PARTICIPANT');
-
-      this.eventService.changeParticipation('/path/to/uid.ics', this.event, emails, 'DECLINED').then(
-        function(response) {
-          expect(response).to.be.null; done();
-        }, unexpected.bind(null, done)
-      );
+      var promiseSpy = sinon.spy();
+      this.event.attendees = [{emails: emails, partstat: 'DECLINED'}];
+      this.eventService.changeParticipation('/path/to/uid.ics', this.event, emails, 'DECLINED').then(promiseSpy);
 
       this.$rootScope.$apply();
-      this.$httpBackend.flush();
+      expect(promiseSpy).to.have.been.calledWith(null);
     });
 
     it.skip('should retry participation change on 412', function(done) {
@@ -1544,6 +1538,54 @@ describe('The eventService service', function() {
       this.eventService.changeParticipation('/path/to/uid.ics', this.event, emails, 'ACCEPTED', 'etag').then(
         function(shell) {
           expect(shell.etag).to.equal('success');
+          done();
+        }, unexpected.bind(null, done)
+      );
+
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+    });
+
+    it('should change the participation status if the event is recurrent', function(done) {
+      var recurrentCalendarShell = new this.CalendarShell(new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics'])), {path: '/path/to/uid.ics'}
+);
+      recurrentCalendarShell.attendees = [{email: 'test@example.com'}];
+      var instance = recurrentCalendarShell.expand()[1];
+
+      var emails = ['test@example.com'];
+      var copy = new ICAL.Component(ICAL.helpers.clone(recurrentCalendarShell.vcalendar.jCal, true));
+      var vevent = copy.getFirstSubcomponent('vevent');
+      vevent.removeAllProperties('attendee');
+
+      var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
+      att.setParameter('partstat', 'ACCEPTED');
+      att.setParameter('rsvp', 'TRUE');
+      att.setParameter('role', 'REQ-PARTICIPANT');
+
+      this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, JSON.stringify(recurrentCalendarShell.vcalendar.jCal));
+
+      this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', function(jCal) {
+        //all of this is about removing an exception that is not a real exception
+        //because it does not differ at all about the normal instance
+        //it's here because of a issue of calendarshell that does not have real impact
+        // Opened Issue : CAL-359
+        var icsComponent = new ICAL.Component(JSON.parse(jCal));
+        var idOfWrongException = instance.vevent.getFirstPropertyValue('recurrence-id');
+
+        icsComponent.getAllSubcomponents('vevent').forEach(function(subVevent) {
+          var subEventRecurrentId = subVevent.getFirstPropertyValue('recurrence-id');
+
+          if (subEventRecurrentId && subEventRecurrentId.compare(idOfWrongException) === 0) {
+            icsComponent.removeSubcomponent(subVevent);
+          }
+        });
+
+        return icsComponent.toString() === copy.toString();
+      }).respond(200, new ICAL.Component('vcalendar').jCal);
+
+      this.eventService.changeParticipation('/path/to/uid.ics', instance, emails, 'ACCEPTED').then(
+        function(response) {
+          expect(response).to.exist;
           done();
         }, unexpected.bind(null, done)
       );
