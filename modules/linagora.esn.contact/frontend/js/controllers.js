@@ -260,7 +260,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $q, $timeout, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, ContactAPIClient, DEFAULT_ADDRESSBOOK_NAME, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
+  .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
     $scope.user = user;
@@ -274,7 +274,7 @@ angular.module('linagora.esn.contact')
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
     $scope.searchFailure = false;
     $scope.totalHits = 0;
-    $scope.displayAs = CONTACT_LIST_DISPLAY.multiple;
+    $scope.displayAs = CONTACT_LIST_DISPLAY.list;
     $scope.addressbooks = addressbooks || [];
 
     $scope.$on('$stateChangeStart', function(evt, next) {
@@ -505,10 +505,6 @@ angular.module('linagora.esn.contact')
       $scope.contactSearch.searchInput = null;
       $scope.loadContacts();
     }
-
-    $scope.getContactTitleDisplayCondition = function() {
-      return (!$scope.headerDisplay.letterExists || $scope.displayAs === CONTACT_LIST_DISPLAY.cards) && !$scope.contactSearch.searchInput;
-    };
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {
@@ -534,7 +530,7 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactCategoryLetterController', function($scope, CONTACT_SCROLL_EVENTS) {
+  .controller('contactCategoryLetterController', function($scope, CONTACT_SCROLL_EVENTS, CONTACT_LIST_DISPLAY) {
     $scope.headerDisplay = {
       categoryLetter: ''
     };
@@ -544,6 +540,10 @@ angular.module('linagora.esn.contact')
         $scope.headerDisplay.categoryLetter = data;
       });
     });
+
+    $scope.getContactTitleDisplayCondition = function() {
+      return (!$scope.headerDisplay.letterExists || $scope.displayAs === CONTACT_LIST_DISPLAY.cards) && !$scope.contactSearch.searchInput;
+    };
   })
 
   .controller('contactItemController', function($scope, $location, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper, ContactHighLightHelper) {
