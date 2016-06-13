@@ -11,7 +11,6 @@ angular.module('esn.calendar')
       selectable: true,
       timezone: 'local',
       nowIndicator: true,
-      forceEventDuration: true,
       defaultTimedEventDuration: '00:30:00',
       weekNumbers: true,
       firstDay: 1,
@@ -33,7 +32,7 @@ angular.module('esn.calendar')
           type: 'agendaWeek',
           duration: { days: 3 },
           buttonText: '3 days',
-          eventLimit: true,
+          eventLimit: 3,
           eventLimitClick: 'day'
         },
         month: {
@@ -41,7 +40,7 @@ angular.module('esn.calendar')
           eventLimitClick: 'day'
         },
         week: {
-          eventLimit: true,
+          eventLimit: 3,
           eventLimitClick: 'day'
         }
       }
