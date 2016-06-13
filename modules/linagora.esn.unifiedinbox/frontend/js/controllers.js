@@ -306,9 +306,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollOnGroupsHelper, inboxTwitterProvider, ByDateElementGroupingTool, session, _) {
-
+  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollOnGroupsHelper, inboxTwitterProvider,
+                                                inboxFilteringService, ByDateElementGroupingTool, session, _) {
     var account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
+
+    inboxFilteringService.uncheckFilters();
 
     $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxTwitterProvider(account.id).fetch(), new ByDateElementGroupingTool());
     $scope.username = account.username;

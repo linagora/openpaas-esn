@@ -1,3 +1,4 @@
-.inbox-subheader.row
-  inbox-subheader-burger-button.hidden-md
-  .title.ellipsis {{ ::username }}
+extends ../../layout/list/subheader
+
+block title
+  | {{ ::username }}

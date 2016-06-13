@@ -1080,11 +1080,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The listTwitterController', function() {
 
+    var inboxFilters;
+
     beforeEach(function() {
       $stateParams.username = 'AwesomePaas';
     });
 
-    beforeEach(inject(function(session) {
+    beforeEach(inject(function(session, _inboxFilters_) {
+      inboxFilters = _inboxFilters_;
+
       session.user.accounts = [{
         data: {
           id: 'idAwesomePaas',
@@ -1104,6 +1108,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listTwitterController');
 
       expect(scope.username).to.equal('AwesomePaas');
+    });
+
+    it('should uncheck all filters, no filtering is provided to the user', function() {
+      inboxFilters[0].checked = true;
+
+      initController('listTwitterController');
+
+      expect(_.filter(inboxFilters, { checked: true })).to.deep.equal([]);
     });
 
   });
