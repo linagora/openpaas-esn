@@ -61,6 +61,7 @@
       .flex-shorthand(1, 1);
 
       height: 100%;
+      min-width: 0; // https://bugzilla.mozilla.org/show_bug.cgi?id=1086218#c4
 
       .preview {
         min-height: 20px;
@@ -165,14 +166,6 @@
 
   .card {
     margin-bottom: 0;
-  }
-
-}
-
-@media (min-width: @screen-sm-min) {
-
-  .email-view .card .avatarify{
-    width: 75%;
   }
 
 }
