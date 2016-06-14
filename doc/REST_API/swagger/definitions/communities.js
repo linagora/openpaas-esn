@@ -1,26 +1,38 @@
 /**
- * @swagger
- * definition:
- *   CommunityResponse:
- *     properties:
- *       _id:
- *         type: string
- *         format: uuid
- *       title:
- *         type: string
- *       description:
- *         type: string
- *       domain_ids:
- *         type: array
- *         items:
- *           type: string
- *           format: uuid
- *       timestamps:
- *         type: object
- *         properties:
- *           creation:
- *             type: string
- *             format: date-time
- *       activity_stream:
- *         type: object
- */
+  * @swagger
+  * definition:
+  *   ct_community:
+  *     properties:
+  *       _id:
+  *         $ref: "#/definitions/cm_tuple_id"
+  *       title:
+  *         type: string
+  *       description:
+  *         type: string
+  *       domain_ids:
+  *         type: array
+  *         items:
+  *           $ref: "#/definitions/cm_tuple_id"
+  *       timestamps:
+  *         $ref: "#/definitions/cm_timestamps"
+  *       activity_stream:
+  *         type: object
+  *   ct_community_request:
+  *     properties:
+  *       _id:
+  *         $ref: "#/definitions/cm_tuple_id"
+  *       title:
+  *         type: string
+  *       description:
+  *         type: string
+  *       domain_ids:
+  *         type: array
+  *         items:
+  *           $ref: "#/definitions/cm_tuple_id"
+  *       timestamps:
+  *         $ref: "#/definitions/cm_timestamps"
+  *       activity_stream:
+  *         type: object
+  *       membershipRequest:
+  *         $ref: "#/definitions/cm_date"
+  */
