@@ -1,19 +1,16 @@
 'use strict';
 
 angular.module('esn.resource-link', ['esn.http'])
-  .factory('ResourceLinkAPI', ResourceLinkAPI);
+  .factory('ResourceLinkAPI', function(esnRestangular) {
+    function create(source, target, type) {
+      return esnRestangular.all('resource-links').customPOST({
+        source: source,
+        target: target,
+        type: type
+      });
+    }
 
-function ResourceLinkAPI(esnRestangular) {
-
-  function create(source, target, type) {
-    return esnRestangular.all('resource-links').customPOST({
-      source: source,
-      target: target,
-      type: type
-    });
-  }
-
-  return {
-    create: create
-  };
-}
+    return {
+      create: create
+    };
+  });
