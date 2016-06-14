@@ -1,4 +1,5 @@
 @avatarSize: 70px;
+@avatarCollapsedSize: 40px;
 
 .email-view {
 
@@ -18,6 +19,12 @@
       .email-body,
       .lv-footer {
         display: none;
+      }
+
+      .email-header .sender-avatar img {
+        width: @avatarCollapsedSize;
+        min-width: @avatarCollapsedSize;
+        height: @avatarCollapsedSize;
       }
     }
 
