@@ -343,18 +343,24 @@ angular.module('esn.calendar')
      * @param  {[String]}                 emails     an array of emails
      * @param  {String}                   status     the status in which attendees status will be set
      * @param  {String}                   etag       the etag
-     * @param  {Boolean}                  emitEvents it is used
+     * @param  {Boolean}                  emitEvents true if you want to emit the event to the fullcalendar false if not
      * @return {Mixed}                               the event as CalendarShell in case of 200 or 204, the response otherwise
      * Note that we retry the request in case of 412. This is the code returned for a conflict.
      */
     function changeParticipation(eventPath, event, emails, status, etag, emitEvents) {
+
       emitEvents = emitEvents || true;
       if (!angular.isArray(event.attendees)) {
         return $q.when(null);
       }
-
       if (!event.changeParticipation(status, emails)) {
         return $q.when(null);
+      }
+
+      if (event.isInstance()) {
+        return event.getModifiedMaster().then(function(newMasterEvent) {
+          return changeParticipation(eventPath, newMasterEvent, emails, status, etag, emitEvents);
+        });
       }
 
       return eventAPI.changeParticipation(eventPath, event.vcalendar, etag)
