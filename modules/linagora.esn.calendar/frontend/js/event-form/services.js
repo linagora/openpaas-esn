@@ -42,7 +42,7 @@ angular.module('esn.calendar')
         openForm(event);
       } else {
         $modal({
-          templateUrl: '/calendar/views/event-quick-form/edit-instance-or-all-instance',
+          templateUrl: '/calendar/views/event-quick-form/edit-instance-or-serie',
           resolve: {
             event: function() {
               return event;
