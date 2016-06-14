@@ -1,17 +1,13 @@
 .event-full-form-subheader
-  .flex-start.flex-vertical-centered
-    .col-xs-3.nopadding
-      a.btn.btn-primary.flex-vertical-centered(href='', ng-click='goToCalendar();')
-        i.mdi.mdi-arrow-left
-        | #{__('Back')}
-    .col-xs-6.nopadding
-      span.all-centered
-        | #{__('Consult')}
-    .col-xs-3.nopadding
-      button.btn.btn-primary(ng-if="!isEdit", ng-click="changeConsultState()")
-        | #{__('Save')}
-        i.mdi.mdi-pencil
-      button.btn.btn-primary(ng-if="isEdit", ng-click="changeConsultState()")
-        | #{__('Save')}
-        i.mdi.mdi-check
-
+  .flex-vertical-centered.flex-space-between
+    a.btn.btn-primary.flex-vertical-centered(href='', ng-click='goToCalendar();')
+      i.mdi.mdi-arrow-left
+      | #{__('Back')}
+    span.all-centered
+      | #{__('Consult')}
+    button.btn.btn-primary(ng-if="!isEdit", ng-click="changeConsultState()")
+      | #{__('Save')}
+      i.mdi.mdi-pencil
+    button.btn.btn-primary(ng-if="isEdit", ng-click="changeConsultState()")
+      | #{__('Save')}
+      i.mdi.mdi-check
