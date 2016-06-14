@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var q = require('q');
 var mockery = require('mockery');
 
-describe.only('The messages controller', function() {
+describe('The messages controller', function() {
 
   describe('POST /api/messages', function() {
     var validReq;
