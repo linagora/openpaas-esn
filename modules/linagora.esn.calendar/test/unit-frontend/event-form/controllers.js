@@ -640,7 +640,16 @@ describe('The event-form module controllers', function() {
       });
 
       it('should go to the calendar view if user is attendee and view is full form', function() {
-        this.$state.is = sinon.stub().returns(true);
+        this.$state.is = function(state) { return state === 'calendar.event.form'; };
+        this.scope.isOrganizer = false;
+        this.scope.changeParticipation('ACCEPTED');
+        this.scope.$digest();
+
+        expect(this.$state.go).to.have.been.calledWith('calendar.main');
+      });
+
+      it('should go to the calendar view if user is attendee and view is consult form', function() {
+        this.$state.is = function(state) { return state === 'calendar.event.consult'; };
         this.scope.isOrganizer = false;
         this.scope.changeParticipation('ACCEPTED');
         this.scope.$digest();

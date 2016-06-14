@@ -129,7 +129,7 @@ angular.module('esn.calendar')
         });
     }
 
-    function _changeparticipationAsAttendee() {
+    function _changeParticipationAsAttendee() {
       var status = $scope.userAsAttendee.partstat;
 
       $scope.restActive = true;
@@ -225,7 +225,7 @@ angular.module('esn.calendar')
       if ($scope.isOrganizer) {
         _modifyOrganizerEvent();
       } else {
-        _changeparticipationAsAttendee();
+        _changeParticipationAsAttendee();
       }
     }
 
@@ -240,8 +240,8 @@ angular.module('esn.calendar')
         $scope.editedEvent.changeParticipation(status, [$scope.userAsAttendee.email]);
         $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
 
-        _changeparticipationAsAttendee();
-        if ($state.is('calendar.event.form')) {
+        _changeParticipationAsAttendee();
+        if ($state.is('calendar.event.form') || $state.is('calendar.event.consult')) {
           $state.go('calendar.main');
         } else {
           _hideModal();
