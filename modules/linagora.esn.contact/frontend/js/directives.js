@@ -253,13 +253,6 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListHeader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/contact/views/partials/contact-list-header.html'
-    };
-  })
-
   .directive('contactListSubheader', function() {
     return {
       restrict: 'E',

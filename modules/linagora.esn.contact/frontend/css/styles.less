@@ -221,51 +221,6 @@ ul.dropdown {
     }
   }
 
-  .contacts-list-header {
-    position: fixed;
-    z-index: 10;
-    width: 100%;
-    left: 0;
-    right: 0;
-    background: @searchHeaderBackground;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    padding: 5px 10px;
-    color: @textPrimaryColor;
-
-    .contacts-list-header-inner {
-      padding: 0 5px;
-      height: 100%;
-      justify-content: space-between;
-      color: @m-white;
-
-      .contacts-list-header-title {
-        h2 {
-          font-size: 15px;
-          color: @m-white;
-          margin: 0 0 0 15px;
-          font-weight: 400;
-          text-transform: uppercase;
-
-          small {
-            display: block;
-            text-transform: none;
-            margin-top: 3px;
-            color: @accentColor;
-            font-weight: bold;
-            line-height: 140%;
-          }
-        }
-      }
-
-      .actions {
-        .mdi {
-          color: @m-white;
-          font-size: xx-large;
-        }
-      }
-    }
-  }
-
   .contacts-body {
     top: 75px;
     position: inherit;
@@ -317,7 +272,7 @@ ul.dropdown {
       }
       & .p-t-5 {
         max-width: 100%;
-      } 
+      }
     }
   }
 
@@ -421,22 +376,6 @@ contact-photo {
 .fadeIn200ms {
   animation: fadeIn 0.2s;
   -webkit-animation: fadeIn 0.2s;
-}
-
-.contacts-list-toolbar {
-  .flex();
-  justify-content: flex-end;
-  .actions {
-    margin-right: 25px;
-  }
-}
-
-.contacts-toggle {
-  min-width: @contact-toolbar-switch-width * 2;
-  button {
-    height: @contact-toolbar-item-height;
-    width: @contact-toolbar-switch-width;
-  }
 }
 
 .contact-list-card {
