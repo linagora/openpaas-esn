@@ -1,9 +1,9 @@
 sub-header
   block subheader
 
-infinite-list(load-more-elements='loadMoreElements()').list-emails
+infinite-list(load-more-elements='loadMoreElements()').inbox-list
 
-  .groupedEmails(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
+  .inbox-items-group(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
     .block-header
       h2 {{::group.name}}
 
