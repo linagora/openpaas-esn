@@ -1,7 +1,8 @@
 'use strict';
 
-var expect = require('chai').expect,
-    mockery = require('mockery');
+var expect = require('chai').expect;
+var q = require('q');
+var mockery = require('mockery');
 
 describe('The messages controller', function() {
 
@@ -393,6 +394,14 @@ describe('The messages controller', function() {
           ids: ['1', '2']
         }
       };
+    });
+
+    beforeEach(function() {
+      mockery.registerMock('./messages.denormalize', {
+        denormalize: function(message) {
+          return q(message);
+        }
+      });
     });
 
     it('should return 500 if the user is not set in the request', function(done) {

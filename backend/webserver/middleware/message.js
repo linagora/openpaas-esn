@@ -124,3 +124,45 @@ module.exports.canShareTo = function(req, res, next) {
       next();
     });
 };
+
+function canLike(req, res, next) {
+  var link = req.link;
+  logger.debug('Check the message like link', link);
+
+  if (link.target.objectType !== 'esn.message') {
+    return next();
+  }
+
+  if (!req.user._id.equals(link.source.id)) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You can not like a message for someone else'}});
+  }
+
+  messageModule.get(link.target.id, function(err, message) {
+    if (err || !message) {
+      logger.error('Can not find the message to like', err);
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Can not find message to like'}});
+    }
+
+    messageModule.like.isMessageLikedByUser(message, req.user).then(function(result) {
+
+      if (result) {
+        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Message is already liked by user'}});
+      }
+
+      messagePermission.canLike(message, link.source, function(err, result) {
+        if (err) {
+          logger.error('Error while checking like permission');
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user can like message'}});
+        }
+
+        req.linkable = result;
+        next();
+      });
+
+    }, function(err) {
+      logger.error('Error while checking if message is already liked by user', err);
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user already liked the message'}});
+    });
+  });
+}
+module.exports.canLike = canLike;

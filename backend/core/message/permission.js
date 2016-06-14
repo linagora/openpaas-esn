@@ -6,7 +6,7 @@ var async = require('async');
 /**
  * User can read a message if he has at least read access to one of the collaboration the message belongs to.
  */
-module.exports.canRead = function(message, tuple, callback) {
+function canRead(message, tuple, callback) {
   if (!message || !tuple) {
     return callback(new Error('Message and tuple are required'));
   }
@@ -34,7 +34,8 @@ module.exports.canRead = function(message, tuple, callback) {
   }, function(result) {
     return callback(null, result);
   });
-};
+}
+module.exports.canRead = canRead;
 
 /**
  * User can always read response message.
@@ -70,3 +71,8 @@ module.exports.canReply = function(message, user, callback) {
     return callback(null, result);
   });
 };
+
+/**
+ * User can like a message if he has at least read access to one of the communities the message has been shared to.
+ */
+module.exports.canLike = canRead;

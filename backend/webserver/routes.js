@@ -28,6 +28,8 @@ exports = module.exports = function(application) {
   application.get('/views/*', templates.alterViewsFolder, views.views);
 
   require('./middleware/setup-routes')(application);
+  var resourceLinks = require('./middleware/resource-link');
+  resourceLinks.addCanCreateMiddleware('like', require('./middleware/message').canLike);
 
   var home = require('./controllers/home');
   application.get('/', home.index);

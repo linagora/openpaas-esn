@@ -1,15 +1,21 @@
 'use strict';
 
 var async = require('async');
+var q = require('q');
 var messageModule = require('../../core/message'),
     emailModule = require('../../core/message/email'),
     postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
     publishCommentActivityHelper = require('../../helpers/message').publishCommentActivity,
     messageSharesToTimelineTarget = require('../../helpers/message').messageSharesToTimelineTarget,
     publishMessageEvents = require('../../helpers/message').publishMessageEvents,
+    denormalizer = require('./messages.denormalize'),
     logger = require('../../core/logger'),
     localpubsub = require('../../core/pubsub').local,
     globalpubsub = require('../../core/pubsub').global;
+
+function denormalize(user, message) {
+  return denormalizer.denormalize(message, {user: user});
+}
 
 function createNewMessage(message, req, res) {
   function finishMessageResponse(err, savedMessage) {
@@ -166,9 +172,22 @@ function get(req, res) {
     }
     var messagesFound = messagesObject.messages;
     var messagesNotFound = messagesObject.messagesNotFound;
+
     if (messagesFound && messagesFound.length > 0) {
-      return res.json(200, messagesFound.concat(messagesNotFound));
+
+      var promises = messagesFound.map(function(message) {
+        return denormalize(req.user, message);
+      });
+
+      return q.all(promises).then(function(messages) {
+        console.log(messages);
+        res.json(200, messages.concat(messagesNotFound));
+      }, function(err) {
+        logger.error('Error while denormalizing messages', err);
+        res.json(200, messagesFound.concat(messagesNotFound));
+      });
     }
+
     return res.json(404, messagesNotFound);
   });
 }

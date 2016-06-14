@@ -2,7 +2,7 @@
 
 var authorize = require('../middleware/authorization');
 var users = require('../controllers/users');
-var link = require('../middleware/link');
+var link = require('../middleware/profile-link');
 
 module.exports = function(router) {
 

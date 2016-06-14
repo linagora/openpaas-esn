@@ -316,6 +316,7 @@ module.exports = {
   type: type,
   permission: require('./permission'),
   attachments: attachments,
+  like: require('./like'),
   get: getWithAuthors,
   dryGet: get,
   copy: copy,

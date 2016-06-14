@@ -6,6 +6,7 @@ var mockery = require('mockery');
 describe('The message core module', function() {
   beforeEach(function() {
     this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/resource-link');
     this.helpers.requireBackend('core/db/mongo/models/emailmessage');
     this.helpers.requireBackend('core/db/mongo/models/whatsup');
     this.helpers.requireBackend('core/db/mongo/models/community');

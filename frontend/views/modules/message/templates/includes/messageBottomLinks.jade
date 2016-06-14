@@ -2,11 +2,7 @@ ul.actions
   li(ng-show='::writable')
     share-message-button(share="share()")
   li(ng-show='::writable')
-    a(ng-href="")
-      i.mdi.mdi-comment
-  li(ng-show='::writable')
-    a(ng-href="")
-      i.mdi.mdi-thumb-up
+    like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()')
   li
     a(ng-href="")
       i.mdi.mdi-dots-vertical
