@@ -1,12 +1,35 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, CALENDAR_MODIFY_COMPARE_KEYS) {
-
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, DelegationService, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT) {
     $scope.newCalendar = !$scope.calendar;
     $scope.calendar = $scope.calendar || {};
     $scope.oldCalendar = {};
     angular.copy($scope.calendar, $scope.oldCalendar);
+    $scope.delegations = [];
+    $scope.selection = 'none';
+    $scope.delegationTypes = [{
+      value: CALENDAR_RIGHT.NONE,
+      name: 'None',
+      access: 'all'
+    }, {
+      value: CALENDAR_RIGHT.ADMIN,
+      name: 'Administration',
+      access: 'users'
+    }, {
+      value: CALENDAR_RIGHT.READ_WRITE,
+      name: 'Read and Write',
+      access: 'users'
+    }, {
+      value: CALENDAR_RIGHT.READ,
+      name: 'Read only',
+      access: 'all'
+    }, {
+      value:CALENDAR_RIGHT.FREE_BUSY,
+      name: 'Free/Busy',
+      access: 'all'
+    }];
+    var delegationServiceInstance = new DelegationService();
 
     if ($scope.newCalendar) {
       $scope.calendar.href = CalendarCollectionShell.buildHref($scope.calendarHomeId, uuid4.generate());
@@ -21,6 +44,11 @@ angular.module('esn.calendar')
       return CALENDAR_MODIFY_COMPARE_KEYS.some(function(key) {
         return !angular.equals(oldCalendar[key], newCalendar[key]);
       });
+    }
+
+    function reset() {
+      $scope.newUsersGroups = [];
+      $scope.selection = CALENDAR_RIGHT.NONE;
     }
 
     $scope.submit = function() {
@@ -50,6 +78,15 @@ angular.module('esn.calendar')
             $state.go('calendar.main');
           });
       }
+    };
+
+    $scope.addUserGroup = function() {
+      $scope.delegations = delegationServiceInstance.addUserGroup($scope.newUsersGroups, $scope.selection);
+      reset();
+    };
+
+    $scope.removeUserGroup = function(delegationSelected) {
+      $scope.delegations = delegationServiceInstance.removeUserGroup(delegationSelected);
     };
 
     $scope.openDeleteConfirmationDialog = function() {
