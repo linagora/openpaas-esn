@@ -38,8 +38,25 @@ describe('CalendarRightShell factory', function() {
   });
 
   describe('getPublicRight', function() {
-    it('should return write for all the user', function() {
+    it('should return rights of all the users', function() {
       expect(calendarRightShell.getPublicRight(), CALENDAR_RIGHT.FREE_BUSY);
+    });
+  });
+
+  describe('update function', function() {
+    it('should set the right of a user if there was none', function() {
+      calendarRightShell.update('bipbip', 'userEmail', CALENDAR_RIGHT.READ_WRITE);
+      expect(calendarRightShell.getUserRight('bipbip')).to.equal(CALENDAR_RIGHT.READ_WRITE);
+    });
+
+    it('should update the right of a user if some existed', function() {
+      calendarRightShell.update('me', 'myEmail', CALENDAR_RIGHT.READ_WRITE);
+      expect(calendarRightShell.getUserRight('me')).to.equal(CALENDAR_RIGHT.READ_WRITE);
+    });
+
+    it('should remove the rights if called with CALENDAR_RIGHT.NONE', function() {
+      calendarRightShell.update('me', 'myEmail', CALENDAR_RIGHT.NONE);
+      expect(calendarRightShell.getUserRight('me')).to.equal(CALENDAR_RIGHT.NONE);
     });
   });
 });

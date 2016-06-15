@@ -58,6 +58,15 @@ angular.module('esn.calendar')
         });
     }
 
+    function updateCache(calendarHomeId, calendar) {
+      (calendarsCache[calendarHomeId] || []).forEach(function(cal, index) {
+        if (calendar.id === cal.id) {
+          calendar.selected = calendarsCache[calendarHomeId][index].selected;
+          calendarsCache[calendarHomeId][index] = calendar;
+        }
+      });
+    }
+
     /** * Modify a calendar in the calendar home defined by its id.
      * @param  {String}                   calendarHomeId the id of the calendar in which is the calendar we want to modify
      * @param  {CalendarCollectionShell}  calendar       the calendar to modify
@@ -66,12 +75,7 @@ angular.module('esn.calendar')
     function modifyCalendar(calendarHomeId, calendar) {
       return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function() {
-          (calendarsCache[calendarHomeId] || []).forEach(function(cal, index) {
-            if (calendar.id === cal.id) {
-              calendar.selected = calendarsCache[calendarHomeId][index].selected;
-              calendarsCache[calendarHomeId][index] = calendar;
-            }
-          });
+          updateCache(calendarHomeId, calendar);
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, calendar);
 
           return calendar;
@@ -89,9 +93,25 @@ angular.module('esn.calendar')
       });
     }
 
+    /**
+     * Modify the rights for a calendar in the specified calendar home.
+     * @param {String}                  calendarHomeId  the id of the calendar home in which we will create a new calendar
+     * @param {CalendarCollectionShell} calendar        the calendar to modify
+     */
+    function modifyRights(calendarHomeId, calendar, rightShell) {
+      return calendarAPI.modifyShares(calendarHomeId, calendar.id, rightShell.toDAVShareRights()).then(function() {
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.RIGHTS_UPDATE, {
+          calendar: calendar,
+          rights: rightShell
+        });
+        return calendar;
+      });
+    }
+
     this.listCalendars = listCalendars;
     this.getCalendar = getCalendar;
     this.createCalendar = createCalendar;
     this.modifyCalendar = modifyCalendar;
     this.getRight = getRight;
+    this.modifyRights = modifyRights;
   });
