@@ -66,6 +66,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'fcmoment.js',
         'request.js',
         'shell/calendarshell.js',
+        'shell/rightset.js',
+        'shell/calendarrightshell.js',
         'shell/calendarcollectionshell.js',
         'components/event-date-edition.js',
         'components/event-date-consultation.js',
