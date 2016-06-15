@@ -52,11 +52,10 @@
           event-alarm-consultation(ng-if="!isEdit", event="editedEvent")
           event-alarm-edition(ng-if="isEdit", event="editedEvent")
 
-      .row.event-consult-form-footer.form-group.flex-vertical-centered
-        span.col-xs-5 #{__('Will you attend?')}
-        .col-xs-2
+      .row.event-consult-form-footer.form-group.flex-vertical-centered.flex-space-between
+        div
+          span #{__('Will you attend?')}
+        div
           button.btn.btn-default(type='button', ng-click='modifyEventParticipation("ACCEPTED")', ng-class='{ "active": userAsAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
-        .col-xs-3
           button.btn.btn-default(type='button', ng-click='modifyEventParticipation("TENTATIVE")', ng-class='{ "active": userAsAttendee.partstat == "TENTATIVE"}') #{__('Maybe')}
-        .col-xs-2
           button.btn.btn-default(type='button', ng-click='modifyEventParticipation("DECLINED")', ng-class='{ "active": !userAsAttendee || userAsAttendee.partstat == "DECLINED" }') #{__('No')}
