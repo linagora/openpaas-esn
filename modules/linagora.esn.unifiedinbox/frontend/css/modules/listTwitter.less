@@ -1,37 +1,31 @@
-.twitter-list-item {
-  padding: 17px 20px;
-
-  .list-image {
-
-    .twitter-icon-overlay {
-      position: absolute;
-      bottom: 0;
-      right: 15px;
-      font-size: 13px;
-      color: @primaryColor;
-      background-color: @m-white;
+.inbox-root {
+  .inbox-twitter-list-item {
+    .list-image {
+      .twitter-icon-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 15px;
+        font-size: 13px;
+        color: @primaryColor;
+        background-color: @m-white;
+      }
     }
 
-  }
+    .lv-title .account-inline a {
+      color: lighten(@text-color, 40%);
+      padding-left: 3px;
+    }
 
-  .lv-title .account-inline a {
-    color: lighten(@text-color, 40%);
-    padding-left: 3px;
-  }
+    .media-body {
+      padding: 0;
 
-  .media-body {
-    padding: 0;
-
-    .preview {
-
-      &.lv-small {
+      .preview {
         white-space: initial;
-      }
 
-      a {
-        opacity: 0.8;
+        a {
+          opacity: 0.8;
+        }
       }
     }
   }
-
 }

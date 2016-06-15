@@ -1,0 +1,46 @@
+@inboxDraggingItemBgColor: #FFF9C4;
+
+.inbox-root {
+  .inbox-items-group {
+    .listview .lv-item {
+      padding: 0;
+
+      .inbox-list-item-content {
+        padding: 7px 10px;
+
+        .badge-number {
+          .flex-noshrink;
+
+          padding-left: 5px;
+          color: lighten(@text-color, 30%);
+        }
+
+        .date-container {
+          .flex-noshrink;
+
+          padding-left: 15px;
+        }
+
+        .preview {
+          margin-top: 5px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .inbox-root {
+    .inbox-items-group {
+      .listview .lv-item {
+        .inbox-list-item-content {
+          padding: 17px 20px;
+
+          &.dragging {
+            background-color: @inboxDraggingItemBgColor;
+          }
+        }
+      }
+    }
+  }
+}
