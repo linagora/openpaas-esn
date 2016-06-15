@@ -31,6 +31,7 @@ angular.module('esn.calendar')
       MAX_CALENDAR_RESIZE_HEIGHT,
       CALENDAR_DEDAULT_EVENT_COLOR,
       DEFAULT_CALENDAR_ID,
+      CalendarRightShell,
       usSpinnerService) {
 
     var windowJQuery = angular.element($window);
