@@ -1,4 +1,4 @@
-@avatarSize: 70px;
+@avatarSize: 65px;
 @avatarCollapsedSize: 40px;
 
 .email-view {
@@ -22,9 +22,7 @@
       }
 
       .email-header .sender-avatar img {
-        width: @avatarCollapsedSize;
-        min-width: @avatarCollapsedSize;
-        height: @avatarCollapsedSize;
+        .avatar(@avatarCollapsedSize);
       }
     }
 
@@ -51,9 +49,7 @@
       margin-right: 10px;
 
       img {
-        width: @avatarSize;
-        min-width: @avatarSize;
-        height: @avatarSize;
+        .avatar(@avatarSize);
       }
     }
 
