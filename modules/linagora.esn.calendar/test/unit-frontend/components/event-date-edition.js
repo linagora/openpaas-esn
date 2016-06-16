@@ -145,6 +145,25 @@ describe('The event-date-edition component', function() {
       });
     });
 
+    describe('scope.getMinDate', function() {
+      it('should return null if start is undefined', function() {
+        this.$scope.event = {};
+        this.initDirective(this.$scope);
+        expect(this.eleScope.getMinDate()).to.be.null;
+      });
+
+      it('should return start minus 1 day', function() {
+        this.$scope.event = {
+          start: this.fcMoment('2013-02-08 09:30'),
+          end: this.fcMoment('2013-02-08 10:30'),
+          allDay: true
+        };
+        this.initDirective(this.$scope);
+        this.$scope.$digest();
+        expect(this.eleScope.getMinDate()).to.equal('2013-02-07');
+      });
+    });
+
     describe('scope.onStartDateChange', function() {
       it('should set end to start plus the previous stored diff', function() {
         this.$scope.event = {
