@@ -115,7 +115,7 @@ module.exports = function(grunt) {
 
       esn_full_up: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-up',
-          command: ['up'],
+          command: ['up', '--no-build'],
           env: [
             'DOCKER_IP=' + servers.host,
             'ESN_PATH=' + __dirname,
