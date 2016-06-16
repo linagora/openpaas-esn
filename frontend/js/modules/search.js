@@ -48,12 +48,6 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
       templateUrl: '/views/modules/search/search-sub-header.html'
     };
   })
-  .directive('searchHeader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/views/modules/search/header.html'
-    };
-  })
   .factory('searchResultSizeFormatter', function(SIGNIFICANT_DIGITS) {
     return function(count) {
 

@@ -1,13 +1,9 @@
 sub-header
-  search-sub-header.hidden-md
-.col-xs-12
-  .hidden-xs.search-header
-    search-header
-  .search-body
-    .row
-      .ui-view.col-xs-12.nopadding(name="search-root")
-        .subheader-aware
-          .col-md-3.hidden-xs.hidden-sm
-            .ui-view(name="search-desktop-sidebar")
-          .col-xs-12.col-md-8.no-padding-xs
-            .ui-view(name="search-result")
+  search-sub-header
+
+.row.search-body
+  .ui-view(name="search-root")
+    .col-md-3.visible-md
+      .ui-view(name="search-desktop-sidebar")
+    .col-xs-12.col-md-8.no-padding-xs
+      .ui-view(name="search-result")
