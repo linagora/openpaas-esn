@@ -24,8 +24,7 @@ angular.module('esn.calendar')
           calendarsCache[calendarHomeId] = vcalendars;
 
           return calendarsCache[calendarHomeId];
-        })
-        .catch($q.reject);
+        });
 
       return promiseCache[calendarHomeId];
     }
@@ -40,8 +39,7 @@ angular.module('esn.calendar')
       return calendarAPI.getCalendar(calendarHomeId, calendarId)
         .then(function(calendar) {
           return new CalendarCollectionShell(calendar);
-        })
-        .catch($q.reject);
+        });
     }
 
     /**
@@ -57,8 +55,7 @@ angular.module('esn.calendar')
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
 
           return calendar;
-        })
-        .catch($q.reject);
+        });
     }
 
     /** * Modify a calendar in the calendar home defined by its id.
@@ -78,8 +75,7 @@ angular.module('esn.calendar')
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, calendar);
 
           return calendar;
-        })
-        .catch($q.reject);
+        });
     }
 
     /** * Fetch the right on the server
