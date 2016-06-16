@@ -8,7 +8,6 @@ angular.module('esn.calendar')
       $rootScope,
       $window,
       $timeout,
-      $log,
       $alert,
       $state,
       openEventForm,
@@ -29,9 +28,7 @@ angular.module('esn.calendar')
       calendarVisibilityService,
       CALENDAR_EVENTS,
       MAX_CALENDAR_RESIZE_HEIGHT,
-      CALENDAR_DEDAULT_EVENT_COLOR,
       DEFAULT_CALENDAR_ID,
-      CalendarRightShell,
       usSpinnerService) {
 
     var windowJQuery = angular.element($window);
@@ -45,6 +42,7 @@ angular.module('esn.calendar')
 
     $scope.resizeCalendarHeight = calendarPromise.then.bind(calendarPromise, function(calendar) {
       var height = windowJQuery.height() - calendar.offset().top;
+
       height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
       calendar.fullCalendar('option', 'height', height);
       $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
@@ -69,6 +67,7 @@ angular.module('esn.calendar')
 
     $scope.eventDropAndResize = function(drop, event, delta, revert) {
       var newEvent = event.clone();
+
       newEvent.start = event.start;
       newEvent.end = event.end;
       newEvent.path = newEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
@@ -95,6 +94,7 @@ angular.module('esn.calendar')
     $scope.eventRender = eventUtils.render;
 
     var currentView = calendarCurrentView.get();
+
     $scope.uiConfig.calendar.defaultDate = currentView.start || $scope.uiConfig.calendar.defaultDate;
     $scope.uiConfig.calendar.defaultView = currentView.name || $scope.uiConfig.calendar.defaultView;
 
@@ -124,6 +124,7 @@ angular.module('esn.calendar')
         start: date.start,
         end: date.end
       });
+
       openEventForm(event);
     };
 
@@ -192,6 +193,7 @@ angular.module('esn.calendar')
       $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, newDate) {
         calendarPromise.then(function(calendar) {
           var view = calendar.fullCalendar('getView');
+
           if (newDate && !newDate.isBetween(view.start, view.end)) {
             calendar.fullCalendar('gotoDate', newDate);
           }
@@ -219,6 +221,7 @@ angular.module('esn.calendar')
 
     function liveNotificationHandlerOnCreateRequestandUpdate(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
+
       cachedEventSource.registerUpdate(event);
       masterEventCache.save(event);
       calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
@@ -226,12 +229,14 @@ angular.module('esn.calendar')
 
     function liveNotificationHandlerOnDelete(msg) {
       var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
+
       cachedEventSource.registerDelete(event);
       masterEventCache.remove(event);
       calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
     }
 
     var sio = livenotification('/calendars');
+
     sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, liveNotificationHandlerOnCreateRequestandUpdate);
     sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, liveNotificationHandlerOnCreateRequestandUpdate);
     sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, liveNotificationHandlerOnDelete);
