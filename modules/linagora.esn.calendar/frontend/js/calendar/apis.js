@@ -49,6 +49,7 @@ angular.module('esn.calendar')
           end: end.format(davDateFormat)
         }
       };
+
       return request('report', calendarHref, null, body)
         .then(function(response) {
           if (response.status !== 200) {
@@ -57,6 +58,7 @@ angular.module('esn.calendar')
           if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
             return [];
           }
+
           return response.data._embedded['dav:item'];
         });
     }
@@ -77,6 +79,7 @@ angular.module('esn.calendar')
           if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
             return [];
           }
+
           return response.data._embedded['dav:item'];
         });
     }
@@ -97,6 +100,7 @@ angular.module('esn.calendar')
         }
       };
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+
       return request('report', path, null, body)
         .then(function(response) {
           if (response.status !== 200) {
@@ -105,6 +109,7 @@ angular.module('esn.calendar')
           if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
             return [];
           }
+
           return response.data._embedded['dav:item'];
         });
     }
@@ -116,6 +121,7 @@ angular.module('esn.calendar')
      */
     function listAllCalendars() {
       var path = pathBuilder.rootPath();
+
       return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
@@ -124,6 +130,7 @@ angular.module('esn.calendar')
           if (!response.data || !response.data._embedded || !response.data._embedded['dav:home']) {
             return [];
           }
+
           return response.data._embedded['dav:home'];
         });
     }
@@ -135,6 +142,7 @@ angular.module('esn.calendar')
      */
     function listCalendars(calendarId) {
       var path = pathBuilder.forCalendarHomeId(calendarId);
+
       return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
@@ -143,6 +151,7 @@ angular.module('esn.calendar')
           if (!response.data || !response.data._embedded || !response.data._embedded['dav:calendar']) {
             return [];
           }
+
           return response.data._embedded['dav:calendar'];
         });
     }
@@ -155,11 +164,13 @@ angular.module('esn.calendar')
      */
     function getCalendar(calendarHomeId, calendarId) {
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+
       return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
           }
+
           return response.data;
         });
     }
@@ -172,11 +183,13 @@ angular.module('esn.calendar')
      */
     function createCalendar(calendarHomeId, calendar) {
       var path = pathBuilder.forCalendarHomeId(calendarHomeId);
+
       return request('post', path, null, calendar)
         .then(function(response) {
           if (response.status !== 201) {
             return $q.reject(response);
           }
+
           return response;
         });
     }
@@ -189,13 +202,35 @@ angular.module('esn.calendar')
      */
     function modifyCalendar(calendarHomeId, calendar) {
       var path = pathBuilder.forCalendarId(calendarHomeId, calendar.id);
+
       return request('proppatch', path, null, calendar)
         .then(function(response) {
           if (response.status !== 204) {
             return $q.reject(response);
           }
+
           return response;
         });
+    }
+
+    /**
+     * Get right of this calendar
+     * @param  {String}         calendarHomeId   The calendar home id in which to create a new calendar
+     * @param  {ICAL.Component} calendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
+     * @return {Object}                        the http response body.
+     */
+    function getRight(calendarHomeId, calendar) {
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendar.id);
+
+      return request('propfind', path, null, {
+        prop: ['cs:invite', 'acl']
+      }).then(function(response) {
+        if (response.status !== 200) {
+          return $q.reject(response);
+        }
+
+        return response.data;
+      });
     }
 
     return {
@@ -206,6 +241,7 @@ angular.module('esn.calendar')
       listEventsForCalendar: listEventsForCalendar,
       listAllCalendars: listAllCalendars,
       createCalendar: createCalendar,
+      getRight: getRight,
       modifyCalendar: modifyCalendar
     };
   })
@@ -309,10 +345,12 @@ angular.module('esn.calendar')
         'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
         Prefer: CALENDAR_PREFER_HEADER
       };
+
       if (etag) {
         headers['If-Match'] = etag;
       }
       var body = vcalendar.toJSON();
+
       return request('put', eventPath, headers, body)
         .then(function(response) {
           if (response.status !== 200 && response.status !== 204) {

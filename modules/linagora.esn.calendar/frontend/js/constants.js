@@ -114,6 +114,15 @@ angular.module('esn.calendar')
 
   .constant('DEFAULT_CALENDAR_ID', 'events')
 
+  .constant('CALENDAR_RIGHT', {
+    NONE: 'none',
+    FREE_BUSY: 'free busy',
+    READ: 'read',
+    READ_WRITE: 'read write',
+    ADMIN: 'admin',
+    CUSTOM: 'custom'
+  })
+
   .constant('CALENDAR_EVENTS', {
     CALENDAR_HEIGHT: 'calendar:height',
     EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',

@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -546,6 +546,38 @@ describe('The calendar module apis', function() {
           });
 
         this.$httpBackend.flush();
+      });
+    });
+
+    describe('getRight method', function() {
+      var bodyRequest;
+
+      beforeEach(function() {
+        bodyRequest = {
+          prop: ['cs:invite', 'acl']
+        };
+      });
+
+      it('should return an Error if response.status is not 202', function() {
+        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest).respond(500, 'Error');
+
+        var catchSpy = sinon.spy();
+
+        this.calendarAPI.getRight('calendars', this.vcalendar).catch(catchSpy);
+        this.$httpBackend.flush();
+        expect(catchSpy).to.have.been.calledWith(sinon.match({data: 'Error'}));
+
+      });
+
+      it('should return server body response if success', function() {
+        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest).respond(200, 'body');
+
+        var catchSpy = sinon.spy();
+
+        this.calendarAPI.getRight('calendars', this.vcalendar).then(catchSpy);
+        this.$httpBackend.flush();
+        expect(catchSpy).to.have.been.calledWith(sinon.match.same('body'));
+
       });
     });
 
