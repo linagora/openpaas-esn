@@ -1,4 +1,5 @@
-@avatarSize: 70px;
+@avatarSize: 65px;
+@avatarCollapsedSize: 40px;
 
 .email-view {
 
@@ -18,6 +19,10 @@
       .email-body,
       .lv-footer {
         display: none;
+      }
+
+      .email-header .sender-avatar img {
+        .avatar(@avatarCollapsedSize);
       }
     }
 
@@ -44,9 +49,7 @@
       margin-right: 10px;
 
       img {
-        width: @avatarSize;
-        min-width: @avatarSize;
-        height: @avatarSize;
+        .avatar(@avatarSize);
       }
     }
 
@@ -54,6 +57,7 @@
       .flex-shorthand(1, 1);
 
       height: 100%;
+      min-width: 0; // https://bugzilla.mozilla.org/show_bug.cgi?id=1086218#c4
 
       .preview {
         min-height: 20px;
@@ -158,14 +162,6 @@
 
   .card {
     margin-bottom: 0;
-  }
-
-}
-
-@media (min-width: @screen-sm-min) {
-
-  .email-view .card .avatarify{
-    width: 75%;
   }
 
 }
