@@ -15,7 +15,15 @@ describe('The calendarEditionController controller', function() {
         return this._uuid;
       }
     };
+    this.addUserGroup = sinon.spy();
+    this.removeUserGroup = sinon.spy();
     this.calendarService = {};
+
+    this.DelegationServiceMock = sinon.spy(function() {
+      this.addUserGroup = self.addUserGroup;
+      this.removeUserGroup = self.removeUserGroup;
+    });
+
     this.notificationFactoryMock = {};
     this.stateMock = {};
     this.calendarMock = null;
@@ -28,6 +36,7 @@ describe('The calendarEditionController controller', function() {
       $provide.value('screenSize', self.screenSize);
       $provide.value('uuid4', self.uuid4);
       $provide.value('calendarService', self.calendarService);
+      $provide.value('DelegationService', self.DelegationServiceMock);
       $provide.value('notificationFactory', self.notificationFactoryMock);
       $provide.value('$state', self.stateMock);
       $provide.value('calendar', self.calendarMock);
@@ -187,6 +196,22 @@ describe('The calendarEditionController controller', function() {
         this.$scope.submit();
         expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
         expect(this.stateMock.go).to.have.been.called;
+      });
+    });
+
+    describe('scope.addUserGroup', function() {
+      it('should add multiple users to the $scope.delegation if newUsersGroups.length>0', function() {
+        this.initController();
+        this.$scope.addUserGroup();
+        expect(this.addUserGroup).to.have.been.calledOnce;
+      });
+    });
+
+    describe('scope.removeUserGroup', function() {
+      it('should call the removeUserGroup from delegationService', function() {
+        this.initController();
+        this.$scope.removeUserGroup();
+        expect(this.removeUserGroup).to.have.been.calledOnce;
       });
     });
   });
