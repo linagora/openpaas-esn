@@ -62,8 +62,8 @@ angular.module('esn.calendar')
     }
 
     /** * Modify a calendar in the calendar home defined by its id.
-     * @param  {String}                   calendarHomeId the id of the calendar in which we will create a new calendar
-     * @param  {CalendarCollectionShell}  calendar       the calendar to create
+     * @param  {String}                   calendarHomeId the id of the calendar in which is the calendar we want to modify
+     * @param  {CalendarCollectionShell}  calendar       the calendar to modify
      * @return {Object}                                  the http response
      */
     function modifyCalendar(calendarHomeId, calendar) {
