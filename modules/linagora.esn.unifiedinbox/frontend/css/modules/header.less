@@ -5,23 +5,14 @@
   }
 
   .inbox-subheader {
-
     .button {
-      position: absolute;
-      top: 10px;
       opacity: 1;
-      padding: 0 5px;
-
-      &.submit {
-        right: 0;
-      }
     }
 
     .title {
       text-align: center;
       font-size: 1.4em;
-      margin-left: 40px;
-      margin-right: 35px;
+      margin-left: 25px;
       color: @textPrimaryColor;
     }
 
@@ -35,19 +26,21 @@
       }
     }
 
-    .left-container {
-      .close.button {
-        top: 0;
-      }
+    .inbox-subheader-inner {
+      padding: 0 10px;
     }
   }
 }
 
 @media (min-width: @screen-md-min) {
   #header {
-    .inbox-subheader {
-      inbox-filter-button {
-        margin-right: 30px;
+    .inbox-subheader:not(.inbox-subheader-fullwidth) {
+      .title {
+        margin-left: 0; // Because the padding of the 'inner' class below is now enough
+      }
+
+      .inbox-subheader-inner {
+        padding: 0 25px;
       }
     }
   }
