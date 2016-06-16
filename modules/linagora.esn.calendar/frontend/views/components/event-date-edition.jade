@@ -19,7 +19,7 @@
       .col-xs-9.col-sm-3
         .form-group
           .fg-line
-            input.input.form-control(type="text", size="10", class="form-control", ng-model="event.end", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="disabled", ng-blur="_dateOnBlur()", bs-datepicker, date-to-moment, friendlify-end-date)
+            input.input.form-control(type="text", size="10", class="form-control", ng-model="event.end", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", data-min-date="{{getMinDate()}}", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="disabled", ng-blur="_dateOnBlur()", bs-datepicker, date-to-moment, friendlify-end-date)
           .fg-line(ng-if='!allDay')
             input.input(type="text", size="10", class="form-control", ng-model="event.end", data-autoclose="0", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="disabled", ng-blur="_dateOnBlur()", lng-clockpicker)
   .hidden-xs
@@ -40,7 +40,7 @@
     .col-xs-9.col-sm-3
       .form-group
         .fg-line
-          input.input.form-control(type="text", size="10", class="form-control", ng-model="event.end", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="disabled", ng-blur="_dateOnBlur()", bs-datepicker, date-to-moment, friendlify-end-date)
+          input.input.form-control(type="text", size="10", class="form-control", ng-model="event.end", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", data-min-date="{{getMinDate()}}", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="disabled", ng-blur="_dateOnBlur()", bs-datepicker, date-to-moment, friendlify-end-date)
         .fg-line(ng-if='!allDay')
           input.input(type="text", size="10", class="form-control", ng-model="event.end", data-autoclose="0", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="disabled", ng-blur="_dateOnBlur()", lng-clockpicker)
   .col-xs-12.col-sm-2

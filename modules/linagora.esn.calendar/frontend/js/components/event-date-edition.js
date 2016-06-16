@@ -20,6 +20,13 @@ angular.module('esn.calendar')
       scope.allDayOnChange = scope.allDayOnChange || function() {};
       scope.allDay = scope.event.allDay;
 
+      scope.getMinDate = function() {
+        if (scope.allDay) {
+          return fcMoment(scope.event.start).subtract(1, 'days').format('YYYY-MM-DD');
+        }
+        return null;
+      };
+
       scope.setEventDates = function() {
         var start, end;
         if (scope.allDay) {
