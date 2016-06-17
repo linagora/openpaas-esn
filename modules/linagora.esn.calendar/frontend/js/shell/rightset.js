@@ -137,5 +137,9 @@ angular.module('esn.calendar')
     };
     /* eslint-enable no-bitwise */
 
+    RightSet.prototype.equals = function(otherSet) {
+      return Boolean(otherSet && (otherSet.bitVector || otherSet.bitVector === 0) && otherSet.bitVector === this.bitVector);
+    };
+
     return RightSet;
   });

@@ -186,4 +186,30 @@ describe('RightSet', function() {
       expect(set.hasPermission(RightSet.WRITE)).to.be.true;
     });
   });
+
+  describe('equals', function() {
+    it('should not fail and return false for undefined method', function() {
+      var set = new RightSet();
+
+      [undefined, {}, {a:2}].forEach(function(badData) {
+        expect(set.equals(badData)).to.be.false;
+      });
+    });
+
+    it('should work for empty set', function() {
+      expect((new RightSet()).equals(new RightSet())).to.be.true;
+    });
+
+    it('should return true if and only if set are really equals', function() {
+      var set1 = new RightSet(RightSet.SHAREE_READWRITE);
+      var set2 = new RightSet(RightSet.READ);
+      var set3 = new RightSet(RightSet.READ);
+
+      expect(set1.equals(set2)).to.be.false;
+      expect(set2.equals(set1)).to.be.false;
+
+      expect(set2.equals(set3)).to.be.true;
+      expect(set3.equals(set2)).to.be.true;
+    });
+  });
 });
