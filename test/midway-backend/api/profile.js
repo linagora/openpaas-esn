@@ -164,69 +164,74 @@ describe('The profile API', function() {
 
   });
 
-  describe('PUT /api/users/profile/:parameter route', function() {
+  describe('PUT /api/user/profile', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'put', '/api/user/profile/firstname', done);
-    });
-
-    it('should return 400 if the request body is not well formed', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/firstname'));
-        req.send({pipo: 'oho'}).expect(400).end(self.helpers.callbacks.error(done));
-      });
-    });
-
-    it('should return 400 if the parameter does not exist', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/notarealparameter'));
-        req.send({value: 'firstname'}).expect(400).end(self.helpers.callbacks.noError(done));
-      });
+      this.helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
     });
 
     it('should return 200 and update his profile', function(done) {
       var User = mongoose.model('User');
-      var firstname = 'foobarbaz';
+      var profile = {
+        firstname: 'James',
+        lastname: 'Amaly',
+        job_title: 'Engineer',
+        service: 'IT',
+        building_location: 'Tunis',
+        office_location: 'France',
+        main_phone: '123456789'
+      };
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/firstname'));
-        req.send({value: firstname}).expect(200).end(function(err) {
+
+        var req = loggedInAsUser(request(app).put('/api/user/profile'));
+
+        req.send(profile).expect(200).end(function(err) {
           expect(err).to.not.exist;
-          User.findOne({_id: foouser._id}, function(err, user) {
+
+          User.findOne({ _id: foouser._id }, function(err, user) {
             if (err) {
               return done(err);
             }
-            expect(user.firstname).to.equal(firstname);
+            expect({
+              firstname: user.firstname,
+              lastname: user.lastname,
+              job_title: user.job_title,
+              service: user.service,
+              building_location: user.building_location,
+              office_location: user.office_location,
+              main_phone: user.main_phone
+            })
+            .to.deep.equal(profile);
             done();
           });
         });
       });
     });
 
-    it('should return 200 and erase property if the request has no body', function(done) {
+    it('should return an error if sent profile is empty', function(done) {
+      var User = mongoose.model('User');
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/firstname'));
-        req.send().expect(200).end(function(err) {
+
+        var req = loggedInAsUser(request(app).put('/api/user/profile'));
+
+        req.send().expect(500).end(function(err) {
           expect(err).to.not.exist;
-          User.findOne({_id: foouser._id}, function(err, user) {
+
+          User.findOne({ _id: foouser._id }, function(err, user) {
             if (err) {
               return done(err);
             }
-            expect(user.firstname).to.equal('');
+
+            expect(user.firstname).to.equal('John');
+            expect(user.lastname).to.not.exist;
             done();
           });
         });

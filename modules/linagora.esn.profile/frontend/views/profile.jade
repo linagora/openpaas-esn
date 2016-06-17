@@ -1,17 +1,17 @@
 .container.full-width.no-padding-xs
-  .block-header.hidden-xs
+  .block-header
     h2(ng-if="me") #{__('My Account')}
     h2(ng-if="!me") {{user.firstname}} {{user.lastname}}
+    ul.actions.flex-space-around
+      button.btn.btn-primary(ng-if="me", ui-sref = 'controlcenter.profileEdition')
+        i.mdi.mdi-pencil
+        | #{__('Edit')}
   #profile-main.card
     .pm-overview.c-overflow
       .pmo-pic
         .p-relative(ng-controller='avatarController')
           a
             img(ng-src="{{avatarURL}}")
-          a.pmop-edit(ng-if='me' ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
-            i.mdi.mdi-camera
-            span.hidden-xs
-              | #{__('Update Profile Picture')}
         .pmo-stat
           h2.m-0.c-white
             |{{user.firstname}} {{user.lastname}}
@@ -37,36 +37,21 @@
                   | #{__('Phone')}
                 dd.visible-xs
                   | {{user.main_phone}}
-                dd.hidden-xs(ng-if='!me')
-                  | {{::user.main_phone}}
-                dd.hidden-xs(ng-if='me')
-                  span(ng-click='phoneForm.$show()', editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)',
-                  e-placeHolder="#{__('Phone')}", e-maxlength='20', e-class='custom-input-sm') {{ user.main_phone }}
-                  a.edit-hint(ng-hide='phoneForm.$visible', ng-disabled='running.phone')
-                    i.mdi.mdi-pencil
+                dd.hidden-xs
+                  | {{user.main_phone}}
               dl.dl-horizontal
                 dt 
                   i.mdi.mdi-city.m-r-5 
                   | #{__('Building Location')}
                   dd.visible-xs
                     | {{ user.building_location }}
-                  dd.hidden-xs(ng-if='!me')
-                    | {{::user.building_location}}
-                  dd.hidden-xs(ng-if='me')
-                    span(ng-click='buildingForm.$show()', editable-text='user.building_location', e-form='buildingForm', onbeforesave='updateBuildingLocation($data)',
-                    e-placeHolder="#{__('Building Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.building_location }}
-                    a.edit-hint(ng-hide='buildingForm.$visible', ng-disabled='running.building_location')
-                      i.mdi.mdi-pencil
+                  dd.hidden-xs
+                    | {{user.building_location}}
               dl.dl-horizontal
                 dt 
                   i.mdi.mdi-monitor.m-r-5 
                   | #{__('Office Location')}
                   dd.visible-xs
                     | {{ user.office_location }}
-                  dd.hidden-xs(ng-if='!me')
-                    | {{::user.office_location}}
-                  dd.hidden-xs(ng-if='me')
-                    span(ng-click='officeForm.$show()', editable-text='user.office_location', e-form='officeForm', onbeforesave='updateOfficeLocation($data)',
-                    e-placeHolder="#{__('Office Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.office_location }}
-                    a.edit-hint(ng-hide='officeForm.$visible', ng-disabled='running.office_location')
-                      i.mdi.mdi-pencil
+                  dd.hidden-xs
+                    | {{user.office_location}}

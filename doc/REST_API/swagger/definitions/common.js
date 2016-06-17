@@ -1,6 +1,21 @@
 /**
   * @swagger
   * definition:
+  *   Profile:
+  *     description: "a JSON object containing a profile properties values"
+  *     properties:
+  *       firstname:
+  *         type: string
+  *       lastname:
+  *         type: string
+  *       job_title:
+  *         type: string
+  *       service:
+  *         type: string
+  *       building_location:
+  *         type: string
+  *       main_phone:
+  *         type: string
   *   cm_value:
   *     description: "defines a JSON object containing a value property"
   *     properties:

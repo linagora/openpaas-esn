@@ -85,20 +85,18 @@ module.exports.list = function(callback) {
   User.find(callback);
 };
 
-module.exports.updateProfile = function(user, parameter, value, callback) {
-  //unlike user and parameter, value cannot be null but can be empty
-  if (!user || !parameter || value === undefined) {
-    return callback(new Error('User, parameter and value are required'));
+module.exports.updateProfile = function(user, profile, callback) {
+  if (!user || !profile) {
+    return callback(new Error('User and profile are required'));
   }
 
   var id = user._id || user;
-  var update = {};
-  update[parameter] = value;
-  User.update({_id: id}, {$set: update}, function(err, saved) {
+
+  User.findOneAndUpdate({ _id: id }, { $set: profile || {} }, { new: true }, function(err, user) {
     if (!err) {
       pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(user);
     }
-    callback(err, saved);
+    callback(err, user);
   });
 };
 

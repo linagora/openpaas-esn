@@ -193,11 +193,13 @@ describe('The user core module', function() {
 
   describe('updateProfile fn', function() {
     var userModule = null;
+    var profile = {};
 
     beforeEach(function() {
+
       var User = {
-        update: function(query, option, callback) {
-          callback(query, option);
+        findOneAndUpdate: function(query, profile, opt, callback) {
+          callback(query, profile);
         }
       };
       mockModels({
@@ -207,46 +209,29 @@ describe('The user core module', function() {
     });
 
     it('should send back an error when user is undefined', function(done) {
-      userModule.updateProfile(null, 'param', 'value', function(err) {
+      userModule.updateProfile(null, profile, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
-    it('should send back an error when param is undefined', function(done) {
-      userModule.updateProfile('1223', null, 'value', function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back an error when value is undefined', function(done) {
-      userModule.updateProfile('1223', 'param', null, function(err) {
+    it('should send back an error when profile is undefined', function(done) {
+      userModule.updateProfile('1223', null, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should pass directly user if user_id is not set', function(done) {
-      userModule.updateProfile('1234', 'param', 'value', function(query, option) {
+      userModule.updateProfile('1234', profile, function(query, option) {
         expect(query).to.deep.equal({ _id: '1234'});
-        expect(option).to.deep.equal({
-          $set: {
-            param: 'value'
-          }
-        });
         done();
       });
     });
 
     it('should pass directly user_id otherwise', function(done) {
-      userModule.updateProfile({ _id: '1235'}, 'param', 'value', function(query, option) {
+      userModule.updateProfile({ _id: '1235'}, profile, function(query, option) {
         expect(query).to.deep.equal({ _id: '1235'});
-        expect(option).to.deep.equal({
-          $set: {
-            param: 'value'
-          }
-        });
         done();
       });
     });
