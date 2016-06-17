@@ -522,7 +522,6 @@ angular.module('linagora.esn.contact')
             $scope.loading = false;
             $scope.modal.hide();
             $scope.$apply();
-            $scope.modify();
           };
           reader.readAsDataURL(blob);
         });
