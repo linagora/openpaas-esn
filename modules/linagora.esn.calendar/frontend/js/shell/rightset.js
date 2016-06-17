@@ -83,8 +83,11 @@ angular.module('esn.calendar')
     };
 
     RightSet.prototype.addPermission = function(permission) {
-      checkIsPowerOfTwo(permission);
-      this.bitVector = this.bitVector | permission;
+      this.addPermissions([permission]);
+    };
+
+    RightSet.prototype.removePermission = function(permission) {
+      this.removePermissions([permission]);
     };
 
     function combinePermission(permissions) {
@@ -105,6 +108,22 @@ angular.module('esn.calendar')
       var maskOfAllPermission = combinePermission(permissions);
 
       return !(this.bitVector & maskOfAllPermission);
+    };
+
+    RightSet.prototype.hasPermission = function(permission) {
+      return this.hasAtLeastAllOfThosePermissions([permission]);
+    };
+
+    RightSet.prototype.addPermissions = function(permissions) {
+      var maskOfAllPermission = combinePermission(permissions);
+
+      this.bitVector = this.bitVector | maskOfAllPermission;
+    };
+
+    RightSet.prototype.removePermissions = function(permissions) {
+      var maskOfAllPermission = combinePermission(permissions);
+
+      this.bitVector = this.bitVector & ~maskOfAllPermission;
     };
 
     RightSet.prototype.hasOnlyThosePermissions = function(permissions) {

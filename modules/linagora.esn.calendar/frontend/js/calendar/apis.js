@@ -233,6 +233,24 @@ angular.module('esn.calendar')
       });
     }
 
+    /**
+     * Modify the rights for a calendar in the specified calendar home.
+     * @param  {String} calendarHomeId  The calendar home id in which to create a new calendar
+     * @param  {String} calendarId  The id of the calendar which will be modified
+     * @param  {Object} rights
+     * @return {Object} the http response.
+     */
+    function modifyShares(calendarHomeId, calendarId, rights) {
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      return request('post', path, null, rights)
+        .then(function(response) {
+          if (response.status !== 204) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+
     return {
       listEvents: listEvents,
       searchEvents: searchEvents,
@@ -242,7 +260,8 @@ angular.module('esn.calendar')
       listAllCalendars: listAllCalendars,
       createCalendar: createCalendar,
       getRight: getRight,
-      modifyCalendar: modifyCalendar
+      modifyCalendar: modifyCalendar,
+      modifyShares: modifyShares
     };
   })
 

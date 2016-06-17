@@ -64,6 +64,56 @@ describe('RightSet', function() {
     });
   });
 
+  describe('addPermissions', function() {
+    it('should add correctly a permissions list to a set', function() {
+      var set = new RightSet();
+      set.addPermissions([RightSet.WRITE, RightSet.READ]);
+
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.WRITE])).to.be.true;
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.READ])).to.be.true;
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.FREE_BUSY])).to.be.false;
+    });
+
+    it('should not change the set if a empty list is given', function() {
+      var set = new RightSet(RightSet.FREE_BUSY);
+
+      set.addPermissions([]);
+      expect(set.bitVector).to.be.equal(RightSet.FREE_BUSY);
+    });
+  });
+
+  describe('removePermissions', function() {
+    it('should correctly remove the given permission', function() {
+      var set = new RightSet();
+
+      set.bitVector = -1; //it create a set will all permissions
+
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.READ, RightSet.FREE_BUSY])).to.be.true;
+      set.removePermissions([RightSet.FREE_BUSY, RightSet.READ]);
+
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.READ])).to.be.false;
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.FREE_BUSY])).to.be.false;
+      expect(set.hasAtLeastAllOfThosePermissions([RightSet.WRITE])).to.be.true;
+    });
+
+    it('should not change the set if a empty list is given', function() {
+      var set = new RightSet(RightSet.FREE_BUSY);
+
+      set.bitVector = -1;
+      expect(set.bitVector).to.be.equal(-1);
+    });
+  });
+
+  describe('removePermission', function() {
+    it('should correctly remove the given permission', function() {
+      var set = new RightSet();
+
+      set.addPermission(RightSet.READ);
+      set.removePermission(RightSet.READ);
+      expect(set.hasPermission(RightSet.READ)).to.be.false;
+    });
+  });
+
   describe('hasAtLeastAllOfThosePermissions', function() {
     it('should return true if and only if the set contain all given permission', function() {
       var set = new RightSet();
@@ -115,6 +165,25 @@ describe('RightSet', function() {
 
       expect(set.hasNoneOfThosePermissions([RightSet.READ])).to.be.true;
       expect(set.hasNoneOfThosePermissions([RightSet.READ, RightSet.FREE_BUSY, RightSet.WRITE_PROPERTIES])).to.be.true;
+    });
+  });
+
+  describe('hasPermission', function() {
+    it('should return false with empty set', function() {
+      var set = new RightSet();
+      expect(set.hasPermission(RightSet.WRITE)).to.be.false;
+    });
+
+    it('should return false if the set does not have corresponding write', function() {
+      var set = new RightSet();
+      set.addPermission(RightSet.READ);
+      expect(set.hasPermission(RightSet.WRITE)).to.be.false;
+    });
+
+    it('should return true if the set has corresponding write', function() {
+      var set = new RightSet();
+      set.addPermission(RightSet.WRITE);
+      expect(set.hasPermission(RightSet.WRITE)).to.be.true;
     });
   });
 });

@@ -135,7 +135,8 @@ angular.module('esn.calendar')
     CALENDARS: {
       ADD: 'calendar:calendars:add',
       REMOVE: 'calendar:calendars:remove',
-      TOGGLE_VIEW: 'calendar:calendars:toggleView'
+      TOGGLE_VIEW: 'calendar:calendars:toggleView',
+      RIGHTS_UPDATE: 'calendar:calendars:rightsUpdate'
     },
     MINI_CALENDAR: {
       DATE_CHANGE: 'calendar:mini:dateChange',
