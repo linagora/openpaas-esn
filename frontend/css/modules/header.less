@@ -48,11 +48,6 @@
           font-size: 2em;
           color: @textPrimaryColor;
         }
-        &:hover {
-          i.mdi {
-            color: @accentColor;
-          }
-        }
       }
     }
 
@@ -138,9 +133,18 @@
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
 
-  #sub-header {
-    background-color: @subHeaderBackground;
-    box-shadow: 0 1px 4px @subHeaderShadow;
-  }
+  #header {
+    li.hover-scale-animation > a {
+      &:hover {
+        i.mdi {
+          color: @accentColor;
+        }
+      }
+    }
 
+    #sub-header {
+      background-color: @subHeaderBackground;
+      box-shadow: 0 1px 4px @subHeaderShadow;
+    }
+  }
 }
