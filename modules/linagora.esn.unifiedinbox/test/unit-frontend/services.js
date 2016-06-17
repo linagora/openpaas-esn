@@ -3980,12 +3980,13 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The attachmentUploadService service', function() {
 
-    var $rootScope, backgroundProcessorService, attachmentUploadService, file = { name: 'n', size: 1, type: 'type'};
+    var $rootScope, jmapClientProviderMock = {}, jmapClientMock, backgroundProcessorService, attachmentUploadService, file = { name: 'n', size: 1, type: 'type'};
 
     beforeEach(module(function($provide) {
       $provide.value('withJmapClient', function(callback) {
         return callback(null);
       });
+      $provide.value('jmapClientProvider', jmapClientProviderMock);
       config['linagora.esn.unifiedinbox.uploadUrl'] = 'http://jmap';
 
       $.mockjaxSettings.logging = false;
@@ -3999,8 +4000,39 @@ describe('The Unified Inbox Angular module services', function() {
       sinon.spy(backgroundProcessorService, 'add');
     }));
 
+    beforeEach(function() {
+      jmapClientMock = {
+        authToken: 'Bearer authToken'
+      };
+      jmapClientProviderMock.get = sinon.stub().returns($q.when(jmapClientMock));
+    });
+
     afterEach(function() {
       $.mockjax.clear();
+    });
+
+    it('should call jmapClientProvider to get the authToken', function(done) {
+      var mockjax = function(data) {
+        expect(data.headers.Authorization).to.equal(jmapClientMock.authToken);
+
+        return {
+          response: function() {
+            this.responseText = {};
+          }
+        };
+      };
+
+      $.mockjax(mockjax);
+
+      attachmentUploadService
+        .uploadFile(null, file, file.type, file.size, null, null)
+        .then(function() {
+          expect(jmapClientProviderMock.get).to.have.been.calledWith();
+
+          done();
+        });
+
+      $rootScope.$digest();
     });
 
     it('should POST the file, passing the content type and resolve on success', function(done) {
