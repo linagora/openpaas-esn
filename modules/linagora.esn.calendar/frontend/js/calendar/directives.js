@@ -97,6 +97,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'A',
       scope: true,
+      priority: 5555,
       link: function(scope, element, attrs) {
         element.on('click', function() {
           uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('changeView', attrs.toggleCalendarView);
