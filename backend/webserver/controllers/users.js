@@ -81,13 +81,13 @@ function updateProfile(req, res) {
   }
 
   var newProfile = {
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    job_title: req.body.job_title,
-    service: req.body.service,
-    building_location: req.body.building_location,
-    office_location: req.body.office_location,
-    main_phone: req.body.main_phone
+    firstname: req.body.firstname || '',
+    lastname: req.body.lastname || '',
+    job_title: req.body.job_title || '',
+    service: req.body.service || '',
+    building_location: req.body.building_location || '',
+    office_location: req.body.office_location || '',
+    main_phone: req.body.main_phone || ''
   };
 
   userModule.updateProfile(req.user, newProfile, function(err, profile) {
