@@ -10,18 +10,5 @@ div
         hr
 
         mailbox-display.lv-item(settings-overlay-sref='unifiedinbox.configuration.folders-edit({ mailbox: mailbox.id })', mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: '!'} | orderBy: ['sortOrder', 'qualifiedName'] as customMailboxes track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
-        hr(ng-if="customMailboxes.length > 0")
 
-        .hidden-xs.lv-item.clickable(ui-sref='unifiedinbox.configuration.folders-add')
-          .badge-container
-            i.inbox-icon.mdi.mdi-plus
-          .menu-item
-            bdi
-              | #{__('New folder')}
-
-        .hidden-md.lv-item.clickable(ui-sref="unifiedinbox.configuration", ui-sref-active="selected")
-          .badge-container
-            i.inbox-icon.mdi.mdi-settings
-          .menu-item
-            bdi
-              | #{__('Manage folders')}
+        inbox-sidebar-new-folder-button.hidden-xs
