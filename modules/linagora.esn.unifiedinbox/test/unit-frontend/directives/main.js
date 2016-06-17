@@ -55,7 +55,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
-    $provide.value('autolinker', { link: function() { return null;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
     $provide.value('autosize', autosize = sinon.spy());
     $provide.value('inboxConfig', function(key, defaultValue) {
@@ -1103,6 +1102,27 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(element.find('.mdi-reply').length).to.equal(0);
       expect(element.find('.mdi-reply-all').length).to.equal(1);
+    });
+
+    it('should escape HTML in plain text body', function() {
+      $scope.email = {
+        id: 'id',
+        textBody: 'Body <i>with</i> weird <hu>HTML</hu>'
+      };
+      compileDirective('<email email="email"/>');
+
+      expect(element.find('.email-body').html()).to.contain('Body &lt;i&gt;with&lt;/i&gt; weird &lt;hu&gt;HTML&lt;/hu&gt;');
+    });
+
+    it('should autolink links in plain text body', function() {
+      $scope.email = {
+        id: 'id',
+        textBody: 'Body with me@open-paas.org and open-paas.org'
+      };
+      compileDirective('<email email="email"/>');
+
+      expect(element.find('.email-body a[href="http://open-paas.org"]')).to.have.length(1);
+      expect(element.find('.email-body a[href="mailto:me@open-paas.org"]')).to.have.length(1);
     });
 
     describe('The markAsUnread fn', function() {
