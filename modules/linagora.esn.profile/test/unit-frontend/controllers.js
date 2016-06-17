@@ -112,7 +112,7 @@ describe('The linagora.esn.profile Angular module controllers', function() {
         expect(user).to.equal(profile);
         done();
       };
-       $scope.updateProfile(profile);
+      $scope.updateProfile(profile);
     });
   });
 });
