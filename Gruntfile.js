@@ -115,7 +115,7 @@ module.exports = function(grunt) {
 
       esn_full_up: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-up',
-          command: ['up'],
+          command: ['up', '--no-build'],
           env: [
             'DOCKER_IP=' + servers.host,
             'ESN_PATH=' + __dirname,
@@ -279,11 +279,13 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e-prepare', ['container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);
 
   grunt.registerTask('test-e2e-pull', ['container:esn_full_pull', 'container:esn_full_pull:remove']);
-  grunt.registerTask('test-e2e-build', ['test-e2e-build-esn_base', 'container:esn_full_build', 'container:esn_full_build:remove']);
+  grunt.registerTask('test-e2e-build', ['continue:on', 'test-e2e-remove-esn_base', 'test-e2e-remove-esn', 'continue:off', 'test-e2e-build-esn_base', 'container:esn_full_build', 'container:esn_full_build:remove']);
   grunt.registerTask('test-e2e-up', ['continue:on', 'container:esn_full_up', 'container:esn_full_up:remove', 'continue:off', 'continue:fail-on-warning', 'test-e2e-wait-servers']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_down', 'container:esn_full_down:remove']);
   grunt.registerTask('test-e2e-clean', 'Clean all compose containers', ['continue:on', 'container:esn_full_pull:remove', 'container:esn_full_build:remove', 'container:esn_full_up:remove', 'container:esn_full_down:remove', 'continue:off']);
   grunt.registerTask('test-e2e-build-esn_base', gruntfileUtils.buildEsnBaseImage());
+  grunt.registerTask('test-e2e-remove-esn_base', gruntfileUtils.removeEsnBaseImage());
+  grunt.registerTask('test-e2e-remove-esn', gruntfileUtils.removeEsnImage());
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);

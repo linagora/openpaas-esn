@@ -6,21 +6,24 @@ var path = require('path');
 var async = require('async');
 var MongoClient = require('mongodb').MongoClient;
 var Server = require('mongodb').Server;
-var request = require('superagent');
 var extend = require('extend');
 var EsnConfig = require('esn-elasticsearch-configuration');
 var Docker = require('dockerode');
-var dockerodeConfig = require('../../docker/config/dockerode.js');
+var dockerodeConfig = require('../../docker/config/dockerode');
+var DOCKER_IMAGES = require('../../docker/images.json');
 
 function _args(grunt) {
   var opts = ['test', 'chunk', 'ci', 'reporter'];
   var args = {};
+
   opts.forEach(function(optName) {
     var opt = grunt.option(optName);
+
     if (opt) {
       args[optName] = '' + opt;
     }
   });
+
   return args;
 }
 
@@ -201,9 +204,38 @@ GruntfileUtils.prototype.buildEsnBaseImage = function() {
     context: path.normalize(__dirname + '/../../'),
     src: ['package.json', 'bower.json', dockerfilePath]
   }, {
-    t: 'linagora/esn-base',
+    t: DOCKER_IMAGES.esn_base,
     dockerfile: dockerfilePath
   });
+};
+
+GruntfileUtils.prototype.removeDockerImage = function(imageName) {
+  var grunt = this.grunt;
+
+  return function() {
+    var done = this.async();
+    var docker = new Docker(dockerodeConfig()[grunt.option('docker')]);
+
+    docker
+      .getImage(imageName)
+      .remove({ force: true }, function(err) {
+        if (err) {
+          grunt.fail.warn('The ' + imageName + ' image has not been removed, reason: ' + err.reason);
+          done(false);
+        } else {
+          grunt.log.oklns('The ' + imageName + ' image has well been removed');
+          done(true);
+        }
+      });
+  };
+};
+
+GruntfileUtils.prototype.removeEsnBaseImage = function() {
+  return this.removeDockerImage(DOCKER_IMAGES.esn_base);
+};
+
+GruntfileUtils.prototype.removeEsnImage = function() {
+  return this.removeDockerImage(DOCKER_IMAGES.esn);
 };
 
 GruntfileUtils.prototype.runGrunt = function runGrunt() {
