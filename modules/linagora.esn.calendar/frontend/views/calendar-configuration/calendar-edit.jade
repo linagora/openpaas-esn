@@ -57,13 +57,23 @@ sub-header
                       .select
                         select.form-control
                           option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="none" ng-if="delegationType.access==='all'") {{ delegationType.name }}
+            .row.public.flex-wrap.flex-vertical-centered.hidden-md
+                .col-sm-6.col-xs-12
+                  .btn-group.btn-addusers
+                    button.btn.btn-primary.dropdown-toggle(type="button", data-toggle="dropdown", aria-expanded="false")
+                      i.mdi.mdi-account-multiple-plus
+                      | #{__('Add users and groups delegation')}
+                    ul.dropdown-menu(role="menu")
+                      li(ng-repeat="delegationType in ::delegationTypes" ng-if="delegationType.access==='all'")
+                        a(ng-click="goToEditDelegation()")
+                          | {{delegationType.name}}
             hr
-            .row
+            .row.hidden-xs
               .col-sm-12.col-xs-12
                 span #{__('Delegation on this calendar')}
-            .row
+            .row.hidden-xs
               .col-sm-6.col-xs-12
-                attendees-autocomplete-input(mutable-attendees='newUsersGroups')
+                users-autocomplete-input(mutable-users='newUsersGroups')
               .col-sm-4.col-xs-8
                 span
                   .select
@@ -73,7 +83,7 @@ sub-header
                 .btn.btn-primary.btn-sm(ng-click="addUserGroup()") #{__('Add')}
 
             hr
-            .row(ng-repeat="delegation in delegations")
+            .row.hidden-xs(ng-repeat="delegation in delegations")
               .row.no-margin
                 .col-sm-offset-1.col-sm-1.col-xs-2
                   a.attendee-avatar(href="", ng-attr-title='delegation.attendee.displayName')

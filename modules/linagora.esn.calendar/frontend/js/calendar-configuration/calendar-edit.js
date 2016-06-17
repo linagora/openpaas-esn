@@ -115,6 +115,13 @@ angular.module('esn.calendar')
       $scope.selectedTab = 'delegation';
     };
 
+    $scope.goToEditDelegation = function() {
+      $state.go('calendar.edit-delegation');
+    };
+
+    $scope.goToCalendarEdit = function(isCancel) {
+      $state.go('calendar.edit');
+    };
   })
   .directive('calendarEdit', function() {
     return {
@@ -132,5 +139,24 @@ angular.module('esn.calendar')
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/calendar-configuration/calendar-edit-header.html'
+    };
+  })
+  .directive('calendarEditDelegationAddUsers', function(CALENDAR_RIGHT) {
+    return {
+      restrict: 'E',
+      replace: true,
+      controller: 'calendarEditionController',
+      templateUrl: '/calendar/views/calendar-configuration/calendar-edit-delegation-add-users',
+      link: function(scope) {
+        scope.permission = CALENDAR_RIGHT.NONE;
+      }
+    };
+  })
+  .directive('calendarEditDelegationAddUsersHeader', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/calendar-configuration/calendar-edit-delegation-add-users-header.html',
+      controller: 'calendarEditionController'
     };
   });

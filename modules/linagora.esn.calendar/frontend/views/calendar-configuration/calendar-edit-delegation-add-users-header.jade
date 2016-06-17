@@ -1,0 +1,9 @@
+.calendar-edit-delegation-header
+  .flex-space-between.flex-vertical-centered
+    .left
+      button.btn.btn-primary(ng-click="goToCalendarEdit(true)")
+        i.mdi.mdi-arrow-left
+    .right
+      button.btn.btn-primary(ng-click='goToCalendarEdit(false)')
+        | #{__('Add')}
+        i.mdi.mdi-plus
