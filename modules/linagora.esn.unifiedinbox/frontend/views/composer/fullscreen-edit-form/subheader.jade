@@ -1,7 +1,8 @@
-.inbox-subheader.composer
-  .row
-    inbox-subheader-back-button(ng-click='backToComposition()')
-    .title.ellipsis(ng-switch='recipientsType')
-      span(ng-switch-when='to') #{__('To')}
-      span(ng-switch-when='cc') #{__('CC')}
-      span(ng-switch-when='bcc') #{__('BCC')}
+extends ../../layout/fullwidth-subheader
+
+block left
+  inbox-subheader-back-button(ng-click='backToComposition()')
+  .title(ng-switch='recipientsType')
+    span(ng-switch-when='to') #{__('To')}
+    span(ng-switch-when='cc') #{__('CC')}
+    span(ng-switch-when='bcc') #{__('BCC')}

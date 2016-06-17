@@ -1,11 +1,11 @@
 sub-header
-  edit-folder-subheader.hidden-md
+  edit-folder-subheader
 
 .block-header.hidden-xs
   h2 #{__('%s folder configuration', '{{ ::mailbox.name }}')}
 
 .inbox-main-content.configuration.card
-  form(esn-submit="editFolder()")
+  form
     .form-group.fg-line
       .field-name #{__('Rename')}
       input.form-control(ng-model="mailbox.name")
@@ -14,12 +14,5 @@ sub-header
       select.form-control(ng-model="mailbox.parentId", ng-options="box.id as box.qualifiedName for box in mailboxes | filter:{ id: '!' + mailbox.id } | orderBy: ['level', 'name']")
         option(value="") #{__('Unified Inbox')}
 
-    .button-bar.hidden-xs.flex-space-between
-      .delete-action
-        a.btn.underlined-button.p-l-0.m-0(ng-click="confirmationDialog()") #{__('Delete this folder')}
-      .other-actions
-        input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
-        input.btn.btn-primary(type="submit", value="#{__('Edit')}")
-
-    .button-bar.visible-xs
+    .button-bar
       a.submit.btn.underlined-button(href='', ng-click='confirmationDialog()') #{__('Delete this folder')}

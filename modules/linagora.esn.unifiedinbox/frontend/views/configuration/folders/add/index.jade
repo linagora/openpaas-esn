@@ -1,11 +1,11 @@
 sub-header
-  add-folder-subheader.hidden-md
+  add-folder-subheader
 
 .block-header.hidden-xs
   h2 #{__('Create a new folder')}
 
 .inbox-main-content.configuration.folders-add.card
-  form(esn-submit="addFolder()")
+  form
     .form-group.fg-line
       .field-name #{__('Name')}
       input.form-control(ng-model="mailbox.name", placeholder="#{__('Enter a name')}", auto-focus)
@@ -13,7 +13,3 @@ sub-header
       .field-name #{__('Is located under')}
       select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
         option(value="") #{__('Unified Inbox')}
-
-    .button-bar.actions.hidden-xs.flex-end
-      input.btn.btn-default(type="button", value="#{__('Cancel')}", ui-sref="unifiedinbox")
-      input.btn.btn-primary(type="submit", value="#{__('Create')}")

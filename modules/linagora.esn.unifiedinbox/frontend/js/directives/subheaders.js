@@ -91,4 +91,25 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/subheader/back-button.html'
     };
+  })
+
+  .directive('inboxSubheaderMoreButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/subheader/more-button.html'
+    };
+  })
+
+  .directive('inboxSubheaderSaveButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/subheader/save-button.html'
+    };
+  })
+
+  .directive('inboxSubheaderCancelButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/subheader/cancel-button.html'
+    };
   });

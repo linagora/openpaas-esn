@@ -1,9 +1,9 @@
-.inbox-subheader.row
-  .col-md-3.hidden-xs
-  .col-md-8.col-xs-12.no-padding-xs
-    .flex-space-between
-      .left-container
-        inbox-subheader-burger-button.hidden-md
-        span.title.ellipsis
-          block title
-      inbox-filter-button.clickable(ng-if="::filters", filters="::filters")
+extends ../responsive-subheader
+
+block left
+  inbox-subheader-burger-button.hidden-md
+  span.title.ellipsis
+    block title
+
+block right
+  inbox-filter-button.clickable(ng-if="::filters", filters="::filters")
