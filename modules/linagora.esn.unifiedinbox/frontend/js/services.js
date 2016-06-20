@@ -1089,7 +1089,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('attachmentUploadService', function($q, $rootScope, inboxConfig, inBackground, xhrWithUploadProgress) {
+  .service('attachmentUploadService', function($q, $rootScope, inboxConfig, jmapClientProvider, inBackground, xhrWithUploadProgress) {
     function in$Apply(fn) {
       return function(value) {
         if ($rootScope.$$phase) {
@@ -1104,25 +1104,33 @@ angular.module('linagora.esn.unifiedinbox')
 
     //eslint-disable-next-line no-unused-vars
     function uploadFile(unusedUrl, file, type, size, options, canceler) {
-      return inboxConfig('uploadUrl').then(function(url) {
-        var defer = $q.defer(),
-          request = $.ajax({
-            type: 'POST',
-            url: url,
-            contentType: type,
-            data: file,
-            processData: false,
-            dataType: 'json',
-            success: in$Apply(defer.resolve),
-            error: function(xhr, status, error) {
-              in$Apply(defer.reject)({
-                xhr: xhr,
-                status: status,
-                error: error
-              });
-            },
-            xhr: xhrWithUploadProgress(in$Apply(defer.notify))
-          });
+      return $q.all([
+        jmapClientProvider.get(),
+        inboxConfig('uploadUrl')
+      ]).then(function(data) {
+        var authToken = data[0].authToken,
+            url = data[1],
+            defer = $q.defer(),
+            request = $.ajax({
+              type: 'POST',
+              headers: {
+                Authorization: authToken
+              },
+              url: url,
+              contentType: type,
+              data: file,
+              processData: false,
+              dataType: 'json',
+              success: in$Apply(defer.resolve),
+              error: function(xhr, status, error) {
+                in$Apply(defer.reject)({
+                  xhr: xhr,
+                  status: status,
+                  error: error
+                });
+              },
+              xhr: xhrWithUploadProgress(in$Apply(defer.notify))
+            });
 
         if (canceler) {
           canceler.then(request.abort);
