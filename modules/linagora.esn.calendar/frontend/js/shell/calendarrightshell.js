@@ -99,7 +99,7 @@ angular.module('esn.calendar')
       this._userEmails = {};
       this._public = new RightSet();
 
-      acl.forEach(function(line) {
+      acl && acl.forEach(function(line) {
         var userRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
 
         if (match) {
@@ -112,7 +112,7 @@ angular.module('esn.calendar')
         userRightSet && userRightSet.addPermission(RightSet.webdavStringToConstant(line.privilege));
       }, this);
 
-      invite.forEach(function(line) {
+      invite && invite.forEach(function(line) {
         var userId, match = line.principal && line.principal.match(principalRegexp);
 
         if (match) {
@@ -176,6 +176,43 @@ angular.module('esn.calendar')
           });
         }
       }, this);
+    };
+
+    CalendarRightShell.prototype.toJson = function() {
+      var result = {
+        users: {},
+        public: this._public.toJson()
+      };
+
+      _.forEach(this._userRight, function(set, userKey) {
+        if (set.bitVector) {
+          result.users[userKey] = set.toJson();
+        }
+      });
+
+      return result;
+    };
+
+    CalendarRightShell.prototype.equals = function(otherShell) {
+      if (otherShell === this) {
+        return true;
+      } else if (!otherShell || otherShell.constructor !== CalendarRightShell) {
+        return false;
+      }
+
+      return _.isEqual(this.toJson(), otherShell.toJson());
+    };
+
+    CalendarRightShell.prototype.clone = function() {
+      var clone = new CalendarRightShell();
+
+      clone._userRight = _.mapValues(this._userRight, function(rightSet) {
+        return rightSet.clone();
+      });
+
+      clone._public = this._public.clone();
+
+      return clone;
     };
 
     return CalendarRightShell;

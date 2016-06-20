@@ -71,4 +71,46 @@ describe('CalendarRightShell factory', function() {
       expect(calendarRightShell.getPublicRight()).to.equal(CALENDAR_RIGHT.NONE);
     });
   });
+
+  describe('toJson', function() {
+    it('should return a json that allow comparaison for equals', function() {
+      expect(calendarRightShell.toJson()).to.be.deep.equals({
+        users: {me: 158, tom: 64, jerry: 32},
+        public: 1
+      });
+    });
+  });
+
+  describe('clone method', function() {
+    it('should return a clone that is equals but independant from the original shell', function() {
+      var clone = calendarRightShell.clone();
+
+      expect(clone === calendarRightShell).to.be.false;
+      expect(clone.equals(calendarRightShell)).to.be.true;
+    });
+  });
+
+  describe('the equal method', function() {
+    it('should not fail for bad object', function() {
+      [null, undefined, {}, [], {users:{}, public: {}}].forEach(function(badData) {
+        expect(calendarRightShell.equals(badData)).to.be.false;
+      });
+    });
+
+    it('should be true for the same instance', function() {
+      expect(calendarRightShell.equals(calendarRightShell)).to.be.true;
+    });
+
+    it('should be false for different user', function() {
+      var other = calendarRightShell.clone();
+      other.update('other', 'other@open-paas.org', CALENDAR_RIGHT.FREE_BUSY);
+      expect(other.equals(calendarRightShell)).to.be.false;
+    });
+
+    it('should be false for different public', function() {
+      var other = calendarRightShell.clone();
+      other.updatePublic(CALENDAR_RIGHT.READ);
+      expect(other.equals(calendarRightShell)).to.be.false;
+    });
+  });
 });
