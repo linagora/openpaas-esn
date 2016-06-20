@@ -540,4 +540,20 @@ angular.module('linagora.esn.unifiedinbox')
         updateDropdownList();
       }
     };
+  })
+
+  .directive('inboxVacationIndicator', function(withJmapClient) {
+    return {
+      restrict: 'E',
+      scope: {},
+      controller: function($scope) {
+        withJmapClient(function(client) {
+          client.getVacationResponse().then(function(vacation) {
+            $scope.vacationEnabled = vacation.isEnabled;
+          });
+        });
+      },
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/partials/inbox-vacation-indicator.html'
+    };
   });
