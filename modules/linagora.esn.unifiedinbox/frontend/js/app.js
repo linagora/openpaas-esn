@@ -32,7 +32,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.configuration',
   'esn.core',
   'linagora.esn.graceperiod',
-  'ngAnimate'
+  'ngAnimate',
+  'esn.escape-html'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
