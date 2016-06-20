@@ -59,4 +59,16 @@ describe('CalendarRightShell factory', function() {
       expect(calendarRightShell.getUserRight('me')).to.equal(CALENDAR_RIGHT.NONE);
     });
   });
+
+  describe('The update public method', function() {
+    it('should update the right of the public user correctly', function() {
+      calendarRightShell.updatePublic(CALENDAR_RIGHT.READ_WRITE);
+      expect(calendarRightShell.getPublicRight()).to.equal(CALENDAR_RIGHT.READ_WRITE);
+    });
+
+    it('should remove the the rights if called with CALENDAR_RIGHT.PUBLIC', function() {
+      calendarRightShell.updatePublic(CALENDAR_RIGHT.NONE);
+      expect(calendarRightShell.getPublicRight()).to.equal(CALENDAR_RIGHT.NONE);
+    });
+  });
 });

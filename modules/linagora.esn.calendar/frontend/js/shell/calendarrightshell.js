@@ -73,6 +73,11 @@ angular.module('esn.calendar')
       ]
     };
 
+    function setProfile(rightSet, newRole) {
+      rightSet.addPermissions(matrix[newRole].shouldHave);
+      rightSet.removePermissions(matrix[newRole].shouldNotHave);
+    }
+
     function sumupRight(rightSet) {
       var result;
 
@@ -144,9 +149,12 @@ angular.module('esn.calendar')
     };
 
     CalendarRightShell.prototype.update = function(userId, userEmail, newRole) {
-      this._userEmails[userId] = userEmail;
-      this._getUserSet(userId).addPermissions(matrix[newRole].shouldHave);
-      this._getUserSet(userId).removePermissions(matrix[newRole].shouldNotHave);
+      this._userEmails[userId] = this._userEmails[userId] || userEmail;
+      setProfile(this._getUserSet(userId), newRole);
+    };
+
+    CalendarRightShell.prototype.updatePublic = function(newRole) {
+      setProfile(this._public, newRole);
     };
 
     CalendarRightShell.prototype.toDAVShareRights = function() {
