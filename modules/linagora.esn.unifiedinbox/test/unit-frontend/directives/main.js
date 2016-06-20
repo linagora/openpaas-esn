@@ -1514,6 +1514,37 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
     });
 
+    it('should provide a button that removes the message and disables the vacation when clicked', function() {
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isEnabled: true });
+      };
+      jmapClient.setVacationResponse = sinon.spy(function(vacation) {
+        expect(vacation).to.shallowDeepEqual({
+          isEnabled: false
+        });
+
+        return $q.when();
+      });
+
+      compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
+
+      expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
+    });
+
+    it('should show the message if vacation cannot be disabled', function() {
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isEnabled: true });
+      };
+      jmapClient.setVacationResponse = function() {
+        return $q.reject();
+      };
+
+      compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
+
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
+    });
+
   });
 
 });

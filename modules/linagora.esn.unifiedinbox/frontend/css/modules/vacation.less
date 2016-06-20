@@ -1,11 +1,16 @@
 .inbox-root {
   .inbox-vacation-indicator {
     .all-centered;
+    .inbox-ng-leave;
 
     text-align: center;
     font-weight: bold;
     background-color: @accentColor;
     max-height: 30px;
+
+    .inbox-disable-vacation:not(:hover) {
+      color: @primaryColor;
+    }
   }
 }
 
