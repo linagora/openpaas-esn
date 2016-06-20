@@ -789,7 +789,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
-  describe('The configurationController', function() {
+  describe('The inboxConfigurationFolderController', function() {
 
     it('should set $scope.mailboxes to the qualified list of non-system mailboxes', function() {
       jmapClient.getMailboxes = function() {
@@ -799,7 +799,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ]);
       };
 
-      initController('configurationController');
+      initController('inboxConfigurationFolderController');
 
       expect(scope.mailboxes).to.deep.equal([{ id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }]);
     });

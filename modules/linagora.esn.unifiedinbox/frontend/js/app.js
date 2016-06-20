@@ -70,15 +70,29 @@ angular.module('linagora.esn.unifiedinbox', [
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
+        deepStateRedirect: {
+          default: 'unifiedinbox.configuration.folders',
+          fn: function() {
+            return { state: 'unifiedinbox.configuration.folders' };
+          }
+        },
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/configuration/index',
-            controller: 'configurationController'
+            templateUrl: '/unifiedinbox/views/configuration/index'
           }
         }
       })
-      .state('unifiedinbox.configuration.folders-add', {
-        url: '/folders/add',
+      .state('unifiedinbox.configuration.folders', {
+        url: '/folders',
+        views: {
+          'configuration@unifiedinbox.configuration': {
+            templateUrl: '/unifiedinbox/views/configuration/folders/index',
+            controller: 'inboxConfigurationFolderController'
+          }
+        }
+      })
+      .state('unifiedinbox.configuration.folders.add', {
+        url: '/add',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/folders/add/index',
@@ -86,12 +100,20 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
-      .state('unifiedinbox.configuration.folders-edit', {
-        url: '/folders/edit/:mailbox',
+      .state('unifiedinbox.configuration.folders.edit', {
+        url: '/edit/:mailbox',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/folders/edit/index',
             controller: 'editFolderController'
+          }
+        }
+      })
+      .state('unifiedinbox.configuration.vacation', {
+        url: '/vacation',
+        views: {
+          'configuration@unifiedinbox.configuration': {
+            templateUrl: '/unifiedinbox/views/configuration/vacation/index'
           }
         }
       })

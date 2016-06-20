@@ -231,7 +231,7 @@ angular.module('linagora.esn.unifiedinbox')
     }.bind(this));
   })
 
-  .controller('configurationController', function($scope, mailboxesService) {
+  .controller('inboxConfigurationFolderController', function($scope, mailboxesService) {
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 

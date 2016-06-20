@@ -44,10 +44,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('configurationIndexSubheader', function() {
+  .directive('inboxConfigurationFolderSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/configuration/subheader.html'
+      templateUrl: '/unifiedinbox/views/configuration/folders/subheader.html'
+    };
+  })
+
+  .directive('inboxConfigurationVacationSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/configuration/vacation/subheader.html'
     };
   })
 
@@ -104,12 +111,5 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/subheader/save-button.html'
-    };
-  })
-
-  .directive('inboxSubheaderCancelButton', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/partials/subheader/cancel-button.html'
     };
   });

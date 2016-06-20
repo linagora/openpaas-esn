@@ -1,8 +1,9 @@
 extends ../../../layout/responsive-subheader
 
 block left
-  inbox-subheader-close-button.hidden-md(ui-sref='unifiedinbox.configuration')
-  inbox-subheader-cancel-button.hidden-xs(ui-sref='unifiedinbox')
+  inbox-subheader-close-button(ui-sref='unifiedinbox.configuration.folders')
+  span.title.ellipsis.extra-title
+    | #{__('%s folder configuration', '{{ ::mailbox.name }}')}
 
 block right
   inbox-subheader-save-button(esn-submit="editFolder()")
