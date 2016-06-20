@@ -171,6 +171,14 @@ angular.module('esn.calendar', [
           }
         }
       }
+    })
+    .state('calendar.edit-delegation', {
+      url: '/delegation',
+      views: {
+        content: {
+          template: '<calendar-edit-delegation-add-users />'
+        }
+      }
     });
 
     var calendar = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-calendar', {priority: 40});

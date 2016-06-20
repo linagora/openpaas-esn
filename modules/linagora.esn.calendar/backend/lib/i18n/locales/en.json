@@ -74,11 +74,16 @@
   "Return to calendar": "Return to calendar",
   "is a repeating event": "is a repeating event",
   "Edit just this occurence": "Edit just this occurence",
-  "Free/Buzy": "Free/Buzy",
+  "Free/Busy": "Free/Busy",
   "Read Only": "Read Only",
   "None": "None",
   "Public read": "Public read",
   "Main": "Main",
   "Delegation": "Delegation",
-  "Edit all occurences": "Edit all occurences"
+  "Edit all occurences": "Edit all occurences",
+  "Only this event": "Only this event",
+  "All events in the serie": "All events in the serie",
+  "Add users and groups delegation": "Add users and groups delegation",
+  "Administration": "Administration",
+  "Read and Write": "Read and Write"
 }

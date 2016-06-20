@@ -25,7 +25,9 @@ describe('The calendarEditionController controller', function() {
     });
 
     this.notificationFactoryMock = {};
-    this.stateMock = {};
+    this.stateMock = {
+      go: sinon.spy()
+    };
     this.calendarMock = null;
     this.screenSize = {};
 
@@ -213,6 +215,22 @@ describe('The calendarEditionController controller', function() {
         this.$scope.removeUserGroup();
         expect(this.removeUserGroup).to.have.been.calledOnce;
       });
+    });
+  });
+
+  describe('scope.goToEditDelegation', function() {
+    it('should call $state.go to view add users', function() {
+      this.initController();
+      this.$scope.goToEditDelegation();
+      expect(this.stateMock.go).to.have.been.calledWith('calendar.edit-delegation');
+    });
+  });
+
+  describe('scope.goToCalendarEdit', function() {
+    it('should call $state.go to go back view calendar.edit', function() {
+      this.initController();
+      this.$scope.goToCalendarEdit();
+      expect(this.stateMock.go).to.have.been.calledWith('calendar.edit');
     });
   });
 });
