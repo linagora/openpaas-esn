@@ -141,5 +141,16 @@ angular.module('esn.calendar')
       return Boolean(otherSet && (otherSet.bitVector || otherSet.bitVector === 0) && otherSet.bitVector === this.bitVector);
     };
 
+    RightSet.prototype.clone = function() {
+      var clone = new RightSet();
+      clone.bitVector = this.bitVector;
+
+      return clone;
+    };
+
+    RightSet.prototype.toJson = function() {
+      return this.bitVector;
+    };
+
     return RightSet;
   });

@@ -212,4 +212,15 @@ describe('RightSet', function() {
       expect(set3.equals(set2)).to.be.true;
     });
   });
+
+  describe('clone', function() {
+    it('should create a clone that is independant of the origin', function() {
+      var set = new RightSet(RightSet.SHAREE_READWRITE);
+      var clone = set.clone();
+      expect(set.equals(clone)).to.be.true;
+      expect(set !== clone).to.be.true;
+      set.addPermission(RightSet.WRITE);
+      expect(set.equals(clone)).to.be.false;
+    });
+  });
 });
