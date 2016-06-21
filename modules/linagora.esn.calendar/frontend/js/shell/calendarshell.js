@@ -215,6 +215,18 @@ angular.module('esn.calendar')
           }
         }, this);
       },
+      _computeNonExceptionnalInstance: function(instanceDetails) {
+        var instance = this.clone();
+        instance.deleteAllException();
+        instance.vevent.removeProperty('rrule');
+        instance.vevent.removeProperty('exdate');
+
+        setDatetimePropertyFromIcalTime(instance.vevent, 'recurrence-id', instanceDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone));
+        setDatetimePropertyFromIcalTime(instance.vevent, 'dtstart', instanceDetails.startDate);
+        setDatetimePropertyFromIcalTime(instance.vevent, 'dtend', instanceDetails.endDate);
+
+        return instance;
+      },
       expand: function(startDate, endDate, maxElement) {
         if (!this.icalEvent.isRecurring()) {
           return [];
@@ -269,14 +281,7 @@ angular.module('esn.calendar')
             if (currentEvent) {
               currentEvent = new CalendarShell(new ICAL.Component(currentEvent.component.toJSON()), this._getExtendedProperties());
             } else {
-              currentEvent = this.clone();
-              currentEvent.deleteAllException();
-              currentEvent.vevent.removeProperty('rrule');
-              currentEvent.vevent.removeProperty('exdate');
-
-              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone));
-              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
-              setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
+              currentEvent = this._computeNonExceptionnalInstance(currentDetails);
             }
 
             result.push(currentEvent);
@@ -570,7 +575,12 @@ angular.module('esn.calendar')
           return mastershell;
         }.bind(this));
       },
+      isRealException: function(instance) {
+        var currentDetails = this.icalEvent.getOccurrenceDetails(instance.vevent.getFirstPropertyValue('recurrence-id'));
+        var regularException = this._computeNonExceptionnalInstance(currentDetails);
 
+        return !instance.equals(regularException);
+      },
       /**
        * For a master shell, modifies a specific instance so it appears as a
        * modified occurrence in the vcalendar. Can not be called on instances.
@@ -581,6 +591,10 @@ angular.module('esn.calendar')
       modifyOccurrence: function(instance, notRefreshCache) {
         if (this.isInstance()) {
           throw new Error('Cannot modify occurrence on an instance');
+        }
+
+        if (!this.isRealException(instance)) {
+          return;
         }
 
         this._removeOccurenceFromVcalendar(instance);
