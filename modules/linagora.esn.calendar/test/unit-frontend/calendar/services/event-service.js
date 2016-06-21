@@ -712,9 +712,11 @@ describe('The eventService service', function() {
       expect(this.masterEventCache.save).to.have.been.calledWith(this.event);
     });
 
-    it('should be able to modify an instance', function(done) {
+    it('should be able to modify an instance', function() {
       var occShell = this.event.clone();
-      occShell.recurrenceId = this.fcMoment();
+
+      occShell.recurrenceId = this.fcMoment([2017, 1, 1, 1, 1]);
+      occShell.start = occShell.start.add(30, 'minutes');
 
       var headers = { ETag: 'etag' };
       var vcalendar = _.cloneDeep(this.vcalendar.toJSON());
@@ -724,30 +726,24 @@ describe('The eventService service', function() {
         return $q.when({ cancelled: false });
       };
 
-      this.gracePeriodService.remove = function(taskId) {
-        expect(taskId).to.equal('123456789');
-      };
+      this.gracePeriodService.remove = sinon.spy();
 
       flushContext = {id: this.event.id};
 
-      this.eventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(
-        function(completed) {
-          expect(completed).to.be.true;
-          done();
-        }, unexpected.bind(null, done)
-      );
+      var modifyEventThen = sinon.spy();
+      this.eventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(modifyEventThen);
 
       function checkPUT(data) {
         vcalendar = new ICAL.Component(JSON.parse(data));
-        expect(vcalendar.getAllSubcomponents('vevent')).to.have.length(2);
-        return true;
+        return vcalendar.getAllSubcomponents('vevent').length === 2;
       }
 
       $httpBackend.whenGET('/dav/api/path/to/uid.ics').respond(200, vcalendar, headers);
       $httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY, checkPUT).respond(202, {id: '123456789'});
       $httpBackend.flush();
       this.$rootScope.$apply();
-      $httpBackend.flush();
+      expect(this.gracePeriodService.remove).to.have.been.calledWith('123456789');
+      expect(modifyEventThen).to.have.been.calledWith(true);
     });
 
     it('should send etag as If-Match header', function(done) {
