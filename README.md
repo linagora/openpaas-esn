@@ -4,7 +4,7 @@
 
 OpenPaaS is a collaboration platform for enterprises & organizations.
 
-## Installation
+## Installation (see there for [Ubuntu install](https://github.com/linagora/openpaas-esn/blob/master/doc/install-ubuntu.md))
 
 1.clone the repository
 
@@ -42,8 +42,6 @@ Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects
 
 If you have any problem relating to `node-canvas` during the dependencies installation,
 make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
-
-Note: You can also check [Ubuntu-specific installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/doc/install-ubuntu.md).
 
 ## Testing
 
@@ -94,7 +92,7 @@ Then 'npm start' to start the OpenPaaS web application:
     npm start
 
 
-Your ESN can be reached at the following address: http://localhost:8080. Now simply follow the setup wizard. 
+Your ESN can be reached at the following address: http://localhost:8080. Now simply follow the setup wizard.
 
 ## Develop OpenPaaS
 
