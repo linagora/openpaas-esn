@@ -25,10 +25,12 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
 
   email-body-editor
 
-  .compose-footer
-    button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
-      i.mdi.mdi-paperclip
+  .compose-footer.flex-space-between
     button.btn.btn-default(ng-click="destroyDraft()", type="button", ng-disabled="isSendingMessage", title="#{__('Delete')}")
       i.mdi.mdi-delete
-    button.btn.btn-primary(type="submit", value="submit", ng-disabled="isSendingMessage") #{__('Send')}
-      i.mdi.mdi-send
+
+    .compose-right-footer
+      button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
+        i.mdi.mdi-paperclip
+      button.btn.btn-primary(type="submit", value="submit", ng-disabled="isSendingMessage") #{__('Send')}
+        i.mdi.mdi-send
