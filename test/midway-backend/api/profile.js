@@ -179,7 +179,8 @@ describe('The profile API', function() {
         service: 'IT',
         building_location: 'Tunis',
         office_location: 'France',
-        main_phone: '123456789'
+        main_phone: '123456789',
+        description: 'This is my description'
       };
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
@@ -203,7 +204,8 @@ describe('The profile API', function() {
               service: user.service,
               building_location: user.building_location,
               office_location: user.office_location,
-              main_phone: user.main_phone
+              main_phone: user.main_phone,
+              description: user.description
             })
             .to.deep.equal(profile);
             done();
