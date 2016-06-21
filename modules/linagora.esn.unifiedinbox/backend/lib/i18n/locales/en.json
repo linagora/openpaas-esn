@@ -12,7 +12,7 @@
   "Start typing...": "Start typing...",
   "Edit": "Edit",
   "Tap to edit": "Tap to edit",
-  "Manage folders": "Manage folders",
+  "Folder settings": "Folder settings",
   "New": "New",
   "Name": "Name",
   "Child Of": "Child Of",
@@ -40,5 +40,14 @@
   "Disable": "Disable",
   "Folders": "Folders",
   "Vacation": "Vacation",
-  "Manage vacation": "Manage vacation"
+  "Vacation settings": "Vacation settings",
+  "Vacation responder": "Vacation responder",
+  "On": "On",
+  "Off": "Off",
+  "Start date": "Start date",
+  "End date": "End date",
+  "Vacation stops at": "Vacation stops at",
+  "Message body": "Message body",
+  "Start writing your vacation message here": "Start writing your vacation message here"
+
 }

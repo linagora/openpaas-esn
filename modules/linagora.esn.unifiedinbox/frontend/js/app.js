@@ -113,7 +113,8 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/vacation',
         views: {
           'configuration@unifiedinbox.configuration': {
-            templateUrl: '/unifiedinbox/views/configuration/vacation/index'
+            templateUrl: '/unifiedinbox/views/configuration/vacation/index',
+            controller: 'inboxConfigurationVacationController'
           }
         }
       })

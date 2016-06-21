@@ -542,7 +542,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxVacationIndicator', function(withJmapClient, jmap) {
+  .directive('inboxVacationIndicator', function($rootScope, withJmapClient, jmap, INBOX_EVENTS) {
     return {
       restrict: 'E',
       scope: {},
@@ -551,11 +551,19 @@ angular.module('linagora.esn.unifiedinbox')
           $scope.vacationEnabled = false;
 
           withJmapClient(function(client) {
-            client.setVacationResponse(new jmap.VacationResponse({ isEnabled: false })).catch(function() {
-              $scope.vacationEnabled = true;
-            });
+            client.setVacationResponse(new jmap.VacationResponse({ isEnabled: false }))
+              .then(function() {
+                $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS, $scope.vacationEnabled);
+              })
+              .catch(function() {
+                $scope.vacationEnabled = true;
+              });
           });
         };
+
+        $scope.$on(INBOX_EVENTS.VACATION_STATUS, function(event, isEnabled) {
+          $scope.vacationEnabled = isEnabled;
+        });
 
         withJmapClient(function(client) {
           client.getVacationResponse().then(function(vacation) {

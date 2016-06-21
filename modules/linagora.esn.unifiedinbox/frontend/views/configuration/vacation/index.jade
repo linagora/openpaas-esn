@@ -2,5 +2,24 @@ sub-header
   inbox-configuration-vacation-subheader
 
 .inbox-configuration-vacation
-  p
-    | Vacation content
+  form
+    span #{__('Vacation responder')}
+    .inbox-toggle-switch.form-group
+      span.clickable.vacation-disabled(ng-class='{"toggle-active": !vacation.isEnabled}', ng-click="enableVacation(false)") #{__('Off')}
+      toggle-switch(ng-model='vacation.isEnabled', color='blue')
+      span.clickable.vacation-enabled(ng-class='{"toggle-active": vacation.isEnabled}', ng-click="enableVacation(true)") #{__('On')}
+    fieldset(ng-disabled="!vacation.isEnabled")
+      .form-group.fg-line
+        .field-name #{__('Start date')}
+        input.input.form-control(type='text', ng-model="vacation.fromDate", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", bs-datepicker)
+      .checkbox.checkbox-styled
+        label
+          input(type="checkbox", ng-model='vacation.hasToDate')
+          i.input-helper
+          span #{__('Vacation stops at')}
+      .form-group.fg-line.vacation-end-date(ng-disabled="!vacation.hasToDate")
+        .field-name #{__('End date')}
+        input.input.form-control(type='text', ng-model="vacation.toDate", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-disabled="!vacation.hasToDate", data-min-date="{{getMinDate()}}", bs-datepicker)
+      .form-group.full-width.fg-line
+        .field-name #{__('Message body')}
+        textarea.form-control(auto-size, rows="10", ng-model="vacation.textBody", placeholder="#{__('Start writing your vacation message here')}")

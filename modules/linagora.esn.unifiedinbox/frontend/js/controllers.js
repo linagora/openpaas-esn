@@ -287,6 +287,70 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $q, moment, jmap, withJmapClient, rejectWithErrorNotification, asyncJmapAction, INBOX_EVENTS) {
+    $scope.vacation = {};
+
+    _init();
+
+    $scope.getMinDate = function() {
+      return $scope.vacation.fromDate;
+    };
+
+    $scope.enableVacation = function(status) {
+      $scope.vacation.isEnabled = status;
+    };
+
+    $scope.updateVacation = function() {
+      return _validateVacationLogic()
+        .then(function() {
+          $state.go('unifiedinbox');
+          if (!$scope.vacation.hasToDate) {
+            $scope.vacation.toDate = null;
+          }
+
+          return asyncJmapAction('Modification of vacation settings', function(client) {
+            return client.setVacationResponse(new jmap.VacationResponse(client, $scope.vacation));
+          });
+        })
+        .then(function() {
+          $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS, $scope.vacation.isEnabled);
+        });
+    };
+
+    $scope.$on(INBOX_EVENTS.VACATION_STATUS, function(event, isEnabled) {
+      $scope.vacation.isEnabled = isEnabled;
+    });
+
+    function _validateVacationLogic() {
+      if ($scope.vacation.isEnabled) {
+        if (!$scope.vacation.fromDate) {
+          return rejectWithErrorNotification('Please enter a valid start date');
+        }
+
+        if (!!$scope.vacation.toDate && $scope.vacation.toDate < $scope.vacation.fromDate) {
+          return rejectWithErrorNotification('End date must be greater than start date');
+        }
+      }
+
+      return $q.when();
+    }
+
+    function _init() {
+      withJmapClient(function(client) {
+        client.getVacationResponse()
+          .then(function(vacation) {
+            $scope.vacation = vacation;
+          })
+          .then(function() {
+            $scope.vacation.fromDate = $scope.vacation.fromDate || moment();
+            if (angular.isDefined($scope.vacation.toDate)) {
+              $scope.vacation.hasToDate = true;
+            }
+          });
+      });
+    }
+  })
+
   .controller('recipientsFullscreenEditFormController', function($scope, $state, $stateParams) {
     if (!$stateParams.recipientsType || !$stateParams.composition || !$stateParams.composition.email) {
       return $state.go('unifiedinbox.compose');
