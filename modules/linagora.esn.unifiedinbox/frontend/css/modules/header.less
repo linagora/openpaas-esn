@@ -13,6 +13,7 @@
       text-align: center;
       font-size: 1.4em;
       margin-left: 25px;
+      margin-right: 25px;
       color: @textPrimaryColor;
     }
 
@@ -31,7 +32,7 @@
 @media (min-width: @screen-md-min) {
   #header {
     .inbox-subheader:not(.inbox-subheader-fullwidth) {
-      .title {
+      .title:not(.extra-title) {
         margin-left: 0; // Because the padding of the 'inner' class below is now enough
       }
 

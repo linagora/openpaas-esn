@@ -28,7 +28,7 @@ module.exports = function() {
     var cssAttribute;
 
     if (page === 'New folder') {
-      cssAttribute = '[ui-sref="unifiedinbox.configuration.folders-add"]';
+      cssAttribute = '[ui-sref="unifiedinbox.configuration.folders.add"]';
     }
 
     inboxAside.aside.element(by.css(cssAttribute)).click();

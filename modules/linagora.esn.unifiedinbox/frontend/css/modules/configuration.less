@@ -1,7 +1,8 @@
 @inboxConfigurationFontSize: 1.6em;
 
-.inbox-main-content {
+.inbox-root .inbox-main-content {
   &.configuration {
+
     .clickable {
       line-height: @inboxConfigurationFontSize;
     }
@@ -31,6 +32,11 @@
       font-size: 15px;
       padding: 10px 10px 10px 0;
     }
+
+    .configuration-header {
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
   }
 }
 
@@ -38,6 +44,8 @@
 
   .inbox-main-content {
     &.configuration {
+      margin-top: 45px;
+
       .form-group {
         width: 40%;
       }
