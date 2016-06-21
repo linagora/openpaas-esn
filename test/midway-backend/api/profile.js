@@ -212,8 +212,11 @@ describe('The profile API', function() {
       });
     });
 
-    it('should return an error if sent profile is empty', function(done) {
+    it('should not return an error even if some of sent profile attributes are undefined', function(done) {
       var User = mongoose.model('User');
+      var profile = {
+        firstname: 'John'
+      };
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
@@ -222,7 +225,7 @@ describe('The profile API', function() {
 
         var req = loggedInAsUser(request(app).put('/api/user/profile'));
 
-        req.send().expect(500).end(function(err) {
+        req.send(profile).expect(200).end(function(err) {
           expect(err).to.not.exist;
 
           User.findOne({ _id: foouser._id }, function(err, user) {
@@ -231,7 +234,6 @@ describe('The profile API', function() {
             }
 
             expect(user.firstname).to.equal('John');
-            expect(user.lastname).to.not.exist;
             done();
           });
         });
