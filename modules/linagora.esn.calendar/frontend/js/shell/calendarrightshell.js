@@ -210,6 +210,8 @@ angular.module('esn.calendar')
         return rightSet.clone();
       });
 
+      clone._userEmails = _.clone(this._userEmails);
+
       clone._public = this._public.clone();
 
       return clone;

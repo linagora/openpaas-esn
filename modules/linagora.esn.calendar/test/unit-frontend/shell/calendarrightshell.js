@@ -88,6 +88,12 @@ describe('CalendarRightShell factory', function() {
       expect(clone === calendarRightShell).to.be.false;
       expect(clone.equals(calendarRightShell)).to.be.true;
     });
+
+    it('should also clone email', function() {
+      var clone = calendarRightShell.clone();
+
+      expect(clone._userEmails).to.be.deep.equals(calendarRightShell._userEmails);
+    });
   });
 
   describe('the equal method', function() {
