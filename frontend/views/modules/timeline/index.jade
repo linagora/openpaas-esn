@@ -1,0 +1,11 @@
+sub-header
+  timeline-subheader
+
+.timeline.col-xs-9
+  infinite-list(load-more-elements='loadNext()')
+    ul.media-list
+      li.media(ng-repeat="entry in timelineEntries")
+        .t-view.m-b-0(data-tv-type="{{::entry.verb}}")
+          ng-include(src="entry.templateUrl")
+  .text-center
+    div.throbber(openpaas-logo-spinner, spinner-key='timelineEntrySpinner')

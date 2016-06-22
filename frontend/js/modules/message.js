@@ -1,10 +1,28 @@
 'use strict';
 
-angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
+angular.module('esn.message', ['esn.timeline', 'esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
-  .controller('messageEditionController', function($scope) {
-    var types = ['whatsup', 'event', 'poll'];
+  .constant('ESN_MESSAGE_TYPES', ['whatsup', 'event', 'poll'])
+  .run(function(esnTimelineEntryProviders, $q, ESN_MESSAGE_TYPES) {
+    esnTimelineEntryProviders.register({
+      verb: 'post',
+      templateUrl: '/views/modules/message/timeline/post.html',
+      canHandle: function() {
+        return $q.when(true);
+      }
+    });
+
+    esnTimelineEntryProviders.register({
+      verb: 'like',
+      templateUrl: '/views/modules/message/timeline/like.html',
+      canHandle: function(entry) {
+        return $q.when(ESN_MESSAGE_TYPES.indexOf(entry.object.objectType) >= 0);
+      }
+    });
+  })
+  .controller('messageEditionController', function($scope, ESN_MESSAGE_TYPES) {
+    var types = ESN_MESSAGE_TYPES;
     $scope.type = types[0];
     $scope.show = function(type) {
       if (types.indexOf(type) >= 0) {

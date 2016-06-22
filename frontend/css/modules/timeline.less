@@ -1,0 +1,40 @@
+.timeline {
+
+  .card-header h2 {
+    margin: 0;
+    line-height: 100%;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .t-view {
+
+    &:before {
+      font-family: 'MaterialDesignIcons';
+    }
+
+    &[data-tv-type="like"] {
+      &:before {
+        content: "\f601";
+        background: @m-cyan;
+        box-shadow: 0 0 0 1px @m-cyan;
+      }
+
+      &:after {
+        background: @m-cyan;
+      }
+    }
+
+    &[data-tv-type="post"] {
+      &:before {
+        content: "\f277";
+        background: @m-indigo;
+        box-shadow: 0 0 0 1px @m-indigo;
+      }
+
+      &:after {
+        background: @m-indigo;
+      }
+    }
+  }
+}

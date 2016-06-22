@@ -1,0 +1,12 @@
+.card.m-b-0
+  .card-header
+    .media
+      a.pull-left(ng-href='#/profile/{{::entry.actor._id}}')
+        img.lv-img(src='/images/user.png', ng-src='/api/users/{{::entry.actor._id}}/profile/avatar')
+      .media-body
+        h2
+          a(ng-href="#/profile/{{::entry.actor._id}}") {{::entry.actor.displayName}}
+          span &nbsp;#{__('liked')}
+          a(ng-href="#/messages/{{::entry.object._id}}") &nbsp;#{__('a message')}
+        small
+          span(am-time-ago="::entry.published")
