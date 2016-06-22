@@ -80,7 +80,7 @@ describe('The esn.timeline module', function() {
     });
   });
 
-  describe('The fesnTimelineEntriesHelper actory', function() {
+  describe('The fesnTimelineEntriesHelper factory', function() {
 
     var service, $rootScope, esnTimelineEntryProviders, DEFAULT_TIMELINE_ELEMENT;
 
@@ -150,7 +150,7 @@ describe('The esn.timeline module', function() {
           ]);
           done();
         }
-        service.denormalizeAPIResponse({data: [{verb: 'like'}]}).then(check, done);
+        service.denormalizeAPIResponse([{verb: 'like'}]).then(check, done);
         $rootScope.$digest();
       });
 
@@ -164,27 +164,85 @@ describe('The esn.timeline module', function() {
             ]);
             done();
           }
-          service.denormalizeAPIResponse({data: [{verb: 'like'}]}).then(check, done);
+          service.denormalizeAPIResponse([{verb: 'like'}]).then(check, done);
           $rootScope.$digest();
         });
       });
     });
   });
 
+  describe('The TimelinePaginationProvider factory', function() {
+
+    var esnTimelineAPI, $q, $rootScope, TimelinePaginationProvider;
+
+    function generateData(size) {
+      var result = [];
+      for (var i = 0; i < size; i++) {
+        result.push({verb: 'post', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 2}});
+      }
+      return result;
+    }
+
+    beforeEach(function() {
+      esnTimelineAPI = {};
+      angular.mock.module('esn.timeline', function($provide) {
+        $provide.value('esnTimelineAPI', esnTimelineAPI);
+      });
+    });
+
+    beforeEach(inject(function(_$controller_, _$q_, _$rootScope_) {
+      $q = _$q_;
+      $rootScope = _$rootScope_;
+    }));
+
+    beforeEach(function() {
+      inject(function($injector) {
+        TimelinePaginationProvider = $injector.get('TimelinePaginationProvider');
+      });
+    });
+
+    describe('The loadNextItems function', function() {
+      it('should send back data and lastPage flag to false when end is not reached', function(done) {
+        var size = 10;
+        var options = {limit: size};
+        esnTimelineAPI.getUserTimelineEntries = function() {
+          return $q.when({data: generateData(size)});
+        };
+
+        var service = new TimelinePaginationProvider(options);
+        service.loadNextItems().then(function(result) {
+          expect(result.data.length).to.equal(size);
+          expect(result.lastPage).to.be.false;
+          done();
+        }, done);
+        $rootScope.$digest();
+      });
+
+      it('should send back data and lastPage flag to true when end is reached', function(done) {
+        var size = 10;
+        var options = {limit: size};
+        esnTimelineAPI.getUserTimelineEntries = function() {
+          return $q.when({data: generateData(size / 2)});
+        };
+
+        var service = new TimelinePaginationProvider(options);
+        service.loadNextItems().then(function(result) {
+          expect(result.data.length).to.equal(size / 2);
+          expect(result.lastPage).to.be.true;
+          done();
+        }, done);
+        $rootScope.$digest();
+      });
+    });
+  });
+
   describe('The esnTimelineEntriesController controller', function() {
-    var $controller, $scope, $q, $rootScope, esnTimelineAPI;
+    var $controller, $scope, $q, $rootScope, PageAggregatorService;
     var timelineEntries = [
       {verb: 'post', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 2}},
       {verb: 'like', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 3}},
       {verb: 'foo', actor: {objectType: 'user', _id: 1}, object: {objectType: 'bar', _id: 4}}
     ];
-
-    var usSpinnerService = {
-      spin: function() {
-      },
-      stop: function(id) {
-      }
-    };
 
     function initController() {
       $scope = {};
@@ -193,15 +251,9 @@ describe('The esn.timeline module', function() {
     }
 
     beforeEach(function() {
-      esnTimelineAPI = {
-        getUserTimelineEntries: sinon.spy(function() {
-          return $q.when({data: timelineEntries});
-        })
-      };
-
+      PageAggregatorService = function() {};
       angular.mock.module('esn.timeline', function($provide) {
-        $provide.value('esnTimelineAPI', esnTimelineAPI);
-        $provide.value('usSpinnerService', usSpinnerService);
+        $provide.value('PageAggregatorService', PageAggregatorService);
       });
     });
 
@@ -209,15 +261,19 @@ describe('The esn.timeline module', function() {
       $controller = _$controller_;
       $q = _$q_;
       $rootScope = _$rootScope_;
-      initController();
     }));
 
     describe('The loadNext function', function() {
 
-      it('should load timeline entries', function() {
+      it('should load data and update the timelineentries', function() {
+        PageAggregatorService.prototype.loadNextItems = function() {
+          return $q.when({data: timelineEntries});
+        };
+
+        initController();
+
         $scope.loadNext();
         $rootScope.$digest();
-        expect(esnTimelineAPI.getUserTimelineEntries).to.have.been.called;
         expect($scope.timelineEntries).to.shallowDeepEqual(timelineEntries);
       });
     });

@@ -2,12 +2,15 @@
 
 angular.module('esn.timeline', [
   'op.dynamicDirective',
-  'linagora.esn.controlcenter',
   'esn.http',
   'esn.infinite-list',
+  'esn.provider',
+  'esn.aggregator',
   'openpaas-logo'])
 
   .constant('DEFAULT_TIMELINE_ELEMENT', '/views/modules/timeline/default-timeline-element.html')
+
+  .constant('TIMELINE_PAGE_SIZE', 10)
 
   .config(function(dynamicDirectiveServiceProvider) {
     var timelineControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(
@@ -81,7 +84,7 @@ angular.module('esn.timeline', [
     }
 
     function denormalizeAPIResponse(entries) {
-      return $q.when(entries.data.map(function(entry) {
+      return $q.when(entries.map(function(entry) {
         var providers = getProvidersForTimelineEntry(entry);
         entry.templateUrl = providers.length ? providers[0].templateUrl : DEFAULT_TIMELINE_ELEMENT;
         return entry;
@@ -96,37 +99,57 @@ angular.module('esn.timeline', [
 
   })
 
-  .controller('esnTimelineEntriesController', function($scope, $log, esnTimelineAPI, esnTimelineEntriesHelper, usSpinnerService) {
+  .factory('TimelinePaginationProvider', function(esnTimelineAPI) {
 
-    var offset = 0;
-    var limit = 10;
-    var running = false;
-    var spinnerKey = 'timelineEntrySpinner';
+    function TimelinePaginationProvider(options) {
+      this.options = angular.extend({limit: 20, offset: 0}, {}, options);
+    }
+
+    TimelinePaginationProvider.prototype.loadNextItems = function() {
+      var self = this;
+
+      return esnTimelineAPI.getUserTimelineEntries(self.options).then(function(response) {
+        var result = {
+          data: response.data,
+          lastPage: (response.data.length < self.options.limit)
+        };
+
+        if (!result.lastPage) {
+          self.options.offset += self.options.limit;
+        }
+        return result;
+      });
+    };
+    return TimelinePaginationProvider;
+  })
+
+  .controller('esnTimelineEntriesController', function($scope, $log, _, esnTimelineEntriesHelper, infiniteScrollHelperBuilder, PageAggregatorService, TimelinePaginationProvider, TIMELINE_PAGE_SIZE) {
+
+    var aggregator;
     $scope.timelineEntries = [];
 
-    $scope.loadNext = function loadNext() {
-      if (running) {
-        return;
+    function updateScope(elements) {
+      esnTimelineEntriesHelper.denormalizeAPIResponse(elements).then(function(denormalized) {
+        Array.prototype.push.apply($scope.timelineEntries, denormalized);
+      });
+    }
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+    }
+
+    function loadNextItems() {
+      if (aggregator) {
+        return load();
       }
-      usSpinnerService.spin(spinnerKey);
 
-      var options = {
-        offset: offset,
-        limit: limit
-      };
-      running = true;
+      var provider = new TimelinePaginationProvider();
+      aggregator = new PageAggregatorService('timelineControllerAggregator', [provider], {
+        compare: function(a, b) { return b.published - a.published; },
+        results_per_page: TIMELINE_PAGE_SIZE
+      });
+      return load();
+    }
 
-      esnTimelineAPI.getUserTimelineEntries(options)
-        .then(esnTimelineEntriesHelper.denormalizeAPIResponse)
-        .then(function(denormalized) {
-          Array.prototype.push.apply($scope.timelineEntries, denormalized);
-          offset += limit;
-        })
-        .catch(function(err) {
-          $log.error('Can not get timeline entries', err);
-        }).finally(function() {
-          running = false;
-          usSpinnerService.stop(spinnerKey);
-        });
-    };
+    $scope.loadNext = infiniteScrollHelperBuilder($scope, loadNextItems, updateScope, TIMELINE_PAGE_SIZE);
   });
