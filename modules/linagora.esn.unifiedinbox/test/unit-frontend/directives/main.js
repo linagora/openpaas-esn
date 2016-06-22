@@ -1317,6 +1317,15 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(scope.dropdownList.placeholder).to.equal('2 selected');
     });
+
+    it('should refresh the dropdown when inbox.filterChanged event is broadcasted', function() {
+      scope.filters[0].checked = true;
+      scope.filters[1].checked = true;
+      $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+
+      expect(scope.dropdownList.placeholder).to.equal('2 selected');
+    });
+
   });
 
   describe('The composerAttachments directive', function() {
@@ -1581,6 +1590,105 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
 
       expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
+    });
+
+  });
+
+  describe('The inboxClearFiltersButton directive', function() {
+
+    var filters;
+
+    beforeEach(inject(function(inboxFilters) {
+      filters = inboxFilters;
+    }));
+
+    it('should clear filters when clicked', function() {
+      filters[0].checked = true;
+      filters[1].checked = true;
+
+      compileDirective('<inbox-clear-filters-button />').children().first().click();
+
+      expect(_.filter(filters, { checked: true })).to.deep.equal([]);
+    });
+
+    it('should broadcast inbox.filterChanged when clicked', function(done) {
+      $scope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
+        done();
+      });
+
+      compileDirective('<inbox-clear-filters-button />').children().first().click();
+    });
+
+  });
+
+  describe('The inboxEmptyContainerMessage directive', function() {
+
+    var filters;
+
+    beforeEach(inject(function(inboxFilters) {
+      filters = inboxFilters;
+    }));
+
+    it('should expose a isFilteringActive function, returning true if at least one fiter is checked', function() {
+      filters[0].checked = true;
+
+      compileDirective('<inbox-empty-container-message />');
+
+      expect(element.isolateScope().isFilteringActive()).to.equal(true);
+    });
+
+    it('should expose a isFilteringActive function, returning false if no fiter is checked', function() {
+      compileDirective('<inbox-empty-container-message />');
+
+      expect(element.isolateScope().isFilteringActive()).to.equal(false);
+    });
+
+    it('should expose a isCustomMailbox attribute, true if the container is a custom mailbox', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.UNKNOWN
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(!!element.isolateScope().isCustomMailbox).to.equal(true);
+    });
+
+    it('should expose a isCustomMailbox attribute, falsy if the container is not a custom mailbox', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.INBOX
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(!!element.isolateScope().isCustomMailbox).to.equal(false);
+    });
+
+    it('should expose a isCustomMailbox attribute, falsy if the container is not a mailbox', function() {
+      compileDirective('<inbox-empty-container-message />');
+
+      expect(!!element.isolateScope().isCustomMailbox).to.equal(false);
+    });
+
+    it('should use role if defined', function() {
+      compileDirective('<inbox-empty-container-message role="twitter"/>');
+
+      expect(element.isolateScope().containerTemplateUrl).to.match(/twitter.html/);
+    });
+
+    it('should compute role if not defined, based on the mailbox role', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.INBOX
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(element.isolateScope().containerTemplateUrl).to.match(/inbox.html/);
+    });
+
+    it('should use default role if mailbox is not a custom one', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.UNKNOWN
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(element.isolateScope().containerTemplateUrl).to.match(/default.html/);
     });
 
   });

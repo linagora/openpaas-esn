@@ -504,7 +504,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFilterButton', function($rootScope, _) {
+  .directive('inboxFilterButton', function($rootScope, _, INBOX_EVENTS) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/filter/filter-button.html',
@@ -515,8 +515,6 @@ angular.module('linagora.esn.unifiedinbox')
       controllerAs: 'ctrl',
       controller: function($scope) {
         var defaultPlaceholder = $scope.placeholder || 'Filters';
-
-        $scope.dropdownList = {};
 
         function updateDropdownList() {
           var checkedItems = _.filter($scope.filters, { checked: true });
@@ -530,10 +528,13 @@ angular.module('linagora.esn.unifiedinbox')
           }
         }
 
+        $scope.dropdownList = {};
+        $scope.$on(INBOX_EVENTS.FILTER_CHANGED, updateDropdownList);
+
         this.dropdownItemClicked = function() {
           updateDropdownList();
 
-          $rootScope.$broadcast('inboxFilterChanged');
+          $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
         };
 
         // Define proper initial state of the button
@@ -573,5 +574,39 @@ angular.module('linagora.esn.unifiedinbox')
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/partials/inbox-vacation-indicator.html'
+    };
+  })
+
+  .directive('inboxEmptyContainerMessage', function(inboxFilteringService, jmap, INBOX_EMPTY_MESSAGE_MAPPING) {
+    return {
+      restrict: 'E',
+      scope: {
+        mailbox: '=?',
+        role: '@?'
+      },
+      templateUrl: '/unifiedinbox/views/partials/empty-messages/index.html',
+      link: function(scope) {
+        var role = scope.role || (scope.mailbox && scope.mailbox.role && scope.mailbox.role.value);
+
+        scope.isCustomMailbox = scope.mailbox && jmap.MailboxRole.UNKNOWN === scope.mailbox.role;
+        scope.isFilteringActive = inboxFilteringService.isAnyFilterSelected;
+        scope.containerTemplateUrl = (role && INBOX_EMPTY_MESSAGE_MAPPING[role]) || INBOX_EMPTY_MESSAGE_MAPPING.default;
+      }
+    };
+  })
+
+  .directive('inboxClearFiltersButton', function($rootScope, inboxFilteringService, INBOX_EVENTS) {
+    return {
+      restrict: 'E',
+      scope: {},
+      controller: function() {
+        this.clearFilters = function() {
+          inboxFilteringService.uncheckFilters();
+
+          $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+        };
+      },
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/filter/inbox-clear-filters-button.html'
     };
   });

@@ -1,19 +1,23 @@
 sub-header
   block subheader
 
-infinite-list(load-more-elements='loadMoreElements()').inbox-list
+infinite-list(load-more-elements='loadMoreElements()', element-selector=".inbox-list-item").inbox-list
 
   .inbox-items-group(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
-    .block-header
+    .block-header(ng-if="visibleItemsInGroup.length > 0")
       h2 {{::group.name}}
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
-        .lv-item.media.inbox-list-item(ng-repeat="item in group.elements | inboxFilterJmapItems | orderBy: '-date'")
+        .lv-item.media.inbox-list-item(ng-repeat="item in group.elements | inboxFilterJmapItems | orderBy: '-date' as visibleItemsInGroup")
           block item
 
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
     li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
 
-  inbox-fab
-  fab-scroll-top
+  div(ng-if="infiniteScrollCompleted && $parent.infiniteList.getElementsCount() === 0")
+    block empty-message
+      inbox-empty-container-message(mailbox="::mailbox")
+
+inbox-fab
+fab-scroll-top

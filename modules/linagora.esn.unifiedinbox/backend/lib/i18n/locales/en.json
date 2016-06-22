@@ -47,6 +47,11 @@
   "End date": "End date",
   "Vacation stops at": "Vacation stops at",
   "Message body": "Message body",
-  "Start writing your vacation message here": "Start writing your vacation message here"
-
+  "Start writing your vacation message here": "Start writing your vacation message here",
+  "You have no mail, have a nice day!": "You have no mail, have a nice day!",
+  "This folder is empty.": "This folder is empty.",
+  "You have neither direct messages nor mentions for this account.": "You have neither direct messages nor mentions for this account.",
+  "Your active filter(s) might be too restrictive": "Your active filter(s) might be too restrictive",
+  "Did you know you can drag & drop messages to this folder? Give it a try!": "Did you know you can drag & drop messages to this folder? Give it a try!",
+  "Clear filters": "Clear filters"
 }

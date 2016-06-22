@@ -32,5 +32,11 @@ angular.module('linagora.esn.unifiedinbox')
     SOCIAL: 'SOCIAL'
   })
   .constant('INBOX_EVENTS', {
-    VACATION_STATUS: 'inbox.vacationStatusUpdated'
+    VACATION_STATUS: 'inbox:vacationStatusUpdated',
+    FILTER_CHANGED: 'inbox:filterChanged'
+  })
+  .constant('INBOX_EMPTY_MESSAGE_MAPPING', {
+    default: '/unifiedinbox/views/partials/empty-messages/containers/default.html',
+    inbox: '/unifiedinbox/views/partials/empty-messages/containers/inbox.html',
+    twitter: '/unifiedinbox/views/partials/empty-messages/containers/twitter.html'
   });

@@ -1,6 +1,40 @@
 @inboxDraggingItemBgColor: #FFF9C4;
 
 .inbox-root {
+  .inbox-list {
+    .inbox-empty-container-message {
+      color: @secondaryTextColor;
+      font-size: 1.4em;
+      text-align: center;
+      margin-top: 10px;
+
+      .inbox-empty-icon {
+        font-size: 8em;
+        opacity: 0.7;
+      }
+
+      .message {
+        margin-bottom: 10px;
+
+        .inbox-clear-filters {
+          margin-left: 10px;
+        }
+      }
+
+      .inbox-dnd-info-message {
+        .RoundedShape(5px);
+
+        border: 1px solid @darkenBgColor;
+
+        .mdi {
+          margin: 5px 10px;
+          font-size: 1.8em;
+          color: @primaryColor;
+        }
+      }
+    }
+  }
+
   .inbox-items-group {
     .listview .lv-item {
       padding: 0;
