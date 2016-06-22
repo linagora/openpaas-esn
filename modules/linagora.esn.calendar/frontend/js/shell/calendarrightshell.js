@@ -69,7 +69,8 @@ angular.module('esn.calendar')
         RightSet.SHAREE_READWRITE,
         RightSet.SHARE,
         RightSet.WRITE_PROPERTIES,
-        RightSet.WRITE
+        RightSet.WRITE,
+        RightSet.SHAREE_SHAREDOWNER
       ]
     };
 
