@@ -108,6 +108,55 @@ function query(options, cb) {
 }
 module.exports.query = query;
 
+function getTimelineEntries(options, callback) {
+  options = options || {};
+
+  function getQuery() {
+    var query = {};
+    if (options.verb) {
+      query.verb = options.verb;
+    }
+
+    var q = TimelineEntry.find(query);
+    var or = [];
+
+    if (options.actor) {
+      or.push({'actor._id': options.actor._id, 'actor.objectType': options.actor.objectType});
+    }
+
+    if (options.target) {
+      or.push({'target._id': options.target._id, 'target.objectType': options.target.objectType});
+    }
+
+    q = q.or(or);
+    return q;
+  }
+
+  getQuery().count().exec(function(err, count) {
+    if (err) {
+      return callback(err);
+    }
+
+    var timelineQuery = getQuery();
+
+    if (options.offset > 0) {
+      timelineQuery = timelineQuery.skip(options.offset);
+    }
+
+    if (options.limit > 0) {
+      timelineQuery = timelineQuery.limit(options.limit);
+    }
+
+    timelineQuery.sort('-published').exec(function(err, results) {
+      if (err) {
+        return callback(err);
+      }
+      return callback(null, {total_count: count, list: results});
+    });
+  });
+}
+module.exports.getTimelineEntries = getTimelineEntries;
+
 /**
  * Add an timeline entry
  *

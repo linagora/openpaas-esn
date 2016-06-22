@@ -3,6 +3,7 @@
 var extend = require('extend');
 var Schema = require('mongoose').Schema;
 var tuple = require('../schemas/tuple');
+var activitystream = require('../schemas/activitystream');
 var injection = require('../schemas/injection');
 var Tuple = tuple.Tuple;
 var Injection = injection.Injection;
@@ -25,12 +26,7 @@ var collaborationBaseSchema = {
       }
     }
   ],
-  activity_stream: {
-    uuid: {type: String},
-    timestamps: {
-      creation: {type: Date, default: Date.now}
-    }
-  },
+  activity_stream: {type: activitystream.ActivityStream.tree},
   injections: {type: [Injection], validate: [injection.validateInjections, 'Bad injections']},
   schemaVersion: {type: Number, default: 1}
 };

@@ -12,10 +12,12 @@ describe('The pubsub module', function() {
     var rSpy = {init: sinon.spy()};
     var nSpy = {init: sinon.spy()};
     var esSpy = {init: sinon.spy()};
+    var tSpy = {init: sinon.spy()};
     mockery.registerMock('../activitystreams/pubsub', asSpy);
     mockery.registerMock('../notification/pubsub', nSpy);
     mockery.registerMock('../elasticsearch/pubsub', esSpy);
     mockery.registerMock('../resource-link/pubsub', rSpy);
+    mockery.registerMock('../timeline', tSpy);
 
     var module = this.helpers.requireBackend('core/pubsub');
     module.init();
@@ -23,5 +25,6 @@ describe('The pubsub module', function() {
     expect(nSpy.init).to.have.been.called;
     expect(esSpy.init).to.have.been.called;
     expect(rSpy.init).to.have.been.called;
+    expect(tSpy.init).to.have.been.called;
   });
 });

@@ -8,4 +8,5 @@ module.exports.init = function() {
   require('../notification/pubsub').init();
   require('../elasticsearch/pubsub').init();
   require('../resource-link/pubsub').init();
+  require('../timeline').init();
 };

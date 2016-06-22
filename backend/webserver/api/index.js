@@ -100,6 +100,7 @@ function setupAPI(application) {
   require('./notifications')(router);
   require('./oauthclients')(router);
   require('./resource-link')(router);
+  require('./timelineentries')(router);
   require('./user')(router);
   require('./users')(router);
 
