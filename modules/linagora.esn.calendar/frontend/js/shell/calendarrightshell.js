@@ -178,6 +178,11 @@ angular.module('esn.calendar')
       }, this);
     };
 
+    CalendarRightShell.prototype.removeUserRight = function(id) {
+      delete(this._userEmails[id]);
+      delete(this._userRight[id]);
+    };
+
     CalendarRightShell.prototype.toJson = function() {
       var result = {
         users: {},

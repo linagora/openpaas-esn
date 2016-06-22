@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai, __FIXTURES__: false */
+/* global chai, __FIXTURES__, _: false */
 
 var expect = chai.expect;
 
@@ -117,6 +117,18 @@ describe('CalendarRightShell factory', function() {
       var other = calendarRightShell.clone();
       other.updatePublic(CALENDAR_RIGHT.READ);
       expect(other.equals(calendarRightShell)).to.be.false;
+    });
+  });
+
+  describe('the removeUserRight method', function() {
+    it('should correctly remove a user write', function() {
+      calendarRightShell.removeUserRight('tom');
+      expect(calendarRightShell.getUserRight('tom')).to.be.undefined;
+      expect(_.find(calendarRightShell.getAllUserRight(), {userId: 'tom'})).to.be.undefined;
+    });
+
+    it('should not fail if attending to remove an unexisting user', function() {
+      calendarRightShell.removeUserRight('god');
     });
   });
 });
