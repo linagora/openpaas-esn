@@ -16,7 +16,7 @@ angular.module('esn.calendar')
     DelegationService.prototype.addUserGroup = function(newUsersGroups, selection) {
       newUsersGroups.forEach(function(attendee) {
         var exists = this._delegations.some(function(delegation) {
-          return attendee.id === delegation.attendee.id;
+          return attendee._id === delegation.attendee._id;
         });
 
         if (!exists) {
@@ -38,7 +38,7 @@ angular.module('esn.calendar')
     DelegationService.prototype.removeUserGroup = function(delegationToRemove) {
 
       this._delegations = this._delegations.filter(function(delegation) {
-        return delegation.attendee.id !== delegationToRemove.attendee.id;
+        return delegation.attendee._id !== delegationToRemove.attendee._id;
       });
 
       return this._delegations;

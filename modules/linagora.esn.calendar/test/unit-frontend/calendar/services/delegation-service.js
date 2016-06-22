@@ -16,29 +16,29 @@ describe('The delegation service', function() {
 
   describe('addUserGroup function', function() {
     it('should add multiple users to the delegation if newUsersGroups.length>0', function() {
-      var newUsersGroups = [{id: 'a', displayName: 'El toto'}, {id:'b', displayName: 'El Mariachi'}];
+      var newUsersGroups = [{_id: 'a', displayName: 'El toto'}, {_id:'b', displayName: 'El Mariachi'}];
       var selection = 'free/busy';
       expect(this.delegationServiceInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(2);
     });
 
     it('should add a user to the delegation if it is not empy', function() {
-      var newUsersGroups = [{id: 'a', displayName: 'El toto'}, {id: 'b', displayName: 'El Mariachi'}];
+      var newUsersGroups = [{_id: 'a', displayName: 'El toto'}, {_id: 'b', displayName: 'El Mariachi'}];
       var selection = 'free/busy';
 
       expect(this.delegationServiceInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(2);
-      newUsersGroups = [{id: 'c', displayName: 'Anne Onime'}];
+      newUsersGroups = [{_id: 'c', displayName: 'Anne Onime'}];
       selection = 'administration';
 
       expect(this.delegationServiceInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(3);
     });
 
     it('should not add a user if the user already added', function() {
-      var newUsersGroups = [{id:'a', displayName: 'El toto'}, {id: 'b', displayName: 'El Mariachi'}];
+      var newUsersGroups = [{_id:'a', displayName: 'El toto'}, {_id: 'b', displayName: 'El Mariachi'}];
       var selection = 'free/busy';
 
       expect(this.delegationServiceInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(2);
 
-      newUsersGroups = [{id: 'a', displayName: 'El toto'}];
+      newUsersGroups = [{_id: 'a', displayName: 'El toto'}];
       selection = 'free/busy';
 
       expect(this.delegationServiceInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(2);
@@ -47,21 +47,21 @@ describe('The delegation service', function() {
 
   describe('removeUserGroup function', function() {
     beforeEach(function() {
-      var newUsersGroups = [{id: 'a', displayName: 'El toto'}, {id: 'b', displayName: 'El Mariachi'}];
+      var newUsersGroups = [{_id: 'a', displayName: 'El toto'}, {_id: 'b', displayName: 'El Mariachi'}];
       var selection = 'free/busy';
       this.delegations = this.delegationServiceInstance.addUserGroup(newUsersGroups, selection);
     });
 
     it('should remove a user from the delegation', function() {
-      var userToRemove = {attendee: {id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
+      var userToRemove = {attendee: {_id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
       expect(this.delegations.length).to.be.equal(2);
       this.delegations = this.delegationServiceInstance.removeUserGroup(userToRemove);
       expect(this.delegations.length).to.be.equal(1);
-      expect(this.delegations).to.be.deep.equal([{attendee: {id: 'b', displayName: 'El Mariachi'}, selection: 'free/busy'}]);
+      expect(this.delegations).to.be.deep.equal([{attendee: {_id: 'b', displayName: 'El Mariachi'}, selection: 'free/busy'}]);
     });
 
     it('should not remove anyone if the user does not exist', function() {
-      var userToRemove = {attendee: {id: 'c', displayName: 'Don Diego de la Vega'}, selection: 'free/busy'};
+      var userToRemove = {attendee: {_id: 'c', displayName: 'Don Diego de la Vega'}, selection: 'free/busy'};
       expect(this.delegations.length).to.be.equal(2);
       this.delegations = this.delegationServiceInstance.removeUserGroup(userToRemove);
       expect(this.delegations.length).to.be.equal(2);
