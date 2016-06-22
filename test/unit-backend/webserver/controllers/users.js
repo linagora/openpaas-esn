@@ -184,7 +184,8 @@ describe('The User controller', function() {
           service: 'IT',
           building_location: 'Tunis',
           office_location: 'France',
-          main_phone: '123456789'
+          main_phone: '123456789',
+          decription: 'This is my description'
         },
         user: {
           emails: ['foo@bar.com']

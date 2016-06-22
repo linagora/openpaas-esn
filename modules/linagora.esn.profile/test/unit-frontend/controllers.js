@@ -106,7 +106,8 @@ describe('The linagora.esn.profile Angular module controllers', function() {
         service: getMoreThan100CharString(),
         building_location: getMoreThan100CharString(),
         office_location: getMoreThan100CharString(),
-        main_phone: getMoreThan100CharString()
+        main_phone: getMoreThan100CharString(),
+        description: getMoreThan100CharString()
       };
       profileAPIMock.updateProfile = function(user) {
         expect(user).to.equal(profile);

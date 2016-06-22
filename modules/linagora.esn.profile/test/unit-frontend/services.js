@@ -61,7 +61,8 @@ describe('The linagora.esn.profile Angular module services', function() {
           service:'IT',
           building_location:'Tunis',
           office_location:'France',
-          main_phone:'Engineer'
+          main_phone:'Engineer',
+          description: 'This is my description'
         };
 
         this.$httpBackend.expectPUT('/api/user/profile', object).respond(200, []);

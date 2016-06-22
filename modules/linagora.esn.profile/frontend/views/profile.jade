@@ -35,23 +35,23 @@
                 dt 
                   i.mdi.mdi-phone.m-r-5 
                   | #{__('Phone')}
-                dd.visible-xs
-                  | {{user.main_phone}}
-                dd.hidden-xs
+                dd
                   | {{user.main_phone}}
               dl.dl-horizontal
                 dt 
                   i.mdi.mdi-city.m-r-5 
                   | #{__('Building Location')}
-                  dd.visible-xs
-                    | {{ user.building_location }}
-                  dd.hidden-xs
+                  dd
                     | {{user.building_location}}
               dl.dl-horizontal
                 dt 
                   i.mdi.mdi-monitor.m-r-5 
                   | #{__('Office Location')}
-                  dd.visible-xs
-                    | {{ user.office_location }}
-                  dd.hidden-xs
+                  dd
                     | {{user.office_location}}
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-account.m-r-5
+                  | #{__('Bio')}
+                  dd
+                    | {{user.description}}

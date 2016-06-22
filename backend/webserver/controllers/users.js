@@ -87,7 +87,8 @@ function updateProfile(req, res) {
     service: req.body.service || '',
     building_location: req.body.building_location || '',
     office_location: req.body.office_location || '',
-    main_phone: req.body.main_phone || ''
+    main_phone: req.body.main_phone || '',
+    description: req.body.description || ''
   };
 
   userModule.updateProfile(req.user, newProfile, function(err, profile) {
