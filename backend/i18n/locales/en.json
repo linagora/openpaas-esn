@@ -286,5 +286,9 @@
   "Reply": "Reply",
   "Reply all": "Reply all",
   "Forward": "Forward",
-  "Bio": "Bio"
+  "Bio": "Bio",
+  "posted": "posted",
+  "replied to": "replied to",
+  "liked": "liked",
+  "a message": "a message"
 }
