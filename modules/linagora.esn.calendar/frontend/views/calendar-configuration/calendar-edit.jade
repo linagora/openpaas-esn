@@ -7,12 +7,12 @@ sub-header
 .calendar-edit.card.form-container
   .row
     .col-xs-12.no-padding-xs
-      .btn-group.btn-group-justified
-        .btn-group
-          .btn.btn-default(type="button", ng-click="getMainView()", ng-class="{'btn-primary': selectedTab === 'main', 'bold': selectedTab === 'main'}")
+      ul.esn-tab
+        li.btn-wave(ng-class="{'active': selectedTab === 'main'}")
+          a(href="", ng-click="getMainView()")
             | #{__('Main')}
-        .btn-group
-          .btn.btn-default(type="button", ng-click="getDelegationView()", ng-class="{'btn-primary': selectedTab === 'delegation', 'bold': selectedTab === 'delegation'}")
+        li.btn-wave(ng-class="{'active': selectedTab === 'delegation'}")
+          a(href="", ng-click="getDelegationView()")
             | #{__('Delegation')}
       .card-body.m-t-25
         form(ng-submit='submit()')

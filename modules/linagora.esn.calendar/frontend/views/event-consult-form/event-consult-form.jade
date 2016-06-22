@@ -1,14 +1,14 @@
 .row.event-consult-form
   .col-xs-12.no-padding-xs
-    .btn-group.btn-group-justified
-      .btn-group
-        .btn.btn-default(type="button", ng-click="getMainView()", ng-class="{'btn-primary': selectedTab === 'main', 'bold': selectedTab === 'main'}")
+    ul.esn-tab
+      li.btn-wave(ng-class="{'active': selectedTab === 'main'}")
+        a(href="", ng-click="getMainView()")
           | Main
-      .btn-group
-        .btn.btn-default(type="button", ng-click="getAttendeesView()", ng-class="{'btn-primary': selectedTab === 'attendees', 'bold': selectedTab === 'attendees'}")
+      li.btn-wave(ng-class="{'active': selectedTab === 'attendees'}")
+        a(href="", ng-click="getAttendeesView()")
           | Attendees
-      .btn-group
-        .btn.btn-default(type="button", ng-click="getMoreView()", ng-class="{'btn-primary': selectedTab === 'more', 'bold': selectedTab === 'more'}")
+      li.btn-wave(ng-class="{'active': selectedTab === 'more'}")
+        a(href="", ng-click="getMoreView()")
           | More
     .card
       .card-body.card-padding(ng-swipe-right="onSwipe('right')", ng-swipe-left="onSwipe('left')")
