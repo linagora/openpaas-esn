@@ -66,5 +66,11 @@ describe('The delegation service', function() {
       this.delegations = this.delegationServiceInstance.removeUserGroup(userToRemove);
       expect(this.delegations.length).to.be.equal(2);
     });
+
+    it('should keep track of removed user', function() {
+      var userToRemove = {attendee: {_id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
+      this.delegationServiceInstance.removeUserGroup(userToRemove);
+      expect(this.delegationServiceInstance.getAllRemovedUsersId()).to.deep.equals(['a']);
+    });
   });
 });

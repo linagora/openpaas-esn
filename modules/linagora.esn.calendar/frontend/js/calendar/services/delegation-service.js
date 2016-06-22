@@ -5,6 +5,7 @@ angular.module('esn.calendar')
 
     function DelegationService() {
       this._delegations = [];
+      this.removedId = {};
     }
 
     /**
@@ -36,12 +37,16 @@ angular.module('esn.calendar')
      * @return [{Delegation}]   The updated delegation list
      */
     DelegationService.prototype.removeUserGroup = function(delegationToRemove) {
-
+      this.removedId[delegationToRemove.attendee._id] = true;
       this._delegations = this._delegations.filter(function(delegation) {
         return delegation.attendee._id !== delegationToRemove.attendee._id;
       });
 
       return this._delegations;
+    };
+
+    DelegationService.prototype.getAllRemovedUsersId = function() {
+      return Object.keys(this.removedId);
     };
 
     return DelegationService;
