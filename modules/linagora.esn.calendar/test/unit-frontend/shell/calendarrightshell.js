@@ -131,4 +131,87 @@ describe('CalendarRightShell factory', function() {
       calendarRightShell.removeUserRight('god');
     });
   });
+
+  describe('the toDAVShareRightsUpdate method', function() {
+    it('should output correct add array for new READ and READ_WRITE authorisation', function() {
+      expect(calendarRightShell.toDAVShareRightsUpdate(new CalendarRightShell())).to.deep.equals({
+        share: {
+          set: [{
+            'dav:href': 'mailto:user2@open-paas.org',
+            'dav:read-write': true
+          }, {
+            'dav:href': 'mailto:user3@open-paas.org',
+            'dav:read': true
+          }],
+          remove: []
+        }
+      });
+    });
+
+    it('should correcly deal with update of READ to READ_WRITE and to READ_wRITE to READ', function() {
+      var original = calendarRightShell.clone();
+      calendarRightShell.update('tom', 'user2@open-paas.org', CALENDAR_RIGHT.READ);
+      calendarRightShell.update('jerry', 'user3@open-paas.org', CALENDAR_RIGHT.READ_WRITE);
+      expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
+        share: {
+          set: [{
+            'dav:href': 'mailto:user2@open-paas.org',
+            'dav:read': true
+          }, {
+            'dav:href': 'mailto:user3@open-paas.org',
+            'dav:read-write': true
+          }],
+          remove: []
+        }
+      });
+    });
+
+    it('should correctly remove removed user', function() {
+      var original = calendarRightShell.clone();
+      calendarRightShell.removeUserRight('jerry');
+      expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
+        share: {
+          set: [{
+            'dav:href': 'mailto:user2@open-paas.org',
+            'dav:read-write': true
+          }],
+          remove: [{
+            'dav:href': 'mailto:user3@open-paas.org'
+          }]
+        }
+      });
+    });
+
+    it('should remove user sharee if there are downgraded to free buzy', function() {
+      var original = calendarRightShell.clone();
+      calendarRightShell.update('jerry', 'user3@open-paas.org', CALENDAR_RIGHT.FREE_BUSY);
+      expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
+        share: {
+          set: [{
+            'dav:href': 'mailto:user2@open-paas.org',
+            'dav:read-write': true
+          }],
+          remove: [{
+            'dav:href': 'mailto:user3@open-paas.org'
+          }]
+        }
+      });
+    });
+
+    it('should remove user sharee if there are downgraded to none', function() {
+      var original = calendarRightShell.clone();
+      calendarRightShell.update('jerry', 'user3@open-paas.org', CALENDAR_RIGHT.NONE);
+      expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
+        share: {
+          set: [{
+            'dav:href': 'mailto:user2@open-paas.org',
+            'dav:read-write': true
+          }],
+          remove: [{
+            'dav:href': 'mailto:user3@open-paas.org'
+          }]
+        }
+      });
+    });
+  });
 });

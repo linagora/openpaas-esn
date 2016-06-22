@@ -41,30 +41,20 @@
       "inviteStatus": 2
     },
     {
-      "href": "mailto:user0@example.org",
-      "principal": null,
-      "properties": {
-        "{DAV:}displayname": "Joe0 Doe0"
-      },
-      "access": 3,
-      "comment": null,
-      "inviteStatus": 4
-    },
-    {
-      "href": "mailto:user0@open-paas.org",
+      "href": "mailto:user2@open-paas.org",
       "principal": "principals/users/tom",
       "properties": {
-        "{DAV:}displayname": "Joe0 Doe0"
+        "{DAV:}displayname": "Joe2 Doe2"
       },
       "access": 3,
       "comment": null,
       "inviteStatus": 2
     },
     {
-      "href": "mailto:user0@open-paas.org",
+      "href": "mailto:user3@open-paas.org",
       "principal": "principals/users/jerry",
       "properties": {
-        "{DAV:}displayname": "Joe0 Doe0"
+        "{DAV:}displayname": "Joe3 Doe3"
       },
       "access": 2,
       "comment": null,

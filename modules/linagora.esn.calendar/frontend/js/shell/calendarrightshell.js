@@ -158,25 +158,40 @@ angular.module('esn.calendar')
       setProfile(this._public, newRole);
     };
 
-    CalendarRightShell.prototype.toDAVShareRights = function() {
+    CalendarRightShell.prototype.toDAVShareRightsUpdate = function(oldCalendarRight) {
+      var HREF_PREFRIX = 'mailto:';
       var result = {
         share: {
-          set: []
+          set: [],
+          remove: []
         }
       };
       _.forEach(this._userRight, function(rightSet, userId) {
-        if (rightSet.hasPermission([RightSet.SHAREE_READ])) {
+        if (rightSet.hasPermission(RightSet.SHAREE_READ)) {
           result.share.set.push({
-            'dav:href': this._userEmails[userId],
+            'dav:href': HREF_PREFRIX + this._userEmails[userId],
             'dav:read': true
           });
-        } else if (rightSet.hasPermission([RightSet.SHAREE_READWRITE])) {
+        } else if (rightSet.hasPermission(RightSet.SHAREE_READWRITE)) {
           result.share.set.push({
-            'dav:href': this._userEmails[userId],
+            'dav:href': HREF_PREFRIX + this._userEmails[userId],
             'dav:read-write': true
           });
         }
       }, this);
+
+      _.forEach(oldCalendarRight._userRight, function(oldRightSet, userId) {
+        var newRightSet = this._userRight[userId] || new RightSet();
+        var SHAREE_PERMISSION = [RightSet.SHAREE_SHAREDOWNER, RightSet.SHAREE_READ, RightSet.SHAREE_READWRITE];
+
+        if (newRightSet.hasNoneOfThosePermissions(SHAREE_PERMISSION) && oldRightSet.hasAtLeastOneOfThosePermissions(SHAREE_PERMISSION)) {
+          result.share.remove.push({
+            'dav:href': HREF_PREFRIX + oldCalendarRight._userEmails[userId]
+          });
+        }
+      }, this);
+
+      return result;
     };
 
     CalendarRightShell.prototype.removeUserRight = function(id) {
@@ -217,7 +232,6 @@ angular.module('esn.calendar')
       });
 
       clone._userEmails = _.clone(this._userEmails);
-
       clone._public = this._public.clone();
 
       return clone;
