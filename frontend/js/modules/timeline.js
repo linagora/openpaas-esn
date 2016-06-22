@@ -1,11 +1,26 @@
 'use strict';
 
 angular.module('esn.timeline', [
+  'op.dynamicDirective',
+  'linagora.esn.controlcenter',
   'esn.http',
   'esn.infinite-list',
   'openpaas-logo'])
 
   .constant('DEFAULT_TIMELINE_ELEMENT', '/views/modules/timeline/default-timeline-element.html')
+
+  .config(function(dynamicDirectiveServiceProvider) {
+    var timelineControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(
+      true, 'controlcenter-menu-timeline', { priority: -1 });
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', timelineControlCenterMenu);
+  })
+
+  .directive('controlcenterMenuTimeline', function(controlCenterMenuTemplateBuilder) {
+    return {
+      restrict: 'E',
+      template: controlCenterMenuTemplateBuilder('controlcenter.timeline', 'mdi-timelapse', 'Timeline')
+    };
+  })
 
   .factory('esnTimelineAPI', function(esnRestangular) {
 

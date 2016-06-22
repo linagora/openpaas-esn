@@ -129,6 +129,11 @@ angular.module('esnApp', [
       applications: routeResolver.api('applicationAPI', 'created', 'undefined')
     }
   })
+  .state('controlcenter.timeline', {
+    url: '/timeline',
+    templateUrl: '/views/modules/timeline/index',
+    controller: 'esnTimelineEntriesController'
+  })
   .state('/applications/:application_id', {
     url: '/applications/:application_id',
     templateUrl: '/views/modules/application/application-details',
@@ -145,11 +150,6 @@ angular.module('esnApp', [
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')
     }
-  })
-  .state('/timeline', {
-    url: '/timeline',
-    templateUrl: '/views/modules/timeline/index',
-    controller: 'esnTimelineEntriesController'
   })
   .state('/communities/:community_id', {
     url: '/communities/:community_id',
