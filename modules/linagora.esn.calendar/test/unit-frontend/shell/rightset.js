@@ -168,6 +168,25 @@ describe('RightSet', function() {
     });
   });
 
+  describe('hasAtLeastOneOfThosePermissions', function() {
+    it('should return true if and only if there is at least one given permission that it\'s on the set', function() {
+      var set = new RightSet();
+
+      expect(set.hasAtLeastOneOfThosePermissions([])).to.be.false;
+
+      set.addPermission(RightSet.WRITE);
+      set.addPermission(RightSet.SHARE);
+
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE])).to.be.true;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE, RightSet.READ])).to.be.true;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE, RightSet.READ, RightSet.SHARE])).to.be.true;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE, RightSet.READ, RightSet.SHARE, RightSet.FREE_BUSY])).to.be.true;
+
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.READ])).to.be.false;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.READ, RightSet.FREE_BUSY, RightSet.WRITE_PROPERTIES])).to.be.false;
+    });
+  });
+
   describe('hasPermission', function() {
     it('should return false with empty set', function() {
       var set = new RightSet();

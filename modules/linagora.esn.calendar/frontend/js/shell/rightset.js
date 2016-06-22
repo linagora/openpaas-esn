@@ -126,6 +126,10 @@ angular.module('esn.calendar')
       this.bitVector = this.bitVector & ~maskOfAllPermission;
     };
 
+    RightSet.prototype.hasAtLeastOneOfThosePermissions = function(permissions) {
+      return !this.hasNoneOfThosePermissions(permissions);
+    };
+
     RightSet.prototype.hasOnlyThosePermissions = function(permissions) {
       var maskOfAllPermission = combinePermission(permissions);
 
