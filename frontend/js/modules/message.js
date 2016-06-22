@@ -9,7 +9,7 @@ angular.module('esn.message', ['esn.timeline', 'esn.maps', 'esn.file', 'esn.back
       verb: 'post',
       templateUrl: '/views/modules/message/timeline/post.html',
       canHandle: function() {
-        return $q.when(true);
+        return true;
       }
     });
 
@@ -17,7 +17,7 @@ angular.module('esn.message', ['esn.timeline', 'esn.maps', 'esn.file', 'esn.back
       verb: 'like',
       templateUrl: '/views/modules/message/timeline/like.html',
       canHandle: function(entry) {
-        return $q.when(ESN_MESSAGE_TYPES.indexOf(entry.object.objectType) >= 0);
+        return ESN_MESSAGE_TYPES.indexOf(entry.object.objectType) >= 0;
       }
     });
   })
