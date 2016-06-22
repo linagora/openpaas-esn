@@ -9,6 +9,16 @@
 
   .t-view {
 
+    @media (max-width: @screen-md-min) {
+      &:before {
+        display: none;
+      }
+
+      &:after {
+        display: none;
+      }
+    }
+
     &:before {
       font-family: 'MaterialDesignIcons';
     }
