@@ -254,6 +254,8 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, rejectWithErrorNotification, asyncJmapAction) {
+    var mailboxDescendants;
+
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
@@ -275,16 +277,48 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     $scope.confirmationDialog = function() {
+      if (!mailboxDescendants) {
+        mailboxDescendants =  mailboxesService.getMailboxDescendants($scope.mailbox.id, $scope.mailboxes);
+        $scope.message = _generateDeletionMessage();
+      }
+
       $modal({scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center'});
     };
 
     $scope.deleteFolder = function() {
       $state.go('unifiedinbox');
 
+      mailboxDescendants =  mailboxDescendants || mailboxesService.getMailboxDescendants($scope.mailbox.id, $scope.mailboxes);
+
       return asyncJmapAction('Deletion of folder ' + $scope.mailbox.name, function(client) {
-        return client.destroyMailbox($scope.mailbox.id);
+        var toDestroyIds = mailboxDescendants.map(_.property('id'));
+
+        // According to JMAP spec, the X should be removed before Y if X is a descendent of Y
+        toDestroyIds.reverse();
+        toDestroyIds.push($scope.mailbox.id);
+
+        return client.destroyMailboxes(toDestroyIds);
       });
     };
+
+    function _generateDeletionMessage() {
+      var numberOfDescendants = mailboxDescendants.length;
+      var numberOfMailboxesToDisplay = 3;
+      var more = numberOfDescendants - numberOfMailboxesToDisplay;
+      var message = 'You are about to remove folder ' + $scope.mailbox.name;
+
+      if (numberOfDescendants > 0) {
+        message += ' and its descendants including ' + mailboxDescendants.slice(0, numberOfMailboxesToDisplay).map(_.property('name')).join(', ');
+      }
+
+      if (more === 1) {
+        message += ' and ' + mailboxDescendants[numberOfMailboxesToDisplay].name;
+      } else if (more > 1) {
+        message += ' and ' + more + ' more';
+      }
+
+      return message;
+    }
   })
 
   .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $q, moment, jmap, withJmapClient, rejectWithErrorNotification, asyncJmapAction, INBOX_EVENTS) {
