@@ -9,9 +9,6 @@ sub-header
         | #{__(' Cancel')}
       .header-label #{__(' Create a new contact')}
       ul.actions.flex-space-around
-        li.contact-dropdown.dropdown
-          a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.mdi.mdi-dots-vertical
         li
           button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
             i.mdi.mdi-pencil
