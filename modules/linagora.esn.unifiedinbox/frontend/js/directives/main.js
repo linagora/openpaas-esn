@@ -543,34 +543,35 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxVacationIndicator', function($rootScope, withJmapClient, jmap, INBOX_EVENTS) {
+  .directive('inboxVacationIndicator', function($rootScope, withJmapClient, asyncJmapAction, jmap, INBOX_EVENTS) {
     return {
       restrict: 'E',
       scope: {},
       controller: function($scope) {
+        function _updateVacationStatus() {
+          withJmapClient(function(client) {
+            client.getVacationResponse().then(function(vacation) {
+              $scope.vacationEnabled = vacation.isEnabled;
+            });
+          });
+        }
+
         this.disableVacation = function() {
           $scope.vacationEnabled = false;
 
-          withJmapClient(function(client) {
-            client.setVacationResponse(new jmap.VacationResponse(client, { isEnabled: false }))
+          return asyncJmapAction('Modification of vacation settings', function(client) {
+            return client.setVacationResponse(new jmap.VacationResponse(client, { isEnabled: false }))
               .then(function() {
-                $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS, $scope.vacationEnabled);
-              })
-              .catch(function() {
-                $scope.vacationEnabled = true;
+                $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
               });
+          }).catch(function() {
+            $scope.vacationEnabled = true;
           });
         };
 
-        $scope.$on(INBOX_EVENTS.VACATION_STATUS, function(event, isEnabled) {
-          $scope.vacationEnabled = isEnabled;
-        });
+        $scope.$on(INBOX_EVENTS.VACATION_STATUS, _updateVacationStatus);
 
-        withJmapClient(function(client) {
-          client.getVacationResponse().then(function(vacation) {
-            $scope.vacationEnabled = vacation.isEnabled;
-          });
-        });
+        _updateVacationStatus();
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/partials/inbox-vacation-indicator.html'

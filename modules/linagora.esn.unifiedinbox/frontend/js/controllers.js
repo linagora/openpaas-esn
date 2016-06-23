@@ -303,7 +303,7 @@ angular.module('linagora.esn.unifiedinbox')
             .then(function() {
               $scope.vacation.fromDate = $scope.vacation.fromDate || moment();
 
-              if (angular.isDefined($scope.vacation.toDate)) {
+              if ($scope.vacation.toDate) {
                 $scope.vacation.hasToDate = true;
               }
             });
@@ -313,8 +313,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     _init();
 
-    $scope.getMinDate = function() {
-      return $scope.vacation.fromDate;
+    $scope.toDateIsInvalid = function() {
+      return $scope.vacation.toDate && moment($scope.vacation.toDate).startOf('day').isBefore(moment($scope.vacation.fromDate).startOf('day'));
     };
 
     $scope.enableVacation = function(status) {
@@ -342,12 +342,16 @@ angular.module('linagora.esn.unifiedinbox')
           });
         })
         .then(function() {
-          $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS, $scope.vacation.isEnabled);
+          $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
         });
     };
 
-    $scope.$on(INBOX_EVENTS.VACATION_STATUS, function(event, isEnabled) {
-      $scope.vacation.isEnabled = isEnabled;
+    $scope.$on(INBOX_EVENTS.VACATION_STATUS, function() {
+      withJmapClient(function(client) {
+        client.getVacationResponse().then(function(vacation) {
+          $scope.vacation.isEnabled = vacation.isEnabled;
+        });
+      });
     });
 
     function _validateVacationLogic() {
@@ -356,7 +360,7 @@ angular.module('linagora.esn.unifiedinbox')
           return rejectWithErrorNotification('Please enter a valid start date');
         }
 
-        if (!!$scope.vacation.toDate && $scope.vacation.toDate < $scope.vacation.fromDate) {
+        if ($scope.toDateIsInvalid()) {
           return rejectWithErrorNotification('End date must be greater than start date');
         }
       }
