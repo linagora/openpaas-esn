@@ -38,7 +38,10 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
       notification.setCancelAction = function(cancelActionConfig) {
         if (cancelActionConfig && cancelActionConfig.linkText && cancelActionConfig.action) {
           notification.$ele.find('a.cancel-task').html(cancelActionConfig.linkText);
-          notification.$ele.find('a.cancel-task').click(cancelActionConfig.action);
+          notification.$ele.find('a.cancel-task').click(function() {
+            notification.close();
+            cancelActionConfig.action();
+          });
         }
       };
 

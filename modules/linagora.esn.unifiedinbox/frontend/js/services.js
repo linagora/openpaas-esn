@@ -615,7 +615,6 @@ angular.module('linagora.esn.unifiedinbox')
             _makeReopenComposerFn(this.email)({
               fromDraft: this.draft
             });
-            result.success(); // Close the notification
           } else {
             this.draft.destroy();
           }
