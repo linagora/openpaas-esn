@@ -30,4 +30,7 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('PROVIDER_TYPES', {
     JMAP: 'JMAP',
     SOCIAL: 'SOCIAL'
+  })
+  .constant('INBOX_EVENTS', {
+    VACATION_STATUS: 'inbox.vacationStatusUpdated'
   });

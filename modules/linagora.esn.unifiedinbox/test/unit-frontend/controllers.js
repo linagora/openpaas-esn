@@ -10,8 +10,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal,
-      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config;
-  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
+      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config, moment;
+  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, INBOX_EVENTS,
       DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
 
   beforeEach(function() {
@@ -79,8 +79,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_, _DEFAULT_FILE_TYPE_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_) {
+                                          _JMAP_GET_MESSAGES_LIST_, _DEFAULT_FILE_TYPE_, _moment_,
+                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_, _INBOX_EVENTS_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -93,6 +93,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
+    INBOX_EVENTS = _INBOX_EVENTS_;
+    moment = _moment_;
 
     scope = $rootScope.$new();
   }));
@@ -1010,6 +1012,186 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
     });
 
+  });
+
+  describe('The inboxConfigurationVacationController', function() {
+    var vacation;
+
+    beforeEach(function() {
+      vacation = {};
+
+      jmapClient.getVacationResponse = sinon.spy(function() {
+        return $q.when(vacation);
+      });
+    });
+
+    it('should listen on vacation status update so as to update vacation.isEnabled correspondingly', function() {
+      vacation.isEnabled = false;
+      initController('inboxConfigurationVacationController');
+
+      expect(scope.vacation.isEnabled).to.be.false;
+      scope.$broadcast(INBOX_EVENTS.VACATION_STATUS, true);
+
+      expect(scope.vacation.isEnabled).to.be.true;
+    });
+
+    describe('the getMinDate function', function() {
+      it('should return vacation.fromDate', function() {
+        vacation.fromDate = new Date(2016, 9, 22);
+        initController('inboxConfigurationVacationController');
+
+        expect(scope.getMinDate()).to.equal(vacation.fromDate);
+      });
+    });
+
+    describe('the enableVacation function', function() {
+      it('should set vacation.isEnabled attribute', function() {
+        initController('inboxConfigurationVacationController');
+        scope.enableVacation(true);
+
+        expect(scope.vacation.isEnabled).to.be.true;
+        scope.enableVacation(false);
+
+        expect(scope.vacation.isEnabled).to.be.false;
+      });
+    });
+
+    describe('the updateVacation function', function() {
+      beforeEach(function() {
+        jmapClient.setVacationResponse = sinon.spy(function() {
+          return $q.when();
+        });
+      });
+
+      it('should not create vacation if fromDate is not set', function(done) {
+        vacation = {
+          isEnabled: true
+        };
+        initController('inboxConfigurationVacationController');
+        scope.vacation.fromDate = null;
+        scope.updateVacation().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal('Please enter a valid start date');
+          expect($state.go).to.not.have.been.called;
+          expect(jmapClient.setVacationResponse).to.not.have.been.called;
+
+          done();
+        });
+        scope.$digest();
+      });
+
+      it('should not create vacation if toDate < fromDate', function(done) {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 21)
+        };
+        initController('inboxConfigurationVacationController');
+        scope.updateVacation().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal('End date must be greater than start date');
+          expect($state.go).to.not.have.been.called;
+          expect(jmapClient.setVacationResponse).to.not.have.been.called;
+
+          done();
+        });
+        scope.$digest();
+      });
+
+      it('should create vacation if it passes the logic verification', function() {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
+        };
+        initController('inboxConfigurationVacationController');
+        scope.updateVacation();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+      });
+
+      it('should unset toDate while creating vacation message if hasToDate is false', function() {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
+        };
+        initController('inboxConfigurationVacationController');
+        scope.vacation.hasToDate = false;
+        scope.updateVacation();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(scope.vacation.toDate).to.be.null;
+        expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+      });
+
+      it('should $broadcast the vacation.isEnabled attribute if the corresponding vacation is created successfully', function(done) {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
+        };
+        initController('inboxConfigurationVacationController');
+        scope.$on(INBOX_EVENTS.VACATION_STATUS, function(event, isEnabled) {
+          expect(isEnabled).to.equal(vacation.isEnabled);
+
+          done();
+        });
+        scope.updateVacation();
+        scope.$digest();
+      });
+
+      it('should not $broadcast the vacation.isEnabled attribute if the corresponding vacation is not created', function() {
+        var listener = sinon.spy();
+
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
+        };
+        jmapClient.setVacationResponse = sinon.spy(function() {
+          return $q.reject();
+        });
+
+        initController('inboxConfigurationVacationController');
+        scope.$on(INBOX_EVENTS.VACATION_STATUS, listener);
+        scope.updateVacation();
+        scope.$digest();
+
+        expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+        expect(listener).to.not.have.been.called;
+      });
+    });
+
+    describe('the _init function', function() {
+      it('should initialize scope.vacation', function() {
+        initController('inboxConfigurationVacationController');
+
+        expect(jmapClient.getVacationResponse).to.have.been.calledWith();
+        expect(scope.vacation).to.deep.equal(vacation);
+      });
+
+      it('should set vacation.fromDate from the object returned by getVacationResponse()', function() {
+        vacation.fromData = new Date(2016, 9, 22);
+        initController('inboxConfigurationVacationController');
+
+        expect(scope.vacation.fromData).to.equal(vacation.fromData);
+      });
+
+      it('should set vacation.fromDate to today if the object returned by getVacationResponse() does not have a fromData attribute', function() {
+        initController('inboxConfigurationVacationController');
+
+        expect(scope.vacation.fromDate.format('YYYY MM DD')).to.deep.equal(moment().format('YYYY MM DD'));
+      });
+
+      it('should set vacation.toDate to true if the object returned by getVacationResponse() fas a toData attribute', function() {
+        vacation.toDate = new Date(2016, 9, 22);
+        initController('inboxConfigurationVacationController');
+
+        expect(scope.vacation.hasToDate).to.be.true;
+      });
+    });
   });
 
   describe('The recipientsFullscreenEditFormController', function() {
