@@ -1,6 +1,8 @@
 #sub-header {
   .filter-button {
-    .flex-vertical-centered;
+    .inline-flex;
+    .align-items(center);
+    text-align: right;
 
     width: 35px;
     font-size: 14px;
@@ -17,7 +19,6 @@
     }
 
     .filter-label {
-      width: 125px;
       text-align: left;
       margin: 0 5px 0 15px;
     }
@@ -32,7 +33,7 @@
   @media (min-width: @screen-md-min) {
 
     .filter-button {
-      width: 180px;
+      width: auto;
     }
   }
 }
