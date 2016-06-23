@@ -34,17 +34,21 @@
     }
 
     .configuration-header {
-      margin-bottom: 20px;
-      font-size: 15px;
+      // to fill horizontal width since .inbox-main-content has padding 15px
+      margin: -15px -15px 20px -15px;
     }
   }
 }
 
 @media(min-width: @screen-md-min) {
 
-  .inbox-main-content {
+  .inbox-root .inbox-main-content {
     &.configuration {
       margin-top: 45px;
+
+      .configuration-header {
+        margin: 0 0 20px 0;
+      }
 
       .form-group {
         width: 40%;
