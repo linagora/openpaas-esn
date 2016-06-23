@@ -12,7 +12,7 @@ sub-header
           .btn.btn-default(type="button", ng-click="getMainView()", ng-class="{'btn-primary': selectedTab === 'main', 'bold': selectedTab === 'main'}")
             | #{__('Main')}
         .btn-group
-          .btn.btn-default(type="button", ng-click="getDelegationView()", ng-class="{'btn-primary': selectedTab === 'delegation', 'bold': selectedTab === 'delegation'}")
+          .btn.btn-default(type="button", ng-click="getDelegationView()", ng-class="{'btn-primary': selectedTab === 'delegation', 'bold': selectedTab === 'delegation'}", ng-show='isAdmin && !newCalendar')
             | #{__('Delegation')}
       .card-body.m-t-25
         form(ng-submit='submit()')
@@ -55,7 +55,7 @@ sub-header
                       i.mdi.mdi-eye
                     .fg-line
                       .select
-                        select.form-control
+                        select.form-control(ng-model='publicSelection')
                           option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="none" ng-if="delegationType.access==='all'") {{ delegationType.name }}
             .row.public.flex-wrap.flex-vertical-centered.hidden-md
                 .col-sm-6.col-xs-12
@@ -93,7 +93,7 @@ sub-header
                 .col-sm-4.col-xs-4
                   span
                     .select
-                      select.form-control
+                      select.form-control(ng-model='delegation.selection')
                         option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === delegation.selection") {{delegationType.name}}
                 .col-sm-2
                   a(href="", ng-click='removeUserGroup(delegation)')

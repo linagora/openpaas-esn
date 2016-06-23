@@ -1,9 +1,18 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, DelegationService, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT) {
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, DelegationService, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT, CalendarRightShell, $q, userAPI, _, userUtils) {
+    var calendarRight, originalCalendarRight;
+
     $scope.newCalendar = !$scope.calendar;
     $scope.calendar = $scope.calendar || {};
+
+    if ($scope.newCalendar) {
+      calendarRight = $q.when(new CalendarRightShell());
+    } else {
+      calendarRight = calendarService.getRight($scope.calendarHomeId, $scope.calendar);
+    }
+
     $scope.oldCalendar = {};
     angular.copy($scope.calendar, $scope.oldCalendar);
     $scope.delegations = [];
@@ -29,7 +38,26 @@ angular.module('esn.calendar')
       name: 'Free/Busy',
       access: 'all'
     }];
+
     var delegationServiceInstance = new DelegationService();
+
+    calendarRight.then(function(calendarRightShell) {
+      $scope.publicSelection = calendarRightShell.getPublicRight();
+      $scope.isAdmin = calendarRightShell.getUserRight($scope.calendarHomeId) === CALENDAR_RIGHT.ADMIN;
+      var usersRight = calendarRightShell.getAllUserRight().filter(function(usersRight) {
+        return usersRight.userId !== $scope.calendarHomeId;
+      });
+
+      $q.all(_.chain(usersRight).map('userId').map(userAPI.user).values()).then(function(users) {
+        _.chain(users).map('data').zip(usersRight).forEach(function(array) {
+          var user = array[0];
+          var right = array[1].right;
+
+          user.displayName = userUtils.displayNameOf(user);
+          $scope.delegations = delegationServiceInstance.addUserGroup([user], right);
+        });
+      });
+    });
 
     if ($scope.newCalendar) {
       $scope.calendar.href = CalendarCollectionShell.buildHref($scope.calendarHomeId, uuid4.generate());
@@ -57,6 +85,7 @@ angular.module('esn.calendar')
       }
 
       var shell = CalendarCollectionShell.from($scope.calendar);
+
       if ($scope.newCalendar) {
         calendarService.createCalendar($scope.calendarHomeId, shell)
           .then(function() {
@@ -64,24 +93,49 @@ angular.module('esn.calendar')
             $state.go('calendar.main');
           });
       } else {
-        if (!hasModifications($scope.oldCalendar, $scope.calendar)) {
-          if (screenSize.is('xs, sm')) {
-            $state.go('calendar.list');
-          } else {
-            $state.go('calendar.main');
+        calendarRight.then(function(calendarRight) {
+          originalCalendarRight = calendarRight.clone();
+          delegationServiceInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
+
+          $scope.delegations.forEach(function(line) {
+            calendarRight.update(line.attendee._id, line.attendee.preferredEmail, line.selection);
+          });
+
+          var rightChanged = !calendarRight.equals(originalCalendarRight);
+          var calendarChanged = hasModifications($scope.oldCalendar, $scope.calendar);
+          var updateActions = [];
+
+          if (!rightChanged && !calendarChanged) {
+            if (screenSize.is('xs, sm')) {
+              $state.go('calendar.list');
+            } else {
+              $state.go('calendar.main');
+            }
+
+            return;
           }
-          return;
-        }
-        calendarService.modifyCalendar($scope.calendarHomeId, shell)
-          .then(function() {
+
+          if (calendarChanged) {
+            updateActions.push(calendarService.modifyCalendar($scope.calendarHomeId, shell, calendarRight));
+          }
+
+          if (rightChanged) {
+            updateActions.push(calendarService.modifyRights($scope.calendarHomeId, shell, calendarRight, originalCalendarRight));
+          }
+
+          $q.all(updateActions).then(function() {
             notificationFactory.weakInfo('Calendar - ', $scope.calendar.name + ' has been modified.');
             $state.go('calendar.main');
           });
+        });
       }
     };
 
     $scope.addUserGroup = function() {
       $scope.delegations = delegationServiceInstance.addUserGroup($scope.newUsersGroups, $scope.selection);
+      if ($scope.newCalendar) {
+        throw new Error('edition of right on new calendar are not implemented yet');
+      }
       reset();
     };
 
