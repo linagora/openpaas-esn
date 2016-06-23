@@ -87,10 +87,14 @@ angular.module('esn.activitystream')
       return activitystreamHelper.messageIsSharedInStreams(thread, [$scope.selectedStream]);
     };
 
-    $rootScope.$on('activitystream:userUpdateRequest', function(evt, data) {
+    var unregister = $rootScope.$on('activitystream:userUpdateRequest', function(evt, data) {
       if ($scope.streams.indexOf(data.activitystreamUuid) !== -1) {
         $scope.getStreamUpdates(data.activitystreamUuid);
       }
+    });
+
+    $scope.$on('$destroy', function() {
+      unregister();
     });
   }
 );

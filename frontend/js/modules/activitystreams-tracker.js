@@ -116,7 +116,7 @@ angular.module('esn.activitystreams-tracker', [
       ASTrackerNotificationService.removeAllListeners();
     });
 
-    $rootScope.$on('activitystream:updated', function(evt, data) {
+    var unregister = $rootScope.$on('activitystream:updated', function(evt, data) {
       if (data && data.activitystreamUuid) {
         // Usage of $timeout is to wait the tracker update in database
         $timeout(function() {
@@ -127,6 +127,10 @@ angular.module('esn.activitystreams-tracker', [
           );
         }, 1000);
       }
+    });
+
+    $scope.$on('$destroy', function() {
+      unregister();
     });
 
     var joinHandler = $rootScope.$on('collaboration:join', function(evt, data) {
