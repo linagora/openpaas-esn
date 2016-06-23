@@ -76,6 +76,7 @@ angular.module('esnApp', [
   'esn.dropdownList',
   'esn.resource-link',
   'esn.like',
+  'esn.timeline',
   'awesome-angular-swipe'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
@@ -127,6 +128,11 @@ angular.module('esnApp', [
     resolve: {
       applications: routeResolver.api('applicationAPI', 'created', 'undefined')
     }
+  })
+  .state('controlcenter.timeline', {
+    url: '/timeline',
+    templateUrl: '/views/modules/timeline/index',
+    controller: 'esnTimelineEntriesController'
   })
   .state('/applications/:application_id', {
     url: '/applications/:application_id',

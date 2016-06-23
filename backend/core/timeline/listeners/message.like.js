@@ -1,0 +1,34 @@
+'use strict';
+
+var q = require('q');
+var userModule = require('../../user');
+var messageModule = require('../../message');
+var getUserAsActor = require('../../activitystreams/helpers').getUserAsActor;
+var VERB = 'like';
+
+var LIKE_NOTIFICATION = 'resource:link:like:esn.message';
+module.exports.LIKE_NOTIFICATION = LIKE_NOTIFICATION;
+
+function toTimelineEntry(link, user, message) {
+  return q({
+    verb: VERB,
+    language: message.language || '',
+    published: link.timestamps.creation || Date.now(),
+    actor: getUserAsActor(user),
+    object: {
+      objectType: message.objectType,
+      _id: message._id
+    },
+    target: [{
+      objectType: 'user',
+      _id: String(message.author._id)
+    }]
+  });
+}
+
+function handler(link) {
+  return q.all([q.denodeify(userModule.get)(link.source.id), q.denodeify(messageModule.get)(link.target.id)]).spread(function(user, message) {
+    return toTimelineEntry(link, user, message);
+  });
+}
+module.exports.handler = handler;

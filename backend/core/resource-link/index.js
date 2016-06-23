@@ -16,7 +16,7 @@ function create(link) {
       return defer.reject(err);
     }
 
-    pubsub.local.topic('resource:link:' + link.type + ':' + link.target.objectType).publish(link);
+    pubsub.local.topic('resource:link:' + link.type + ':' + link.target.objectType).publish(linked);
     defer.resolve(linked);
   });
   return defer.promise;

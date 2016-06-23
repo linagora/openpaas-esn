@@ -224,7 +224,8 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     return ByDateElementGroupingTool;
   })
   .factory('infiniteScrollHelperBuilder', function($q, ELEMENTS_PER_PAGE) {
-    return function(scope, loadNextItems, updateScope) {
+    return function(scope, loadNextItems, updateScope, elements_per_page) {
+      elements_per_page = elements_per_page || ELEMENTS_PER_PAGE;
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
           return $q.reject();
@@ -243,7 +244,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             updateScope(elements);
 
             elements = elements || [];
-            if (elements.length < ELEMENTS_PER_PAGE) {
+            if (elements.length < elements_per_page) {
               scope.infiniteScrollCompleted = true;
             }
 
