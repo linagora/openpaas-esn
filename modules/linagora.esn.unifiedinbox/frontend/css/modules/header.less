@@ -25,6 +25,11 @@
 
     .inbox-subheader-inner {
       padding: 0 10px;
+
+      & > .left-container {
+        // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
+        min-width: 0;
+      }
     }
   }
 }
