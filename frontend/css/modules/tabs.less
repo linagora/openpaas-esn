@@ -1,0 +1,22 @@
+.esn-tab {
+  .tab-nav;
+  .flex;
+
+  font-size: 14px;
+
+  & > li {
+    flex-grow: 1;
+    text-align: center;
+
+    & > a {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+  }
+}
+
+@media(min-width: @screen-md-min) {
+  .esn-tab > li {
+    flex-grow: 0;
+  }
+}
