@@ -7,8 +7,8 @@ block right
   .inbox-composer-buttons
     button.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
       i.mdi.mdi-paperclip
-    button.btn.btn-link(ng-click='destroyDraft()', ng-disabled="isSendingMessage")
-      i.mdi.mdi-delete
     button.send.btn.btn-link(ng-click='send()', ng-disabled="isSendingMessage")
       | #{__('Send')}
       i.mdi.mdi-send.m-l-5.m-r-5
+    button.btn.btn-link(dropdown-list="/unifiedinbox/views/composer/dropdown-more-button.html")
+      i.mdi.mdi-dots-vertical
