@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, DelegationService, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT, CalendarRightShell, $q, userAPI, _, userUtils) {
+  .controller('calendarEditionController', function($scope, $log, $state, $modal, uuid4, calendarService, CalendarCollectionShell, notificationFactory, screenSize, DelegationEditionHelper, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT, CalendarRightShell, $q, userAPI, _, userUtils) {
     var calendarRight, originalCalendarRight;
 
     $scope.newCalendar = !$scope.calendar;
@@ -39,7 +39,7 @@ angular.module('esn.calendar')
       access: 'all'
     }];
 
-    var delegationServiceInstance = new DelegationService();
+    var delegationEditionHelperInstance = new DelegationEditionHelper();
 
     calendarRight.then(function(calendarRightShell) {
       $scope.publicSelection = calendarRightShell.getPublicRight();
@@ -54,7 +54,7 @@ angular.module('esn.calendar')
           var right = array[1].right;
 
           user.displayName = userUtils.displayNameOf(user);
-          $scope.delegations = delegationServiceInstance.addUserGroup([user], right);
+          $scope.delegations = delegationEditionHelperInstance.addUserGroup([user], right);
         });
       });
     });
@@ -95,7 +95,7 @@ angular.module('esn.calendar')
       } else {
         calendarRight.then(function(calendarRight) {
           originalCalendarRight = calendarRight.clone();
-          delegationServiceInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
+          delegationEditionHelperInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
 
           $scope.delegations.forEach(function(line) {
             calendarRight.update(line.user._id, line.user.preferredEmail, line.selection);
@@ -132,7 +132,7 @@ angular.module('esn.calendar')
     };
 
     $scope.addUserGroup = function() {
-      $scope.delegations = delegationServiceInstance.addUserGroup($scope.newUsersGroups, $scope.selection);
+      $scope.delegations = delegationEditionHelperInstance.addUserGroup($scope.newUsersGroups, $scope.selection);
       if ($scope.newCalendar) {
         throw new Error('edition of right on new calendar are not implemented yet');
       }
@@ -140,7 +140,7 @@ angular.module('esn.calendar')
     };
 
     $scope.removeUserGroup = function(delegationSelected) {
-      $scope.delegations = delegationServiceInstance.removeUserGroup(delegationSelected);
+      $scope.delegations = delegationEditionHelperInstance.removeUserGroup(delegationSelected);
     };
 
     $scope.openDeleteConfirmationDialog = function() {

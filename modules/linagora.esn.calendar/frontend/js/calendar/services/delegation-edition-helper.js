@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('DelegationService', function() {
+  .factory('DelegationEditionHelper', function() {
 
-    function DelegationService() {
+    function DelegationEditionHelper() {
       this._delegations = [];
       this.removedId = {};
     }
@@ -14,7 +14,7 @@ angular.module('esn.calendar')
      * @param {String}          The right of the added list
      * @return [{delegation}]   The updated delegation list
      */
-    DelegationService.prototype.addUserGroup = function(newUsersGroups, selection) {
+    DelegationEditionHelper.prototype.addUserGroup = function(newUsersGroups, selection) {
       newUsersGroups.forEach(function(user) {
         var exists = this._delegations.some(function(delegation) {
           return user._id === delegation.user._id;
@@ -36,7 +36,7 @@ angular.module('esn.calendar')
      * @param {Delegation}      The delegation to remove
      * @return [{Delegation}]   The updated delegation list
      */
-    DelegationService.prototype.removeUserGroup = function(delegationToRemove) {
+    DelegationEditionHelper.prototype.removeUserGroup = function(delegationToRemove) {
       this.removedId[delegationToRemove.user._id] = true;
       this._delegations = this._delegations.filter(function(delegation) {
         return delegation.user._id !== delegationToRemove.user._id;
@@ -45,9 +45,9 @@ angular.module('esn.calendar')
       return this._delegations;
     };
 
-    DelegationService.prototype.getAllRemovedUsersId = function() {
+    DelegationEditionHelper.prototype.getAllRemovedUsersId = function() {
       return Object.keys(this.removedId);
     };
 
-    return DelegationService;
+    return DelegationEditionHelper;
   });
