@@ -86,10 +86,10 @@ sub-header
             .row.hidden-xs(ng-repeat="delegation in delegations")
               .row.no-margin
                 .col-sm-offset-1.col-sm-1.col-xs-2
-                  a.attendee-avatar(href="", ng-attr-title='delegation.attendee.displayName')
-                    img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.attendee.email | urlencode }}')
+                  a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
+                    img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.email | urlencode }}')
                 .col-sm-4.col-xs-4.name
-                  span {{ delegation.attendee.displayName }}
+                  span {{ delegation.user.displayName }}
                 .col-sm-4.col-xs-4
                   span
                     .select

@@ -312,7 +312,7 @@ describe('The calendarEditionController controller', function() {
         this.$rootScope.$digest();
         this.$scope.newCalendar = false;
         this.$scope.delegations = [{
-          attendee: {_id: 'id', preferredEmail: 'preferredEmail'},
+          user: {_id: 'id', preferredEmail: 'preferredEmail'},
           selection: 'selection'
         }];
         this.$scope.submit();

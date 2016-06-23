@@ -53,22 +53,22 @@ describe('The delegation service', function() {
     });
 
     it('should remove a user from the delegation', function() {
-      var userToRemove = {attendee: {_id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
+      var userToRemove = {user: {_id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
       expect(this.delegations.length).to.be.equal(2);
       this.delegations = this.delegationServiceInstance.removeUserGroup(userToRemove);
       expect(this.delegations.length).to.be.equal(1);
-      expect(this.delegations).to.be.deep.equal([{attendee: {_id: 'b', displayName: 'El Mariachi'}, selection: 'free/busy'}]);
+      expect(this.delegations).to.be.deep.equal([{user: {_id: 'b', displayName: 'El Mariachi'}, selection: 'free/busy'}]);
     });
 
     it('should not remove anyone if the user does not exist', function() {
-      var userToRemove = {attendee: {_id: 'c', displayName: 'Don Diego de la Vega'}, selection: 'free/busy'};
+      var userToRemove = {user: {_id: 'c', displayName: 'Don Diego de la Vega'}, selection: 'free/busy'};
       expect(this.delegations.length).to.be.equal(2);
       this.delegations = this.delegationServiceInstance.removeUserGroup(userToRemove);
       expect(this.delegations.length).to.be.equal(2);
     });
 
     it('should keep track of removed user', function() {
-      var userToRemove = {attendee: {_id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
+      var userToRemove = {user: {_id: 'a', displayName: 'El toto'}, selection: 'free/busy'};
       this.delegationServiceInstance.removeUserGroup(userToRemove);
       expect(this.delegationServiceInstance.getAllRemovedUsersId()).to.deep.equals(['a']);
     });

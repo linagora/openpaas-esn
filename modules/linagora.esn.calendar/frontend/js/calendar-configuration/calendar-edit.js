@@ -98,7 +98,7 @@ angular.module('esn.calendar')
           delegationServiceInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
 
           $scope.delegations.forEach(function(line) {
-            calendarRight.update(line.attendee._id, line.attendee.preferredEmail, line.selection);
+            calendarRight.update(line.user._id, line.user.preferredEmail, line.selection);
           });
 
           var rightChanged = !calendarRight.equals(originalCalendarRight);

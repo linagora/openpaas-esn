@@ -15,14 +15,14 @@ angular.module('esn.calendar')
      * @return [{delegation}]   The updated delegation list
      */
     DelegationService.prototype.addUserGroup = function(newUsersGroups, selection) {
-      newUsersGroups.forEach(function(attendee) {
+      newUsersGroups.forEach(function(user) {
         var exists = this._delegations.some(function(delegation) {
-          return attendee._id === delegation.attendee._id;
+          return user._id === delegation.user._id;
         });
 
         if (!exists) {
           this._delegations.push({
-            attendee: attendee,
+            user: user,
             selection: selection
           });
         }
@@ -37,9 +37,9 @@ angular.module('esn.calendar')
      * @return [{Delegation}]   The updated delegation list
      */
     DelegationService.prototype.removeUserGroup = function(delegationToRemove) {
-      this.removedId[delegationToRemove.attendee._id] = true;
+      this.removedId[delegationToRemove.user._id] = true;
       this._delegations = this._delegations.filter(function(delegation) {
-        return delegation.attendee._id !== delegationToRemove.attendee._id;
+        return delegation.user._id !== delegationToRemove.user._id;
       });
 
       return this._delegations;
