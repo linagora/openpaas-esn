@@ -425,6 +425,18 @@ describe('The esn.provider module', function() {
         $rootScope.$digest();
         expect(scope.infiniteScrollDisabled).to.be.false;
       });
+
+      it('should complete the infinite scroll and reject if there is an error fetching more data', function(done) {
+        infiniteScrollHelper(scope, function() {
+          return $q.reject();
+        })().then(null, function() {
+          expect(scope.infiniteScrollCompleted).to.equal(true);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
     });
 
   });

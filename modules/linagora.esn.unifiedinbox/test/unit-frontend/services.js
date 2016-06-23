@@ -4451,14 +4451,36 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    describe('The isAnyFilterSelected function', function() {
+
+      it('should return false if no filter is checked', function() {
+        expect(service.isAnyFilterSelected()).to.equal(false);
+      });
+
+      it('should return true if 1 filter is checked', function() {
+        checkFilter('isSocial');
+
+        expect(service.isAnyFilterSelected()).to.equal(true);
+      });
+
+      it('should return true if more than 1 filter is checked', function() {
+        checkFilter('isSocial');
+        checkFilter('isUnread');
+
+        expect(service.isAnyFilterSelected()).to.equal(true);
+      });
+
+    });
+
   });
 
   describe('The inboxFilteringAwareInfiniteScroll service', function() {
 
-    var $scope, service;
+    var $scope, service, INBOX_EVENTS;
 
-    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope) {
+    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_) {
       service = inboxFilteringAwareInfiniteScroll;
+      INBOX_EVENTS = _INBOX_EVENTS_;
 
       $scope = $rootScope.$new();
     }));
@@ -4486,7 +4508,7 @@ describe('The Unified Inbox Angular module services', function() {
       expect(spy).to.have.been.calledWith();
     });
 
-    it('should listen to "inboxFilterChanged" event, refreshing the loadMoreElements function and loading first batch of items', function() {
+    it('should listen to "inbox.filterChanged" event, refreshing the loadMoreElements function and loading first batch of items', function() {
       var loadMoreElements = sinon.spy(function() {
         return function() {
           return $q.when([]);
@@ -4498,14 +4520,14 @@ describe('The Unified Inbox Angular module services', function() {
         return { id: 'filter' };
       }, spy);
 
-      $scope.$emit('inboxFilterChanged');
+      $scope.$emit(INBOX_EVENTS.FILTER_CHANGED);
 
       expect($scope.loadMoreElements).to.be.a('function');
       expect(spy).to.have.been.calledTwice; // 1 at init time, 1 after the event is fired
       expect(loadMoreElements).to.have.been.calledWith(); // To load the list when the event is fired
     });
 
-    it('should listen to "inboxFilterChanged" event, resetting infinite scroll', function() {
+    it('should listen to "inbox.filterChanged" event, resetting infinite scroll', function() {
       var loadMoreElements = sinon.spy(function() {
         return function() {
           return $q.when([]);
@@ -4520,7 +4542,7 @@ describe('The Unified Inbox Angular module services', function() {
       $scope.infiniteScrollCompleted = true;
       $scope.infiniteScrollDisabled = true;
 
-      $scope.$emit('inboxFilterChanged');
+      $scope.$emit(INBOX_EVENTS.FILTER_CHANGED);
 
       expect($scope.infiniteScrollCompleted).to.equal(false);
 

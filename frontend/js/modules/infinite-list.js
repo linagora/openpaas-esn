@@ -22,11 +22,22 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
         infiniteScrollDistance: '=?',
         infiniteScrollDisabled: '=?',
         infiniteScrollImmediateCheck: '=?',
-        scrollInsideContainer: '=?'
+        scrollInsideContainer: '=?',
+        elementSelector: '@'
       },
+      controller: function($scope, $element) {
+        this.getElementsCount = function() {
+          if (!$scope.elementSelector) {
+            return 0;
+          }
+
+          return $element.find($scope.elementSelector).length;
+        };
+      },
+      controllerAs: 'infiniteList',
       compile: function() {
         return {
-          pre: function(scope, element, attrs) {
+          pre: function(scope, element) {
             scope.infiniteScrollDistance = angular.isDefined(scope.infiniteScrollDistance) ? scope.infiniteScrollDistance : defaultConfiguration.scrollDistance;
             scope.infiniteScrollDisabled = angular.isDefined(scope.infiniteScrollDisabled) ? scope.infiniteScrollDisabled : defaultConfiguration.scrollDisabled;
             scope.infiniteScrollImmediateCheck = angular.isDefined(scope.infiniteScrollImmediateCheck) ? scope.infiniteScrollImmediateCheck : defaultConfiguration.scrollImmediateCheck;

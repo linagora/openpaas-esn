@@ -1271,6 +1271,10 @@ angular.module('linagora.esn.unifiedinbox')
       return _.some(inboxFilters, { type: type, checked: true });
     }
 
+    function isAnyFilterSelected() {
+      return _.some(inboxFilters, { checked: true });
+    }
+
     function getAcceptedTypesFilter() {
       var jmap = isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP),
           social = isAnyFilterOfTypeSelected(PROVIDER_TYPES.SOCIAL);
@@ -1291,12 +1295,13 @@ angular.module('linagora.esn.unifiedinbox')
       getFiltersForUnifiedInbox: maybeResetAndGetFilters.bind(null, null, 'unifiedinbox'),
       getJmapFilter: getJmapFilter,
       isAnyFilterOfTypeSelected: isAnyFilterOfTypeSelected,
+      isAnyFilterSelected: isAnyFilterSelected,
       getAcceptedTypesFilter: getAcceptedTypesFilter,
       uncheckFilters: uncheckFilters
     };
   })
 
-  .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool) {
+  .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
     return function(scope, getAvailableFilters, buildLoadNextItemsFunction) {
       function setFilter() {
         scope.loadMoreElements = infiniteScrollOnGroupsHelper(
@@ -1308,7 +1313,7 @@ angular.module('linagora.esn.unifiedinbox')
 
       scope.filters = getAvailableFilters();
 
-      scope.$on('inboxFilterChanged', function() {
+      scope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
         scope.infiniteScrollDisabled = false;
         scope.infiniteScrollCompleted = false;
 

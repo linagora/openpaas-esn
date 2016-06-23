@@ -1,0 +1,11 @@
+.inbox-empty-container-message
+
+  ng-include(src="::containerTemplateUrl")
+
+  .message(ng-if="isFilteringActive()")
+    | #{__('Your active filter(s) might be too restrictive.')}
+    inbox-clear-filters-button
+
+  .message.inbox-dnd-info-message.all-centered.hidden-xs(ng-if="isCustomMailbox")
+    i.mdi.mdi-lightbulb-outline
+    span #{__('Did you know you can drag & drop messages to this folder? Give it a try!')}

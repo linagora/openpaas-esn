@@ -248,6 +248,10 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             }
 
             return elements;
+          }, function(err) {
+            scope.infiniteScrollCompleted = true;
+
+            return $q.reject(err);
           })
           .finally(function() {
             scope.infiniteScrollDisabled = false;
