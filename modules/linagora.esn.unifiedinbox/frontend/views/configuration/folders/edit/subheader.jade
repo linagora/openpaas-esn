@@ -3,7 +3,7 @@ extends ../../../layout/responsive-subheader
 block left
   inbox-subheader-close-button(ui-sref='unifiedinbox.configuration.folders')
   span.title.ellipsis.extra-title
-    | #{__('%s folder configuration', '{{ ::mailbox.name }}')}
+    | {{ ::mailbox.name }}
 
 block right
   inbox-subheader-save-button(esn-submit="editFolder()")
