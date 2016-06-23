@@ -287,8 +287,29 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $q, moment, jmap, withJmapClient, rejectWithErrorNotification, asyncJmapAction, INBOX_EVENTS) {
-    $scope.vacation = {};
+  .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $stateParams, $q, moment, jmap,
+                                                               withJmapClient, rejectWithErrorNotification, asyncJmapAction, INBOX_EVENTS) {
+    function _init() {
+      $scope.vacation = $stateParams.vacation;
+
+      if (!$scope.vacation) {
+        $scope.vacation = {};
+
+        withJmapClient(function(client) {
+          client.getVacationResponse()
+            .then(function(vacation) {
+              $scope.vacation = vacation;
+            })
+            .then(function() {
+              $scope.vacation.fromDate = $scope.vacation.fromDate || moment();
+
+              if (angular.isDefined($scope.vacation.toDate)) {
+                $scope.vacation.hasToDate = true;
+              }
+            });
+        });
+      }
+    }
 
     _init();
 
@@ -304,12 +325,20 @@ angular.module('linagora.esn.unifiedinbox')
       return _validateVacationLogic()
         .then(function() {
           $state.go('unifiedinbox');
+
           if (!$scope.vacation.hasToDate) {
             $scope.vacation.toDate = null;
           }
 
           return asyncJmapAction('Modification of vacation settings', function(client) {
             return client.setVacationResponse(new jmap.VacationResponse(client, $scope.vacation));
+          }, {
+            onFailure: {
+              linkText: 'Go Back',
+              action: function() {
+                $state.go('unifiedinbox.configuration.vacation', { vacation: $scope.vacation });
+              }
+            }
           });
         })
         .then(function() {
@@ -333,21 +362,6 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       return $q.when();
-    }
-
-    function _init() {
-      withJmapClient(function(client) {
-        client.getVacationResponse()
-          .then(function(vacation) {
-            $scope.vacation = vacation;
-          })
-          .then(function() {
-            $scope.vacation.fromDate = $scope.vacation.fromDate || moment();
-            if (angular.isDefined($scope.vacation.toDate)) {
-              $scope.vacation.hasToDate = true;
-            }
-          });
-      });
     }
   })
 

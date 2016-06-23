@@ -552,7 +552,7 @@ angular.module('linagora.esn.unifiedinbox')
           $scope.vacationEnabled = false;
 
           withJmapClient(function(client) {
-            client.setVacationResponse(new jmap.VacationResponse({ isEnabled: false }))
+            client.setVacationResponse(new jmap.VacationResponse(client, { isEnabled: false }))
               .then(function() {
                 $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS, $scope.vacationEnabled);
               })
