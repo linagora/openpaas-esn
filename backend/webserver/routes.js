@@ -30,6 +30,7 @@ exports = module.exports = function(application) {
   require('./middleware/setup-routes')(application);
   var resourceLinks = require('./middleware/resource-link');
   resourceLinks.addCanCreateMiddleware('like', require('./middleware/message').canLike);
+  resourceLinks.addCanCreateMiddleware('follow', require('./middleware/user').canFollow);
 
   var home = require('./controllers/home');
   application.get('/', home.index);

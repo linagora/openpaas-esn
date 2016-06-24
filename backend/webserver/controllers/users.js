@@ -1,11 +1,13 @@
 'use strict';
 
+var q = require('q');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var logger = require('../../core').logger;
 var ObjectId = require('mongoose').Types.ObjectId;
 var utils = require('./utils');
+var denormalizeUser = require('../denormalize/user').denormalize;
 
 /**
  * Log the user in. The user should already be loaded in the request from a middleware.
@@ -59,7 +61,10 @@ function profile(req, res) {
       });
     }
 
-    return res.json(200, utils.sanitizeUser(user, String(req.user._id) !== uuid));
+    denormalizeUser(user, {user: req.user, doNotKeepPrivateData: String(req.user._id) !== uuid})
+      .then(function(denormalized) {
+        res.status(200).json(denormalized);
+      });
   });
 }
 module.exports.profile = profile;
@@ -110,7 +115,10 @@ function user(req, res) {
   if (!req.user) {
     return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
   }
-  return res.json(200, utils.sanitizeUser(req.user));
+
+  denormalizeUser(req.user).then(function(denormalized) {
+    res.status(200).json(denormalized);
+  });
 }
 module.exports.user = user;
 

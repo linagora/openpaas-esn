@@ -6,8 +6,10 @@ var User = mongoose.model('User');
 var userDomain = require('../../core/user/domain');
 var logger = require('../../core').logger;
 var async = require('async');
+var q = require('q');
 var pubsub = require('../../core/pubsub').local;
 var utils = require('./utils');
+var denormalizeUser = require('../denormalize/user');
 
 function createDomain(req, res) {
   var data = req.body;
@@ -79,8 +81,12 @@ function getMembers(req, res) {
           return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
         }
 
-        res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, result.list.map(utils.sanitizeUser));
+        q.all(result.list.map(function(user) {
+          return denormalizeUser(user);
+        })).then(function(denormalized) {
+          res.header('X-ESN-Items-Count', result.total_count);
+          res.status(200).json(denormalized);
+        });
       });
     } else {
       userDomain.getUsersList([domain], query, function(err, result) {
@@ -88,8 +94,12 @@ function getMembers(req, res) {
           return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
         }
 
-        res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, result.list.map(utils.sanitizeUser));
+        q.all(result.list.map(function(user) {
+          return denormalizeUser(user);
+        })).then(function(denormalized) {
+          res.header('X-ESN-Items-Count', result.total_count);
+          res.status(200).json(denormalized);
+        });
       });
     }
   });

@@ -311,6 +311,77 @@ describe('The profile API', function() {
       });
     });
 
+    describe('Follow tests', function() {
+
+      it('should send back empty follow stats when user does not follow or is not followed', function(done) {
+        this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          loggedInAsUser(request(app).get('/api/users/' + foouser._id))
+            .expect(200)
+            .end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.shallowDeepEqual({
+                followers: 0,
+                followings: 0
+              });
+              expect(res.body.following).not.to.exist;
+              done();
+            });
+        });
+      });
+
+      it('should send back nb of followers of the current user', function(done) {
+        var self = this;
+
+        function test() {
+          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            loggedInAsUser(request(app).get('/api/users/' + foouser._id))
+              .expect(200)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.shallowDeepEqual({
+                  followers: 0,
+                  followings: 1
+                });
+                expect(res.body.following).to.not.exists;
+                done();
+              });
+          });
+        }
+
+        self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(foouser._id)}, {objectType: 'user', id: String(baruser._id)}).then(test, done);
+      });
+
+      it('should send back stats when logged in user follow another user', function(done) {
+        var self = this;
+
+        function test() {
+          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            loggedInAsUser(request(app).get('/api/users/' + baruser._id))
+              .expect(200)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.shallowDeepEqual({
+                  followers: 1,
+                  followings: 0
+                });
+                expect(res.body.following).to.be.true;
+                done();
+              });
+          });
+        }
+
+        self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(foouser._id)}, {objectType: 'user', id: String(baruser._id)}).then(test, done);
+      });
+    });
   });
 
   describe('GET /api/users/:uuid/profile/avatar route', function() {

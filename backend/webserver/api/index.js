@@ -91,6 +91,7 @@ function setupAPI(application) {
   require('./domains')(router);
   require('./feedback')(router);
   require('./files')(router);
+  require('./follow')(router);
   require('./invitations')(router);
   require('./jwt')(router);
   require('./locales')(router);

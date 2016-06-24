@@ -48,6 +48,40 @@ function count(options) {
 }
 module.exports.count = count;
 
+function list(options) {
+  var defer = q.defer();
+  var query = {};
+  if (options.type) {
+    query.type = options.type;
+  }
+  if (options.source) {
+    query['source.id'] = options.source.id;
+    query['source.objectType'] = options.source.objectType;
+  }
+  if (options.target) {
+    query['target.id'] = options.target.id;
+    query['target.objectType'] = options.target.objectType;
+  }
+
+  var resourceLinkQuery = ResourceLink.find(query);
+  if (options.offset > 0) {
+    resourceLinkQuery = resourceLinkQuery.skip(options.offset);
+  }
+
+  if (options.limit > 0) {
+    resourceLinkQuery = resourceLinkQuery.limit(options.limit);
+  }
+
+  resourceLinkQuery.sort('-timestamps.creation').exec(function(err, links) {
+    if (err) {
+      return defer.reject(err);
+    }
+    defer.resolve(links);
+  });
+  return defer.promise;
+}
+module.exports.list = list;
+
 function exists(link) {
   var defer = q.defer();
   var query = {

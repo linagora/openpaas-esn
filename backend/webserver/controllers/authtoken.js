@@ -4,6 +4,7 @@ var auth = require('../../core/auth/token');
 var user = require('../../core/user');
 var technicalUser = require('../../core/technical-user');
 var utils = require('./utils');
+var denormalizeUser = require('../denormalize/user').denormalize;
 
 var getNewToken = function(req, res) {
   auth.getNewToken({ttl: 60, user: req.user._id}, function(err, token) {
@@ -46,9 +47,11 @@ function authenticateUser(req, res) {
       if (err) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while logging in user'}});
       }
-      var response = utils.sanitizeUser(u);
-      response.user_type = user.TYPE;
-      return res.status(200).json(response);
+
+      denormalizeUser(u).then(function(response) {
+        response.user_type = user.TYPE;
+        res.status(200).json(response);
+      });
     };
 
     if (req.user) {
