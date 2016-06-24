@@ -77,6 +77,7 @@ angular.module('esnApp', [
   'esn.resource-link',
   'esn.like',
   'esn.timeline',
+  'esn.follow',
   'awesome-angular-swipe'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
