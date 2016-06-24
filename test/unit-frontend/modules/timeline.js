@@ -1,12 +1,13 @@
 'use strict';
 
-/* global chai, sinon: false */
-
+/* global chai: false */
 var expect = chai.expect;
 
 describe('The esn.timeline module', function() {
-
-  beforeEach(angular.mock.module('esn.timeline'));
+  beforeEach(function() {
+    module('jadeTemplates');
+    module('esn.timeline');
+  });
 
   describe('The esnTimelineAPI factory', function() {
     beforeEach(angular.mock.inject(function(esnTimelineAPI, $httpBackend) {
@@ -75,26 +76,21 @@ describe('The esn.timeline module', function() {
       service.register(providerB);
       service.register(providerC);
 
-      expect(service.get('like')).to.shallowDeepEqual([providerA]);
-      expect(service.get('post')).to.shallowDeepEqual([providerB, providerC]);
+      expect(service.get('like')).to.shallowDeepEqual([{verb: 'like'}]);
+      expect(service.get('post')).to.shallowDeepEqual([{verb: 'post'}, {verb: 'post'}]);
     });
   });
 
-  describe('The fesnTimelineEntriesHelper factory', function() {
+  describe('The esnTimelineEntriesHelper factory', function() {
 
     var service, $rootScope, esnTimelineEntryProviders, DEFAULT_TIMELINE_ELEMENT;
 
-    beforeEach(inject(function(_$rootScope_, _esnTimelineEntryProviders_, _DEFAULT_TIMELINE_ELEMENT_) {
+    beforeEach(inject(function(_$rootScope_, _esnTimelineEntriesHelper_, _esnTimelineEntryProviders_, _DEFAULT_TIMELINE_ELEMENT_) {
       esnTimelineEntryProviders = _esnTimelineEntryProviders_;
       DEFAULT_TIMELINE_ELEMENT = _DEFAULT_TIMELINE_ELEMENT_;
+      service = _esnTimelineEntriesHelper_;
       $rootScope = _$rootScope_;
     }));
-
-    beforeEach(function() {
-      inject(function($injector) {
-        service = $injector.get('esnTimelineEntriesHelper');
-      });
-    });
 
     describe('The getProvidersForTimelineEntry function', function() {
 
@@ -124,7 +120,7 @@ describe('The esn.timeline module', function() {
         esnTimelineEntryProviders.register(providerB);
 
         var providers = service.getProvidersForTimelineEntry({verb: 'like'});
-        expect(providers).to.shallowDeepEqual([providerA]);
+        expect(providers).to.shallowDeepEqual([{verb: 'like', name: 'A'}]);
       });
 
     });
