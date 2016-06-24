@@ -21,7 +21,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     };
     notificationFactory = {
       weakSuccess: sinon.spy(),
-      weakError: sinon.spy(),
+      weakError: sinon.spy(function() { return { setCancelAction: sinon.spy() }; }),
       strongInfo: function() { return { close: sinon.spy() }; }
     };
     $state = {
@@ -1035,6 +1035,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(scope.vacation.isEnabled).to.be.true;
     });
 
+    it('should use Vacation instance from state parameters if defined', function() {
+      $stateParams.vacation = { a: 'b' };
+
+      initController('inboxConfigurationVacationController');
+
+      expect(scope.vacation).to.deep.equal({ a: 'b' });
+    });
+
     describe('the getMinDate function', function() {
       it('should return vacation.fromDate', function() {
         vacation.fromDate = new Date(2016, 9, 22);
@@ -1162,6 +1170,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(jmapClient.setVacationResponse).to.have.been.calledWith();
         expect(listener).to.not.have.been.called;
       });
+
     });
 
     describe('the _init function', function() {

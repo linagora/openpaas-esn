@@ -2231,14 +2231,6 @@ describe('The Unified Inbox Angular module services', function() {
         $timeout.flush();
       });
 
-      it('should call "success" on the notification to close it when the grace period is cancelled', function(done) {
-        new Composition().destroyDraft().then(function() {
-          expect(graceRequestResult.success).to.have.been.calledOnce;
-        }).then(done, done);
-
-        $timeout.flush();
-      });
-
       it('should delete the original draft when the grace period is not cancelled', function(done) {
         var message = new jmap.Message(jmapClient, 123, 'threadId', ['box1'], {});
         graceRequestResult.cancelled = false;

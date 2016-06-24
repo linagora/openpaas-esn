@@ -11,7 +11,7 @@ describe('The esn.notification Angular modules', function() {
   });
 
   describe('The notification service', function() {
-    var notifyService, notifyMock, escapeHTMLMock, self;
+    var notifyService, notifyMock, self;
 
     beforeEach(function() {
       self = this;
@@ -157,5 +157,16 @@ describe('The esn.notification Angular modules', function() {
 
       expect(cancelActionConfig.action).to.have.been.calledOnce;
     });
+
+    it('should provide a clickable link that closes th notification when clicked', function() {
+      var notification = notifyService({ title: 'title', message: 'message', type: 'danger' }, {});
+
+      notification.close = sinon.spy();
+      notification.setCancelAction({ linkText: 'cancel', action: angular.noop });
+      notification.$ele.find('a.cancel-task').click();
+
+      expect(notification.close).to.have.been.calledWith();
+    });
+
   });
 });
