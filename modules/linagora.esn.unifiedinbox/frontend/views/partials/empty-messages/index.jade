@@ -1,11 +1,15 @@
-.inbox-empty-container-message
+.inbox-empty-container-message(ng-switch="isFilteringActive()")
 
-  ng-include(src="::containerTemplateUrl")
+  .message(ng-switch-when="true")
+    .inbox-empty-icon.mdi.mdi-filter-remove-outline
+    .message #{__('There is nothing to display')}
+    .message
+      | #{__('Your active filter is too restrictive.')}
+      inbox-clear-filters-button
 
-  .message(ng-if="isFilteringActive()")
-    | #{__('Your active filter(s) might be too restrictive.')}
-    inbox-clear-filters-button
+  .message(ng-switch-when="false")
+    ng-include(src="::containerTemplateUrl")
 
-  .message.inbox-dnd-info-message.all-centered.hidden-xs(ng-if="isCustomMailbox")
-    i.mdi.mdi-lightbulb-outline
-    span #{__('Did you know you can drag & drop messages to this folder? Give it a try!')}
+    .message.inbox-dnd-info-message.all-centered.hidden-xs(ng-if="isCustomMailbox")
+      i.mdi.mdi-lightbulb-outline
+      span #{__('Did you know you can drag & drop messages to this folder? Give it a try!')}
