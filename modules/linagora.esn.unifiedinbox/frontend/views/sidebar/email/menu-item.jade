@@ -1,6 +1,6 @@
 .clickable(
     title="{{ ::mailbox.name }}",
-    ui-sref-active="selected",
+    ui-sref-active="{'selected' : 'unifiedinbox.list({ mailbox: mailbox.id })'}",
     esn-droppable,
     esn-droptarget-class="droptarget",
     esn-on-drop="onDrop($dragData)",

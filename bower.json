@@ -85,7 +85,7 @@
     "angular-summernote": "linagora/angular-summernote#waiting-merge",
     "autosize": "3.0.13",
     "offline": "0.7.14",
-    "angular-ui-router": "0.2.15",
+    "angular-ui-router": "0.2.18",
     "angular-media-queries": "0.6.0",
     "jquery.focus": "linagora/jquery.focus#bowerified",
     "angular-component": "https://github.com/toddmotto/angular-component.git#~0.1.2",
