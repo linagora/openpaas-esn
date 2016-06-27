@@ -36,7 +36,7 @@ describe('The esn.follow Angular module', function() {
         FOLLOW_LINK_TYPE = _FOLLOW_LINK_TYPE_;
         session = _session_;
         $httpBackend = _$httpBackend_;
-      })
+      });
     });
 
     describe('The follow function', function() {

@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var q = require('q');
 
 describe('The User controller', function() {
 
@@ -83,6 +84,11 @@ describe('The User controller', function() {
 
   describe('The user fn', function() {
     it('should return the request user if available', function(done) {
+      mockery.registerMock('../denormalize/user', {
+        denormalize: function(user) {
+          return q(user);
+        }
+      });
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
@@ -93,19 +99,14 @@ describe('The User controller', function() {
         }
       };
       var res = {
-        json: function(code, data) {
+        status: function(code) {
           expect(code).to.equal(200);
-          expect(data).to.shallowDeepEqual({
-            preferredEmail: 'foo@bar.com',
-            emails: ['foo@bar.com'],
-            accounts: [{
-              type: 'email',
-              emails: ['foo@bar.com'],
-              hosted: false,
-              preferredEmailIndex: 0
-            }]
-          });
-          done();
+          return {
+            json: function(data) {
+              expect(data).to.shallowDeepEqual(req.user);
+              done();
+            }
+          };
         }
       };
       users.user(req, res);

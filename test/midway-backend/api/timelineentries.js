@@ -144,12 +144,61 @@ describe('The timelineentries API', function() {
         self.createTimelineEntry({published: new Date(date.setSeconds(10)), verb: 'post', actor: {objectType: 'user', _id: String(user._id)}, object: {objectType: 'whatsup', _id: String(message._id)}}),
         self.createTimelineEntry({published: new Date(date.setSeconds(15)), verb: 'like', actor: {objectType: 'user', _id: String(user._id)}, object: {objectType: 'whatsup', _id: String(message2._id)}}),
         self.createTimelineEntry({published: new Date(date.setSeconds(20)), verb: 'like', actor: {objectType: 'user', _id: String(user2._id)}, object: {objectType: 'whatsup', _id: String(message._id)}}),
-        self.createTimelineEntry({published: new Date(date.setSeconds(25)), verb: 'follow', actor: {objectType: 'user', _id: String(user._id)}, object: {objectType: 'user', _id: String(user2._id)}}),
+        self.createTimelineEntry({published: new Date(date.setSeconds(25)), verb: 'follow', actor: {objectType: 'user', _id: String(user._id)}, object: {objectType: 'user', _id: String(user2._id)}, target: [{objectType: 'user', _id: String(user2._id)}]}),
         self.createTimelineEntry({published: new Date(date.setSeconds(30)), verb: 'foo', actor: {objectType: 'user', _id: String(user2._id)}, object: {objectType: 'user', _id: String(user2._id)}}),
         self.createTimelineEntry({published: new Date(date.setSeconds(35)), verb: 'bar', actor: {objectType: 'user', _id: String(user2._id)}, object: {objectType: 'user', _id: String(user2._id)}})
       ]).then(check, done);
 
     });
+
+    describe('When following users', function() {
+
+      beforeEach(function() {
+        var followModule = this.helpers.requireBackend('core/user/follow');
+        this.followUser = function(userA, userB) {
+          return followModule.follow({id: String(userA._id), objectType: 'user'}, {id: String(userB._id), objectType: 'user'});
+        };
+      });
+
+      it('should send back the denormalized timelineentries containing the user followed by a user', function(done) {
+        var self = this;
+        var verb = 'follow';
+
+        function check() {
+
+          process.nextTick(function() {
+            self.helpers.api.loginAsUser(webserver.application, email, 'secret', self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+              loggedInAsUser(request(webserver.application)
+                .get(ENDPOINT))
+                .query({verb: verb})
+                .expect(200)
+                .end(helpers.callbacks.noErrorAnd(function(res) {
+                  expect(res.body).to.shallowDeepEqual([
+                    {
+                      verb: verb,
+                      actor: {
+                        _id: String(user._id),
+                        objectType: 'user'
+                      },
+                      target: [{
+                        _id: String(user2._id),
+                        objectType: 'user'
+                      }]
+                    }
+                  ]);
+                  expect(res.body[0].target.displayName).to.be.defined;
+                  done();
+                }));
+            }));
+          });
+        }
+
+        self.followUser(user, user2)
+          .then(check)
+          .catch(done);
+      });
+    });
+
 
     describe('When liking messages', function() {
 

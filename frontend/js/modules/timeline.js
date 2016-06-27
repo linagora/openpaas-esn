@@ -123,10 +123,11 @@ angular.module('esn.timeline', [
     return TimelinePaginationProvider;
   })
 
-  .controller('esnTimelineEntriesController', function($scope, $log, _, esnTimelineEntriesHelper, infiniteScrollHelperBuilder, PageAggregatorService, TimelinePaginationProvider, TIMELINE_PAGE_SIZE) {
+  .controller('esnTimelineEntriesController', function($scope, $log, _, esnTimelineEntriesHelper, infiniteScrollHelperBuilder, PageAggregatorService, TimelinePaginationProvider, session, TIMELINE_PAGE_SIZE) {
 
     var aggregator;
     $scope.timelineEntries = [];
+    $scope.user = session.user;
 
     function updateScope(elements) {
       esnTimelineEntriesHelper.denormalizeAPIResponse(elements).then(function(denormalized) {

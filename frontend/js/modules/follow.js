@@ -1,9 +1,20 @@
 'use strict';
 
 angular.module('esn.follow', [
-    'esn.resource-link'
+    'esn.resource-link',
+    'esn.timeline'
   ])
   .constant('FOLLOW_LINK_TYPE', 'follow')
+
+  .run(function(esnTimelineEntryProviders, FOLLOW_LINK_TYPE) {
+    esnTimelineEntryProviders.register({
+      verb: FOLLOW_LINK_TYPE,
+      templateUrl: '/views/modules/follow/timeline/follow.html',
+      canHandle: function() {
+        return true;
+      }
+    });
+  })
 
   .factory('followAPI', function(ResourceLinkAPI, esnRestangular, session, FOLLOW_LINK_TYPE) {
 

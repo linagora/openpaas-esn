@@ -1,12 +1,18 @@
 'use strict';
 
 var expect = require('chai').expect,
-  mockery = require('mockery');
+  mockery = require('mockery'),
+  q = require('q');
 
 function setupMocks(auth, user, technicaluser) {
   mockery.registerMock('../../core/auth/token', auth || {});
   mockery.registerMock('../../core/user', user || {});
   mockery.registerMock('../../core/technical-user', technicaluser || {});
+  mockery.registerMock('../denormalize/user', {
+    denormalize: function(user) {
+      return q(user);
+    }
+  });
   mockery.registerMock('./utils', {
     sanitizeUser: function(user) {
       return user;
