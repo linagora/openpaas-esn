@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
-      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _, INBOX_EVENTS;
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _, INBOX_EVENTS, notificationFactory;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -76,7 +76,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_, ___, _INBOX_EVENTS_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
@@ -86,6 +86,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     jmap = _jmap_;
     _ = ___;
     INBOX_EVENTS = _INBOX_EVENTS_;
+    notificationFactory = _notificationFactory_;
 
     session.user = {
       preferredEmail: 'user@open-paas.org',
@@ -1493,6 +1494,11 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   });
 
   describe('The inboxVacationIndicator directive', function() {
+    beforeEach(function() {
+      notificationFactory.weakSuccess = sinon.spy();
+      notificationFactory.weakError = sinon.spy();
+      notificationFactory.strongInfo = sinon.spy();
+    });
 
     it('should display the message when vacation is enabled', function() {
       jmapClient.getVacationResponse = function() {
@@ -1525,13 +1531,16 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
 
     it('should provide a button that removes the message and disables the vacation when clicked', function() {
+      var isEnabled = true;
+
       jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: true });
+        return $q.when({ isEnabled: isEnabled });
       };
       jmapClient.setVacationResponse = sinon.spy(function(vacation) {
         expect(vacation).to.shallowDeepEqual({
           isEnabled: false
         });
+        isEnabled = false;
 
         return $q.when();
       });
@@ -1540,6 +1549,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(jmapClient.setVacationResponse).to.have.been.calledWith();
       expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
+      expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Modification of vacation settings in progress...');
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Modification of vacation settings succeeded');
     });
 
     it('should broadcast vacationEnabled when vacation is set successfully', function(done) {
@@ -1552,31 +1563,25 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       compileDirective('<inbox-vacation-indicator />');
 
-      element.isolateScope().$on(INBOX_EVENTS.VACATION_STATUS, function(event, isEnabled) {
-        expect(isEnabled).to.equal(false);
-
-        done();
-      });
+      element.isolateScope().$on(INBOX_EVENTS.VACATION_STATUS, done.bind(this, null));
 
       element.find('.inbox-disable-vacation').click();
     });
 
     it('should listen on VACATION_STATUS to update vacationEnabled correspondingly', function() {
-      jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: true });
-      };
+      var isEnabled = true;
+
+      jmapClient.getVacationResponse = sinon.spy(function() {
+        return $q.when({ isEnabled: isEnabled });
+      });
 
       element = compileDirective('<inbox-vacation-indicator />');
-      $scope.$broadcast(INBOX_EVENTS.VACATION_STATUS, true);
-      $scope.$digest();
 
-      expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
+      expect(jmapClient.getVacationResponse).to.have.been.calledOnce;
+      $scope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
 
-      $scope.$broadcast(INBOX_EVENTS.VACATION_STATUS, false);
-      $scope.$digest();
-
-      expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
-
+      expect(jmapClient.getVacationResponse).to.have.been.calledTwice;
+      expect(element.isolateScope().vacationEnabled).to.equal(isEnabled);
     });
 
     it('should show the message if vacation cannot be disabled', function() {
@@ -1590,6 +1595,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
 
       expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
+      expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Modification of vacation settings in progress...');
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of vacation settings failed');
     });
 
   });
