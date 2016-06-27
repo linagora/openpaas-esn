@@ -948,7 +948,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
-    describe('the deleteFolder method', function() {
+    describe('The deleteFolder method', function() {
       var weakSuccessSpy, weakErrorSpy, weakInfoSpy;
 
       beforeEach(function() {
@@ -961,21 +961,34 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         notificationFactory.weakInfo = weakInfoSpy;
       });
 
-      it('should call client.destroyMailbox', function() {
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
+      it('should call client.destroyMailboxes with an array of mailbox descendant IDs', function() {
+        var mailboxes = [
+          { id: '123' },
+          { id: 'm1', parentId: '123' },
+          { id: 'm2', parentId: '123' },
+          { id: 'm11', parentId: 'm1' },
+          { id: 'm111', parentId: 'm11'}
+        ];
+        var expectedMailboxIds = [4, 3, 2, 1, 0].map(function(index) {
+          return mailboxes[index].id;
+        });
+
+        jmapClient.getMailboxes = function() {
+          return $q.when(mailboxes);
+        };
+        jmapClient.destroyMailboxes = sinon.spy(function() { return $q.when([]); });
         initController('editFolderController');
 
-        scope.mailbox = {
-          id: 123
-        };
+        scope.mailbox = mailboxes[0];
         scope.deleteFolder();
         scope.$digest();
 
-        expect(jmapClient.destroyMailbox).to.have.been.calledWith(123);
+        expect(jmapClient.destroyMailboxes).to.have.been.calledOnce;
+        expect(jmapClient.destroyMailboxes).to.have.been.calledWith(expectedMailboxIds);
       });
 
       it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is resolved', function() {
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
+        jmapClient.destroyMailboxes = sinon.spy(function() {return $q.when([]);});
         initController('editFolderController');
 
         scope.mailbox = {
@@ -988,7 +1001,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is rejected', function() {
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.reject([]);});
+        jmapClient.destroyMailboxes = sinon.spy(function() {return $q.reject([]);});
         initController('editFolderController');
 
         scope.mailbox = {
@@ -1002,12 +1015,66 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
-    describe('the confirmationDialog method', function() {
+    describe('The confirmationDialog method', function() {
+
+      it('should initialize $scope.message containing to-be-deleted mailboxes', function() {
+        var mailboxes = [
+          { id: '123', name: '123' },
+          { id: 'm1', name: 'm1', parentId: '123' },
+          { id: 'm2', name: 'm2', parentId: '123' },
+          { id: 'm11', name: 'm11', parentId: 'm1' },
+          { id: 'm111', name: 'm111', parentId: 'm11'}
+        ];
+
+        jmapClient.getMailboxes = function() { return $q.when(mailboxes); };
+        initController('editFolderController');
+        scope.mailbox = mailboxes[0];
+
+        scope.confirmationDialog();
+
+        expect(scope.message).to.equal('You are about to remove folder 123 and its descendants including m1, m2, m11 and m111');
+      });
+
+      it('should initialize $scope.message with "and x more" when more than 4 mailbox descendants are going to be deleted', function() {
+        var mailboxes = [
+          { id: '123', name: '123' },
+          { id: 'm1', name: 'm1', parentId: '123' },
+          { id: 'm2', name: 'm2', parentId: '123' },
+          { id: 'm11', name: 'm11', parentId: 'm1' },
+          { id: 'm111', name: 'm111', parentId: 'm11'},
+          { id: 'm112', name: 'm112', parentId: 'm11'}
+        ];
+
+        jmapClient.getMailboxes = function() { return $q.when(mailboxes); };
+        initController('editFolderController');
+        scope.mailbox = mailboxes[0];
+
+        scope.confirmationDialog();
+
+        expect(scope.message).to.equal('You are about to remove folder 123 and its descendants including m1, m2, m11 and 2 more');
+      });
+
+      it('should initialize $scope.message properly when the mailbox has no descendant', function() {
+        var mailboxes = [
+          { id: '123', name: '123' }
+        ];
+
+        jmapClient.getMailboxes = function() { return $q.when(mailboxes); };
+        initController('editFolderController');
+        scope.mailbox = mailboxes[0];
+
+        scope.confirmationDialog();
+
+        expect(scope.message).to.equal('You are about to remove folder 123');
+      });
+
       it('should leverage $modal service', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         initController('editFolderController');
+        scope.mailbox = { id: 123 };
 
         scope.confirmationDialog();
+
         expect($modal).to.have.been.called;
       });
     });

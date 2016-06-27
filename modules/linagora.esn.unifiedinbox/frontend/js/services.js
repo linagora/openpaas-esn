@@ -882,6 +882,29 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function getMailboxDescendants(mailboxId, mailboxes) {
+      var descendants = [];
+      var toScanMailboxIds = [mailboxId];
+      var scannedMailboxIds = [];
+
+      while (toScanMailboxIds.length) {
+        var toScanMailboxId = toScanMailboxIds.shift();
+        var mailboxChildren = _.filter(mailboxes, { parentId: toScanMailboxId });
+
+        scannedMailboxIds.push(toScanMailboxId);
+
+        mailboxChildren.forEach(function(mailbox) {
+          descendants.push(mailbox);
+
+          if (scannedMailboxIds.indexOf(mailbox.id) === -1) {
+            toScanMailboxIds.push(mailbox.id);
+          }
+        });
+      }
+
+      return _.uniq(descendants);
+    }
+
     return {
       filterSystemMailboxes: filterSystemMailboxes,
       assignMailboxesList: assignMailboxesList,
@@ -890,7 +913,8 @@ angular.module('linagora.esn.unifiedinbox')
       updateUnreadMessages: updateUnreadMessages,
       moveUnreadMessages: moveUnreadMessages,
       canMoveMessage: canMoveMessage,
-      getMessageListFilter: getMessageListFilter
+      getMessageListFilter: getMessageListFilter,
+      getMailboxDescendants: getMailboxDescendants
     };
   })
 

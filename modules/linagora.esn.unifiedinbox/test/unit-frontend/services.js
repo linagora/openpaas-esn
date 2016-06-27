@@ -2986,6 +2986,52 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
     });
+
+    describe('The getMailboxDescendants function', function() {
+
+      function getMailboxDescendants(mailboxId, mailboxes) {
+        return mailboxesService.getMailboxDescendants(mailboxId, mailboxes);
+      }
+
+      it('should return empty array if the passed mailboxes is empty', function() {
+        var mailboxId = 'm1';
+        var mailboxes = [];
+
+        expect(getMailboxDescendants(mailboxId, mailboxes)).to.deep.equal([]);
+      });
+
+      it('should return empty array if the mailbox has no child', function() {
+        var mailboxId = 'm1';
+        var mailboxes = [{ parentId: 'm2' }];
+
+        expect(getMailboxDescendants(mailboxId, mailboxes)).to.deep.equal([]);
+      });
+
+      it('should return an array of descendants in the right order', function() {
+        var mailboxId = 'm1';
+        var descendants = [{
+          id: 'c1',
+          parentId: mailboxId
+        }, {
+          id: 'c3',
+          parentId: mailboxId
+        }, {
+          id: 'c11',
+          parentId: 'c1'
+        }, {
+          id: 'c12',
+          parentId: 'c1'
+        }, {
+          id: 'c31',
+          parentId: 'c3'
+        }];
+        var mailboxes = [{ parentId: 'm2' }].concat(descendants);
+
+        expect(getMailboxDescendants(mailboxId, mailboxes)).to.deep.equal(descendants);
+      });
+
+    });
+
   });
 
   describe('The asyncAction factory', function() {
