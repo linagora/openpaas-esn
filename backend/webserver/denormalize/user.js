@@ -6,7 +6,7 @@ var followModule = require('../../core/user/follow');
 var sanitizeUser = require('../controllers/utils').sanitizeUser;
 
 function sanitize(user, options) {
-  return q(sanitizeUser(user, options.doNotKeepPrivateData || true));
+  return q(sanitizeUser(user, options.doNotKeepPrivateData || false));
 }
 
 function follow(user) {

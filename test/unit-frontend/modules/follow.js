@@ -9,17 +9,14 @@ describe('The esn.follow Angular module', function() {
   beforeEach(function() {
     module('jadeTemplates');
     module('esn.session');
-    module('esn.resource-link');
     module('esn.follow');
   });
 
   describe('The followAPI factory', function() {
-    var ResourceLinkAPIMock, ResourceLinkAPI, sessionMock, session, followAPI, $httpBackend, FOLLOW_LINK_TYPE;
+    var sessionMock, session, followAPI, $httpBackend;
     var userId = '1';
 
     beforeEach(function() {
-
-      ResourceLinkAPIMock = {};
       sessionMock = {
         user: {
           _id: userId
@@ -27,39 +24,38 @@ describe('The esn.follow Angular module', function() {
       };
 
       module(function($provide) {
-        $provide.value('ResourceLinkAPI', ResourceLinkAPIMock);
         $provide.value('session', sessionMock);
       });
 
-      inject(function(_followAPI_, _FOLLOW_LINK_TYPE_, _session_, _$httpBackend_) {
+      inject(function(_followAPI_, _session_, _$httpBackend_) {
         followAPI = _followAPI_;
-        FOLLOW_LINK_TYPE = _FOLLOW_LINK_TYPE_;
         session = _session_;
         $httpBackend = _$httpBackend_;
       });
     });
 
     describe('The follow function', function() {
-      it('should call the ResourceLink.create function with right parameters', function() {
+      it('should call the right endpoint', function() {
         var followUser = {
           _id: 123
         };
-        var spy = sinon.spy();
-        ResourceLinkAPIMock.create = spy;
+
+        $httpBackend.expectPUT('/api/users/' + session.user._id + '/followings/' + followUser._id).respond({});
         followAPI.follow(followUser);
-        expect(spy).to.have.been.calledWith({objectType: 'user', id: session.user._id}, {objectType: 'user', id: followUser._id}, FOLLOW_LINK_TYPE);
+        $httpBackend.flush();
       });
     });
 
     describe('The unfollow function', function() {
-      it('should call the ResourceLink.remove function with right parameters', function() {
+      it('should call the right endpoint', function() {
+
         var followUser = {
           _id: 123
         };
-        var spy = sinon.spy();
-        ResourceLinkAPIMock.remove = spy;
+
+        $httpBackend.expectDELETE('/api/users/' + session.user._id + '/followings/' + followUser._id).respond(204, {});
         followAPI.unfollow(followUser);
-        expect(spy).to.have.been.calledWith({objectType: 'user', id: session.user._id}, {objectType: 'user', id: followUser._id}, FOLLOW_LINK_TYPE);
+        $httpBackend.flush();
       });
     });
 

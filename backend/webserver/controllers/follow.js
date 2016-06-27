@@ -6,6 +6,26 @@ var followModule = require('../../core/user/follow');
 var DEFAULT_LIMIT = 10;
 var DEFAULT_OFFSET = 0;
 
+function follow(req, res) {
+  followModule.follow(req.user, req.following).then(function(result) {
+    res.status(201).json(result);
+  }, function(err) {
+    logger.error('Error while following user', err);
+    res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+  });
+}
+module.exports.follow = follow;
+
+function unfollow(req, res) {
+  followModule.unfollow(req.user, req.following).then(function() {
+    res.status(204).send();
+  }, function(err) {
+    logger.error('Error while unfollowing user', err);
+    res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+  });
+}
+module.exports.unfollow = unfollow;
+
 function getPaginationOptions(req) {
   return {offset: req.query.offset || DEFAULT_OFFSET, limit: req.query.limit || DEFAULT_LIMIT};
 }

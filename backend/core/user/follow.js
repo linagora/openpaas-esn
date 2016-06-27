@@ -11,10 +11,15 @@ function userAsTuple(user) {
   return {objectType: CONSTANTS.OBJECT_TYPE, id: String(user._id)};
 }
 
-function follow(sourceTuple, targetTuple) {
-  return resourceLink.create({source: sourceTuple, target: targetTuple, type: CONSTANTS.FOLLOW_LINK_TYPE});
+function follow(user, following) {
+  return resourceLink.create({source: {objectType: 'user', id: String(user._id)}, target: {objectType: 'user', id: String(following._id)}, type: CONSTANTS.FOLLOW_LINK_TYPE});
 }
 module.exports.follow = follow;
+
+function unfollow(user, following) {
+  return q.reject(new Error('Not implemented'));
+}
+module.exports.unfollow = unfollow;
 
 function listen() {
   pubsub.local.topic('resource:link:follow:user').subscribe(function(data) {

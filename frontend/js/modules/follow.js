@@ -16,33 +16,14 @@ angular.module('esn.follow', [
     });
   })
 
-  .factory('followAPI', function(ResourceLinkAPI, esnRestangular, session, FOLLOW_LINK_TYPE) {
+  .factory('followAPI', function(esnRestangular, session) {
 
     function follow(user) {
-
-      var source = {
-        objectType: 'user',
-        id: session.user._id
-      };
-      var target = {
-        objectType: 'user',
-        id: user._id
-      };
-
-      return ResourceLinkAPI.create(source, target, FOLLOW_LINK_TYPE);
+      return esnRestangular.all('users').one(session.user._id).one('followings', user._id).customPUT();
     }
 
     function unfollow(user) {
-      var source = {
-        objectType: 'user',
-        id: session.user._id
-      };
-      var target = {
-        objectType: 'user',
-        id: user._id
-      };
-
-      return ResourceLinkAPI.remove(source, target, FOLLOW_LINK_TYPE);
+      return esnRestangular.all('users').one(session.user._id).all('followings').customDELETE(user._id);
     }
 
     function getFollowers(user, options) {

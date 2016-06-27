@@ -9,7 +9,7 @@ var async = require('async');
 var q = require('q');
 var pubsub = require('../../core/pubsub').local;
 var utils = require('./utils');
-var denormalizeUser = require('../denormalize/user');
+var denormalizeUser = require('../denormalize/user').denormalize;
 
 function createDomain(req, res) {
   var data = req.body;

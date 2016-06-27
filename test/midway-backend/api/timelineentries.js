@@ -199,7 +199,6 @@ describe('The timelineentries API', function() {
       });
     });
 
-
     describe('When liking messages', function() {
 
       beforeEach(function() {

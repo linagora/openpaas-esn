@@ -2,6 +2,7 @@
 
 var request = require('supertest');
 var expect = require('chai').expect;
+var ObjectId = require('bson').ObjectId;
 var q = require('q');
 
 describe('The follow API', function() {
@@ -51,7 +52,7 @@ describe('The follow API', function() {
           if (err) {
             return defer.reject(err);
           }
-          self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(saved._id)}, {objectType: 'user', id: String(user1._id)}).then(function() {
+          self.helpers.requireBackend('core/user/follow').follow(saved, user1).then(function() {
             defer.resolve(saved);
           }, defer.reject);
         });
@@ -128,7 +129,7 @@ describe('The follow API', function() {
           if (err) {
             return defer.reject(err);
           }
-          self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(user1._id)}, {objectType: 'user', id: String(saved._id)}).then(function(link) {
+          self.helpers.requireBackend('core/user/follow').follow(user1, saved).then(function() {
             defer.resolve(saved);
           }, defer.reject);
         });
@@ -192,7 +193,7 @@ describe('The follow API', function() {
     });
   });
 
-  describe('The /users/:id/followings/:tid endpoint', function() {
+  describe('The GET /users/:id/followings/:tid endpoint', function() {
 
     beforeEach(function() {
       this.createFollowing = function(id) {
@@ -203,7 +204,7 @@ describe('The follow API', function() {
           if (err) {
             return defer.reject(err);
           }
-          self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(user1._id)}, {objectType: 'user', id: String(saved._id)}).then(function() {
+          self.helpers.requireBackend('core/user/follow').follow(user1, saved).then(function() {
             defer.resolve(saved);
           }, defer.reject);
         });
@@ -235,6 +236,66 @@ describe('The follow API', function() {
         loggedInAsUser(request(app)
           .get('/api/users/' + user1._id + '/followings/123456789'))
           .expect(404)
+          .end(self.helpers.callbacks.noErrorAnd(function() {
+            done();
+          }));
+      }));
+    });
+  });
+
+  describe('The PUT /users/:id/followings/:tid endpoint', function() {
+
+    it('should send back 401 when not authenticated', function(done) {
+      this.helpers.api.requireLogin(app, 'put', '/api/users/' + user1._id + '/followings/' + user2._id, done);
+    });
+
+    it('should send back 400 when trying to follow yourself', function(done) {
+      var self = this;
+      self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(app)
+          .put('/api/users/' + user1._id + '/followings/' + user1._id))
+          .expect(400)
+          .end(self.helpers.callbacks.noErrorAnd(function(result) {
+            expect(result.body.error.details).to.match(/You can not follow yourself/);
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when user does not exists', function(done) {
+      var self = this;
+      self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(app)
+          .put('/api/users/' + user1._id + '/followings/' + new ObjectId()))
+          .expect(400)
+          .end(self.helpers.callbacks.noErrorAnd(function(result) {
+            expect(result.body.error.details).to.match(/Can not find following/);
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when user is already following other user', function(done) {
+      var self = this;
+      self.helpers.requireBackend('core/user/follow').follow(user1, user2).then(function() {
+        self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          loggedInAsUser(request(app)
+            .put('/api/users/' + user1._id + '/followings/' + user2._id))
+            .expect(400)
+            .end(self.helpers.callbacks.noErrorAnd(function(result) {
+              expect(result.body.error.details).to.match(/You already follow this user/);
+              done();
+            }));
+        }));
+      }, done);
+    });
+
+    it('should send back 201 on success', function(done) {
+      var self = this;
+      self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(app)
+          .put('/api/users/' + user1._id + '/followings/' + user2._id))
+          .expect(201)
           .end(self.helpers.callbacks.noErrorAnd(function() {
             done();
           }));
