@@ -51,7 +51,8 @@
   "You have no mail, have a nice day!": "You have no mail, have a nice day!",
   "This folder is empty.": "This folder is empty.",
   "You have neither direct messages nor mentions for this account.": "You have neither direct messages nor mentions for this account.",
-  "Your active filter(s) might be too restrictive": "Your active filter(s) might be too restrictive",
+  "Your active filter is too restrictive": "Your active filter is too restrictive",
   "Did you know you can drag & drop messages to this folder? Give it a try!": "Did you know you can drag & drop messages to this folder? Give it a try!",
-  "Clear filters": "Clear filters"
+  "Clear filters": "Clear filters",
+  "There is nothing to display": "There is nothing to display"
 }

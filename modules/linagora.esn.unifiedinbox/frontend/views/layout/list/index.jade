@@ -17,7 +17,7 @@ infinite-list(load-more-elements='loadMoreElements()', element-selector=".inbox-
 
   div(ng-if="infiniteScrollCompleted && $parent.infiniteList.getElementsCount() === 0")
     block empty-message
-      inbox-empty-container-message(mailbox="::mailbox")
+      inbox-empty-container-message(ng-if="::mailbox", mailbox="::mailbox")
 
 inbox-fab
 fab-scroll-top
