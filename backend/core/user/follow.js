@@ -17,7 +17,7 @@ function follow(user, following) {
 module.exports.follow = follow;
 
 function unfollow(user, following) {
-  return q.reject(new Error('Not implemented'));
+  return resourceLink.remove({source: {objectType: 'user', id: String(user._id)}, target: {objectType: 'user', id: String(following._id)}, type: CONSTANTS.FOLLOW_LINK_TYPE});
 }
 module.exports.unfollow = unfollow;
 
@@ -100,3 +100,8 @@ function canFollow(userA, userB) {
   return q(true);
 }
 module.exports.canFollow = canFollow;
+
+function canUnfollow(userA, userB) {
+  return q(true);
+}
+module.exports.canUnfollow = canUnfollow;

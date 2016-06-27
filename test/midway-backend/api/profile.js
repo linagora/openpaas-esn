@@ -354,7 +354,7 @@ describe('The profile API', function() {
           });
         }
 
-        self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(foouser._id)}, {objectType: 'user', id: String(baruser._id)}).then(test, done);
+        self.helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
       });
 
       it('should send back stats when logged in user follow another user', function(done) {
@@ -379,7 +379,7 @@ describe('The profile API', function() {
           });
         }
 
-        self.helpers.requireBackend('core/user/follow').follow({objectType: 'user', id: String(foouser._id)}, {objectType: 'user', id: String(baruser._id)}).then(test, done);
+        self.helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
       });
     });
   });

@@ -302,4 +302,65 @@ describe('The follow API', function() {
       }));
     });
   });
+
+  describe('The DELETE /users/:id/followings/:tid endpoint', function() {
+
+    it('should send back 401 when not authenticated', function(done) {
+      this.helpers.api.requireLogin(app, 'delete', '/api/users/' + user1._id + '/followings/' + user2._id, done);
+    });
+
+    it('should send back 400 when trying to unfollow yourself', function(done) {
+      var self = this;
+      self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(app)
+          .delete('/api/users/' + user1._id + '/followings/' + user1._id))
+          .expect(400)
+          .end(self.helpers.callbacks.noErrorAnd(function(result) {
+            expect(result.body.error.details).to.match(/You can not unfollow yourself/);
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when user does not exists', function(done) {
+      var self = this;
+      self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(app)
+          .delete('/api/users/' + user1._id + '/followings/' + new ObjectId()))
+          .expect(400)
+          .end(self.helpers.callbacks.noErrorAnd(function(result) {
+            expect(result.body.error.details).to.match(/Can not find following/);
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when user is not following other user', function(done) {
+      var self = this;
+      self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(app)
+          .delete('/api/users/' + user1._id + '/followings/' + user2._id))
+          .expect(400)
+          .end(self.helpers.callbacks.noErrorAnd(function(result) {
+            expect(result.body.error.details).to.match(/You can not unfollow this unfollowed user/);
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 204 on success', function(done) {
+      var self = this;
+      self.helpers.requireBackend('core/user/follow').follow(user1, user2).then(function() {
+        self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          loggedInAsUser(request(app)
+            .delete('/api/users/' + user1._id + '/followings/' + user2._id))
+            .expect(204)
+            .end(self.helpers.callbacks.noErrorAnd(function() {
+              done();
+            }));
+        }));
+      }, done);
+    });
+  });
+
 });

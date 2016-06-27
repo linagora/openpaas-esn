@@ -23,6 +23,35 @@ function create(link) {
 }
 module.exports.create = create;
 
+function remove(options) {
+  var defer = q.defer();
+  var query = {};
+  if (options.type) {
+    query.type = options.type;
+  }
+  if (options.source) {
+    query['source.id'] = options.source.id;
+    query['source.objectType'] = options.source.objectType;
+  }
+  if (options.target) {
+    query['target.id'] = options.target.id;
+    query['target.objectType'] = options.target.objectType;
+  }
+
+  ResourceLink.findOneAndRemove(query).exec(function(err, result) {
+    if (err) {
+      return defer.reject(err);
+    }
+
+    if (result) {
+      pubsub.local.topic('resource:link:' + result.type + ':' + result.target.objectType + ':remove').publish(options);
+    }
+    defer.resolve(result);
+  });
+  return defer.promise;
+}
+module.exports.remove = remove;
+
 function count(options) {
   var defer = q.defer();
   var query = {};

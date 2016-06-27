@@ -156,7 +156,7 @@ describe('The timelineentries API', function() {
       beforeEach(function() {
         var followModule = this.helpers.requireBackend('core/user/follow');
         this.followUser = function(userA, userB) {
-          return followModule.follow({id: String(userA._id), objectType: 'user'}, {id: String(userB._id), objectType: 'user'});
+          return followModule.follow(userA, userB);
         };
       });
 
