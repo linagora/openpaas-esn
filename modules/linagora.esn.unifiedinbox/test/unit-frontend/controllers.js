@@ -1132,14 +1132,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(scope.toDateIsInvalid()).to.be.undefined;
       });
 
-      it('should return null if vacation.toDate is null', function() {
+      it('should return undefined if vacation.toDate is null', function() {
         vacation = {
           fromDate: new Date(2016, 9, 23),
           toDate: null
         };
         initController('inboxConfigurationVacationController');
 
-        expect(scope.toDateIsInvalid()).to.be.null;
+        expect(scope.toDateIsInvalid()).to.be.undefined;
       });
 
       it('should return false if vacation.fromDate < vacation.toDate', function() {
@@ -1158,6 +1158,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           toDate: new Date(2016, 9, 22)
         };
         initController('inboxConfigurationVacationController');
+
+        expect(scope.toDateIsInvalid()).to.be.false;
+      });
+
+      it('should return false if vacation.hasToDate is false', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 20)
+        };
+        initController('inboxConfigurationVacationController');
+        scope.vacation.hasToDate = false;
 
         expect(scope.toDateIsInvalid()).to.be.false;
       });
