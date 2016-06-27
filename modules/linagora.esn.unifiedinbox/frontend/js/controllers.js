@@ -348,7 +348,7 @@ angular.module('linagora.esn.unifiedinbox')
     _init();
 
     $scope.toDateIsInvalid = function() {
-      return $scope.vacation.toDate && moment($scope.vacation.toDate).startOf('day').isBefore(moment($scope.vacation.fromDate).startOf('day'));
+      return $scope.vacation.hasToDate && $scope.vacation.toDate && moment($scope.vacation.toDate).startOf('day').isBefore(moment($scope.vacation.fromDate).startOf('day'));
     };
 
     $scope.enableVacation = function(status) {
