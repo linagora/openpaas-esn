@@ -9,7 +9,7 @@
   .badge-container
     .badge(ng-hide='mailbox.unreadMessages === 0') {{ mailbox.unreadMessages | maxPlus:99 }}
     i.inbox-icon(ng-class='mailboxIcons')
-    span.menu-item-inner
   .menu-item
+    span.menu-item-inner
       bdi {{ ::mailbox.qualifiedName }}
     span.menu-item-after
