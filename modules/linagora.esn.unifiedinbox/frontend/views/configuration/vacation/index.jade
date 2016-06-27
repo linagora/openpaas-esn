@@ -9,17 +9,19 @@ sub-header
       toggle-switch(ng-model='vacation.isEnabled', color='blue')
       span.clickable.vacation-enabled(ng-class='{"toggle-active": vacation.isEnabled}', ng-click="enableVacation(true)") #{__('On')}
     fieldset(ng-disabled="!vacation.isEnabled")
-      .form-group.fg-line
-        .field-name #{__('Start date')}
-        input.input.form-control(type='text', ng-model="vacation.fromDate", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", bs-datepicker)
+      .form-group.responsive-form-group
+        .field-name.field-label #{__('Start date')}
+        .fg-line
+          input.input.form-control(type='text', ng-model="vacation.fromDate", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", bs-datepicker)
       .checkbox.checkbox-styled
         label
           input(type="checkbox", ng-model='vacation.hasToDate')
           i.input-helper
           span #{__('Vacation stops at')}
-      .form-group.fg-line.vacation-end-date(ng-disabled="!vacation.hasToDate", ng-class="{'ng-invalid': toDateIsInvalid()}")
-        .field-name #{__('End date')}
-        input.input.form-control(type='text', ng-model="vacation.toDate", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('No end date')}", ng-disabled="!vacation.hasToDate", ng-class="{'ng-invalid': toDateIsInvalid()}", bs-datepicker)
+      .form-group.vacation-end-date.responsive-form-group(ng-disabled="!vacation.hasToDate")
+        .field-name.field-label #{__('End date')}
+        .fg-line(ng-class="{'ng-invalid': toDateIsInvalid()}")
+          input.input.form-control(type='text', ng-model="vacation.toDate", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('No end date')}", ng-disabled="!vacation.hasToDate", ng-class="{'ng-invalid': toDateIsInvalid()}", bs-datepicker)
       .form-group.full-width.fg-line
         .field-name #{__('Message body')}
         textarea.form-control(auto-size, rows="10", ng-model="vacation.textBody", placeholder="#{__('Start writing your vacation message here')}")
