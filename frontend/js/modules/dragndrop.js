@@ -1,8 +1,11 @@
 'use strict';
 
-angular.module('esn.dragndrop', ['ng.deviceDetector'])
+angular.module('esn.dragndrop', [
+  'ng.deviceDetector',
+  'esn.escape-html'
+])
 
-.constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip')
+.constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip-animation')
 .constant('ESN_DRAG_ANIMATION_DURATION', 500)
 .constant('ESN_DRAG_DISTANCE_THRESHOLD', 10)
 
@@ -65,6 +68,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
   $rootScope,
   deviceDetector,
   esnDragService,
+  escapeHtmlUtils,
   ESN_DRAG_ANIMATION_CLASS,
   ESN_DRAG_ANIMATION_DURATION,
   ESN_DRAG_DISTANCE_THRESHOLD) {
@@ -86,9 +90,16 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     // Exposed so that we can prevent clicks, mousover effect, etc. throughout OP
     $rootScope.esnIsDragging = false;
 
+    initTooltip(attrs.esnDragMessage);
+
+    element.attr('draggable', false); // disable native HTML5 drag
+    element.on('mousedown', onMouseDown);
+
     function initTooltip(content) {
+      content = escapeHtmlUtils.escapeHTML(content);
+
       tooltipElement = angular.element(
-        '<div class="tooltip right">' +
+        '<div class="tooltip right esn-drag-tooltip">' +
           '<div class="tooltip-arrow"></div>' +
           '<div class="tooltip-inner">' + content + '</div>' +
         '</div>');
@@ -203,11 +214,6 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
       $document.on('mousemove', onMouseMove);
       $document.on('mouseup', onMouseUp);
     }
-
-    initTooltip(attrs.esnDragMessage);
-
-    element.attr('draggable', false); // disable native HTML5 drag
-    element.on('mousedown', onMouseDown);
   }
 
   return {
