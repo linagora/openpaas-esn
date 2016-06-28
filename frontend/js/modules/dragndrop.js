@@ -5,7 +5,7 @@ angular.module('esn.dragndrop', [
   'esn.escape-html'
 ])
 
-.constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip')
+.constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip-animation')
 .constant('ESN_DRAG_ANIMATION_DURATION', 500)
 .constant('ESN_DRAG_DISTANCE_THRESHOLD', 10)
 
@@ -99,7 +99,7 @@ angular.module('esn.dragndrop', [
       content = escapeHtmlUtils.escapeHTML(content);
 
       tooltipElement = angular.element(
-        '<div class="tooltip right">' +
+        '<div class="tooltip right esn-drag-tooltip">' +
           '<div class="tooltip-arrow"></div>' +
           '<div class="tooltip-inner">' + content + '</div>' +
         '</div>');

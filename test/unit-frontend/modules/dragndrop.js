@@ -70,10 +70,12 @@ describe('The esn.dragndrop Angular module', function() {
   describe('The esnDraggable directive', function() {
 
     var $document, $timeout;
+    var ESN_DRAG_ANIMATION_CLASS;
 
-    beforeEach(inject(function(_$document_, _$timeout_) {
+    beforeEach(inject(function(_$document_, _$timeout_, _ESN_DRAG_ANIMATION_CLASS_) {
       $document = _$document_;
       $timeout = _$timeout_;
+      ESN_DRAG_ANIMATION_CLASS = _ESN_DRAG_ANIMATION_CLASS_;
     }));
 
     afterEach(function() {
@@ -252,7 +254,7 @@ describe('The esn.dragndrop Angular module', function() {
       mouseMoveOn($document, 11, 11);
       mouseUpOn($document);
 
-      expect(angular.element(document.body).find('.tooltip').hasClass('esn-drag-tooltip')).to.be.true;
+      expect(angular.element(document.body).find('.tooltip').hasClass(ESN_DRAG_ANIMATION_CLASS)).to.be.true;
 
       $timeout.flush();
 
