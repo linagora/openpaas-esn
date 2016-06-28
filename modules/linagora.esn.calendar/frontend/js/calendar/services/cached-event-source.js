@@ -30,12 +30,14 @@ angular.module('esn.calendar').factory('cachedEventSource', function($timeout, $
 
   function expandRecurringChange(start, end) {
     angular.forEach(changes, function(change) {
-      if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end))) {
+      if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end) || !change.expandedFrom || change.expandedFrom.isAfter(start))) {
+
         change.event.expand(start.clone().subtract(1, 'day'), end.clone().add(1, 'day')).forEach(function(subEvent) {
           saveChange(change.action, subEvent);
           change.instances.push(subEvent);
         });
         change.expandedUntil = end;
+        change.expandedFrom = start;
       }
     });
   }
