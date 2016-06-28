@@ -180,13 +180,13 @@ describe('The timelineentries API', function() {
                         _id: String(user._id),
                         objectType: 'user'
                       },
-                      target: [{
+                      object: {
                         _id: String(user2._id),
                         objectType: 'user'
-                      }]
+                      }
                     }
                   ]);
-                  expect(res.body[0].target.displayName).to.be.defined;
+                  expect(res.body[0].object.displayName).to.be.defined;
                   done();
                 }));
             }));
@@ -194,6 +194,58 @@ describe('The timelineentries API', function() {
         }
 
         self.followUser(user, user2)
+          .then(check)
+          .catch(done);
+      });
+    });
+
+    describe('When unfollowing users', function() {
+
+      beforeEach(function(done) {
+        var followModule = this.helpers.requireBackend('core/user/follow');
+        this.unfollowUser = function(userA, userB) {
+          return followModule.unfollow(userA, userB);
+        };
+
+        followModule.follow(user, user2).then(function() {
+          done();
+        }, done);
+      });
+
+      it('should send back the denormalized timelineentries containing the user unfollowed by a user', function(done) {
+        var self = this;
+        var verb = 'unfollow';
+
+        function check() {
+
+          process.nextTick(function() {
+            self.helpers.api.loginAsUser(webserver.application, email, 'secret', self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+              loggedInAsUser(request(webserver.application)
+                .get(ENDPOINT))
+                .query({verb: verb})
+                .expect(200)
+                .end(helpers.callbacks.noErrorAnd(function(res) {
+                  expect(res.body).to.shallowDeepEqual([
+                    {
+                      verb: verb,
+                      actor: {
+                        _id: String(user._id),
+                        objectType: 'user'
+                      },
+                      object: {
+                        _id: String(user2._id),
+                        objectType: 'user'
+                      }
+                    }
+                  ]);
+                  expect(res.body[0].object.displayName).to.be.defined;
+                  done();
+                }));
+            }));
+          });
+        }
+
+        self.unfollowUser(user, user2)
           .then(check)
           .catch(done);
       });

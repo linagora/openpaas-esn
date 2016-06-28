@@ -5,11 +5,20 @@ angular.module('esn.follow', [
     'esn.timeline'
   ])
   .constant('FOLLOW_LINK_TYPE', 'follow')
+  .constant('UNFOLLOW_LINK_TYPE', 'unfollow')
 
-  .run(function(esnTimelineEntryProviders, FOLLOW_LINK_TYPE) {
+  .run(function(esnTimelineEntryProviders, FOLLOW_LINK_TYPE, UNFOLLOW_LINK_TYPE) {
     esnTimelineEntryProviders.register({
       verb: FOLLOW_LINK_TYPE,
       templateUrl: '/views/modules/follow/timeline/follow.html',
+      canHandle: function() {
+        return true;
+      }
+    });
+
+    esnTimelineEntryProviders.register({
+      verb: UNFOLLOW_LINK_TYPE,
+      templateUrl: '/views/modules/follow/timeline/unfollow.html',
       canHandle: function() {
         return true;
       }

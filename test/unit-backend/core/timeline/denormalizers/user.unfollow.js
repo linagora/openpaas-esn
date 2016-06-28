@@ -3,7 +3,7 @@
 var mockery = require('mockery');
 var expect = require('chai').expect;
 
-describe('The user.follow timeline denormalizer', function() {
+describe('The user.unfollow timeline denormalizer', function() {
 
   describe('The handler function', function() {
 
@@ -21,7 +21,7 @@ describe('The user.follow timeline denormalizer', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.follow')();
+      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.unfollow')();
       module.handler(entry).then(function(result) {
         expect(result).to.deep.equal(entry);
         done();
@@ -42,7 +42,7 @@ describe('The user.follow timeline denormalizer', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.follow')();
+      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.unfollow')();
       module.handler(entry).then(function(result) {
         expect(result).to.deep.equal(entry);
         done();
@@ -63,7 +63,7 @@ describe('The user.follow timeline denormalizer', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.follow')();
+      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.unfollow')();
       module.handler(entry).then(function(result) {
         expect(result).to.deep.equal(entry);
         done();
@@ -92,7 +92,7 @@ describe('The user.follow timeline denormalizer', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.follow')();
+      var module = this.helpers.requireBackend('core/timeline/denormalizers/user.unfollow')();
       module.handler(entry).then(function(result) {
         expect(result.object).to.shallowDeepEqual({
           _id: user._id,

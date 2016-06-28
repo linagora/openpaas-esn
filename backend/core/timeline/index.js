@@ -36,6 +36,9 @@ function init() {
   var userFollow = require('./listeners/user.follow');
   registerUserStreamHandlers(userFollow.FOLLOW_NOTIFICATION, [userFollow.handler]);
 
+  var userUnfollow = require('./listeners/user.unfollow');
+  registerUserStreamHandlers(userUnfollow.UNFOLLOW_NOTIFICATION, [userUnfollow.handler]);
+
   denormalizer.init();
 }
 module.exports.init = init;

@@ -3,15 +3,15 @@
 var q = require('q');
 var userModule = require('../../user');
 var getUserAsActor = require('../../activitystreams/helpers').getUserAsActor;
-var VERB = 'follow';
+var VERB = 'unfollow';
 
-var FOLLOW_NOTIFICATION = 'resource:link:follow:user';
-module.exports.FOLLOW_NOTIFICATION = FOLLOW_NOTIFICATION;
+var UNFOLLOW_NOTIFICATION = 'resource:link:follow:user:remove';
+module.exports.UNFOLLOW_NOTIFICATION = UNFOLLOW_NOTIFICATION;
 
-function toTimelineEntry(link, follower, following) {
+function toTimelineEntry(follower, following) {
   return q({
     verb: VERB,
-    published: link.timestamps.creation || Date.now(),
+    published: Date.now(),
     actor: getUserAsActor(follower),
     object: {
       objectType: 'user',
@@ -26,7 +26,7 @@ function toTimelineEntry(link, follower, following) {
 
 function handler(link) {
   return q.all([q.denodeify(userModule.get)(link.source.id), q.denodeify(userModule.get)(link.target.id)]).spread(function(follower, following) {
-    return toTimelineEntry(link, follower, following);
+    return toTimelineEntry(follower, following);
   });
 }
 module.exports.handler = handler;

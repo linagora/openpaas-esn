@@ -44,7 +44,7 @@ function remove(options) {
     }
 
     if (result) {
-      pubsub.local.topic('resource:link:' + result.type + ':' + result.target.objectType + ':remove').publish(options);
+      pubsub.local.topic('resource:link:' + result.type + ':' + result.target.objectType + ':remove').publish(result);
     }
     defer.resolve(result);
   });

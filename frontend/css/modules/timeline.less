@@ -58,5 +58,17 @@
         background: @m-deeporange;
       }
     }
+
+    &[data-tv-type="unfollow"] {
+      &:before {
+        content: "\f10c";
+        background: @m-orange;
+        box-shadow: 0 0 0 1px @m-orange;
+      }
+
+      &:after {
+        background: @m-orange;
+      }
+    }
   }
 }

@@ -31,7 +31,7 @@ function handler(entry) {
 
 module.exports = function() {
   return {
-    verb: 'follow',
+    verb: 'unfollow',
     handler: handler
   };
 };
