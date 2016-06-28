@@ -475,7 +475,7 @@ describe('The calendar module apis', function() {
     describe('create request', function() {
 
       it('should return an id if status is 202 and graceperiod is true', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar).respond(202, {id: 'anId'});
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar.toJSON()).respond(202, {id: 'anId'});
 
         this.eventAPI.create('/dav/api/calendars/test.json', this.vcalendar, {graceperiod: true})
           .then(function(response) {
@@ -487,7 +487,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 202 and graceperiod is true', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar).respond(500, 'Error');
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar.toJSON()).respond(500, 'Error');
 
         this.eventAPI.create('/dav/api/calendars/test.json', this.vcalendar, {graceperiod: true})
           .catch(function(err) {
@@ -499,7 +499,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return a http response if status is 201 and graceperiod is false', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar).respond(201, 'aReponse');
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar.toJSON()).respond(201, 'aReponse');
 
         this.eventAPI.create('/dav/api/calendars/test.json', this.vcalendar, {graceperiod: false})
           .then(function(response) {
@@ -511,7 +511,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 201 and graceperiod is true', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar).respond(500, 'Error');
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar.toJSON()).respond(500, 'Error');
 
         this.eventAPI.create('/dav/api/calendars/test.json', this.vcalendar, {graceperiod: false})
           .catch(function(err) {
@@ -525,7 +525,7 @@ describe('The calendar module apis', function() {
 
     describe('modify request', function(done) {
       it('should return an id if status is 202', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar).respond(202, {id: 'anId'});
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar.toJSON()).respond(202, {id: 'anId'});
 
         this.eventAPI.modify('/dav/api/calendars/test.json', this.vcalendar, 'etag')
           .then(function(response) {
@@ -537,7 +537,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 202', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar).respond(500, 'Error');
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, this.vcalendar.toJSON()).respond(500, 'Error');
 
         this.eventAPI.modify('/dav/api/calendars/test.json', this.vcalendar, 'etag')
           .catch(function(err) {
@@ -577,7 +577,7 @@ describe('The calendar module apis', function() {
 
     describe('changeParticipation request', function() {
       it('should return a http response if status is 200', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar).respond(200, 'aResponse');
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar.toJSON()).respond(200, 'aResponse');
 
         this.eventAPI.changeParticipation('/dav/api/calendars/test.json', this.vcalendar, 'etag')
           .then(function(response) {
@@ -589,7 +589,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return a http response if status is 204', function(done) {
-        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar).respond(204, 'aResponse');
+        this.$httpBackend.expectPUT('/dav/api/calendars/test.json', this.vcalendar.toJSON()).respond(204, 'aResponse');
 
         this.eventAPI.changeParticipation('/dav/api/calendars/test.json', this.vcalendar, 'etag')
           .then(function(response) {
@@ -601,7 +601,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 200 and not 204', function(done) {
-        this.$httpBackend.expectPUT('', this.vcalendar).respond(500, 'Error');
+        this.$httpBackend.expectPUT('', this.vcalendar.toJSON()).respond(500, 'Error');
 
         this.eventAPI.changeParticipation('/dav/api/calendars/test.json', this.vcalendar, 'etag')
           .catch(function(err) {
