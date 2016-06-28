@@ -1119,7 +1119,7 @@ describe('The eventService service', function() {
       this.$httpBackend.flush();
     });
 
-    it('should cancel the task if there is no etag and if it is not a recurring', function(done) {
+    it('should cancel the task if there is no etag and if it is not a recurring', function() {
       this.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: false
@@ -1130,17 +1130,14 @@ describe('The eventService service', function() {
         return $q.when();
       };
 
-      this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + this.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
+      var thenSpy = sinon.spy();
 
-      this.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
-        function(completed) {
-          expect(completed).to.be.true;
-          done();
-        }, unexpected.bind(null, done)
-      );
+      this.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(thenSpy);
 
       this.$rootScope.$apply();
-      this.$httpBackend.flush();
+      expect(thenSpy).to.have.been.calledWith(true);
+      expect(cachedEventSourceMock.deleteRegistration).to.have.been.calledWith(this.event);
+      expect(this.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.calledWith(this.event.id);
     });
 
     it('should cancel the task if event is involved in a graceperiod', function(done) {
