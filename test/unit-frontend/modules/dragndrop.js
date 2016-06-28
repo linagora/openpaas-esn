@@ -149,7 +149,7 @@ describe('The esn.dragndrop Angular module', function() {
       expect(onDragStartSpy).to.not.have.been.called;
     });
 
-    it('should add tooltip to after current element on drag start', function() {
+    it('should add tooltip element to body on drag start', function() {
       var dragMessage = 'a message';
       var element = compileDirective(
         '<div esn-draggable esn-drag-message="' + dragMessage + '"></div>');
@@ -161,6 +161,20 @@ describe('The esn.dragndrop Angular module', function() {
 
       expect(tooltipElement.length).to.equal(1);
       expect(tooltipElement.html()).to.contain(dragMessage);
+    });
+
+    it('should escape drag message in tooltip element', function() {
+      var scope = $rootScope.$new();
+      scope.dragMessage = '<b>test</b>';
+      var element = compileDirective(
+        '<div esn-draggable esn-drag-message="{{dragMessage}}"></div>', scope);
+
+      mouseDownOn(element, 0, 0);
+      mouseMoveOn($document, 11, 11);
+
+      var tooltipElement = angular.element(document.body).find('.tooltip');
+
+      expect(tooltipElement.html()).to.contain('&lt;b&gt;test&lt;/b&gt;');
     });
 
     it('should move tooltip to near mouse position on dragging', function() {
