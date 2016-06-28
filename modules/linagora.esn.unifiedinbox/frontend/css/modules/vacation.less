@@ -53,6 +53,21 @@
       }
     }
 
+    .responsive-form-group {
+      .flex-start;
+      .align-items(center);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .field-label {
+      .flex-noshrink;
+
+      padding-right: 15px;
+    }
+
     .ng-invalid.fg-line:not([class*=has-]):after {
       background: @m-red;
     }
@@ -67,6 +82,16 @@
   .inbox-root {
     .inbox-vacation-indicator {
       margin: 0 -15px;
+    }
+
+    .inbox-configuration-vacation {
+      .responsive-form-group, .field-label {
+        display: block;
+      }
+
+      .form-group {
+        margin-bottom: 30px;
+      }
     }
   }
 }
