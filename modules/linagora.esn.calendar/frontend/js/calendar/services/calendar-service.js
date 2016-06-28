@@ -98,8 +98,8 @@ angular.module('esn.calendar')
      * @param {String}                  calendarHomeId  the id of the calendar home in which we will create a new calendar
      * @param {CalendarCollectionShell} calendar        the calendar to modify
      */
-    function modifyRights(calendarHomeId, calendar, rightShell) {
-      return calendarAPI.modifyShares(calendarHomeId, calendar.id, rightShell.toDAVShareRights()).then(function() {
+    function modifyRights(calendarHomeId, calendar, rightShell, oldRightShell) {
+      return calendarAPI.modifyShares(calendarHomeId, calendar.id, rightShell.toDAVShareRightsUpdate(oldRightShell)).then(function() {
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.RIGHTS_UPDATE, {
           calendar: calendar,
           rights: rightShell

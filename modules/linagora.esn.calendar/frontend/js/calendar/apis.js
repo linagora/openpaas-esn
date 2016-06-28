@@ -31,7 +31,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarAPI', function(calendarRestangular, request, pathBuilder, CALENDAR_ACCEPT_HEADER) {
+  .factory('calendarAPI', function(calendarRestangular, request, pathBuilder, CALENDAR_ACCEPT_HEADER, $q) {
 
     var davDateFormat = 'YYYYMMDD[T]HHmmss';
 
@@ -242,9 +242,10 @@ angular.module('esn.calendar')
      */
     function modifyShares(calendarHomeId, calendarId, rights) {
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+
       return request('post', path, null, rights)
         .then(function(response) {
-          if (response.status !== 204) {
+          if (response.status !== 200) {
             return $q.reject(response);
           }
           return response;

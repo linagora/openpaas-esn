@@ -264,4 +264,20 @@ describe('The calendarService service', function() {
     });
   });
 
+  describe('The modify rights fn', function() {
+    it('should compute sharee dav diff and send it to sabre', function() {
+      var davDiff = 'davDiff';
+      var newCalendarShell = {
+        toDAVShareRightsUpdate: sinon.stub().returns(davDiff)
+      };
+      var oldCalendarShell = {};
+
+      this.calendarService.modifyRights('homeId', {id: 'calId'}, newCalendarShell, oldCalendarShell);
+
+      expect(newCalendarShell.toDAVShareRightsUpdate).to.have.been.calledWith(sinon.match.same(oldCalendarShell));
+      this.$httpBackend.expect('POST', '/dav/api/calendars/homeId/calId.json', davDiff).respond(200, {});
+      this.$httpBackend.flush();
+    });
+  });
+
 });

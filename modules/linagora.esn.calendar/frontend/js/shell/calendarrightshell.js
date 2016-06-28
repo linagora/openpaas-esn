@@ -69,9 +69,15 @@ angular.module('esn.calendar')
         RightSet.SHAREE_READWRITE,
         RightSet.SHARE,
         RightSet.WRITE_PROPERTIES,
-        RightSet.WRITE
+        RightSet.WRITE,
+        RightSet.SHAREE_SHAREDOWNER
       ]
     };
+
+    function setProfile(rightSet, newRole) {
+      rightSet.addPermissions(matrix[newRole].shouldHave);
+      rightSet.removePermissions(matrix[newRole].shouldNotHave);
+    }
 
     function sumupRight(rightSet) {
       var result;
@@ -94,7 +100,7 @@ angular.module('esn.calendar')
       this._userEmails = {};
       this._public = new RightSet();
 
-      acl.forEach(function(line) {
+      acl && acl.forEach(function(line) {
         var userRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
 
         if (match) {
@@ -107,7 +113,7 @@ angular.module('esn.calendar')
         userRightSet && userRightSet.addPermission(RightSet.webdavStringToConstant(line.privilege));
       }, this);
 
-      invite.forEach(function(line) {
+      invite && invite.forEach(function(line) {
         var userId, match = line.principal && line.principal.match(principalRegexp);
 
         if (match) {
@@ -144,30 +150,91 @@ angular.module('esn.calendar')
     };
 
     CalendarRightShell.prototype.update = function(userId, userEmail, newRole) {
-      this._userEmails[userId] = userEmail;
-      this._getUserSet(userId).addPermissions(matrix[newRole].shouldHave);
-      this._getUserSet(userId).removePermissions(matrix[newRole].shouldNotHave);
+      this._userEmails[userId] = this._userEmails[userId] || userEmail;
+      setProfile(this._getUserSet(userId), newRole);
     };
 
-    CalendarRightShell.prototype.toDAVShareRights = function() {
+    CalendarRightShell.prototype.updatePublic = function(newRole) {
+      setProfile(this._public, newRole);
+    };
+
+    CalendarRightShell.prototype.toDAVShareRightsUpdate = function(oldCalendarRight) {
+      var HREF_PREFRIX = 'mailto:';
       var result = {
         share: {
-          set: []
+          set: [],
+          remove: []
         }
       };
       _.forEach(this._userRight, function(rightSet, userId) {
-        if (rightSet.hasPermission([RightSet.SHAREE_READ])) {
+        if (rightSet.hasPermission(RightSet.SHAREE_READ)) {
           result.share.set.push({
-            'dav:href': this._userEmails[userId],
+            'dav:href': HREF_PREFRIX + this._userEmails[userId],
             'dav:read': true
           });
-        } else if (rightSet.hasPermission([RightSet.SHAREE_READWRITE])) {
+        } else if (rightSet.hasPermission(RightSet.SHAREE_READWRITE)) {
           result.share.set.push({
-            'dav:href': this._userEmails[userId],
+            'dav:href': HREF_PREFRIX + this._userEmails[userId],
             'dav:read-write': true
           });
         }
       }, this);
+
+      _.forEach(oldCalendarRight._userRight, function(oldRightSet, userId) {
+        var newRightSet = this._userRight[userId] || new RightSet();
+        var SHAREE_PERMISSION = [RightSet.SHAREE_SHAREDOWNER, RightSet.SHAREE_READ, RightSet.SHAREE_READWRITE];
+
+        if (newRightSet.hasNoneOfThosePermissions(SHAREE_PERMISSION) && oldRightSet.hasAtLeastOneOfThosePermissions(SHAREE_PERMISSION)) {
+          result.share.remove.push({
+            'dav:href': HREF_PREFRIX + oldCalendarRight._userEmails[userId]
+          });
+        }
+      }, this);
+
+      return result;
+    };
+
+    CalendarRightShell.prototype.removeUserRight = function(id) {
+      delete(this._userEmails[id]);
+      delete(this._userRight[id]);
+    };
+
+    CalendarRightShell.prototype.toJson = function() {
+      var result = {
+        users: {},
+        public: this._public.toJson()
+      };
+
+      _.forEach(this._userRight, function(set, userKey) {
+        if (set.bitVector) {
+          result.users[userKey] = set.toJson();
+        }
+      });
+
+      return result;
+    };
+
+    CalendarRightShell.prototype.equals = function(otherShell) {
+      if (otherShell === this) {
+        return true;
+      } else if (!otherShell || otherShell.constructor !== CalendarRightShell) {
+        return false;
+      }
+
+      return _.isEqual(this.toJson(), otherShell.toJson());
+    };
+
+    CalendarRightShell.prototype.clone = function() {
+      var clone = new CalendarRightShell();
+
+      clone._userRight = _.mapValues(this._userRight, function(rightSet) {
+        return rightSet.clone();
+      });
+
+      clone._userEmails = _.clone(this._userEmails);
+      clone._public = this._public.clone();
+
+      return clone;
     };
 
     return CalendarRightShell;

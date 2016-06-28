@@ -577,7 +577,34 @@ describe('The calendar module apis', function() {
         this.calendarAPI.getRight('calendars', this.vcalendar).then(catchSpy);
         this.$httpBackend.flush();
         expect(catchSpy).to.have.been.calledWith(sinon.match.same('body'));
+      });
+    });
 
+    describe('modifyShares', function() {
+      var bodyRequest;
+
+      beforeEach(function() {
+        bodyRequest = 'bodyRequest';
+      });
+
+      it('should return an error if response.status is not 200', function() {
+        var catchSpy = sinon.spy();
+
+        this.$httpBackend.expect('POST', '/dav/api/calendars/homeId/calId.json', bodyRequest).respond(500, 'Error');
+        this.calendarAPI.modifyShares('homeId', 'calId', bodyRequest).catch(catchSpy);
+        this.$httpBackend.flush();
+
+        expect(catchSpy).to.have.been.calledWith(sinon.match({data: 'Error'}));
+      });
+
+      it('should return server body response if success', function() {
+        var thenSpy = sinon.spy();
+
+        this.$httpBackend.expect('POST', '/dav/api/calendars/homeId/calId.json', bodyRequest).respond(200, 'body');
+        this.calendarAPI.modifyShares('homeId', 'calId', bodyRequest).then(thenSpy);
+        this.$httpBackend.flush();
+
+        expect(thenSpy).to.have.been.calledOnce;
       });
     });
 

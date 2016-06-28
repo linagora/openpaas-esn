@@ -168,6 +168,25 @@ describe('RightSet', function() {
     });
   });
 
+  describe('hasAtLeastOneOfThosePermissions', function() {
+    it('should return true if and only if there is at least one given permission that it\'s on the set', function() {
+      var set = new RightSet();
+
+      expect(set.hasAtLeastOneOfThosePermissions([])).to.be.false;
+
+      set.addPermission(RightSet.WRITE);
+      set.addPermission(RightSet.SHARE);
+
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE])).to.be.true;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE, RightSet.READ])).to.be.true;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE, RightSet.READ, RightSet.SHARE])).to.be.true;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.WRITE, RightSet.READ, RightSet.SHARE, RightSet.FREE_BUSY])).to.be.true;
+
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.READ])).to.be.false;
+      expect(set.hasAtLeastOneOfThosePermissions([RightSet.READ, RightSet.FREE_BUSY, RightSet.WRITE_PROPERTIES])).to.be.false;
+    });
+  });
+
   describe('hasPermission', function() {
     it('should return false with empty set', function() {
       var set = new RightSet();
@@ -184,6 +203,43 @@ describe('RightSet', function() {
       var set = new RightSet();
       set.addPermission(RightSet.WRITE);
       expect(set.hasPermission(RightSet.WRITE)).to.be.true;
+    });
+  });
+
+  describe('equals', function() {
+    it('should not fail and return false for undefined method', function() {
+      var set = new RightSet();
+
+      [undefined, {}, {a:2}].forEach(function(badData) {
+        expect(set.equals(badData)).to.be.false;
+      });
+    });
+
+    it('should work for empty set', function() {
+      expect((new RightSet()).equals(new RightSet())).to.be.true;
+    });
+
+    it('should return true if and only if set are really equals', function() {
+      var set1 = new RightSet(RightSet.SHAREE_READWRITE);
+      var set2 = new RightSet(RightSet.READ);
+      var set3 = new RightSet(RightSet.READ);
+
+      expect(set1.equals(set2)).to.be.false;
+      expect(set2.equals(set1)).to.be.false;
+
+      expect(set2.equals(set3)).to.be.true;
+      expect(set3.equals(set2)).to.be.true;
+    });
+  });
+
+  describe('clone', function() {
+    it('should create a clone that is independant of the origin', function() {
+      var set = new RightSet(RightSet.SHAREE_READWRITE);
+      var clone = set.clone();
+      expect(set.equals(clone)).to.be.true;
+      expect(set !== clone).to.be.true;
+      set.addPermission(RightSet.WRITE);
+      expect(set.equals(clone)).to.be.false;
     });
   });
 });

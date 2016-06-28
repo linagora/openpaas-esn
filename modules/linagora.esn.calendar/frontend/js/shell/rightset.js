@@ -126,6 +126,10 @@ angular.module('esn.calendar')
       this.bitVector = this.bitVector & ~maskOfAllPermission;
     };
 
+    RightSet.prototype.hasAtLeastOneOfThosePermissions = function(permissions) {
+      return !this.hasNoneOfThosePermissions(permissions);
+    };
+
     RightSet.prototype.hasOnlyThosePermissions = function(permissions) {
       var maskOfAllPermission = combinePermission(permissions);
 
@@ -136,6 +140,21 @@ angular.module('esn.calendar')
       return this.bitVector === 0;
     };
     /* eslint-enable no-bitwise */
+
+    RightSet.prototype.equals = function(otherSet) {
+      return Boolean(otherSet && (otherSet.bitVector || otherSet.bitVector === 0) && otherSet.bitVector === this.bitVector);
+    };
+
+    RightSet.prototype.clone = function() {
+      var clone = new RightSet();
+      clone.bitVector = this.bitVector;
+
+      return clone;
+    };
+
+    RightSet.prototype.toJson = function() {
+      return this.bitVector;
+    };
 
     return RightSet;
   });
