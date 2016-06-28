@@ -2,6 +2,7 @@
 
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
+var indicatorPage = require('../pages/indicator')();
 
 module.exports = function() {
 
@@ -61,5 +62,9 @@ module.exports = function() {
     return browser.refresh().then(function() {
       return self.expect(inboxAside.aside.element(by.css('[title="' + folder + '"]')).isPresent()).to.eventually.equal(true);
     });
+  });
+
+  this.Then('I see the vacation indicator', function() {
+    return this.expect(indicatorPage.isPresent()).to.eventually.equal(true);
   });
 };
