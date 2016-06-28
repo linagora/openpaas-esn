@@ -10,3 +10,41 @@
     }
   }
 }
+
+.menu-items(@menuItemHeight) {
+  & .menu-item {
+    background-color: inherit;
+    overflow: hidden;
+    direction: rtl;
+    height: @menuItemHeight;
+    text-align: left;
+    line-height: @menuItemHeight;
+
+    .menu-item-inner {
+      white-space: nowrap;
+      text-align: left;
+      display: inline-block;
+      vertical-align: top;
+      height: @menuItemHeight + 1;
+    }
+
+    .menu-item-after {
+      width: 1px;
+      height: @menuItemHeight + 1;
+      display: inline-block;
+      position: relative;
+    }
+
+    .menu-item-after:after {
+      content: "…";
+      width: auto;
+      background-color: white;
+      margin-right: 6px;
+      position: absolute;
+      bottom: @menuItemHeight + 1;
+      left: 0;
+      height: @menuItemHeight + 1;
+      min-width: 1px;
+    }
+  }
+}

@@ -1,11 +1,11 @@
 @inboxAsideFontSize: 1.2em;
 @inboxAsideHeadingFontSize: 1.6em;
 @inboxAsideIconFontSize: 2em;
-@inboxAsideMailboxNameHeight: 30px;
 @dividerColor: darken(@darkenBgColor, 10%);
 @inboxAsideDragTargetBgColor: #FFCC80;
 
 .inbox-aside {
+  .menu-items(30px);
 
   color: @secondaryTextColor;
 
@@ -29,42 +29,6 @@
   .inbox-icon {
     font-size: @inboxAsideIconFontSize;
     vertical-align: bottom;
-  }
-
-  .menu-item {
-    background-color: inherit;
-    overflow: hidden;
-    direction: rtl;
-    height: @inboxAsideMailboxNameHeight;
-    text-align: left;
-    line-height: @inboxAsideMailboxNameHeight;
-
-    .menu-item-inner {
-      white-space: nowrap;
-      text-align: left;
-      display: inline-block;
-      vertical-align: top;
-      height: @inboxAsideMailboxNameHeight + 1;
-    }
-
-    .menu-item-after {
-      width: 1px;
-      height: @inboxAsideMailboxNameHeight + 1;
-      display: inline-block;
-      position: relative;
-    }
-
-    .menu-item-after:after {
-      content: "…";
-      width: auto;
-      background-color: white;
-      margin-right: 6px;
-      position: absolute;
-      bottom: @inboxAsideMailboxNameHeight + 1;
-      left: 0;
-      height: @inboxAsideMailboxNameHeight + 1;
-      min-width: 1px;
-    }
   }
 
   .listview:not(.lv-lg):not(.lv-message) {
