@@ -34,7 +34,8 @@ sub-header
               span.delete-calendar-button.flex-vertical-centered(ng-if="!newCalendar", type="button", ng-click="openDeleteConfirmationDialog()")
                 | #{__('Delete this calendar')}
             .hidden-xs
-              button.btn.btn-default.btn-sm.m-t-10(ng-if="!newCalendar", type="button", ng-click="openDeleteConfirmationDialog()") #{__('Delete')}
+              span.delete-calendar-button.flex-vertical-centered.m-t-10.pull-left(ng-if="!newCalendar", type="button", ng-click="openDeleteConfirmationDialog()")
+                | #{__('Delete this calendar')}
               span.pull-right
                 button.btn.btn-default.btn-sm.m-t-10.visible-xs(type="button", ng-click="mobileCancel()") #{__('Return to calendar')}
                 button.btn.btn-default.btn-sm.m-t-10.hidden-xs(type="button", ng-click="cancel()") #{__('Return to calendar')}
