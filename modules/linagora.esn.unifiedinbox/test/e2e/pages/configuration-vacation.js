@@ -28,7 +28,7 @@ module.exports = function() {
   }
 
   function fillEndDate(date) {
-    return _clearThenFill(endDateInput, data);
+    return _clearThenFill(endDateInput, date);
   }
 
   function fillBody(body) {
