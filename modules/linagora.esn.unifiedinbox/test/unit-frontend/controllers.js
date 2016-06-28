@@ -533,6 +533,163 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
+    describe('the attachmentStatus functionality', function() {
+      var email, expectedAttachmentStatus;
+
+      beforeEach(function() {
+        email = {};
+        $stateParams.composition = {
+          getEmail: function() {return email;},
+          saveDraftSilently: angular.noop
+        };
+        fileUploadMock = {
+          addFile: function() {
+            var defer = $q.defer();
+
+            defer.resolve({
+              response: {
+                blobId: '1234'
+              }
+            });
+
+            return {
+              defer: defer
+            };
+          }
+        };
+      });
+
+      it('should expose attachmentStatus to the scope', function() {
+        expectedAttachmentStatus = {
+          number: 0,
+          uploading: false,
+          error: false
+        };
+
+        initController('composerController');
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+
+      });
+
+      it('should not update attachmentStatus if there is no email', function() {
+        email = undefined;
+        expectedAttachmentStatus = {
+          number: 0,
+          uploading: false,
+          error: false
+        };
+
+        initController('composerController');
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should not update attachmentStatus if email has no attachments', function() {
+        email = {object: 'object'};
+        expectedAttachmentStatus = {
+          number: 0,
+          uploading: false,
+          error: false
+        };
+
+        initController('composerController');
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus once the controller is initialized with an email that has attachments', function() {
+        email.attachments = [
+          {isInline: false},
+          {isInline: false},
+          {isInline: true}
+        ];
+        expectedAttachmentStatus = {
+          number: 2,
+          uploading: false,
+          error: false
+        };
+
+        initCtrl(email);
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus after starting an attachment upload', function(done) {
+        expectedAttachmentStatus = {
+          number: 1,
+          uploading: true,
+          error: false
+        };
+
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should update attachmentStatus when the attachment upload is successfully uploaded', function() {
+        expectedAttachmentStatus = {
+          number: 1,
+          uploading: false,
+          error: false
+        };
+
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus when there is an error in attachment upload', function() {
+        fileUploadMock = {
+          addFile: function() {
+            var defer = $q.defer();
+
+            defer.reject('reject');
+
+            return {
+              defer: defer
+            };
+          }
+        };
+        expectedAttachmentStatus = {
+          number: 1,
+          uploading: false,
+          error: true
+        };
+
+        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus when an attachment is removed', function() {
+        var attachment = {isInline: false},
+            ctrl = initController('composerController');
+
+        expectedAttachmentStatus = {
+          number: 0,
+          uploading: false,
+          error: false
+        };
+        scope.email.attachments = [attachment];
+        scope.attachmentStatus = {
+          number: 1,
+          uploading: false,
+          error: false
+        };
+
+        ctrl.removeAttachment(attachment);
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+    });
+
   });
 
   describe('The viewEmailController', function() {

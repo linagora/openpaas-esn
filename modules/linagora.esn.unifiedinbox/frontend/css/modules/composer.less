@@ -180,6 +180,23 @@ composer, composer-desktop {
         margin-left: 5px;
       }
 
+      .badge-container {
+        .composer-badge {
+          background: @primaryColor;
+          top: 5px;
+          right: 4px;
+          font-weight: bold;
+
+          &.error {
+            background: @m-red;
+          }
+        }
+
+        .uploading {
+          animation: flashing-desktop 2.5s infinite linear;
+        }
+      }
+
       .btn-default {
         padding-left: 5px;
         padding-right: 5px;

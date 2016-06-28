@@ -24,6 +24,22 @@
       .btn {
         padding: 0 0 0 5px;
       }
+
+      .badge-container {
+        .composer-badge {
+          background: @accentColor;
+          top: 9px;
+          font-weight: bold;
+
+          &.error {
+            background: @m-red;
+          }
+        }
+
+        .uploading {
+          animation: flashing-mobile 2.5s infinite linear;
+        }
+      }
     }
 
     .inbox-subheader-inner {

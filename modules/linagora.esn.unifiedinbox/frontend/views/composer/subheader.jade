@@ -6,7 +6,9 @@ block left
 block right
   .inbox-composer-buttons
     button.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
-      i.mdi.mdi-paperclip
+      .badge-container
+        .badge.composer-badge(ng-hide='attachmentStatus.number === 0', ng-class="{ error: attachmentStatus.error }") {{ attachmentStatus.number | maxPlus:99 }}
+        i.mdi.mdi-paperclip(ng-class="{ uploading: attachmentStatus.uploading }")
     button.send.btn.btn-link(ng-click='send()', ng-disabled="isSendingMessage")
       | #{__('Send')}
       i.mdi.mdi-send.m-l-5.m-r-5

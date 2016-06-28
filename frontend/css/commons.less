@@ -353,6 +353,24 @@
   animation: zoomIn .25s ease-out forwards;
 }
 
+.flashing-keyframes (@className; @firstColor; @secondColor) {
+
+  @-webkit-keyframes @className {
+    0%, 20%, 60%, 100%  { color: @firstColor }
+    40%, 80%  { color: @secondColor }
+  }
+
+  @-moz-keyframes @className {
+    0%, 20%, 60%, 100%  { color: @firstColor }
+    40%, 80%  { color: @secondColor }
+  }
+
+  @-ie-keyframes  @className {
+    0%, 20%, 60%, 100%  { color: @firstColor }
+    40%, 80%  { color: @secondColor }
+  }
+}
+
 @keyframes zoomIn {
   0% {
     transform: scale3d(0,0,0);
