@@ -804,6 +804,33 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(compileDirective('<composer-desktop />').find('composer-attachments')).to.have.length(1);
     });
 
+    describe('The focusOnRightField function', function() {
+
+      it('should focus on To field when email is empty', function() {
+        $scope.email = {};
+        compileDirective('<composer-desktop />');
+        $timeout.flush();
+
+        expect(document.activeElement).to.equal(element.find('.recipients-to input').get(0));
+      });
+
+      it('should focus on To field when To field is empty', function() {
+        $scope.email = {to: [] };
+        compileDirective('<composer-desktop />');
+        $timeout.flush();
+
+        expect(document.activeElement).to.equal(element.find('.recipients-to input').get(0));
+      });
+
+      it('should focus on note editing field when To field is not empty', function() {
+        $scope.email = {to: [{email: 'SOMEONE', name: 'SOMEONE'}] };
+        compileDirective('<composer-desktop />');
+        $timeout.flush();
+
+        expect(document.activeElement).to.equal(element.find('email-body-editor .note-editable').get(0));
+      });
+    });
+
   });
 
   /**
