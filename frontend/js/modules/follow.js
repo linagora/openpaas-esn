@@ -2,10 +2,16 @@
 
 angular.module('esn.follow', [
     'esn.resource-link',
-    'esn.timeline'
+    'esn.timeline',
+    'esn.session',
+    'esn.http',
+    'esn.aggregator',
+    'esn.infinite-list',
+    'openpaas-logo'
   ])
   .constant('FOLLOW_LINK_TYPE', 'follow')
   .constant('UNFOLLOW_LINK_TYPE', 'unfollow')
+  .constant('FOLLOW_PAGE_SIZE', 10)
 
   .run(function(esnTimelineEntryProviders, FOLLOW_LINK_TYPE, UNFOLLOW_LINK_TYPE) {
     esnTimelineEntryProviders.register({
@@ -114,4 +120,112 @@ angular.module('esn.follow', [
         };
       }
     };
+  })
+
+  .directive('followList', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/follow/list.html'
+    };
+  })
+
+  .factory('FollowPaginationHelper', function(FollowPaginationProvider, followAPI) {
+
+    function buildFollowersPaginationProvider(options, user) {
+      return new FollowPaginationProvider(followAPI.getFollowers, options, user);
+    }
+
+    function buildFollowingsPaginationProvider(options, user) {
+      return new FollowPaginationProvider(followAPI.getFollowings, options, user);
+    }
+
+    return {
+      buildFollowersPaginationProvider: buildFollowersPaginationProvider,
+      buildFollowingsPaginationProvider: buildFollowingsPaginationProvider
+    };
+
+  })
+
+  .factory('FollowPaginationProvider', function() {
+
+    function FollowPaginationProvider(paginable, options, user) {
+      this.paginable = paginable;
+      this.options = angular.extend({limit: 20, offset: 0}, {}, options);
+      this.user = user;
+    }
+
+    FollowPaginationProvider.prototype.loadNextItems = function() {
+      var self = this;
+
+      return self.paginable(self.user, self.options).then(function(response) {
+        var result = {
+          data: response.data,
+          lastPage: (response.data.length < self.options.limit)
+        };
+
+        if (!result.lastPage) {
+          self.options.offset += self.options.limit;
+        }
+        return result;
+      });
+    };
+    return FollowPaginationProvider;
+  })
+
+  .controller('followerListController', function($scope, $log, _, infiniteScrollHelperBuilder, PageAggregatorService, FollowPaginationHelper, FOLLOW_PAGE_SIZE) {
+
+    var aggregator;
+    $scope.users = [];
+
+    function updateScope(elements) {
+      Array.prototype.push.apply($scope.users, elements.map(function(e) {return e.user;}));
+    }
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+    }
+
+    function loadNextItems() {
+      if (aggregator) {
+        return load();
+      }
+
+      aggregator = new PageAggregatorService('followerListControllerAggregator', [FollowPaginationHelper.buildFollowersPaginationProvider({limit: FOLLOW_PAGE_SIZE}, $scope.user)], {
+        compare: function(a, b) { return b.link.timestamps.creation - a.link.timestamps.creation; },
+        results_per_page: FOLLOW_PAGE_SIZE
+      });
+      return load();
+    }
+
+    $scope.loadNext = infiniteScrollHelperBuilder($scope, loadNextItems, updateScope, FOLLOW_PAGE_SIZE);
+
+  })
+
+  .controller('followingListController', function($scope, $log, _, infiniteScrollHelperBuilder, PageAggregatorService, FollowPaginationHelper, FOLLOW_PAGE_SIZE) {
+
+    var aggregator;
+    $scope.users = [];
+
+    function updateScope(elements) {
+      Array.prototype.push.apply($scope.users, elements.map(function(e) {return e.user;}));
+    }
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+    }
+
+    function loadNextItems() {
+      if (aggregator) {
+        return load();
+      }
+
+      aggregator = new PageAggregatorService('followingListControllerAggregator', [FollowPaginationHelper.buildFollowingsPaginationProvider({limit: FOLLOW_PAGE_SIZE}, $scope.user)], {
+        compare: function(a, b) { return b.link.timestamps.creation - a.link.timestamps.creation; },
+        results_per_page: FOLLOW_PAGE_SIZE
+      });
+      return load();
+    }
+
+    $scope.loadNext = infiniteScrollHelperBuilder($scope, loadNextItems, updateScope, FOLLOW_PAGE_SIZE);
+
   });
