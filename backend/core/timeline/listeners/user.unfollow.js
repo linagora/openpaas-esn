@@ -3,6 +3,7 @@
 var q = require('q');
 var userModule = require('../../user');
 var getUserAsActor = require('../../activitystreams/helpers').getUserAsActor;
+var CONSTANTS = require('../../user/constants');
 var VERB = 'unfollow';
 
 var UNFOLLOW_NOTIFICATION = 'resource:link:follow:user:remove';
@@ -14,11 +15,11 @@ function toTimelineEntry(follower, following) {
     published: Date.now(),
     actor: getUserAsActor(follower),
     object: {
-      objectType: 'user',
+      objectType: CONSTANTS.OBJECT_TYPE,
       _id: following._id
     },
     target: [{
-      objectType: 'user',
+      objectType: CONSTANTS.OBJECT_TYPE,
       _id: String(following._id)
     }]
   });
