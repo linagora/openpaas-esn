@@ -1,8 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
-/* global _: false */
+/* global chai, sinon, _: false */
 
 var expect = chai.expect;
 
@@ -307,6 +305,71 @@ describe('The cachedEventSource service', function() {
         expect(this.originalCallback).to.have.been.calledWithExactly(self.events.concat(correctSubEvent));
       });
 
+      it('should correctly reexpand an event if it was not expanded in this full period the first time', function() {
+        var aDate = this.fcMoment([2017, 11, 8, 21, 0]);
+
+        var inFirstPeriod = {
+          id: '1',
+          calendarId: this.calendarId,
+          start: aDate.clone().subtract(2, 'days'),
+          end: aDate.clone().subtract(2, 'days'),
+          isRecurring: _.constant(false),
+          _period: [aDate.clone().subtract(7, 'day'), aDate.clone()]
+        };
+
+        var inSecondPeriod = {
+          id: '2',
+          calendarId: this.calendarId,
+          start: aDate.clone().add(2, 'days'),
+          end: aDate.clone().add(2, 'days'),
+          isRecurring: _.constant(false),
+          _period: [aDate.clone(), aDate.clone().add(7, 'day')]
+        };
+
+        var inThirdPeriod = {
+          id: '3',
+          calendarId: this.calendarId,
+          start: aDate.clone().add(9, 'days'),
+          end: aDate.clone().add(9, 'days'),
+          isRecurring: _.constant(false),
+          _period: [aDate.clone().add(7, 'day'), aDate.clone().add(14, 'day')]
+        };
+
+        this.events = [];
+        this.modifiedEvent.id = 'parent';
+        this.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        this.modifiedEvent.expand = sinon.spy(function(start, end) {
+          var result = [];
+
+          [inFirstPeriod, inSecondPeriod, inThirdPeriod].forEach(function(event) {
+            if (event.start.isBefore(end) && event.start.isAfter(start)) {
+              result.push(event);
+            }
+          });
+
+          return result;
+        });
+
+        //meta-testing start (powa)
+        expect(this.modifiedEvent.expand(inFirstPeriod._period[0], inFirstPeriod._period[1])).to.deep.equals([inFirstPeriod]);
+        expect(this.modifiedEvent.expand(inSecondPeriod._period[0], inThirdPeriod._period[1])).to.deep.equals([inSecondPeriod, inThirdPeriod]);
+        expect(this.modifiedEvent.expand(inFirstPeriod._period[0], inThirdPeriod._period[1])).to.deep.equals([inFirstPeriod, inSecondPeriod, inThirdPeriod]);
+        //meta-testing end
+
+        this.cachedEventSource.registerUpdate(this.modifiedEvent);
+
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(inSecondPeriod._period[0], inSecondPeriod._period[1], this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+        expect(this.originalCallback.firstCall).to.have.been.calledWithExactly([inSecondPeriod]);
+
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(inSecondPeriod._period[0], inThirdPeriod._period[1], this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+        expect(this.originalCallback.secondCall).to.have.been.calledWithExactly([inSecondPeriod, inThirdPeriod]);
+
+        this.cachedEventSource.wrapEventSource(this.calendarId, this.eventSource)(inFirstPeriod._period[0], inThirdPeriod._period[1], this.timezone, this.originalCallback);
+        this.$rootScope.$apply();
+        expect(this.originalCallback.thirdCall).to.have.been.calledWithExactly([inFirstPeriod, inSecondPeriod, inThirdPeriod]);
+      });
     });
 
     describe('registerDelete function', function() {
