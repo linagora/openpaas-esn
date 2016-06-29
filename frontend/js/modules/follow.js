@@ -150,7 +150,7 @@ angular.module('esn.follow', [
 
     function FollowPaginationProvider(paginable, options, user) {
       this.paginable = paginable;
-      this.options = angular.extend({limit: 20, offset: 0}, {}, options);
+      this.options = angular.extend({limit: 20, offset: 0}, options);
       this.user = user;
     }
 
@@ -172,60 +172,40 @@ angular.module('esn.follow', [
     return FollowPaginationProvider;
   })
 
-  .controller('followerListController', function($scope, $log, _, infiniteScrollHelperBuilder, PageAggregatorService, FollowPaginationHelper, FOLLOW_PAGE_SIZE) {
+  .factory('FollowScrollBuilder', function(infiniteScrollHelperBuilder, PageAggregatorService, FollowPaginationHelper, _, FOLLOW_PAGE_SIZE) {
 
-    var aggregator;
-    $scope.users = [];
+    function build($scope, name, provider, updateScope) {
 
-    function updateScope(elements) {
-      Array.prototype.push.apply($scope.users, elements.map(function(e) {return e.user;}));
-    }
+      var aggregator;
 
-    function load() {
-      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
-    }
-
-    function loadNextItems() {
-      if (aggregator) {
-        return load();
+      function loadNextItems() {
+        aggregator = aggregator || new PageAggregatorService(name, [provider], {
+          compare: function(a, b) {
+            return b.link.timestamps.creation - a.link.timestamps.creation;
+          },
+          results_per_page: FOLLOW_PAGE_SIZE
+        });
+        return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
       }
 
-      aggregator = new PageAggregatorService('followerListControllerAggregator', [FollowPaginationHelper.buildFollowersPaginationProvider({limit: FOLLOW_PAGE_SIZE}, $scope.user)], {
-        compare: function(a, b) { return b.link.timestamps.creation - a.link.timestamps.creation; },
-        results_per_page: FOLLOW_PAGE_SIZE
-      });
-      return load();
+      return infiniteScrollHelperBuilder($scope, loadNextItems, updateScope, FOLLOW_PAGE_SIZE);
     }
 
-    $scope.loadNext = infiniteScrollHelperBuilder($scope, loadNextItems, updateScope, FOLLOW_PAGE_SIZE);
-
+    return {
+      build: build
+    };
   })
 
-  .controller('followingListController', function($scope, $log, _, infiniteScrollHelperBuilder, PageAggregatorService, FollowPaginationHelper, FOLLOW_PAGE_SIZE) {
-
-    var aggregator;
+  .controller('followerListController', function($scope, FollowScrollBuilder, FollowPaginationHelper, _, FOLLOW_PAGE_SIZE) {
     $scope.users = [];
+    $scope.loadNext = FollowScrollBuilder.build($scope, 'followers', FollowPaginationHelper.buildFollowersPaginationProvider({limit: FOLLOW_PAGE_SIZE}, $scope.user), function(elements) {
+      Array.prototype.push.apply($scope.users, _.map(elements, 'user'));
+    });
+  })
 
-    function updateScope(elements) {
-      Array.prototype.push.apply($scope.users, elements.map(function(e) {return e.user;}));
-    }
-
-    function load() {
-      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
-    }
-
-    function loadNextItems() {
-      if (aggregator) {
-        return load();
-      }
-
-      aggregator = new PageAggregatorService('followingListControllerAggregator', [FollowPaginationHelper.buildFollowingsPaginationProvider({limit: FOLLOW_PAGE_SIZE}, $scope.user)], {
-        compare: function(a, b) { return b.link.timestamps.creation - a.link.timestamps.creation; },
-        results_per_page: FOLLOW_PAGE_SIZE
-      });
-      return load();
-    }
-
-    $scope.loadNext = infiniteScrollHelperBuilder($scope, loadNextItems, updateScope, FOLLOW_PAGE_SIZE);
-
+  .controller('followingListController', function($scope, FollowScrollBuilder, FollowPaginationHelper, _, FOLLOW_PAGE_SIZE) {
+    $scope.users = [];
+    $scope.loadNext = FollowScrollBuilder.build($scope, 'followings', FollowPaginationHelper.buildFollowingsPaginationProvider({limit: FOLLOW_PAGE_SIZE}, $scope.user), function(elements) {
+      Array.prototype.push.apply($scope.users, _.map(elements, 'user'));
+    });
   });

@@ -243,6 +243,7 @@ describe('The esn.follow Angular module', function() {
         service.loadNextItems().then(function(result) {
           expect(result.data.length).to.equal(size);
           expect(result.lastPage).to.be.false;
+          expect(service.options.offset).to.equal(size);
           done();
         }, done);
         $rootScope.$digest();
