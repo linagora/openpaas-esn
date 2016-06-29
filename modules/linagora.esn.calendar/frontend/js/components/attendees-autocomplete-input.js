@@ -43,6 +43,7 @@ angular.module('esn.calendar')
         });
       }
 
+      scope.mutableAttendees = scope.mutableAttendees || [];
       scope.onAddingAttendee = function(att) {
         if (!att.id) {
           att.id = att.displayName;

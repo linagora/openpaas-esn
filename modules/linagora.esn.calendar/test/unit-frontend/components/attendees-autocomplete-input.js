@@ -64,6 +64,19 @@ describe('The attendees-autocomplete-input component', function() {
     };
   }));
 
+  it('should initialize the model, if none given', function() {
+    this.initDirective(this.$scope);
+
+    expect(this.eleScope.mutableAttendees).to.deep.equal([]);
+  });
+
+  it('should use the model, if one given', function() {
+    this.$scope.newAttendees = [{ a: '1' }];
+    this.initDirective(this.$scope);
+
+    expect(this.eleScope.mutableAttendees).to.deep.equal([{ a: '1' }]);
+  });
+
   describe('getInvitableAttendees', function() {
     var query = 'aQuery';
 
