@@ -154,6 +154,7 @@ describe('The esn.notification Angular modules', function() {
 
       notification.setCancelAction(cancelActionConfig);
       notification.$ele.find('a.cancel-task').click();
+      notification.$ele.find('a.cancel-task').click();
 
       expect(cancelActionConfig.action).to.have.been.calledOnce;
     });
