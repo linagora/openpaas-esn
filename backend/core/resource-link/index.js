@@ -101,12 +101,7 @@ function list(options) {
     resourceLinkQuery = resourceLinkQuery.limit(options.limit);
   }
 
-  resourceLinkQuery.sort('-timestamps.creation').exec(function(err, links) {
-    if (err) {
-      return defer.reject(err);
-    }
-    defer.resolve(links);
-  });
+  resourceLinkQuery.sort('-timestamps.creation').exec(defer.makeNodeResolver());
   return defer.promise;
 }
 module.exports.list = list;
