@@ -567,23 +567,83 @@ describe('The calendar module controllers', function() {
     });
 
     describe('the eventDropAndResize listener', function() {
-      it('should call calendarService.modifyEvent with the correct argument', function() {
-        var newEvent = {
-          path: 'aPath',
-          etag: 'anEtag'
-        };
-        var event = {
+      it('should call calendarService.modifyEvent with the correct argument if resize', function() {
+        var oldEvent = {
           path: 'aPath',
           etag: 'anEtag',
-          end: this.fcMoment(),
+          start: this.fcMoment('2016-01-01 09:00'),
+          end: this.fcMoment('2016-01-01 10:10'),
           clone: function() {
             return newEvent;
           }
         };
-        this.scope.event = event;
+
+        var newEvent = {
+          path: 'aPath',
+          etag: 'anEtag',
+          start: this.fcMoment('2016-01-01 09:00'),
+          end: this.fcMoment('2016-01-01 10:10'),
+          clone: function() {
+            return oldEvent;
+          }
+        };
+
+        var event = {
+          path: 'aPath',
+          etag: 'anEtag',
+          start: this.fcMoment('2016-01-01 09:00'),
+          end: this.fcMoment('2016-01-01 10:10'),
+          clone: function() {
+            return newEvent;
+          }
+        };
+
         this.controller('calendarController', {$scope: this.scope});
-        this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10));
-        expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, event, newEvent.etag);
+        var delta = this.fcMoment.duration(10, 'minutes');
+        this.scope.eventDropAndResize(false, event, delta);
+        expect(oldEvent.start.isSame(this.fcMoment('2016-01-01 09:00'))).to.be.true;
+        expect(oldEvent.end.isSame(this.fcMoment('2016-01-01 10:00'))).to.be.true;
+        expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, oldEvent, newEvent.etag);
+      });
+
+      it('should call calendarService.modifyEvent with the correct argument if drop', function() {
+        var oldEvent = {
+          path: 'aPath',
+          etag: 'anEtag',
+          start: this.fcMoment('2016-01-01 09:00'),
+          end: this.fcMoment('2016-01-01 10:10'),
+          clone: function() {
+            return newEvent;
+          }
+        };
+
+        var newEvent = {
+          path: 'aPath',
+          etag: 'anEtag',
+          start: this.fcMoment('2016-01-01 09:00'),
+          end: this.fcMoment('2016-01-01 10:10'),
+          clone: function() {
+            return oldEvent;
+          }
+        };
+
+        var event = {
+          path: 'aPath',
+          etag: 'anEtag',
+          start: this.fcMoment('2016-01-01 09:00'),
+          end: this.fcMoment('2016-01-01 10:10'),
+          clone: function() {
+            return newEvent;
+          }
+        };
+
+        var delta = this.fcMoment.duration(10, 'minutes');
+        this.controller('calendarController', {$scope: this.scope});
+        this.scope.eventDropAndResize(true, event, delta);
+
+        expect(oldEvent.start.isSame(this.fcMoment('2016-01-01 08:50'))).to.be.true;
+        expect(oldEvent.end.isSame(this.fcMoment('2016-01-01 10:00'))).to.be.true;
+        expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, oldEvent, newEvent.etag);
       });
 
       it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event after calling fullcalendar revert when the drap and drop if reverted', function(done) {

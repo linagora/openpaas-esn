@@ -72,12 +72,17 @@ angular.module('esn.calendar')
       newEvent.end = event.end;
       newEvent.path = newEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
 
+      var oldEvent = newEvent.clone();
+      if (drop) {
+        oldEvent.start.subtract(delta);
+      }
+      oldEvent.end.subtract(delta);
       function revertFunc() {
         revert();
-        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, event);
+        $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
       }
 
-      eventService.modifyEvent(newEvent.path, newEvent, event, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
+      eventService.modifyEvent(newEvent.path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
         .then(function(completed) {
           if (completed) {
             notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
