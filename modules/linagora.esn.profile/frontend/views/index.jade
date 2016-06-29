@@ -1,9 +1,9 @@
 .container.full-width.no-padding-xs
   .block-header
     h2(ng-if="me") #{__('My Account')}
-    h2(ng-if="!me") {{user.firstname}} {{user.lastname}}
+    h2(ng-if="!me") {{::user.firstname}} {{::user.lastname}}
     ul.actions.flex-space-around
-      button.btn.btn-primary(ng-if="me", ui-sref = 'controlcenter.profileEdition')
+      button.btn.btn-primary(ng-if="me", ui-sref="profileEdit")
         i.mdi.mdi-pencil
         | #{__('Edit')}
   #profile-main.card
@@ -13,47 +13,9 @@
           a
             img(ng-src="{{avatarURL}}")
         .pmo-stat.p-t-15
-          h2.m-0.c-white.ellipsis
-            |{{user.firstname}} {{user.lastname}}
-          |{{user.job_title}}
+          h3.m-0.c-white.ellipsis {{::user.firstname}} {{::user.lastname}}
+          span.m-0.c-white.ellipsis {{::user.job_title}}
       .pmo-block
         follow-card(ng-if='!me', user='user')
     .pm-body.clearfix
-      data(ui-view='main')
-        .pmb-block
-          .pmbb-header
-            h2 
-              i.mdi.mdi-account.m-r-5
-              | #{__('Profile Informations')}
-          .pmbb-body.p-l-30
-            .pmbb-view
-              dl.dl-horizontal
-                dt 
-                  i.mdi.mdi-email.m-r-5 
-                  | #{__('Email')}
-                dd 
-                  a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
-              dl.dl-horizontal
-                dt 
-                  i.mdi.mdi-phone.m-r-5 
-                  | #{__('Phone')}
-                dd
-                  | {{user.main_phone}}
-              dl.dl-horizontal
-                dt 
-                  i.mdi.mdi-city.m-r-5 
-                  | #{__('Building Location')}
-                  dd
-                    | {{user.building_location}}
-              dl.dl-horizontal
-                dt 
-                  i.mdi.mdi-monitor.m-r-5 
-                  | #{__('Office Location')}
-                  dd
-                    | {{user.office_location}}
-              dl.dl-horizontal
-                dt 
-                  i.mdi.mdi-account.m-r-5
-                  | #{__('Bio')}
-                  dd
-                    | {{user.description}}
+      .ui-view(name="main")

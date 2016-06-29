@@ -9,7 +9,7 @@ angular.module('linagora.esn.controlcenter', [
 ])
 
 .config(function($stateProvider, $urlRouterProvider, dynamicDirectiveServiceProvider) {
-  $urlRouterProvider.when('/controlcenter', '/controlcenter/profile');
+  $urlRouterProvider.when('/controlcenter', '/controlcenter/accounts');
 
   $stateProvider
     .state('controlcenter', {
