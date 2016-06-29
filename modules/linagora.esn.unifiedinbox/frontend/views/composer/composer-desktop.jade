@@ -31,6 +31,8 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
 
     .compose-right-footer
       button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
-        i.mdi.mdi-paperclip
+        .badge-container
+          .badge.composer-badge(ng-hide='attachmentStatus.number === 0', ng-class="{ error: attachmentStatus.error }") {{ attachmentStatus.number | maxPlus:99 }}
+          i.mdi.mdi-paperclip(ng-class="{ uploading: attachmentStatus.uploading }")
       button.btn.btn-primary(type="submit", value="submit", ng-disabled="isSendingMessage") #{__('Send')}
         i.mdi.mdi-send

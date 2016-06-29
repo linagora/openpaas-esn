@@ -48,6 +48,22 @@ angular.module('linagora.esn.unifiedinbox')
     var disableImplicitSavesAsDraft = false,
         composition;
 
+    $scope.attachmentStatus = {
+      number: 0,
+      uploading: false,
+      error: false
+    };
+
+    function _updateAttachmentStatus() {
+      if ($scope.email && $scope.email.attachments) {
+        $scope.attachmentStatus = {
+          number: _.filter($scope.email.attachments, {isInline: false}).length,
+          uploading: _.some($scope.email.attachments, {status: 'uploading'}),
+          error: _.some($scope.email.attachments, {status: 'error'})
+        };
+      }
+    }
+
     this.getComposition = function() {
       return composition;
     };
@@ -59,6 +75,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.initCtrlWithComposition = function(comp) {
       composition = comp;
       $scope.email = composition.getEmail();
+      _updateAttachmentStatus();
     };
 
     this.saveDraft = function() {
@@ -82,6 +99,8 @@ angular.module('linagora.esn.unifiedinbox')
           cancel: uploadTask.cancel
         };
         attachment.status = 'uploading';
+        _updateAttachmentStatus();
+
         attachment.upload.promise = uploadTask.defer.promise.then(function(task) {
           attachment.status = 'uploaded';
           attachment.error = null;
@@ -96,6 +115,8 @@ angular.module('linagora.esn.unifiedinbox')
           attachment.error = err;
         }, function(uploadTask) {
           attachment.upload.progress = uploadTask.progress;
+        }).finally(function() {
+          _updateAttachmentStatus();
         });
 
         return attachment;
@@ -121,6 +142,7 @@ angular.module('linagora.esn.unifiedinbox')
             }
 
             $scope.email.attachments.push(newAttachment(client, file).startUpload());
+            _updateAttachmentStatus();
           });
         });
       });
@@ -129,6 +151,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.removeAttachment = function(attachment) {
       attachment.upload && attachment.upload.cancel();
       _.pull($scope.email.attachments, attachment);
+      _updateAttachmentStatus();
 
       composition.saveDraftSilently();
     };
