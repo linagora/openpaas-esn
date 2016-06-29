@@ -13,11 +13,11 @@ module.exports.register = register;
 function denormalize(entry, options) {
   options = options || {};
 
-  var e = utils.asObject(entry);
-  if (handlers[e.verb]) {
-    return handlers[e.verb](e, options);
+  entry = utils.asObject(entry);
+  if (handlers[entry.verb]) {
+    return handlers[entry.verb](entry, options);
   }
-  return q(e);
+  return q(entry);
 }
 module.exports.denormalize = denormalize;
 
