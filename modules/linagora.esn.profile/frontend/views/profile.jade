@@ -12,10 +12,12 @@
         .p-relative(ng-controller='avatarController')
           a
             img(ng-src="{{avatarURL}}")
-        .pmo-stat
-          h2.m-0.c-white
+        .pmo-stat.p-t-15
+          h2.m-0.c-white.ellipsis
             |{{user.firstname}} {{user.lastname}}
           |{{user.job_title}}
+      .pmo-block
+        follow-card(ng-if='!me', user='user')
     .pm-body.clearfix
       data(ui-view='')
         .pmb-block

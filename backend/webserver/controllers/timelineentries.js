@@ -1,7 +1,9 @@
 'use strict';
 
+var denormalizer = require('../../core/timeline/denormalizer');
 var activitystreamModule = require('../../core/activitystreams');
 var logger = require('../../core/logger');
+var q = require('q');
 
 var DEFAULT_LIMIT = 10;
 var DEFAULT_OFFSET = 0;
@@ -27,8 +29,15 @@ function list(req, res) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }
 
-    res.header('X-ESN-Items-Count', result.total_count);
-    return res.status(200).json(result.list || []);
+    q.all(result.list.map(function(entry) {
+      return denormalizer.denormalize(entry, options);
+    })).then(function(denormalized) {
+      res.header('X-ESN-Items-Count', result.total_count);
+      return res.status(200).json(denormalized || []);
+    }, function(err) {
+      logger.error('Error while denormalizing timelineentries', err);
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while denormalizing timelineentries'}});
+    });
   });
 }
 module.exports.list = list;

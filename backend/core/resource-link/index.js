@@ -23,6 +23,35 @@ function create(link) {
 }
 module.exports.create = create;
 
+function remove(options) {
+  var defer = q.defer();
+  var query = {};
+  if (options.type) {
+    query.type = options.type;
+  }
+  if (options.source) {
+    query['source.id'] = options.source.id;
+    query['source.objectType'] = options.source.objectType;
+  }
+  if (options.target) {
+    query['target.id'] = options.target.id;
+    query['target.objectType'] = options.target.objectType;
+  }
+
+  ResourceLink.findOneAndRemove(query).exec(function(err, result) {
+    if (err) {
+      return defer.reject(err);
+    }
+
+    if (result) {
+      pubsub.local.topic('resource:link:' + result.type + ':' + result.target.objectType + ':remove').publish(result);
+    }
+    defer.resolve(result);
+  });
+  return defer.promise;
+}
+module.exports.remove = remove;
+
 function count(options) {
   var defer = q.defer();
   var query = {};
@@ -47,6 +76,35 @@ function count(options) {
   return defer.promise;
 }
 module.exports.count = count;
+
+function list(options) {
+  var defer = q.defer();
+  var query = {};
+  if (options.type) {
+    query.type = options.type;
+  }
+  if (options.source) {
+    query['source.id'] = options.source.id;
+    query['source.objectType'] = options.source.objectType;
+  }
+  if (options.target) {
+    query['target.id'] = options.target.id;
+    query['target.objectType'] = options.target.objectType;
+  }
+
+  var resourceLinkQuery = ResourceLink.find(query);
+  if (options.offset > 0) {
+    resourceLinkQuery = resourceLinkQuery.skip(options.offset);
+  }
+
+  if (options.limit > 0) {
+    resourceLinkQuery = resourceLinkQuery.limit(options.limit);
+  }
+
+  resourceLinkQuery.sort('-timestamps.creation').exec(defer.makeNodeResolver());
+  return defer.promise;
+}
+module.exports.list = list;
 
 function exists(link) {
   var defer = q.defer();

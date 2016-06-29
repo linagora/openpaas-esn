@@ -4,6 +4,8 @@ var q = require('q');
 var userModule = require('../../user');
 var messageModule = require('../../message');
 var getUserAsActor = require('../../activitystreams/helpers').getUserAsActor;
+var CONSTANTS = require('../../user/constants');
+
 var VERB = 'like';
 
 var LIKE_NOTIFICATION = 'resource:link:like:esn.message';
@@ -20,7 +22,7 @@ function toTimelineEntry(link, user, message) {
       _id: message._id
     },
     target: [{
-      objectType: 'user',
+      objectType: CONSTANTS.OBJECT_TYPE,
       _id: String(message.author._id)
     }]
   });

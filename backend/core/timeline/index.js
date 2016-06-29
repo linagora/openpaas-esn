@@ -1,5 +1,6 @@
 'use strict';
 
+var denormalizer = require('./denormalizer');
 var pubsub = require('../pubsub').local;
 var logger = require('../logger');
 var as = require('../activitystreams');
@@ -31,5 +32,15 @@ module.exports.registerUserStreamHandlers = registerUserStreamHandlers;
 function init() {
   var messageLike = require('./listeners/message.like');
   registerUserStreamHandlers(messageLike.LIKE_NOTIFICATION, [messageLike.handler]);
+
+  var userFollow = require('./listeners/user.follow');
+  registerUserStreamHandlers(userFollow.FOLLOW_NOTIFICATION, [userFollow.handler]);
+
+  var userUnfollow = require('./listeners/user.unfollow');
+  registerUserStreamHandlers(userUnfollow.UNFOLLOW_NOTIFICATION, [userUnfollow.handler]);
+
+  denormalizer.init();
 }
 module.exports.init = init;
+
+module.exports.denormalizer = denormalizer;

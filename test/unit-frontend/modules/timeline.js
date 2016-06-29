@@ -233,7 +233,7 @@ describe('The esn.timeline module', function() {
   });
 
   describe('The esnTimelineEntriesController controller', function() {
-    var $controller, $scope, $q, $rootScope, PageAggregatorService;
+    var $controller, $scope, $q, $rootScope, PageAggregatorService, sessionMock;
     var timelineEntries = [
       {verb: 'post', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 2}},
       {verb: 'like', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 3}},
@@ -247,8 +247,15 @@ describe('The esn.timeline module', function() {
     }
 
     beforeEach(function() {
+      sessionMock = {
+        user: {
+          _id: 1
+        }
+      };
+
       PageAggregatorService = function() {};
       angular.mock.module('esn.timeline', function($provide) {
+        $provide.value('session', sessionMock);
         $provide.value('PageAggregatorService', PageAggregatorService);
       });
     });

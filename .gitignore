@@ -15,3 +15,4 @@ modules/**/*.css
 modules/**/*.css.map
 gjslint.xml
 jshint.xml
+doc/REST_API/swagger/swagger.json
