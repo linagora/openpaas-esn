@@ -53,6 +53,8 @@ angular.module('esn.calendar')
       $scope.isOrganizer = eventUtils.isOrganizer($scope.editedEvent);
       if ($scope.isOrganizer) {
         initOrganizer();
+      } else {
+        $scope.editedEvent.attendees.push($scope.editedEvent.organizer);
       }
       $scope.userAsAttendee = null;
       $scope.editedEvent.attendees.forEach(function(attendee) {
