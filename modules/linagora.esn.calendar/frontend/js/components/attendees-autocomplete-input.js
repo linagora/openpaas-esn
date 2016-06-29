@@ -1,25 +1,8 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .run(function($templateCache, AUTOCOMPLETE_MAX_RESULTS) {
-    /**
-     * override the auto-complete template provided by ngTagsInput
-     * so as to warn users when more results are indeed available in the search request
-     */
-    $templateCache.put('ngTagsInput/auto-complete.html',
-      '<div class=\'autocomplete\' ng-if=\'suggestionList.visible\'>' +
-        '<ul class=\'suggestion-list\'>' +
-          '<li class=\'suggestion-item\' ng-repeat=\'item in suggestionList.items track by track(item)\' ng-class=\'{selected: item == suggestionList.selected}\' ng-click=\'addSuggestionByIndex($index)\' ng-mouseenter=\'suggestionList.select($index)\'>' +
-          '<ti-autocomplete-match data=\'item\'></ti-autocomplete-match></li>' +
-          '<li class=\'autocomplete-information\' ng-if=\'(suggestionList.items.length === ' + AUTOCOMPLETE_MAX_RESULTS + ')\'>' +
-            // TODO i18n
-            'Please refine your search to find more accurate results' +
-          '</li>' +
-        '</ul>' +
-      '</div>'
-    );
-  })
-  .directive('attendeesAutocompleteInput', function($q, session, calendarAttendeeService, emailService, naturalService, AUTOCOMPLETE_MAX_RESULTS) {
+
+  .directive('attendeesAutocompleteInput', function(session, calendarAttendeeService, emailService, naturalService, AUTOCOMPLETE_MAX_RESULTS) {
     function link(scope) {
       function getAddedAttendeeIds() {
         var addedAttendees = scope.mutableAttendees.concat(scope.originalAttendees || []);
