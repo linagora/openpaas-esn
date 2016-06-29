@@ -200,6 +200,7 @@ angular.module('esn.calendar')
         // we then should only remove the event from fullcalendar
         // and cancel the taskid corresponding on the event.
         return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
+          cachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
           return true;
         }, $q.reject);
