@@ -25,7 +25,7 @@ module.exports = function(dependencies) {
       passport.use('facebook-authz', new FacebookStrategy({
           clientID: oauth.facebook.client_id,
           clientSecret: oauth.facebook.client_secret,
-          callbackURL: 'http://localhost:8080/oauth/facebook/connect/callback',
+          callbackURL: '/oauth/facebook/connect/callback',
           passReqToCallback: true
         },
         function(req, accessToken, refreshToken, profile, callback) {
