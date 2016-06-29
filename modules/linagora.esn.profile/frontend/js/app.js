@@ -38,7 +38,7 @@ angular.module('linagora.esn.profile', [
           }
         },
         resolve: {
-          user: function($stateParams, $location, userAPI) {
+          user: function($stateParams, $location, userAPI, session, $q) {
 
             if ($stateParams.user_id) {
               return userAPI.user($stateParams.user_id).then(function(response) {
@@ -48,11 +48,7 @@ angular.module('linagora.esn.profile', [
               });
             }
 
-            return userAPI.currentUser().then(function(response) {
-              return response.data;
-            }, function() {
-              $location.path('/');
-            });
+            return $q.when(session.user);
           }
         }
       })
