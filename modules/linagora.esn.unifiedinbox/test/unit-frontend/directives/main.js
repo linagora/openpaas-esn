@@ -1069,6 +1069,16 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(recipient).to.deep.equal({ name: 'a@a.com', email: 'a@a.com' });
     });
 
+    it('should initialize the model if none given', function() {
+      expect(compileDirectiveThenGetScope().tags).to.deep.equal([]);
+    });
+
+    it('should use the model if one given', function() {
+      $scope.model = [{ a: '1' }];
+
+      expect(compileDirectiveThenGetScope().tags).to.deep.equal([{ a: '1' }]);
+    });
+
   });
 
   describe('The emailBodyEditor', function() {

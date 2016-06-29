@@ -399,6 +399,7 @@ angular.module('linagora.esn.unifiedinbox')
           }
         }
 
+        scope.tags = scope.tags || [];
         scope.search = searchService.searchRecipients;
 
         scope.onTagAdding = function($tag) {
