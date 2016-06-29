@@ -41,6 +41,7 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
           notification.$ele.find('a.cancel-task').click(function() {
             notification.close();
             cancelActionConfig.action();
+            notification.$ele.find('a.cancel-task').off('click');
           });
         }
       };
