@@ -68,14 +68,20 @@
       .aligner-items-end;
       .flex-noshrink;
 
-      .action-item {
-        padding-left: 5px;
+      margin-top: -8px;
 
-        & > a > .mdi {
-          font-size: 2em;
-          vertical-align: sub;
+      .responsive-actions {
+        .flex-column;
+
+        .action-item {
+          margin: -2px 0;
+          padding-left: 5px;
+
+          & > a > .mdi {
+            font-size: 2em;
+            vertical-align: sub;
+          }
         }
-
       }
     }
   }
@@ -141,4 +147,16 @@
     margin-bottom: 0;
   }
 
+}
+
+@media (min-width: @screen-md-min) {
+  .email-view .email-header {
+    .email-header-right {
+      margin-top: 0;
+
+      .responsive-actions {
+        .flex-row;
+      }
+    }
+  }
 }
