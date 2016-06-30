@@ -2482,7 +2482,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The mailboxesService factory', function() {
 
-    var mailboxesService, jmapClient, $rootScope;
+    var inboxMailboxesCache, mailboxesService, jmapClient, $rootScope;
 
     beforeEach(module(function($provide) {
       jmapClient = {
@@ -2492,7 +2492,8 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('withJmapClient', function(callback) { return callback(jmapClient); });
     }));
 
-    beforeEach(inject(function(_mailboxesService_, _$rootScope_) {
+    beforeEach(inject(function(_mailboxesService_, _$rootScope_, _inboxMailboxesCache_) {
+      inboxMailboxesCache = _inboxMailboxesCache_;
       mailboxesService = _mailboxesService_;
       $rootScope = _$rootScope_;
     }));
@@ -2602,68 +2603,70 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
+      it('should not override mailboxes already present in cache', function(done) {
+        inboxMailboxesCache[0] = { id: 2, name: '2', level: 2, parentId: 1, qualifiedName: '1 / 2' };
+        jmapClient.getMailboxes = function() {
+          return $q.when([
+            { id: 1, name: '1' },
+            { id: 4, name: '4' }
+          ]);
+        };
+        var expected = [
+          { id: 2, name: '2', level: 2, parentId: 1, qualifiedName: '1 / 2' },
+          { id: 1, name: '1', level: 1, qualifiedName: '1' },
+          { id: 4, name: '4', level: 1, qualifiedName: '4' }
+        ];
+
+        mailboxesService.assignMailboxesList().then(function(mailboxes) {
+          expect(mailboxes).to.deep.equal(expected);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
     });
 
     describe('The flagIsUnreadChanged function', function() {
 
       it('should do nothing if mail is undefined', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, name: '1',  unreadMessages: 1}
-          ]);
-        };
-        mailboxesService.assignMailboxesList({});
-        $rootScope.$digest();
+        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
 
-        expect(mailboxesService.flagIsUnreadChanged()).to.be.undefined;
+        mailboxesService.flagIsUnreadChanged();
+
+        expect(inboxMailboxesCache[0].unreadMessages).to.equal(1);
       });
 
       it('should do nothing if status is undefined', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, name: '1',  unreadMessages: 1}
-          ]);
-        };
-        mailboxesService.assignMailboxesList({});
-        $rootScope.$digest();
+        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
 
-        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] })).to.be.undefined;
+        mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] });
+
+        expect(inboxMailboxesCache[0].unreadMessages).to.equal(1);
       });
 
       it('should increase the unreadMessages in the mailboxesCache if status=true', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, name: '1',  unreadMessages: 1}
-          ]);
-        };
-        mailboxesService.assignMailboxesList({});
-        $rootScope.$digest();
+        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
 
-        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, true)[0].unreadMessages).to.equal(2);
+        mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, true);
+
+        expect(inboxMailboxesCache[0].unreadMessages).to.equal(2);
       });
 
       it('should decrease the unreadMessages in the mailboxesCache if status=false', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, name: '1',  unreadMessages: 1}
-          ]);
-        };
-        mailboxesService.assignMailboxesList({});
-        $rootScope.$digest();
+        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
 
-        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false)[0].unreadMessages).to.equal(0);
+        mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
+
+        expect(inboxMailboxesCache[0].unreadMessages).to.equal(0);
       });
 
       it('should guarantee that the unreadMessages in the mailboxesCache is never negative', function() {
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, name: '1',  unreadMessages: 0}
-          ]);
-        };
-        mailboxesService.assignMailboxesList({});
-        $rootScope.$digest();
+        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 0};
 
-        expect(mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false)[0].unreadMessages).to.equal(0);
+        mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
+
+        expect(inboxMailboxesCache[0].unreadMessages).to.equal(0);
       });
     });
 
@@ -2720,58 +2723,12 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should add level and qualifiedName properties to mailbox', function() {
-        mailboxesService.assignMailbox().then(function(mailbox) {
-          expect(mailbox).to.deep.equal({name: 'name', level: 1, qualifiedName: 'name'});
+        mailboxesService.assignMailbox().then(function() {
+          expect(inboxMailboxesCache[0]).to.deep.equal({name: 'name', level: 1, qualifiedName: 'name'});
         });
 
         $rootScope.$digest();
       });
-    });
-
-    describe('The updateUnreadMessages function', function() {
-
-      it('should update unreadMessages of all available mailboxes corresponding to given mailboxIds', function() {
-        var destObject = {};
-
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, unreadMessages: 1},
-            { id: 2, unreadMessages: 2},
-            { id: 3, unreadMessages: 3}
-          ]);
-        };
-
-        mailboxesService.assignMailboxesList(destObject);
-        $rootScope.$digest();
-        mailboxesService.updateUnreadMessages([1, 3, 4], 1);
-
-        expect(destObject.mailboxes).to.shallowDeepEqual([
-          { id: 1, unreadMessages: 2},
-          { id: 2, unreadMessages: 2},
-          { id: 3, unreadMessages: 4}
-        ]);
-      });
-
-      it('should guarantee that the unreadMessages of the mailboxes is never negative', function() {
-        var destObject = {};
-
-        jmapClient.getMailboxes = function() {
-          return $q.when([
-            { id: 1, unreadMessages: 1},
-            { id: 2, unreadMessages: 2}
-          ]);
-        };
-
-        mailboxesService.assignMailboxesList(destObject);
-        $rootScope.$digest();
-        mailboxesService.updateUnreadMessages([1, 2], -2);
-
-        expect(destObject.mailboxes).to.shallowDeepEqual([
-          { id: 1, unreadMessages: 0},
-          { id: 2, unreadMessages: 0}
-        ]);
-      });
-
     });
 
     describe('The moveUnreadMessages function', function() {
