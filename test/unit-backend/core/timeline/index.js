@@ -9,6 +9,9 @@ describe('The timeline module', function() {
 
   beforeEach(function() {
     mockery.registerMock('../logger', require('../../fixtures/logger-noop'));
+    mockery.registerMock('./denormalizer', {
+      init: function() {}
+    });
   });
 
   describe('The registerUserStreamHandlers function', function() {
