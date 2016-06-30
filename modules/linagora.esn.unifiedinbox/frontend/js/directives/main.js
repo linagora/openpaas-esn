@@ -177,6 +177,37 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('inboxEmailerDisplay', function(_, session) {
+    function link(scope) {
+      _init();
+
+      function _init() {
+        var allRecipients = [].concat(scope.email.to || [], scope.email.cc || []);
+        var myEmailer = _.find(allRecipients, { email: session.user.preferredEmail });
+
+        if (myEmailer) {
+          scope.previewEmailer = myEmailer;
+          scope.me = true;
+        } else {
+          scope.previewEmailer = allRecipients[0];
+          scope.me = false;
+        }
+
+        scope.numberOfHiddenEmailer = allRecipients.length - 1;
+        scope.showMoreButton = scope.numberOfHiddenEmailer > 0;
+      }
+    }
+
+    return {
+      restrict: 'E',
+      scope: {
+        email: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer-display.html',
+      link: link
+    };
+  })
+
   .directive('htmlEmailBody', function($timeout, iFrameResize, inlineImagesFilter, loadImagesAsyncFilter, IFRAME_MESSAGE_PREFIX) {
     return {
       restrict: 'E',

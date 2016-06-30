@@ -5,15 +5,7 @@
     .sender-avatar.hidden-xs
       inbox-emailer-avatar(emailer="::email.from")
     .avatarify
-      .from
-        label.line-header #{__('From')}:
-        inbox-emailer(emailer="::email.from")
-      .to
-        label.line-header #{__('To')}:
-        inbox-emailer-group(group="::email.to")
-      .cc
-        label.line-header #{__('CC')}:
-        inbox-emailer-group(group="::email.cc")
+      inbox-emailer-display(ng-if="::email", email="::email")
       .preview.ellipsis.line-header {{::email.preview}}
 
     .email-header-right

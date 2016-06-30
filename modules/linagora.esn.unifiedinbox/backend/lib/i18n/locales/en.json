@@ -54,5 +54,7 @@
   "Your active filter is too restrictive": "Your active filter is too restrictive",
   "Did you know you can drag & drop messages to this folder? Give it a try!": "Did you know you can drag & drop messages to this folder? Give it a try!",
   "Clear filters": "Clear filters",
-  "There is nothing to display": "There is nothing to display"
+  "There is nothing to display": "There is nothing to display",
+  "close": "close",
+  "me": "me"
 }

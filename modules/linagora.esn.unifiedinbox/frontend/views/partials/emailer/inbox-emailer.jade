@@ -1,2 +1,3 @@
-.emailer {{ emailer.name }}
-  span(ng-if="::emailer.email").hidden-xs.email <<a op-inbox-compose ng-href="mailto:{{ ::emailer.email }}">{{ ::emailer.email }}</a>>
+.emailer(title="{{ ::emailer.email }}")
+  | {{ emailer.name }}
+  span.hidden-xs.email(ng-if="::emailer.email") <<a op-inbox-compose ng-href="mailto:{{ ::emailer.email }}">{{ ::emailer.email }}</a>>
