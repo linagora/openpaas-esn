@@ -14,7 +14,7 @@ angular.module('esn.timeline', [
 
   .config(function(dynamicDirectiveServiceProvider) {
     var timelineControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(
-      true, 'controlcenter-menu-timeline', { priority: -1 });
+      true, 'controlcenter-menu-timeline', { priority: -10 });
     dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', timelineControlCenterMenu);
   })
 

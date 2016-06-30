@@ -1,16 +1,16 @@
 sub-header
   profile-edit-subheader.hidden-md
 
-.col-xs-12.col-md-10.no-padding-xs
-  .m-b-10.flex-space-between.hidden-xs
-    button.btn.btn-default(type='button' ui-sref='controlcenter.profile')
+.container.col-xs-12.col-md-12.no-padding-xs
+  .m-t-30.m-b-25.flex-space-between.hidden-xs
+    button.btn.btn-default(type='button' ui-sref='profile')
       i.mdi.mdi-reply
       | #{__('Cancel')}
     .edit-profile
       .header-label #{__(' Edit Profile')}
     ul.actions.flex-space-around
       li.profile-dropdown.dropdown
-        button.btn.btn-primary(ui-sref='controlcenter.profile', ng-click='updateProfile(user)')
+        button.btn.btn-primary(ui-sref='profile', ng-click='updateProfile(user)')
           i.mdi.mdi-pencil
           | #{__('Save')}
   .card

@@ -1,0 +1,12 @@
+.profile-tabs
+  ul.esn-tab
+    li.btn-wave(ui-sref-active="active")
+      a(href="", ui-sref="profile.details.view")
+        | #{__('Profile')}
+    li.btn-wave(ui-sref-active="active")
+      a(href="", ui-sref="profile.details.followers")
+        | #{__('Followers')} ({{user.followers}})
+    li.btn-wave(ui-sref-active="active")
+      a(href="", ui-sref="profile.details.followings")
+        | #{__('Followings')} ({{user.followings}})
+.ui-view(name="details")

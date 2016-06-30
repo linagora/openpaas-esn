@@ -203,4 +203,71 @@ describe('The esn.follow Angular module', function() {
       });
     });
   });
+
+  describe('The FollowPaginationProvider factory', function() {
+
+    var $q, $rootScope, FollowPaginationProvider;
+
+    function generateData(size) {
+      var result = [];
+      for (var i = 0; i < size; i++) {
+        result.push({link: {type: 'follow', actor: {objectType: 'user', _id: 1}, object: {objectType: 'user', _id: 2}}, user: {_id: 1}});
+      }
+      return result;
+    }
+
+    beforeEach(inject(function(_$controller_, _$q_, _$rootScope_) {
+      $q = _$q_;
+      $rootScope = _$rootScope_;
+    }));
+
+    beforeEach(function() {
+      inject(function($injector) {
+        FollowPaginationProvider = $injector.get('FollowPaginationProvider');
+      });
+    });
+
+    describe('The loadNextItems function', function() {
+      it('should send back data and lastPage flag to false when end is not reached', function(done) {
+        var size = 10;
+        var options = {limit: size};
+        var user = {
+          _id: 1
+        };
+
+        var paginable = function() {
+          return $q.when({data: generateData(size)});
+        };
+
+        var service = new FollowPaginationProvider(paginable, options, user);
+        service.loadNextItems().then(function(result) {
+          expect(result.data.length).to.equal(size);
+          expect(result.lastPage).to.be.false;
+          expect(service.options.offset).to.equal(size);
+          done();
+        }, done);
+        $rootScope.$digest();
+      });
+
+      it('should send back data and lastPage flag to true when end is reached', function(done) {
+        var size = 10;
+        var options = {limit: size};
+        var user = {
+          _id: 1
+        };
+
+        var paginable = function() {
+          return $q.when({data: generateData(size / 2)});
+        };
+
+        var service = new FollowPaginationProvider(paginable, options, user);
+        service.loadNextItems().then(function(result) {
+          expect(result.data.length).to.equal(size / 2);
+          expect(result.lastPage).to.be.true;
+          done();
+        }, done);
+        $rootScope.$digest();
+      });
+    });
+  });
 });

@@ -1,0 +1,37 @@
+.pmb-block
+  .pmbb-header
+    h2
+      i.mdi.mdi-account.m-r-5
+      | #{__('Profile Informations')}
+  .pmbb-body.p-l-30
+    .pmbb-view
+      dl.dl-horizontal
+        dt
+          i.mdi.mdi-email.m-r-5
+          | #{__('Email')}
+        dd
+          a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
+      dl.dl-horizontal
+        dt
+          i.mdi.mdi-phone.m-r-5
+          | #{__('Phone')}
+        dd
+          | {{user.main_phone}}
+      dl.dl-horizontal
+        dt
+          i.mdi.mdi-city.m-r-5
+          | #{__('Building Location')}
+          dd
+            | {{user.building_location}}
+      dl.dl-horizontal
+        dt
+          i.mdi.mdi-monitor.m-r-5
+          | #{__('Office Location')}
+          dd
+            | {{user.office_location}}
+      dl.dl-horizontal
+        dt
+          i.mdi.mdi-account.m-r-5
+          | #{__('Bio')}
+          dd
+            | {{user.description}}

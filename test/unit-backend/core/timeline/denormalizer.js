@@ -9,6 +9,11 @@ describe('The timeline denormalizer module', function() {
 
   beforeEach(function() {
     mockery.registerMock('../logger', require('../../fixtures/logger-noop'));
+    mockery.registerMock('./utils', {
+      asObject: function(e) {
+        return e;
+      }
+    });
   });
 
   describe('The denormalize function', function() {

@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var q = require('q');
+var utils = require('./utils');
 var handlers = {};
 
 function register(verb, handler) {
@@ -11,6 +12,8 @@ module.exports.register = register;
 
 function denormalize(entry, options) {
   options = options || {};
+
+  entry = utils.asObject(entry);
   if (handlers[entry.verb]) {
     return handlers[entry.verb](entry, options);
   }

@@ -133,6 +133,7 @@ describe('The timelineentries API', function() {
                   }
                 }
               ]);
+              expect(res.body[0].object.displayName).to.be.defined;
               done();
             }));
         }));

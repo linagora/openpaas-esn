@@ -1,7 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.profile', [
-  'op.dynamicDirective',
   'ui.router',
   'esn.http',
   'esn.user',
@@ -9,25 +8,12 @@ angular.module('linagora.esn.profile', [
   'esn.profile',
   'esn.notification'
   ])
-  .config(function($stateProvider, dynamicDirectiveServiceProvider) {
+  .config(function($stateProvider) {
     $stateProvider
-      .state('controlcenter.profile', {
-        url: '/profile',
-        templateUrl: '/profile/views/profile',
-        controller: 'profileController',
-        resolve: {
-          user: function($location, userAPI) {
-            return userAPI.currentUser().then(function(response) {
-              return response.data;
-            }, function() {
-              $location.path('/');
-            });
-          }
-        }
-      })
-      .state('controlcenter.profileEdition', {
-        url: '/edit',
-        templateUrl: '/profile/views/profile-edit',
+
+      .state('profileEdit', {
+        url: '/profileedit',
+        templateUrl: '/profile/views/edit',
         controller: 'profileEditionController',
         resolve: {
           user: function($location, userAPI) {
@@ -39,24 +25,68 @@ angular.module('linagora.esn.profile', [
           }
         }
       })
-      .state('/profile/:user_id', {
-        url: '/profile/:user_id',
-        templateUrl: '/profile/views/profile',
+      .state('profile', {
+        url: '/profile/:user_id?',
+        templateUrl: '/profile/views/index',
         controller: 'profileController',
+        params: {user_id: {value:null, squash: true}},
+        deepStateRedirect: {
+          default: 'profile.details.view',
+          params: true,
+          fn: function() {
+            return {state: 'profile.details.view'};
+          }
+        },
         resolve: {
-          user: function($stateParams, $location, userAPI) {
-            return userAPI.user($stateParams.user_id).then(function(response) {
-              return response.data;
-            }, function() {
-              $location.path('/');
-            });
+          user: function($stateParams, $location, userAPI, session, $q) {
+
+            if ($stateParams.user_id) {
+              return userAPI.user($stateParams.user_id).then(function(response) {
+                return response.data;
+              }, function() {
+                $location.path('/');
+              });
+            }
+
+            return $q.when(session.user);
+          }
+        }
+      })
+
+      .state('profile.details', {
+        abstract: true,
+        url: '/details',
+        views: {
+          'main@profile': {
+            templateUrl: '/profile/views/partials/profile-tabs'
+          }
+        }
+      })
+
+      .state('profile.details.view', {
+        url: '/view',
+        views: {
+          'details@profile.details': {
+            templateUrl: '/profile/views/partials/profile-view'
+          }
+        }
+      })
+      .state('profile.details.followers', {
+        url: '/followers',
+        views: {
+          'details@profile.details': {
+            template: '<follow-list></follow-list>',
+            controller: 'followerListController'
+          }
+        }
+      })
+      .state('profile.details.followings', {
+        url: '/followings',
+        views: {
+          'details@profile.details': {
+            template: '<follow-list></follow-list>',
+            controller: 'followingListController'
           }
         }
       });
-
-    var profileControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(
-      true, 'controlcenter-menu-profile', { priority: -1 });
-
-    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', profileControlCenterMenu);
-
   });
