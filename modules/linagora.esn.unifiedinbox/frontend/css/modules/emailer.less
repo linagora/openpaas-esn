@@ -1,0 +1,35 @@
+.inbox-root {
+  .emailer {
+    display: inline-block;
+    word-break: break-word;
+
+    .email {
+      margin-left: 5px;
+    }
+  }
+
+  inbox-emailer-display {
+    .from, .to, .cc {
+      .flex-start;
+
+      .line-header {
+        min-width: 35px;
+      }
+    }
+
+    .recipients {
+      & > .collapsed span.me {
+        margin-left: 2px;
+      }
+    }
+
+    .more {
+      margin-left: 10px;
+
+      & > i.mdi {
+        transform: scale(2);
+        margin-left: 2px;
+      }
+    }
+  }
+}

@@ -1710,4 +1710,93 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   });
 
+  describe('The inboxEmailerDisplay directive', function() {
+
+    var email;
+    var session;
+
+    beforeEach(function() {
+      email = {
+        from: { name: 'Bob', email: 'bob@email', resolve: angular.noop },
+        to: [{ name: 'Alice', email: 'alice@email', resolve: angular.noop }],
+        cc: [{ name: 'Clark', email: 'clark@email', resolve: angular.noop }]
+      };
+    });
+
+    beforeEach(inject(function(_session_) {
+      session = _session_;
+    }));
+
+    it('should initialize by exposing scope attributes properly', function() {
+      $scope.email = email;
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer).to.deep.equal(email.to[0]);
+      expect(isolateScope.numberOfHiddenEmailer).to.equal(1);
+      expect(isolateScope.me).to.equal(false);
+      expect(isolateScope.showMoreButton).to.equal(true);
+    });
+
+    it('should be collapsed by default', function() {
+      $scope.email = email;
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.collapsed').length).to.equal(1);
+      expect(element.find('.expanded').length).to.equal(0);
+    });
+
+    it('should be expanded after a click on more button then collapsed when click again', function() {
+      $scope.email = email;
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      element.find('.more').click();
+
+      expect(element.find('.collapsed').length).to.equal(0);
+      expect(element.find('.expanded').length).to.equal(1);
+
+      element.find('.more').click();
+
+      expect(element.find('.collapsed').length).to.equal(1);
+      expect(element.find('.expanded').length).to.equal(0);
+    });
+
+    it('should not show more button when there is only 1 recipient', function() {
+      $scope.email = {
+        from: { name: 'Bob', email: 'bob@email', resolve: angular.noop },
+        to: [{ name: 'Alice', email: 'alice@email', resolve: angular.noop }],
+        cc: []
+      };
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.more').css('display')).to.equal('none');
+    });
+
+    it('should show name and "me" if there is only 1 recipient and it is current user', function() {
+      session.user = { preferredEmail: email.to[0].email };
+      $scope.email = email;
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.isolateScope().me).to.equal(true);
+      expect(element.find('.to').html()).to.contain(email.to[0].name);
+      expect(element.find('.to span.me').html()).to.contain('(me)');
+    });
+
+    it('should show both name and email if there is only 1 recipient and it is not current user', function() {
+      $scope.email = {
+        from: { name: 'Bob', email: 'bob@email', resolve: angular.noop },
+        to: [{ name: 'Alice', email: 'alice@email', resolve: angular.noop }],
+        cc: []
+      };
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.to').html()).to.contain(email.to[0].name);
+      expect(element.find('.to').html()).to.contain(email.to[0].email);
+    });
+
+  });
+
 });
