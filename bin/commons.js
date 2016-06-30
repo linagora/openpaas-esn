@@ -33,3 +33,15 @@ module.exports.loginAsUser = function(baseUrl, email, password, done) {
     return done(null, body);
   });
 };
+
+function log(level, message) {
+  console.log('[CLI] ' + level + ' ' + message);
+}
+
+module.exports.logInfo = function(message) {
+  log('INFO', message);
+};
+
+module.exports.logError = function(message) {
+  log('ERROR', message);
+};
