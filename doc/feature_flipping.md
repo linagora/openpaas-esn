@@ -70,6 +70,12 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 ```
 ```
 {
+    "name" : "composer.attachments",
+    "value" : false
+}
+```
+```
+{
     "name" : "maxSizeUpload",
     "value" : 20971520
 }
