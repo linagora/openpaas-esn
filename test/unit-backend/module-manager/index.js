@@ -77,6 +77,7 @@ describe('The module manager', function() {
         'linagora.esn.core.message',
         'linagora.esn.core.monitoring',
         'linagora.esn.core.notification',
+        'linagora.esn.core.oauth',
         'linagora.esn.core.passport',
         'linagora.esn.core.pubsub',
         'linagora.esn.core.pubsub.global',

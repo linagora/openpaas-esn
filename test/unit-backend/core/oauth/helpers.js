@@ -1,21 +1,18 @@
 'use strict';
 
-var chai = require('chai');
-var expect = chai.expect;
+var expect = require('chai').expect;
 
-describe('The strategy helper', function() {
+describe('The oauth helpers core module', function() {
 
   describe('The upsertAccount function', function() {
     var user, account1, account2;
     var token = '1234';
     var token_secret = '88738';
     var refresh_token = 'new refresh token';
-
-    function getModule() {
-      return require('../../../../../backend/lib/strategies/helper')(function() {});
-    }
+    var upsertUserAccount;
 
     beforeEach(function() {
+
       user = {
         accounts: [],
         save: function(callback) {
@@ -46,10 +43,11 @@ describe('The strategy helper', function() {
         }
       };
 
+      upsertUserAccount = this.helpers.requireBackend('core/oauth/helpers').upsertUserAccount;
     });
 
     it('should add account if not already in accounts', function(done) {
-      getModule().upsertAccount(user, account1, function(err, saved) {
+      upsertUserAccount(user, account1, function(err, saved) {
         expect(saved.status).to.equal('created');
         expect(saved.user.accounts[0]).to.deep.equal(account1);
         done();
@@ -69,7 +67,7 @@ describe('The strategy helper', function() {
       account1.data.token = token;
       account1.data.token_secret = token_secret;
 
-      getModule().upsertAccount(user, account1, function(err, saved) {
+      upsertUserAccount(user, account1, function(err, saved) {
         expect(saved.status).to.equal('updated');
         expect(saved.user.accounts[0]).to.deep.equal({
           type: 'oauth',
@@ -122,7 +120,7 @@ describe('The strategy helper', function() {
       account.data.refresh_token = refresh_token;
       account.data.token_secret = token_secret;
 
-      getModule().upsertAccount(user, account, function(err, saved) {
+      upsertUserAccount(user, account, function(err, saved) {
         expect(saved.status).to.equal('updated');
         expect(saved.user.accounts[0]).to.deep.equal({
           type: 'oauth',
@@ -167,7 +165,7 @@ describe('The strategy helper', function() {
         expect(name).to.equal('accounts');
         done();
       };
-      getModule().upsertAccount(user, account, function() {});
+      upsertUserAccount(user, account, function() {});
     });
 
     it('should not update refresh_token of accounts if it does not exists', function(done) {
@@ -189,7 +187,7 @@ describe('The strategy helper', function() {
         }
       };
 
-      getModule().upsertAccount(user, updatedAccount, function(err, saved) {
+      upsertUserAccount(user, updatedAccount, function(err, saved) {
         expect(saved.user.accounts[0]).to.deep.equal({
           type: 'oauth',
           data: {
