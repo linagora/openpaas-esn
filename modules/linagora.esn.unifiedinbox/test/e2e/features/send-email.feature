@@ -14,5 +14,4 @@ Feature: As a user of Open-Paas, on the Unified Inbox module,
     When I press "Send" button and wait for the message to be sent
       And I log in to OpenPaas with "user2" account
       And Display Unified Inbox
-    Then I have at least 1 message
-      And My first message is from "user1" with subject "user1 sends email to user2" and preview contains "Cheers, user1"
+    Then I see a message from "user1" with subject "user1 sends email to user2" and preview contains "Cheers, user1"
