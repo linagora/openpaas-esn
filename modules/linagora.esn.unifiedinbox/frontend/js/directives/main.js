@@ -368,7 +368,19 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.isBoxed = function() {return true;};
 
+        function focusOnRightField(email) {
+          $timeout(function() {
+            if (!email || !email.to || email.to.length === 0) {
+              element.find('.recipients-to input').focus();
+            } else {
+              element.find('.summernote').summernote('focus');
+            }
+          }, 0);
+        }
+
         scope.onInit = function() {
+          focusOnRightField(scope.email);
+
           element
             .find('.note-editable')
             .after($compile('<composer-attachments></composer-attachments>')(scope));
