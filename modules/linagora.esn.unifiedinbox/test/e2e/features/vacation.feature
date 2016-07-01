@@ -4,8 +4,6 @@ Feature: As a user of Open-Paas, on the Unified Inbox module,
 
   Background:
     Given I use a desktop screen
-      And "user1" is an existing james user
-      And "user2" is an existing james user
 
   Scenario: user2 receives vacation message from user1
     Given I logged in to OpenPaas with "user1" account
@@ -23,5 +21,4 @@ Feature: As a user of Open-Paas, on the Unified Inbox module,
       And Body is "Hi, are you on vacation?"
       And I press "Send" button and wait for the message to be sent
       And I go to "All Mail" folder
-    Then I have at least 1 message
-      And My first message is from "user1" with subject "Re: user2 receives vacation message from user1" and preview contains "I am on vacation"
+    Then I see a message from "user1" with subject "Re: user2 receives vacation message from user1" and preview contains "I am on vacation"

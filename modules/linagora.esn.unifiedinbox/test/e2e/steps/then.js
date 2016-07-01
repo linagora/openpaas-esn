@@ -1,5 +1,7 @@
 'use strict';
 
+var q = require('q');
+
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
 var indicatorPage = require('../pages/indicator')();
@@ -66,5 +68,42 @@ module.exports = function() {
 
   this.Then('I see the vacation indicator', function() {
     return this.expect(indicatorPage.isPresent()).to.eventually.equal(true);
+  });
+
+  this.Then('I see a message from "$from" with subject "$subject" and preview contains "$preview"', { timeout: 60 * 1000 }, function(from, subject, preview, done) {
+
+    var maxTryCount = 10;
+    var self = this;
+
+    _try(1);
+
+    function _try(tryCount) {
+      return _check().then(done.bind(null, null), function() {
+        if (tryCount < maxTryCount) {
+          return browser.refresh().then(_try.bind(null, tryCount + 1));
+        } else {
+          done(new Error('Cannot find the message'));
+        }
+      });
+    }
+
+    function _check() {
+      return messagePage.allMessages.then(function(messages) {
+        return q.all(messages.map(_checkMessage))
+          .then(q.reject, q.when);
+      });
+    }
+
+    function _checkMessage(message) {
+      var messageSubject = message.element(by.css('.inbox-subject'));
+      var messageFrom = message.element(by.css('.emailer'));
+      var messagePreview = message.element(by.css('.preview'));
+
+      return q.all([
+        self.expect(messageFrom.getText()).to.eventually.contain(self.USERS[from].email),
+        self.expect(messageSubject.getText()).to.eventually.equal(subject),
+        self.expect(messagePreview.getText()).to.eventually.contain(preview)
+      ]).then(q.reject, q.when);
+    }
   });
 };
