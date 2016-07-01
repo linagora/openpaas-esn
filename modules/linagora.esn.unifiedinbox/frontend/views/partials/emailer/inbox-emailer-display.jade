@@ -27,3 +27,7 @@
     span(ng-if="collapsed") +{{numberOfHiddenEmailer}}
     span(ng-if="!collapsed") #{__('close')}
     i.mdi(ng-class="collapsed ? 'mdi-menu-down' : 'mdi-menu-up'")
+
+.date
+  label.line-header #{__('Date')}:
+  span {{ ::email.date | date:'short' }}
