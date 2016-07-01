@@ -1,6 +1,7 @@
 'use strict';
 
-var request = require('request');
+var request = require('request'),
+    ESConfiguration = require('esn-elasticsearch-configuration');
 
 module.exports.getDBOptions = function(host, port, dbName) {
 
@@ -9,6 +10,10 @@ module.exports.getDBOptions = function(host, port, dbName) {
   dbName = dbName || 'esn';
 
   return {connectionString: 'mongodb://' + host + ':' + port + '/' + dbName};
+};
+
+module.exports.getESConfiguration = function(host, port) {
+  return new ESConfiguration({ host: host || 'localhost', port: port || 9200 });
 };
 
 module.exports.exit = function() {

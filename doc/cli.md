@@ -61,7 +61,9 @@ $ node ./bin/cli elasticsearch --host localhost --port 9200 --index contacts
 
 **reindex**
 
-It will index or reindex data from the DB to ES
+It will index or reindex data from the DB to ES.
+Reindexing users will fetch all required information from the DB, so the only required parameters are --db-*.
+Reindexing contacts will only perform ES queries, so the only required parameters are --es-*.
 
 ```bash
 $ node ./bin/cli reindex --db-host localhost --db-port 27017 --db-name esn --type users
@@ -70,7 +72,9 @@ $ node ./bin/cli reindex --db-host localhost --db-port 27017 --db-name esn --typ
 - db-host: default is localhost
 - db-port: default is 27017
 - db-name: default is esn
-- type: the data type to reindex. Possible values: users
+- es-host: default is localhost
+- es-port: default is 9200
+- type: the data type to reindex. Possible values: users, contacts
 
 **populate**
 
