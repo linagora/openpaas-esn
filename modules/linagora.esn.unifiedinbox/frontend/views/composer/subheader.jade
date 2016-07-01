@@ -5,7 +5,7 @@ block left
 
 block right
   .inbox-composer-buttons
-    button.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage")
+    button.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage", ng-class="{ 'btn-with-badge': attachmentStatus.number > 0 }")
       .badge-container
         .badge.composer-badge(ng-hide='attachmentStatus.number === 0', ng-class="{ error: attachmentStatus.error }") {{ attachmentStatus.number | maxPlus:99 }}
         i.mdi.mdi-paperclip(ng-class="{ uploading: attachmentStatus.uploading }")
