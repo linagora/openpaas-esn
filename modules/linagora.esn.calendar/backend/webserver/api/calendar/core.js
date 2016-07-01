@@ -309,7 +309,16 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
         calendarHomeId: editor._id
       };
 
-      var sendMailToAllAttendees = users.map(function(user) {
+      var involvedUsers = users.filter(function(user) {
+        var attendeeEmail = user.email || user.emails[0];
+
+        if (event.attendees) {
+          return event.attendees[attendeeEmail] ? event.attendees[attendeeEmail].partstat !== 'DECLINED' : true;
+        }
+
+        return true;
+      });
+      var sendMailToAllAttendees = involvedUsers.map(function(user) {
         var attendeeEmail = user.email || user.emails[0];
         var to = { objectType: 'email', id: attendeeEmail };
 
