@@ -39,4 +39,5 @@ angular.module('linagora.esn.unifiedinbox')
     default: '/unifiedinbox/views/partials/empty-messages/containers/default.html',
     inbox: '/unifiedinbox/views/partials/empty-messages/containers/inbox.html',
     twitter: '/unifiedinbox/views/partials/empty-messages/containers/twitter.html'
-  });
+  })
+  .constant('INBOX_LONG_TASK_DURATION', 1000);
