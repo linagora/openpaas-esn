@@ -2203,6 +2203,27 @@ describe('The Unified Inbox Angular module services', function() {
         $timeout.flush();
       });
 
+      it('should not generate notification when called with empty email', function() {
+        new Composition({}).destroyDraft();
+
+        expect(notifyOfGracedRequest).to.have.not.been.called;
+      });
+
+      it('should destroy an existing draft even if email is empty', function(done) {
+        var existingDraft = new jmap.Message(jmapClient, 123, 'threadId', ['box1'], { subject: 'a subject' }),
+            composition = new Composition(existingDraft);
+
+        composition.email.subject = '';
+
+        composition.destroyDraft().then(function() {
+          expect(jmapClient.destroyMessage).to.have.been.calledWith(123);
+
+          done();
+        });
+
+        $timeout.flush();
+      });
+
       it('should reopen the composer with the expected email when the grace period is cancelled', function(done) {
         var expectedEmail = { to: ['to@to'], cc: [], bcc: [], subject: 'expected subject', htmlBody: 'expected body' };
         newComposerService.open = sinon.spy();

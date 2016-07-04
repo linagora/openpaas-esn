@@ -496,7 +496,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
                                    backgroundAction, emailBodyService, waitUntilMessageIsComplete, newComposerService,
-                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest) {
+                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest, _) {
 
     function prepareEmail(email) {
       var preparingEmail = angular.copy(email || {});
@@ -544,6 +544,15 @@ angular.module('linagora.esn.unifiedinbox')
 
     Composition.prototype.getEmail = function() {
       return this.email;
+    };
+
+    Composition.prototype.isEmailEmpty = function() {
+      var mail = this.getEmail();
+
+      return ['subject', 'to', 'cc', 'bcc', 'attachments', emailBodyService.bodyProperty].every(function(arg) {
+          return _.isEmpty(mail[arg]);
+        }
+      );
     };
 
     Composition.prototype.canBeSentOrNotify = function() {
@@ -609,16 +618,20 @@ angular.module('linagora.esn.unifiedinbox')
     Composition.prototype.destroyDraft = function() {
       this._cancelDelayedDraftSave();
 
-      return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
-        .then(function(result) {
-          if (result.cancelled) {
-            _makeReopenComposerFn(this.email)({
-              fromDraft: this.draft
-            });
-          } else {
-            this.draft.destroy();
-          }
-        }.bind(this));
+      if (!this.isEmailEmpty()) {
+        return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
+          .then(function(result) {
+            if (result.cancelled) {
+              _makeReopenComposerFn(this.email)({
+                fromDraft: this.draft
+              });
+            } else {
+              this.draft.destroy();
+            }
+          }.bind(this));
+      } else {
+        return this.draft.destroy();
+      }
     };
 
     return Composition;
