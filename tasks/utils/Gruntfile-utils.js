@@ -205,7 +205,9 @@ GruntfileUtils.prototype.buildEsnBaseImage = function() {
     src: ['package.json', 'bower.json', dockerfilePath]
   }, {
     t: DOCKER_IMAGES.esn_base,
-    dockerfile: dockerfilePath
+    dockerfile: dockerfilePath,
+    nocache: true,
+    pull: true
   });
 };
 
