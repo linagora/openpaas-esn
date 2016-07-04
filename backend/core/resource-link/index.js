@@ -55,15 +55,24 @@ module.exports.remove = remove;
 function count(options) {
   var defer = q.defer();
   var query = {};
+
   if (options.type) {
     query.type = options.type;
   }
-  if (options.source) {
+
+  if (options.source && options.source.id) {
     query['source.id'] = options.source.id;
+  }
+
+  if (options.source && options.source.objectType) {
     query['source.objectType'] = options.source.objectType;
   }
-  if (options.target) {
+
+  if (options.target && options.target.id) {
     query['target.id'] = options.target.id;
+  }
+
+  if (options.target && options.target.objectType) {
     query['target.objectType'] = options.target.objectType;
   }
 
@@ -80,15 +89,24 @@ module.exports.count = count;
 function list(options) {
   var defer = q.defer();
   var query = {};
+
   if (options.type) {
     query.type = options.type;
   }
-  if (options.source) {
+
+  if (options.source && options.source.id) {
     query['source.id'] = options.source.id;
+  }
+
+  if (options.source && options.source.objectType) {
     query['source.objectType'] = options.source.objectType;
   }
-  if (options.target) {
+
+  if (options.target && options.target.id) {
     query['target.id'] = options.target.id;
+  }
+
+  if (options.target && options.target.objectType) {
     query['target.objectType'] = options.target.objectType;
   }
 
