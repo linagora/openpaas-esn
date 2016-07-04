@@ -17,3 +17,8 @@ function like(sourceTuple, targetTuple) {
   return resourceLink.create({source: sourceTuple, target: targetTuple, type: CONSTANTS.LIKE_LINK_TYPE});
 }
 module.exports.like = like;
+
+function unlike(sourceTuple, targetTuple) {
+  return resourceLink.remove({source: sourceTuple, target: targetTuple, type: CONSTANTS.LIKE_LINK_TYPE});
+}
+module.exports.unlike = unlike;
