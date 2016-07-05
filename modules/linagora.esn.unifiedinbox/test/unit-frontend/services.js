@@ -1564,7 +1564,6 @@ describe('The Unified Inbox Angular module services', function() {
         draft.save({to: []});
 
         $rootScope.$digest();
-        expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Saving your email as draft in progress...');
         expect(notificationFactory.weakSuccess).to.have.been.calledWithExactly('', 'Saving your email as draft succeeded');
       });
 
@@ -1576,7 +1575,6 @@ describe('The Unified Inbox Angular module services', function() {
         draft.needToBeSaved = function() {return true;};
 
         draft.save({to: []}).catch(function(error) {
-          expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Saving your email as draft in progress...');
           expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Saving your email as draft failed');
           expect(error).to.deep.equal(err);
           done();
