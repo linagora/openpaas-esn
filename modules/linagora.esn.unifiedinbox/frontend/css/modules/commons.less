@@ -1,12 +1,38 @@
 .inbox-ng-leave() {
   &.ng-leave {
-    .transition(0.2s ease-out all);
+    .transition(all 0.2s ease-out);
 
     opacity: 1;
 
     &.ng-leave-active {
       max-height: 0;
       opacity: 0;
+    }
+  }
+}
+
+.inbox-ng-enter(@max-height) {
+  &.ng-enter {
+    .transition(all 0.2s ease-out);
+
+    opacity: 0;
+    max-height: 0;
+
+    &.ng-enter-active {
+      opacity: 1;
+      max-height: @max-height;
+    }
+  }
+}
+
+.inbox-ng-move() {
+  &.ng-move {
+    .transition(opacity 0.5s ease-out);
+
+    opacity: 0;
+
+    &.ng-move-active {
+      opacity: 1;
     }
   }
 }
