@@ -732,6 +732,40 @@ describe('The calendar core module', function() {
           done();
         });
       });
+
+      it('should only send messages to involved users', function(done) {
+        var method = 'REPLY';
+        var ics = fs.readFileSync(__dirname + '/../../fixtures/involved.ics', 'utf-8');
+
+        userMock.findByEmail = function(email, callback) {
+          if (email === 'attendee1@open-paas.org') {
+            return callback(null, attendee1);
+          } else {
+            return callback(null, attendee2);
+          }
+        };
+
+        var editor = {
+          displayName: attendee1.firstname + ' ' + attendee1.lastname,
+          email: attendee1.emails[0]
+        };
+
+        var called = 0;
+        contentSenderMock.send = function(from, to, content, options, type) {
+          called++;
+          expect(type).to.equal('email');
+          if (called === 1) {
+            expect(to).to.deep.equal({objectType: 'email', id: attendee1.emails[0]});
+          }
+        };
+
+        this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
+        this.module.inviteAttendees(attendee1, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+          expect(err).to.not.exist;
+          expect(called).to.equal(1);
+          done();
+        });
+      });
     });
 
     describe('when method is CANCEL', function() {
