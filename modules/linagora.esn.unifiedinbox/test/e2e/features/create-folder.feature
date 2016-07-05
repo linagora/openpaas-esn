@@ -12,6 +12,6 @@ Feature: As a user of Open-Paas, on the Unified Inbox module,
       And I write "custom folder" in the Name field
       And I set "Unified Inbox" in the "Is located under" field
       And I press "Save" button on Inbox subheader
-    Then I have two notifications "Creation of folder custom folder in progress...", then "Creation of folder custom folder succeeded"
+    Then I see a notification with message "Creation of folder custom folder succeeded"
       And the location url should equal "/unifiedinbox/inbox"
       And I have "custom folder" in the sidebar at the root level

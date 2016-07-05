@@ -51,7 +51,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('asyncAction', function($q, $log, notificationFactory) {
+  .factory('asyncAction', function($q, $log, $timeout, notificationFactory, INBOX_LONG_TASK_DURATION) {
 
     function notifyFailure(cancelActionConfig, errorMessage) {
       var notification = notificationFactory.weakError('Error', errorMessage);
@@ -61,8 +61,15 @@ angular.module('linagora.esn.unifiedinbox')
 
     return function(message, action, options) {
 
-      var isSilent = (options && options.silent),
-          notification = isSilent ? undefined : notificationFactory.strongInfo('', message + ' in progress...');
+      var isSilent = (options && options.silent);
+      var notification;
+      var timeoutPromise;
+
+      if (!isSilent) {
+        timeoutPromise = $timeout(function() {
+          notification = notificationFactory.strongInfo('', message + ' in progress...');
+        }, INBOX_LONG_TASK_DURATION, false);
+      }
 
       return action()
         .then(function(value) {
@@ -77,6 +84,7 @@ angular.module('linagora.esn.unifiedinbox')
         })
         .finally(function() {
           notification && notification.close();
+          timeoutPromise && $timeout.cancel(timeoutPromise);
         });
     };
   })

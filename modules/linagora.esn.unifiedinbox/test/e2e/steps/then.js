@@ -37,25 +37,31 @@ module.exports = function() {
     ]);
   });
 
-  this.Then(/^I have two notifications "([^"]*)", then "([^"]*)"$/, function(notification_1, notification_2, next) {
-    var FOLDER_CREATION_IN_PROGRESS = notification_1;
-    var FOLDER_CREATION_SUCCEEDED = notification_2;
+  this.Then('I see a notification with message "$message"', { timeout: 60 * 1000 }, function(message, done) {
+
     var self = this;
 
-    this.notifications.messages.each(function(message, index) {
-      message.getText().then(function(notificationMessage) {
-        if (notificationMessage !== FOLDER_CREATION_IN_PROGRESS && notificationMessage !== FOLDER_CREATION_SUCCEEDED) {
-          next(new Error('Unexpected notification message: ' + notificationMessage));
-        }
+    self.tryUntilSuccess(check, {
+        refreshBeforeRetry: false,
+        waitBeforeRetry: 2000,
+        maxTryCount: 5
+      })
+      .then(done.bind(null, null))
+      .catch(function() {
+        done(new Error('The wanted notification is not present'));
+      });
 
-        (index === 0) && self.expect(notificationMessage).to.equal(FOLDER_CREATION_IN_PROGRESS);
-        (index === 1) && self.expect(notificationMessage).to.equal(FOLDER_CREATION_SUCCEEDED);
+    function check() {
+      return q.all(self.notifications.messages.map(checkNotification)).then(q.reject, q.when);
+    }
 
-        if (notificationMessage === FOLDER_CREATION_SUCCEEDED) {
-          next();
+    function checkNotification(notification) {
+      return notification.getText().then(function(text) {
+        if (text === message) {
+          return $q.reject();
         }
       });
-    });
+    }
   });
 
   this.Then('I have "$folder" in the sidebar at the root level', function(folder) {
@@ -72,25 +78,15 @@ module.exports = function() {
 
   this.Then('I see a message from "$from" with subject "$subject" and preview contains "$preview"', { timeout: 60 * 1000 }, function(from, subject, preview, done) {
 
-    var maxTryCount = 10;
     var self = this;
 
-    _try(1);
-
-    function _try(tryCount) {
-      return _check().then(done.bind(null, null), function() {
-        if (tryCount < maxTryCount) {
-          return browser.refresh().then(_try.bind(null, tryCount + 1));
-        } else {
-          done(new Error('Cannot find the message'));
-        }
-      });
-    }
+    this.tryUntilSuccess(_check, {
+      refreshBeforeRetry: true
+    }).then(done.bind(null, null), done.bind(null, new Error('Cannot find the message')));
 
     function _check() {
       return messagePage.allMessages.then(function(messages) {
-        return q.all(messages.map(_checkMessage))
-          .then(q.reject, q.when);
+        return q.all(messages.map(_checkMessage)).then(q.reject, q.when);
       });
     }
 
@@ -100,10 +96,30 @@ module.exports = function() {
       var messagePreview = message.element(by.css('.preview'));
 
       return q.all([
-        self.expect(messageFrom.getText()).to.eventually.contain(self.USERS[from].email),
-        self.expect(messageSubject.getText()).to.eventually.equal(subject),
-        self.expect(messagePreview.getText()).to.eventually.contain(preview)
+        _checkTextContain(messageFrom, self.USERS[from].email),
+        _checkTextEqual(messageSubject, subject),
+        _checkTextContain(messagePreview, preview)
       ]).then(q.reject, q.when);
+    }
+
+    function _checkTextContain(element, str) {
+      return element.getText().then(function(text) {
+        if (text.indexOf(str) > -1) {
+          return q.when();
+        }
+
+        return q.reject();
+      });
+    }
+
+    function _checkTextEqual(element, str) {
+      return element.getText().then(function(text) {
+        if (str === text) {
+          return q.when();
+        }
+
+        return q.reject();
+      });
     }
   });
 };

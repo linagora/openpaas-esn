@@ -3014,7 +3014,9 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The asyncAction factory', function() {
 
-    var asyncAction, notificationFactory, notification, $rootScope, mockedFailureHandler;
+    var notificationFactory, notification, mockedFailureHandler;
+    var $rootScope, $timeout, asyncAction;
+    var INBOX_LONG_TASK_DURATION;
 
     function qNoop() {
       return $q.when();
@@ -3038,9 +3040,11 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('notificationFactory', notificationFactory);
     }));
 
-    beforeEach(inject(function(_asyncAction_, _$rootScope_) {
+    beforeEach(inject(function(_asyncAction_, _$rootScope_, _$timeout_, _INBOX_LONG_TASK_DURATION_) {
       asyncAction = _asyncAction_;
       $rootScope = _$rootScope_;
+      $timeout = _$timeout_;
+      INBOX_LONG_TASK_DURATION = _INBOX_LONG_TASK_DURATION_;
     }));
 
     it('should start the action', function() {
@@ -3052,23 +3056,46 @@ describe('The Unified Inbox Angular module services', function() {
       expect(action).to.have.been.calledWith();
     });
 
-    it('should notify strongInfo when starting the action', function() {
-      asyncAction('Test', qNoop);
+    it('should notify strongInfo when the action takes greater than INBOX_LONG_TASK_DURATION to finish', function() {
+      asyncAction('Test', function() {
+        return $timeout(angular.noop, INBOX_LONG_TASK_DURATION + 1);
+      });
+
       $rootScope.$digest();
+      $timeout.flush();
 
       expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Test in progress...');
     });
 
-    it('should close the strongInfo notification when action resolves', function() {
-      asyncAction('Test', qNoop);
+    it('should not notify strongInfo when the action takes less than INBOX_LONG_TASK_DURATION to finish', function() {
+      asyncAction('Test', function() {
+        return $timeout(angular.noop, INBOX_LONG_TASK_DURATION - 1);
+      });
+
       $rootScope.$digest();
+      $timeout.flush();
+
+      expect(notificationFactory.strongInfo).to.not.have.been.called;
+    });
+
+    it('should close the strongInfo notification when action resolves', function() {
+      asyncAction('Test', function() {
+        return $timeout(angular.noop, INBOX_LONG_TASK_DURATION + 1);
+      });
+
+      $rootScope.$digest();
+      $timeout.flush();
 
       expect(notification.close).to.have.been.calledWith();
     });
 
     it('should close the strongInfo notification when action rejects', function() {
-      asyncAction('Test', qReject);
+      asyncAction('Test', function() {
+        return $timeout(angular.noop, INBOX_LONG_TASK_DURATION + 1).then($q.reject);
+      });
+
       $rootScope.$digest();
+      $timeout.flush();
 
       expect(notification.close).to.have.been.calledWith();
     });

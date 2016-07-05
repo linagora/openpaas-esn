@@ -12,7 +12,7 @@ Feature: As a user of Open-Paas, on the Unified Inbox module,
       And I go to "Vacation" configuration tab
       And I fill start date with "2015/06/20" and message body with "I am on vacation"
       And I press "Save" button on Inbox subheader
-      And I have two notifications "Modification of vacation settings in progress...", then "Modification of vacation settings succeeded"
+      And I see a notification with message "Modification of vacation settings succeeded"
     When I logged in to OpenPaas with "user2" account
       And Display Unified Inbox
       And Unified Inbox composer opened

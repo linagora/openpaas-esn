@@ -1,7 +1,9 @@
 'use strict';
 
+var q = require('q');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
+
 chai.use(chaiAsPromised);
 
 var loginPage = new (require('../login-page/pages/login'))();
@@ -43,6 +45,43 @@ function logIn(account) {
     });
 }
 
+function tryUntilSuccess(task, options) {
+  var maxTryCount = options.maxTryCount || 10;
+  var waitBeforeRetry = options.waitBeforeRetry;
+  var refreshBrowser = options.refreshBeforeRetry ? browser.refresh.bind(browser) : q.when;
+  var deferred = q.defer();
+
+  _try(1);
+
+  function _try(tryCount) {
+    return task().then(function() {
+      deferred.resolve();
+    }, function() {
+      if (tryCount < maxTryCount) {
+        _wait(waitBeforeRetry)
+          .then(refreshBrowser)
+          .then(_try.bind(null, tryCount + 1));
+      } else {
+        deferred.reject();
+      }
+    });
+  }
+
+  function _wait(timeout) {
+    if (!timeout) { return q.when(); }
+
+    var deferred = q.defer();
+
+    setTimeout(function() {
+      deferred.resolve();
+    }, timeout);
+
+    return deferred.promise;
+  }
+
+  return deferred.promise;
+}
+
 function World() {
   this.expect = chai.expect;
 
@@ -50,6 +89,7 @@ function World() {
   this.waitUrlToBeRedirected = waitUrlToBeRedirected;
   this.logoutAndGoToLoginPage = logoutAndGoToLoginPage;
   this.logIn = logIn;
+  this.tryUntilSuccess = tryUntilSuccess;
 }
 
 World.prototype.USERS = {
