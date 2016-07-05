@@ -1586,7 +1586,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(jmapClient.setVacationResponse).to.have.been.calledWith();
       expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
-      expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Modification of vacation settings in progress...');
       expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Modification of vacation settings succeeded');
     });
 
@@ -1632,7 +1631,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
 
       expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
-      expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Modification of vacation settings in progress...');
       expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of vacation settings failed');
     });
 

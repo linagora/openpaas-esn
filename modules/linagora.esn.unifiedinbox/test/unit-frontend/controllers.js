@@ -1405,7 +1405,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         expect($state.go).to.have.been.calledWith('unifiedinbox');
         expect(jmapClient.setVacationResponse).to.have.been.calledWith();
-        expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Modification of vacation settings in progress...');
         expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Modification of vacation settings succeeded');
       });
 
@@ -1456,7 +1455,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         expect(jmapClient.setVacationResponse).to.have.been.calledWith();
         expect(listener).to.not.have.been.called;
-        expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Modification of vacation settings in progress...');
         expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of vacation settings failed');
       });
 
