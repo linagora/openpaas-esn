@@ -258,7 +258,7 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, mailboxesService, rejectWithErrorNotification, asyncJmapAction) {
+  .controller('addFolderController', function($scope, $state, mailboxesService, rejectWithErrorNotification) {
     mailboxesService.assignMailboxesList($scope);
 
     $scope.mailbox = {};
@@ -268,17 +268,13 @@ angular.module('linagora.esn.unifiedinbox')
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      return asyncJmapAction('Creation of folder ' + $scope.mailbox.name, function(client) {
-        return client.createMailbox($scope.mailbox.name, $scope.mailbox.parentId);
-      }).then(function() {
-        $state.go('unifiedinbox');
-      });
+      $state.go('unifiedinbox');
+
+      return mailboxesService.createMailbox($scope.mailbox.name, $scope.mailbox.parentId);
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, rejectWithErrorNotification, asyncJmapAction) {
-    var mailboxDescendants;
-
+  .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, rejectWithErrorNotification) {
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
@@ -289,53 +285,37 @@ angular.module('linagora.esn.unifiedinbox')
       if (!$scope.mailbox.name) {
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
+
       $state.go('unifiedinbox');
 
-      return asyncJmapAction('Modification of folder ' + $scope.mailbox.name, function(client) {
-        return client.updateMailbox($scope.mailbox.id, {
-          name: $scope.mailbox.name,
-          parentId: $scope.mailbox.parentId
-        });
-      });
+      return mailboxesService.updateMailbox($scope.mailbox);
     };
 
     $scope.confirmationDialog = function() {
-      if (!mailboxDescendants) {
-        mailboxDescendants =  mailboxesService.getMailboxDescendants($scope.mailbox.id, $scope.mailboxes);
-        $scope.message = _generateDeletionMessage();
-      }
+      $scope.message = _generateDeletionMessage();
 
-      $modal({scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center'});
+      $modal({ scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center' });
     };
 
     $scope.deleteFolder = function() {
       $state.go('unifiedinbox');
 
-      mailboxDescendants =  mailboxDescendants || mailboxesService.getMailboxDescendants($scope.mailbox.id, $scope.mailboxes);
-
-      return asyncJmapAction('Deletion of folder ' + $scope.mailbox.name, function(client) {
-        var toDestroyIds = mailboxDescendants.map(_.property('id'));
-
-        // According to JMAP spec, the X should be removed before Y if X is a descendent of Y
-        toDestroyIds.reverse();
-        toDestroyIds.push($scope.mailbox.id);
-
-        return client.destroyMailboxes(toDestroyIds);
-      });
+      return mailboxesService.destroyMailbox($scope.mailbox);
     };
 
     function _generateDeletionMessage() {
-      var numberOfDescendants = mailboxDescendants.length;
+      var descendants = $scope.mailbox.descendants;
+      var numberOfDescendants = descendants.length;
       var numberOfMailboxesToDisplay = 3;
       var more = numberOfDescendants - numberOfMailboxesToDisplay;
       var message = 'You are about to remove folder ' + $scope.mailbox.name;
 
       if (numberOfDescendants > 0) {
-        message += ' and its descendants including ' + mailboxDescendants.slice(0, numberOfMailboxesToDisplay).map(_.property('name')).join(', ');
+        message += ' and its descendants including ' + descendants.slice(0, numberOfMailboxesToDisplay).map(_.property('name')).join(', ');
       }
 
       if (more === 1) {
-        message += ' and ' + mailboxDescendants[numberOfMailboxesToDisplay].name;
+        message += ' and ' + descendants[numberOfMailboxesToDisplay].name;
       } else if (more > 1) {
         message += ' and ' + more + ' more';
       }

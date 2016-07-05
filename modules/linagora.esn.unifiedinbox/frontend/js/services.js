@@ -706,36 +706,29 @@ angular.module('linagora.esn.unifiedinbox')
     return [];
   })
 
-  .factory('mailboxesService', function($q, _, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap, inboxSpecialMailboxes, inboxMailboxesCache) {
+  .factory('mailboxesService', function($q, _, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap, inboxSpecialMailboxes,
+                                        inboxMailboxesCache, asyncJmapAction, Mailbox) {
     var RESTRICT_MAILBOXES = [
-          jmap.MailboxRole.OUTBOX.value,
-          jmap.MailboxRole.DRAFTS.value
-        ];
+      jmap.MailboxRole.OUTBOX.value,
+      jmap.MailboxRole.DRAFTS.value
+    ];
 
     function filterSystemMailboxes(mailboxes) {
       return _.reject(mailboxes, function(mailbox) { return mailbox.role.value; });
     }
 
-    function qualifyMailboxes(mailboxes) {
-      return mailboxes.map(qualifyMailbox.bind(null, mailboxes));
-    }
-
-    function qualifyMailbox(mailboxes, mailbox) {
-      function findParent(box) {
-        return box.parentId && _.find(mailboxes, { id: box.parentId });
-      }
-
+    function qualifyMailbox(mailbox) {
       var parent = mailbox;
 
       mailbox.level = 1;
       mailbox.qualifiedName = mailbox.name;
 
-      while ((parent = findParent(parent))) {
+      while ((parent = _findMailboxInCache(parent.parentId))) {
         mailbox.qualifiedName = parent.name + MAILBOX_LEVEL_SEPARATOR + mailbox.qualifiedName;
         mailbox.level++;
       }
 
-      return mailbox;
+      return Mailbox(mailbox);
     }
 
     function _updateUnreadMessages(mailboxIds, adjust) {
@@ -754,16 +747,31 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       mailboxes.forEach(function(mailbox) {
-        var index = _.findIndex(inboxMailboxesCache, { id: mailbox.id });
+        var index = _.findIndex(inboxMailboxesCache, { id: mailbox.id }),
+            targetIndexInCache = index > -1 ? index : inboxMailboxesCache.length;
 
-        if (index > -1) {
-          inboxMailboxesCache[index] = mailbox;
-        } else {
-          inboxMailboxesCache.push(mailbox);
-        }
+        inboxMailboxesCache[targetIndexInCache] = mailbox;
+      });
+
+      inboxMailboxesCache.forEach(function(mailbox, index, cache) {
+        cache[index] = qualifyMailbox(mailbox);
       });
 
       return inboxMailboxesCache;
+    }
+
+    function _findMailboxInCache(id) {
+      return id && _.find(inboxMailboxesCache, { id: id });
+    }
+
+    function _removeMailboxesFromCache(ids) {
+      if (!angular.isArray(ids)) {
+        ids = [ids];
+      }
+
+      return _.remove(inboxMailboxesCache, function(mailbox) {
+        return _.indexOf(ids, mailbox.id) > -1;
+      });
     }
 
     function _assignToObject(object, attr) {
@@ -786,16 +794,15 @@ angular.module('linagora.esn.unifiedinbox')
       return withJmapClient(function(client) {
         return client.getMailboxes({ ids: [id] })
           .then(_.head) // We expect a single mailbox here
-          .then(qualifyMailbox.bind(null, inboxMailboxesCache))
-          .then(_assignToObject(dst, 'mailbox'))
-          .then(_updateMailboxCache);
+          .then(_updateMailboxCache)
+          .then(_findMailboxInCache.bind(null, id))
+          .then(_assignToObject(dst, 'mailbox'));
       });
     }
 
     function assignMailboxesList(dst, filter) {
       return withJmapClient(function(jmapClient) {
         return jmapClient.getMailboxes()
-          .then(qualifyMailboxes)
           .then(_updateMailboxCache)
           .then(filter || _.identity)
           .then(_assignToObject(dst, 'mailboxes'));
@@ -891,27 +898,41 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function getMailboxDescendants(mailboxId, mailboxes) {
-      var descendants = [];
-      var toScanMailboxIds = [mailboxId];
-      var scannedMailboxIds = [];
+    function createMailbox(name, parentId) {
+      return asyncJmapAction('Creation of folder ' + name, function(client) {
+        return client.createMailbox(name, parentId);
+      })
+        .then(_updateMailboxCache);
+    }
 
-      while (toScanMailboxIds.length) {
-        var toScanMailboxId = toScanMailboxIds.shift();
-        var mailboxChildren = _.filter(mailboxes, { parentId: toScanMailboxId });
+    function destroyMailbox(mailbox) {
+      var ids = _(mailbox.descendants)
+        .map(_.property('id'))
+        .reverse()
+        .push(mailbox.id)
+        .value(); // According to JMAP spec, the X should be removed before Y if X is a descendent of Y
 
-        scannedMailboxIds.push(toScanMailboxId);
+      return asyncJmapAction('Deletion of folder ' + mailbox.name, function(client) {
+        return client.setMailboxes({ destroy: ids })
+          .then(function(response) {
+            _removeMailboxesFromCache(response.destroyed);
 
-        mailboxChildren.forEach(function(mailbox) {
-          descendants.push(mailbox);
+            if (response.destroyed.length !== ids.length) {
+              return $q.reject('Expected ' + ids.length + ' successfull deletions, but got ' + response.destroyed.length + '.');
+            }
+          });
+      });
+    }
 
-          if (scannedMailboxIds.indexOf(mailbox.id) === -1) {
-            toScanMailboxIds.push(mailbox.id);
-          }
+    function updateMailbox(mailbox) {
+      return asyncJmapAction('Modification of folder ' + mailbox.name, function(client) {
+        return client.updateMailbox(mailbox.id, {
+          name: mailbox.name,
+          parentId: mailbox.parentId
         });
-      }
-
-      return _.uniq(descendants);
+      })
+        .then(_.constant(mailbox))
+        .then(_updateMailboxCache);
     }
 
     return {
@@ -922,7 +943,9 @@ angular.module('linagora.esn.unifiedinbox')
       moveUnreadMessages: moveUnreadMessages,
       canMoveMessage: canMoveMessage,
       getMessageListFilter: getMessageListFilter,
-      getMailboxDescendants: getMailboxDescendants
+      createMailbox: createMailbox,
+      destroyMailbox: destroyMailbox,
+      updateMailbox: updateMailbox
     };
   })
 

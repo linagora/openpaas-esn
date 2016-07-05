@@ -70,7 +70,8 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
   it('should call jmapClient.getMailboxes with the expected mailbox id and properties', function(done) {
     jmapClient.getMailboxes = function(options) {
-      expect(options).to.deep.equal({ids: ['chosenMailbox']});
+      expect(options).to.deep.equal({ ids: ['chosenMailbox'] });
+
       done();
     };
 
@@ -79,7 +80,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
   it('should call jmapClient.getMailboxes then find the mailbox role and name', function() {
     jmapClient.getMailboxes = function() {
-      return $q.when([{role: 'expected role', name: 'expected name'}]);
+      return $q.when([{ id: 'chosenMailbox', role: 'expected role', name: 'expected name' }]);
     };
 
     initController('listItemsController');

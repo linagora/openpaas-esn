@@ -1,5 +1,5 @@
 .clickable.inbox-item-with-icon(
-    title="{{ ::mailbox.name }}",
+    title="{{ mailbox.name }}",
     ui-sref-active="{'selected' : 'unifiedinbox.list({ mailbox: mailbox.id })'}",
     esn-droppable,
     esn-droptarget-class="droptarget",
@@ -11,5 +11,5 @@
     i.inbox-icon(ng-class='mailboxIcons')
   .menu-item
     span.menu-item-inner
-      bdi {{ ::mailbox.qualifiedName }}
+      bdi {{ mailbox.qualifiedName }}
     span.menu-item-after
