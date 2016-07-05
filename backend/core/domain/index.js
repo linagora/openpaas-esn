@@ -3,6 +3,20 @@
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 
+function list(options, callback) {
+  options = options || {};
+  var domainQuery = Domain.find();
+  if (options.offset > 0) {
+    domainQuery = domainQuery.skip(options.offset);
+  }
+
+  if (options.limit > 0) {
+    domainQuery = domainQuery.limit(options.limit);
+  }
+  domainQuery.sort('-timestamps.creation').exec(callback);
+}
+module.exports.list = list;
+
 function load(id, callback) {
   if (!id) {
     return callback(new Error('Domain id is required'));
@@ -29,7 +43,7 @@ function userIsDomainAdministrator(user, domain, callback) {
 module.exports.userIsDomainAdministrator = userIsDomainAdministrator;
 
 function userIsDomainMember(user, domain, callback) {
-  if (!user ||   !user._id) {
+  if (!user || !user._id) {
     return callback(new Error('User object is required'));
   }
 

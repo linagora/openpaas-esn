@@ -1,12 +1,12 @@
 'use strict';
 
-var chai = require('chai');
 var mockery = require('mockery');
 var sinon = require('sinon');
-var expect = chai.expect;
+var expect = require('chai').expect;
+var q = require('q');
 
 describe('The twitter oauth login strategy', function() {
-  var deps, passportMocks, configMocks;
+  var deps;
   var logger = {
     debug: function() {},
     err: function() {},
@@ -17,36 +17,9 @@ describe('The twitter oauth login strategy', function() {
   };
 
   beforeEach(function() {
-    configMocks = {
-      get: function(callback) {
-        return callback(null, {
-          twitter: {
-            consumer_key: '0123456789',
-            consumer_secret: 'abcdefgh'
-          }
-        });
-      }
-    };
-
-    passportMocks = {
-      use: function() {}
-    };
-
     deps = {
-      helpers: {
-        config: {
-          getBaseUrl: function(callback) {
-            callback(null, 'http://localhost:8080');
-          }
-        }
-      },
-      logger: logger,
-      'esn-config': function() {
-        return configMocks;
-      }
+      logger: logger
     };
-
-    mockery.registerMock('passport', passportMocks);
   });
 
   describe('The configure function', function() {
@@ -54,13 +27,35 @@ describe('The twitter oauth login strategy', function() {
       return require('../../../../../backend/lib/strategies/twitter')(dependencies);
     }
 
-    it('should callback with error when config service fails', function(done) {
+    it('should callback with error when getCallbackEndpoint service fails', function(done) {
       var msg = 'I failed';
-      var urlErr = new Error(msg);
 
-      deps.helpers.config.getBaseUrl = function(callback) {
-        callback(urlErr);
+      mockery.registerMock('./commons', function() {
+        return {
+          getCallbackEndpoint: function() {
+            return q.reject(new Error(msg));
+          }
+        };
+      });
+
+      deps['esn-config'] = function() {
+        return {
+          get: function(callback) {
+            callback(null, {
+              twitter: {
+                consumer_key: 'A',
+                consumer_secret: 'B'
+              }
+            });
+          }
+        };
       };
+
+      mockery.registerMock('passport', {
+        use: function() {
+          done(new Error('Should not be called'));
+        }
+      });
 
       getModule().configure(function(err) {
         expect(err.message).to.equal(msg);
@@ -68,11 +63,30 @@ describe('The twitter oauth login strategy', function() {
       });
     });
 
-    it('should callback with error when helpers.config.getBaseUrl service fails', function(done) {
+    it('should callback with error when getTwitterConfiguration fails', function(done) {
       var msg = 'I failed';
-      configMocks.get = function(callback) {
-        callback(new Error(msg));
+
+      mockery.registerMock('./commons', function() {
+        return {
+          getCallbackEndpoint: function() {
+            return q();
+          }
+        };
+      });
+
+      deps['esn-config'] = function() {
+        return {
+          get: function(callback) {
+            return callback(new Error(msg));
+          }
+        };
       };
+
+      mockery.registerMock('passport', {
+        use: function() {
+          done(new Error('Should not be called'));
+        }
+      });
 
       getModule().configure(function(err) {
         expect(err.message).to.equal(msg);
@@ -81,128 +95,39 @@ describe('The twitter oauth login strategy', function() {
     });
 
     it('should register twitter-login passport if twitter is configured', function(done) {
-      passportMocks.use = function(name) {
-        expect(name).to.equal('twitter-login');
+      mockery.registerMock('./commons', function() {
+        return {
+          getCallbackEndpoint: function() {
+            return q();
+          },
+          handleResponse: function() {}
+        };
+      });
+
+      deps['esn-config'] = function() {
+        return {
+          get: function(callback) {
+            return callback(null, {
+              twitter: {
+                consumer_key: 1,
+                consumer_secret: 2
+              }
+            });
+          }
+        };
       };
+
+      mockery.registerMock('passport-twitter', {
+        Strategy: function() {}
+      });
+
+      mockery.registerMock('passport', {
+        use: function(name) {
+          expect(name).to.equal('twitter-login');
+        }
+      });
 
       getModule().configure(done);
     });
-
-    it('should callback with error if twitter is not configured', function(done) {
-      configMocks.get = function(callback) {
-        return callback(null, {});
-      };
-
-      getModule().configure(function(err) {
-        expect(err).to.deep.equal(new Error('Twitter OAuth is not configured'));
-        done();
-      });
-    });
-
-    describe('The Twitter strategy callback', function() {
-
-      beforeEach(function() {
-        var self = this;
-        var TwitterStrategy = function(options, callback) {
-          this.options = options;
-          this.callback = callback;
-        };
-
-        mockery.registerMock('passport', {
-          use: function(name, strategy) {
-            self.twitterStrategy = strategy;
-          }
-        });
-
-        mockery.registerMock('passport-twitter', {
-          Strategy: TwitterStrategy
-        });
-
-        configMocks.get = function(callback) {
-          return callback(null, {
-            twitter: {
-              consumer_key: '1',
-              consumer_secret: 'secret'
-            }
-          });
-        };
-      });
-
-      it('should search and set user from twitter data', function(done) {
-        var self = this;
-        var request = {};
-        var accessToken = '1';
-        var refreshToken = '2';
-        var profile = {
-          id: '123'
-        };
-        var user = {_id: '456'};
-
-        var spy = sinon.spy();
-        deps.user = {
-          find: function(options, callback) {
-            spy();
-            expect(options).to.deep.equals({
-              'accounts.type': 'oauth',
-              'accounts.data.provider': 'twitter',
-              'accounts.data.id': profile.id
-            });
-            callback(null, user);
-          }
-        };
-
-        getModule().configure(function() {
-          self.twitterStrategy.callback(request, accessToken, refreshToken, profile, function(err, u) {
-            expect(spy).to.have.been.called;
-            expect(u).to.deep.equals(user);
-            expect(request.user).to.deep.equals(user);
-            done();
-          });
-        });
-      });
-
-      it('should call callback and not set user when user is not found', function(done) {
-        var self = this;
-        var request = {};
-        var accessToken = '1';
-        var refreshToken = '2';
-        var profile = {
-          id: '123'
-        };
-        deps.user = {
-          find: function(options, callback) {
-            callback();
-          }
-        };
-
-        getModule().configure(function() {
-          self.twitterStrategy.callback(request, accessToken, refreshToken, profile, done);
-        });
-      });
-
-      it('should return error when user#find fails', function(done) {
-        var self = this;
-        var request = {};
-        var accessToken = '1';
-        var refreshToken = '2';
-        var profile = {
-          id: '123'
-        };
-        var userError = new Error('I failed');
-        deps.user = {
-          find: function(options, callback) {
-            callback(userError);
-          }
-        };
-
-        getModule().configure(function() {
-          self.twitterStrategy.callback(request, accessToken, refreshToken, profile, function(err) {
-            expect(err).to.equals(userError);
-            done();
-          });
-        });
-      });
-    });
   });
 });
-

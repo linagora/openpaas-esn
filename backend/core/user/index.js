@@ -27,11 +27,11 @@ function recordUser(userData, callback) {
   var userAsModel = userData instanceof User ? userData : new User(userData);
   userAsModel.save(function(err, resp) {
     if (!err) {
+      pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
       logger.info('User provisioned in datastore:', userAsModel.emails.join(','));
     } else {
       logger.warn('Error while trying to provision user in database:', err.message);
     }
-    pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
     callback(err, resp);
   });
 }

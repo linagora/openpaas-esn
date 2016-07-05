@@ -8,7 +8,7 @@ module.exports = function(dependencies) {
 
   var config = dependencies('esn-config');
   var logger = dependencies('logger');
-  var helper = require('./helper')(dependencies);
+  var helper = dependencies('oauth').helpers;
 
   function configure(callback) {
     config(OAUTH_CONFIG_KEY).get(function(err, oauth) {
@@ -32,7 +32,6 @@ module.exports = function(dependencies) {
 
           if (!req.user) {
             logger.error('Not Logged in');
-            logger.debug('TODO: Add authenticate based on facebook account data and local user data');
             return callback(new Error('Can not authorize facebook without being logged in'));
           }
 
@@ -48,7 +47,7 @@ module.exports = function(dependencies) {
             }
           };
 
-          helper.upsertAccount(req.user, account, function(err, result) {
+          helper.upsertUserAccount(req.user, account, function(err, result) {
             if (err) {
               logger.error('Can not add facebook account to user', err);
               return callback(err);

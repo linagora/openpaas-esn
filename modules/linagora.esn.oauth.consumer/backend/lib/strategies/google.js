@@ -9,7 +9,7 @@ module.exports = function(dependencies) {
 
   var config = dependencies('esn-config');
   var logger = dependencies('logger');
-  var helper = require('./helper')(dependencies);
+  var helper = dependencies('oauth').helpers;
 
   function configure(callback) {
     config(OAUTH_CONFIG_KEY).get(function(err, oauth) {
@@ -46,7 +46,7 @@ module.exports = function(dependencies) {
             }
           };
 
-          helper.upsertAccount(req.user, account, function(err, result) {
+          helper.upsertUserAccount(req.user, account, function(err, result) {
             if (err) {
               logger.error('Can not add external account to user', err);
               return callback(err);
