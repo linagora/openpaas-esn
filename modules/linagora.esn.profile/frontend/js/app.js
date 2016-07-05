@@ -6,7 +6,8 @@ angular.module('linagora.esn.profile', [
   'esn.user',
   'esn.session',
   'esn.profile',
-  'esn.notification'
+  'esn.notification',
+  'esn.timeline'
   ])
   .config(function($stateProvider) {
     $stateProvider
@@ -86,6 +87,15 @@ angular.module('linagora.esn.profile', [
           'details@profile.details': {
             template: '<follow-list></follow-list>',
             controller: 'followingListController'
+          }
+        }
+      })
+      .state('profile.details.timeline', {
+        url: '/timeline',
+        views: {
+          'details@profile.details': {
+            templateUrl: '/views/modules/timeline/index',
+            controller: 'esnTimelineEntriesController'
           }
         }
       });
