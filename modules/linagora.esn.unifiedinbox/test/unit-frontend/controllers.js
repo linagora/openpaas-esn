@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal,
-      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config, moment;
+      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config, moment, Mailbox;
   var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, INBOX_EVENTS,
       DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
 
@@ -80,7 +80,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _JMAP_GET_MESSAGES_LIST_, _DEFAULT_FILE_TYPE_, _moment_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_, _INBOX_EVENTS_) {
+                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_,
+                                          _INBOX_EVENTS_, _Mailbox_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -95,6 +96,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
     INBOX_EVENTS = _INBOX_EVENTS_;
     moment = _moment_;
+    Mailbox = _Mailbox_;
 
     scope = $rootScope.$new();
   }));
@@ -1118,7 +1120,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         notificationFactory.weakInfo = weakInfoSpy;
       });
 
-      it('should call client.destroyMailboxes with an array of mailbox descendant IDs', function() {
+      it('should call client.setMailboxes with an array of mailbox descendant IDs as the "destroy" option', function() {
         var mailboxes = [
           { id: '123' },
           { id: 'm1', parentId: '123' },
@@ -1126,26 +1128,28 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           { id: 'm11', parentId: 'm1' },
           { id: 'm111', parentId: 'm11'}
         ];
-        var expectedMailboxIds = [4, 3, 2, 1, 0].map(function(index) {
-          return mailboxes[index].id;
-        });
+        var expectedSetMailboxesOptions = {
+          destroy: [4, 3, 2, 1, 0].map(function(index) {
+            return mailboxes[index].id;
+          })
+        };
 
         jmapClient.getMailboxes = function() {
           return $q.when(mailboxes);
         };
-        jmapClient.destroyMailboxes = sinon.spy(function() { return $q.when([]); });
+        jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
         initController('editFolderController');
 
         scope.mailbox = mailboxes[0];
         scope.deleteFolder();
         scope.$digest();
 
-        expect(jmapClient.destroyMailboxes).to.have.been.calledOnce;
-        expect(jmapClient.destroyMailboxes).to.have.been.calledWith(expectedMailboxIds);
+        expect(jmapClient.setMailboxes).to.have.been.calledOnce;
+        expect(jmapClient.setMailboxes).to.have.been.calledWith(expectedSetMailboxesOptions);
       });
 
       it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is resolved', function() {
-        jmapClient.destroyMailboxes = sinon.spy(function() {return $q.when([]);});
+        jmapClient.setMailboxes = sinon.spy(function() {return $q.when(new jmap.SetResponse());});
         initController('editFolderController');
 
         scope.mailbox = {
@@ -1158,7 +1162,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is rejected', function() {
-        jmapClient.destroyMailboxes = sinon.spy(function() {return $q.reject([]);});
+        jmapClient.setMailboxes = sinon.spy(function() {return $q.reject([]);});
         initController('editFolderController');
 
         scope.mailbox = {
@@ -1228,7 +1232,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       it('should leverage $modal service', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         initController('editFolderController');
-        scope.mailbox = { id: 123 };
+        scope.mailbox = Mailbox({ id: 123 });
 
         scope.confirmationDialog();
 

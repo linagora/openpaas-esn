@@ -79,4 +79,49 @@ angular.module('linagora.esn.unifiedinbox')
 
     return Thread;
 
+  })
+
+  .factory('Mailbox', function(inboxMailboxesCache, _) {
+    function getMailboxDescendants(mailboxId) {
+      var descendants = [];
+      var toScanMailboxIds = [mailboxId];
+      var scannedMailboxIds = [];
+
+      function pushDescendant(mailbox) {
+        descendants.push(mailbox);
+
+        if (scannedMailboxIds.indexOf(mailbox.id) === -1) {
+          toScanMailboxIds.push(mailbox.id);
+        }
+      }
+
+      while (toScanMailboxIds.length) {
+        var toScanMailboxId = toScanMailboxIds.shift();
+        var mailboxChildren = _.filter(inboxMailboxesCache, { parentId: toScanMailboxId });
+
+        scannedMailboxIds.push(toScanMailboxId);
+        mailboxChildren.forEach(pushDescendant);
+      }
+
+      return _.uniq(descendants);
+    }
+
+    function Mailbox(mailbox) {
+      var descendants;
+
+      Object.defineProperty(mailbox, 'descendants', {
+        configurable: true,
+        get: function() {
+          if (!descendants) {
+            descendants = getMailboxDescendants(mailbox.id);
+          }
+
+          return descendants;
+        }
+      });
+
+      return mailbox;
+    }
+
+    return Mailbox;
   });

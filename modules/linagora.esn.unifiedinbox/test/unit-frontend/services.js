@@ -2501,7 +2501,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The mailboxesService factory', function() {
 
-    var inboxMailboxesCache, mailboxesService, jmapClient, $rootScope;
+    var inboxMailboxesCache, mailboxesService, jmapClient, $rootScope, jmap, Mailbox;
 
     beforeEach(module(function($provide) {
       jmapClient = {
@@ -2511,10 +2511,12 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('withJmapClient', function(callback) { return callback(jmapClient); });
     }));
 
-    beforeEach(inject(function(_mailboxesService_, _$rootScope_, _inboxMailboxesCache_) {
+    beforeEach(inject(function(_mailboxesService_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _Mailbox_) {
       inboxMailboxesCache = _inboxMailboxesCache_;
       mailboxesService = _mailboxesService_;
       $rootScope = _$rootScope_;
+      jmap = _jmap_;
+      Mailbox = _Mailbox_;
     }));
 
     describe('The filterSystemMailboxes function', function() {
@@ -2720,8 +2722,17 @@ describe('The Unified Inbox Angular module services', function() {
       it('should assign dst.mailbox if dst is given', function(done) {
         var object = {};
 
-        mailboxesService.assignMailbox(null, object).then(function() {
-          expect(object.mailbox).to.deep.equal({name: 'name', level: 1, qualifiedName: 'name'});
+        jmapClient.getMailboxes = function() {
+          return $q.when([new jmap.Mailbox(jmapClient, 'id', 'name')]);
+        };
+
+        mailboxesService.assignMailbox('id', object).then(function() {
+          expect(object.mailbox).to.shallowDeepEqual({
+            id: 'id',
+            name: 'name',
+            level: 1,
+            qualifiedName: 'name'
+          });
 
           done();
         });
@@ -2777,7 +2788,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The canMoveMessage function', function() {
 
       var message, mailbox, draftMailbox, outboxMailbox;
-      var jmap, inboxSpecialMailboxes;
+      var inboxSpecialMailboxes;
 
       beforeEach(function() {
         message = {
@@ -2790,8 +2801,7 @@ describe('The Unified Inbox Angular module services', function() {
         };
       });
 
-      beforeEach(inject(function(_jmap_, _inboxSpecialMailboxes_) {
-        jmap = _jmap_;
+      beforeEach(inject(function(_inboxSpecialMailboxes_) {
         inboxSpecialMailboxes = _inboxSpecialMailboxes_;
 
         inboxSpecialMailboxes.get = function() {};
@@ -2963,47 +2973,197 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
-    describe('The getMailboxDescendants function', function() {
+    describe('The createMailbox function', function() {
 
-      function getMailboxDescendants(mailboxId, mailboxes) {
-        return mailboxesService.getMailboxDescendants(mailboxId, mailboxes);
-      }
+      it('should call client.createMailbox', function(done) {
+        jmapClient.createMailbox = function(name, parentId) {
+          expect(name).to.equal('name');
+          expect(parentId).to.equal(123);
 
-      it('should return empty array if the passed mailboxes is empty', function() {
-        var mailboxId = 'm1';
-        var mailboxes = [];
+          done();
+        };
 
-        expect(getMailboxDescendants(mailboxId, mailboxes)).to.deep.equal([]);
+        mailboxesService.createMailbox('name', 123);
+        $rootScope.$digest();
       });
 
-      it('should return empty array if the mailbox has no child', function() {
-        var mailboxId = 'm1';
-        var mailboxes = [{ parentId: 'm2' }];
+      it('should not update the cache if the creation fails', function(done) {
+        jmapClient.createMailbox = function() {
+          return $q.reject();
+        };
 
-        expect(getMailboxDescendants(mailboxId, mailboxes)).to.deep.equal([]);
+        mailboxesService.createMailbox('name', 123).then(null, function() {
+          expect(inboxMailboxesCache.length).to.equal(0);
+
+          done();
+        });
+        $rootScope.$digest();
       });
 
-      it('should return an array of descendants in the right order', function() {
-        var mailboxId = 'm1';
-        var descendants = [{
-          id: 'c1',
-          parentId: mailboxId
-        }, {
-          id: 'c3',
-          parentId: mailboxId
-        }, {
-          id: 'c11',
-          parentId: 'c1'
-        }, {
-          id: 'c12',
-          parentId: 'c1'
-        }, {
-          id: 'c31',
-          parentId: 'c3'
-        }];
-        var mailboxes = [{ parentId: 'm2' }].concat(descendants);
+      it('should update the cache with a qualified mailbox if the creation succeeds', function(done) {
+        jmapClient.createMailbox = function(name, parentId) {
+          return $q.when(new jmap.Mailbox(jmapClient, 'id', 'name', {
+            parentId: parentId
+          }));
+        };
 
-        expect(getMailboxDescendants(mailboxId, mailboxes)).to.deep.equal(descendants);
+        mailboxesService.createMailbox('name', 123).then(function() {
+          expect(inboxMailboxesCache).to.shallowDeepEqual([{
+            id: 'id',
+            name: 'name',
+            parentId: '123',
+            qualifiedName: 'name',
+            level: 1
+          }]);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The destroyMailbox function', function() {
+
+      it('should call client.setMailboxes, passing the mailbox id if it has no children', function(done) {
+        jmapClient.setMailboxes = function(options) {
+          expect(options).to.deep.equal({
+            destroy: [123]
+          });
+
+          done();
+        };
+
+        mailboxesService.destroyMailbox(Mailbox({ id: 123 }));
+      });
+
+      it('should destroy children mailboxes before the parent', function(done) {
+        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2 }));
+        jmapClient.setMailboxes = function(options) {
+          expect(options).to.deep.equal({
+            destroy: [1, 2]
+          });
+
+          done();
+        };
+
+        mailboxesService.destroyMailbox(Mailbox({ id: 2 }));
+      });
+
+      it('should remove destroyed mailboxes from the cache, when call succeeds', function(done) {
+        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2 }));
+        inboxMailboxesCache.push(Mailbox({ id: 2 }));
+        jmapClient.setMailboxes = function() {
+          return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1, 2] }));
+        };
+
+        mailboxesService.destroyMailbox(Mailbox({ id: 2 })).then(function() {
+          expect(inboxMailboxesCache).to.deep.equal([]);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should remove destroyed mailboxes from the cache, when call does not succeed completely', function(done) {
+        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2 }));
+        inboxMailboxesCache.push(Mailbox({ id: 2 }));
+        jmapClient.setMailboxes = function() {
+          return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1] }));
+        };
+
+        mailboxesService.destroyMailbox(Mailbox({ id: 2 })).then(null, function() {
+          expect(inboxMailboxesCache).to.deep.equal([{ id: 2 }]);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The updateMailbox function', function() {
+
+      it('should call client.updateMailbox, passing the new options', function(done) {
+        jmapClient.updateMailbox = function(id, options) {
+          expect(id).to.equal('id');
+          expect(options).to.deep.equal({
+            name: 'name',
+            parentId: '123'
+          });
+
+          done();
+        };
+
+        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name', parentId: '123' }));
+      });
+
+      it('should not update the cache if the update fails', function(done) {
+        jmapClient.updateMailbox = function() {
+          return $q.reject();
+        };
+
+        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name' })).then(null, function() {
+          expect(inboxMailboxesCache.length).to.equal(0);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should update the cache with a qualified mailbox if the update succeeds', function(done) {
+        jmapClient.updateMailbox = function() {
+          return $q.when(new jmap.Mailbox(jmapClient, 'id', 'name'));
+        };
+
+        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name' })).then(function() {
+          expect(inboxMailboxesCache).to.shallowDeepEqual([{
+            id: 'id',
+            name: 'name',
+            qualifiedName: 'name',
+            level: 1
+          }]);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should update other mailboxes in cache when call succeeds, to reflect hierarchy changes', function(done) {
+        inboxMailboxesCache.push(Mailbox({ id: '1', name: '1', qualifiedName: '1' }));
+        inboxMailboxesCache.push(Mailbox({ id: '2', name: '2', parentId: '1', level: 2, qualifiedName: '1 / 2' }));
+        inboxMailboxesCache.push(Mailbox({ id: '3', name: '3', parentId: '1', level: 2, qualifiedName: '1 / 3' }));
+        inboxMailboxesCache.push(Mailbox({ id: '4', name: '4', parentId: '2', level: 3, qualifiedName: '1 / 2 / 4' }));
+        jmapClient.updateMailbox = function() {
+          return $q.when(new jmap.Mailbox(jmapClient, '1', '1_Renamed'));
+        };
+
+        mailboxesService.updateMailbox(Mailbox({ id: '1', name: '1_Renamed' })).then(function() {
+          expect(inboxMailboxesCache).to.shallowDeepEqual([{
+            id: '1',
+            name: '1_Renamed',
+            qualifiedName: '1_Renamed',
+            level: 1
+          }, {
+            id: '2',
+            name: '2',
+            qualifiedName: '1_Renamed / 2',
+            level: 2
+          }, {
+            id: '3',
+            name: '3',
+            qualifiedName: '1_Renamed / 3',
+            level: 2
+          }, {
+            id: '4',
+            name: '4',
+            qualifiedName: '1_Renamed / 2 / 4',
+            level: 3
+          }]);
+
+          done();
+        });
+        $rootScope.$digest();
       });
 
     });

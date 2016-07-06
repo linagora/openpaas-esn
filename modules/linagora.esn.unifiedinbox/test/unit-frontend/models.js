@@ -292,4 +292,80 @@ describe('The Unified Inbox Angular module models', function() {
 
   });
 
+  describe('The Mailbox factory', function() {
+
+    var Mailbox, inboxMailboxesCache;
+
+    beforeEach(inject(function(_Mailbox_, _inboxMailboxesCache_) {
+      Mailbox = _Mailbox_;
+      inboxMailboxesCache = _inboxMailboxesCache_;
+    }));
+
+    it('mailbox.descendants should return empty array if the cache is empty', function() {
+      expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+    });
+
+    it('mailbox.descendants should return empty array if the mailbox has no child', function() {
+      inboxMailboxesCache.push({ parentId: 'm2' });
+
+      expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+    });
+
+    it('mailbox.descendants should return an array of descendants in the right order', function() {
+      var mailboxId = 'm1';
+      var descendants = [{
+        id: 'c1',
+        parentId: mailboxId
+      }, {
+        id: 'c3',
+        parentId: mailboxId
+      }, {
+        id: 'c11',
+        parentId: 'c1'
+      }, {
+        id: 'c12',
+        parentId: 'c1'
+      }, {
+        id: 'c31',
+        parentId: 'c3'
+      }];
+
+      inboxMailboxesCache.push({ parentId: 'm2' });
+      descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
+
+      expect(Mailbox({ id: mailboxId }).descendants).to.deep.equal(descendants);
+    });
+
+    it('mailbox.descendants should cache the results of the computation', function() {
+      var mailboxId = 'm1';
+      var descendants = [{
+        id: 'c1',
+        parentId: mailboxId
+      }, {
+        id: 'c3',
+        parentId: mailboxId
+      }, {
+        id: 'c11',
+        parentId: 'c1'
+      }, {
+        id: 'c12',
+        parentId: 'c1'
+      }, {
+        id: 'c31',
+        parentId: 'c3'
+      }];
+      var mailbox = Mailbox({ id: mailboxId });
+
+      inboxMailboxesCache.push({ parentId: 'm2' });
+      descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
+
+      expect(mailbox.descendants).to.deep.equal(descendants);
+
+      inboxMailboxesCache.length = 0;
+
+      expect(mailbox.descendants).to.deep.equal(descendants);
+    });
+
+  });
+
 });

@@ -2,10 +2,7 @@ sub-header
   inbox-configuration-folder-subheader
 
 .inbox-configuration-folders
-  .clickable(ui-sref='unifiedinbox.configuration.folders.add')
-    .badge-container
-      i.inbox-icon.mdi.mdi-plus
-    span #{__('Add a new folder')}
+  inbox-sidebar-new-folder-button
   hr
   .mailboxes-list
     mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: '!'} | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.configuration.folders.edit({ mailbox: mailbox.id})")

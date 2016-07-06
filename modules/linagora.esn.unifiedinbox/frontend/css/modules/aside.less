@@ -107,7 +107,12 @@
     }
 
     .clickable {
+      .inbox-ng-leave;
+      .inbox-ng-enter(35px);
+      .inbox-ng-move;
+
       transition: none;
+      max-height: 35px;
 
       &.selected {
         .menu-item .menu-item-after:after {
