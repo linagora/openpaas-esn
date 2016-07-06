@@ -9,4 +9,7 @@
     li.btn-wave(ui-sref-active="active")
       a(href="", ui-sref="profile.details.followings")
         | #{__('Followings')} ({{user.followings}})
+    li.btn-wave(ng-if="me", ui-sref-active="active")
+      a(href="", ui-sref="profile.details.timeline")
+        | #{__('Timeline')}
 .ui-view(name="details")
