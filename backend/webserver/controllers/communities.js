@@ -104,6 +104,10 @@ module.exports.create = function(req, res) {
     community.description = req.body.description;
   }
 
+  if (req.body.avatar) {
+    community.avatar = new ObjectId(req.body.avatar);
+  }
+
   communityModule.save(community, function(err, saved) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community save error', details: err}});
