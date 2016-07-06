@@ -8,7 +8,6 @@ var expect = chai.expect;
 describe('The esn.http Angular module', function() {
 
   beforeEach(function() {
-    module('esnApp');
     module('esn.http');
   });
 
