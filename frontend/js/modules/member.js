@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
+angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider'])
+  .run(function(searchProviders, memberSearchProvider) {
+    searchProviders.add(memberSearchProvider);
+  })
   .config(function(dynamicDirectiveServiceProvider) {
     var memberAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', memberAppMenu);
@@ -109,4 +112,34 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
         scope.domain = session.domain;
       }
     };
+  })
+  .factory('memberSearchProvider', function($q, newProvider, domainAPI, session, ELEMENTS_PER_REQUEST) {
+
+    var name = 'Members';
+
+    return newProvider({
+      name: name,
+      fetch: function(query) {
+        var offset = 0;
+
+        return function() {
+          return domainAPI.getMembers(session.domain._id, {
+            search: query,
+            offset: offset,
+            limit: ELEMENTS_PER_REQUEST
+          }).then(function(members) {
+            offset += members.data.length;
+            return members.data.map(function(member) {
+              member.type = name;
+              return member;
+            });
+          });
+        };
+      },
+      buildFetchContext: function(options) {
+        return $q.when(options.query);
+      },
+      templateUrl: '/views/modules/member/member-search-item.html'
+    });
   });
+

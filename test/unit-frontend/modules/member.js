@@ -201,4 +201,48 @@ describe('The Member Angular module', function() {
 
   });
 
+  describe('The memberSearchProvider factory', function() {
+
+    var $rootScope, memberSearchProvider, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE, domainAPI;
+
+    beforeEach(module(function($provide) {
+      domainAPI = {};
+      $provide.value('domainAPI', domainAPI);
+    }));
+
+    beforeEach(angular.mock.inject(function(_$rootScope_, _memberSearchProvider_, _ELEMENTS_PER_REQUEST_, _ELEMENTS_PER_PAGE_, _domainAPI_) {
+      $rootScope = _$rootScope_;
+      memberSearchProvider = _memberSearchProvider_;
+      ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
+      ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
+      domainAPI = _domainAPI_;
+    }));
+
+    it('should search members from domain, adapt the result and paginate next request', function(done) {
+
+      var members = [
+        {_id: 1, firstname: 'Nicolas', lastname: 'Cage'},
+        {_id: 2, firstname: 'Bruce', lastname: 'Willis'}
+      ];
+
+      domainAPI.getMembers = function() {
+        return $q.when({
+          data: members
+        });
+      };
+
+      function check(result) {
+        expect(result.length).to.equal(members.length);
+        members.forEach(function(member) {
+          expect(member).to.have.ownProperty('type');
+        });
+        done();
+      }
+
+      var fetcher = memberSearchProvider.fetch('abcd');
+      fetcher().then(check, done);
+
+      $rootScope.$digest();
+    });
+  });
 });
