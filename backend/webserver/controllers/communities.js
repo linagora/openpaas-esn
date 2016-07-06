@@ -168,15 +168,25 @@ module.exports.load = function(req, res, next) {
 
 module.exports.get = function(req, res) {
   if (req.community) {
-    transform(req.community, req.user, function(transformed) {
-      permission.canWrite(req.community, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
-        var result = transformed;
-        result.writable = writable;
-        return res.json(200, result);
-      });
+    var userTuple = {objectType: 'user', id: String(req.user._id)};
+    permission.canFind(req.community, userTuple, function(err, canFind) {
+      if (err) {
+        return res.status(500).json({error: 500, message: 'Server Error', details: 'Could not find community'});
+      }
+      if (canFind) {
+        transform(req.community, req.user, function(transformed) {
+          permission.canWrite(req.community, userTuple, function(err, writable) {
+            var result = transformed;
+            result.writable = writable;
+            return res.status(200).json(result);
+          });
+        });
+      } else {
+        return res.status(403).json({error: 403, message: 'Forbidden', details: 'Community not readable'});
+      }
     });
   } else {
-    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
   }
 };
 

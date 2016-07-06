@@ -235,6 +235,48 @@ describe('The communities API', function() {
       );
     });
 
+    it('should not return confidential communities if not creator', function(done) {
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'open-paas.org',
+        administrator: user._id
+      };
+      var user2 = fixtures.newDummyUser(['user2@linagora.com'], 'pwd');
+      var title = 'C1';
+
+      async.series([
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            userDomainModule.joinDomain(user, domain, callback);
+          },
+          function(callback) {
+            saveCommunity({title: title, domain_ids: [domain._id], creator: user2._id, type: 'confidential'}, callback);
+          },
+          function() {
+            helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + domain._id));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal([]);
+                done();
+              });
+            });
+          }],
+        function(err) {
+          done(err);
+        }
+      );
+    });
+
     describe('membershipRequests', function() {
 
       beforeEach(function(done) {
@@ -489,6 +531,52 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
             req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should not get the community information if the community is confidential', function(done) {
+      var confidentialCommunity = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        type: 'confidential'
+      };
+
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = fixtures.newDummyUser(['foo@bar.com'], 'secret');
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          domain.administrator = foouser._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          confidentialCommunity.creator = foouser._id;
+          confidentialCommunity.domain_ids = [domain._id];
+          saveCommunity(confidentialCommunity, callback);
+        },
+        function() {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + confidentialCommunity._id));
+            req.expect(404);
             req.end(function(err, res) {
               expect(err).to.not.exist;
               done();
