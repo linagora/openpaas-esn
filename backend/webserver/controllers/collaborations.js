@@ -348,7 +348,7 @@ function join(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
-    if (req.collaboration.type !== 'open') {
+    if (req.collaboration.type !== collaborationModule.CONSTANTS.COLLABORATION_TYPES.OPEN) {
       var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
       if (!membershipRequest) {
         return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User was not invited to join collaboration'}});

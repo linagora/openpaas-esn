@@ -1,6 +1,7 @@
 'use strict';
 
 var communityModule = require('../../core/community');
+var collaborationConstants = require('../../core/collaboration/constants');
 var communityPermission = require('../../core/community/permission');
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
@@ -82,7 +83,7 @@ module.exports.canJoin = function(req, res, next) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User_id is missing'}});
   }
 
-  if (req.community.type !== 'open') {
+  if (req.community.type !== collaborationConstants.COLLABORATION_TYPES.OPEN) {
     return res.json(403, {error: 403, message: 'Forbidden', details: 'Can not join community'});
   }
 
@@ -192,7 +193,8 @@ module.exports.canRead = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  if (req.community.type === 'open' || req.community.type === 'restricted') {
+  if (req.community.type === collaborationConstants.COLLABORATION_TYPES.OPEN ||
+    req.community.type === collaborationConstants.COLLABORATION_TYPES.RESTRICTED) {
     return next();
   }
   return requiresCommunityMember(req, res, next);

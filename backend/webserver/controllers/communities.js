@@ -1,6 +1,7 @@
 'use strict';
 
 var communityModule = require('../../core/community');
+var collaborationConstants = require('../../core/collaboration/constants');
 var imageModule = require('../../core/image');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
@@ -76,7 +77,6 @@ module.exports.create = function(req, res) {
   var community = {
     title: req.body.title,
     creator: req.user._id,
-    type: 'open',
     members: [
       {member: {id: req.user._id, objectType: 'user'}}
     ]
@@ -391,7 +391,7 @@ module.exports.join = function(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
-    if (req.community.type !== 'open') {
+    if (req.community.type !== collaborationConstants.COLLABORATION_TYPES.OPEN) {
       var membershipRequest = communityModule.getMembershipRequest(community, user);
       if (!membershipRequest) {
         return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User was not invited to join community'}});

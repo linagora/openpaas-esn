@@ -62,7 +62,8 @@ function requiresCollaborationMember(req, res, next) {
 module.exports.requiresCollaborationMember = requiresCollaborationMember;
 
 function canRead(req, res, next) {
-  if (req.collaboration.type === 'open' || req.collaboration.type === 'restricted') {
+  if (req.collaboration.type === collaborationModule.CONSTANTS.COLLABORATION_TYPES.OPEN ||
+    req.collaboration.type === collaborationModule.CONSTANTS.COLLABORATION_TYPES.RESTRICTED) {
     return next();
   }
   return requiresCollaborationMember(req, res, next);

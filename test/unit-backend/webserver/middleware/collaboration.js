@@ -130,9 +130,10 @@ describe('canRead() method', function() {
     var res = {};
 
     mockery.registerMock('../../core/collaboration', {
-      isMember: function(com, user, callback) {
+      isMember: function() {
         done(new Error('I should not be called'));
-      }
+      },
+      CONSTANTS: this.helpers.requireBackend('core/collaboration/constants')
     });
     collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, done);
@@ -145,9 +146,10 @@ describe('canRead() method', function() {
     };
 
     mockery.registerMock('../../core/collaboration', {
-      isMember: function(com, user, callback) {
+      isMember: function() {
         done(new Error('I should not be called'));
-      }
+      },
+      CONSTANTS: this.helpers.requireBackend('core/collaboration/constants')
     });
     collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     var res = {};
@@ -163,9 +165,10 @@ describe('canRead() method', function() {
     var err = function() { done(new Error('I should not be called')); };
 
     mockery.registerMock('../../core/collaboration', {
-      isMember: function(com, user, callback) {
+      isMember: function() {
         done();
-      }
+      },
+      CONSTANTS: this.helpers.requireBackend('core/collaboration/constants')
     });
     collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, err);
@@ -180,9 +183,10 @@ describe('canRead() method', function() {
     var err = function() { done(new Error('I should not be called')); };
 
     mockery.registerMock('../../core/collaboration', {
-      isMember: function(com, user, callback) {
+      isMember: function() {
         done();
-      }
+      },
+      CONSTANTS: this.helpers.requireBackend('core/collaboration/constants')
     });
     collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, err);
