@@ -48,7 +48,7 @@ function logIn(account) {
 function tryUntilSuccess(task, options) {
   var maxTryCount = options.maxTryCount || 10;
   var waitBeforeRetry = options.waitBeforeRetry;
-  var refreshBrowser = options.refreshBeforeRetry ? browser.refresh.bind(browser) : q.when;
+  var runBeforeRetry = options.runBeforeRetry || q.when;
   var deferred = q.defer();
 
   _try(1);
@@ -59,7 +59,7 @@ function tryUntilSuccess(task, options) {
     }, function() {
       if (tryCount < maxTryCount) {
         _wait(waitBeforeRetry)
-          .then(refreshBrowser)
+          .then(runBeforeRetry)
           .then(_try.bind(null, tryCount + 1));
       } else {
         deferred.reject();

@@ -42,7 +42,6 @@ module.exports = function() {
     var self = this;
 
     self.tryUntilSuccess(check, {
-        refreshBeforeRetry: false,
         waitBeforeRetry: 2000,
         maxTryCount: 5
       })
@@ -65,11 +64,7 @@ module.exports = function() {
   });
 
   this.Then('I have "$folder" in the sidebar at the root level', function(folder) {
-    var self = this;
-
-    return browser.refresh().then(function() {
-      return self.expect(inboxAside.aside.element(by.css('[title="' + folder + '"]')).isPresent()).to.eventually.equal(true);
-    });
+    return this.expect(inboxAside.aside.element(by.css('[title="' + folder + '"]')).isPresent()).to.eventually.equal(true);
   });
 
   this.Then('I see the vacation indicator', function() {
@@ -81,7 +76,10 @@ module.exports = function() {
     var self = this;
 
     this.tryUntilSuccess(_check, {
-      refreshBeforeRetry: true
+      waitBeforeRetry: 2000,
+      runBeforeRetry: function() {
+        return inboxAside.aside.element(by.css('div[title="All Mail"]')).click();
+      }
     }).then(done.bind(null, null), done.bind(null, new Error('Cannot find the message')));
 
     function _check() {
