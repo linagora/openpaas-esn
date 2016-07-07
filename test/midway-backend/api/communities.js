@@ -576,8 +576,8 @@ describe('The communities API', function() {
               return done(err);
             }
             var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + confidentialCommunity._id));
-            req.expect(404);
-            req.end(function(err, res) {
+            req.expect(403);
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
