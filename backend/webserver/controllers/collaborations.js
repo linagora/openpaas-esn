@@ -325,7 +325,7 @@ function join(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a collaboration'}});
     }
 
-    if (!collaborationModule.getMembershipRequest(collaboration, {_id: targetUserId})) {
+    if (!req.query.withoutInvite && !collaborationModule.getMembershipRequest(collaboration, {_id: targetUserId})) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User did not request to join collaboration'}});
     }
 
