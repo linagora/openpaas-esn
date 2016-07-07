@@ -1,6 +1,7 @@
 'use strict';
 
 var communityModule = require('../../core/community');
+var collaborationConstants = require('../../core/collaboration/constants');
 var imageModule = require('../../core/image');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
@@ -76,7 +77,6 @@ module.exports.create = function(req, res) {
   var community = {
     title: req.body.title,
     creator: req.user._id,
-    type: 'open',
     members: [
       {member: {id: req.user._id, objectType: 'user'}}
     ]
@@ -102,6 +102,10 @@ module.exports.create = function(req, res) {
 
   if (req.body.description) {
     community.description = req.body.description;
+  }
+
+  if (req.body.avatar) {
+    community.avatar = new ObjectId(req.body.avatar);
   }
 
   communityModule.save(community, function(err, saved) {
@@ -168,15 +172,25 @@ module.exports.load = function(req, res, next) {
 
 module.exports.get = function(req, res) {
   if (req.community) {
-    transform(req.community, req.user, function(transformed) {
-      permission.canWrite(req.community, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
-        var result = transformed;
-        result.writable = writable;
-        return res.json(200, result);
-      });
+    var userTuple = {objectType: 'user', id: String(req.user._id)};
+    permission.canFind(req.community, userTuple, function(err, canFind) {
+      if (err) {
+        return res.status(500).json({error: 500, message: 'Server Error', details: 'Could not find community'});
+      }
+      if (canFind) {
+        transform(req.community, req.user, function(transformed) {
+          permission.canWrite(req.community, userTuple, function(err, writable) {
+            var result = transformed;
+            result.writable = writable;
+            return res.status(200).json(result);
+          });
+        });
+      } else {
+        return res.status(403).json({error: 403, message: 'Forbidden', details: 'Community not readable'});
+      }
     });
   } else {
-    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
   }
 };
 
@@ -391,7 +405,7 @@ module.exports.join = function(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
-    if (req.community.type !== 'open') {
+    if (req.community.type !== collaborationConstants.COLLABORATION_TYPES.OPEN) {
       var membershipRequest = communityModule.getMembershipRequest(community, user);
       if (!membershipRequest) {
         return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User was not invited to join community'}});

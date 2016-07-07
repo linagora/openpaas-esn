@@ -690,6 +690,7 @@ module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActi
 module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.getCollaborationsForUser = getCollaborationsForUser;
 module.exports.permission = require('./permission');
+module.exports.CONSTANTS = require('./constants');
 module.exports.hasDomain = hasDomain;
 module.exports.join = join;
 module.exports.leave = leave;

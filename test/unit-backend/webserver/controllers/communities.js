@@ -13,8 +13,6 @@ describe('The communities controller', function() {
 
   describe('The create fn', function() {
     it('should send back 400 if community title is not defined', function(done) {
-      mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
       var req = {
         body: {},
         user: {_id: 123}
@@ -32,8 +30,6 @@ describe('The communities controller', function() {
     });
 
     it('should send back 400 if request does not contains domain', function(done) {
-      mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
       var req = {
         body: {
           title: 'YOLO'
@@ -59,7 +55,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         body: {
@@ -95,7 +90,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         body: {
@@ -430,18 +424,14 @@ describe('The communities controller', function() {
 
   describe('get() method', function() {
     it('should send back HTTP 200 with community if defined in request', function(done) {
-      var community = {_id: 123, members: [{id: 'user1'}]};
+      var community = {_id: 123, members: [{member:{objectType: 'user', id: 'user1'}}]};
       var user = {_id: 'user1'};
-      mockery.registerMock('../../core/community', {
-        isMember: function(c, u, callback) {
-          return callback(null, true);
-        },
-        getMembershipRequest: function() {
-          return false;
-        }
-      });
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {
+          return callback(null, true);
+        },
+        canFind: function(com, tuple, callback) {
+          expect(com).to.deep.equal(community);
           return callback(null, true);
         }
       });
@@ -451,8 +441,11 @@ describe('The communities controller', function() {
         user: user
       };
       var res = {
-        json: function(code, result) {
+        status: function(code) {
           expect(code).to.equal(200);
+          return this;
+        },
+        json: function(result) {
           expect(result).to.deep.equal({ _id: 123, members_count: 1, member_status: 'member', writable: true });
           done();
         }
@@ -462,15 +455,42 @@ describe('The communities controller', function() {
       communities.get(req, res);
     });
 
-    it('should send back HTTP 404 if community is not set in request', function(done) {
-      mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
+    it('should send back HTTP 403 if community is not readable by the user', function(done) {
+      var community = {_id: 123, members: [{id: 'user1'}]};
+      var user = {_id: 'user1'};
+      mockery.registerMock('../../core/community/permission', {
+        canFind: function(com, tuple, callback) {
+          expect(com).to.deep.equal(community);
+          return callback(null, false);
+        }
+      });
 
       var req = {
+        community: community,
+        user: user
       };
       var res = {
-        json: function(code) {
+        status: function(code) {
+          expect(code).to.equal(403);
+          return this;
+        },
+        json: function() {
+          done();
+        }
+      };
+
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
+      communities.get(req, res);
+    });
+
+    it('should send back HTTP 404 if community is not set in request', function(done) {
+      var req = {};
+      var res = {
+        status: function(code) {
           expect(code).to.equal(404);
+          return this;
+        },
+        json: function() {
           done();
         }
       };
