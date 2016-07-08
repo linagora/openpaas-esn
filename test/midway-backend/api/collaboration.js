@@ -358,6 +358,30 @@ describe('The collaborations API', function() {
           });
         });
       });
+
+      it('should send back 204 if the withoutInvite query parameter is true (even with no membership request)', function(done) {
+        var self = this;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var manager = models.users[0];
+          var community = models.communities[1];
+          self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/members/' + models.users[2]._id + '?withoutInvite=true'));
+            req.expect(204);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              Community.findById(community._id, function(err, com) {
+                expect(err).to.not.exist;
+                expect(com.members.length).to.equal(3);
+                done();
+              });
+            });
+          });
+        });
+      });
     });
   });
 

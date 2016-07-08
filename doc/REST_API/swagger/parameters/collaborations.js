@@ -86,4 +86,11 @@
   *       For example: 'search=foo bar' will search members where firstname, lastname and email contain foo AND bar.
   *     required: true
   *     type: string
+  *   cl_withoutInvite:
+  *     name: withoutInvite
+  *     in: query
+  *     description: Optional parameter which indicates if invitation workflow should be skipped when adding a member to a collaboration
+  *     required: false
+  *     default: false
+  *     type: boolean
   */

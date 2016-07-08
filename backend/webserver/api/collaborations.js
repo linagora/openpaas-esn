@@ -157,6 +157,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/cl_members_object_type"
    *       - $ref: "#/parameters/cl_object_id"
    *       - $ref: "#/parameters/cl_user_id"
+   *       - $ref: "#/parameters/cl_withoutInvite
    *     responses:
    *       204:
    *         $ref: "#/responses/cm_204"
