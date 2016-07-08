@@ -293,5 +293,6 @@
   "a message": "a message",
   "Cannot find that email." : "Cannot find that email.",
   "An email has successfully been sent. Please check your mailbox.": "An email has successfully been sent. Please check your mailbox.",
-  "Reset password": "Reset password"
+  "Reset password": "Reset password",
+  "Successfully reset your password. You will be redirected to the login page in a few seconds.": "Successfully reset your password. You will be redirected to the login page in a few seconds."
 }
