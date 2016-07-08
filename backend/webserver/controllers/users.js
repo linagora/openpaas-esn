@@ -106,6 +106,27 @@ function updateProfile(req, res) {
 module.exports.updateProfile = updateProfile;
 
 /**
+ * Update the password in the current user profile
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+
+function updatePassword(req, res) {
+  if (!req.body && !req.body.password) {
+    return res.status(400).json({error: 400, message: 'Bad Request', details: 'No password defined'});
+  }
+
+  userModule.updatePassword(req.user, req.body.password, function(err) {
+    if (err) {
+      return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
+    }
+    return res.status(200).end();
+  });
+}
+module.exports.updatePassword = updatePassword;
+
+/**
  * Returns the current authenticated user
  *
  * @param {Request} req
