@@ -28,4 +28,5 @@ module.exports = function() {
   this.composerBcc = this.composer.element(by.css('.recipients-bcc input'));
   this.composerSendButton = this.composer.element(by.css('.compose-footer button[type="submit"]'));
 
+  console.warn('message.js');
 };
