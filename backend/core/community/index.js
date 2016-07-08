@@ -42,24 +42,15 @@ module.exports.save = function(community, callback) {
     return callback(new Error('Can not save community without at least a domain'));
   }
 
-  Community.testTitleDomain(community.title, community.domain_ids, function(err, result) {
-    if (err) {
-      return callback(new Error('Unable to lookup title/domain: ' + community.title + '/' + community.domain_id + ' : ' + err));
-    }
-    if (result) {
-      return callback(new Error('Title/domain: ' + community.title + '/' + community.domain_id + ' already exist.'));
-    }
-
-    var com = new Community(community);
-    com.save(function(err, response) {
-      if (!err) {
-        logger.info('Added new community:', { _id: response._id });
-      } else {
-        logger.info('Error while trying to add a new community:', err.message);
-      }
+  var com = new Community(community);
+  com.save(function(err, response) {
+    if (!err) {
+      logger.info('Added new community:', { _id: response._id });
       pubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
-      return callback(err, response);
-    });
+    } else {
+      logger.error('Error while trying to add a new community:', err.message);
+    }
+    return callback(err, response);
   });
 };
 

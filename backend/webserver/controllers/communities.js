@@ -8,7 +8,9 @@ var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core/logger');
 var async = require('async');
-var ObjectId = require('mongoose').Types.ObjectId;
+var mongoose = require('mongoose');
+var Community = mongoose.model('Community');
+var ObjectId = mongoose.Types.ObjectId;
 
 function transform(community, user, callback) {
   if (!community) {
@@ -72,6 +74,17 @@ module.exports.loadDomainForCreate = function(req, res, next) {
   return domainMiddleware.load(req, res, next);
 };
 
+function save(community, user, res) {
+  communityModule.save(community, function(err, saved) {
+    if (err) {
+      return res.status(500).json({ error: { status: 500, message: 'Community save error', details: err}});
+    }
+    transform(saved, user, function(result) {
+      return res.status(201).json(result);
+    });
+  });
+}
+
 module.exports.create = function(req, res) {
 
   var community = {
@@ -108,14 +121,19 @@ module.exports.create = function(req, res) {
     community.avatar = new ObjectId(req.body.avatar);
   }
 
-  communityModule.save(community, function(err, saved) {
-    if (err) {
-      return res.json(500, { error: { status: 500, message: 'Community save error', details: err}});
-    }
-    transform(saved, req.user, function(result) {
-      return res.json(201, result);
+  if (req.query.noTitleCheck) {
+    save(community, req.user, res);
+  } else {
+    Community.testTitleDomain(community.title, community.domain_ids, function(err, result) {
+      if (err) {
+        return res.status(500).json({error: { status: 500, message: 'Community save error : Unable to lookup title/domain', details: err}});
+      }
+      if (result) {
+        return res.status(403).json({error: { status: 403, message: 'Title/domain: ' + community.title + '/' + community.domain_id + ' already exist.', details: err}});
+      }
+      save(community, req.user, res);
     });
-  });
+  }
 };
 
 module.exports.list = function(req, res) {

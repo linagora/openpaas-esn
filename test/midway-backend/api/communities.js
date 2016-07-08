@@ -446,6 +446,7 @@ describe('The communities API', function() {
           saveDomain(domain, callback);
         },
         function(callback) {
+          community.domain_ids = [domain._id];
           saveCommunity(community, callback);
         },
         function() {
@@ -455,8 +456,8 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).post('/api/communities'));
             req.send(community);
-            req.expect(400);
-            req.end(function(err, res) {
+            req.expect(403);
+            req.end(function(err) {
               expect(err).to.not.exist;
 
               Community.find(function(err, result) {
@@ -465,6 +466,54 @@ describe('The communities API', function() {
                 }
                 expect(result).to.exist;
                 expect(result.length).to.equal(1);
+                done();
+              });
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should store a community with existing name if noTitleCheck param exists', function(done) {
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description'
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.domain_ids = [domain._id];
+          saveCommunity(community, callback);
+        },
+        function() {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).post('/api/communities?noTitleCheck=true'));
+            req.send(community);
+            req.expect(201);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+
+              Community.find(function(err, result) {
+                if (err) {
+                  return done(err);
+                }
+                expect(result).to.exist;
+                expect(result.length).to.equal(2);
                 done();
               });
             });

@@ -16,6 +16,10 @@ Create an ESN community in a domain. The creator of the community is the user wh
 - description: The community description
 - domain_ids: The ids of the domain the communities is linked to.
 
+**Request query strings parameters**
+
+- noTitleCheck: option to skip the title check. By default, a community title is unique on the domain
+
 **Response Headers:**
 
 - Content-Length: Document size
