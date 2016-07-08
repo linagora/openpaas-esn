@@ -804,6 +804,76 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(compileDirective('<composer-desktop />').find('composer-attachments')).to.have.length(1);
     });
 
+    it('should focus on email body without adding tab when tab is pressed while editing subject', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerSubject = element.find('.compose-subject'),
+          event = {
+            type: 'keydown',
+            which: 9,
+            preventDefault: sinon.spy()
+          };
+
+      composerSubject.trigger(event);
+      $timeout.flush();
+
+      expect(document.activeElement).to.equal(element.find('.note-editable')[0]);
+      expect(event.preventDefault).to.have.been.calledOnce;
+    });
+
+    it('should focus back on subject field without adding tab when shift + tab is pressed while in the body', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerBody = element.find('.note-editable'),
+          event = {
+            type: 'keydown',
+            which: 9,
+            shiftKey: true,
+            preventDefault: sinon.spy()
+          };
+
+      composerBody.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.compose-subject')[0]);
+      expect(event.preventDefault).to.have.been.calledOnce;
+    });
+
+    it('should not change focus when only tab is pressed while in the body', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerBody = element.find('.note-editable'),
+          event = {
+            type: 'keydown',
+            which: 9
+          };
+
+      composerBody.focus();
+      composerBody.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.note-editable')[0]);
+    });
+
+    it('should not change focus when non-tab key is pressed inside subject or body', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerBody = element.find('.note-editable'),
+          composerSubject = element.find('.compose-subject'),
+          event = {
+            type: 'keydown',
+            which: 13
+          };
+
+      composerBody.focus();
+      composerBody.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.note-editable')[0]);
+
+      composerSubject.focus();
+      composerSubject.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.compose-subject')[0]);
+    });
+
     describe('The focusOnRightField function', function() {
 
       it('should focus on To field when email is empty', function() {
