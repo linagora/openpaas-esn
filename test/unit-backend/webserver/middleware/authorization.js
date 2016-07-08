@@ -5,6 +5,11 @@ var mockery = require('mockery');
 var ObjectId = require('bson').ObjectId;
 
 describe('The authorization middleware', function() {
+
+  beforeEach(function() {
+    mockery.registerMock('../../core/user', {});
+  });
+
   describe('The loginAndContinue fn', function() {
     it('does nothing when authenticated', function(done) {
       mockery.registerMock('../../core/community', {});
