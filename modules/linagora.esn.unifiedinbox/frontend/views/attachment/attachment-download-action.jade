@@ -1,5 +1,5 @@
 .action
-  a(ng-href="{{ ::attachment.url }}", title="#{__('Download')}", target="_blank")
+  a(ng-click="ctrl.download(attachment)", href="", title="#{__('Download')}", target="_blank")
     i.mdi.mdi-download
     span.label
       | #{__('Download')}

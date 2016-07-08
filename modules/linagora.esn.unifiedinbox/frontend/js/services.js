@@ -51,34 +51,39 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('asyncAction', function($q, $log, $timeout, notificationFactory, INBOX_LONG_TASK_DURATION) {
+  .factory('asyncAction', function($q, $log, $timeout, notificationFactory, rejectWithErrorNotification, INBOX_LONG_TASK_DURATION) {
+    function _computeMessages(message) {
+      if (angular.isString(message)) {
+        return {
+          progressing: message + ' in progress...',
+          success: message + ' succeeded',
+          failure: message + ' failed'
+        };
+      }
 
-    function notifyFailure(cancelActionConfig, errorMessage) {
-      var notification = notificationFactory.weakError('Error', errorMessage);
-
-      cancelActionConfig && notification.setCancelAction(cancelActionConfig);
+      return message;
     }
 
     return function(message, action, options) {
-
-      var isSilent = (options && options.silent);
+      var isSilent = options && options.silent;
       var notification;
       var timeoutPromise;
+      var messages = _computeMessages(message);
 
       if (!isSilent) {
         timeoutPromise = $timeout(function() {
-          notification = notificationFactory.strongInfo('', message + ' in progress...');
+          notification = notificationFactory.strongInfo('', messages.progressing);
         }, INBOX_LONG_TASK_DURATION, false);
       }
 
       return action()
         .then(function(value) {
-          !isSilent && notificationFactory.weakSuccess('', message + ' succeeded');
+          !isSilent && notificationFactory.weakSuccess('', messages.success);
 
           return value;
         }, function(err) {
           $log.error(err);
-          notifyFailure(options && options.onFailure, message + ' failed');
+          rejectWithErrorNotification(messages.failure, options && options.onFailure);
 
           return $q.reject(err);
         })
@@ -106,8 +111,12 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('rejectWithErrorNotification', function($q, notificationFactory) {
-    return function(message) {
-      notificationFactory.weakError('Error', message);
+    return function(message, cancelAction) {
+      var notification = notificationFactory.weakError('Error', message);
+
+      if (cancelAction) {
+        notification.setCancelAction(cancelAction);
+      }
 
       return $q.reject(new Error(message));
     };

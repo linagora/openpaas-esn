@@ -3333,6 +3333,41 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
     });
 
+    it('should support custom messages as an object for the first parameter', function(done) {
+      var messages = {
+        progressing: 'Hey there, I am a custom progressing message !',
+        success: 'Yeepee'
+      };
+
+      asyncAction(messages, function() {
+        return $timeout(angular.noop, INBOX_LONG_TASK_DURATION + 1);
+      })
+        .then(function() {
+          expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Hey there, I am a custom progressing message !');
+          expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Yeepee');
+
+          done();
+        });
+      $timeout.flush();
+    });
+
+    it('should support custom error messages as an object for the first parameter', function(done) {
+      var messages = {
+        progressing: 'Hey there, I am a custom progressing message !',
+        failure: 'Booooh, I failed'
+      };
+
+      asyncAction(messages, function() {
+        return $timeout(angular.noop, INBOX_LONG_TASK_DURATION + 1).then(qReject);
+      })
+        .then(null, function() {
+          expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Hey there, I am a custom progressing message !');
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Booooh, I failed');
+
+          done();
+        });
+      $timeout.flush();
+    });
   });
 
   describe('The rejectWithErrorNotification factory', function() {
@@ -3363,6 +3398,20 @@ describe('The Unified Inbox Angular module services', function() {
       rejectWithErrorNotification(msg);
 
       expect(notificationFactoryMock.weakError).to.have.been.calledWithExactly('Error', msg);
+    });
+
+    it('should define a cancelAction, if provided', function() {
+      var notification = {
+        setCancelAction: sinon.spy()
+      };
+
+      notificationFactoryMock.weakError = sinon.spy(function() {
+        return notification;
+      });
+
+      rejectWithErrorNotification('error message', { a: 'b' });
+
+      expect(notification.setCancelAction).to.have.been.calledWith({ a: 'b' });
     });
 
     it('should reject promise with error message', function(done) {
