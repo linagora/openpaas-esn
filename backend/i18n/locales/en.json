@@ -43,7 +43,7 @@
   "Register today": "Register today",
   "Sign up in OpenPaas": "Sign up in OpenPaas",
   "Remember me": "Remember me",
-  "Forgot password ?": "Forgot password ?",
+  "Forgot password?": "Forgot password?",
   "This company is already registered. Please choose another one.": "This company is already registered. Please choose another one.",
   "Email address is required": "Email address is required",
   "This email address is invalid": "This email address is invalid",
@@ -290,5 +290,8 @@
   "posted": "posted",
   "replied to": "replied to",
   "liked": "liked",
-  "a message": "a message"
+  "a message": "a message",
+  "Cannot find that email." : "Cannot find that email.",
+  "An email has successfully been sent. Please check your mailbox.": "An email has successfully been sent. Please check your mailbox.",
+  "Reset password": "Reset password"
 }

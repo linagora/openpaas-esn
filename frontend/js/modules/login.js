@@ -16,7 +16,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
       }
     };
   })
-  .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService, notificationFactory) {
+  .controller('login', function($scope, $log, $location, $window, loginAPI, loginErrorService, vcRecaptchaService, notificationFactory) {
     $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
@@ -55,7 +55,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
           try {
             vcRecaptchaService.reload();
           } catch (e) {
-            console.error(e);
+            $log.error(e);
           }
         }
       );
@@ -66,13 +66,39 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
     $scope.tab = function(tabNumber) {
       if ($scope.step !== tabNumber) {
         $scope.step = tabNumber;
-        $scope.isLogin = !$scope.isLogin;
-        $scope.isRegister = !$scope.isRegister;
+        $scope.isLogin = $scope.step === 1;
+        $scope.isRegister = $scope.step === 2;
       }
     };
 
     $scope.showError = function() {
       return loginErrorService.getError() && $location.path() !== '/' && !$scope.loginTask.running && !$scope.loginIn;
+    };
+  })
+  .controller('forgotPassword', function($scope, loginAPI) {
+    $scope.email = '';
+    $scope.running = false;
+    $scope.hasFailed = false;
+    $scope.hasSucceeded = false;
+
+    $scope.resetPassword = function(form) {
+      if (form.$invalid) {
+        return;
+      }
+
+      $scope.running = true;
+      loginAPI.askForPasswordReset($scope.email).then(
+        function(response) {
+          $scope.running = false;
+          $scope.hasSucceeded = true;
+          $scope.hasFailed = false;
+        },
+        function(err) {
+          $scope.running = false;
+          $scope.hasSucceeded = false;
+          $scope.hasFailed = true;
+        }
+      );
     };
   })
   .factory('loginAPI', function(esnRestangular) {
@@ -81,8 +107,18 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
       return esnRestangular.all('login').post(credentials);
     }
 
+    function askForPasswordReset(email) {
+      return esnRestangular.all('passwordreset').post({email: email});
+    }
+
+    function updatePassword(password, jwtToken) {
+      return esnRestangular.one('passwordreset').customPUT({password: password}, undefined, {jwt: jwtToken});
+    }
+
     return {
-      login: login
+      login: login,
+      askForPasswordReset: askForPasswordReset,
+      updatePassword: updatePassword
     };
 
   })
