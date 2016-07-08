@@ -22,4 +22,24 @@
  *               type: object
  *             needed:
  *               type: boolean
+ *   lg_passwordresetemail:
+ *     name: passwordresetemail
+ *     in: body
+ *     description: the email requesting the password reset
+ *     required: true
+ *     schema:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *   lg_passwordreset:
+ *     name: passwordreset
+ *     in: body
+ *     description: the new password of the user
+ *     required: true
+ *     schema:
+ *       type: object
+ *       properties:
+ *         password:
+ *           type: string
  */
