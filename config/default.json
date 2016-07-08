@@ -72,7 +72,8 @@
     "linagora.esn.project",
     "linagora.esn.profile",
     "linagora.esn.controlcenter",
-    "linagora.esn.unifiedinbox"
+    "linagora.esn.unifiedinbox",
+    "linagora.esn.admin"
   ],
   "email": {
     "templatesDir": "./templates/email"
