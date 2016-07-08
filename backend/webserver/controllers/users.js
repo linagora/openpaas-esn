@@ -1,12 +1,10 @@
 'use strict';
 
-var q = require('q');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var logger = require('../../core').logger;
 var ObjectId = require('mongoose').Types.ObjectId;
-var utils = require('./utils');
 var denormalizeUser = require('../denormalize/user').denormalize;
 
 /**
@@ -236,15 +234,3 @@ function getProfileAvatar(req, res) {
   });
 }
 module.exports.getProfileAvatar = getProfileAvatar;
-
-function load(req, res, next) {
-  if (req.params.uuid) {
-    userModule.get(req.params.uuid, function(err, user) {
-      req.user = user;
-      next();
-    });
-  } else {
-    next();
-  }
-}
-module.exports.load = load;
