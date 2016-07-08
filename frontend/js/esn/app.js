@@ -78,7 +78,9 @@ angular.module('esnApp', [
   'esn.like',
   'esn.timeline',
   'esn.follow',
-  'awesome-angular-swipe'
+  'awesome-angular-swipe',
+  'esn.file-preview',
+  'esn.file-preview.image'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
