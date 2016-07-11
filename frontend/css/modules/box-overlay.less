@@ -1,16 +1,20 @@
 @overlayContainerZIndex: @header-z-index - 1;
 @overlayContainerMaximizedZIndex: @header-z-index + 1;
 @overlayBoxZIndex: 5;
+@overlayHeight: 60vh;
+@overlayMinHeight: 400px;
+@overlayWidth: 33vw;
+@overlayMinWidth: 300px;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
 
 .box-overlay-container {
   position: fixed;
-  right: 0;
   bottom: 0;
   width: auto;
-  height: 400px;
+  min-height: @overlayMinHeight;
+  height: @overlayHeight;
   right: 100px;
   z-index: @overlayContainerZIndex;
   pointer-events: none;
@@ -39,8 +43,10 @@
   left: auto;
   top: auto;
   bottom: 0;
-  width: 400px;
-  height: 400px;
+  width: @overlayWidth;
+  min-width: @overlayMinWidth;
+  min-height: @overlayMinHeight;
+  height: @overlayHeight;
   float: right;
   margin: 0 10px 0 0;
   overflow: hidden;
@@ -61,7 +67,7 @@
       color: @textPrimaryColor;
     }
 
-    .panel-title {
+    .panel-title .mdi {
       cursor: pointer;
     }
   }
@@ -106,6 +112,5 @@
 
   .toggle-minimize {
     .rotateZ3d(0deg);
-    transition: transform 0.1s ease-out;
   }
 }

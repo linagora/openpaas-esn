@@ -358,7 +358,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composerDesktop', function($timeout, $compile) {
+  .directive('composerDesktop', function($timeout, $compile, KEYCODES) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
@@ -378,12 +378,31 @@ angular.module('linagora.esn.unifiedinbox')
           }, 0);
         }
 
+        function _getEventKey(event) {
+          return event.which || event.keyCode;
+        }
+
         scope.onInit = function() {
           focusOnRightField(scope.email);
 
           element
             .find('.note-editable')
+            .keydown(function(event) {
+              if (_getEventKey(event) === KEYCODES.TAB_KEY && event.shiftKey) {
+                element.find('.compose-subject').focus();
+                event.preventDefault();
+              }
+            })
             .after($compile('<composer-attachments></composer-attachments>')(scope));
+
+          element
+            .find('.compose-subject')
+            .keydown(function(event) {
+              if (_getEventKey(event) === KEYCODES.TAB_KEY && !event.shiftKey) {
+                scope.focusEmailBody();
+                event.preventDefault();
+              }
+            });
         };
 
         scope.focusEmailBody = function() {

@@ -1,6 +1,10 @@
 'use strict';
 
 angular.module('esn.desktop-utils', ['ng.deviceDetector'])
+  .constant('KEYCODES', {
+    TAB_KEY: 9,
+    ENTER: 13
+  })
 
   .directive('desktopClick', function(deviceDetector) {
     return {
