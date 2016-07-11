@@ -1038,7 +1038,7 @@ describe('The Unified Inbox Angular module services', function() {
         sender =  {name: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
-          subject: 'Fw: my subject',
+          subject: 'Fwd: my subject',
           htmlBody: '<p><br/></p>' +
           '<cite>' +
           '------- Forwarded message -------<br/>' +
@@ -1075,7 +1075,7 @@ describe('The Unified Inbox Angular module services', function() {
         sender =  {name: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
-          subject: 'Fw: my subject',
+          subject: 'Fwd: my subject',
           quoted: email,
           quoteTemplate: 'forward',
           isQuoting: false

@@ -360,7 +360,7 @@ angular.module('linagora.esn.unifiedinbox')
       showReplyAllButton: showReplyAllButton,
       createReplyAllEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients, 'default', false),
       createReplyEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyRecipients, 'default', false),
-      createForwardEmailObject: _createQuotedEmail.bind(null, 'Fw: ', null, 'forward', true)
+      createForwardEmailObject: _createQuotedEmail.bind(null, 'Fwd: ', null, 'forward', true)
     };
   })
 
