@@ -54,4 +54,10 @@
   *     required: true
   *     schema:
   *       format: binary
+  *   ct_noTitleCheck:
+  *     name: noTitleCheck
+  *     in: query
+  *     description: optional parameter to skip the title check when creating a community
+  *     required: false
+  *     type: boolean
   */

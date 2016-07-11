@@ -2,12 +2,20 @@
 
 var mockery = require('mockery');
 var expect = require('chai').expect;
+var sinon = require('sinon');
 
 describe('The communities controller', function() {
+  var Community;
 
   beforeEach(function() {
+    Community = {
+      testTitleDomain: sinon.spy(function(title, domains, callback) {
+        return callback(null, false);
+      })
+    };
     this.helpers.mock.models({
-      User: function() {}
+      User: function() {},
+      Community: Community
     });
   });
 
@@ -62,12 +70,17 @@ describe('The communities controller', function() {
           domain_ids: ['123']
         },
         user: {_id: 123},
-        domain: {}
+        domain: {},
+        query: {}
       };
 
       var res = {
-        json: function(code) {
+        status: function(code) {
+          expect(Community.testTitleDomain).to.have.been.called;
           expect(code).to.equal(500);
+          return this;
+        },
+        json: function() {
           done();
         }
       };
@@ -99,12 +112,62 @@ describe('The communities controller', function() {
         user: {
           _id: 123
         },
-        domain: {}
+        domain: {},
+        query: {}
       };
 
       var res = {
-        json: function(code, data) {
+        status: function(code) {
+          expect(Community.testTitleDomain).to.have.been.called;
           expect(code).to.equal(201);
+          return this;
+        },
+        json: function(data) {
+          expect(data).to.deep.equal(saved);
+          done();
+        }
+      };
+
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
+      communities.create(req, res);
+    });
+
+    it('should not test the title if the noTitleCheck parameter iis true', function(done) {
+      var saved = {_id: 123};
+      var mock = {
+        save: function(community, callback) {
+          return callback(null, saved);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return false;
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var req = {
+        body: {
+          title: 'Node.js',
+          domain_ids: [123]
+        },
+        user: {
+          _id: 123
+        },
+        domain: {},
+        query: {
+          noTitleCheck: true
+        }
+      };
+
+      var res = {
+        status: function(code) {
+          expect(Community.testTitleDomain).to.not.have.been.called;
+          expect(code).to.equal(201);
+          return this;
+        },
+        json: function(data) {
           expect(data).to.deep.equal(saved);
           done();
         }
