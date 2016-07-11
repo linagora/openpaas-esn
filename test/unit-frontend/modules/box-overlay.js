@@ -7,8 +7,7 @@ var expect = chai.expect;
 
 describe('The box-overlay Angular module', function() {
 
-  var $window, $compile, $rootScope, $scope, $timeout, element,
-      deviceDetector, DEVICES;
+  var $window, $compile, $rootScope, $scope, $timeout, element, deviceDetector, notificationFactory, DEVICES;
 
   function compile(html) {
     element = $compile(html)($scope);
@@ -67,7 +66,11 @@ describe('The box-overlay Angular module', function() {
   beforeEach(module('jadeTemplates'));
 
   beforeEach(function() {
-    angular.mock.module('esn.box-overlay');
+    angular.mock.module('esn.box-overlay', function($provide) {
+      $provide.value('notificationFactory', notificationFactory = {
+        weakError: sinon.spy()
+      });
+    });
   });
 
   afterEach(function() {
@@ -171,6 +174,15 @@ describe('The box-overlay Angular module', function() {
       clickTheButton(button);
 
       expect(overlays()).to.have.length(2);
+    });
+
+    it('should notify when it cannot open more boxes', function() {
+      var button = compileAndClickTheButton('<button box-overlay />');
+
+      clickTheButton(button);
+      clickTheButton(button);
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('', 'Cannot open more than 2 windows. Please close one and try again');
     });
 
     it('should not accept to open two boxes with the same identifier', function() {

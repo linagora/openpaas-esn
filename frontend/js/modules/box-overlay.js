@@ -19,7 +19,7 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
     };
   })
 
-  .service('boxOverlayService', function($rootScope, MAX_BOX_COUNT) {
+  .service('boxOverlayService', function($rootScope, notificationFactory, MAX_BOX_COUNT) {
 
     var boxScopes = [];
 
@@ -42,7 +42,13 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
     return {
       spaceLeftOnScreen: spaceLeftOnScreen,
       addBox: function(scope) {
-        if (!spaceLeftOnScreen() || isBoxAlreadyOpened(scope)) {
+        if (isBoxAlreadyOpened(scope)) {
+          return false;
+        }
+
+        if (!spaceLeftOnScreen()) {
+          notificationFactory.weakError('', 'Cannot open more than ' + MAX_BOX_COUNT + ' windows. Please close one and try again');
+
           return false;
         }
 
