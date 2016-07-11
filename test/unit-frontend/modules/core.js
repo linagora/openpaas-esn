@@ -307,4 +307,28 @@ describe('The Angular core module', function() {
       done();
     });
   });
+
+  describe('The navigateTo factory', function() {
+
+    var $window, navigateTo;
+
+    beforeEach(function() {
+      angular.mock.module('esn.core', function($provide) {
+        $provide.value('$window', $window = {});
+      });
+    });
+
+    beforeEach(inject(function(_$window_, _navigateTo_) {
+      $window = _$window_;
+      navigateTo = _navigateTo_;
+    }));
+
+    it('should set $window.location to the target URL', function() {
+      navigateTo('https://open-paas.org');
+
+      expect($window.location).to.equal('https://open-paas.org');
+    });
+
+  });
+
 });

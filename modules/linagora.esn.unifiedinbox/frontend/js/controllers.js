@@ -419,9 +419,15 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('attachmentController', function($window) {
+  .controller('attachmentController', function(navigateTo, asyncAction) {
     this.download = function(attachment) {
-      $window.open(attachment.url);
+      return asyncAction({
+        progressing: 'Please wait while your download is being prepared',
+        success: 'Your download has started',
+        failure: 'Unable to download attachment ' + attachment.name
+      }, function() {
+        return attachment.getSignedDownloadUrl().then(navigateTo);
+      });
     };
   })
 

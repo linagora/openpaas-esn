@@ -9,10 +9,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
-      Composition, newComposerService = {}, $state, $modal,
-      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config, moment, Mailbox;
-  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST, INBOX_EVENTS,
-      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
+      Composition, newComposerService = {}, $state, $modal, navigateTo,
+      mailboxesService, inboxThreadService, _, fileUploadMock, config, moment, Mailbox;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -26,9 +25,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     };
     $state = {
       go: sinon.spy()
-    };
-    windowMock = {
-      open: sinon.spy()
     };
     $modal = sinon.spy();
 
@@ -51,9 +47,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('withJmapClient', function(callback) {
         return callback(jmapClient);
       });
-      $provide.decorator('$window', function($delegate) {
-        return angular.extend($delegate, windowMock);
-      });
       $provide.value('$stateParams', $stateParams);
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('Offline', Offline);
@@ -74,13 +67,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
       $provide.value('filter', { filter: 'condition' });
       $provide.value('searchService', { searchByEmail: function() { return $q.when(); }});
+      $provide.value('navigateTo', navigateTo = sinon.spy());
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_, _DEFAULT_FILE_TYPE_, _moment_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_,
+                                          _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxThreadService_,
                                           _INBOX_EVENTS_, _Mailbox_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
@@ -90,10 +83,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     inboxThreadService = _inboxThreadService_;
     _ = ___;
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
-    JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
-    ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
     INBOX_EVENTS = _INBOX_EVENTS_;
     moment = _moment_;
     Mailbox = _Mailbox_;
@@ -1549,13 +1540,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The attachmentController', function() {
 
-    describe('the download function', function() {
+    describe('The download function', function() {
 
-      it('should call $window.open', function() {
-        initController('attachmentController').download({url: 'url'});
+      it('should notify if the attachment cannot be downloaded', function() {
+        initController('attachmentController').download({
+          getSignedDownloadUrl: function() {
+            return $q.reject();
+          }
+        });
 
-        expect(windowMock.open).to.have.been.calledWith('url');
+        $rootScope.$digest();
+        expect(notificationFactory.weakError).to.have.been.calledWith();
       });
+
+      it('should navigate to signed URL once it is known', function() {
+        initController('attachmentController').download({
+          getSignedDownloadUrl: function() {
+            return $q.when('signedUrl');
+          }
+        });
+        $rootScope.$digest();
+
+        expect(navigateTo).to.have.been.calledWith('signedUrl');
+      });
+
     });
 
   });

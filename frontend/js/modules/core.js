@@ -186,4 +186,10 @@ angular.module('esn.core', [])
         });
       }
     };
+  })
+
+  .factory('navigateTo', function($window) {
+    return function(url) {
+      $window.location = url;
+    };
   });

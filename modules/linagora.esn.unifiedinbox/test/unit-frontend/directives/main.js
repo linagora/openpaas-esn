@@ -1266,20 +1266,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   });
 
-  describe('The inboxAttachment directive', function() {
-
-    it('should call $window.open once clicked', function() {
-      $scope.attachment = {
-        url: 'url'
-      };
-
-      compileDirective('<inbox-attachment attachment="attachment"/>').click();
-
-      expect(windowMock.open).to.have.been.calledWith('url');
-    });
-
-  });
-
   describe('The inboxFilterButton directive', function() {
     var scope, controller;
 
