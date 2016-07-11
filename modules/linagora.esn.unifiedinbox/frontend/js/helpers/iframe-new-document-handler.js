@@ -1,18 +1,15 @@
 'use strict';
 
-var messagePrefix = '[linagora.esn.unifiedinbox.changeDocument]',
-    messagePrefixLength = messagePrefix.length;
-
-function getNewDocument(messageData) {
-  var stringMessageData = '' + messageData;
-  if (messagePrefix === stringMessageData.substr(0, messagePrefixLength)) {
-    return stringMessageData.substr(messagePrefixLength);
-  }
-}
+var handlers = {
+  '[linagora.esn.unifiedinbox.changeDocument]': setDocument,
+  '[linagora.esn.unifiedinbox.inlineAttachment]': replaceInlineImageUrl
+};
 
 function createHtmlElement(tag, attribute, value) {
   var element = document.createElement(tag);
+
   element.setAttribute(attribute, value);
+
   return element;
 }
 
@@ -32,27 +29,49 @@ function setDocument(newDocument) {
   scriptsToInclude.forEach(function(script) {
     document.head.appendChild(createHtmlElement('script', 'src', script));
   });
-}
 
-function handleClickOnMailtoLinks(event, element) {
-  event.preventDefault();
-  parent.postMessage('[linagora.esn.unifiedinbox.mailtoClick]' + element.href.replace('mailto:', ''), '*');
-}
-
-function onMessageReceived(event) {
-  var newDocument = getNewDocument(event.data);
-  if (newDocument) {
-    setDocument(newDocument);
-  }
-  var elements = document.querySelectorAll('a[href^="mailto"]');
-
-  Array.prototype.forEach.call(elements, function(element) {
+  // mailto: URLs will open a composer
+  Array.prototype.forEach.call(document.querySelectorAll('a[href^="mailto"]'), function(element) {
     element.onclick = function(event) {
-      handleClickOnMailtoLinks(event, element);
+      event.preventDefault();
+
+      parent.postMessage('[linagora.esn.unifiedinbox.mailtoClick]' + element.href.replace('mailto:', ''), '*');
     };
   });
 
-  window.removeEventListener('message', onMessageReceived, false);
+  // Inline images will be downloaded, we must go through the host window for that
+  Array.prototype.forEach.call(document.querySelectorAll('img[data-async-src^="cid:"]'), function(element) {
+    var cid = element.getAttribute('data-async-src').replace('cid:', '');
+
+    element.removeAttribute('data-async-src');
+    element.setAttribute('data-inline-image', cid); // For easy lookup later on
+
+    parent.postMessage('[linagora.esn.unifiedinbox.inlineAttachment]' + cid, '*');
+  });
+}
+
+function replaceInlineImageUrl(cidAndUrl) {
+  var split = cidAndUrl.split(' '),
+      cid = split[0],
+      url = split[1],
+      element = document.querySelector('img[data-inline-image="' + cid + '"]');
+
+  if (element) {
+    element.onload = function() {
+      window.parentIFrame.size();
+    };
+    element.src = url;
+  }
+}
+
+function onMessageReceived(event) {
+  var message = '' + event.data;
+
+  Object.keys(handlers).forEach(function(prefix) {
+    if (prefix === message.substr(0, prefix.length)) {
+      handlers[prefix](message.substr(prefix.length));
+    }
+  });
 }
 
 window.addEventListener('message', onMessageReceived, false);

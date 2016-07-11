@@ -208,7 +208,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('htmlEmailBody', function($timeout, iFrameResize, inlineImagesFilter, loadImagesAsyncFilter, IFRAME_MESSAGE_PREFIX) {
+  .directive('htmlEmailBody', function($timeout, iFrameResize, loadImagesAsyncFilter, listenToPrefixedWindowMessage, _,
+                                       IFRAME_MESSAGE_PREFIXES) {
     return {
       restrict: 'E',
       scope: {
@@ -216,16 +217,18 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/partials/html-email-body.html',
       link: function(scope, element) {
-        var iFrames;
+        var iFrames, unregisterWindowListener = listenToPrefixedWindowMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(cid) {
+          scope.$emit('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, cid);
+        });
 
         element.find('iframe').load(function(event) {
           scope.$emit('iframe:loaded', event.target);
         });
 
         scope.$on('iframe:loaded', function(event, iFrame) {
-          var iFrameContent = loadImagesAsyncFilter(inlineImagesFilter(scope.email.htmlBody, scope.email.attachments));
+          var iFrameContent = loadImagesAsyncFilter(scope.email.htmlBody, scope.email.attachments);
 
-          iFrame.contentWindow.postMessage(IFRAME_MESSAGE_PREFIX + iFrameContent, '*');
+          iFrame.contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.CHANGE_DOCUMENT + iFrameContent, '*');
 
           iFrames = iFrameResize({
             checkOrigin: false,
@@ -243,6 +246,18 @@ angular.module('linagora.esn.unifiedinbox')
             }, 0);
           }
         });
+
+        scope.$on('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(event, cid) {
+          var attachment = _.find(scope.email.attachments, { cid: cid });
+
+          if (attachment) {
+            attachment.getSignedDownloadUrl().then(function(url) {
+              iFrames[0].contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid + ' ' + url, '*');
+            });
+          }
+        });
+
+        scope.$on('$destroy', unregisterWindowListener);
       }
     };
   })

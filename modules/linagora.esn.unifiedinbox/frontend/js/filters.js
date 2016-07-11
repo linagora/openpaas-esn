@@ -29,21 +29,8 @@ angular.module('linagora.esn.unifiedinbox')
       if (prefix) {
         result = prefix + result;
       }
+
       return result;
-    };
-  })
-
-  .filter('inlineImages', function(_) {
-    return function(text, attachments) {
-      if (!angular.isArray(attachments) || attachments.length === 0) {
-        return text;
-      }
-
-      return text.replace(/src=["']cid:([^]+?)["']/gim, function(match, cid) {
-        var attachment = _.find(attachments, { cid: cid });
-
-        return attachment ? 'src="' + attachment.url + '"' : match;
-      });
     };
   })
 
@@ -52,6 +39,7 @@ angular.module('linagora.esn.unifiedinbox')
       if (!angular.isDefined(text)) {
         return;
       }
+
       return text.trim().replace(/^(.)/gm, '> $1');
     };
   })

@@ -218,8 +218,8 @@ angular.module('linagora.esn.unifiedinbox', [
     });
   })
 
-  .run(function(newComposerService, listenToPrefixedWindowMessage, MAILTO_URL_MESSAGE_PREFIX) {
-    listenToPrefixedWindowMessage(MAILTO_URL_MESSAGE_PREFIX, function(emailAddress) {
+  .run(function(newComposerService, listenToPrefixedWindowMessage, IFRAME_MESSAGE_PREFIXES) {
+    listenToPrefixedWindowMessage(IFRAME_MESSAGE_PREFIXES.MAILTO, function(emailAddress) {
       newComposerService.open({
           to: [{
             email: emailAddress,
