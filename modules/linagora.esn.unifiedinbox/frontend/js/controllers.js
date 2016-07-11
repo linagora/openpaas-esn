@@ -326,6 +326,27 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $stateParams, $q, moment, jmap,
                                                                withJmapClient, rejectWithErrorNotification, asyncJmapAction, INBOX_EVENTS) {
+    var self = this;
+
+    this.momentTimes = {
+      fromDate: {
+        fixed: false,
+        default: {
+          hour: 0,
+          minute: 0,
+          second: 0
+        }
+      },
+      toDate: {
+        fixed: false,
+        default: {
+          hour: 23,
+          minute: 59,
+          second: 59
+        }
+      }
+    };
+
     function _init() {
       $scope.vacation = $stateParams.vacation;
 
@@ -338,10 +359,17 @@ angular.module('linagora.esn.unifiedinbox')
               $scope.vacation = vacation;
             })
             .then(function() {
-              $scope.vacation.fromDate = $scope.vacation.fromDate || moment();
+              if (!$scope.vacation.fromDate) {
+                $scope.vacation.fromDate = moment();
+              } else {
+                self.fixTime('fromDate');
+              }
+              self.updateDateAndTime('fromDate');
 
               if ($scope.vacation.toDate) {
                 $scope.vacation.hasToDate = true;
+                self.fixTime('toDate');
+                self.updateDateAndTime('toDate');
               }
             });
         });
@@ -350,15 +378,28 @@ angular.module('linagora.esn.unifiedinbox')
 
     _init();
 
-    $scope.toDateIsInvalid = function() {
-      return $scope.vacation.hasToDate && $scope.vacation.toDate && moment($scope.vacation.toDate).startOf('day').isBefore(moment($scope.vacation.fromDate).startOf('day'));
+    this.updateDateAndTime = function(date) {
+      if ($scope.vacation[date]) {
+        $scope.vacation[date] = moment($scope.vacation[date]);
+        if (!self.momentTimes[date].fixed) {
+          $scope.vacation[date].set(self.momentTimes[date].default);
+        }
+      }
     };
 
-    $scope.enableVacation = function(status) {
+    this.fixTime = function(date) {
+      !self.momentTimes[date].fixed && (self.momentTimes[date].fixed = true);
+    };
+
+    this.toDateIsInvalid = function() {
+      return $scope.vacation.hasToDate && $scope.vacation.toDate && $scope.vacation.toDate.isBefore($scope.vacation.fromDate);
+    };
+
+    this.enableVacation = function(status) {
       $scope.vacation.isEnabled = status;
     };
 
-    $scope.updateVacation = function() {
+    this.updateVacation = function() {
       return _validateVacationLogic()
         .then(function() {
           $state.go('unifiedinbox');
@@ -397,7 +438,7 @@ angular.module('linagora.esn.unifiedinbox')
           return rejectWithErrorNotification('Please enter a valid start date');
         }
 
-        if ($scope.toDateIsInvalid()) {
+        if (self.toDateIsInvalid()) {
           return rejectWithErrorNotification('End date must be greater than start date');
         }
       }
