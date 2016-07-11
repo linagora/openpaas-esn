@@ -1,1 +1,8 @@
-p Admin
+sub-header
+  .admin-view-subheader.flex-vertical-centered.hidden-md
+    a(href='', contextual-sidebar, data-content-template="/admin/views/partials/sidebar")
+      i.mdi.mdi-menu
+.full-width.row.no-padding-xs
+  .col-md-3.hidden-xs
+    admin-sidebar
+  ui-view.col-xs-12.col-md-9.no-padding-xs

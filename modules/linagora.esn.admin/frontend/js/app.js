@@ -4,7 +4,9 @@ angular.module('linagora.esn.admin', [
   'esn.router',
   'esn.core',
   'esn.session',
-  'op.dynamicDirective'
+  'op.dynamicDirective',
+  'esn.subheader',
+  'esn.sidebar'
   ])
   .config(function($stateProvider) {
     $stateProvider.state('admin', {
