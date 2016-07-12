@@ -42,6 +42,8 @@ composer, composer-desktop {
 
           > :not(.control-label) {
             .flex-shorthand(1);
+
+            width: 10px;
           }
 
           > .control-label {
@@ -55,15 +57,15 @@ composer, composer-desktop {
       }
 
       .more-recipients {
-        font-size: 1.6em;
+        color: @secondaryTextColor;
         cursor: pointer;
         padding-left: 0;
         text-align: center;
-        min-width: 40px;
+        min-width: 50px;
         transition: transform 0.2s ease-out;
 
-        a > i {
-          font-size: 0.6em;
+        i {
+          font-size: 2em;
         }
       }
 
