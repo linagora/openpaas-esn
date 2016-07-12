@@ -23,8 +23,11 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('DEFAULT_MAX_SIZE_UPLOAD', 20971520)
   .constant('DRAFT_SAVING_DEBOUNCE_DELAY', 1000)
   .constant('DEFAULT_VIEW', 'messages')
-  .constant('IFRAME_MESSAGE_PREFIX', '[linagora.esn.unifiedinbox.changeDocument]')
-  .constant('MAILTO_URL_MESSAGE_PREFIX', '[linagora.esn.unifiedinbox.mailtoClick]')
+  .constant('IFRAME_MESSAGE_PREFIXES', {
+    CHANGE_DOCUMENT: '[linagora.esn.unifiedinbox.changeDocument]',
+    MAILTO: '[linagora.esn.unifiedinbox.mailtoClick]',
+    INLINE_ATTACHMENT: '[linagora.esn.unifiedinbox.inlineAttachment]'
+  })
   .constant('INBOX_SWIPE_DURATION', 500)
   .constant('INBOX_DEFAULT_AVATAR', '/images/user.png')
   .constant('PROVIDER_TYPES', {

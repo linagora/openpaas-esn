@@ -10,7 +10,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
-      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _, INBOX_EVENTS, notificationFactory;
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _, INBOX_EVENTS,
+      notificationFactory, IFRAME_MESSAGE_PREFIXES;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -76,7 +77,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_,
+                             _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _IFRAME_MESSAGE_PREFIXES_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
@@ -87,6 +89,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     _ = ___;
     INBOX_EVENTS = _INBOX_EVENTS_;
     notificationFactory = _notificationFactory_;
+    IFRAME_MESSAGE_PREFIXES = _IFRAME_MESSAGE_PREFIXES_;
 
     session.user = {
       preferredEmail: 'user@open-paas.org',
@@ -954,10 +957,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $timeout.flush();
     });
 
-    it('should post html content after having filtered it with inlineImages then loadImagesAsync filters', function(done) {
+    it('should post html content after having filtered it with loadImagesAsync filters', function(done) {
       $scope.email = {
-        htmlBody: '<html><body><img src="remote.png" /><img src="cid:1" /></body></html>',
-        attachments: [{ cid: '1', url: 'http://expected-url' }]
+        htmlBody: '<html><body><img src="remote.png" /><img src="cid:1" /></body></html>'
       };
 
       compileDirective('<html-email-body email="email" />');
@@ -971,13 +973,31 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
             expect(contentWithoutRandomPort).to.equal(
               '[linagora.esn.unifiedinbox.changeDocument]<html><body>' +
                 '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="remote.png" />' +
-                '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="http://expected-url" />' +
+                '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="cid:1" />' +
               '</body></html>');
 
             done();
           }
         }
       });
+    });
+
+    it('should get a signed download URL for inline attachments, when asked by the iFrame', function(done) {
+      $scope.email = {
+        htmlBody: '<html><body><img src="cid:1" /></body></html>',
+        attachments: [{
+          cid: '1',
+          getSignedDownloadUrl: function() {
+            done();
+
+            return $q.when('signedUrl');
+          }
+        }]
+      };
+
+      compileDirective('<html-email-body email="email" />');
+
+      $scope.$broadcast('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, '1');
     });
 
   });
