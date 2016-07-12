@@ -49,8 +49,8 @@ angular.module('linagora.esn.unifiedinbox')
     airMode: false,
     disableResizeEditor: true,
     toolbar: [
-      ['style', ['bold', 'italic', 'underline', 'strikethrough']],
-      ['textsize', ['fontsize']],
+      ['style', ['style']],
+      ['font', ['bold', 'italic', 'underline', 'strikethrough']],
       ['alignment', ['paragraph', 'ul', 'ol']]
     ]
   });

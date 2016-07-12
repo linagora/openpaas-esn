@@ -1,6 +1,7 @@
 @autocompleteFontSize: 10px;
 @attachments-zone-min-height: 80px;
 @composer-header-min-height: 65px;
+@summernotePlaceholderZIndex: 10;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
@@ -88,85 +89,63 @@ composer, composer-desktop {
       border: none;
     }
 
-    .panel-heading.note-toolbar {
-      background-color: inherit;
-      border: 0;
-
-      .note-alignment .dropdown-menu {
-        min-width: 190px;
-        background-color: @primaryColor;
-      }
-    }
-
-    .note-placeholder {
-      z-index: 10;
-    }
-
     .note-editor {
       .flex-column;
       .flex-shorthand(1);
 
       border: 0;
 
-      .note-editing-area {
-        .flex-shorthand(1);
+      p {
+        margin-bottom: 0;
+      }
 
-        .note-editable {
-          p {
-            margin-bottom: 0;
+      .panel-heading.note-toolbar {
+        background-color: inherit;
+        border: 0;
+
+        .dropdown-menu {
+          overflow-y: auto;
+          max-height: 40vh;
+          z-index: @summernotePlaceholderZIndex + 1;
+        }
+
+        .note-alignment .dropdown-menu {
+          min-width: 141px;
+          padding: 5px;
+        }
+
+        .btn-group {
+          box-shadow: none;
+
+          .btn-default {
+            background-color: @body-bg;
+            color: @secondaryTextColor;
+            border: 0;
+            border-radius: 0;
+
+            &.active, &:hover {
+              background-color: @darkenBgColor;
+              color: @text-color;
+            }
           }
         }
+      }
+
+      .note-placeholder {
+        z-index: @summernotePlaceholderZIndex;
+      }
+
+      .note-editing-area {
+        .flex-shorthand(1);
       }
 
       .note-resizebar {
         display: none;
       }
 
-      .note-popover .note-image-popover {
-        background-color: @primaryColor ;
-      }
-
-      .btn-group:not(.dropdown-menu) .btn-default {
-        color: @textPrimaryColor;
-        background-color: @primaryColor;
-        border: 0;
-        border-radius: 0;
-        .caret {
-          border-top-color:  @textPrimaryColor;
-        }
-        &.active {
-          background-color: lighten(@primaryColor, 10%);
-          color: @primaryColor;
-          z-index: 0;
-        }
-      }
-      .open > .dropdown-toggle {
-        background-color: lighten(@primaryColor, 10%);
-        color: @textPrimaryColor;
-        &.btn-default:hover, &.btn-default:focus {
-          background-color: lighten(@primaryColor, 10%);
-          color: @textPrimaryColor;
-        }
-      }
       &.panel.panel-default {
         margin-bottom: 0;
       }
-    }
-    .compose-body .panel-default > .panel-heading {
-      padding: 5px;
-      background-color: @primaryColor ;
-      border-radius: 0;
-      &.note-toolbar > .btn-group {
-        margin-top: 0;
-      }
-    }
-
-    .btn-group:not(.bootstrap-select) {
-      box-shadow: none;
-    }
-
-    .tooltip .fade .bottom .in {
-      background-color: lighten(@primaryColor, 10%);
     }
 
     .compose-footer {
@@ -283,28 +262,6 @@ composer-desktop {
             margin: 10px 0;
           }
         }
-      }
-
-    }
-
-  }
-
-}
-
-/* Small devices (tablets, 768px and up) */
-@media (min-width: @screen-sm-min) {
-
-  composer, composer-desktop {
-
-    .note-editor {
-
-      .btn-group:not(.dropdown-menu) .btn-default {
-
-        &:hover {
-          background-color: lighten(@primaryColor, 10%);
-          color: @primaryColor;
-        }
-
       }
 
     }
