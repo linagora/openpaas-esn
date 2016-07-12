@@ -10,21 +10,12 @@ var subheaderPage = require('../pages/subheader')();
 
 module.exports = function() {
 
-  this.When('I press "Send" button and wait for the message to be sent', function(done) {
+  this.When('I press "Send" button and wait for the message to be sent', function(next) {
     var self = this;
     var succeededMessage = 'Sending of your message succeeded';
-
     messagePage.composerSendButton.click()
-      .then(function() {
-        return self.tryUntilSuccess(check.bind(self), {
-          waitBeforeRetry: 2000,
-          maxTryCount: 5
-        });
-      })
-      .then(done.bind(null, null))
-      .catch(function() {
-        done(new Error('Cannot find the succeeded message, maybe the message is not sent successfully'));
-      });
+      .then(check)
+      .then(next);
 
     function check() {
       return q.all(self.notifications.messages.map(function(message) {
