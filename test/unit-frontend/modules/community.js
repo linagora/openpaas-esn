@@ -95,6 +95,13 @@ describe('The Community Angular module', function() {
         this.$httpBackend.flush();
       });
 
+      it('should send a POST to /api/communities with given query parameters ', function() {
+        var community = {};
+        this.$httpBackend.expectPOST('/api/communities?pipo1=pipo2&pipo3=pipo4', community).respond(202);
+        this.communityAPI.create(community, {pipo1: 'pipo2', pipo3: 'pipo4'});
+        this.$httpBackend.flush();
+      });
+
       it('should return a promise', function() {
         var promise = this.communityAPI.create({});
         expect(promise.then).to.be.a.function;

@@ -60,8 +60,8 @@ angular.module('esn.community', [
       return esnRestangular.one('communities', id).remove();
     }
 
-    function create(body) {
-      return esnRestangular.all('communities').post(body);
+    function create(body, query) {
+      return esnRestangular.all('communities').post(body, query);
     }
 
     function uploadAvatar(id, blob, mime) {
