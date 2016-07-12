@@ -15,6 +15,9 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
         }).map(function(account) {
           return account.data;
         });
+    },
+    userIsDomainAdministrator: function() {
+      return session.domain.administrator === session.user._id;
     }
   };
 

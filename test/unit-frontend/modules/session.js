@@ -129,6 +129,37 @@ describe('The esn.session Angular module', function() {
 
     });
 
+    describe('userIsDomainAdministrator function', function() {
+      beforeEach(function() {
+        var domain = {
+          _id: '1',
+          name: 'hello',
+          administrator: 'admin'
+        };
+
+        this.session.setDomain(domain);
+      });
+
+      it('should return true if user is domain administrator', function() {
+        this.session.setUser({
+          _id: 'admin',
+          name: 'admin',
+          emails: ['admin@example.com']
+        });
+
+        expect(this.session.userIsDomainAdministrator()).to.be.true;
+      });
+
+      it('should return false if user is not domain administrator', function() {
+        this.session.setUser({
+          _id: 'user',
+          name: 'user',
+          emails: ['user@example.com']
+        });
+
+        expect(this.session.userIsDomainAdministrator()).to.be.false;
+      });
+    });
   });
 
   describe('sessionFactory service', function() {

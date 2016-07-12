@@ -27,7 +27,8 @@ var adminModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       var app = require('./backend/webserver')(this, dependencies);
       var webserverWrapper = dependencies('webserver-wrapper');
       var frontendJsFiles = [
-        'app.js'
+        'app.js',
+        'directives.js'
       ];
 
       webserverWrapper.injectAngularModules(MODULE_NAME, frontendJsFiles, [AWESOME_MODULE_NAME], ['esn']);
