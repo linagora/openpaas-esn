@@ -6,7 +6,7 @@ var conf = require('../../../../backend/core/esn-config')('mail');
 
 var properties = {
   subject: 'You are invited to join OpenPaas',
-  template: 'add-member'
+  template: 'core.add-member'
 };
 
 module.exports = function(invitation, done) {

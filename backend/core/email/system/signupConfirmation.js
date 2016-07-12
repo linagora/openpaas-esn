@@ -6,7 +6,7 @@ var conf = require('../../../../backend/core/esn-config')('mail');
 
 var properties = {
   subject: 'Please activate your account',
-  template: 'signup-email-confirmation'
+  template: 'core.signup-email-confirmation'
 };
 
 module.exports = function(invitation, done) {
