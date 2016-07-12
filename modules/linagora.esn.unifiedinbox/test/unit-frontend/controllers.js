@@ -1234,10 +1234,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   describe('The inboxConfigurationVacationController', function() {
-    var vacation;
+    var vacation, ctrl;
 
     beforeEach(function() {
-      vacation = {};
+      vacation = ctrl = {};
 
       jmapClient.getVacationResponse = sinon.spy(function() {
         return $q.when(vacation);
@@ -1269,9 +1269,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 23),
           toDate: new Date(2016, 9, 22)
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
 
-        expect(scope.toDateIsInvalid()).to.be.true;
+        expect(ctrl.toDateIsInvalid()).to.be.true;
       });
 
       it('should return undefined if vacation.toDate is undefined', function() {
@@ -1279,9 +1279,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 23),
           toDate: undefined
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
 
-        expect(scope.toDateIsInvalid()).to.be.undefined;
+        expect(ctrl.toDateIsInvalid()).to.be.undefined;
       });
 
       it('should return undefined if vacation.toDate is null', function() {
@@ -1289,9 +1289,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 23),
           toDate: null
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
 
-        expect(scope.toDateIsInvalid()).to.be.undefined;
+        expect(ctrl.toDateIsInvalid()).to.be.undefined;
       });
 
       it('should return false if vacation.fromDate < vacation.toDate', function() {
@@ -1299,9 +1299,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 23)
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
 
-        expect(scope.toDateIsInvalid()).to.be.false;
+        expect(ctrl.toDateIsInvalid()).to.be.false;
       });
 
       it('should return false if vacation.fromDate = vacation.toDate', function() {
@@ -1309,9 +1309,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 22)
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
 
-        expect(scope.toDateIsInvalid()).to.be.false;
+        expect(ctrl.toDateIsInvalid()).to.be.false;
       });
 
       it('should return false if vacation.hasToDate is false', function() {
@@ -1319,30 +1319,20 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 20)
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
         scope.vacation.hasToDate = false;
 
-        expect(scope.toDateIsInvalid()).to.be.false;
-      });
-
-      it('should not consider time while comparing', function() {
-        vacation = {
-          fromDate: new Date(2016, 9, 22, 2, 0, 0),
-          toDate: new Date(2016, 9, 22, 1, 0, 0)
-        };
-        initController('inboxConfigurationVacationController');
-
-        expect(scope.toDateIsInvalid()).to.be.false;
+        expect(ctrl.toDateIsInvalid()).to.be.false;
       });
     });
 
     describe('the enableVacation function', function() {
       it('should set vacation.isEnabled attribute', function() {
-        initController('inboxConfigurationVacationController');
-        scope.enableVacation(true);
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.enableVacation(true);
 
         expect(scope.vacation.isEnabled).to.be.true;
-        scope.enableVacation(false);
+        ctrl.enableVacation(false);
 
         expect(scope.vacation.isEnabled).to.be.false;
       });
@@ -1359,9 +1349,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         vacation = {
           isEnabled: true
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
         scope.vacation.fromDate = null;
-        scope.updateVacation().then(done.bind(null, 'should reject'), function(err) {
+        ctrl.updateVacation().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal('Please enter a valid start date');
           expect($state.go).to.not.have.been.called;
           expect(jmapClient.setVacationResponse).to.not.have.been.called;
@@ -1377,8 +1367,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 21)
         };
-        initController('inboxConfigurationVacationController');
-        scope.updateVacation().then(done.bind(null, 'should reject'), function(err) {
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateVacation().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal('End date must be greater than start date');
           expect($state.go).to.not.have.been.called;
           expect(jmapClient.setVacationResponse).to.not.have.been.called;
@@ -1394,8 +1384,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 24)
         };
-        initController('inboxConfigurationVacationController');
-        scope.updateVacation();
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateVacation();
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('unifiedinbox');
@@ -1409,9 +1399,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 24)
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
         scope.vacation.hasToDate = false;
-        scope.updateVacation();
+        ctrl.updateVacation();
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('unifiedinbox');
@@ -1425,9 +1415,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           fromDate: new Date(2016, 9, 22),
           toDate: new Date(2016, 9, 24)
         };
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
         scope.$on(INBOX_EVENTS.VACATION_STATUS, done.bind(this, null));
-        scope.updateVacation();
+        ctrl.updateVacation();
         scope.$digest();
       });
 
@@ -1443,9 +1433,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return $q.reject();
         });
 
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
         scope.$on(INBOX_EVENTS.VACATION_STATUS, listener);
-        scope.updateVacation();
+        ctrl.updateVacation();
         scope.$digest();
 
         expect(jmapClient.setVacationResponse).to.have.been.calledWith();
@@ -1455,7 +1445,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
-    describe('the _init function', function() {
+    describe('the initialization block', function() {
       it('should initialize scope.vacation', function() {
         initController('inboxConfigurationVacationController');
 
@@ -1464,23 +1454,75 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should set vacation.fromDate from the object returned by getVacationResponse()', function() {
-        vacation.fromData = new Date(2016, 9, 22);
-        initController('inboxConfigurationVacationController');
+        vacation.fromDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
 
-        expect(scope.vacation.fromData).to.equal(vacation.fromData);
+        expect(moment.isMoment(scope.vacation.fromDate)).to.be.true;
+        expect(scope.vacation.fromDate.isSame(vacation.fromDate)).to.be.true;
+        expect(ctrl.momentTimes.fromDate.fixed).to.be.true;
       });
 
-      it('should set vacation.fromDate to today if the object returned by getVacationResponse() does not have a fromData attribute', function() {
-        initController('inboxConfigurationVacationController');
+      it('should set vacation.fromDate to today if the object returned by getVacationResponse() does not have a fromDate attribute', function() {
+        var expectedDate = moment().set({
+          hour: 0,
+          minute: 0,
+          second: 0
+        });
 
-        expect(scope.vacation.fromDate.format('YYYY MM DD')).to.deep.equal(moment().format('YYYY MM DD'));
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(moment.isMoment(scope.vacation.fromDate)).to.be.true;
+        expect(scope.vacation.fromDate.isSame(expectedDate, 'second')).to.be.true;
+        expect(ctrl.momentTimes.fromDate.fixed).to.be.false;
       });
 
-      it('should set vacation.toDate to true if the object returned by getVacationResponse() has a toData attribute', function() {
+      it('should set vacation.toDate to true if the object returned by getVacationResponse() has a toDate attribute', function() {
         vacation.toDate = new Date(2016, 9, 22);
-        initController('inboxConfigurationVacationController');
+        ctrl = initController('inboxConfigurationVacationController');
 
         expect(scope.vacation.hasToDate).to.be.true;
+        expect(moment.isMoment(scope.vacation.toDate)).to.be.true;
+        expect(scope.vacation.toDate.isSame(vacation.toDate)).to.be.true;
+        expect(ctrl.momentTimes.toDate.fixed).to.be.true;
+      });
+    });
+
+    describe('the updateDateAndTime function', function() {
+      it('should do nothing if corresponding date is falsy', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateDateAndTime('toDate');
+
+        expect(scope.vacation.toDate).to.be.undefined;
+      });
+
+      it('should moment the given date', function() {
+        vacation.fromDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateDateAndTime('fromDate');
+
+        expect(moment.isMoment(scope.vacation.fromDate)).to.be.true;
+        expect(scope.vacation.fromDate.isSame(moment(new Date(2016, 9, 22)))).to.be.true;
+      });
+
+      it('should set time to default if it is not fixed', function() {
+        vacation.toDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.momentTimes.toDate.fixed = false;
+        ctrl.updateDateAndTime('toDate');
+
+        expect(moment.isMoment(scope.vacation.toDate)).to.be.true;
+        expect(scope.vacation.toDate.isSame(moment(new Date(2016, 9, 22, 23, 59, 59)))).to.be.true;
+      });
+    });
+
+    describe('the fixTime function', function() {
+      it('should fix the given time', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.momentTimes.toDate.fixed).to.be.false;
+        ctrl.fixTime('toDate');
+
+        expect(ctrl.momentTimes.toDate.fixed).to.be.true;
       });
     });
   });

@@ -53,9 +53,13 @@
       }
     }
 
-    .responsive-form-group {
+    .flex-form-group {
       .flex-start;
       .align-items(center);
+
+      .separator {
+        padding-left: 15px;
+      }
     }
 
     .form-group {
@@ -68,8 +72,12 @@
       padding-right: 15px;
     }
 
-    .ng-invalid.fg-line:not([class*=has-]):after {
-      background: @m-red;
+    .invalid {
+      border-bottom-color: @m-red;
+
+      &.fg-line:not([class*=has-]):after {
+        background: @m-red;
+      }
     }
 
     .btn:not(.btn-link):not(.btn-float):not(.command-edit):not(.command-delete):not(.selectpicker) {
@@ -85,12 +93,15 @@
     }
 
     .inbox-configuration-vacation {
-      .responsive-form-group, .field-label {
+      .field-label {
         display: block;
       }
 
       .form-group {
         margin-bottom: 30px;
+        &.flex-form-group:not(.full-width) {
+          width: 80%;
+        }
       }
     }
   }
