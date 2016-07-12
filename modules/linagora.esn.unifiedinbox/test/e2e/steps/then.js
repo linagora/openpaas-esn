@@ -37,7 +37,7 @@ module.exports = function() {
     ]);
   });
 
-  this.Then('I see a notification with message "$message"', { timeout: 60 * 1000 }, function(message, done) {
+  this.Then('I see a notification with message "$message"', { timeout: 60 * 1000 }, function(message, next) {
 
     var self = this;
 
@@ -45,10 +45,7 @@ module.exports = function() {
         waitBeforeRetry: 2000,
         maxTryCount: 5
       })
-      .then(done.bind(null, null))
-      .catch(function() {
-        done(new Error('The wanted notification is not present'));
-      });
+      .then(next.bind(null, null));
 
     function check() {
       return q.all(self.notifications.messages.map(checkNotification)).then(q.reject, q.when);

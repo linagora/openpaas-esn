@@ -8,26 +8,24 @@ var inboxAddFolder = new (require('../pages/inbox-add-folder'))();
 var configurationPage = require('../pages/configuration')();
 var subheaderPage = require('../pages/subheader')();
 
-var SENDING_MESSAGE = 'Sending of your message in progress...',
-    SUCCEED_MESSAGE = 'Sending of your message succeeded';
-
 module.exports = function() {
 
   this.When('I press "Send" button and wait for the message to be sent', function(next) {
     var self = this;
+    var succeededMessage = 'Sending of your message succeeded';
+    messagePage.composerSendButton.click()
+      .then(check)
+      .then(next);
 
-    messagePage.composerSendButton.click().then(function() {
-      self.notifications.messages.each(function(message) {
-        message.getText().then(function(notificationMessage) {
-          if (notificationMessage !== SENDING_MESSAGE && notificationMessage !== SUCCEED_MESSAGE) {
-            next(new Error('Unexpected notification message: ' + notificationMessage));
-          }
-          if (notificationMessage === SUCCEED_MESSAGE) {
-            next();
+    function check() {
+      return q.all(self.notifications.messages.map(function(message) {
+        return message.getText().then(function(notificationMessage) {
+          if (notificationMessage === succeededMessage) {
+            return q.reject();
           }
         });
-      });
-    });
+      })).then(q.reject, q.when);
+    }
   });
 
   this.When('I write "$value" in the Name field', function(value) {
