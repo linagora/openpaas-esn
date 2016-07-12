@@ -19,16 +19,37 @@
 
   }
 
-  .auto-complete-match {
+  .autocomplete {
+    .suggestion-list {
+      .suggestion-item {
+        color: @secondaryTextColor;
 
-    img {
-      .avatar(35px);
+        &.selected {
+          color: @text-color;
+          background-color: @darkenBgColor;
+
+          em {
+            color: inherit;
+            background-color: inherit;
+          }
+        }
+
+        em {
+          font: inherit;
+          font-weight: bold;
+        }
+
+        .auto-complete-match {
+          img {
+            .avatar(35px);
+          }
+
+          .row {
+            font-size: 0.8em;
+          }
+        }
+      }
     }
-
-    .row {
-      font-size: 0.8em;
-    }
-
   }
 }
 
