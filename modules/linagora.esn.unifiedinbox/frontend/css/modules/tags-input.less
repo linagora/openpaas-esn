@@ -32,14 +32,20 @@
         background-color: darken(@darkenBgColor, 3%);
       }
 
-      .remove-button {
-        color: inherit;
-        background-color: inherit;
+      ti-tag-item > * {
+        .flex-vertical-centered;
 
-        padding: 5px 8px 5px 5px;
-        // As the tag itself has some padding, setting a negative margin on the right allows the interaction zone to touch
-        // the right border of the tag, thus allowing the user to touch anywhere on the right part of the tag to remove it
-        margin: 0 -8px 0 0;
+        .remove-button {
+          color: inherit;
+          background-color: inherit;
+
+          padding: 5px 6px 5px 5px;
+          // As the tag itself has some padding, setting negative margins allows the interaction zone to touch
+          // the border of the tags, thus allowing the user to touch anywhere on the right part of the tag to remove it
+          margin: -5px -8px -5px 0;
+
+          line-height: @tagsInputLineHeight / 2; // Desperate tentative to better align the X on Firefox Android
+        }
       }
     }
 
