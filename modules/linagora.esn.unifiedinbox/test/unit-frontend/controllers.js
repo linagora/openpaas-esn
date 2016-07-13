@@ -1511,7 +1511,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.updateDateAndTime('toDate');
 
         expect(moment.isMoment(scope.vacation.toDate)).to.be.true;
-        expect(scope.vacation.toDate.isSame(moment([2016, 9, 22, 23, 59, 59]))).to.be.true;
+        expect(scope.vacation.toDate.isSame(new Date(2016, 9, 22, 23, 59, 59))).to.be.true;
       });
     });
 

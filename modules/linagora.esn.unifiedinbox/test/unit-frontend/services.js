@@ -1,22 +1,18 @@
 'use strict';
 
 /* global chai: false */
-/* global moment: false */
 /* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The Unified Inbox Angular module services', function() {
 
-  var nowDate = new Date('2015-08-20T04:00:00Z'),
-      localTimeZone = 'Europe/Paris',
-      attendeeService, isMobile, config;
+  var attendeeService, isMobile, config;
 
   beforeEach(function() {
     angular.mock.module('esn.jmap-client-wrapper');
     angular.mock.module('esn.session');
     angular.mock.module('esn.core');
-    angular.mock.module('angularMoment');
     angular.mock.module('linagora.esn.unifiedinbox');
     angular.mock.module('jadeTemplates');
   });
@@ -26,9 +22,6 @@ describe('The Unified Inbox Angular module services', function() {
     config = config || {};
 
     $provide.value('localTimezone', 'UTC');
-    $provide.constant('moment', function(argument) {
-      return moment.tz(argument || nowDate, localTimeZone);
-    });
     $provide.value('attendeeService', attendeeService = { addProvider: angular.noop });
     $provide.value('deviceDetector', {
       isMobile: function() {
