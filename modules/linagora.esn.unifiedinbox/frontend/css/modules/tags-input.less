@@ -15,6 +15,23 @@
 
       font-size: @autocompleteFontSize;
       text-transform: none;
+      color: @secondaryTextColor;
+      background-color: @body-bg;
+
+      &:hover, &.focused {
+        color: @text-color;
+        background-color: @darkenBgColor;
+      }
+
+      &.selected, &:active, &:active:hover {
+        color: @text-color;
+        background-color: darken(@darkenBgColor, 3%);
+      }
+
+      .remove-button {
+        color: inherit;
+        background-color: inherit;
+      }
     }
 
   }
