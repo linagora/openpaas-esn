@@ -44,7 +44,7 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('composerController', function($scope, $stateParams, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inboxConfig,
-                                            DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD) {
+                                            DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, INBOX_SUMMERNOTE_OPTIONS) {
     var disableImplicitSavesAsDraft = false,
         composition;
 
@@ -163,16 +163,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     $scope.isCollapsed = true;
-    $scope.summernoteOptions = {
-      focus: false,
-      airMode: false,
-      disableResizeEditor: true,
-      toolbar: [
-        ['style', ['bold', 'italic', 'underline', 'strikethrough']],
-        ['textsize', ['fontsize']],
-        ['alignment', ['paragraph', 'ul', 'ol']]
-      ]
-    };
+    $scope.summernoteOptions = INBOX_SUMMERNOTE_OPTIONS;
 
     $scope.send = function() {
       $scope.isSendingMessage = true;

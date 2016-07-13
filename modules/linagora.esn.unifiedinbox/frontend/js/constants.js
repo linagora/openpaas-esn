@@ -43,4 +43,14 @@ angular.module('linagora.esn.unifiedinbox')
     inbox: '/unifiedinbox/views/partials/empty-messages/containers/inbox.html',
     twitter: '/unifiedinbox/views/partials/empty-messages/containers/twitter.html'
   })
-  .constant('INBOX_LONG_TASK_DURATION', 1000);
+  .constant('INBOX_LONG_TASK_DURATION', 1000)
+  .constant('INBOX_SUMMERNOTE_OPTIONS', {
+    focus: false,
+    airMode: false,
+    disableResizeEditor: true,
+    toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'italic', 'underline', 'strikethrough']],
+      ['alignment', ['paragraph', 'ul', 'ol']]
+    ]
+  });
