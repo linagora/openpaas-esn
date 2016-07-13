@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global sinon: false */
+/* global moment: false */
 
 var expect = chai.expect;
 
@@ -9,9 +10,11 @@ describe('The mini-calendar service', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
-    /*eslint-disable no-undef */
-    moment.tz.setDefault('Europe/Paris'); // jshint ignore:line
-    /*eslint-enable no-undef */
+    moment.tz.setDefault('Europe/Paris');
+  });
+
+  afterEach(function() {
+    moment.tz.setDefault(null);
   });
 
   var fcMoment, miniCalenderService, $rootScope;

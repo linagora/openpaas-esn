@@ -372,6 +372,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.updateDateAndTime = function(date) {
       if ($scope.vacation[date]) {
         $scope.vacation[date] = moment($scope.vacation[date]);
+
         if (!self.momentTimes[date].fixed) {
           $scope.vacation[date].set(self.momentTimes[date].default);
         }
