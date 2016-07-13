@@ -1,3 +1,5 @@
+@tagsInputLineHeight: 36px;
+
 .inbox-tags-input {
 
   .host {
@@ -40,6 +42,8 @@
 
   .autocomplete {
     .suggestion-list {
+      max-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{tagsInputLineHeight})";
+
       .suggestion-item {
         color: @secondaryTextColor;
 
@@ -119,6 +123,12 @@ composer {
 composer-desktop {
 
   .inbox-tags-input {
+
+    .autocomplete {
+      .suggestion-list {
+        max-height: 300px;
+      }
+    }
 
     .tags {
       display: block;
