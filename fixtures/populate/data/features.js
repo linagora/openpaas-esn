@@ -9,12 +9,14 @@ module.exports = function(domains, host) {
   var jmapHost = process.env.JMAP_SERVER_HOST || host || 'localhost';
   var port = process.env.JMAP_SERVER_PORT || 1080;
   var path = process.env.JMAP_SERVER_PATH || 'jmap';
-  var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED || true;
-  var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED || false;
-  var maxSizeUpload = process.env.JMAP_MAX_SIZE_UPLOAD || 20971520;
-  var api = 'http://' + jmapHost + ':' + port + '/' + path;
-  var uploadUrl = process.env.JMAP_UPLOAD_URL || api + '/upload';
-  var downloadUrl = process.env.JMAP_DOWNLOAD_URL || api + '/download';
+  var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED === 'false' ? false : true;
+  var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED === 'true' ? true : false;
+  var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED === 'false' ? false : true;
+  var maxSizeUpload = parseInt(process.env.JMAP_MAX_SIZE_UPLOAD, 10) || 20971520;
+  var jmapHostPort = 'http://' + jmapHost + ':' + port;
+  var api = jmapHostPort + '/' + path;
+  var uploadUrl = process.env.JMAP_UPLOAD_URL || jmapHostPort + '/upload';
+  var downloadUrl = process.env.JMAP_DOWNLOAD_URL || jmapHostPort + '/download';
   var view = process.env.JMAP_VIEW || 'messages';
   var swipeRightAction = process.env.JMAP_SWIPE_RIGHT_ACTION || 'markAsRead';
 
@@ -52,6 +54,10 @@ module.exports = function(domains, host) {
             {
               name: 'isSaveDraftBeforeSendingEnabled',
               value: isSaveDraftBeforeSendingEnabled
+            },
+            {
+              name : 'composer.attachments',
+              value : isAttachmentsEnabled
             },
             {
               name: 'maxSizeUpload',
