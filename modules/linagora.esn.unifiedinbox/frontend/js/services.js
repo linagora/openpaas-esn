@@ -459,7 +459,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('newComposerService', function($state, jmapEmailService, boxOverlayOpener, deviceDetector) {
-    var defaultTitle = 'Compose an email';
+    var defaultTitle = 'New message';
 
     function choseByPlatform(mobile, others) {
       deviceDetector.isMobile() ? mobile() : others();
@@ -475,10 +475,10 @@ angular.module('linagora.esn.unifiedinbox')
         }});
     }
 
-    function newBoxedComposerCustomTitle(title, email, compositionOptions) {
+    function newBoxedComposerCustomTitle(email, compositionOptions) {
       boxOverlayOpener.open({
         id: email && email.id,
-        title: title,
+        title: defaultTitle,
         templateUrl: '/unifiedinbox/views/composer/box-compose.html',
         email: email,
         compositionOptions: compositionOptions
@@ -486,13 +486,13 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function newBoxedDraftComposer(email) {
-      newBoxedComposerCustomTitle('Continue your draft', email);
+      newBoxedComposerCustomTitle(email);
     }
 
-    function open(email, title, compositionOptions) {
+    function open(email, compositionOptions) {
       choseByPlatform(
         newMobileComposer.bind(null, email, compositionOptions),
-        newBoxedComposerCustomTitle.bind(null, title || defaultTitle, email, compositionOptions)
+        newBoxedComposerCustomTitle.bind(null, email, compositionOptions)
       );
     }
 
@@ -1051,19 +1051,19 @@ angular.module('linagora.esn.unifiedinbox')
 
     function reply(message) {
       emailSendingService.createReplyEmailObject(message.id, session.user).then(function(replyMessage) {
-        newComposerService.open(replyMessage, 'Start writing your reply email');
+        newComposerService.open(replyMessage);
       });
     }
 
     function replyAll(message) {
       emailSendingService.createReplyAllEmailObject(message.id, session.user).then(function(replyMessage) {
-        newComposerService.open(replyMessage, 'Start writing your reply all email');
+        newComposerService.open(replyMessage);
       });
     }
 
     function forward(message) {
       emailSendingService.createForwardEmailObject(message.id, session.user).then(function(forwardMessage) {
-        newComposerService.open(forwardMessage, 'Start writing your forward email');
+        newComposerService.open(forwardMessage);
       });
     }
 

@@ -1664,7 +1664,7 @@ describe('The Unified Inbox Angular module services', function() {
         newComposerService.open();
 
         expect(boxOverlayOpener.open).to.have.been.calledWithMatch({
-          title: 'Compose an email',
+          title: 'New message',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html'
         });
       });
@@ -1703,7 +1703,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           id: 'id',
-          title: 'Continue your draft',
+          title: 'New message',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
           email:  { id: 'id' },
           compositionOptions: undefined
@@ -1732,7 +1732,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should update the location with the email id if deviceDetector returns true', function() {
         deviceDetector.isMobile = sinon.stub().returns(true);
 
-        newComposerService.open({expected: 'field'}, 'title');
+        newComposerService.open({expected: 'field'});
         $timeout.flush();
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
@@ -1745,18 +1745,18 @@ describe('The Unified Inbox Angular module services', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.open({ id: '1234', subject: 'object' }, 'title');
+        newComposerService.open({ id: '1234', subject: 'object' });
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           id: '1234',
-          title: 'title',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
           email: { id: '1234', subject: 'object' },
+          title: 'New message',
           compositionOptions: undefined
         });
       });
 
-      it('should use the default title if none given', function() {
+      it('should use the email subject when opening an existing message', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
@@ -1764,7 +1764,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           id: '1234',
-          title: 'Compose an email',
+          title: 'New message',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
           email: { id: '1234', subject: 'object' },
           compositionOptions: undefined
@@ -1774,7 +1774,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should forward the compositionOptions when "open" is called and is on mobile', function() {
         deviceDetector.isMobile = sinon.stub().returns(true);
 
-        newComposerService.open({expected: 'field'}, 'title', {expected: 'options'});
+        newComposerService.open({expected: 'field'}, {expected: 'options'});
         $timeout.flush();
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
@@ -1787,14 +1787,14 @@ describe('The Unified Inbox Angular module services', function() {
         deviceDetector.isMobile = sinon.stub().returns(false);
         boxOverlayOpener.open = sinon.spy();
 
-        newComposerService.open({id: '1234', subject: 'object'}, 'title', {expected: 'options'});
+        newComposerService.open({id: '1234', subject: 'object'}, {expected: 'options'});
 
         expect(boxOverlayOpener.open).to.have.been.calledWith({
           id: '1234',
-          title: 'title',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
           email: {id: '1234', subject: 'object'},
-          compositionOptions: {expected: 'options'}
+          compositionOptions: {expected: 'options'},
+          title: 'New message'
         });
       });
 
@@ -3946,7 +3946,7 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
 
         expect(emailSendingService.createReplyEmailObject).to.have.been.calledWith('id');
-        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your reply email');
+        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail));
       });
 
     });
@@ -3959,7 +3959,7 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
 
         expect(emailSendingService.createReplyAllEmailObject).to.have.been.calledWith('id');
-        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your reply all email');
+        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail));
       });
 
     });
@@ -3972,7 +3972,7 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
 
         expect(emailSendingService.createForwardEmailObject).to.have.been.calledWith('id');
-        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail), 'Start writing your forward email');
+        expect(newComposerService.open).to.have.been.calledWith(quoteEmail(inputEmail));
       });
 
     });
