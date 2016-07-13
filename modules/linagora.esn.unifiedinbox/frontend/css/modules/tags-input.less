@@ -35,6 +35,11 @@
       .remove-button {
         color: inherit;
         background-color: inherit;
+
+        padding: 5px 8px 5px 5px;
+        // As the tag itself has some padding, setting a negative margin on the right allows the interaction zone to touch
+        // the right border of the tag, thus allowing the user to touch anywhere on the right part of the tag to remove it
+        margin: 0 -8px 0 0;
       }
     }
 
