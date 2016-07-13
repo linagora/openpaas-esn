@@ -28,7 +28,8 @@ var adminModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       var webserverWrapper = dependencies('webserver-wrapper');
       var frontendJsFiles = [
         'app.js',
-        'directives.js'
+        'directives.js',
+        'components/sidebar.js'
       ];
 
       webserverWrapper.injectAngularModules(MODULE_NAME, frontendJsFiles, [AWESOME_MODULE_NAME], ['esn']);
