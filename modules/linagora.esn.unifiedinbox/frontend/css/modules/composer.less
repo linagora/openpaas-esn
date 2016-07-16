@@ -33,14 +33,8 @@ composer, composer-desktop {
           .flex-vertical-centered;
 
           margin: 0;
-          opacity: 1;
-          transition: opacity 0.2s ease-out;
 
-          &.ng-hide {
-            opacity: 0;
-          }
-
-          > :not(.control-label) {
+          > .inbox-recipients {
             .flex-shorthand(1);
 
             width: 10px;
@@ -56,13 +50,17 @@ composer, composer-desktop {
         }
       }
 
-      .more-recipients {
+      .inbox-more-recipients {
         color: @secondaryTextColor;
         cursor: pointer;
         padding-left: 0;
         text-align: center;
-        min-width: 50px;
-        transition: transform 0.2s ease-out;
+        min-width: 40px;
+        margin: 2px 0 auto 0;
+
+        &.active, &:hover {
+          color: @text-color;
+        }
 
         i {
           font-size: 2em;
