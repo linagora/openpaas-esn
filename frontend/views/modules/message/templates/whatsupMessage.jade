@@ -23,10 +23,10 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
         message-oembeds(message='message')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
         li.wa-stats
-          span
+          span.messages
             i.mdi.mdi-comment-multiple-outline.m-r-5
             | {{message.responses.length}}
-          span.active
+          span.active.likes
             i.mdi.mdi-heart.m-r-5
             | {{message.likes.total_count}}
         li.wa-users
