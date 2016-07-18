@@ -1,6 +1,8 @@
 /**
   * @swagger
   * response:
+  *   cm_200:
+  *     description: Ok.
   *   cm_201:
   *     description: Created.
   *   cm_204:

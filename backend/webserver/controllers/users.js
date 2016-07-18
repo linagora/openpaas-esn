@@ -1,12 +1,10 @@
 'use strict';
 
-var q = require('q');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var logger = require('../../core').logger;
 var ObjectId = require('mongoose').Types.ObjectId;
-var utils = require('./utils');
 var denormalizeUser = require('../denormalize/user').denormalize;
 
 /**
@@ -104,6 +102,27 @@ function updateProfile(req, res) {
   });
 }
 module.exports.updateProfile = updateProfile;
+
+/**
+ * Update the password in the current user profile
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+
+function updatePassword(req, res) {
+  if (!req.body && !req.body.password) {
+    return res.status(400).json({error: 400, message: 'Bad Request', details: 'No password defined'});
+  }
+
+  userModule.updatePassword(req.user, req.body.password, function(err) {
+    if (err) {
+      return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
+    }
+    return res.status(200).end();
+  });
+}
+module.exports.updatePassword = updatePassword;
 
 /**
  * Returns the current authenticated user
@@ -215,15 +234,3 @@ function getProfileAvatar(req, res) {
   });
 }
 module.exports.getProfileAvatar = getProfileAvatar;
-
-function load(req, res, next) {
-  if (req.params.uuid) {
-    userModule.get(req.params.uuid, function(err, user) {
-      req.user = user;
-      next();
-    });
-  } else {
-    next();
-  }
-}
-module.exports.load = load;

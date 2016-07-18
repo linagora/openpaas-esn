@@ -2,6 +2,7 @@
 
 var passport = require('passport');
 var config = require('../../core').config('default');
+var userModule = require('../../core/user');
 
 //
 // Authorization middleware
@@ -99,4 +100,24 @@ exports.requiresCommunityCreator = function(req, res, next) {
 
 exports.requiresJWT = function(req, res, next) {
   return passport.authenticate('jwt', {session: false})(req, res, next);
+};
+
+exports.decodeJWTandLoadUser = function(req, res, next) {
+  var payload = req.user;
+
+  if (!payload.email) {
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Email is required'}});
+  }
+
+  userModule.findByEmail(payload.email, function(err, user) {
+    if (err) {
+      return res.status(500).json({error: {code: 500, message: 'Internal Server Error', details: 'Error while searching for the user'}});
+    }
+    if (!user) {
+      return res.status(404).json({error: {code: 404, message: 'Not Found', details: 'Email is not valid.'}});
+    }
+    req.user = user;
+
+    return next();
+  });
 };

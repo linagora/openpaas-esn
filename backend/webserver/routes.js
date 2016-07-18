@@ -4,9 +4,6 @@ var authorize = require('./middleware/authorization');
 var config = require('../core').config('default');
 var cors = require('cors');
 var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
-var users = require('./controllers/users');
-var loginController = require('./controllers/login');
-var invitation = require('./controllers/invitation');
 
 exports = module.exports = function(application) {
   application.all('/api/*', cors());
@@ -18,8 +15,14 @@ exports = module.exports = function(application) {
   application.get('/oauth/authorize', authorize.loginAndContinue, oauth2.authorization, oauth2.dialog);
   application.post('/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);
   application.post('/oauth/token', oauth2.token);
+
+  var loginController = require('./controllers/login');
+  var users = require('./controllers/users');
   application.get('/login', loginController.index);
   application.get('/logout', users.logout);
+  application.get('/passwordreset', authorize.requiresJWT, loginController.passwordResetIndex);
+
+  var invitation = require('./controllers/invitation');
   application.get('/invitation/signup', invitation.signup);
   application.get('/invitation/:uuid', invitation.load, invitation.confirm);
 

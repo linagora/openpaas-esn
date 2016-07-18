@@ -100,6 +100,18 @@ module.exports.updateProfile = function(user, profile, callback) {
   });
 };
 
+module.exports.updatePassword = function(user, password, callback) {
+  // OR-128 - Do not use findOneAndUpdate here because mongoose 3.x does not
+  // support pre hook on update. We must use pre fook on save to crypt the password
+  User.findOne({ _id: user._id || user }, function(err, user) {
+    if (err) {
+      return callback(err);
+    }
+    user.password = password;
+    user.save(callback);
+  });
+};
+
 module.exports.removeAccountById = function(user, accountId, callback) {
   var accountIndex = -1;
   user.accounts.forEach(function(account, index) {

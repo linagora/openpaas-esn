@@ -19,4 +19,15 @@ function getBaseUrl(callback) {
   });
 }
 
+function getNoReply(callback) {
+  return esnconfig('mail').get(function(err, data) {
+    if (err) {
+      return callback(err);
+    }
+    var noreply = data && data.mail && data.mail.noreply ? data.mail.noreply : 'no-reply@openpaas.org';
+    return callback(null, noreply);
+  });
+}
+
+module.exports.getNoReply = getNoReply;
 module.exports.getBaseUrl = getBaseUrl;

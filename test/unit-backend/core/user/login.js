@@ -9,6 +9,8 @@ describe('The user login module', function() {
   beforeEach(function() {
     mockModels = this.helpers.mock.models;
     mockPubSub = this.helpers.mock.pubsub;
+    mockery.registerMock('../auth', {});
+    mockery.registerMock('../../helpers', {});
   });
 
   describe('The success function', function() {

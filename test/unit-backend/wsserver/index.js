@@ -10,6 +10,8 @@ describe('The WebSockets server module', function() {
 
   beforeEach(function(done) {
     this.testEnv.initCore(done);
+    // Do not remove this. ./events is required inside email-templates
+    mockery.registerMock('email-templates', {});
     mockery.registerMock('./events', function() {});
 
     connectionTopic = {

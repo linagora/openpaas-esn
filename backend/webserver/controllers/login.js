@@ -2,10 +2,10 @@
 
 var passport = require('passport');
 var url = require('url');
-
 var config = require('../../core').config('default');
 var userlogin = require('../../core/user/login');
 var logger = require('../../core/logger');
+var alterTemplatePath = require('../middleware/templates').alterTemplatePath;
 
 function index(req, res) {
   var targetUrl = { pathname: '/', hash: req.user ? '' : '/login' };
@@ -75,6 +75,15 @@ var login = function(req, res, next) {
   })(req, res, next);
 };
 module.exports.login = login;
+
+var passwordResetIndex = function(req, res) {
+  alterTemplatePath('password-reset/index', function(tplPath) {
+    return res.render(tplPath, {
+      title: 'PasswordReset'
+    });
+  });
+};
+module.exports.passwordResetIndex = passwordResetIndex;
 
 var user = function(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
