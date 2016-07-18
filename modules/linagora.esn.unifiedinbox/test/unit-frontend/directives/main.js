@@ -65,11 +65,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     fakeNotification = { update: function() {}, setCancelAction: sinon.spy() };
     $provide.value('notifyService', function() { return fakeNotification; });
     $provide.value('sendEmail', sinon.spy(function() { return sendEmailFakePromise; }));
-    $provide.decorator('newComposerService', function($delegate) {
-      $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
-
-      return $delegate;
-    });
     $provide.decorator('$state', function($delegate) {
       $delegate.go = sinon.spy();
 
@@ -522,6 +517,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
           to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
           subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
         };
+        newComposerService.open = sinon.spy();
 
         sendDraftWhileOffline(aFakeEmail);
 
@@ -734,6 +730,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   });
 
   describe('The composer-desktop directive', function() {
+    beforeEach(function() {
+      $scope.$updateTitle = angular.noop;
+    });
 
     it('should return true when isBoxed is called', function() {
       compileDirective('<composer-desktop />');
@@ -787,7 +786,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $scope.email = {
         htmlBody: '<p><br /></p>Hey'
       };
-      controller = compileDirective('<composer-desktop/>').controller('composerDesktop');
+      controller = compileDirective('<composer-desktop />').controller('composerDesktop');
 
       controller.initCtrl = sinon.spy();
       $timeout.flush();
@@ -805,6 +804,12 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
     it('should add a new composer-desktop-attachments element', function() {
       expect(compileDirective('<composer-desktop />').find('composer-attachments')).to.have.length(1);
+    });
+
+    it('should expose updateTile method inside scope', function() {
+      compileDirective('<button new-composer />');
+
+      expect($scope.$updateTitle).to.be.a.function;
     });
 
     it('should focus on email body without adding tab when tab is pressed while editing subject', function() {
@@ -1436,6 +1441,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   });
 
   describe('The composerAttachments directive', function() {
+    beforeEach(function() {
+      $scope.$updateTitle = angular.noop;
+    });
 
     it('should focus the body when clicked, on desktop', function() {
       compileDirective('<composer-desktop />');

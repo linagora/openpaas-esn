@@ -190,6 +190,10 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
           });
         };
 
+        scope.$updateTitle = function(title) {
+          $boxOverlay.updateTitle(title);
+        };
+
         $boxOverlay.show = function() {
           if ($boxOverlay.$isShown) {
             return;
@@ -234,6 +238,10 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
         $boxOverlay.destroy = function() {
           $boxOverlay.hide();
           scope.$destroy();
+        };
+
+        $boxOverlay.updateTitle = function(title) {
+          scope.title = title ? title : config.title;
         };
 
         return $boxOverlay;

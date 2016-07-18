@@ -15,7 +15,7 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
       span(ng-click="isCollapsed = !isCollapsed")
         i.mdi(ng-class="isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up'")
 
-  input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}", ng-model="email.subject")
+  input.form-control.compose-subject(type="text", placeholder="#{__('Subject')}", ng-model="email.subject", ng-change="$updateTitle(email.subject)")
 
   email-body-editor
 

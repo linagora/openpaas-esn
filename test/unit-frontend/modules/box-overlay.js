@@ -336,4 +336,24 @@ describe('The box-overlay Angular module', function() {
 
   });
 
+  describe('The boxOverlay service', function() {
+    var $boxOverlay;
+
+    beforeEach(inject(function(_$boxOverlay_) {
+      $boxOverlay = _$boxOverlay_;
+    }));
+
+    it('should update the title', function() {
+      var overlay = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      overlay.updateTitle('New Title');
+
+      expect(overlay.$scope.title).to.equal('New Title');
+    });
+  });
+
 });

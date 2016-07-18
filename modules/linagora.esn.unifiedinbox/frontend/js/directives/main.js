@@ -380,6 +380,7 @@ angular.module('linagora.esn.unifiedinbox')
       controller: 'composerController',
       controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
+        scope.email && scope.$updateTitle(scope.email.subject);
 
         scope.isBoxed = function() {return true;};
 
