@@ -1,3 +1,5 @@
+@tagsInputLineHeight: 36px;
+
 .inbox-tags-input {
 
   .host {
@@ -5,6 +7,8 @@
   }
 
   .tags {
+
+    max-height: 60px; // ~2 lines of tags
 
     .tag-item {
       .flex-shrink(0);
@@ -15,20 +19,75 @@
 
       font-size: @autocompleteFontSize;
       text-transform: none;
+      color: @secondaryTextColor;
+      background-color: @body-bg;
+
+      &:hover, &.focused {
+        color: @text-color;
+        background-color: @darkenBgColor;
+      }
+
+      &.selected, &:active, &:active:hover {
+        color: @text-color;
+        background-color: darken(@darkenBgColor, 3%);
+      }
+
+      &:nth-of-type(n+2) {
+        margin-left: 5px;
+      }
+
+      ti-tag-item > * {
+        .flex-vertical-centered;
+
+        .remove-button {
+          color: inherit;
+          background-color: inherit;
+
+          padding: 5px 6px 5px 5px;
+          // As the tag itself has some padding, setting negative margins allows the interaction zone to touch
+          // the border of the tags, thus allowing the user to touch anywhere on the right part of the tag to remove it
+          margin: -5px -8px -5px 0;
+
+          line-height: @tagsInputLineHeight / 2; // Desperate tentative to better align the X on Firefox Android
+        }
+      }
     }
 
   }
 
-  .auto-complete-match {
+  .autocomplete {
+    .suggestion-list {
+      max-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{tagsInputLineHeight})";
 
-    img {
-      .avatar(35px);
+      .suggestion-item {
+        color: @secondaryTextColor;
+
+        &.selected {
+          color: @text-color;
+          background-color: @darkenBgColor;
+
+          em {
+            color: inherit;
+            background-color: inherit;
+          }
+        }
+
+        em {
+          font: inherit;
+          font-weight: bold;
+        }
+
+        .auto-complete-match {
+          img {
+            .avatar(35px);
+          }
+
+          .row {
+            font-size: 0.8em;
+          }
+        }
+      }
     }
-
-    .row {
-      font-size: 0.8em;
-    }
-
   }
 }
 
@@ -79,6 +138,12 @@ composer {
 composer-desktop {
 
   .inbox-tags-input {
+
+    .autocomplete {
+      .suggestion-list {
+        max-height: 300px;
+      }
+    }
 
     .tags {
       display: block;
