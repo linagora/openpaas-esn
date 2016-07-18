@@ -16,7 +16,7 @@ module.exports = function(domains, host) {
   var jmapHostPort = 'http://' + jmapHost + ':' + port;
   var api = jmapHostPort + '/' + path;
   var uploadUrl = process.env.JMAP_UPLOAD_URL || jmapHostPort + '/upload';
-  var downloadUrl = process.env.JMAP_DOWNLOAD_URL || jmapHostPort + '/download';
+  var downloadUrl = process.env.JMAP_DOWNLOAD_URL || jmapHostPort + '/download/{blobId}/{name}';
   var view = process.env.JMAP_VIEW || 'messages';
   var swipeRightAction = process.env.JMAP_SWIPE_RIGHT_ACTION || 'markAsRead';
 
