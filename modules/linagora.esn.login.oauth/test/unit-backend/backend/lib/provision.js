@@ -42,7 +42,7 @@ describe('The login oauth provision module', function() {
       var msg = 'Domain resolution failure';
 
       deps.domain = {
-        getUserDomains: function(user, callback) {
+        list: function(options, callback) {
           callback(new Error(msg));
         }
       };
@@ -56,7 +56,7 @@ describe('The login oauth provision module', function() {
     it('should reject when no domains are found', function(done) {
 
       deps.domain = {
-        getUserDomains: function(user, callback) {
+        list: function(options, callback) {
           callback();
         }
       };
@@ -70,7 +70,7 @@ describe('The login oauth provision module', function() {
     it('should reject when user provisioning fails', function(done) {
       var msg = 'Provisioning failure';
       deps.domain = {
-        getUserDomains: function(user, callback) {
+        list: function(options, callback) {
           callback(null, [{_id: 1}]);
         }
       };
@@ -89,7 +89,7 @@ describe('The login oauth provision module', function() {
 
     it('should provision user', function(done) {
       deps.domain = {
-        getUserDomains: function(options, callback) {
+        list: function(options, callback) {
           callback(null, [{_id: 1}]);
         }
       };

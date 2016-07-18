@@ -8,8 +8,8 @@ module.exports = function(dependencies) {
   var domainModule = dependencies('domain');
   var logger = dependencies('logger');
 
-  function getDomain(user) {
-    return q.denodeify(domainModule.getUserDomains)(user)
+  function getDomain() {
+    return q.denodeify(domainModule.list)({})
       .then(function(domains) {
         if (!domains || domains.length === 0) {
           return q.reject(new Error('Can not find any domain'));
@@ -19,7 +19,7 @@ module.exports = function(dependencies) {
   }
 
   function provision(user) {
-    return getDomain(user).then(function(domain) {
+    return getDomain().then(function(domain) {
       user.domains = [{domain_id: domain._id}];
       return q.denodeify(userModule.provisionUser)(user);
     });
