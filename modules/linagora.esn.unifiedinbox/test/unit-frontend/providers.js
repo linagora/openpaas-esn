@@ -329,6 +329,16 @@ describe('The Unified Inbox Angular module providers', function() {
       $rootScope.$digest();
     });
 
+    it('should build search context when query is passed as an option', function() {
+      inboxJmapProviderContextBuilder({ query: 'query' }).then(function(context) {
+        expect(context).to.deep.equal({
+          text: 'query'
+        });
+      });
+
+      $rootScope.$digest();
+    });
+
   });
 
 });

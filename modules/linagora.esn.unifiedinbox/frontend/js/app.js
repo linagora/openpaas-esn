@@ -33,7 +33,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.core',
   'linagora.esn.graceperiod',
   'ngAnimate',
-  'esn.escape-html'
+  'esn.escape-html',
+  'esn.search'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -199,7 +200,7 @@ angular.module('linagora.esn.unifiedinbox', [
   })
 
   .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-                inboxTwitterProvider, session, DEFAULT_VIEW) {
+                inboxTwitterProvider, session, DEFAULT_VIEW, searchProviders) {
 
     $q.all([
       inboxConfig('view', DEFAULT_VIEW),
@@ -216,6 +217,8 @@ angular.module('linagora.esn.unifiedinbox', [
         });
       }
     });
+
+    searchProviders.add(inboxHostedMailMessagesProvider);
   })
 
   .run(function(newComposerService, listenToPrefixedWindowMessage, IFRAME_MESSAGE_PREFIXES) {

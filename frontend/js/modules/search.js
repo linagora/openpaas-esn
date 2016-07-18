@@ -83,7 +83,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
       $scope.filters = ['All'].concat(names);
     });
   })
-  .controller('searchResultController', function($scope, $stateParams, searchProviders, infiniteScrollHelper, _,
+  .controller('searchResultController', function($scope, $stateParams, $q, searchProviders, infiniteScrollHelper, _,
                                                  PageAggregatorService, ELEMENTS_PER_PAGE) {
     $scope.query = $stateParams.q;
     var aggregator;
@@ -93,6 +93,10 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
     }
 
     $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
+      if (!$scope.query) {
+        return $q.when([]);
+      }
+
       if (aggregator) {
         return load();
       }

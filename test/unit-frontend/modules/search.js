@@ -110,7 +110,7 @@ describe('The Search Form Angular module', function() {
     }
 
     beforeEach(function() {
-      query = {};
+      query = 'query';
       searchProviders = {
         getAll: sinon.spy(function() {
           return $q.when([{
@@ -143,6 +143,13 @@ describe('The Search Form Angular module', function() {
 
     it('should init $scope.query for highlight', function() {
       expect($scope.query).to.deep.equal(query);
+    });
+
+    it('should not call loadMoreElements when query is falsy', function() {
+      $scope.query = '';
+      $scope.loadMoreElements();
+
+      expect(searchProviders.getAll).to.not.have.been.called;
     });
 
     it('should have call searchProviders with the correct arguments when loadMoreElements is called', function() {
