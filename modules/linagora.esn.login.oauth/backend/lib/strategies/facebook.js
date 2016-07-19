@@ -20,7 +20,7 @@ module.exports = function(dependencies) {
         clientSecret: oauth.client_secret,
         callbackURL: url,
         passReqToCallback: true,
-        profileFields: ['id', 'emails', 'name']
+        profileFields: ['id', 'emails', 'name', 'picture.type(large)', 'displayName', 'bio', 'location']
       }, commons.handleResponse(TYPE)));
       callback();
     }, callback);
