@@ -18,7 +18,7 @@ module.exports = function(dependencies) {
     } catch (err) {
       profileToUser = function(profile, user) {
         return user;
-      }
+      };
     }
     return q(profileToUser(profile, user));
   }
@@ -44,7 +44,7 @@ module.exports = function(dependencies) {
   }
 
   function updateAvatar(user, avatarId) {
-    user.avatars = user.avatars || [];
+    user.avatars = user.avatars || [];
     user.avatars.push(avatarId);
     user.currentAvatar = avatarId;
     return q.denodeify(userModule.recordUser)(user).catch(function(err) {
@@ -90,7 +90,7 @@ module.exports = function(dependencies) {
           return {
             user: created,
             userToProvision: userToProvision
-          }
+          };
         });
       });
     }
