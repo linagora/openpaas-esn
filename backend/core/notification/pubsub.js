@@ -173,15 +173,15 @@ function membershipInvitationCancelHandler(data) {
 function augmentToExternalNotification(data, callback) {
   var context = data.context;
   if (context) {
-    context = {objectType: 'community', id: context};
+    context = {objectType: context.objectType || 'community', id: context.id || context};
   }
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: data.action, text: data.action},
-    complement: {objectType: 'string', id: data.object},
+    complement: {objectType: data.object.objectType || 'string', id: data.object.id || data.object},
     context: context,
     description: null,
-    icon: null,
+    icon: {objectType: 'icon', id: data.icon},
     category: 'external',
     read: false,
     interactive: false,
