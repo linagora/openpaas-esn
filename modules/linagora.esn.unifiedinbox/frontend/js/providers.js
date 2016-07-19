@@ -4,6 +4,10 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('inboxJmapProviderContextBuilder', function($q, withJmapClient, jmap, PROVIDER_TYPES) {
     return function(options) {
+      if (angular.isDefined(options.query)) {
+        return $q.when({ text: options.query });
+      }
+
       return withJmapClient(function(client) {
         return client
           .getMailboxWithRole(jmap.MailboxRole.INBOX)
@@ -55,7 +59,7 @@ angular.module('linagora.esn.unifiedinbox')
                                                        newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return newProvider({
       type: PROVIDER_TYPES.JMAP,
-      name: 'inboxHostedMailMessagesProvider',
+      name: 'Emails',
       fetch: function(filter) {
         return pagedJmapRequest(function(position) {
           return withJmapClient(function(client) {
