@@ -64,6 +64,7 @@ module.exports = function() {
       .then(function() {
         return q.all([
           configurationPage.vacationTab.fillStartDate(startDate),
+          configurationPage.vacationTab.uncheckHasToDateCheckbox(),
           configurationPage.vacationTab.fillBody(body)
         ]);
       });

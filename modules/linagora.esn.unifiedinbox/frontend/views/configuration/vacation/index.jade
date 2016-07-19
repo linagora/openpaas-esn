@@ -12,7 +12,7 @@ sub-header
       .form-group.flex-form-group
         .field-name.field-label #{__('Start date')}
         .fg-line
-          input.input.form-control(type='text', ng-model="vacation.fromDate", autoclose="1", start-week="1", date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="ctrl.updateDateAndTime('fromDate')", bs-datepicker)
+          input.input.form-control.from-date(type='text', ng-model="vacation.fromDate", autoclose="1", start-week="1", date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="ctrl.updateDateAndTime('fromDate')", bs-datepicker)
         .separator
         .fg-line
           input.input.form-control(type="text", ng-model="vacation.fromDate", autoclose="0", time-format= "shortTime", placeholder="#{__('No end time')}", aria-expanded="false", ng-change="ctrl.fixTime('fromDate'); ctrl.updateDateAndTime('fromDate')", lng-clockpicker)
@@ -24,7 +24,7 @@ sub-header
       .form-group.flex-form-group.vacation-end-date(ng-disabled="!vacation.hasToDate")
         .field-name.field-label #{__('End date')}
         .fg-line(ng-class="{'invalid': ctrl.toDateIsInvalid()}")
-          input.input.form-control(type='text', ng-model="vacation.toDate", autoclose="1", start-week="1", date-format="yyyy/MM/dd", placeholder="#{__('No end date')}", ng-disabled="!vacation.hasToDate", ng-class="{'invalid': ctrl.toDateIsInvalid()}", ng-change="ctrl.updateDateAndTime('toDate')", bs-datepicker)
+          input.input.form-control.to-date(type='text', ng-model="vacation.toDate", autoclose="1", start-week="1", date-format="yyyy/MM/dd", placeholder="#{__('No end date')}", ng-disabled="!vacation.hasToDate", ng-class="{'invalid': ctrl.toDateIsInvalid()}", ng-change="ctrl.updateDateAndTime('toDate')", bs-datepicker)
         .separator
         .fg-line(ng-class="{'invalid': ctrl.toDateIsInvalid()}")
           input.input.form-control(type="text", ng-model="vacation.toDate", autoclose="0", time-format= "shortTime", placeholder="#{__('No end time')}", aria-expanded="false", ng-disabled="!vacation.hasToDate", ng-class="{'invalid': ctrl.toDateIsInvalid()}", ng-change="ctrl.fixTime('toDate'); ctrl.updateDateAndTime('toDate')", lng-clockpicker)
