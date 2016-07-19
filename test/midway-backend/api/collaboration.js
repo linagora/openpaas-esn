@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
 
-describe('The collaborations API', function() {
+describe.skip('The collaborations API', function() {
 
   var email = 'user@open-paas.org', password = 'secret';
   var user, Community, User, Domain, webserver, helpers, fixtures;

@@ -7,7 +7,7 @@ var async = require('async');
 var _ = require('lodash');
 var path = require('path');
 
-describe('The password API', function() {
+describe.skip('The password API', function() {
   var User, PasswordReset, jwt, webserver, user, fixtures;
 
   function getLastFileFrom(dir) {
