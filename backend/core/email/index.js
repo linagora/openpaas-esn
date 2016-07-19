@@ -7,10 +7,12 @@
 var nodemailer = require('nodemailer');
 var emailTemplates = require('email-templates');
 var path = require('path');
-var templatesDir = path.resolve(__dirname + '/templates');
+var config = require('../config')('default');
 var esnConf = require('../esn-config');
 var logger = require('../../core/logger');
+
 var transport;
+var templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/templates');
 
 var opts = {
   from: 'no-reply@openpaas.org'

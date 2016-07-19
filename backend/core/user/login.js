@@ -94,7 +94,7 @@ module.exports.sendPasswordReset = function(user, callback) {
       lastname: user.lastname,
       url: passwordreset.url
     };
-    email.sendHTML(noreply, to, subject, 'password-reset', context, callback);
+    email.sendHTML(noreply, to, subject, 'core.password-reset', context, callback);
   }
 
   getConfiguration(function(err, results) {

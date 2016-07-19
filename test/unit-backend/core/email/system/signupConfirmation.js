@@ -48,7 +48,7 @@ describe('The signup confirmation email module', function() {
     confirmation(invitation, function(err, response) {
       expect(properties).to.deep.equal({
         subject: 'Please activate your account',
-        template: 'signup-email-confirmation'
+        template: 'core.signup-email-confirmation'
       });
       done();
     });
