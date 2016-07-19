@@ -7,8 +7,8 @@ module.exports = function() {
   var toggleButton = vacationContent.element(by.css('.toggle-switch label'));
   var isEnabledCheckbox = vacationContent.element(by.css('[ng-model="vacation.isEnabled"] input'));
   var hasToDateCheckbox = vacationContent.element(by.model('vacation.hasToDate'));
-  var startDateInput = vacationContent.element(by.model('vacation.fromDate'));
-  var endDateInput = vacationContent.element(by.model('vacation.toDate'));
+  var startDateInput = vacationContent.element(by.css('.from-date'));
+  var endDateInput = vacationContent.element(by.css('.to-date'));
   var bodyInput = vacationContent.element(by.model('vacation.textBody'));
 
   function toggleEnable(isEnabled) {
@@ -19,8 +19,14 @@ module.exports = function() {
     });
   }
 
-  function clickHasToDateCheckbox() {
-    return hasToDateCheckbox.click();
+  function uncheckHasToDateCheckbox() {
+    return hasToDateCheckbox.getAttribute('checked').then(function(checked) {
+      if (checked) {
+        return hasToDateCheckbox.click();
+      } else {
+        return protractor.promise.fulfilled();
+      }
+    });
   }
 
   function fillStartDate(date) {
@@ -43,7 +49,7 @@ module.exports = function() {
 
   return {
     toggleEnable: toggleEnable,
-    clickHasToDateCheckbox: clickHasToDateCheckbox,
+    uncheckHasToDateCheckbox: uncheckHasToDateCheckbox,
     fillStartDate: fillStartDate,
     fillEndDate: fillEndDate,
     fillBody: fillBody
