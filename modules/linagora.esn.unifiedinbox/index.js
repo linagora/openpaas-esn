@@ -8,9 +8,9 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.email', 'email'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.io.mailer', 'mailer')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {

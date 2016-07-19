@@ -5,6 +5,12 @@ var mockery = require('mockery');
 
 describe('The addmember handler', function() {
 
+  beforeEach(function() {
+    mockery.registerMock('../../email/system/addMember', function(email, callback) {
+      callback(null, {});
+    });
+  });
+
   describe('The validate fn', function() {
 
     it('should fail if invitation data is not set', function(done) {

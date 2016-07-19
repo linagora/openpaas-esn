@@ -9,17 +9,19 @@ describe('The daily digest mail builder', function() {
 
   var deps = {
     digesttracker: {},
-    'content-sender': {
-      send: function(from, to, content, options) {
-        var defer = q.defer();
-        resultedJson = {
-          from: from,
-          to: to,
-          content: content,
-          options: options
+    email: {
+      getMailer: function() {
+        return {
+          sendHTML: function(message, templateName, content) {
+            resultedJson = {
+              message: message,
+              templateName: templateName,
+              content: content
+            };
+
+            return q();
+          }
         };
-        defer.resolve();
-        return defer.promise;
       }
     },
     'esn-config': function(id) {

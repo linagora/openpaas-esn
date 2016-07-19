@@ -180,7 +180,6 @@ function get(req, res) {
       });
 
       return q.all(promises).then(function(messages) {
-        console.log(messages);
         res.json(200, messages.concat(messagesNotFound));
       }, function(err) {
         logger.error('Error while denormalizing messages', err);

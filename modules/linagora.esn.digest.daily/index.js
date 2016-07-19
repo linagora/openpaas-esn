@@ -15,11 +15,12 @@ var dailyDigest = new AwesomeModule('linagora.esn.digest.daily', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.activitystreams', 'activitystreams'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
-    new Dependency(Dependency.TYPE_NAME, 'awm.content-sender', 'content-sender')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.email', 'email')
   ],
   states: {
     lib: function(dependencies, callback) {
       var lib = require('./lib')(dependencies);
+
       return callback(null, lib);
     },
     deploy: function(dependencies, callback) {
@@ -27,4 +28,5 @@ var dailyDigest = new AwesomeModule('linagora.esn.digest.daily', {
     }
   }
 });
+
 module.exports = dailyDigest;

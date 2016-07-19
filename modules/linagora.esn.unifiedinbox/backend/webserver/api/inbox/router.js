@@ -9,7 +9,7 @@ module.exports = function(dependencies) {
       authorizationMW = dependencies('authorizationMW');
 
   var router = express.Router();
-  router.post('/api/inbox/sendemail', sendEmail.sendEmailToRecipients);
+  router.post('/api/inbox/sendemail', authorizationMW.requiresAPILogin, sendEmail.sendEmailToRecipients);
   router.get('/api/inbox/jmap-config', authorizationMW.requiresAPILogin, function(req, res) {
     esnConfig('jmap').get(function(err, config) {
 
