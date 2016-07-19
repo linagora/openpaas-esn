@@ -12,7 +12,7 @@ var esnConf = require('../esn-config');
 var logger = require('../../core/logger');
 
 var transport;
-var templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/templates');
+var templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '../../../../templates/email');
 
 var opts = {
   from: 'no-reply@openpaas.org'
