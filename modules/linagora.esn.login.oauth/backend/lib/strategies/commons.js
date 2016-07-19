@@ -77,14 +77,7 @@ module.exports = function(dependencies) {
               }, callback);
             }
 
-            var userToProvision = {
-              emails: [profile.emails[0].value],
-              firstname: profile.name.givenName,
-              lastname: profile.name.familyName,
-              accounts: [account]
-            };
-
-            provisionUser.provision(userToProvision).then(function(provisioned) {
+            provisionUser.provision(profile, account).then(function(provisioned) {
               req.user = provisioned;
               callback(null, provisioned);
             }, function(err) {
