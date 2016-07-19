@@ -1578,6 +1578,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect($state.go).to.have.been.calledWith('^', { composition: $stateParams.composition });
     });
 
+    it('should go to the selected recipientsType when goToRecipientsType is called', function() {
+      initController('recipientsFullscreenEditFormController');
+
+      scope.goToRecipientsType('recipientsType');
+
+      expect($state.go).to.have.been.calledWith('.', { recipientsType: 'recipientsType', composition: $stateParams.composition });
+    });
   });
 
   describe('The attachmentController', function() {

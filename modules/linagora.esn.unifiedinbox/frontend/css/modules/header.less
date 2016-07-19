@@ -12,12 +12,43 @@
       opacity: 1;
     }
 
-    .title {
+    .text-header {
       text-align: center;
       font-size: 1.4em;
+      color: @textPrimaryColor;
+    }
+
+    .title {
+      .text-header;
+
       margin-left: 25px;
       margin-right: 25px;
-      color: @textPrimaryColor;
+    }
+
+    .select-recipient {
+      width: 60px;
+      margin: 0;
+
+      &.select:not(.fg-line):before {
+        background-color: transparent;
+        background-image: url('../../../unifiedinbox/images/select.png');
+        top: 2px;
+      }
+
+      .form-control:not(.fc-alt) {
+        border-bottom: none;
+      }
+
+      select {
+        .text-header;
+
+        height: 27px;
+        background-color: transparent;
+
+        option {
+          color: @text-color;
+        }
+      }
     }
 
     .inbox-composer-buttons {
