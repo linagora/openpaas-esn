@@ -107,8 +107,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/notauserid/profile'));
-        req.expect(404).end(self.helpers.callbacks.error(done));
+        var req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37/profile'));
+        req.expect(404).end(self.helpers.callbacks.noError(done));
       });
     });
 
@@ -256,8 +256,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/notauserid'));
-        req.expect(404).end(self.helpers.callbacks.error(done));
+        var req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37'));
+        req.expect(404).end(self.helpers.callbacks.noError(done));
       });
     });
 
@@ -388,7 +388,7 @@ describe('The profile API', function() {
 
     it('should return 404 if the user does not exist', function(done) {
       var self = this;
-      var req = request(app).get('/api/users/notauserid/profile/avatar');
+      var req = request(app).get('/api/users/577cfa973dfc55eb231bba37/profile/avatar');
       req.expect(404).end(self.helpers.callbacks.noError(done));
     });
 
