@@ -29,6 +29,9 @@ Possible values are:
 
 The configuration of the ESN is stored in MongoDB under the configuration collection in order to be distributed over nodes.
 
+Each domain can have different global configurations, check it out
+[here](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/docker/doc/domain-configuration.md).
+
 ### Mail
 
     {
