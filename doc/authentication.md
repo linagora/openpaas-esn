@@ -22,27 +22,37 @@ The 'mongo-ldap' strategy has to be activated in the config/default.json file:
         }
     }
 
-The LDAP connection settings are available per domain: A domain manager may be able to add as many LDAP connection settings in its domain.
+The LDAP connection settings are available per domain: A domain manager may be able to add one LDAP connection settings in its domain.
 The passport strategy will look at all the available LDAP settings and will try to authenticate the user based on its credentials using the LDAP authentication mechanisms.
 
-As an example, a LDAP connection settings looks like:
+As an example, In a `features` document containing domain configurations, a LDAP connection settings looks like:
 
     {
-      "_id": ObjectId("537c8c67c690f1ae5f5c0a6f"),
-      "name": "linagora",
-      "domain": ObjectId("5375de4bd684db7f6fbd4f98"),
-      "configuration": {
-        "url": "ldap://localhost:389",
-        "adminDn": "uid=admin,ou=sysusers,dc=lng",
-        "adminPassword": "supersecret",
-        "searchBase": "ou=users,dc=linagora.com,dc=lng",
-        "searchFilter": "(mail={{username}})",
-        "mapping": {
-          "firstname": "firstname",
-          "lastname": "lastname",
-          "email": "mailAlias"
-        }
-      }
+      "_id": ObjectId("537c8c67c690f1ae5f5c0a6f"),      
+      "domain_id": ObjectId("5375de4bd684db7f6fbd4f98"),
+      "modules": [
+        {
+          "name": "configurations",
+          "features": [
+            {
+              "name": "ldap",
+              "value": {
+                "name": "linagora",
+                "configuration": {
+                  "url": "ldap://localhost:389",
+                  "adminDn": "uid=admin,ou=sysusers,dc=lng",
+                  "adminPassword": "supersecret",
+                  "searchBase": "ou=users,dc=linagora.com,dc=lng",
+                  "searchFilter": "(mail={{username}})",
+                  "mapping": {
+                    "firstname": "firstname",
+                    "lastname": "lastname",
+                    "email": "mailAlias"
+                    }
+                  }
+              }
+          ]
+      ]
     }
 
 - The 'searchFilter' value is used to define where to find the user login in the LDAP entry.

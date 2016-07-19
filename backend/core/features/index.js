@@ -10,7 +10,12 @@ function updateFeatures(feature, callback) {
   feature.save(callback);
 }
 
+function getAllFeatures(callback) {
+  Features.find({}, callback);
+}
+
 module.exports = {
   findFeaturesForDomain: findFeaturesForDomain,
-  updateFeatures: updateFeatures
+  updateFeatures: updateFeatures,
+  getAllFeatures: getAllFeatures
 };

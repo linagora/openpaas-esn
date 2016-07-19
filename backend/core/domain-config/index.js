@@ -4,6 +4,7 @@ var q = require('q');
 var _ = require('lodash');
 var features = require('../features');
 var Features = require('mongoose').model('Features');
+var CONFIGURATIONS = 'configurations';
 
 function _findConfigForDomain(domainId) {
   return q.ninvoke(features, 'findFeaturesForDomain', domainId)
@@ -12,13 +13,33 @@ function _findConfigForDomain(domainId) {
         return q.reject(new Error('Feature not found for domain: ' + domainId));
       }
 
-      var configurations = _.find(feature.modules, { name: 'configurations' });
+      var configurations = _.find(feature.modules, { name: CONFIGURATIONS });
 
       if (!configurations || !configurations.features) {
         return q.reject(new Error('Configurations not found for domain: ' + domainId));
       }
 
       return configurations.features;
+    });
+}
+
+function getAllConfigs(configName) {
+  return q.ninvoke(features, 'getAllFeatures')
+    .then(function(features) {
+      if (!features) {
+        return q.reject(new Error('Feature not found'));
+      }
+      return features.map(function(feature) {
+        var configurations = _.find(feature.modules, { name: CONFIGURATIONS });
+
+        if (configurations && configurations.features) {
+          var config = _.find(configurations.features, { name: configName });
+
+          if (config && config.value) {
+            return config.value;
+          }
+        }
+      }).filter(Boolean);
     });
 }
 
@@ -53,11 +74,11 @@ function set(domainId, configs) {
         modules: [configModuleTemplate]
       });
 
-      var configModule = _.find(feature.modules, { name: 'configurations' });
+      var configModule = _.find(feature.modules, { name: CONFIGURATIONS });
 
       if (!configModule) {
         feature.modules.push(configModuleTemplate);
-        configModule = _.find(feature.modules, { name: 'configurations' });
+        configModule = _.find(feature.modules, { name: CONFIGURATIONS });
       }
 
       configs.forEach(function(config) {
@@ -79,5 +100,6 @@ function set(domainId, configs) {
 
 module.exports = {
   get: get,
-  set: set
+  set: set,
+  getAllConfigs: getAllConfigs
 };

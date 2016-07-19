@@ -182,4 +182,54 @@ describe('The domain-config module', function() {
         });
     });
   });
+
+  describe('The getAllConfigs fn', function() {
+
+    var featureDatas;
+
+    beforeEach(function() {
+      featureDatas = [{
+          domain_id: 'a',
+          modules: [{
+            name: 'configurations',
+            features: [{
+              name: 'config1',
+              value: 'config1'
+            }, {
+              name: 'config2',
+              value: 'config2'
+            }]
+          }]
+        },
+        {
+          domain_id: 'b',
+          modules: [{
+            name: 'configurations',
+            features: [{
+              name: 'config1',
+              value: 'configB1'
+            }]
+          }]
+        }];
+
+      featuresMock.getAllFeatures = function(callback) {
+        callback(null, featureDatas);
+      };
+    });
+
+    it('should resolve an array of configurations value if the configuration found with configName', function(done) {
+      domainConfig.getAllConfigs('config1').then(function(configs) {
+        expect(configs).to.deep.equal(['config1', 'configB1']);
+        done();
+      });
+    });
+
+    it('should resolve an array of configurations value if have a configuration not found with configName', function(done) {
+      domainConfig.getAllConfigs('config2').then(function(configs) {
+        expect(configs).to.deep.equal(['config2']);
+        done();
+      });
+    });
+
+  });
 });
