@@ -195,5 +195,5 @@ html
     script(src='js/modules/file-preview/file-preview.js')
     script(src='js/modules/file-preview/image.js')
 
-  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
+  body.ng-cloak(ng-app="esnApp", ng-controller="sessionInitESNController", header-aware)
     #wrap(ng-include='session.template')

@@ -38,6 +38,12 @@ angular.module('linagora.esn.unifiedinbox', [
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
+    function toggleHeaderVisibility(visible) {
+      return function($rootScope, HEADER_VISIBILITY_EVENT) {
+        $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
+      };
+    }
+
     $stateProvider
       .state('unifiedinbox', {
         url: '/unifiedinbox',
@@ -67,7 +73,9 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         },
         params: { composition: null },
-        data: { ignoreSaveAsDraft: true }
+        data: { ignoreSaveAsDraft: true },
+        onEnter: toggleHeaderVisibility(false),
+        onExit: toggleHeaderVisibility(true)
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
