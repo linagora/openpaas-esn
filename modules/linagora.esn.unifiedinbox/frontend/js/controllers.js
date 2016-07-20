@@ -450,6 +450,13 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.backToComposition = function() {
       $state.go('^', { composition: $stateParams.composition });
     };
+
+    $scope.goToRecipientsType = function(recipientsType) {
+      $state.go('.', {
+        recipientsType: recipientsType,
+        composition:  $stateParams.composition
+      });
+    };
   })
 
   .controller('attachmentController', function(navigateTo, asyncAction) {

@@ -1,8 +1,11 @@
 extends ../../layout/fullwidth-subheader
 
 block left
-  inbox-subheader-back-button(ng-click='backToComposition()')
-  .title(ng-switch='recipientsType')
-    span(ng-switch-when='to') #{__('To')}
-    span(ng-switch-when='cc') #{__('CC')}
-    span(ng-switch-when='bcc') #{__('BCC')}
+  .form-group.select.select-recipient
+    select.form-control(ng-model="recipientsType", ng-change="goToRecipientsType(recipientsType)")
+      option(value='to', label='To') #{__('To')}
+      option(value='cc', label='CC') #{__('CC')}
+      option(value='bcc', label='BCC') #{__('BCC')}
+
+block right
+  inbox-subheader-save-button(ng-click='backToComposition()')
