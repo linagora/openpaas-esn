@@ -1,0 +1,15 @@
+sub-header
+  admin-dav-subheader(on-save-button-click="$ctrl.save()")
+
+.card
+  .card-body.card-padding
+    form
+      .row
+        .col-md-6
+          .form-group.fg-line
+            .field-name #{__('Backend')}
+            input.form-control(type="url", ng-model="$ctrl.config.backend.url", placeholder="#{__('Enter a URL')}", auto-focus)
+        .col-md-6
+          .form-group.fg-line
+            .field-name #{__('Frontend')}
+            input.form-control(type="url", ng-model="$ctrl.config.frontend.url", placeholder="#{__('Enter a URL')}")
