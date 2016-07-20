@@ -10,6 +10,8 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
 
   .constant('SUB_HEADER_VISIBLE_MD_EVENT', 'sub-header:visibleMd')
 
+  .constant('HEADER_VISIBILITY_EVENT', 'header:visible')
+
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
@@ -20,6 +22,7 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
 
     function addMainHeaderInjection(directiveName) {
       var directive = buildDynamicDirective(directiveName);
+
       dynamicDirectiveService.addInjection(MAIN_HEADER, directive);
     }
 
@@ -83,22 +86,23 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
     };
   })
 
-  .directive('mainHeader', function($rootScope, screenSize, headerService, dynamicDirectiveService, Fullscreen, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
+  .directive('mainHeader', function(screenSize, headerService, Fullscreen,
+                                    SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/header/header.html',
       link: function(scope, element) {
+        function toggleHeaderVisibility(visible) {
+          element.find('#header').toggleClass('hide-top', !visible);
+        }
+
         // We need this second variable because screenSize.on is called to many times,
         // for instance when top or bottom bars of mobiles finish moving.
         scope.disableByEvent = false;
 
-        scope.$on('header:hide', function() {
-          element.addClass('hidden');
-        });
-
-        scope.$on('header:show', function() {
-          element.removeClass('hidden');
+        scope.$on(HEADER_VISIBILITY_EVENT, function(event, visible) {
+          toggleHeaderVisibility(visible);
         });
 
         scope.$on('header:disable-scroll-listener', function(event, disabled) {
@@ -109,13 +113,8 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
           Fullscreen.toggleAll();
         };
 
-        scope.hide = function() {
-          element.find('#header').addClass('hide-top');
-        };
-
-        scope.show = function() {
-          element.find('#header').removeClass('hide-top');
-        };
+        scope.hide = toggleHeaderVisibility.bind(null, false);
+        scope.show = toggleHeaderVisibility.bind(null, true);
 
         scope.enableScrollListener = screenSize.on('xs,sm', function(isMatching) {
           scope.enableScrollListener = isMatching;
@@ -133,6 +132,17 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
 
         scope.$on('$stateChangeSuccess', function() {
           scope.subHeaderVisibleMd = false;
+        });
+      }
+    };
+  })
+
+  .directive('headerAware', function(HEADER_VISIBILITY_EVENT) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        scope.$on(HEADER_VISIBILITY_EVENT, function(event, visible) {
+          element.toggleClass('header-hidden', !visible);
         });
       }
     };
