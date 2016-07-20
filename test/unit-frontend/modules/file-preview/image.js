@@ -14,7 +14,7 @@ describe('The esn.file-preview.image module', function() {
     beforeEach(function() {
       angular.mock.module('jadeTemplates');
       angular.mock.module('esn.file-preview');
-      angular.mock.module('esn.file-preview.image', function ($provide) {
+      angular.mock.module('esn.file-preview.image', function($provide) {
         $provide.value('filePreviewService', {
           addFilePreviewProvider: sinon.spy()
         });
