@@ -38,7 +38,7 @@ describe('The Scroll Angular module', function() {
       $scope = $rootScope.$new();
       $scope.setToDOM = true;
 
-      element = $compile('<div scroll-listener ng-if="setToDOM" on-destroy="destroyed" on-scroll-top="onTop"></div>')($scope);
+      element = $compile('<div scroll-listener ng-if="setToDOM" on-destroy="destroyed()" on-scroll-top="onTop"></div>')($scope);
       $scope.$digest();
     }));
 
