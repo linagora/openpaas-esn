@@ -38,6 +38,7 @@ var adminModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       var frontendJsFiles = [
         'app.js',
         'directives.js',
+        'services.js',
         'components/sidebar.js'
       ];
 
