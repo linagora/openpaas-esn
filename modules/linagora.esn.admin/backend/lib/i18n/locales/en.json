@@ -4,5 +4,18 @@
   "DAV server": "DAV server",
   "Backend": "Backend",
   "Frontend": "Frontend",
-  "Enter a URL": "Enter a URL"
+  "Enter a URL": "Enter a URL",
+  "LDAP": "LDAP",
+  "Name": "Name",
+  "URL": "URL",
+  "Mapping": "Mapping",
+  "First name": "First name",
+  "Last name": "Last name",
+  "Auto Provisioning": "Auto Provisioning",
+  "Admin": "Admin",
+  "Admin distinguished name": "Admin distinguished name",
+  "Admin Password": "Admin Password",
+  "Search": "Search",
+  "Search Base": "Search Base",
+  "Search Filter": "Search Filter"
 }

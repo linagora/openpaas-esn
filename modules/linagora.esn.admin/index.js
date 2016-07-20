@@ -45,7 +45,10 @@ var adminModule = new AwesomeModule(AWESOME_MODULE_NAME, {
         'sidebar/admin-sidebar.component.js',
         'dav/admin-dav.component.js',
         'dav/admin-dav.controller.js',
-        'dav/admin-dav-subheader.component.js'
+        'dav/admin-dav-subheader.component.js',
+        'ldap/admin-ldap.component.js',
+        'ldap/admin-ldap.controller.js',
+        'ldap/admin-ldap-subheader.component.js'
       ];
 
       webserverWrapper.injectAngularModules(MODULE_NAME, frontendJsFiles, [AWESOME_MODULE_NAME], ['esn']);
