@@ -249,10 +249,10 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, mailboxesService, rejectWithErrorNotification) {
+  .controller('addFolderController', function($scope, $state, mailboxesService, Mailbox, rejectWithErrorNotification) {
     mailboxesService.assignMailboxesList($scope);
 
-    $scope.mailbox = {};
+    $scope.mailbox = new Mailbox({});
 
     $scope.addFolder = function() {
       if (!$scope.mailbox.name) {
@@ -261,7 +261,7 @@ angular.module('linagora.esn.unifiedinbox')
 
       $state.go('unifiedinbox');
 
-      return mailboxesService.createMailbox($scope.mailbox.name, $scope.mailbox.parentId);
+      return mailboxesService.createMailbox($scope.mailbox);
     };
   })
 
@@ -299,14 +299,14 @@ angular.module('linagora.esn.unifiedinbox')
       var numberOfDescendants = descendants.length;
       var numberOfMailboxesToDisplay = 3;
       var more = numberOfDescendants - numberOfMailboxesToDisplay;
-      var message = 'You are about to remove folder ' + $scope.mailbox.name;
+      var message = 'You are about to remove folder ' + $scope.mailbox.displayName;
 
       if (numberOfDescendants > 0) {
-        message += ' and its descendants including ' + descendants.slice(0, numberOfMailboxesToDisplay).map(_.property('name')).join(', ');
+        message += ' and its descendants including ' + descendants.slice(0, numberOfMailboxesToDisplay).map(_.property('displayName')).join(', ');
       }
 
       if (more === 1) {
-        message += ' and ' + descendants[numberOfMailboxesToDisplay].name;
+        message += ' and ' + descendants[numberOfMailboxesToDisplay].displayName;
       } else if (more > 1) {
         message += ' and ' + more + ' more';
       }

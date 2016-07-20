@@ -852,9 +852,9 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function createMailbox(name, parentId) {
-      return asyncJmapAction('Creation of folder ' + name, function(client) {
-        return client.createMailbox(name, parentId);
+    function createMailbox(mailbox) {
+      return asyncJmapAction('Creation of folder ' + mailbox.displayName, function(client) {
+        return client.createMailbox(mailbox.name, mailbox.parentId);
       })
         .then(_updateMailboxCache);
     }
@@ -866,7 +866,7 @@ angular.module('linagora.esn.unifiedinbox')
         .push(mailbox.id)
         .value(); // According to JMAP spec, the X should be removed before Y if X is a descendent of Y
 
-      return asyncJmapAction('Deletion of folder ' + mailbox.name, function(client) {
+      return asyncJmapAction('Deletion of folder ' + mailbox.displayName, function(client) {
         return client.setMailboxes({ destroy: ids })
           .then(function(response) {
             _removeMailboxesFromCache(response.destroyed);
@@ -879,7 +879,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function updateMailbox(mailbox) {
-      return asyncJmapAction('Modification of folder ' + mailbox.name, function(client) {
+      return asyncJmapAction('Modification of folder ' + mailbox.displayName, function(client) {
         return client.updateMailbox(mailbox.id, {
           name: mailbox.name,
           parentId: mailbox.parentId
@@ -981,7 +981,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       return backgroundAction(
-        'Move of message "' + message.subject + '" to ' + mailbox.name,
+        'Move of message "' + message.subject + '" to ' + mailbox.displayName,
         function() {
           return message.move(toMailboxIds);
         }, { silent: true }
@@ -1058,7 +1058,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       return backgroundAction(
-        'Move of thread "' + subject + '" to ' + mailbox.name,
+        'Move of thread "' + subject + '" to ' + mailbox.displayName,
         function() {
           return thread.move(toMailboxIds);
         }, { silent: true }

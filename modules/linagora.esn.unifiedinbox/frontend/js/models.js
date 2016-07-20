@@ -81,7 +81,8 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .factory('Mailbox', function(inboxMailboxesCache, _) {
+  .factory('Mailbox', function($filter, inboxMailboxesCache, _, INBOX_DISPLAY_NAME_SIZE) {
+
     function getMailboxDescendants(mailboxId) {
       var descendants = [];
       var toScanMailboxIds = [mailboxId];
@@ -117,6 +118,19 @@ angular.module('linagora.esn.unifiedinbox')
           }
 
           return descendants;
+        }
+      });
+
+      Object.defineProperty(mailbox, 'displayName', {
+        configurable: true,
+        get: function() {
+          var displayName = $filter('limitTo')(this.name, INBOX_DISPLAY_NAME_SIZE);
+          
+          if (this.name.length > INBOX_DISPLAY_NAME_SIZE) {
+            displayName = displayName + '...';
+          }
+
+          return displayName;
         }
       });
 

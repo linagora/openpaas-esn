@@ -994,7 +994,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('addFolderController');
 
-        scope.mailbox = { name: 'Name' };
+        scope.mailbox = new Mailbox({ name: 'Name' });
         scope.addFolder();
         scope.$digest();
 
@@ -1007,7 +1007,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('addFolderController');
 
-        scope.mailbox = { };
+        scope.mailbox = new Mailbox({ });
         scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal('Please enter a valid folder name');
           expect($state.go).to.not.have.been.called;
@@ -1113,11 +1113,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       it('should call client.setMailboxes with an array of mailbox descendant IDs as the "destroy" option', function() {
         var mailboxes = [
-          { id: '123' },
-          { id: 'm1', parentId: '123' },
-          { id: 'm2', parentId: '123' },
-          { id: 'm11', parentId: 'm1' },
-          { id: 'm111', parentId: 'm11'}
+          { id: '123', name: '123' },
+          { id: 'm1', name: 'm1', parentId: '123' },
+          { id: 'm2', name: 'm2', parentId: '123' },
+          { id: 'm11', name: 'm11', parentId: 'm1' },
+          { id: 'm111', name: 'm111', parentId: 'm11'}
         ];
         var expectedSetMailboxesOptions = {
           destroy: [4, 3, 2, 1, 0].map(function(index) {
@@ -1223,7 +1223,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       it('should leverage $modal service', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         initController('editFolderController');
-        scope.mailbox = Mailbox({ id: 123 });
+        scope.mailbox = new Mailbox({ id: 123, name: '123' });
 
         scope.confirmationDialog();
 
