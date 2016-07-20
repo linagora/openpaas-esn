@@ -12,13 +12,14 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
       restrict: 'A',
       link: function(scope) {
         var scrollPositionCache = $cacheFactory.get(CACHE_KEY);
+
         if (!scrollPositionCache) {
           scrollPositionCache = $cacheFactory(CACHE_KEY);
         }
         var currentPath = $location.path();
 
         // store current scroll position before switch
-        scope.$on('$locationChangeStart', function(event, next, current) {
+        scope.$on('$locationChangeStart', function() {
           scrollPositionCache.put(currentPath, $document.scrollTop());
         });
 
@@ -29,6 +30,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
         // scroll to stored position
         scope.$on('viewRenderFinished', function() {
           var position = scrollPositionCache.get(currentPath) || 0;
+
           $log.debug('Scrolling to:', position);
           $timeout(function() {
             $document.scrollTop(position);
@@ -49,18 +51,19 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
             toggled = false;
 
         var scrollHandler = function() {
-          var scroll = angular.element(window).scrollTop();
-          var diff = scroll - position;
+          var scroll = angular.element(window).scrollTop(),
+              diff = scroll - position;
+
           if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
             toggled = true;
-            $parse(scope[attrs.onScrollDown])();
+            $parse(attrs.onScrollDown)(scope);
           } else if (diff < 0 && toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
             toggled = false;
-            $parse(scope[attrs.onScrollUp])();
+            $parse(attrs.onScrollUp)(scope);
           }
 
           if (scroll === 0 && attrs.onScrollTop) {
-            $parse(scope[attrs.onScrollTop])();
+            $parse(attrs.onScrollTop)(scope);
           }
 
           position = scroll;
@@ -70,7 +73,7 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
 
         scope.$on('$destroy', function() {
           angular.element(window).off('scroll', scrollHandler);
-          $parse(scope[attrs.onDestroy])();
+          $parse(attrs.onDestroy)(scope);
         });
       }
     };

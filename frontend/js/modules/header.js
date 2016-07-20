@@ -12,6 +12,8 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
 
   .constant('HEADER_VISIBILITY_EVENT', 'header:visible')
 
+  .constant('HEADER_DISABLE_SCROLL_LISTENER_EVENT', 'header:disable-scroll-listener')
+
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
@@ -87,7 +89,7 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
   })
 
   .directive('mainHeader', function(screenSize, headerService, Fullscreen,
-                                    SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT) {
+                                    SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
     return {
       restrict: 'E',
       replace: true,
@@ -105,7 +107,7 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
           toggleHeaderVisibility(visible);
         });
 
-        scope.$on('header:disable-scroll-listener', function(event, disabled) {
+        scope.$on(HEADER_DISABLE_SCROLL_LISTENER_EVENT, function(event, disabled) {
           scope.disableByEvent = disabled;
         });
 

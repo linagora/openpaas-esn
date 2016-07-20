@@ -39,7 +39,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
     function toggleHeaderVisibility(visible) {
-      return function($rootScope, HEADER_VISIBILITY_EVENT) {
+      return function($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
+        $rootScope.$broadcast(HEADER_DISABLE_SCROLL_LISTENER_EVENT, !visible);
         $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
       };
     }
