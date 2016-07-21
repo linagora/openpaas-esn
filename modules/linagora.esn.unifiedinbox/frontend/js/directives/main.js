@@ -630,13 +630,13 @@ angular.module('linagora.esn.unifiedinbox')
         function _updateVacationStatus() {
           withJmapClient(function(client) {
             client.getVacationResponse().then(function(vacation) {
-              $scope.vacationEnabled = vacation.isEnabled;
+              $scope.vacationActivated = vacation.isActivated;
             });
           });
         }
 
         this.disableVacation = function() {
-          $scope.vacationEnabled = false;
+          $scope.vacationActivated = false;
 
           return asyncJmapAction('Modification of vacation settings', function(client) {
             return client.setVacationResponse(new jmap.VacationResponse(client, { isEnabled: false }))
@@ -644,7 +644,7 @@ angular.module('linagora.esn.unifiedinbox')
                 $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
               });
           }).catch(function() {
-            $scope.vacationEnabled = true;
+            $scope.vacationActivated = true;
           });
         };
 

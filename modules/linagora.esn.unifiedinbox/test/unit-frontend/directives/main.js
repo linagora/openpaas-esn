@@ -1614,9 +1614,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       notificationFactory.strongInfo = sinon.spy();
     });
 
-    it('should display the message when vacation is enabled', function() {
+    it('should display the message when vacation is activated', function() {
       jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: true });
+        return $q.when({ isActivated: true });
       };
 
       compileDirective('<inbox-vacation-indicator />');
@@ -1626,7 +1626,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
     it('should not display the message when vacation is disabled', function() {
       jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: false });
+        return $q.when({ isActivated: false });
       };
 
       compileDirective('<inbox-vacation-indicator />');
@@ -1645,16 +1645,16 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
 
     it('should provide a button that removes the message and disables the vacation when clicked', function() {
-      var isEnabled = true;
+      var isActivated = true;
 
       jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: isEnabled });
+        return $q.when({ isActivated: isActivated });
       };
       jmapClient.setVacationResponse = sinon.spy(function(vacation) {
         expect(vacation).to.shallowDeepEqual({
           isEnabled: false
         });
-        isEnabled = false;
+        isActivated = false;
 
         return $q.when();
       });
@@ -1666,9 +1666,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Modification of vacation settings succeeded');
     });
 
-    it('should broadcast vacationEnabled when vacation is set successfully', function(done) {
+    it('should broadcast VACATION_STATUS when vacation is set successfully', function(done) {
       jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: true });
+        return $q.when({ isActivated: true });
       };
       jmapClient.setVacationResponse = sinon.spy(function() {
         return $q.when();
@@ -1681,11 +1681,11 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       element.find('.inbox-disable-vacation').click();
     });
 
-    it('should listen on VACATION_STATUS to update vacationEnabled correspondingly', function() {
-      var isEnabled = true;
+    it('should listen on VACATION_STATUS to update vacationActivated correspondingly', function() {
+      var isActivated = true;
 
       jmapClient.getVacationResponse = sinon.spy(function() {
-        return $q.when({ isEnabled: isEnabled });
+        return $q.when({ isActivated: isActivated });
       });
 
       element = compileDirective('<inbox-vacation-indicator />');
@@ -1694,12 +1694,12 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $scope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
 
       expect(jmapClient.getVacationResponse).to.have.been.calledTwice;
-      expect(element.isolateScope().vacationEnabled).to.equal(isEnabled);
+      expect(element.isolateScope().vacationActivated).to.equal(isActivated);
     });
 
     it('should show the message if vacation cannot be disabled', function() {
       jmapClient.getVacationResponse = function() {
-        return $q.when({ isEnabled: true });
+        return $q.when({ isActivated: true });
       };
       jmapClient.setVacationResponse = function() {
         return $q.reject();

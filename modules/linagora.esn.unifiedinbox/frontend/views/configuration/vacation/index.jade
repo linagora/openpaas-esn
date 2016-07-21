@@ -2,6 +2,12 @@ sub-header
   inbox-configuration-vacation-subheader
 
 .inbox-configuration-vacation
+  .inbox-notification(ng-if="::(vacation.id && vacation.isEnabled && !vacation.isActivated)")
+    i.inbox-notification-icon.mdi.mdi-timer
+    .inbox-notification-message
+      span(ng-if="::vacation.fromDate.isAfter(moment())") #{__('Your vacation responder is enabled and will start on %s', "{{ ::vacation.fromDate.toDate() | date:'medium' }}")}
+      span(ng-if="::vacation.toDate.isBefore(moment())") #{__('Your vacation responder is enabled but stopped on %s', "{{ ::vacation.toDate.toDate() | date:'medium' }}")}
+
   form
     span #{__('Vacation responder')}
     .inbox-toggle-switch.form-group
