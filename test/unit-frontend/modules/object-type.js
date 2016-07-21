@@ -111,6 +111,19 @@ describe('The ObjectType Angular module', function() {
       });
       this.$rootScope.$digest();
     });
+
+    it('should support multiple ids', function(done) {
+      var resolver = function(id1, id2, id3) {
+        return $q.when({id1: id1, id2: id2, id3: id3});
+      };
+
+      this.objectTypeResolver.register('user', resolver);
+      this.objectTypeResolver.resolve('user', '1', '2', '3').then(function(result) {
+        expect(result).to.deep.equal({id1: '1', id2: '2', id3: '3'});
+        done();
+      }, done);
+      this.$rootScope.$digest();
+    });
   });
 });
 

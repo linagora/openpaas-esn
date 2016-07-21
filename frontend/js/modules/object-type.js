@@ -68,29 +68,26 @@ angular.module('esn.object-type', [])
       resolvers[objectType] = resolver;
     }
 
-    function resolve(objectType, id) {
-      var defer;
+    function resolve(/* objectType[, subids...[, id]] */) {
+      var args = Array.prototype.slice.call(arguments);
+      var id = args[args.length - 1];
+      var objectType = args.shift();
+
       if (!objectType) {
-        defer = $q.defer();
-        defer.reject(new Error(objectType + ' is not a valid resolver name'));
-        return defer.promise;
+        return $q.reject(new Error(objectType + ' is not a valid resolver name'));
       }
 
       if (!id) {
-        defer = $q.defer();
-        defer.reject(new Error('Resource id is required'));
-        return defer.promise;
+        return $q.reject(new Error('Resource id is required'));
       }
 
       var resolver = resolvers[objectType];
 
       if (!resolver) {
-        defer = $q.defer();
-        defer.reject(new Error(objectType + ' is not a registered resolver'));
-        return defer.promise;
+        return $q.reject(new Error(objectType + ' is not a registered resolver'));
       }
 
-      return resolver(id);
+      return resolver.apply(this, args);
     }
 
     return {
