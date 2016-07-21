@@ -59,6 +59,7 @@ angular.module('esnApp', [
   'esn.oembed.codepen',
   'esn.oembed.gist',
   'esn.oembed.twitter',
+  'esn.oembed.image',
   'esn.injection',
   'esn.collaboration',
   'esn.company',
