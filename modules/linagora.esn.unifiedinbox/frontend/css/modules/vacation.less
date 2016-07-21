@@ -14,6 +14,26 @@
   }
 
   .inbox-configuration-vacation {
+
+    .inbox-notification {
+      .flex-vertical-centered;
+
+      .inbox-ng-enter(35px);
+
+      padding: 5px 10px;
+      margin: 0 -15px 20px -15px;
+      background-color: lighten(@accentColor, 20%);
+      font-size: 14px;
+      border-radius: 0;
+
+      .inbox-notification-icon {
+        .flex-noshrink;
+
+        margin-right: 10px;
+        font-size: 25px;
+      }
+    }
+
     .inbox-toggle-switch {
       color: lighten(@text-color, 50%);
 
@@ -93,6 +113,11 @@
     }
 
     .inbox-configuration-vacation {
+      .inbox-notification {
+        margin: 0 0 20px 0;
+        border-radius: 4px;
+      }
+
       .field-label {
         display: block;
       }

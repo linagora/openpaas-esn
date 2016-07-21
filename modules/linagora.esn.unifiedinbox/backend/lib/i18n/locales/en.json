@@ -57,5 +57,7 @@
   "There is nothing to display": "There is nothing to display",
   "close": "close",
   "me": "me",
-  "Date": "Date"
+  "Date": "Date",
+  "Your vacation responder is enabled and will start on %s": "Your vacation responder is enabled and will start on %s",
+  "Your vacation responder is enabled but stopped on %s": "Your vacation responder is enabled but stopped on %s"
 }
