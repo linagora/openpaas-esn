@@ -88,13 +88,19 @@ module.exports.sendPasswordReset = function(user, callback) {
   }
 
   function sendEmail(noreply, passwordreset, callback) {
-    var subject = i18n.__('You have requested a password reset on OpenPaas');
+    var message = {
+      from: noreply,
+      to: to,
+      subject: i18n.__('You have requested a password reset on OpenPaas')
+    };
+    var templateName = 'core.password-reset';
     var context = {
       firstname: user.firstname,
       lastname: user.lastname,
       url: passwordreset.url
     };
-    email.sendHTML(noreply, to, subject, 'core.password-reset', context, callback);
+
+    email.getMailer().sendHTML(message, templateName, context, callback);
   }
 
   getConfiguration(function(err, results) {

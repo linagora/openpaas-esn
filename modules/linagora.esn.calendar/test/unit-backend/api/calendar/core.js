@@ -14,13 +14,13 @@ describe('The calendar core module', function() {
   var activityStreamHelperMock;
   var helpersMock;
   var pubsubMock;
-  var contentSenderMock;
   var configMock;
   var authMock;
   var searchLibMock;
   var searchLibModule;
   var caldavClientMock;
   var caldavClientLib;
+  var emailMock;
 
   function initMock() {
     collaborationMock = {
@@ -75,11 +75,6 @@ describe('The calendar core module', function() {
       },
       global: {}
     };
-    contentSenderMock = {
-      send: function(from, to, content, options, type) {
-        return q();
-      }
-    };
     configMock = function() {
       return {
         webserver: {}
@@ -101,6 +96,9 @@ describe('The calendar core module', function() {
     caldavClientLib = function() {
       return caldavClientMock;
     };
+    emailMock = {
+      getMailer: function() { return {}; }
+    };
   }
 
   beforeEach(function() {
@@ -114,9 +112,9 @@ describe('The calendar core module', function() {
     this.moduleHelpers.addDep('activitystreams', activityStreamHelperMock);
     this.moduleHelpers.addDep('helpers', helpersMock);
     this.moduleHelpers.addDep('pubsub', pubsubMock);
-    this.moduleHelpers.addDep('content-sender', contentSenderMock);
     this.moduleHelpers.addDep('config', configMock);
     this.moduleHelpers.addDep('auth', authMock);
+    this.moduleHelpers.addDep('email', emailMock);
   });
 
   describe('The dispatch fn', function() {
@@ -377,7 +375,8 @@ describe('The calendar core module', function() {
       emails: [
         'organizer@open-paas.org'
       ],
-      preferredEmail: 'organizer@open-paas.org'
+      preferredEmail: 'organizer@open-paas.org',
+      domains: [{ domain_id: 'domain123' }]
     };
     var attendee1 = {
       firstname: 'attendee1Firstname',
@@ -408,7 +407,7 @@ describe('The calendar core module', function() {
       'END:VCALENDAR'
     ].join('\r\n');
 
-    describe('the inviteAttendees fn', function() {
+    describe('The inviteAttendees fn', function() {
       beforeEach(function() {
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       });
@@ -512,7 +511,7 @@ describe('The calendar core module', function() {
         });
       });
 
-      it('should return an error if contentSender.send return an error', function(done) {
+      it('should return an error if there is an error while sending email', function(done) {
         var method = 'REQUEST';
 
         userMock.findByEmail = function(email, callback) {
@@ -523,8 +522,12 @@ describe('The calendar core module', function() {
           }
         };
 
-        contentSenderMock.send = function() {
-          return q.reject(new Error('Error in contentSender.send'));
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function() {
+              return q.reject(new Error('an error'));
+            }
+          };
         };
 
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
@@ -543,16 +546,23 @@ describe('The calendar core module', function() {
           }
         };
 
-        contentSenderMock.send = function(from, to, content, options, type) {
-          called++;
-          expect(type).to.equal('email');
-          expect(from).to.deep.equal({objectType: 'email', id: organizer.emails[0]});
-          if (called === 1) {
-            expect(to).to.deep.equal({objectType: 'email', id: attendee1.emails[0]});
-          } else {
-            expect(to).to.deep.equal({objectType: 'email', id: attendee2.emails[0]});
-          }
-          return q();
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template, locals) {
+              called++;
+              expect(email.from).to.equal(organizer.emails[0]);
+              if (called === 1) {
+                expect(email.to).to.equal(attendee1.emails[0]);
+              } else {
+                expect(email.to).to.equal(attendee2.emails[0]);
+              }
+
+              expect(template).to.be.a.string;
+              expect(locals).to.be.an('object');
+
+              return q();
+            }
+          };
         };
 
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
@@ -561,7 +571,7 @@ describe('The calendar core module', function() {
         });
       });
 
-      it('should call content-sender.send with correct parameters', function(done) {
+      it('should send HTML email with correct parameters', function(done) {
         helpersMock.config.getBaseUrl = function(callback) {
           callback(null, 'http://localhost:8888');
         };
@@ -581,40 +591,42 @@ describe('The calendar core module', function() {
         };
 
         var called = 0;
-        contentSenderMock.send = function(from, to, content, options, type) {
-          called++;
-          expect(type).to.equal('email');
-          expect(from).to.deep.equal({objectType: 'email', id: organizer.emails[0]});
-          if (called === 1) {
-            expect(to).to.deep.equal({objectType: 'email', id: attendee1.emails[0]});
-          } else {
-            expect(to).to.deep.equal({objectType: 'email', id: attendee2.emails[0]});
-          }
 
-          var expectedOptions = {
-            template: 'event.invitation',
-            message: {
-              subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname + ': description',
-              encoding: 'base64',
-              alternatives: [{
-                content: ics,
-                contentType: 'text/calendar; charset=UTF-8; method=' + method
-              }],
-              attachments: [{
-                filename: 'meeting.ics',
-                content: ics,
-                contentType: 'application/ics'
-              }]
-            },
-            filter: function(filename) {}
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template, locals) {
+              called++;
+              expect(email.from).to.equal(organizer.emails[0]);
+
+              if (called === 1) {
+                expect(email.to).to.equal(attendee1.emails[0]);
+              } else {
+                expect(email.to).to.equal(attendee2.emails[0]);
+              }
+              expect(email).to.shallowDeepEqual({
+                subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname + ': description',
+                encoding: 'base64',
+                alternatives: [{
+                  content: ics,
+                  contentType: 'text/calendar; charset=UTF-8; method=' + method
+                }],
+                attachments: [{
+                  filename: 'meeting.ics',
+                  content: ics,
+                  contentType: 'application/ics'
+                }]
+              });
+              expect(template).to.equal('event.invitation');
+              expect(locals).to.be.an('object');
+              expect(locals.filter).is.a.function;
+              expect(locals.content.baseUrl).to.equal('http://localhost:8888');
+              expect(locals.content.yes).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+              expect(locals.content.no).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+              expect(locals.content.maybe).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+
+              return q();
+            }
           };
-          expect(options).to.shallowDeepEqual(expectedOptions);
-          expect(options.filter).is.a.function;
-          expect(content.baseUrl).to.deep.equal('http://localhost:8888');
-          expect(content.yes).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
-          expect(content.no).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
-          expect(content.maybe).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
-          return q();
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
@@ -627,10 +639,12 @@ describe('The calendar core module', function() {
     });
 
     describe('when method is REQUEST', function() {
+
       beforeEach(function() {
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       });
-      it('should call content-sender.send with new event subject and template if sequence is 0', function(done) {
+
+      it('should send email with new event subject and template if sequence is 0', function(done) {
         var method = 'REQUEST';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/request-new-event.ics', 'utf-8');
 
@@ -638,15 +652,15 @@ describe('The calendar core module', function() {
           return callback(null, attendee1);
         };
 
-        contentSenderMock.send = function(from, to, content, options, type) {
-          var expectedOptions = {
-            template: 'event.invitation',
-            message: {
-              subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname + ': Démo OPENPAAS'
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template) {
+              expect(template).to.equal('event.invitation');
+              expect(email.subject).to.equal('New event from ' + organizer.firstname + ' ' + organizer.lastname + ': Démo OPENPAAS');
+
+              return q();
             }
           };
-          expect(options).to.shallowDeepEqual(expectedOptions);
-          return q();
         };
 
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
@@ -655,7 +669,7 @@ describe('The calendar core module', function() {
         });
       });
 
-      it('should call content-sender.send with event update subject and template if sequence > 0', function(done) {
+      it('should send HTML email with event update subject and template if sequence > 0', function(done) {
         var method = 'REQUEST';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/request-event-update.ics', 'utf-8');
 
@@ -663,15 +677,15 @@ describe('The calendar core module', function() {
           return callback(null, attendee1);
         };
 
-        contentSenderMock.send = function(from, to, content, options, type) {
-          var expectedOptions = {
-            template: 'event.update',
-            message: {
-              subject: 'Event Démo OPENPAAS from ' + organizer.firstname + ' ' + organizer.lastname + ' updated'
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template) {
+              expect(template).to.equal('event.update');
+              expect(email.subject).to.equal('Event Démo OPENPAAS from ' + organizer.firstname + ' ' + organizer.lastname + ' updated');
+
+              return q();
             }
           };
-          expect(options).to.shallowDeepEqual(expectedOptions);
-          return q();
         };
 
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
@@ -682,7 +696,7 @@ describe('The calendar core module', function() {
     });
 
     describe('when method is REPLY', function() {
-      it('should call content-sender.send with reply event subject and template', function(done) {
+      it('should send email with reply event subject and template', function(done) {
         var method = 'REPLY';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/reply.ics', 'utf-8');
 
@@ -690,15 +704,15 @@ describe('The calendar core module', function() {
           return callback(null, attendee1);
         };
 
-        contentSenderMock.send = function(from, to, content, options, type) {
-          var expectedOptions = {
-            template: 'event.reply',
-            message: {
-              subject: 'Participation updated: Démo OPENPAAS'
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template) {
+              expect(template).to.equal('event.reply');
+              expect(email.subject).to.equal('Participation updated: Démo OPENPAAS');
+
+              return q();
             }
           };
-          expect(options).to.shallowDeepEqual(expectedOptions);
-          return q();
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
@@ -708,10 +722,11 @@ describe('The calendar core module', function() {
         });
       });
 
-      it('should call content-sender.send with correct content', function(done) {
+      it('should send email with correct content', function(done) {
         var method = 'REPLY';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/reply.ics', 'utf-8');
 
+        attendee1.domains = [{ domain_id: 'domain_id' }];
         userMock.findByEmail = function(email, callback) {
           return callback(null, attendee1);
         };
@@ -721,9 +736,16 @@ describe('The calendar core module', function() {
           email: attendee1.emails[0]
         };
 
-        contentSenderMock.send = function(from, to, content, options, type) {
-          expect(content.editor).to.deep.equal(editor);
-          return q();
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template, locals) {
+              expect(template).to.equal('event.reply');
+              expect(email.subject).to.equal('Participation updated: Démo OPENPAAS');
+              expect(locals.content.editor).to.deep.equal(editor);
+
+              return q();
+            }
+          };
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
@@ -751,12 +773,18 @@ describe('The calendar core module', function() {
         };
 
         var called = 0;
-        contentSenderMock.send = function(from, to, content, options, type) {
-          called++;
-          expect(type).to.equal('email');
-          if (called === 1) {
-            expect(to).to.deep.equal({objectType: 'email', id: attendee1.emails[0]});
-          }
+
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email) {
+              called++;
+              if (called === 1) {
+                expect(email.to).to.deep.equal(attendee1.emails[0]);
+              }
+
+              return q();
+            }
+          };
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
@@ -769,7 +797,7 @@ describe('The calendar core module', function() {
     });
 
     describe('when method is CANCEL', function() {
-      it('should call content-sender.send with cancel event subject', function(done) {
+      it('should send HTML email with cancel event subject', function(done) {
         var method = 'CANCEL';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/cancel.ics', 'utf-8');
 
@@ -777,16 +805,17 @@ describe('The calendar core module', function() {
           return callback(null, attendee1);
         };
 
-        contentSenderMock.send = function(from, to, content, options, type) {
-          var expectedOptions = {
-            template: 'event.cancel',
-            message: {
-              subject: 'Event Démo OPENPAAS from ' + organizer.firstname + ' ' + organizer.lastname + ' canceled'
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template) {
+              expect(template).to.equal('event.cancel');
+              expect(email.subject).to.equal('Event Démo OPENPAAS from ' + organizer.firstname + ' ' + organizer.lastname + ' canceled');
+
+              return q();
             }
           };
-          expect(options).to.shallowDeepEqual(expectedOptions);
-          return q();
         };
+
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
         this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
@@ -819,8 +848,12 @@ describe('The calendar core module', function() {
           };
 
           //mocking the send function so as to get a reference to the filter method only
-          contentSenderMock.send = function(from, to, content, options, type) {
-            return q(options.filter);
+          emailMock.getMailer = function() {
+            return {
+              sendHTML: function(email, template, locals) {
+                return q(locals.filter);
+              }
+            };
           };
 
           this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);

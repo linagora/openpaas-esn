@@ -62,6 +62,7 @@ describe('The module manager', function() {
         'linagora.esn.core.css',
         'linagora.esn.core.db',
         'linagora.esn.core.domain',
+        'linagora.esn.core.domain-config',
         'linagora.esn.core.elasticsearch',
         'linagora.esn.core.email',
         'linagora.esn.core.esn-config',

@@ -303,6 +303,7 @@ describe('The domain API', function() {
       helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/invitations'));
+
         req.send(['foo@bar.com']).expect(202).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.exists;
@@ -311,6 +312,7 @@ describe('The domain API', function() {
             expect(err).to.not.exist;
             expect(docs).to.exist;
             expect(docs).to.have.length(1);
+
             var expectedObject = {
               type: 'addmember',
               data: {
@@ -318,6 +320,7 @@ describe('The domain API', function() {
                 domain: domain1.toObject()
               }
             };
+
             expect(docs[0]).to.shallowDeepEqual(expectedObject);
             checkpoint();
           });

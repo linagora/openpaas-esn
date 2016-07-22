@@ -6,7 +6,7 @@ var expect = require('chai').expect,
 describe('The signup confirmation email module', function() {
 
   it('should send an email with valid data', function(done) {
-    var coreMock = function() {
+    var esnConfigMock = function() {
       return {
         get: function(callback) {
           callback();
@@ -19,18 +19,23 @@ describe('The signup confirmation email module', function() {
     var i18nMock = {
       __: function(subject) {
         properties.subject = subject;
+
         return '';
       }
     };
 
     var emailMock = {
-      sendHTML: function(from, to, subject, template, data, callback) {
-        properties.template = template;
-        callback();
+      getMailer: function() {
+        return {
+          sendHTML: function(message, template, locals, callback) {
+            properties.template = template;
+            callback();
+          }
+        };
       }
     };
 
-    mockery.registerMock('../../../../backend/core/esn-config', coreMock);
+    mockery.registerMock('../../esn-config', esnConfigMock);
     mockery.registerMock('../../../i18n', i18nMock);
     mockery.registerMock('../index', emailMock);
 
@@ -45,7 +50,8 @@ describe('The signup confirmation email module', function() {
     };
 
     var confirmation = this.helpers.requireBackend('core/email/system/signupConfirmation');
-    confirmation(invitation, function(err, response) {
+
+    confirmation(invitation, function() {
       expect(properties).to.deep.equal({
         subject: 'Please activate your account',
         template: 'core.signup-email-confirmation'

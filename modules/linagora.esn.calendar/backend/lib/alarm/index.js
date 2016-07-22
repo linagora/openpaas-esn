@@ -4,7 +4,7 @@ var q = require('q');
 var ICAL = require('ical.js');
 var moment = require('moment-timezone');
 var jcalHelper = require('../helpers/jcal');
-var contentSender;
+var emailModule;
 var helpers;
 var pubsub;
 var logger;
@@ -19,6 +19,7 @@ function _sendAlarmEmail(ics, email) {
     }
 
     var event;
+
     try {
       event = jcalHelper.jcal2content(ics, baseUrl);
     } catch (err) {
@@ -26,21 +27,18 @@ function _sendAlarmEmail(ics, email) {
     }
 
     var alarm = event.alarm;
-    var from = { objectType: 'email', id: 'noreply@open-paas.org' };
-    var to = { objectType: 'email', id: email };
-    var options = {
-      template: 'event.alarm',
-      message: {
-        subject: alarm.summary
-      }
+    var message = {
+      to: email,
+      subject: alarm.summary
     };
+    var templateName = 'event.alarm';
     var content = {
       baseUrl: baseUrl,
       event: event,
       alarm: alarm
     };
 
-    contentSender.send(from, to, content, options, 'email').then(defer.resolve, defer.reject);
+    emailModule.getMailer().sendHTML(message, templateName, content).then(defer.resolve, defer.reject);
   });
 
   return defer.promise;
@@ -205,7 +203,7 @@ function init() {
 
 module.exports = function(dependencies) {
   helpers = dependencies('helpers');
-  contentSender = dependencies('content-sender');
+  emailModule = dependencies('email');
   pubsub = dependencies('pubsub');
   cron = dependencies('cron');
   logger = dependencies('logger');

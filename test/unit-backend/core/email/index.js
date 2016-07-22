@@ -1,256 +1,399 @@
 'use strict';
 
 var expect = require('chai').expect;
-var path = require('path');
-var fs = require('fs');
+var mockery = require('mockery');
+var sinon = require('sinon');
+var q = require('q');
 var from = 'from@baz.org';
 
 describe('The email module', function() {
 
+  var emailModule;
+  var mailConfigMock, transportMock, domainConfigMock, templateMock, nodemailerMock, esnConfigMock, attachmentHelpersMock;
+
   beforeEach(function() {
-    var get = function(callback) {
-      callback(null, {});
-    };
-    this.helpers.mock.esnConfig(get);
-  });
-
-  it('should throw error if recipient is not defined', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    email.transport = function() {};
-    email.send(null, null, 'The subject', 'Hello', function(err) {
-      expect(err).to.exist;
-      done();
-    });
-  });
-
-  it('should call the transport layer when all data is valid', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    var called = false;
-    email.setTransport({
-      sendMail: function(message, cb) {
-        called = true;
-        return cb();
-      }
-    });
-    email.send(from, 'foo@bar.com', 'The subject', 'Hello', function(err) {
-      expect(err).to.not.exist;
-      expect(called).to.be.true;
-      done();
-    });
-  });
-
-  it('should send email with sendmail mock (pickup)', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
-    email.setTransport(transport);
-
-    var message = 'Hello from node';
-    email.send(from, 'foo@bar.com', 'The subject', message, function(err, info) {
-      expect(err).to.not.exist;
-      expect(fs.existsSync(info.path)).to.be.true;
-
-      var MailParser = require('mailparser').MailParser;
-      var mailparser = new MailParser();
-      mailparser.on('end', function(mail_object) {
-        expect(mail_object.text).to.have.string(message);
-        done();
-      });
-      fs.createReadStream(info.path).pipe(mailparser);
-    });
-  });
-
-  it('should send email with from as name <address>', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
-    email.setTransport(transport);
-    var name = 'Foo Bar';
-    var address = 'foo@baz.org';
-    var source = name + '<' + address + '>';
-
-    var message = 'Hello from node';
-    email.send(source, 'foo@bar.com', 'The subject', message, function(err, info) {
-      expect(err).to.not.exist;
-      expect(fs.existsSync(info.path)).to.be.true;
-
-      var MailParser = require('mailparser').MailParser;
-      var mailparser = new MailParser();
-      mailparser.on('end', function(mail_object) {
-        expect(mail_object.text).to.have.string(message);
-        expect(mail_object.from[0].name).to.equal(name);
-        expect(mail_object.from[0].address).to.equal(address);
-        done();
-      });
-      fs.createReadStream(info.path).pipe(mailparser);
-    });
-  });
-
-  it('should send email with to as name <address>', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
-    email.setTransport(transport);
-    var name = 'Foo Bar';
-    var address = 'foo@baz.org';
-    var to = name + '<' + address + '>';
-
-    var message = 'Hello from node';
-    email.send(from, to, 'The subject', message, function(err, info) {
-      expect(err).to.not.exist;
-      expect(fs.existsSync(info.path)).to.be.true;
-
-      var MailParser = require('mailparser').MailParser;
-      var mailparser = new MailParser();
-      mailparser.on('end', function(mail_object) {
-        expect(mail_object.text).to.have.string(message);
-        expect(mail_object.to[0].name).to.equal(name);
-        expect(mail_object.to[0].address).to.equal(address);
-        done();
-      });
-      fs.createReadStream(info.path).pipe(mailparser);
-    });
-  });
-
-  it('should fail when template does not exist', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
-    var templates = path.resolve(__dirname + '/fixtures/templates/');
-
-    email.setTransport(transport);
-    email.setTemplatesDir(templates);
-
-    var type = 'foobar';
-    email.sendHTML(from, 'foo@bar.com', 'The subject', type, {}, function(err, info) {
-      expect(err).to.exist;
-      done();
-    });
-  });
-
-  it('should generate and send HTML email from existing template', function(done) {
-    var email = this.helpers.requireBackend('core/email');
-    var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
-    var templates = path.resolve(__dirname + '/fixtures/templates/');
-
-    email.setTransport(transport);
-    email.setTemplatesDir(templates);
-
-    var type = 'confirm_url';
-    var locals = {
-      link: 'http://localhost:8080/confirm/123456789',
-      name: {
-        first: 'foo',
-        last: 'bar'
-      }
-    };
-
-    email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, info) {
-      expect(err).to.not.exist;
-      var fs = require('fs');
-      expect(fs.existsSync(info.path)).to.be.true;
-      var MailParser = require('mailparser').MailParser;
-      var mailparser = new MailParser();
-      mailparser.on('end', function(mail_object) {
-        expect(mail_object.html).to.have.string(locals.link);
-        expect(mail_object.html).to.have.string(locals.name.first);
-        expect(mail_object.html).to.have.string(locals.name.last);
-        done();
-      });
-      fs.createReadStream(info.path).pipe(mailparser);
-    });
-  });
-
-  describe('with configured ESN', function() {
-    beforeEach(function() {
-      var mail = {
-        transport: {
-          module: 'nodemailer-pickup-transport',
-          config: {
-            directory: this.testEnv.tmp
-          }
+    mailConfigMock = {
+      mail: {
+        noreply: 'no-reply@open-paas.org'
+      },
+      transport: {
+        module: 'nodemailer-browser',
+        config: {
+          dir: '/tmp',
+          browser: true
         }
-      };
-      var get = function(callback) {
-        callback(null, mail);
-      };
-      this.helpers.mock.esnConfig(get);
+      }
+    };
+
+    domainConfigMock = {
+      get: function() {
+        return q(mailConfigMock);
+      }
+    };
+
+    templateMock = function() {};
+
+    esnConfigMock = sinon.spy(function(callback) {
+      callback(null, mailConfigMock);
     });
 
-    it('should send an email', function(done) {
-      var email = this.helpers.requireBackend('core/email');
-      var templates = path.resolve(__dirname + '/fixtures/templates/');
-      email.setTemplatesDir(templates);
+    this.helpers.mock.esnConfig(esnConfigMock);
 
-      var type = 'confirm_url';
+    transportMock = {
+      sendMail: function(msg, callback) { callback(); }
+    };
+
+    nodemailerMock = {
+      createTransport: function() { return transportMock; }
+    };
+
+    attachmentHelpersMock = {
+      hasAttachments: function() { return false; }
+    };
+
+    mockery.registerMock('nodemailer', nodemailerMock);
+    mockery.registerMock('nodemailer-browser', function() {});
+    mockery.registerMock('email-templates', function(templatesDir, callback) {
+      callback(null, templateMock);
+    });
+    mockery.registerMock('../domain-config', domainConfigMock);
+    mockery.registerMock('./attachment-helpers', attachmentHelpersMock);
+
+    emailModule = this.helpers.requireBackend('core/email');
+  });
+
+  it('should fail when transport is not defined', function(done) {
+    var message = {
+      from: from,
+      to: 'to@email',
+      text: 'Hello'
+    };
+
+    delete mailConfigMock.transport;
+
+    emailModule.getMailer().send(message, function(err) {
+      expect(err.message).to.equal('Mail transport is not configured');
+      done();
+    });
+  });
+
+  it('should fail when it fails to create transport', function(done) {
+    var message = {
+      from: from,
+      to: 'to@email',
+      text: 'Hello'
+    };
+
+    nodemailerMock.createTransport = function() {
+      throw new Error('transport error');
+    };
+
+    emailModule.getMailer().send(message, function(err) {
+      expect(err.message).to.equal('transport error');
+      done();
+    });
+  });
+
+  it('should use domain-config when domainId is provided', function(done) {
+    var domainId = 'domain123';
+    var message = {
+      from: from,
+      to: 'to@email',
+      text: 'Hello'
+    };
+
+    domainConfigMock.get = sinon.spy(function() {
+      return q(mailConfigMock);
+    });
+
+    emailModule.getMailer(domainId).send(message, function(err) {
+      expect(err).to.not.exist;
+      expect(domainConfigMock.get).to.have.been.calledOnce;
+      expect(domainConfigMock.get).to.have.been.calledWith(domainId, 'mail');
+      done();
+    });
+  });
+
+  it('should use esn-config when domainId is not provided', function(done) {
+    var message = {
+      from: from,
+      to: 'to@email',
+      text: 'Hello'
+    };
+
+    emailModule.getMailer().send(message, function(err) {
+      expect(err).to.not.exist;
+      expect(esnConfigMock).to.have.been.calledOnce;
+      done();
+    });
+  });
+
+  it('should fallback to use esn-config when it fails to get domain-config', function(done) {
+    var message = {
+      from: from,
+      to: 'to@email',
+      text: 'Hello'
+    };
+
+    domainConfigMock.get = function() {
+      return q.reject();
+    };
+
+    emailModule.getMailer().send(message, function(err) {
+      expect(err).to.not.exist;
+      expect(esnConfigMock).to.have.been.calledOnce;
+      done();
+    });
+  });
+
+  it('should resolve when it sends email successfully', function(done) {
+    var message = {
+      to: 'to@email',
+      text: 'message content'
+    };
+    var response = 'some data';
+
+    transportMock.sendMail = function(msg, callback) {
+      callback(null, response);
+    };
+
+    emailModule.getMailer().send(message).then(function(data) {
+      expect(data).to.deep.equal(response);
+      done();
+    });
+  });
+
+  it('should reject when it fails to send email', function(done) {
+    var message = {
+      to: 'to@email',
+      text: 'message content'
+    };
+    var error = new Error('some error');
+
+    transportMock.sendMail = function(msg, callback) {
+      callback(error);
+    };
+
+    emailModule.getMailer().send(message).catch(function(err) {
+      expect(err.message).to.equal(error.message);
+      done();
+    });
+  });
+
+  describe('The send fn', function() {
+
+    it('should throw error if message is not defined', function(done) {
+      emailModule.getMailer().send(null, function(err) {
+        expect(err.message).to.equal('message must be an object');
+        done();
+      });
+    });
+
+    it('should throw error if recipient is not defined', function(done) {
+      emailModule.getMailer().send({}, function(err) {
+        expect(err.message).to.equal('message.to can not be null');
+        done();
+      });
+    });
+
+    it('should throw error if message content is not defined', function(done) {
+      var message = { to: 'to@email' };
+
+      emailModule.getMailer().send(message, function(err) {
+        expect(err.message).to.equal('message content can not be null');
+        done();
+      });
+    });
+
+    it('should call the transport layer when all data is valid', function(done) {
+      var message = {
+        to: 'to@email',
+        text: 'message content'
+      };
+
+      transportMock.sendMail = sinon.spy(function(msg, callback) {
+        expect(msg).to.shallowDeepEqual(message);
+        expect(msg.from).to.equal(mailConfigMock.mail.noreply);
+        callback();
+      });
+
+      emailModule.getMailer().send(message, function(err) {
+        expect(err).to.not.exist;
+        expect(transportMock.sendMail).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+  });
+
+  describe('The sendHTML fn', function() {
+
+    it('should throw error if message is not defined', function(done) {
+      var templateName = 'template';
+      var locals = {};
+
+      emailModule.getMailer().sendHTML(null, templateName, locals, function(err) {
+        expect(err.message).to.equal('message must be an object');
+        done();
+      });
+    });
+
+    it('should throw error if recipient is not defined', function(done) {
+      var templateName = 'template';
+      var locals = {};
+
+      emailModule.getMailer().sendHTML({}, templateName, locals, function(err) {
+        expect(err.message).to.equal('message.to can not be null');
+        done();
+      });
+    });
+
+    it('should fail when template does not exist', function(done) {
+      templateMock = function(templateName, data, callback) {
+        callback(new Error('template does not exist'));
+      };
+
+      var templateName = 'foobar';
+      var locals = {};
+      var message = {
+        from: from,
+        to: 'to@email',
+        text: 'Message'
+      };
+
+      emailModule.getMailer().sendHTML(message, templateName, locals, function(err) {
+        expect(err.message).to.equal('template does not exist');
+        done();
+      });
+    });
+
+    it('should generate and send HTML email from existing template', function(done) {
+      var templateName = 'confirm_url';
       var locals = {
-        link: 'http://localhost:8080/confirm/123456789',
         name: {
           first: 'foo',
           last: 'bar'
         }
       };
-
-      email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
-        expect(err).to.not.exist;
-        var fs = require('fs');
-        expect(fs.existsSync(message.path)).to.be.true;
-        var MailParser = require('mailparser').MailParser;
-        var mailparser = new MailParser();
-        mailparser.on('end', function(mail_object) {
-          expect(mail_object.html).to.have.string(locals.link);
-          expect(mail_object.html).to.have.string(locals.name.first);
-          expect(mail_object.html).to.have.string(locals.name.last);
-          done();
-        });
-        fs.createReadStream(message.path).pipe(mailparser);
-      });
-
-    });
-  });
-
-  describe('With unconfigured ESN', function() {
-    beforeEach(function() {
-      var get = function(callback) {
-        callback(null, {});
+      var message = {
+        from: from,
+        to: 'to@email',
+        subject: 'The subject'
       };
-      this.helpers.mock.esnConfig(get);
-    });
+      var htmlContent = '<h1>hello</h1>';
+      var textContent = 'hello';
 
-    it('should fail when transport is not defined', function(done) {
-      var email = this.helpers.requireBackend('core/email');
-      email.send(from, 'to@foo.com', 'None', 'Hello', function(err, message) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-  });
+      templateMock = function(templateName, data, callback) {
+        if (templateName === 'confirm_url') {
+          expect(data).to.shallowDeepEqual(locals);
 
-  describe('with unknown external mail transport', function() {
-    beforeEach(function() {
-      var mail = {
-        transport: {
-          module: 'nodemailer-unknownmodule',
-          type: 'bar',
-          config: {
-          }
+          return callback(null, htmlContent, textContent);
         }
+
+        callback(new Error('template does not exist'));
       };
-      var get = function(callback) {
-        callback(null, mail);
-      };
-      this.helpers.mock.esnConfig(get);
+      transportMock.sendMail = sinon.spy(function(msg, callback) {
+        expect(msg.html).to.shallowDeepEqual(htmlContent);
+        expect(msg.text).to.shallowDeepEqual(textContent);
+        callback();
+      });
+
+      emailModule.getMailer().sendHTML(message, templateName, locals, function(err) {
+        expect(err).to.not.exist;
+        expect(transportMock.sendMail).to.have.been.calledOnce;
+        done();
+      });
     });
 
-    it('should fail on send', function(done) {
-      var email = this.helpers.requireBackend('core/email');
-      var templates = path.resolve(__dirname + '/fixtures/templates/');
-      email.setTemplatesDir(templates);
-      email.send('from@foo.com', 'to@foo.com', 'None', 'Hello', function(err, message) {
-        expect(err).to.exist;
+    it('should include attachments in email if the template has attachments', function(done) {
+      var templateName = 'confirm_url';
+      var locals = {};
+      var message = {
+        from: from,
+        to: 'to@email',
+        subject: 'The subject'
+      };
+      var htmlContent = '<h1>hello</h1>';
+      var textContent = 'hello';
+      var attachments = [{
+        filename: 'file1',
+        path: '/path/to/file1',
+        cid: '/pat/to/file1/cid',
+        contentDisposition: 'inline'
+      }, {
+        filename: 'file2',
+        path: '/path/to/file2',
+        cid: '/pat/to/file2/cid',
+        contentDisposition: 'inline'
+      }];
+
+      templateMock = function(templateName, data, callback) {
+        return callback(null, htmlContent, textContent);
+      };
+
+      transportMock.sendMail = function(msg, callback) {
+        callback();
+      };
+
+      attachmentHelpersMock.hasAttachments = function() { return true; };
+      attachmentHelpersMock.getAttachments = function(templatesDir, template, filter, done) {
+        return done(null, attachments);
+      };
+
+      emailModule.getMailer().sendHTML(message, templateName, locals, function(err) {
+        expect(err).to.not.exist;
+        expect(message.attachments).to.deep.equal(attachments);
+        done();
+      });
+    });
+
+    it('should append attachments to existing attachments of the email if the template has attachments', function(done) {
+      var templateName = 'confirm_url';
+      var locals = {};
+      var htmlContent = '<h1>hello</h1>';
+      var textContent = 'hello';
+      var attachments = [{
+        filename: 'file1',
+        path: '/path/to/file1',
+        cid: '/pat/to/file1/cid',
+        contentDisposition: 'inline'
+      }, {
+        filename: 'file2',
+        path: '/path/to/file2',
+        cid: '/pat/to/file2/cid',
+        contentDisposition: 'inline'
+      }, {
+        filename: 'file3',
+        path: '/path/to/file3',
+        cid: '/pat/to/file3/cid',
+        contentDisposition: 'inline'
+      }];
+      var message = {
+        from: from,
+        to: 'to@email',
+        subject: 'The subject',
+        attachments: attachments.slice(0, 1)
+      };
+
+      templateMock = function(templateName, data, callback) {
+        return callback(null, htmlContent, textContent);
+      };
+
+      transportMock.sendMail = function(msg, callback) {
+        callback();
+      };
+
+      attachmentHelpersMock.hasAttachments = function() { return true; };
+      attachmentHelpersMock.getAttachments = function(templatesDir, template, filter, done) {
+        return done(null, attachments.slice(1));
+      };
+
+      emailModule.getMailer().sendHTML(message, templateName, locals, function(err) {
+        expect(err).to.not.exist;
+        expect(message.attachments).to.deep.equal(attachments);
         done();
       });
     });
   });
+
 });
