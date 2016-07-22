@@ -2,11 +2,16 @@ sub-header
   inbox-configuration-vacation-subheader
 
 .inbox-configuration-vacation
-  .inbox-notification(ng-if="::(vacation.id && vacation.isEnabled && !vacation.isActivated)")
+  .inbox-notification(ng-if="::(vacation.loadedSuccessfully && vacation.isEnabled && !vacation.isActivated)")
     i.inbox-notification-icon.mdi.mdi-timer
     .inbox-notification-message
       span(ng-if="::vacation.fromDate.isAfter(moment())") #{__('Your vacation responder is enabled and will start on %s', "{{ ::vacation.fromDate.toDate() | date:'medium' }}")}
       span(ng-if="::vacation.toDate.isBefore(moment())") #{__('Your vacation responder is enabled but stopped on %s', "{{ ::vacation.toDate.toDate() | date:'medium' }}")}
+
+  .inbox-notification.error(ng-if="::(vacation.loadedSuccessfully === false)")
+    i.inbox-notification-icon.mdi.mdi-alert-outline
+    .inbox-notification-message
+      span #{__('Please verify your vacation settings')}
 
   form
     span #{__('Vacation responder')}
@@ -15,7 +20,7 @@ sub-header
       toggle-switch(ng-model='vacation.isEnabled', color='blue')
       span.clickable.vacation-enabled(ng-class='{"toggle-active": vacation.isEnabled}', ng-click="ctrl.enableVacation(true)") #{__('On')}
     fieldset(ng-disabled="!vacation.isEnabled")
-      .form-group.flex-form-group
+      .form-group.flex-form-group.full-width
         .field-name.field-label #{__('Start date')}
         .fg-line
           input.input.form-control.from-date(type='text', ng-model="vacation.fromDate", autoclose="1", start-week="1", date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="ctrl.updateDateAndTime('fromDate')", bs-datepicker)
@@ -27,7 +32,7 @@ sub-header
           input(type="checkbox", ng-model='vacation.hasToDate')
           i.input-helper
           span #{__('Vacation stops at')}
-      .form-group.flex-form-group.vacation-end-date(ng-disabled="!vacation.hasToDate")
+      .form-group.flex-form-group.full-width.vacation-end-date(ng-disabled="!vacation.hasToDate")
         .field-name.field-label #{__('End date')}
         .fg-line(ng-class="{'invalid': ctrl.toDateIsInvalid()}")
           input.input.form-control.to-date(type='text', ng-model="vacation.toDate", autoclose="1", start-week="1", date-format="yyyy/MM/dd", placeholder="#{__('No end date')}", ng-disabled="!vacation.hasToDate", ng-class="{'invalid': ctrl.toDateIsInvalid()}", ng-change="ctrl.updateDateAndTime('toDate')", bs-datepicker)

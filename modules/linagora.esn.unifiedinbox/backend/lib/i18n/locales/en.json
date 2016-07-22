@@ -59,5 +59,6 @@
   "me": "me",
   "Date": "Date",
   "Your vacation responder is enabled and will start on %s": "Your vacation responder is enabled and will start on %s",
-  "Your vacation responder is enabled but stopped on %s": "Your vacation responder is enabled but stopped on %s"
+  "Your vacation responder is enabled but stopped on %s": "Your vacation responder is enabled but stopped on %s",
+  "Please verify your vacation settings": "Please verify your vacation settings"
 }
