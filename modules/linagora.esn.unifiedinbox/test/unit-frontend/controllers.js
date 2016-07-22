@@ -1443,6 +1443,20 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of vacation settings failed');
       });
 
+      it('should set vacation.loadedSuccessfully to false when an error occurs', function(done) {
+        jmapClient.setVacationResponse = sinon.spy(function() {
+          return $q.reject();
+        });
+
+        initController('inboxConfigurationVacationController')
+          .updateVacation()
+          .then(done.bind(null, 'should reject'), function() {
+            expect(scope.vacation.loadedSuccessfully).to.be.false;
+
+            done();
+          });
+        scope.$digest();
+      });
     });
 
     describe('the initialization block', function() {
@@ -1484,6 +1498,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(moment.isMoment(scope.vacation.toDate)).to.be.true;
         expect(scope.vacation.toDate.isSame(vacation.toDate)).to.be.true;
         expect(ctrl.momentTimes.toDate.fixed).to.be.true;
+      });
+
+      it('should set vacation.loadedSuccessfully to true when getVacationResponse is resolved', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(scope.vacation.loadedSuccessfully).to.be.true;
       });
     });
 

@@ -362,6 +362,9 @@ angular.module('linagora.esn.unifiedinbox')
                 self.fixTime('toDate');
                 self.updateDateAndTime('toDate');
               }
+            })
+            .then(function() {
+              $scope.vacation.loadedSuccessfully = true;
             });
         });
       }
@@ -413,6 +416,11 @@ angular.module('linagora.esn.unifiedinbox')
         })
         .then(function() {
           $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
+        })
+        .catch(function(err) {
+          $scope.vacation.loadedSuccessfully = false;
+
+          return $q.reject(err);
         });
     };
 
