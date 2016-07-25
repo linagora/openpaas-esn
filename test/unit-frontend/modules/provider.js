@@ -8,7 +8,8 @@ var expect = chai.expect;
 describe('The esn.provider module', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
-      localTimeZone = 'Europe/Paris';
+      localTimeZone = 'Europe/Paris',
+      uuid4;
 
   beforeEach(function() {
     angular.mock.module('angularMoment');
@@ -20,15 +21,37 @@ describe('The esn.provider module', function() {
     $provide.constant('moment', function(argument) {
       return moment.tz(argument || nowDate, localTimeZone);
     });
+    $provide.value('uuid4', uuid4 = {});
   }));
 
   describe('The Providers factory', function() {
-    var $rootScope, providers;
+    var $rootScope, providers, newProvider;
 
-    beforeEach(inject(function(_$rootScope_, _Providers_) {
+    beforeEach(inject(function(_$rootScope_, _Providers_, _newProvider_) {
       $rootScope = _$rootScope_;
       providers = new _Providers_();
+      newProvider = _newProvider_;
     }));
+
+    describe('The newProvider factory', function() {
+      it('should generate an id with uuid4 for a provider without an id', function() {
+        uuid4.generate = sinon.spy(function() { return '123'; });
+
+        var provider = newProvider({ name: 'provider', type: 'type1' });
+
+        expect(provider.id).to.equal('123');
+        expect(uuid4.generate).to.have.been.calledWith;
+      });
+
+      it('should not generate any id for a provider with existing id', function() {
+        uuid4.generate = sinon.spy();
+
+        var provider = newProvider({ name: 'provider', type: 'type1', id: '456' });
+
+        expect(provider.id).to.equal('456');
+        expect(uuid4.generate).to.not.have.been.called;
+      });
+    });
 
     describe('The getAllProviderNames function', function() {
 
@@ -79,6 +102,23 @@ describe('The esn.provider module', function() {
 
         providers.getAll({acceptedTypes: ['type1']}).then(function(resolvedProviders) {
           expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider', type: 'type1'}]);
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should filter providers that are not in the acceptedIds array', function() {
+        providers.add({ name: 'provider', type: 'type1', id: '123',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+        providers.add({ name: 'provider2', type: 'type2', id: '456',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll({acceptedIds: ['456']}).then(function(resolvedProviders) {
+          expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider2', type: 'type2', id: '456'}]);
         });
 
         $rootScope.$digest();

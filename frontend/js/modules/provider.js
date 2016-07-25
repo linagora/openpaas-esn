@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
+angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper', 'uuid4'])
 
   .constant('ELEMENTS_PER_REQUEST', 200)
   .constant('ELEMENTS_PER_PAGE', 20)
@@ -22,6 +22,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
        *   {
        *     query: 'keyword to search for',
        *     acceptedTypes: ['providerType1', 'providerType2'],
+       *     acceptedIds: ['id1', 'id2',...],
        *     filterByType: {
        *       providerType1: { custom: 'object' },
        *       providerType2: { custom: 'object' }
@@ -35,6 +36,9 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
           return $q.all(_.flatten(providers)
             .filter(function(provider) {
               return !provider.type || !options.acceptedTypes || options.acceptedTypes.indexOf(provider.type) >= 0;
+            })
+            .filter(function(provider) {
+              return !provider.id || !options.acceptedIds || _.contains(options.acceptedIds, provider.id);
             })
             .map(function(provider) {
               options.filterByType = options.filterByType || {};
@@ -67,9 +71,11 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     };
   })
 
-  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
+  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, uuid4, ELEMENTS_PER_REQUEST,
+                                   ELEMENTS_PER_PAGE) {
     return function(provider) {
       return {
+        id: provider.id || uuid4.generate(),
         type: provider.type,
         name: provider.name,
         fetch: function(context) {
