@@ -61,10 +61,13 @@ module.exports = function(dependencies) {
     var addressBookId = req.params.addressBookId;
     var addressbookName = req.params.addressbookName;
     var contactId = req.params.contactId;
-    var esnToken = req.token && req.token.token ? req.token.token : '';
     var avatarSize = req.query.size ? req.query.size : DEFAULT_AVATAR_SIZE;
+    var clientOptions = {
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
+    };
 
-    contactClient({ESNToken: esnToken})
+    contactClient(clientOptions)
       .addressbookHome(addressBookId)
       .addressbook(addressbookName)
       .vcard(contactId)

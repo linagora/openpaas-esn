@@ -19,11 +19,25 @@ module.exports = function(dependencies, options) {
   var logger = dependencies('logger');
   var davServerUtils = dependencies('davserver').utils;
   var searchClient = require('../search')(dependencies);
+
   var ESNToken = options.ESNToken;
+  var davServerUrl = options.davserver;
+  var domainId = options.domainId;
+
+  function _getDavEndpoint(callback) {
+    if (davServerUrl) {
+      return callback(davServerUrl);
+    }
+
+    return davServerUtils.getDavEndpoint(domainId, function(davEndpoint) {
+      davServerUrl = davEndpoint; // cache to be reused
+      callback(davEndpoint);
+    });
+  }
 
   function checkResponse(deferred, method, errMsg) {
-
     var status = VALID_HTTP_STATUS[method];
+
     return function(err, response, body) {
       if (err) {
         logger.error(errMsg, err);
@@ -98,8 +112,8 @@ module.exports = function(dependencies, options) {
   function addressbookHome(bookHome) {
 
     function getAddressBookHomeUrl(callback) {
-      davServerUtils.getDavEndpoint(function(davServerUrl) {
-        callback([davServerUrl, PATH, bookHome + '.json'].join('/'));
+      _getDavEndpoint(function(davEndpoint) {
+        callback([davEndpoint, PATH, bookHome + '.json'].join('/'));
       });
     }
 
@@ -114,8 +128,8 @@ module.exports = function(dependencies, options) {
       name = name || DEFAULT_ADDRESSBOOK_NAME;
 
       function getBookUrl(callback) {
-        davServerUtils.getDavEndpoint(function(davServerUrl) {
-          callback([davServerUrl, PATH, bookHome, name + '.json'].join('/'));
+        _getDavEndpoint(function(davEndpoint) {
+          callback([davEndpoint, PATH, bookHome, name + '.json'].join('/'));
         });
       }
 
@@ -223,8 +237,8 @@ module.exports = function(dependencies, options) {
       function vcard(cardId) {
 
         function getVCardUrl(callback) {
-          davServerUtils.getDavEndpoint(function(davServerUrl) {
-            callback([davServerUrl, PATH, bookHome, name, cardId + '.vcf'].join('/'));
+          _getDavEndpoint(function(davEndpoint) {
+            callback([davEndpoint, PATH, bookHome, name, cardId + '.vcf'].join('/'));
           });
         }
 
