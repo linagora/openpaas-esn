@@ -69,7 +69,7 @@ describe('The domain-config module', function() {
           expect(configs).to.deep.equal([{
             name: 'config1',
             value: 'config1'
-          }, undefined]);
+          }]);
           done();
         }, done.bind(null, 'should resolve'));
     });

@@ -27,12 +27,12 @@ function get(domainId, configNames) {
     if (_.isArray(configNames)) {
       return configNames.map(function(configName) {
         return _.find(configurations, { name: configName });
-      });
+      }).filter(Boolean);
     }
 
     var config = _.find(configurations, { name: configNames });
 
-    if (!config) {
+    if (!config || !config.value) {
       return q.reject(new Error('No configuration found for type: ' + configNames));
     }
 
