@@ -43,14 +43,18 @@ module.exports = function(dependencies) {
 
     return getCreationToken()
       .then(function(token) {
-        return contactModule.lib.client({ ESNToken: token.token })
-          .addressbookHome(user._id)
+        var contactClient = contactModule.lib.client({
+          ESNToken: token.token,
+          domainId: user.preferredDomainId
+        });
+
+        return contactClient.addressbookHome(user._id)
           .addressbook(addressbook.id)
           .get()
           .catch(function() {
             logger.debug('Creating import addressbook', addressbook);
-            return contactModule.lib.client({ESNToken: token.token})
-              .addressbookHome(user._id)
+
+            return contactClient.addressbookHome(user._id)
               .addressbook()
               .create(addressbook);
           });
@@ -107,7 +111,10 @@ module.exports = function(dependencies) {
    * @return {Promise}                   Resolve a list of removed contact IDs
    */
   function cleanOutdatedContacts(options, contactSyncTimeStamp) {
-    return contactModule.lib.client({ ESNToken: options.esnToken })
+    return contactModule.lib.client({
+        ESNToken: options.esnToken,
+        domainId: options.user.preferredDomainId
+      })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)
       .vcard()
