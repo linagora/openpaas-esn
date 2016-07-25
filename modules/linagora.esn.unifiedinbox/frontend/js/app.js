@@ -34,7 +34,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'linagora.esn.graceperiod',
   'ngAnimate',
   'esn.escape-html',
-  'esn.search'
+  'esn.search',
+  'esn.async-action'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
