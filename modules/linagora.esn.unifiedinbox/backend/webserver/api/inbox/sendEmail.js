@@ -40,7 +40,7 @@ function sendEmailToRecipients(req, res) {
       });
   }
 
-  emailModule.getMailer(req.user.domains[0].domain_id).send(message, function(err) {
+  emailModule.getMailer(req.user.preferredDomainId).send(message, function(err) {
     if (err) {
       logger.error('Error when sending email', err);
 

@@ -86,7 +86,11 @@ module.exports = function(dependencies) {
   function createContact(vcard, options) {
     var contactId = vcard.getFirstPropertyValue('uid');
     var jsonCard = vcard.toJSON();
-    return contactModule.lib.client({ ESNToken: options.esnToken })
+
+    return contactModule.lib.client({
+        ESNToken: options.esnToken,
+        domainId: options.user.preferredDomainId
+      })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)
       .vcard(contactId)

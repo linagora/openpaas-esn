@@ -101,6 +101,10 @@ UserSchema.virtual('preferredEmail').get(function() {
     }, null);
 });
 
+UserSchema.virtual('preferredDomainId').get(function() {
+  return this.domains.length ? this.domains[0].domain_id : '';
+});
+
 UserSchema.virtual('emails').get(function() {
   var emails = [];
 

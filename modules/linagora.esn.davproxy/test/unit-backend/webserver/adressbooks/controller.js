@@ -132,13 +132,19 @@ describe('The addressbooks module', function() {
         }
       };
       dependencies.contact.lib.client = function(options) {
-        expect(options.ESNToken).to.equal(req.token.token);
+        expect(options).to.deep.equal({
+          ESNToken: req.token.token,
+          davserver: req.davserver
+        });
+
         return {
           addressbookHome: function(bookHome) {
             expect(bookHome).to.equal(req.params.bookHome);
+
             return {
               addressbook: function(bookName) {
                 expect(bookName).to.equal(req.params.bookName);
+
                 return {
                   vcard: function() {
                     return contactVcardMock;
@@ -269,16 +275,23 @@ describe('The addressbooks module', function() {
         }
       };
       dependencies.contact.lib.client = function(options) {
-        expect(options.ESNToken).to.equal(req.token.token);
+        expect(options).to.deep.equal({
+          ESNToken: req.token.token,
+          davserver: req.davserver
+        });
+
         return {
           addressbookHome: function(bookHome) {
             expect(bookHome).to.equal(req.params.bookHome);
+
             return {
               addressbook: function(bookName) {
                 expect(bookName).to.equal(req.params.bookName);
+
                 return {
                   vcard: function(contactId) {
                     expect(contactId).to.equal(req.params.contactId);
+
                     return contactVcardMock;
                   }
                 };
@@ -456,16 +469,23 @@ describe('The addressbooks module', function() {
         }
       };
       dependencies.contact.lib.client = function(options) {
-        expect(options.ESNToken).to.equal(req.token.token);
+        expect(options).to.deep.equal({
+          ESNToken: req.token.token,
+          davserver: req.davserver
+        });
+
         return {
           addressbookHome: function(bookHome) {
             expect(bookHome).to.equal(req.params.bookHome);
+
             return {
               addressbook: function(bookName) {
                 expect(bookName).to.equal(req.params.bookName);
+
                 return {
                   vcard: function(contactId) {
                     expect(contactId).to.equal(req.params.contactId);
+
                     return contactVcardMock;
                   }
                 };

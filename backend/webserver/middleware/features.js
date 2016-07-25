@@ -8,7 +8,7 @@ module.exports.loadFeaturesForUser = function(req, res, next) {
     return next();
   }
 
-  features.findFeaturesForDomain(req.user.domains[0].domain_id, function(err, features) {
+  features.findFeaturesForDomain(req.user.preferredDomainId, function(err, features) {
     if (err) {
       return next(err);
     }

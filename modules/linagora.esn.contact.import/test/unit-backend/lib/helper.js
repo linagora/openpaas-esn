@@ -59,6 +59,7 @@ describe('The contact import helper module', function() {
       domains: [
         {domain_id: domainId}
       ],
+      preferredDomainId: domainId,
       accounts: [
         account,
         {
@@ -108,6 +109,32 @@ describe('The contact import helper module', function() {
         expect(err.message).to.match(/Can not generate user token for contact addressbook creation/);
         done();
       });
+    });
+
+    it('should create contact client with the right paramters', function(done) {
+      var token = {
+        token: 'MyToken'
+      };
+      var options = {
+        account: account,
+        user: user
+      };
+
+      deps.user = {
+        getNewToken: function(user, ttl, callback) {
+          return callback(null, token);
+        }
+      };
+
+      deps.contact.lib.client = function(options) {
+        expect(options).to.deep.equal({
+          ESNToken: token.token,
+          domainId: domainId
+        });
+        done();
+      };
+
+      getFunction(options);
     });
 
     it('should not create dupliate AB if the AB with the same ID is existing', function(done) {

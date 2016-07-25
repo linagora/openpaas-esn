@@ -243,7 +243,7 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
     return deferred.promise;
   });
 
-  var mailer = emailModule.getMailer(editor.domains[0].domain_id);
+  var mailer = emailModule.getMailer(editor.preferredDomainId);
 
   return configHelpers.getBaseUrl(function(err, baseUrl) {
     if (err) {

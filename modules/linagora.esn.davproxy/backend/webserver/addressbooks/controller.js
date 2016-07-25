@@ -20,7 +20,8 @@ module.exports = function(dependencies) {
 
   function getContactsFromDAV(req, res) {
     var options = {
-      ESNToken: req.token && req.token.token ? req.token.token : ''
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
     };
 
     contactModule.lib.client(options)
@@ -31,6 +32,7 @@ module.exports = function(dependencies) {
       .then(function(data) {
         var body = data.body;
         var response = data.response;
+
         // inject text avatar if there's no avatar
         if (body && body._embedded && body._embedded['dav:item']) {
           q.all(body._embedded['dav:item'].map(function(davItem) {
@@ -57,7 +59,8 @@ module.exports = function(dependencies) {
 
   function getContact(req, res) {
     var options = {
-      ESNToken: req.token && req.token.token ? req.token.token : ''
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
     };
 
     contactModule.lib.client(options)
@@ -68,6 +71,7 @@ module.exports = function(dependencies) {
       .then(function(data) {
         avatarHelper.injectTextAvatar(req.params.bookHome, req.params.bookName, data.body).then(function(newBody) {
           res.set('ETag', data.response.headers.etag);
+
           return res.status(data.response.statusCode).json(newBody);
         });
       }, function(err) {
@@ -83,6 +87,7 @@ module.exports = function(dependencies) {
 
   function updateContact(req, res) {
     var headers = req.headers || {};
+
     headers.ESNToken = req.token && req.token.token ? req.token.token : '';
 
     // Workaround to avoid frontend accidentally save text avatar to backend
@@ -91,8 +96,13 @@ module.exports = function(dependencies) {
     // Delete it to avoid issule relating to contentLength while sending request
     delete headers['content-length'];
 
+    var options = {
+      ESNToken: headers.ESNToken,
+      davserver: req.davserver
+    };
+
     if (!headers['if-match']) {
-      contactModule.lib.client({ ESNToken: headers.ESNToken })
+      contactModule.lib.client(options)
         .addressbookHome(req.params.bookHome)
         .addressbook(req.params.bookName)
         .vcard(req.params.contactId)
@@ -110,7 +120,9 @@ module.exports = function(dependencies) {
           res.status(data.response.statusCode).json(data.body);
         }, function(err) {
           var msg = 'Error while creating contact on DAV server';
+
           logger.error(msg, err);
+
           res.status(500).json({
             error: {
               code: 500,
@@ -180,7 +192,11 @@ module.exports = function(dependencies) {
       page: req.query.page
     };
 
-    var client = contactModule.lib.client({ESNToken: ESNToken}).addressbookHome(req.params.bookHome);
+    var client = contactModule.lib.client({
+      ESNToken: ESNToken,
+      davserver: req.davserver
+    }).addressbookHome(req.params.bookHome);
+
     if (req.params.bookName) {
       client = client.addressbook(req.params.bookName).vcard();
     }
@@ -254,8 +270,12 @@ module.exports = function(dependencies) {
       return searchContacts(req, res);
     }
 
-    var ESNToken = req.token && req.token.token ? req.token.token : '';
-    contactModule.lib.client({ ESNToken: ESNToken })
+    var options = {
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
+    };
+
+    contactModule.lib.client(options)
       .addressbookHome(req.params.bookHome)
       .addressbook()
       .list()
@@ -274,8 +294,12 @@ module.exports = function(dependencies) {
   }
 
   function getAddressbook(req, res) {
-    var ESNToken = req.token && req.token.token ? req.token.token : '';
-    contactModule.lib.client({ ESNToken: ESNToken })
+    var options = {
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
+    };
+
+    contactModule.lib.client(options)
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
       .get()
