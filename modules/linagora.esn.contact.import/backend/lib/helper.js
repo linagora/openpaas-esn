@@ -68,7 +68,7 @@ module.exports = function(dependencies) {
       user: user
     };
 
-    technicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, user.domains[0].domain_id, function(err, users) {
+    technicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, user.preferredDomainId, function(err, users) {
       if (err) {
         return defer.reject(err);
       }
