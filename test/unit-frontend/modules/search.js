@@ -5,8 +5,14 @@
 var expect = chai.expect;
 
 describe('The Search Form Angular module', function() {
+  var $state, $stateParams;
 
-  beforeEach(angular.mock.module('esn.search'));
+  beforeEach(function() {
+    angular.mock.module('esn.search', function($provide) {
+      $provide.value('$stateParams', $stateParams = {});
+      $provide.value('$state', $state = {go: sinon.spy()});
+    });
+  });
 
   describe('searchForm directive', function() {
     beforeEach(module('jadeTemplates'));
@@ -49,39 +55,39 @@ describe('The Search Form Angular module', function() {
   });
 
   describe('The searchHeaderFormDirective', function() {
-    var $locationMock, element, $compile, $rootScope;
+    var element, $compile, $rootScope, scope;
+
+    function compileSearchHeaderDirective() {
+      var html = '<search-sub-header></search-sub-header>';
+
+      element = $compile(html)(scope);
+      scope.$digest();
+    }
 
     beforeEach(function() {
-      $locationMock = {
-        search: sinon.stub().returns({q: 'search'})
-      };
       angular.mock.module('jadeTemplates');
-      angular.mock.module('esn.search', function($provide) {
-        $provide.value('$location', $locationMock);
-      });
     });
 
     beforeEach(inject(function(_$compile_, _$rootScope_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
+      scope = $rootScope.$new();
     }));
 
-    beforeEach(function() {
-      var html = '<search-sub-header></search-sub-header>';
-
-      element = $compile(html)($rootScope);
-      $rootScope.$digest();
-    });
-
     it('should init search field with q get parameter', function() {
-      expect($locationMock.search).to.have.been.calledOnce;
-      expect(element.find('input').val()).to.equal('search');
+      $stateParams.q = 'a query';
+      compileSearchHeaderDirective();
+
+      expect(element.find('input').val()).to.equal('a query');
     });
 
     it('when form submitted it should update q get parameter', function() {
+      compileSearchHeaderDirective();
+
       element.find('input').val('cow').trigger('input');
       element.find('form').trigger('submit');
-      expect($locationMock.search).to.have.been.calledWith('q', 'cow');
+
+      expect($state.go).to.have.been.calledWith('search.main', { q: 'cow', filters: undefined }, { reload: true });
     });
 
   });
@@ -152,9 +158,19 @@ describe('The Search Form Angular module', function() {
       expect(searchProviders.getAll).to.not.have.been.called;
     });
 
-    it('should have call searchProviders with the correct arguments when loadMoreElements is called', function() {
+    it('should call searchProviders with the correct arguments when loadMoreElements is called', function() {
       $scope.loadMoreElements();
+
       expect(searchProviders.getAll).to.have.been.calledWith({ query: query });
+    });
+
+    it('should map filters and call searchProviders with acceptedIds when filters are present in stateParams', function() {
+      $stateParams.filters = [{ id: '123', checked: false }, { id: '456', checked: true }, { id: '789', checked: true }];
+      initController();
+
+      $scope.loadMoreElements();
+
+      expect(searchProviders.getAll).to.have.been.calledWith({ query: query, acceptedIds: ['456', '789'] });
     });
 
     describe('$scope.elements', function() {
@@ -175,6 +191,78 @@ describe('The Search Form Angular module', function() {
           [{name: 'dog1'}, {name: 'cat1'}, {name: 'dog2'}, {name: 'cat2'}, {name: 'dog3'}, {name: 'cat3'}]
         );
       });
+    });
+  });
+
+  describe('The searchSidebarController', function() {
+    var $controller, $scope, $q, $rootScope, $stateParams, searchProviders;
+
+    function initController() {
+      $scope = {};
+      $controller('searchSidebarController', {$scope: $scope});
+      $rootScope.$digest();
+    }
+
+    beforeEach(inject(function(_$controller_, _$q_, _$rootScope_, _$stateParams_, _searchProviders_) {
+      $controller = _$controller_;
+      $q = _$q_;
+      $rootScope = _$rootScope_;
+      $stateParams = _$stateParams_;
+      searchProviders = _searchProviders_;
+      searchProviders.getAll = function() {
+        return $q.when([
+          { id: '123', name: 'cat' },
+          { id: '456', name: 'dog' }
+        ]);
+      };
+
+      initController();
+    }));
+
+    it('should create a new filters Array when initialising ctrl with no stateParams.filters', function() {
+      expect($scope.filters).to.deep.equal([
+        { id: '123', name: 'cat', checked: true },
+        { id: '456', name: 'dog', checked: true }
+      ]);
+    });
+
+    it('should create a new filters Array with existing filters when initialising ctrl with stateParams.filters', function() {
+      var filters = [
+        { id: '123', name: 'platypus', checked: true },
+        { id: '456', name: 'penguin', checked: false }
+      ];
+      $stateParams.filters = filters;
+      initController();
+
+      expect($scope.filters).to.deep.equal(filters);
+    });
+
+    it('should toggle checked params of every filter when toggleAll is called', function() {
+      $scope.all = false;
+      $scope.toggleAll();
+
+      expect($scope.filters).to.deep.equal([
+        { id: '123', name: 'cat', checked: false },
+        { id: '456', name: 'dog', checked: false }
+      ]);
+
+      $scope.all = true;
+      $scope.toggleAll();
+
+      expect($scope.filters).to.deep.equal([
+        { id: '123', name: 'cat', checked: true },
+        { id: '456', name: 'dog', checked: true }
+      ]);
+    });
+
+    it('should assign false to scope.all when at least one filter is unchecked', function() {
+      $scope.filters = [
+        { id: '123', name: 'cat', checked: false },
+        { id: '456', name: 'dog', checked: true }
+      ];
+      $scope.updateFilters();
+
+      expect($scope.all).to.equal(false);
     });
   });
 

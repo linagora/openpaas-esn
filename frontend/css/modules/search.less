@@ -11,10 +11,6 @@
 
   .search-item {
 
-    .mdi.mdi-checkbox-blank-outline {
-      color: @secondaryTextColor;
-    }
-
     .lv-title {
       color: @secondaryTextColor;
     }
@@ -44,6 +40,28 @@
           font-weight: bold;
           color: @primaryColor;
         }
+      }
+    }
+  }
+
+  form {
+    .flex-column;
+
+    padding-left: 15px;
+    margin-top: 15px;
+
+    .checkbox {
+      height: 30px;
+      margin-bottom: 20px;
+
+      label {
+        .flex;
+
+        height: 100%;
+      }
+
+      input[type=checkbox] {
+        margin-left: 0;
       }
     }
   }

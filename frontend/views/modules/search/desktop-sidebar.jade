@@ -6,10 +6,14 @@
           i.mdi.mdi-filter
         .media-body
           .lv-title #{__('Search For')}
-    a.lv-item.search-item(href="", ng-repeat="filter in filters")
-      .media
-        .pull-left
-          i.mdi.mdi-checkbox-marked-outline
-        .media-body
-          .lv-title
-            span {{::filter}}
+    form(role="form", novalidate="true")
+      .checkbox
+        label
+          input(type="checkbox", ng-model="all", ng-change="toggleAll()")
+          i.input-helper
+          span #{__('All')}
+      .checkbox(ng-repeat="filter in filters")
+        label
+          input(type="checkbox", ng-model="filter.checked", ng-change="updateFilters()")
+          i.input-helper
+          span {{ filter.name }}

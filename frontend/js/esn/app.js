@@ -81,7 +81,8 @@ angular.module('esnApp', [
   'esn.follow',
   'awesome-angular-swipe',
   'esn.file-preview',
-  'esn.file-preview.image'
+  'esn.file-preview.image',
+  'uuid4'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
@@ -195,7 +196,8 @@ angular.module('esnApp', [
       q: {
         value: '',
         squash: true
-      }
+      },
+      filters: null
     },
     views: {
       'search-desktop-sidebar': {
