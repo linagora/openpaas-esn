@@ -180,6 +180,8 @@ module.exports = function(mixin, testEnv) {
     }
 
     function createFeature() {
+      if (!deployment.feature) { return; }
+
       var domain = deployment.models.domain;
       var feature = extend(true, {}, deployment.feature);
       feature.domain_id = domain._id;

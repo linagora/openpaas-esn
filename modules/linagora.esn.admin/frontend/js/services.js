@@ -26,7 +26,10 @@ angular.module('linagora.esn.admin')
           return $q.reject(response);
         }
 
-        if (!isArray && response.data.length > 0) { return response.data[0].value; }
+        if (!isArray) {
+          var config = response.data.length > 0 ? response.data[0].value : null;
+          return config;
+        }
 
         return response.data;
       });
