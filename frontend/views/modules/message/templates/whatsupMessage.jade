@@ -50,4 +50,5 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
           p.m-t-5.m-b-0
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
           display-position.row(ng-if="message.position", position='message.position')
+          message-oembeds.attachment(message='message')
           file-preview.attachment(ng-if="message.attachments && message.attachments.length > 0", ng-repeat="attachment in message.attachments", file="attachment")
