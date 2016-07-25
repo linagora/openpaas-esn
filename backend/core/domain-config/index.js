@@ -3,6 +3,7 @@
 var q = require('q');
 var _ = require('lodash');
 var features = require('../features');
+var Features = require('mongoose').model('Features');
 
 function _findConfigForDomain(domainId) {
   return q.ninvoke(features, 'findFeaturesForDomain', domainId)
@@ -39,6 +40,44 @@ function get(domainId, configNames) {
   });
 }
 
+function set(domainId, configs) {
+  return q.ninvoke(features, 'findFeaturesForDomain', domainId)
+    .then(function(feature) {
+      var configModuleTemplate = {
+        name: 'configurations',
+        features: []
+      };
+
+      feature = feature || new Features({
+        domain_id: domainId,
+        modules: [configModuleTemplate]
+      });
+
+      var configModule = _.find(feature.modules, { name: 'configurations' });
+
+      if (!configModule) {
+        feature.modules.push(configModuleTemplate);
+        configModule = _.find(feature.modules, { name: 'configurations' });
+      }
+
+      configs.forEach(function(config) {
+        var conf = _.find(configModule.features, { name: config.name });
+
+        if (conf) {
+          conf.value = config.value;
+        } else {
+          configModule.features.push(config);
+        }
+      });
+
+      return q.ninvoke(features, 'updateFeatures', feature)
+        .then(function() {
+          return configs;
+        });
+    });
+}
+
 module.exports = {
-  get: get
+  get: get,
+  set: set
 };

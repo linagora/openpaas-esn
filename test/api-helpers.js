@@ -69,6 +69,7 @@ module.exports = function(mixin, testEnv) {
     require('mongoose').model('User');
     var Community = require('mongoose').model('Community');
     var Domain = require('mongoose').model('Domain');
+    var Features = require('mongoose').model('Features');
     var helpers = require('../backend/core/db/mongo/plugins/helpers');
     helpers.applyCommunityPlugins();
     helpers.patchFindOneAndUpdate();
@@ -178,6 +179,15 @@ module.exports = function(mixin, testEnv) {
       }, q(true));
     }
 
+    function createFeature() {
+      var domain = deployment.models.domain;
+      var feature = extend(true, {}, deployment.feature);
+      feature.domain_id = domain._id;
+      return q.npost(new Features(feature), 'save').spread(function(feature) {
+        deployment.models.feature = feature;
+      });
+    }
+
     function createProjects() {
       deployment.projects = deployment.projects ||  [];
       deployment.models.projects = deployment.models.projects ||  [];
@@ -209,6 +219,7 @@ module.exports = function(mixin, testEnv) {
       .then(updateDomainAdministrator)
       .then(createCommunities)
       .then(createProjects)
+      .then(createFeature)
       .then(function() { return q(deployment.models); })
       .nodeify(callback);
   };
