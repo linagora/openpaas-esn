@@ -28,19 +28,23 @@ module.exports.load = load;
 
 function canLeave(req, res, next) {
   if (!req.collaboration) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing collaboration'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing collaboration'});
   }
 
   if (!req.user) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
   if (!req.params || !req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User_id is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User_id is missing'}});
   }
 
-  if (req.user._id.equals(req.collaboration.creator)) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'Creator can not leave collaboration'});
+  if (req.params.user_id.equals(req.collaboration.creator)) {
+    return res.status(403).json({error: 403, message: 'Forbidden', details: 'Creator can not leave collaboration'});
+  }
+
+  if (!req.user._id.equals(req.param('user_id')) && !req.user._id.equals(req.collaboration.creator)) {
+    return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'You do not have the permission to remove another user'}});
   }
 
   return next();

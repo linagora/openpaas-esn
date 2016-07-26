@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
+var ObjectId = require('bson').ObjectId;
 
 describe('The communities API', function() {
 
@@ -749,4 +750,112 @@ describe('The communities API', function() {
     });
   });
 
+  describe('PUT /api/communities/:id', function() {
+
+    beforeEach(function(done) {
+      var self = this;
+      saveUser(self.userInCommunity = fixtures.newDummyUser(['user2@open-paas.org'], password), function() {
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'open-paas.org',
+          administrator: user._id
+        };
+
+        self.title = 'toto';
+        self.avatar = new ObjectId();
+        self.newUser = new ObjectId();
+        self.userToRemove = new ObjectId();
+        self.userToRemove = new ObjectId();
+        self.body = {
+          title: self.title,
+          avatar: self.avatar,
+          newMembers: [self.newUser],
+          deleteMembers: [self.userToRemove]
+        };
+
+        self.community = {
+          creator: user._id,
+          title: 'test',
+          domain_ids: [domain._id],
+          members:
+            {member: {id: self.userInCommunity._id}}
+        };
+
+        async.series([
+            function(callback) {
+              saveDomain(domain, callback);
+            },
+            function(callback) {
+              userDomainModule.joinDomain(user, domain, callback);
+            },
+            function(callback) {
+              saveCommunity(self.community, callback);
+            }
+            ], function(err) {
+              if (err) {
+                return done(err);
+              }
+            });
+        done();
+      });
+    });
+
+    it('should return 200 if updated changed', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
+        req.send(self.body);
+        req.expect(200);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          Community.find({_id: self.community._id}, function(err, document) {
+            if (err) {
+              return done(err);
+            }
+            expect(document[0].title).to.equal(self.title);
+            expect(document[0].avatar.toString()).to.equal(self.avatar.toString());
+            expect(document[0].members.length).to.equal(1);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return 400 if no body', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
+        req.expect(400);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+    });
+
+    it('should return 401 user not connected', function(done) {
+      var self = this;
+      this.helpers.api.requireLogin(webserver.application, 'put', '/api/communities/' + self.community._id, function(err, res) {
+        if (err) { done(err); }
+        expect(res.status).to.be.equal(401);
+        done();
+      });
+    });
+
+    it('should return 403 if user not in community', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, self.userInCommunity.emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
+        req.send(self.body);
+        req.expect(403);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+    });
+  });
 });

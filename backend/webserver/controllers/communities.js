@@ -7,6 +7,7 @@ var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core/logger');
+var _ = require('lodash');
 var async = require('async');
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
@@ -223,6 +224,28 @@ module.exports.delete = function(req, res) {
     }
     return res.json(204);
   });
+};
+
+module.exports.update = function(req, res) {
+  if (!req.community) {
+    return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
+  }
+
+  if (_.isEmpty(req.body)) {
+    return res.status(400).json({error: 400, message: 'No Parameters', details: 'No parameters send.'});
+  }
+
+  function updateCommunity() {
+    communityModule.update(req.community, req.body, function(err, update) {
+      if (err) {
+        return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
+      }
+
+      return res.status(200).end();
+    });
+  }
+
+  return updateCommunity();
 };
 
 module.exports.uploadAvatar = function(req, res) {

@@ -93,7 +93,7 @@ This endpoint expects the request body to be the raw image data
     {
         _id: '9f888058-e9e6-4915-814b-935d5b88389d'
     }
-    
+
 # GET /api/communities/{community_id}/avatar
 
 Get the community avatar.
@@ -200,7 +200,7 @@ Get the communities list for a given domain. The list is ordered by community ti
         }
       }
     }
-     
+
 ## GET /api/communities/{community_id}
 
 Get a community.
@@ -251,6 +251,49 @@ Get a community.
         }
       }
     }
+
+## PUT /api/communities/{community_id}
+
+Update a community
+
+**Parameters**
+
+- community_id: The community ID
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Status Codes:**
+
+- 200 OK
+- 400 No parameters. The user called with no parameters in the body.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden. The user does not have read rights for the community: User may not belong to the domain the community is part of.
+- 404 The community is not found.
+
+**Request:**
+
+    GET /api/communities/123456789
+    Accept: application/json
+    Host: localhost:8080
+    {
+      title: 'Node.js',
+      avatar: '5375de9fd684db7f6fbd5011'
+      newMembers: ['5375de9fd684db7f6fbd5012'],
+      deleteMembers: ['5375de9fd684db7f6fbd5013']
+    }
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+    }
+
 
 ## DELETE /api/communities/{community_id}
 
@@ -311,7 +354,7 @@ Array of community members.
 - 200 OK
 - 400 Bad request
 - 401 Unauthorized. The user is not authenticated on the platform.
-- 403 Forbidden - The user does not have enough rights to get the community members. 
+- 403 Forbidden - The user does not have enough rights to get the community members.
 - 404 Not found - Community or user not found. The error message will contain details.
 - 500 Internal server error - Something went wrong on the server side.
 
@@ -401,7 +444,7 @@ Check if a user is a member of the community.
 - 200 OK - Current user is a community member and user is a member.
 - 400 Bad request.
 - 401 Unauthorized. The user is not authenticated on the platform.
-- 403 Forbidden - The user does not have enough rights to get the community members. 
+- 403 Forbidden - The user does not have enough rights to get the community members.
 - 404 Not found - Current user is a community member and user is not a member
 - 500 Internal server error - Something went wrong on the server side.
 
@@ -448,7 +491,7 @@ No response.
 - 204 No content - User is now a member of the community.
 - 400 Bad request.
 - 401 Unauthorized. The user is not authenticated on the platform.
-- 403 Forbidden - The user can not join the community. 
+- 403 Forbidden - The user can not join the community.
 - 404 Not found - Community or user not found. The error message will contain details.
 - 500 Internal server error - Something went wrong on the server side.
 
@@ -468,7 +511,7 @@ No response.
 Delete the user from a community i.e. leave the community.
 
 Notes:
- 
+
 - The community creator can not leave the community.
 - It does not have any effect if the user is not in the community.
 
@@ -494,7 +537,7 @@ No response.
 - 204 No content - User is no longer a community member.
 - 400 Bad request.
 - 401 Unauthorized. The user is not authenticated on the platform.
-- 403 Forbidden - The user can not leave the community. 
+- 403 Forbidden - The user can not leave the community.
 - 404 Not found - Community or user not found. The error message will contain details.
 - 500 Internal server error - Something went wrong on the server side.
 

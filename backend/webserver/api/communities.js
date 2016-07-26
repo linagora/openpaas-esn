@@ -171,6 +171,32 @@ module.exports = function(router) {
 
   /**
    * @swagger
+   * /communities/{community_id}:
+   *   put:
+   *     tags:
+   *       - Community
+   *     description: Update the community.
+   *     parameters:
+   *       - $ref: "#/parameters/ct_community_id"
+   *       - $ref: "#/parameters/cm_com_update"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/ct_avatar"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put('/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.update);
+
+  /**
+   * @swagger
    * /communities/{community_id}/members/{user_id}:
    *   get:
    *     tags:

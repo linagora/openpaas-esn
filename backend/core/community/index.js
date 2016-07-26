@@ -18,6 +18,42 @@ var MEMBERSHIP_TYPE_INVITATION = 'invitation';
 module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
 module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
 
+module.exports.update = function(community, modifications, callback) {
+  if (!community) {
+    return callback(new Error('Community is required'));
+  }
+
+  if (modifications.title) {
+    community.title = modifications.title;
+  }
+
+  if (modifications.avatar) {
+    community.avatar = modifications.avatar;
+  }
+
+  if (modifications.newMembers) {
+    modifications.newMembers.forEach(function(member) {
+      community.members.push({
+        member: {
+          id: member._id || member,
+          objectType: 'user'
+        }
+      });
+    });
+  }
+
+  if (modifications.deleteMembers) {
+    modifications.deleteMembers.forEach(function(member) {
+      var idMember = member._id || member;
+      community.members = community.members.filter(function(memberCommunity) {
+        return memberCommunity.member.id.toString() !== idMember.toString();
+      });
+    });
+  }
+
+  community.save(callback);
+};
+
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
