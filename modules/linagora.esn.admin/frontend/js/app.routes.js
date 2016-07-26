@@ -29,7 +29,7 @@ angular.module('linagora.esn.admin')
     })
     .state('admin.domain', {
       url: '/:domainId',
-      template: '<ui-view />',
+      template: '<ui-view noanimation="noanimation" />',
       deepStateRedirect: {
         default: 'admin.domain.dav',
         params: true,
