@@ -172,7 +172,7 @@ angular.module('esn.follow', [
     return FollowPaginationProvider;
   })
 
-  .factory('FollowScrollBuilder', function(infiniteScrollHelperBuilder, PageAggregatorService, FollowPaginationHelper, _, FOLLOW_PAGE_SIZE) {
+  .factory('FollowScrollBuilder', function(infiniteScrollHelperBuilder, PageAggregatorService, _, FOLLOW_PAGE_SIZE) {
 
     function build($scope, name, provider, updateScope) {
 
