@@ -28,6 +28,7 @@ angular.module('linagora.esn.admin')
 
         if (!isArray) {
           var config = response.data.length > 0 ? response.data[0].value : null;
+
           return config;
         }
 
@@ -36,6 +37,10 @@ angular.module('linagora.esn.admin')
   }
 
   function set(domainId, configs) {
+    if (!_.isArray(configs)) {
+      configs = [configs];
+    }
+
     var req = {
       method: 'PUT',
       url: '/admin/api/configuration/' + domainId,
@@ -45,14 +50,13 @@ angular.module('linagora.esn.admin')
       data: { configs: configs }
     };
 
-    return $http(req)
-      .then(function(response) {
-        if (response.status !== 200) {
-          return $q.reject(response);
-        }
+    return $http(req).then(function(response) {
+      if (response.status !== 200) {
+        return $q.reject(response);
+      }
 
-        return response.data || [];
-      });
+      return configs;
+    });
   }
 
   return {
