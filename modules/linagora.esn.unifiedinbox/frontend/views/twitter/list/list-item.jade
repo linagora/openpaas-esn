@@ -1,11 +1,12 @@
-.inbox-twitter-list-item.inbox-list-item-content
-  .list-image.badge-container
-    img(ng-src='{{ ::item.author.avatar }}')
-    i.mdi.mdi-twitter-box.twitter-icon-overlay
-  .media-body
-    .flex-space-between
-      .flex-start.ellipsis
-        .lv-title {{ ::item.author.displayName }}
-          span.account-inline(ng-bind-html="::item.author.screenName | autolink")
-      .date-container {{ ::item.date | date: group.dateFormat }}
-    .lv-small.preview(ng-bind-html="::item.text | autolink")
+.inbox-twitter-list-item
+  .inbox-list-item-content
+    .list-image.badge-container
+      img(ng-src='{{ ::item.author.avatar }}')
+      i.mdi.mdi-twitter-box.twitter-icon-overlay
+    .media-body
+      .flex-space-between
+        .flex-start.ellipsis
+          .lv-title {{ ::item.author.displayName }}
+            span.account-inline(ng-bind-html="::item.author.screenName | autolink")
+        .date-container {{ ::item.date | date: group.dateFormat }}
+      .lv-small.preview(ng-bind-html="::item.text | autolink")
