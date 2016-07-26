@@ -19,5 +19,9 @@ angular.module('linagora.esn.admin')
     .state('admin.dav', {
       url: '/:domainId/dav',
       template: '<admin-dav />'
+    })
+    .state('admin.ldap', {
+      url: '/:domainId/ldap',
+      template: '<admin-ldap />'
     });
 });

@@ -1,0 +1,39 @@
+sub-header
+  admin-ldap-subheader(on-save-button-click="$ctrl.save()")
+
+.card
+  .card-body.card-padding
+    form.form(role="form", aria-hidden="true")
+      .row
+        .col-xs-12.col-md-6
+          .form-group
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.name', placeholder="#{__('Name')}", required)
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.configuration.url',placeholder="#{__('URL')}", required)
+          .form-group
+            .field-name #{__('Mapping')}
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.configuration.mapping.firstname', placeholder="#{__('First name')}", required)
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.configuration.mapping.lastname', placeholder="#{__('Last name')}", required)
+          .form-group
+            .fg-line
+              .checkbox
+                label
+                  input(type="checkbox", ng-model='$ctrl.config.autoProvisioning')
+                  i.input-helper #{__('Auto Provisioning')}
+        .col-xs-12.col-md-6
+          .form-group
+            .field-name #{__('Admin')}
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.configuration.adminDn',placeholder="#{__('Admin distinguished name')}", required)
+            .fg-line
+              input.input.title.form-control(type="password", ng-model='$ctrl.config.configuration.adminPassword', placeholder="#{__('Admin Password')}", required)
+          .form-group
+            .field-name #{__('Search')}
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.configuration.searchBase', placeholder="#{__('Search Base')}", required)
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='$ctrl.config.configuration.searchFilter', placeholder="#{__('Search Filter')}", required)
+          
