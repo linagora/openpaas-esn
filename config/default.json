@@ -75,10 +75,6 @@
     "linagora.esn.unifiedinbox",
     "linagora.esn.admin"
   ],
-  "customTemplates": {
-    "rootFolder": null,
-    "customFolder": null
-  },
   "email": {
     "templatesDir": "./templates/email"
   }

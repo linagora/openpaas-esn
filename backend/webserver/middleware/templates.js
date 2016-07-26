@@ -2,16 +2,13 @@
 
 var fs = require('fs-extra');
 var path = require('path');
-var config = require('../../core/config')('default');
 
-var VIEWS_ROOT_FOLDER = (config.customTemplates && config.customTemplates.rootFolder) || path.normalize(__dirname + '../../../../frontend/views/');
-var CUSTOM_FOLDER = (config.customTemplates && config.customTemplates.customFolder) || 'custom';
-
+var VIEWS_ROOT_FOLDER = path.normalize(__dirname + '../../../../frontend/views/');
+var CUSTOM_FOLDER = process.env.ESN_CUSTOM_TEMPLATES_FOLDER || 'custom';
 CUSTOM_FOLDER += '/';
 
 function alterTemplatePath(basePath, callback) {
   var jadeTemplate = basePath.replace(/\.html$/, '') + '.jade';
-
   fs.exists(VIEWS_ROOT_FOLDER + CUSTOM_FOLDER + jadeTemplate, function(exists) {
     if (exists) {
       callback(CUSTOM_FOLDER + jadeTemplate);
