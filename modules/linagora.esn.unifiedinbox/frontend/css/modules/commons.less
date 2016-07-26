@@ -1,26 +1,29 @@
-.inbox-ng-leave() {
+.inbox-ng-leave(@x: 0, @y: -100%) {
   &.ng-leave {
     .transition(all 0.2s ease-out);
+    .translate3d(0, 0, 0);
 
     opacity: 1;
 
     &.ng-leave-active {
-      max-height: 0;
+      .translate3d(@x, @y, 0);
+
       opacity: 0;
     }
   }
 }
 
-.inbox-ng-enter(@max-height) {
+.inbox-ng-enter(@x: 0, @y: -100%) {
   &.ng-enter {
     .transition(all 0.2s ease-out);
+    .translate3d(@x, @y, 0);
 
     opacity: 0;
-    max-height: 0;
 
     &.ng-enter-active {
+      .translate3d(0, 0, 0);
+
       opacity: 1;
-      max-height: @max-height;
     }
   }
 }
