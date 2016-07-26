@@ -141,5 +141,47 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
       },
       templateUrl: '/views/modules/member/member-search-item.html'
     });
-  });
+  })
 
+  .factory('MemberPaginationProvider', function(session, domainAPI, memberSearchConfiguration) {
+
+    function MemberPaginationProvider(options) {
+      this.options = angular.extend({limit: memberSearchConfiguration.searchLimit, offset: 0}, options);
+    }
+
+    MemberPaginationProvider.prototype.loadNextItems = function() {
+      var self = this;
+      return domainAPI.getMembers(session.domain._id, self.options).then(function(response) {
+        var result = {
+          data: response.data,
+          lastPage: (response.data.length < self.options.limit)
+        };
+
+        if (!result.lastPage) {
+          self.options.offset += self.options.limit;
+        }
+
+        return result;
+      });
+    };
+    return MemberPaginationProvider;
+  })
+
+  .factory('MemberScrollBuilder', function(infiniteScrollHelperBuilder, PageAggregatorService, MemberPaginationProvider, _, ELEMENTS_PER_PAGE) {
+
+    function build($scope, updateScope) {
+
+      var aggregator;
+
+      function loadNextItems() {
+        aggregator = aggregator || new PageAggregatorService('members', [new MemberPaginationProvider()], {results_per_page: ELEMENTS_PER_PAGE});
+        return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+      }
+
+      return infiniteScrollHelperBuilder($scope, loadNextItems, updateScope);
+    }
+
+    return {
+      build: build
+    };
+  });
