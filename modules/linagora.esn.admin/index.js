@@ -40,7 +40,6 @@ var adminModule = new AwesomeModule(AWESOME_MODULE_NAME, {
         'app.routes.js',
         'directives.js',
         'services.js',
-        'controllers.js',
         'subheader/admin-subheader-save-button.component.js',
         'sidebar/admin-sidebar.component.js',
         'dav/admin-dav.component.js',
