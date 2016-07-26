@@ -146,6 +146,10 @@ module.exports.list = function(req, res) {
     query.creator = req.param('creator');
   }
 
+  if (req.param('type')) {
+    query.type = req.param('type');
+  }
+
   if (req.param('title')) {
     var escapedString = escapeStringRegexp(req.param('title'));
     query.title = new RegExp('^' + escapedString + '$', 'i');

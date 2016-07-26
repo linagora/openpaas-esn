@@ -235,6 +235,57 @@ describe('The communities API', function() {
       );
     });
 
+    it('should return list and filter communities according to their type', function(done) {
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'open-paas.org',
+        administrator: user._id
+      };
+      var title = 'C1';
+      var type = 'confidential';
+      var members = [{member: {objectType: 'user', id: String(user._id)}, status: 'joined'}];
+
+      async.series([
+          function(callback) {
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            userDomainModule.joinDomain(user, domain, callback);
+          },
+          function(callback) {
+            saveCommunity({title: title, domain_ids: [domain._id], creator: user._id, type: type, members: members}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'C2', domain_ids: [domain._id], creator: user._id, type: 'open', members: members}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'C3', domain_ids: [domain._id], creator: user._id, type: 'private', members: members}, callback);
+          },
+          function() {
+            helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + domain._id + '&creator=' + user._id + '&type=' + type));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(1);
+                var community = res.body[0];
+                expect(community.title).to.equal(title);
+                expect(community.creator).to.equal(user._id.toString());
+                done();
+              });
+            });
+          }],
+        function(err) {
+          done(err);
+        }
+      );
+    });
+
     it('should not return confidential communities if not creator', function(done) {
       var domain = {
         name: 'MyDomain',
