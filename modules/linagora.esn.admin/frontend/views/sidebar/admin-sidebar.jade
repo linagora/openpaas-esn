@@ -7,3 +7,6 @@
         .lv-item.clickable.menu-heading
           i.mdi.mdi-server
           .menu-title #{__('Administration Center')}
+        a.lv-item.menu-item(href="", ui-sref="admin.dav", ui-sref-active="selected")
+          i.mdi(ng-class="icon")
+          .menu-title #{__('DAV Server')}

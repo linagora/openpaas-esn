@@ -6,21 +6,10 @@ angular.module('linagora.esn.admin', [
   'esn.session',
   'op.dynamicDirective',
   'esn.subheader',
-  'esn.sidebar'
+  'esn.sidebar',
+  'esn.async-action'
   ])
-  .config(function($stateProvider) {
-    $stateProvider.state('admin', {
-      url: '/admin',
-      templateUrl: '/admin/views/index',
-      resolve: {
-        isAdmin: function($location, session) {
-          return session.ready.then(function() {
-            if (!session.userIsDomainAdministrator()) { $location.path('/'); }
-          });
-        }
-      }
-    });
-  })
+
   .run(function(dynamicDirectiveService, session) {
     session.ready.then(function() {
       if (session.userIsDomainAdministrator()) {

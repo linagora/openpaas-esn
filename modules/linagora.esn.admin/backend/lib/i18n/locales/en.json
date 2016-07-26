@@ -1,3 +1,8 @@
 {
-  "Administration Center": "Administration Center"
+  "Administration Center": "Administration Center",
+  "Save": "Save",
+  "DAV server": "DAV server",
+  "Backend": "Backend",
+  "Frontend": "Frontend",
+  "Enter a URL": "Enter a URL"
 }
