@@ -572,6 +572,18 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
 
 describe('the canLeave fn', function() {
 
+  function checkResponse(status, json, done) {
+    return function(_status) {
+      expect(_status).to.equal(status);
+      return {
+        json: function(_json) {
+          expect(_json).to.deep.equal(json);
+          done();
+        }
+      };
+    };
+  }
+
   beforeEach(function() {
     this.helpers.mock.models({
       Community: {}
@@ -582,16 +594,17 @@ describe('the canLeave fn', function() {
     mockery.registerMock('../../core/collaboration', {});
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
-      user: {},
+      user: {_id: 'aa'},
       params: {
-        user_id: {}
+        user_id: 'bb'
       }
     };
     var res = {
-      json: function(code) {
-        expect(code).to.equal(400);
-        done();
-      }
+      status: checkResponse(400, {
+        error: 400,
+        message: 'Bad Request',
+        details: 'Missing collaboration'
+      }, done)
     };
     middleware(req, res);
   });
@@ -606,10 +619,11 @@ describe('the canLeave fn', function() {
       }
     };
     var res = {
-      json: function(code) {
-        expect(code).to.equal(400);
-        done();
-      }
+      status: checkResponse(400, {
+        error: 400,
+        message: 'Bad Request',
+        details: 'Missing user'
+      }, done)
     };
     middleware(req, res);
   });
@@ -622,10 +636,11 @@ describe('the canLeave fn', function() {
       collaboration: {}
     };
     var res = {
-      json: function(code) {
-        expect(code).to.equal(400);
-        done();
-      }
+      status: checkResponse(400, {
+        error: 400,
+        message: 'Bad Request',
+        details: 'User_id is missing'
+      }, done)
     };
     middleware(req, res);
   });
@@ -643,21 +658,64 @@ describe('the canLeave fn', function() {
       }
     };
     var res = {
-      json: function(code) {
-        expect(code).to.equal(403);
-        done();
-      }
+      status: checkResponse(403, {
+        error: 403,
+        message: 'Forbidden',
+        details: 'Creator can not leave collaboration'
+      }, done)
     };
     middleware(req, res);
   });
 
-  it('should call next if user can leave collaboration', function(done) {
+  it('should send back 403 if a current user (not a creator) wants to remove a user from collaboration', function(done) {
     var ObjectId = require('bson').ObjectId;
     mockery.registerMock('../../core/collaboration', {});
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
       collaboration: {creator: new ObjectId()},
       user: {_id: new ObjectId()},
+      params: {
+        user_id: new ObjectId()
+      }
+    };
+    var res = {
+      status: checkResponse(403, {
+        error: 403,
+        message: 'Forbidden',
+        details: 'No permissions to remove another user'
+      }, done)
+    };
+    middleware(req, res, done);
+  });
+
+  it('should call next if user can leave collaboration', function(done) {
+    var ObjectId = require('bson').ObjectId;
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+    var userId = new ObjectId();
+    var req = {
+      collaboration: {creator: new ObjectId()},
+      user: {_id: userId},
+      params: {
+        user_id: userId
+      }
+    };
+    var res = {
+      json: function() {
+        done(new Error());
+      }
+    };
+    middleware(req, res, done);
+  });
+
+  it('should call next if user is creator and removes a user from a collaboration', function(done) {
+    var ObjectId = require('bson').ObjectId;
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+    var creatorId = new ObjectId();
+    var req = {
+      collaboration: {creator: creatorId},
+      user: {_id: creatorId},
       params: {
         user_id: new ObjectId()
       }
