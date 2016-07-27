@@ -968,6 +968,34 @@ describe.skip('The collaborations API', function() {
         });
       });
     });
+
+    it('should remove the user from members if already in and current user creator', function(done) {
+      var self = this;
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var manager = models.users[0];
+        var community = models.communities[1];
+
+        self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
+          req.expect(204);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            Community.find({_id: community._id}, function(err, document) {
+              if (err) {
+                return done(err);
+              }
+              expect(document[0].members.length).to.equal(1);
+              expect(document[0].members[0].member.id + '').to.equal('' + manager._id);
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('GET /api/collaborations/:objectType/:id/membership', function() {

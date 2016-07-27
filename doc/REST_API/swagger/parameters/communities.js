@@ -60,4 +60,10 @@
   *     description: optional parameter to skip the title check when creating a community
   *     required: false
   *     type: boolean
+  *   cm_com_update:
+  *     name: update
+  *     in: body
+  *     description: parameters to update in the community (title, avatar, newMembers, deleteMembers)
+  *     required: true
+  *     type: object
   */
