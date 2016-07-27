@@ -87,6 +87,8 @@
 
   &.minimized {
     max-height: 40px;
+    width: @overlayWidth * 0.5;
+    min-width: @overlayMinWidth * 0.5;
     top: ~"calc(100% - 40px)";
 
     .toggle-minimize {
