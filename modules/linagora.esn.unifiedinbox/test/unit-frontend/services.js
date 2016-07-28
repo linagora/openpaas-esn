@@ -2975,15 +2975,22 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The createMailbox function', function() {
 
+      var mailbox = {
+        id: 'id',
+        name: 'name',
+        parentId: 123,
+        qualifiedName: 'name',
+        level: 1
+      };
+
       it('should call client.createMailbox', function(done) {
         jmapClient.createMailbox = function(name, parentId) {
           expect(name).to.equal('name');
           expect(parentId).to.equal(123);
-
           done();
         };
 
-        mailboxesService.createMailbox('name', 123);
+        mailboxesService.createMailbox(mailbox);
         $rootScope.$digest();
       });
 
@@ -3007,11 +3014,11 @@ describe('The Unified Inbox Angular module services', function() {
           }));
         };
 
-        mailboxesService.createMailbox('name', 123).then(function() {
+        mailboxesService.createMailbox(mailbox).then(function() {
           expect(inboxMailboxesCache).to.shallowDeepEqual([{
             id: 'id',
             name: 'name',
-            parentId: '123',
+            parentId: 123,
             qualifiedName: 'name',
             level: 1
           }]);
@@ -3034,11 +3041,11 @@ describe('The Unified Inbox Angular module services', function() {
           done();
         };
 
-        mailboxesService.destroyMailbox(Mailbox({ id: 123 }));
+        mailboxesService.destroyMailbox(Mailbox({ id: 123, name: '123'}));
       });
 
       it('should destroy children mailboxes before the parent', function(done) {
-        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2 }));
+        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1'}));
         jmapClient.setMailboxes = function(options) {
           expect(options).to.deep.equal({
             destroy: [1, 2]
@@ -3047,17 +3054,17 @@ describe('The Unified Inbox Angular module services', function() {
           done();
         };
 
-        mailboxesService.destroyMailbox(Mailbox({ id: 2 }));
+        mailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2'}));
       });
 
       it('should remove destroyed mailboxes from the cache, when call succeeds', function(done) {
-        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2 }));
-        inboxMailboxesCache.push(Mailbox({ id: 2 }));
+        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1'}));
+        inboxMailboxesCache.push(Mailbox({ id: 2, name: '2'}));
         jmapClient.setMailboxes = function() {
           return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1, 2] }));
         };
 
-        mailboxesService.destroyMailbox(Mailbox({ id: 2 })).then(function() {
+        mailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(function() {
           expect(inboxMailboxesCache).to.deep.equal([]);
 
           done();
@@ -3066,14 +3073,14 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should remove destroyed mailboxes from the cache, when call does not succeed completely', function(done) {
-        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2 }));
-        inboxMailboxesCache.push(Mailbox({ id: 2 }));
+        inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1' }));
+        inboxMailboxesCache.push(Mailbox({ id: 2, name:'2' }));
         jmapClient.setMailboxes = function() {
           return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1] }));
         };
 
-        mailboxesService.destroyMailbox(Mailbox({ id: 2 })).then(null, function() {
-          expect(inboxMailboxesCache).to.deep.equal([{ id: 2 }]);
+        mailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(null, function() {
+          expect(inboxMailboxesCache).to.deep.equal([{ id: 2, name: '2' }]);
 
           done();
         });
@@ -3088,14 +3095,14 @@ describe('The Unified Inbox Angular module services', function() {
         jmapClient.updateMailbox = function(id, options) {
           expect(id).to.equal('id');
           expect(options).to.deep.equal({
-            name: 'name',
-            parentId: '123'
+            displayName: 'name',
+            parentId: 123
           });
 
           done();
         };
 
-        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name', parentId: '123' }));
+        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name', parentId: 123 }));
       });
 
       it('should not update the cache if the update fails', function(done) {

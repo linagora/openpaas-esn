@@ -16,6 +16,7 @@ angular.module('linagora.esn.unifiedinbox')
     all: 'mdi mdi-folder-outline'
   })
   .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
+  .constant('INBOX_DISPLAY_NAME_SIZE', 100)
   .constant('MAILBOX_LEVEL_SEPARATOR', ' / ')
   .constant('JMAP_GET_MESSAGES_LIST', ['id', 'threadId', 'subject', 'to', 'cc', 'bcc', 'from', 'preview', 'date', 'isUnread', 'isFlagged', 'isDraft', 'hasAttachment', 'mailboxIds'])
   .constant('JMAP_GET_MESSAGES_VIEW', ['id', 'threadId', 'subject', 'from', 'to', 'cc', 'bcc', 'replyTo', 'preview', 'textBody', 'htmlBody', 'date', 'isUnread', 'isFlagged', 'isDraft', 'hasAttachment', 'attachments', 'mailboxIds'])
