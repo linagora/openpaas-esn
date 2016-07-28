@@ -72,7 +72,7 @@ module.exports = function(dependencies) {
             if (userByEmail) {
               return q.denodeify(oauthHelpers.upsertUserAccount)(userByEmail, account).then(function(res) {
                 logger.info('Account has been updated with new information', res);
-                req.user = res;
+                req.user = res.user;
                 callback(null, req.user);
               }, callback);
             }

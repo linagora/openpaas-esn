@@ -132,7 +132,7 @@ describe('The commons oauth login module', function() {
             upsertUserAccount: function(userByEmail, a, callback) {
               expect(userByEmail).to.deep.equals(user);
               expect(a).to.deep.equals(account);
-              return callback(null, updatedUser);
+              return callback(null, {user: updatedUser});
             }
           }
         };
