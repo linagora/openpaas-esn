@@ -15,6 +15,11 @@
   *     required: true
   *     type: string
   *     format: uuid
+  *   ct_type:
+  *     name: type
+  *     in: query
+  *     description: The type of community.
+  *     type: string
   *   ct_domain_ids:
   *     name: domain_ids
   *     in: query

@@ -19,6 +19,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/ct_domain_id"
    *       - $ref: "#/parameters/ct_creator"
    *       - $ref: "#/parameters/ct_title_search"
+   *       - $ref: "#/parameters/ct_type"
    *     responses:
    *       200:
    *         $ref: "#/responses/ct_communities"
