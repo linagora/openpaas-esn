@@ -10,7 +10,7 @@
         .name.ellipsis {{ ::attachment.name }}
         .secondary-metadata(ng-switch="attachment.status")
           .retry(ng-switch-when="error") #{__('Upload failed')}.
-            a(href="", ng-click="attachment.startUpload()") #{__('Retry')}
+            a(href="", ng-click="ctrl.upload(attachment)") #{__('Retry')}
           .size(ng-switch-default) {{ ::attachment.size | bytes }}
       .actions
         i.mdi.mdi-close.cancel(ng-click="$event.stopPropagation(); ctrl.removeAttachment(attachment)")
