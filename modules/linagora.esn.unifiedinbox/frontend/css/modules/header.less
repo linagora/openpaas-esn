@@ -88,6 +88,10 @@
       & > .left-container {
         // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
         min-width: 0;
+
+        :first-child {
+          .flex-noshrink;
+        }
       }
     }
   }
