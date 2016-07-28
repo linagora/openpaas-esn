@@ -376,7 +376,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(ctrl.getComposition().saveDraftSilently).to.have.not.been.called;
       });
 
-      it('should set attachment.error if upload fails', function() {
+      it('should set attachment.status to "error" if upload fails', function() {
         fileUploadMock.addFile = function() {
           var defer = $q.defer();
 
@@ -390,10 +390,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          error: 'WTF',
-          status: 'error'
-        });
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({ status: 'error' });
       });
 
       it('should resolve the upload promise with nothing when upload succeeds', function(done) {

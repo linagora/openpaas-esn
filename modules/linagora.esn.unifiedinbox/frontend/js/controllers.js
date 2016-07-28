@@ -103,16 +103,14 @@ angular.module('linagora.esn.unifiedinbox')
       };
       attachment.upload.promise = uploadTask.defer.promise.then(function(task) {
         attachment.status = 'uploaded';
-        attachment.error = null;
         attachment.blobId = task.response.blobId;
         attachment.url = task.response.url;
 
         if (!disableImplicitSavesAsDraft) {
           composition.saveDraftSilently();
         }
-      }, function(err) {
+      }, function() {
         attachment.status = 'error';
-        attachment.error = err;
       }, function(uploadTask) {
         attachment.upload.progress = uploadTask.progress;
       }).finally(_updateAttachmentStatus);
