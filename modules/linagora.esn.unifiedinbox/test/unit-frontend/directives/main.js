@@ -515,7 +515,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should reopen composer when resuming after sending failed', inject(function(newComposerService) {
         var aFakeEmail = {
           to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
-          subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
+          subject: 'le sujet', htmlBody: '<p>Le contenu</p>',
+          attachments: []
         };
         newComposerService.open = sinon.spy();
 
@@ -525,10 +526,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         // act
         cancellationLinkAction();
         // assert
-        expect(newComposerService.open).to.have.been.calledWithMatch(
-          aFakeEmail,
-          'Resume message composition'
-        );
+        expect(newComposerService.open).to.have.been.calledWithMatch(aFakeEmail);
       }));
     });
 

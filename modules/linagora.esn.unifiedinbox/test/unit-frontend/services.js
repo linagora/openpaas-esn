@@ -1883,7 +1883,7 @@ describe('The Unified Inbox Angular module services', function() {
     it('should create empty recipient array when instantiated with none', function() {
       var result = new Composition({}).getEmail();
 
-      expect(result).to.deep.equal({
+      expect(result).to.shallowDeepEqual({
         to: [],
         cc: [],
         bcc: []
@@ -1893,10 +1893,9 @@ describe('The Unified Inbox Angular module services', function() {
     it('should start a draft when instantiated', function() {
       draftService.startDraft = sinon.spy();
 
-      new Composition({obj: 'expected'});
+      new Composition({ subject: 'subject' });
 
-      expect(draftService.startDraft).to.have.been
-        .calledWith({ obj: 'expected', bcc: [], cc: [], to: [] });
+      expect(draftService.startDraft).to.have.been.calledWith(sinon.match({ subject: 'subject' }));
     });
 
     function expectEmailAfterSaveAsDraft(email, returnedMessage) {
@@ -2223,18 +2222,18 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should reopen the composer with the expected email when the grace period is cancelled', function(done) {
-        var expectedEmail = { to: ['to@to'], cc: [], bcc: [], subject: 'expected subject', htmlBody: 'expected body' };
+        var expectedEmail = { to: ['to@to'], cc: [], bcc: [], subject: 'expected subject', htmlBody: 'expected body', attachments: [] };
         newComposerService.open = sinon.spy();
 
         new Composition(expectedEmail).destroyDraft().then(function() {
-          expect(newComposerService.open).to.have.been.calledWith(expectedEmail, 'Resume message composition');
+          expect(newComposerService.open).to.have.been.calledWith(expectedEmail);
         }).then(done, done);
 
         $timeout.flush();
       });
 
       it('should perform draft saving when the composition has been modified, then restored, then saved', function(done) {
-        var modifyingEmail = { to: [], cc: [], bcc: [], subject: 'original subject', htmlBody: '' };
+        var modifyingEmail = { to: [], cc: [], bcc: [], subject: 'original subject', htmlBody: '', attachments: [] };
         var expectedDraft = draftService.startDraft(angular.copy(modifyingEmail));
         newComposerService.open = sinon.spy();
 
@@ -2242,7 +2241,7 @@ describe('The Unified Inbox Angular module services', function() {
         composition.email.subject = modifyingEmail.subject = 'modified subject';
 
         composition.destroyDraft().then(function() {
-          expect(newComposerService.open).to.have.been.calledWith(modifyingEmail, 'Resume message composition', {
+          expect(newComposerService.open).to.have.been.calledWith(modifyingEmail, {
             fromDraft: expectedDraft
           });
         }).then(done, done);

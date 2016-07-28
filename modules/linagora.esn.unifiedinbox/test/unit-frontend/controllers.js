@@ -41,7 +41,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return {
             defer: $q.defer()
           };
-        }
+        },
+        start: sinon.spy()
       };
 
       $provide.value('withJmapClient', function(callback) {
@@ -232,7 +233,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should initialize the controller when a Composition instance is given in state params', function() {
-      $stateParams.composition = { getEmail: angular.noop };
+      $stateParams.composition = { getEmail: function() { return {}; } };
 
       var ctrl = initController('composerController');
 
@@ -270,21 +271,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var ctrl;
 
       beforeEach(function() {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.resolve({
-              response: {
-                blobId: '1234',
-                url: 'http://jmap/1234'
-              }
-            });
+          defer.resolve({
+            response: {
+              blobId: '1234',
+              url: 'http://jmap/1234'
+            }
+          });
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
 
         ctrl = initController('composerController');
@@ -377,26 +376,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(ctrl.getComposition().saveDraftSilently).to.have.not.been.called;
       });
 
-      it('should set attachment.error if upload fails', function() {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+      it('should set attachment.status to "error" if upload fails', function() {
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.reject('WTF');
+          defer.reject('WTF');
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
 
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          error: 'WTF',
-          status: 'error'
-        });
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({ status: 'error' });
       });
 
       it('should resolve the upload promise with nothing when upload succeeds', function(done) {
@@ -408,16 +402,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should resolve the upload promise with nothing when upload fails', function(done) {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.reject('WTF');
+          defer.reject('WTF');
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
 
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
@@ -446,32 +438,35 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         $rootScope.$digest();
       });
 
-      describe('The attachment.startUpload function', function() {
+    });
 
-        it('should restore upload and status properties of the attachment', function() {
-          fileUploadMock = {
-            addFile: function() {
-              var defer = $q.defer();
+    describe('The upload function', function() {
 
-              defer.reject('WTF');
+      it('should restore upload and status properties of the attachment', function() {
+        var attachment = {
+          name: 'name',
+          getFile: function() {
+            return { size: 0 };
+          }
+        };
 
-              return {
-                defer: defer
-              };
-            }
-          };
+        initController('composerController').upload(attachment);
 
-          ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
-          $rootScope.$digest();
+        expect(attachment.upload.progress).to.equal(0);
+        expect(attachment.status).to.equal('uploading');
+      });
 
-          var attachment = scope.email.attachments[0];
+      it('should start the upload', function() {
+        var attachment = {
+          name: 'name',
+          getFile: function() {
+            return { size: 0 };
+          }
+        };
 
-          attachment.startUpload();
+        initController('composerController').upload(attachment);
 
-          expect(attachment.upload.progress).to.equal(0);
-          expect(attachment.status).to.equal('uploading');
-        });
-
+        expect(fileUploadMock.start).to.have.been.calledWith();
       });
 
     });
@@ -527,95 +522,60 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     describe('the attachmentStatus functionality', function() {
-      var email, expectedAttachmentStatus;
+      var expectedAttachmentStatus;
 
       beforeEach(function() {
-        email = {};
-        $stateParams.composition = {
-          getEmail: function() {return email;},
-          saveDraftSilently: angular.noop
-        };
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
-
-            defer.resolve({
-              response: {
-                blobId: '1234'
-              }
-            });
-
-            return {
-              defer: defer
-            };
-          }
-        };
-      });
-
-      it('should expose attachmentStatus to the scope', function() {
         expectedAttachmentStatus = {
           number: 0,
           uploading: false,
           error: false
         };
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-        initController('composerController');
+          defer.resolve({
+            response: {
+              blobId: '1234'
+            }
+          });
 
-        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
-
+          return {
+            defer: defer
+          };
+        };
       });
 
-      it('should not update attachmentStatus if there is no email', function() {
-        email = undefined;
-        expectedAttachmentStatus = {
-          number: 0,
-          uploading: false,
-          error: false
-        };
-
-        initController('composerController');
+      it('should not update attachmentStatus if email is empty', function() {
+        initCtrl({});
 
         expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
       });
 
       it('should not update attachmentStatus if email has no attachments', function() {
-        email = {object: 'object'};
-        expectedAttachmentStatus = {
-          number: 0,
-          uploading: false,
-          error: false
-        };
-
-        initController('composerController');
+        initCtrl({ to: [], subject: '' });
 
         expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
       });
 
       it('should update attachmentStatus once the controller is initialized with an email that has attachments', function() {
-        email.attachments = [
-          {isInline: false},
-          {isInline: false},
-          {isInline: true}
-        ];
-        expectedAttachmentStatus = {
-          number: 2,
-          uploading: false,
-          error: false
-        };
+        expectedAttachmentStatus.number = 2;
 
-        initCtrl(email);
+        initCtrl({
+          attachments: [
+            { isInline: false },
+            { isInline: false },
+            { isInline: true }
+          ]
+        });
 
         expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
       });
 
       it('should update attachmentStatus after starting an attachment upload', function(done) {
-        expectedAttachmentStatus = {
-          number: 1,
-          uploading: true,
-          error: false
-        };
+        expectedAttachmentStatus.number = 1;
+        expectedAttachmentStatus.uploading = true;
 
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+        initCtrl({}).onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
           expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
 
           done();
@@ -625,54 +585,41 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should update attachmentStatus when the attachment upload is successfully uploaded', function() {
-        expectedAttachmentStatus = {
-          number: 1,
-          uploading: false,
-          error: false
-        };
+        expectedAttachmentStatus.number = 1;
 
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        initCtrl({}).onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
         expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
       });
 
       it('should update attachmentStatus when there is an error in attachment upload', function() {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.reject('reject');
+          defer.reject('reject');
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
-        expectedAttachmentStatus = {
-          number: 1,
-          uploading: false,
-          error: true
-        };
+        expectedAttachmentStatus.number = 1;
+        expectedAttachmentStatus.error = true;
 
-        initController('composerController').onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        initCtrl({}).onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
         expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
       });
 
       it('should update attachmentStatus when an attachment is removed', function() {
-        var attachment = {isInline: false},
-            ctrl = initController('composerController');
+        var attachment = { isInline: false },
+            ctrl = initCtrl({
+              attachments: [attachment]
+            });
 
         expectedAttachmentStatus = {
           number: 0,
-          uploading: false,
-          error: false
-        };
-        scope.email.attachments = [attachment];
-        scope.attachmentStatus = {
-          number: 1,
           uploading: false,
           error: false
         };

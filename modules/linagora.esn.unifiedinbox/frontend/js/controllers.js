@@ -45,23 +45,16 @@ angular.module('linagora.esn.unifiedinbox')
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inboxConfig,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, INBOX_SUMMERNOTE_OPTIONS) {
-    var disableImplicitSavesAsDraft = false,
+    var self = this,
+        disableImplicitSavesAsDraft = false,
         composition;
 
-    $scope.attachmentStatus = {
-      number: 0,
-      uploading: false,
-      error: false
-    };
-
     function _updateAttachmentStatus() {
-      if ($scope.email && $scope.email.attachments) {
-        $scope.attachmentStatus = {
-          number: _.filter($scope.email.attachments, {isInline: false}).length,
-          uploading: _.some($scope.email.attachments, {status: 'uploading'}),
-          error: _.some($scope.email.attachments, {status: 'error'})
-        };
-      }
+      $scope.attachmentStatus = {
+        number: _.filter($scope.email.attachments, { isInline: false }).length,
+        uploading: _.some($scope.email.attachments, { status: 'uploading' }),
+        error: _.some($scope.email.attachments, { status: 'error' })
+      };
     }
 
     this.getComposition = function() {
@@ -75,6 +68,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.initCtrlWithComposition = function(comp) {
       composition = comp;
       $scope.email = composition.getEmail();
+
       _updateAttachmentStatus();
     };
 
@@ -91,39 +85,39 @@ angular.module('linagora.esn.unifiedinbox')
         type: file.type || DEFAULT_FILE_TYPE
       });
 
-      attachment.startUpload = function() {
-        var uploadTask = fileUploadService.get(attachmentUploadService).addFile(file, true);
-
-        attachment.upload = {
-          progress: 0,
-          cancel: uploadTask.cancel
-        };
-        attachment.status = 'uploading';
-        _updateAttachmentStatus();
-
-        attachment.upload.promise = uploadTask.defer.promise.then(function(task) {
-          attachment.status = 'uploaded';
-          attachment.error = null;
-          attachment.blobId = task.response.blobId;
-          attachment.url = task.response.url;
-
-          if (!disableImplicitSavesAsDraft) {
-            composition.saveDraftSilently();
-          }
-        }, function(err) {
-          attachment.status = 'error';
-          attachment.error = err;
-        }, function(uploadTask) {
-          attachment.upload.progress = uploadTask.progress;
-        }).finally(function() {
-          _updateAttachmentStatus();
-        });
-
-        return attachment;
+      attachment.getFile = function() {
+        return file;
       };
 
       return attachment;
     }
+
+    this.upload = function(attachment) {
+      var uploader = fileUploadService.get(attachmentUploadService),
+          uploadTask = uploader.addFile(attachment.getFile()); // Do not start the upload immediately
+
+      attachment.status = 'uploading';
+      attachment.upload = {
+        progress: 0,
+        cancel: uploadTask.cancel
+      };
+      attachment.upload.promise = uploadTask.defer.promise.then(function(task) {
+        attachment.status = 'uploaded';
+        attachment.blobId = task.response.blobId;
+        attachment.url = task.response.url;
+
+        if (!disableImplicitSavesAsDraft) {
+          composition.saveDraftSilently();
+        }
+      }, function() {
+        attachment.status = 'error';
+      }, function(uploadTask) {
+        attachment.upload.progress = uploadTask.progress;
+      }).finally(_updateAttachmentStatus);
+
+      _updateAttachmentStatus();
+      uploader.start(); // Start transferring data
+    };
 
     this.onAttachmentsSelect = function($files) {
       if (!$files || $files.length === 0) {
@@ -141,17 +135,23 @@ angular.module('linagora.esn.unifiedinbox')
               return notificationFactory.weakError('', 'File ' + file.name + ' ignored as its size exceeds the ' + humanReadableMaxSizeUpload + ' limit');
             }
 
-            $scope.email.attachments.push(newAttachment(client, file).startUpload());
-            _updateAttachmentStatus();
+            var attachment = newAttachment(client, file);
+
+            $scope.email.attachments.push(attachment);
+            self.upload(attachment);
           });
         });
       });
     };
 
-    this.removeAttachment = function(attachment) {
+    function _cancelAttachment(attachment) {
       attachment.upload && attachment.upload.cancel();
-      _.pull($scope.email.attachments, attachment);
       _updateAttachmentStatus();
+    }
+
+    this.removeAttachment = function(attachment) {
+      _.pull($scope.email.attachments, attachment);
+      _cancelAttachment(attachment);
 
       composition.saveDraftSilently();
     };
@@ -180,6 +180,9 @@ angular.module('linagora.esn.unifiedinbox')
 
     $scope.destroyDraft = function() {
       $scope.hide();
+
+      // This will put all uploading attachments in a 'canceled' state, so that if the user reopens the composer he can retry
+      _.forEach($scope.email.attachments, _cancelAttachment);
 
       return composition.destroyDraft();
     };

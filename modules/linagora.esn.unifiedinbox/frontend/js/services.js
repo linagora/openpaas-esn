@@ -461,13 +461,13 @@ angular.module('linagora.esn.unifiedinbox')
                                    DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest, _) {
 
     function prepareEmail(email) {
-      var preparingEmail = angular.copy(email || {});
+      var clone = angular.copy(email = email || {});
 
-      ['to', 'cc', 'bcc'].forEach(function(recipients) {
-        preparingEmail[recipients] = preparingEmail[recipients] || [];
+      ['to', 'cc', 'bcc', 'attachments'].forEach(function(key) {
+        clone[key] = _.clone(email[key] || []);
       });
 
-      return preparingEmail;
+      return clone;
     }
 
     function Composition(message, options) {
@@ -559,7 +559,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function _makeReopenComposerFn(email) {
-      return newComposerService.open.bind(newComposerService, email, 'Resume message composition');
+      return newComposerService.open.bind(newComposerService, email);
     }
 
     Composition.prototype.send = function() {
@@ -584,9 +584,7 @@ angular.module('linagora.esn.unifiedinbox')
         return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
           .then(function(result) {
             if (result.cancelled) {
-              _makeReopenComposerFn(this.email)({
-                fromDraft: this.draft
-              });
+              _makeReopenComposerFn(this.email)({ fromDraft: this.draft });
             } else {
               this.draft.destroy();
             }
