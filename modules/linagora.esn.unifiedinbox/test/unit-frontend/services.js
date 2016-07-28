@@ -407,7 +407,8 @@ describe('The Unified Inbox Angular module services', function() {
         jmap = _jmap_;
 
         session.user = {
-          name: 'Alice',
+          firstname: 'Alice',
+          lastname: 'Cooper',
           preferredEmail: 'alice@domain'
         };
       });
@@ -424,7 +425,7 @@ describe('The Unified Inbox Angular module services', function() {
           bcc: [{email: 'bcc@domain', name: 'bcc'}]
         })).to.deep.equal(new jmap.OutboundMessage({}, {
           from: new jmap.EMailer({
-            name: 'Alice',
+            name: 'Alice Cooper',
             email: 'alice@domain'
           }),
           subject: 'expected subject',
@@ -441,7 +442,7 @@ describe('The Unified Inbox Angular module services', function() {
           attachments: [{ blobId: '1' }, { blobId: '' }]
         })).to.deep.equal(new jmap.OutboundMessage({}, {
           from: new jmap.EMailer({
-            name: 'Alice',
+            name: 'Alice Cooper',
             email: 'alice@domain'
           }),
           htmlBody: 'expected htmlBody',
@@ -1502,7 +1503,11 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-        session.user = {preferredEmail: 'yo@lo', name: 'me'};
+        session.user = {
+          firstname: 'me',
+          lastname: 'me',
+          preferredEmail: 'yo@lo'
+        };
 
         draftService.startDraft({}).save({
           subject: 'expected subject',
@@ -1515,7 +1520,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
           sinon.match({
-            from: {email: 'yo@lo', name: 'me'},
+            from: {email: 'yo@lo', name: 'me me'},
             subject: 'expected subject',
             htmlBody: 'expected htmlBody',
             to: [{email: 'to@domain', name: 'to'}],
@@ -1526,7 +1531,11 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should map all recipients to name-email tuple', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-        session.user = {preferredEmail: 'yo@lo', name: 'me'};
+        session.user = {
+          firstname: 'me',
+          lastname: 'me',
+          preferredEmail: 'yo@lo'
+        };
 
         draftService.startDraft({}).save({
           subject: 'expected subject',
@@ -1538,7 +1547,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(jmapClient.saveAsDraft).to.have.been.calledWithMatch(
           sinon.match({
-            from: {email: 'yo@lo', name: 'me'},
+            from: {email: 'yo@lo', name: 'me me'},
             subject: 'expected subject',
             htmlBody: 'expected htmlBody',
             to: [{email: 'to@domain', name: 'to'}],
