@@ -2,10 +2,33 @@
 
 var async = require('async');
 
+var i18n = require('../../i18n');
 var logger = require('../../core/logger');
 var userLogin = require('../../core/user/login');
 var userModule = require('../../core/user');
+var emailModule = require('../../core/email');
+var configHelper = require('../../helpers').config;
 var PasswordReset = require('mongoose').model('PasswordReset');
+
+function _sendConfirmation(user, template, callback) {
+  var mailer = emailModule.getMailer(user.preferredDomainId);
+
+  configHelper.getBaseUrl(function(err, url) {
+    if (err) {
+      return callback(err);
+    }
+
+    var locals = {
+      firstname: user.firstname,
+      lastname: user.lastname,
+      url: url
+    };
+
+    mailer.sendHTML({to: user.preferredEmail, subject: i18n.__('Your password have changed!')}, template, locals).then(function() {
+      callback();
+    }, callback);
+  });
+}
 
 function sendPasswordReset(req, res) {
   userLogin.sendPasswordReset(req.user, function(err) {
@@ -34,7 +57,8 @@ function updateAndRemovePasswordReset(req, res) {
 
   async.series([
     userModule.updatePassword.bind(null, req.user, req.body.password),
-    PasswordReset.removeByEmail.bind(PasswordReset, req.user.preferredEmail)
+    PasswordReset.removeByEmail.bind(PasswordReset, req.user.preferredEmail),
+    _sendConfirmation.bind(null, req.user, 'core.password-reset-confirmation')
   ], function(err) {
     if (err) {
       return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
@@ -59,12 +83,14 @@ function changePassword(req, res) {
 
   async.series([
     userModule.checkPassword.bind(null, req.user, req.body.oldpassword),
-    userModule.updatePassword.bind(null, req.user, req.body.newpassword)
+    userModule.updatePassword.bind(null, req.user, req.body.newpassword),
+    _sendConfirmation.bind(null, req.user, 'core.change-password-confirmation')
   ], function(err) {
     if (err) {
       if (err.message === 'Unmatched password') {
         return res.status(400).json({error: 400, message: 'Bad Request', details: err.message});
       }
+
       return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
     }
 
