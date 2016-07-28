@@ -3095,7 +3095,7 @@ describe('The Unified Inbox Angular module services', function() {
         jmapClient.updateMailbox = function(id, options) {
           expect(id).to.equal('id');
           expect(options).to.deep.equal({
-            displayName: 'name',
+            name: 'name',
             parentId: 123
           });
 
