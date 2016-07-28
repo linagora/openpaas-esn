@@ -1,6 +1,17 @@
 'use strict';
 
-angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
+angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirective', 'vcRecaptcha'])
+  .config(function(dynamicDirectiveServiceProvider) {
+    var passwordControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-password', {priority: -14});
+
+    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', passwordControlCenterMenu);
+  })
+  .directive('controlcenterMenuPassword', function(controlCenterMenuTemplateBuilder) {
+    return {
+      retrict: 'E',
+      template: controlCenterMenuTemplateBuilder('controlcenter.changepassword', 'mdi-lock', 'Password')
+    };
+  })
   .directive('esnLoginAutofill', function() {
     return {
       restrict: 'A',
@@ -87,13 +98,41 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
       }
 
       $scope.running = true;
-      loginAPI.askForPasswordReset($scope.email).then(
-        function(response) {
+
+      return loginAPI.askForPasswordReset($scope.email).then(
+        function() {
           $scope.running = false;
           $scope.hasSucceeded = true;
           $scope.hasFailed = false;
         },
-        function(err) {
+        function() {
+          $scope.running = false;
+          $scope.hasSucceeded = false;
+          $scope.hasFailed = true;
+        }
+      );
+    };
+  })
+  .controller('changePasswordController', function($scope, loginAPI) {
+    $scope.running = false;
+    $scope.hasFailed = false;
+    $scope.hasSucceeded = false;
+    $scope.credentials = {};
+
+    $scope.changePassword = function(form) {
+      if (form.$invalid) {
+        return;
+      }
+
+      $scope.running = true;
+
+      return loginAPI.changePassword($scope.credentials.oldpassword, $scope.credentials.newpassword).then(
+        function() {
+          $scope.running = false;
+          $scope.hasSucceeded = true;
+          $scope.hasFailed = false;
+        },
+        function() {
           $scope.running = false;
           $scope.hasSucceeded = false;
           $scope.hasFailed = true;
@@ -115,10 +154,15 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'vcRecaptcha'])
       return esnRestangular.one('passwordreset').customPUT({password: password}, undefined, {jwt: jwtToken});
     }
 
+    function changePassword(oldpassword, newpassword) {
+      return esnRestangular.one('passwordreset').one('changepassword').customPUT({oldpassword: oldpassword, newpassword: newpassword});
+    }
+
     return {
       login: login,
       askForPasswordReset: askForPasswordReset,
-      updatePassword: updatePassword
+      updatePassword: updatePassword,
+      changePassword: changePassword
     };
 
   })
