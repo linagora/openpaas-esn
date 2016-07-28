@@ -169,12 +169,12 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
 
   .factory('MemberScrollBuilder', function(infiniteScrollHelperBuilder, PageAggregatorService, MemberPaginationProvider, _, ELEMENTS_PER_PAGE) {
 
-    function build($scope, updateScope) {
+    function build($scope, updateScope, options) {
 
       var aggregator;
 
       function loadNextItems() {
-        aggregator = aggregator || new PageAggregatorService('members', [new MemberPaginationProvider()], {results_per_page: ELEMENTS_PER_PAGE});
+        aggregator = aggregator || new PageAggregatorService('members', [new MemberPaginationProvider(options)], {results_per_page: ELEMENTS_PER_PAGE});
         return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
       }
 
