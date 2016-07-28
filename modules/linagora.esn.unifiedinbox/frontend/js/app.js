@@ -35,7 +35,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'ngAnimate',
   'esn.escape-html',
   'esn.search',
-  'esn.async-action'
+  'esn.async-action',
+  'esn.user'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {

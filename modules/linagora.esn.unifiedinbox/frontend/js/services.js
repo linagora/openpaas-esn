@@ -107,7 +107,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('jmapHelper', function(jmap, session, emailBodyService) {
+  .factory('jmapHelper', function(jmap, session, emailBodyService, userUtils) {
     function _mapToEMailer(recipients) {
       return (recipients || []).map(function(recipient) {
         return new jmap.EMailer({
@@ -121,7 +121,7 @@ angular.module('linagora.esn.unifiedinbox')
       var message = {
         from: new jmap.EMailer({
           email: session.user.preferredEmail,
-          name: session.user.name
+          name: userUtils.displayNameOf(session.user)
         }),
         subject: emailState.subject,
         to: _mapToEMailer(emailState.to),
