@@ -112,13 +112,33 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
-      .state('unifiedinbox.configuration.folders.edit', {
-        url: '/edit/:mailbox',
+      .state('unifiedinbox.configuration.folders.folder', {
+        url: '/:mailbox',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/folders/edit/index',
             controller: 'editFolderController'
           }
+        }
+      })
+      .state('unifiedinbox.configuration.folders.folder.delete', {
+        url: '/delete',
+        resolve: {
+          modalHolder: function() {
+            return {};
+          }
+        },
+        onEnter: function($modal, modalHolder) {
+          modalHolder.modal = $modal({
+            templateUrl: '/unifiedinbox/views/configuration/folders/delete/index',
+            controller: 'inboxDeleteFolderController',
+            controllerAs: 'ctrl',
+            backdrop: 'static',
+            placement: 'center'
+          });
+        },
+        onExit: function(modalHolder) {
+          modalHolder.modal.hide();
         }
       })
       .state('unifiedinbox.configuration.vacation', {

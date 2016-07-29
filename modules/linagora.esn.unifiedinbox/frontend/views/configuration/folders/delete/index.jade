@@ -3,9 +3,9 @@
     .modal-content
       .modal-header
         h4.modal-title #{__('Delete folder?')}
-      .modal-body(ng-if="message")
+      .modal-body(ng-if="::message")
         p
-          | {{message}}
+          | {{ ::message }}
       .modal-footer
-        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
-        button.btn.btn-default(type="button", ng-click="$hide()", esn-submit="deleteFolder()") #{__('Delete')}
+        button.btn.btn-default(type="button", ui-sref="^") #{__('Cancel')}
+        button.btn.btn-default(type="button", esn-submit="ctrl.deleteFolder()") #{__('Delete')}
