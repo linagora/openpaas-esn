@@ -3,30 +3,29 @@
   inbox-emailer(emailer="::email.from")
 
 .flex
-  .recipients(ng-init="collapsed=true", ng-switch="collapsed")
+  .recipients(ng-switch="collapsed")
     .collapsed(ng-switch-when="true")
-      .to(ng-if="me || showMoreButton")
+      .to(ng-if="::(me || showMoreButton)")
         label.line-header #{__('To')}:
-        span(title="{{ ::previewEmailer.email }}")
-          | {{ ::previewEmailer.name }}
-        span.me(ng-if="me")
-          | (#{__('me')})
-      .to(ng-if="!(me || showMoreButton)")
+        span.emailer(title="{{ ::previewEmailer.email }}") {{ ::previewEmailer.name }}
+        span.me(ng-if="::me") (#{__('me')})
+      .to(ng-if="::(!me && !showMoreButton)")
         label.line-header #{__('To')}:
         inbox-emailer(emailer="::previewEmailer")
-
     .expanded(ng-switch-when="false")
-      .to(ng-if="email.to && email.to.length")
+      .to(ng-if="::(email.to && email.to.length)")
         label.line-header #{__('To')}:
         inbox-emailer-group(group="::email.to")
-      .cc(ng-if="email.cc && email.cc.length")
+      .cc(ng-if="::(email.cc && email.cc.length)")
         label.line-header #{__('CC')}:
         inbox-emailer-group(group="::email.cc")
 
-  .more.clickable(ng-show="showMoreButton", ng-click="$event.stopPropagation(); collapsed=!collapsed")
-    span(ng-if="collapsed") +{{numberOfHiddenEmailer}}
-    span(ng-if="!collapsed") #{__('close')}
-    i.mdi(ng-class="collapsed ? 'mdi-menu-down' : 'mdi-menu-up'")
+  .more.clickable(ng-show="::showMoreButton", ng-switch="collapsed", ng-click="$event.stopPropagation(); collapsed = !collapsed")
+    .collapsed(ng-switch-when="true")
+      | +{{ ::numberOfHiddenEmailer }}
+      i.mdi.mdi-menu-down
+    .expanded(ng-switch-when="false")
+      i.mdi.mdi-menu-up
 
 .date
   label.line-header #{__('Date')}:

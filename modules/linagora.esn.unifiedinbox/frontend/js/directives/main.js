@@ -193,6 +193,7 @@ angular.module('linagora.esn.unifiedinbox')
           scope.me = false;
         }
 
+        scope.collapsed = true;
         scope.numberOfHiddenEmailer = allRecipients.length - 1;
         scope.showMoreButton = scope.numberOfHiddenEmailer > 0;
       }
