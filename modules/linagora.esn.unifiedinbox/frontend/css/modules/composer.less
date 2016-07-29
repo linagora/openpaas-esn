@@ -105,8 +105,15 @@ composer, composer-desktop {
 
         .dropdown-menu {
           overflow-y: auto;
-          max-height: 40vh;
           z-index: @summernotePlaceholderZIndex + 1;
+
+          &.dropdown-style {
+            .flex-space-around;
+            .flex-flow(row wrap);
+            .flex-vertical-centered;
+
+            width: @overlayMinWidth - 15px; // Makes the dropdown fit the composer when it's at its min-width
+          }
         }
 
         .note-alignment .dropdown-menu {

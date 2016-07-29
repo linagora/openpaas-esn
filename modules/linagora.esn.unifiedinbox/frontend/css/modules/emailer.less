@@ -1,34 +1,39 @@
 .inbox-root {
   .emailer {
     display: inline-block;
-    word-break: break-word;
+    word-break: break-all;
 
     .email {
       margin-left: 5px;
     }
+
+    .me {
+      margin-left: 2px;
+    }
   }
 
   inbox-emailer-display {
-    .from, .to, .cc, .date {
+    .from, .to, .cc, .bcc, .date {
       .flex-start;
 
       .line-header {
+        .flex-noshrink;
+
         min-width: 35px;
       }
     }
 
-    .recipients {
-      & > .collapsed span.me {
-        margin-left: 2px;
-      }
-    }
-
     .more {
-      margin-left: 10px;
+      .flex-noshrink;
 
-      & > i.mdi {
-        transform: scale(2);
-        margin-left: 2px;
+      margin: 0 0 auto 5px;
+
+      .collapsed, .expanded {
+        .flex-vertical-centered;
+      }
+
+      .mdi {
+        font-size: 1.6em;
       }
     }
   }
