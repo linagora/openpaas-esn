@@ -82,6 +82,7 @@ angular.module('esnApp', [
   'awesome-angular-swipe',
   'esn.file-preview',
   'esn.file-preview.image',
+  'esn.login',
   'uuid4'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
@@ -133,6 +134,11 @@ angular.module('esnApp', [
     resolve: {
       applications: routeResolver.api('applicationAPI', 'created', 'undefined')
     }
+  })
+  .state('controlcenter.changepassword', {
+    url: '/changepassword',
+    templateUrl: '/views/modules/login/changepassword',
+    controller: 'changePasswordController'
   })
   .state('controlcenter.timeline', {
     url: '/timeline',

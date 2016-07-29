@@ -48,4 +48,25 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.put('/passwordreset', authorizationMW.requiresJWT, authorizationMW.decodeJWTandLoadUser, passwordResetController.updateAndRemovePasswordReset);
+
+  /**
+   * @swagger
+   * /passwordreset/changepassword:
+   *   put:
+   *     tags:
+   *      - PasswordReset
+   *     description: |
+   *       Set a new password for a user
+   *       - $ref: "#/parameters/lg_changepassword"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/cm_200"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put('/passwordreset/changepassword', authorizationMW.requiresAPILogin, passwordResetController.changePassword);
 };

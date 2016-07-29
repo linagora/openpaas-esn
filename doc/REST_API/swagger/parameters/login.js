@@ -42,4 +42,16 @@
  *       properties:
  *         password:
  *           type: string
+ *   lg_changepassword:
+ *     name: changepassword
+ *     in: body
+ *     description: the old and new password of the user
+ *     required: true
+ *     schema:
+ *       type: object
+ *       properties:
+ *         oldpassword:
+ *           type: string
+ *         newpassword:
+ *           type: string
  */

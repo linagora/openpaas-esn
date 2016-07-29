@@ -176,6 +176,59 @@ describe.skip('The password API', function() {
     });
   });
 
+  describe('PUT /api/passwordreset/changepassword', function() {
+    it('should return 401 if no login token is provided', function(done) {
+      request(webserver.application)
+        .put('/api/passwordreset/changepassword')
+        .expect(401)
+        .end(done);
+    });
+
+    it('should return 400 if oldpassword is missing', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, 'johndoe@open-paas.org', 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/passwordreset/changepassword'));
+
+        req.send({newpassword: 'secret'})
+           .expect(400)
+           .end(done);
+      });
+    });
+
+    it('should return 400 if newpassword is missing', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, 'johndoe@open-paas.org', 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/passwordreset/changepassword'));
+
+        req.send({oldpassword: 'secret'})
+           .expect(400)
+           .end(done);
+      });
+    });
+
+    it('should return 400 if oldpassword is wrong', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, 'johndoe@open-paas.org', 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/passwordreset/changepassword'));
+
+        req.send({oldpassword: 'secret2', newpassword: 'newsecret'})
+           .expect(400)
+           .end(done);
+      });
+    });
+
+    it('should return 200, the user has now a new password and PasswordReset is removed', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, 'johndoe@open-paas.org', 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/passwordreset/changepassword'));
+
+        req.send({oldpassword: 'secret', newpassword: 'newsecret'})
+           .expect(200)
+           .end(done);
+      });
+    });
+  });
+
   describe('GET /api/passwordreset', function() {
     it('should return 401 if no jwt token are provided', function(done) {
       request(webserver.application)

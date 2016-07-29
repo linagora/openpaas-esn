@@ -100,6 +100,12 @@ module.exports.updateProfile = function(user, profile, callback) {
   });
 };
 
+module.exports.checkPassword = function(user, password, callback) {
+  user.comparePassword(password, function(err, isMatch) {
+    return callback(err || isMatch ? null : new Error('Unmatched password'));
+  });
+};
+
 module.exports.updatePassword = function(user, password, callback) {
   // OR-128 - Do not use findOneAndUpdate here because mongoose 3.x does not
   // support pre hook on update. We must use pre fook on save to crypt the password
