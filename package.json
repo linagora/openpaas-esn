@@ -71,6 +71,7 @@
     "passport-oauth2-client-password": "~0.1.1",
     "passport-oauth2-refresh": "^1.0.0",
     "passport-twitter": "1.0.4",
+    "path-is-absolute": "1.0.0",
     "q": "~1.0.0",
     "randomstring": "~1.0.3",
     "recaptcha": "~1.2.0",
