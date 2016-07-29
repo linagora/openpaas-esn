@@ -143,15 +143,21 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmailer', function() {
+  .directive('inboxEmailer', function(session) {
     return {
       restrict: 'E',
       replace: true,
       controller: 'resolveEmailerController',
       scope: {
-        emailer: '='
+        emailer: '=',
+        hideEmail: '=?'
       },
-      templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer.html'
+      templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer.html',
+      link: function(scope) {
+        scope.$watch('emailer', function(emailer) {
+          scope.me = emailer && emailer.email && emailer.email === session.user.preferredEmail;
+        });
+      }
     };
   })
 
@@ -177,24 +183,39 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmailerDisplay', function(_, session) {
+  .directive('inboxEmailerDisplay', function(emailSendingService, _, session) {
     function link(scope) {
+      var groupLabels = { to: 'To', cc: 'CC', bcc: 'BCC'},
+          groups = _.keys(groupLabels);
+
       _init();
 
-      function _init() {
-        var allRecipients = [].concat(scope.email.to || [], scope.email.cc || []);
-        var myEmailer = _.find(allRecipients, { email: session.user.preferredEmail });
+      function findAndAssignPreviewEmailer(find) {
+        for (var i = 0; i < groups.length; i++) {
+          var group = groups[i],
+              emailer = find(scope.email[group]);
 
-        if (myEmailer) {
-          scope.previewEmailer = myEmailer;
-          scope.me = true;
-        } else {
-          scope.previewEmailer = allRecipients[0];
-          scope.me = false;
+          if (emailer) {
+            scope.previewEmailer = emailer;
+            scope.previewEmailerGroup = groupLabels[group];
+
+            break;
+          }
+        }
+      }
+
+      function _init() {
+        findAndAssignPreviewEmailer(function(emailers) {
+          return _.find(emailers, { email: session.user.preferredEmail });
+        });
+
+        // Defaulting to the first recipient if I am not in the recipients
+        if (!scope.previewEmailer) {
+          findAndAssignPreviewEmailer(_.head);
         }
 
         scope.collapsed = true;
-        scope.numberOfHiddenEmailer = allRecipients.length - 1;
+        scope.numberOfHiddenEmailer = emailSendingService.countRecipients(scope.email) - 1;
         scope.showMoreButton = scope.numberOfHiddenEmailer > 0;
       }
     }

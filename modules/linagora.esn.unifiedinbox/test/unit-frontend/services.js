@@ -528,6 +528,26 @@ describe('The Unified Inbox Angular module services', function() {
       });
     });
 
+    describe('The countRecipients function', function() {
+
+      it('should return 0 when no email is given', function() {
+        expect(emailSendingService.countRecipients()).to.equal(0);
+      });
+
+      it('should ignore undefined recipient groups', function() {
+        expect(emailSendingService.countRecipients({})).to.equal(0);
+      });
+
+      it('should count recipients in "To", "CC" and "BCC"', function() {
+        expect(emailSendingService.countRecipients({
+          to: [{ email: '1' }, { email: '2' }],
+          cc: [{ email: '3' }],
+          bcc: [{ email: '4' }, { email: '5' }, { email: '6' }, { email: '7' }]
+        })).to.equal(7);
+      });
+
+    });
+
     describe('The emailsAreValid function', function() {
       it('should return false when some recipients emails are not valid', function() {
         email = {

@@ -187,7 +187,7 @@ angular.module('linagora.esn.unifiedinbox')
       email.bcc = (email.bcc || []).filter(notIn(email.to)).filter(notIn(email.cc));
     }
 
-    function _countRecipients(email) {
+    function countRecipients(email) {
       if (!email) {
         return 0;
       }
@@ -202,7 +202,7 @@ angular.module('linagora.esn.unifiedinbox')
      * @param {Object} email
      */
     function noRecipient(email) {
-      return _countRecipients(email) === 0;
+      return countRecipients(email) === 0;
     }
 
     function prefixSubject(subject, prefix) {
@@ -222,7 +222,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function showReplyAllButton(email) {
-      return _countRecipients(email) > 1;
+      return countRecipients(email) > 1;
     }
 
     function getEmailAddress(recipient) {
@@ -314,7 +314,8 @@ angular.module('linagora.esn.unifiedinbox')
       showReplyAllButton: showReplyAllButton,
       createReplyAllEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients, 'default', false),
       createReplyEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyRecipients, 'default', false),
-      createForwardEmailObject: _createQuotedEmail.bind(null, 'Fwd: ', null, 'forward', true)
+      createForwardEmailObject: _createQuotedEmail.bind(null, 'Fwd: ', null, 'forward', true),
+      countRecipients: countRecipients
     };
   })
 

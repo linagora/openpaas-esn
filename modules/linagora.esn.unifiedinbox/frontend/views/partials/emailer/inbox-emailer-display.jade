@@ -4,14 +4,10 @@
 
 .flex
   .recipients(ng-switch="collapsed")
-    .collapsed(ng-switch-when="true")
-      .to(ng-if="::(me || showMoreButton)")
-        label.line-header #{__('To')}:
-        span.emailer(title="{{ ::previewEmailer.email }}") {{ ::previewEmailer.name }}
-        span.me(ng-if="::me") (#{__('me')})
-      .to(ng-if="::(!me && !showMoreButton)")
-        label.line-header #{__('To')}:
-        inbox-emailer(emailer="::previewEmailer")
+    .collapsed(ng-switch-when="true", ng-if="::previewEmailer")
+      .to
+        label.line-header #{__('{{ ::previewEmailerGroup }}')}:
+        inbox-emailer(emailer="::previewEmailer", hide-email="true")
     .expanded(ng-switch-when="false")
       .to(ng-if="::(email.to && email.to.length)")
         label.line-header #{__('To')}:
@@ -19,6 +15,9 @@
       .cc(ng-if="::(email.cc && email.cc.length)")
         label.line-header #{__('CC')}:
         inbox-emailer-group(group="::email.cc")
+      .bcc(ng-if="::(email.bcc && email.bcc.length)")
+        label.line-header #{__('BCC')}:
+        inbox-emailer-group(group="::email.bcc")
 
   .more.clickable(ng-show="::showMoreButton", ng-switch="collapsed", ng-click="$event.stopPropagation(); collapsed = !collapsed")
     .collapsed(ng-switch-when="true")

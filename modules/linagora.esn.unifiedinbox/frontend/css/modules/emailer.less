@@ -6,20 +6,20 @@
     .email {
       margin-left: 5px;
     }
+
+    .me {
+      margin-left: 2px;
+    }
   }
 
   inbox-emailer-display {
-    .from, .to, .cc, .date {
+    .from, .to, .cc, .bcc, .date {
       .flex-start;
 
       .line-header {
-        min-width: 35px;
-      }
-    }
+        .flex-noshrink;
 
-    .recipients {
-      & > .collapsed span.me {
-        margin-left: 2px;
+        min-width: 35px;
       }
     }
 
@@ -33,8 +33,7 @@
       }
 
       .mdi {
-        margin-left: 2px;
-        font-size: 2em;
+        font-size: 1.6em;
       }
     }
   }
