@@ -13,7 +13,7 @@ describe('The i18n module', function() {
           defaultLocale: 'fr',
           locales: ['fr']
         }
-      }
+      };
     });
     var i18nModule = this.helpers.requireBackend('i18n');
     expect(i18nModule.__('this is a message for the unit test')).to.equal('ceci est un message pour le test unitaire');
