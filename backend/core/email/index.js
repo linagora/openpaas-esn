@@ -56,5 +56,6 @@ function getMailConfig(domainId) {
 }
 
 module.exports = {
-  getMailer: getMailer
+  getMailer: getMailer,
+  mailSenderBuilder: mailSenderBuilder
 };
