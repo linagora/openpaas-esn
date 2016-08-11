@@ -47,7 +47,38 @@ describe('The ldap core module', function() {
       });
     });
 
-    it('should send back the ldap where user is available in', function(done) {
+    it('should send back the ldap if LDAP configuration have been return as array of arrays where user is available in', function(done) {
+      var ldaps = [[{configuration: {}}], [{configuration: {include: true}}], [{configuration: {include: true}}]];
+      var domainConfigMock = {};
+
+      mockery.registerMock('../domain-config', domainConfigMock);
+
+      domainConfigMock.getAllConfigs = sinon.spy(function() {
+        return q(ldaps);
+      });
+      mockery.registerMock('ldapauth-fork', function(ldap) {
+        return {
+          _findUser: function(email, callback) {
+            if (ldap.include === true) {
+              return callback(null, {});
+            }
+            return callback();
+          }
+        };
+      });
+      var ldap = this.helpers.requireBackend('core/ldap');
+
+      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+        expect(err).to.not.exist;
+        expect(domainConfigMock.getAllConfigs).to.have.been.calledOnce;
+        expect(domainConfigMock.getAllConfigs).to.have.been.calledWith('ldap');
+        expect(ldaps).to.exist;
+        expect(ldaps.length).to.equal(2);
+        done();
+      });
+    });
+
+    it('should send back the ldap if LDAP configuration have been return as array of objects where user is available in', function(done) {
       var ldaps = [{configuration: {}}, {configuration: {include: true}}, {configuration: {include: true}}];
       var domainConfigMock = {};
 
