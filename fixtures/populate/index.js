@@ -36,7 +36,7 @@ function _populateDomain(admin) {
   console.log('[INFO] POPULATE domain');
   var object = extend({}, DOMAIN_OBJECT);
   object.administrator = admin[0];
-  var domain = new Domain(DOMAIN_OBJECT);
+  var domain = new Domain(object);
   return q.ninvoke(domain, 'save')
     .then(function(domain) {
       return [admin[0], domain[0]];
