@@ -27,13 +27,19 @@ module.exports.emailExists = emailExists;
  * @param {String} email - the email to search in the LDAPs
  * @param {Function} callback - as fn(err, ldap) where ldap is the first LDAP entry where the user has been found
  */
+
 var findLDAPForUser = function(email, callback) {
   return domainConfig.getAllConfigs('ldap').then(function(ldaps) {
     if (!ldaps || ldaps.length === 0) {
       return callback(new Error('No configured LDAP'));
     }
+    var ldapConfigs = [].concat.apply([], ldaps).filter(Boolean); // ldaps could be an array of arrays or objects
 
-    async.filter(ldaps, function(ldap, callback) {
+    if (!ldapConfigs || ldapConfigs.length === 0) {
+      return callback(new Error('No configured LDAP'));
+    }
+
+    async.filter(ldapConfigs, function(ldap, callback) {
       emailExists(email, ldap.configuration, function(err, user) {
         if (err || !user) {
           return callback(false);
