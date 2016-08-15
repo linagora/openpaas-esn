@@ -11,6 +11,10 @@ var DEFAULT_NO_REPLY = 'no-reply@openpaas.org';
 var templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/../../../templates/email');
 
 function init(mailConfig) {
+  if (!mailConfig) {
+    throw new Error('mailConfig cannot be null');
+  }
+
   var transport;
   var noreply = (mailConfig.mail && mailConfig.mail.noreply) ? mailConfig.mail.noreply : DEFAULT_NO_REPLY;
 

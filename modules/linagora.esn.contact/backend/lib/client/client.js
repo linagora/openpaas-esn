@@ -22,14 +22,14 @@ module.exports = function(dependencies, options) {
 
   var ESNToken = options.ESNToken;
   var davServerUrl = options.davserver;
-  var domainId = options.domainId;
+  var user = options.user;
 
   function _getDavEndpoint(callback) {
     if (davServerUrl) {
       return callback(davServerUrl);
     }
 
-    return davServerUtils.getDavEndpoint(domainId, function(davEndpoint) {
+    return davServerUtils.getDavEndpoint(user, function(davEndpoint) {
       davServerUrl = davEndpoint; // cache to be reused
       callback(davEndpoint);
     });

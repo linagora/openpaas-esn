@@ -45,7 +45,7 @@ module.exports = function(dependencies) {
       .then(function(token) {
         var contactClient = contactModule.lib.client({
           ESNToken: token.token,
-          domainId: user.preferredDomainId
+          user: user
         });
 
         return contactClient.addressbookHome(user._id)
@@ -113,7 +113,7 @@ module.exports = function(dependencies) {
   function cleanOutdatedContacts(options, contactSyncTimeStamp) {
     return contactModule.lib.client({
         ESNToken: options.esnToken,
-        domainId: options.user.preferredDomainId
+        user: options.user
       })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)

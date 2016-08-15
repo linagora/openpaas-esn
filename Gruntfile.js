@@ -8,7 +8,6 @@ var servers = require(conf_path + 'servers-conf');
 var config = require('./config/default.json');
 var dockerodeConfig = require('./docker/config/dockerode');
 var GruntfileUtils = require('./tasks/utils/Gruntfile-utils');
-var fixtures = require('./fixtures');
 
 module.exports = function(grunt) {
   var CI = grunt.option('ci');
@@ -311,6 +310,8 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
     var done = this.async();
+    var fixtures = require('./fixtures');
+
     fixtures(done);
   });
 };

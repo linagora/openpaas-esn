@@ -264,7 +264,10 @@ describe('The addmember handler', function() {
             };
 
             addmember.finalize(saved, data, function(err, result) {
-              expect(err).to.not.exist;
+              if (err) {
+                return done(err);
+              }
+
               expect(result).to.exist;
               expect(result.status).to.equal(201);
 
@@ -272,6 +275,7 @@ describe('The addmember handler', function() {
                 if (err) {
                   return done(err);
                 }
+
                 expect(user).to.exist;
                 expect(userDomainModule.isMemberOfDomain(user, result.result.resources.domain)).to.be.true;
                 done();

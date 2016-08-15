@@ -9,7 +9,7 @@ var from = 'from@baz.org';
 describe('The email module', function() {
 
   var emailModule;
-  var mailConfigMock, transportMock, domainConfigMock, templateMock, nodemailerMock, esnConfigMock, attachmentHelpersMock;
+  var mailConfigMock, transportMock, templateMock, nodemailerMock, esnConfigMock, attachmentHelpersMock;
 
   beforeEach(function() {
     mailConfigMock = {
@@ -25,19 +25,14 @@ describe('The email module', function() {
       }
     };
 
-    domainConfigMock = {
+    templateMock = function() {};
+
+    esnConfigMock = {
       get: function() {
         return q(mailConfigMock);
       }
     };
-
-    templateMock = function() {};
-
-    esnConfigMock = sinon.spy(function(callback) {
-      callback(null, mailConfigMock);
-    });
-
-    this.helpers.mock.esnConfig(esnConfigMock);
+    esnConfigMock.forUser = sinon.stub().returns(esnConfigMock);
 
     transportMock = {
       sendMail: function(msg, callback) { callback(); }
@@ -56,7 +51,7 @@ describe('The email module', function() {
     mockery.registerMock('email-templates', function(templatesDir, callback) {
       callback(null, templateMock);
     });
-    mockery.registerMock('../domain-config', domainConfigMock);
+    mockery.registerMock('../esn-config', function() { return esnConfigMock; });
     mockery.registerMock('./attachment-helpers', attachmentHelpersMock);
 
     emailModule = this.helpers.requireBackend('core/email');
@@ -94,54 +89,17 @@ describe('The email module', function() {
     });
   });
 
-  it('should use domain-config when domainId is provided', function(done) {
-    var domainId = 'domain123';
+  it('should use user parameter to get mail configuration', function(done) {
+    var user = { _id: '123' };
     var message = {
       from: from,
       to: 'to@email',
       text: 'Hello'
     };
 
-    domainConfigMock.get = sinon.spy(function() {
-      return q(mailConfigMock);
-    });
-
-    emailModule.getMailer(domainId).send(message, function(err) {
+    emailModule.getMailer(user).send(message, function(err) {
       expect(err).to.not.exist;
-      expect(domainConfigMock.get).to.have.been.calledOnce;
-      expect(domainConfigMock.get).to.have.been.calledWith(domainId, 'mail');
-      done();
-    });
-  });
-
-  it('should use esn-config when domainId is not provided', function(done) {
-    var message = {
-      from: from,
-      to: 'to@email',
-      text: 'Hello'
-    };
-
-    emailModule.getMailer().send(message, function(err) {
-      expect(err).to.not.exist;
-      expect(esnConfigMock).to.have.been.calledOnce;
-      done();
-    });
-  });
-
-  it('should fallback to use esn-config when it fails to get domain-config', function(done) {
-    var message = {
-      from: from,
-      to: 'to@email',
-      text: 'Hello'
-    };
-
-    domainConfigMock.get = function() {
-      return q.reject();
-    };
-
-    emailModule.getMailer().send(message, function(err) {
-      expect(err).to.not.exist;
-      expect(esnConfigMock).to.have.been.calledOnce;
+      expect(esnConfigMock.forUser).to.have.been.calledWith(user);
       done();
     });
   });

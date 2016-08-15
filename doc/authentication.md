@@ -25,7 +25,7 @@ The 'mongo-ldap' strategy has to be activated in the config/default.json file:
 The LDAP connection settings are available per domain: A domain manager may be able to add multiple LDAP connection settings in its domain.
 The passport strategy will look at all the available LDAP settings and will try to authenticate the user based on its credentials using the LDAP authentication mechanisms.
 
-As an example, In a `features` document containing domain configurations, an array of LDAP connection settings looks like:
+As an example, In a `configurations` document containing domain configurations, an array of LDAP connection settings looks like:
 
     {
       "_id": ObjectId("537c8c67c690f1ae5f5c0a6f"),      
@@ -33,7 +33,7 @@ As an example, In a `features` document containing domain configurations, an arr
       "modules": [
         {
           "name": "configurations",
-          "features": [
+          "configurations": [
             {
               "name": "ldap",
               "value": [{
@@ -51,7 +51,7 @@ As an example, In a `features` document containing domain configurations, an arr
                     }
                   }
               },
-              { 
+              {
                 "name": "OpenPaas",
                 "configuration": {
                   "url": "ldap://localhost:1389",

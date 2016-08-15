@@ -3,7 +3,7 @@
 var LdapAuth = require('ldapauth-fork');
 var async = require('async');
 var mongoose = require('mongoose');
-var domainConfig = require('../domain-config');
+var esnConfig = require('../esn-config');
 
 /**
  * Check if the email exists in the given ldap
@@ -27,13 +27,14 @@ module.exports.emailExists = emailExists;
  * @param {String} email - the email to search in the LDAPs
  * @param {Function} callback - as fn(err, ldap) where ldap is the first LDAP entry where the user has been found
  */
-
-var findLDAPForUser = function(email, callback) {
-  return domainConfig.getAllConfigs('ldap').then(function(ldaps) {
+function findLDAPForUser(email, callback) {
+  return esnConfig('ldap').getFromAllDomains().then(function(ldaps) {
     if (!ldaps || ldaps.length === 0) {
       return callback(new Error('No configured LDAP'));
     }
-    var ldapConfigs = [].concat.apply([], ldaps).filter(Boolean); // ldaps could be an array of arrays or objects
+
+    // ldaps could be an array of arrays OR an array of objects so we make it flat
+    var ldapConfigs = [].concat.apply([], ldaps).filter(Boolean);
 
     if (!ldapConfigs || ldapConfigs.length === 0) {
       return callback(new Error('No configured LDAP'));
@@ -44,13 +45,14 @@ var findLDAPForUser = function(email, callback) {
         if (err || !user) {
           return callback(false);
         }
+
         return callback(true);
       });
     }, function(results) {
       return callback(null, results);
     });
   });
-};
+}
 module.exports.findLDAPForUser = findLDAPForUser;
 
 /**

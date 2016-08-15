@@ -4,17 +4,17 @@ var request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The profile API', function() {
-  var app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose, User;
+  var app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose;
   var password = 'secret';
 
   beforeEach(function(done) {
     var self = this;
+
     imagePath = this.helpers.getFixturePath('image.png');
 
     this.testEnv.initCore(function() {
       app = self.helpers.requireBackend('webserver/application');
       mongoose = require('mongoose');
-      User = self.helpers.requireBackend('core/db/mongo/models/user');
 
       WCUtils = self.helpers.rewireBackend('webserver/controllers/utils');
 
@@ -39,9 +39,7 @@ describe('The profile API', function() {
           }
         });
 
-        self.helpers.api.addFeature(domain_id, 'core', 'my-feature', function() {
-          self.helpers.api.addFeature('4edd40c86762e0fb12000003', 'core', 'my-other-feature', done);
-        });
+        done();
       });
     });
 
@@ -555,28 +553,40 @@ describe('The profile API', function() {
   describe('GET /api/user route', function() {
 
     it('should return 200 with the profile of the user, including his features', function(done) {
+      var self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).get('/api/user'));
+        var moduleName = 'some_module';
+        var configName = 'my-feature';
+        var configValue = true;
 
-        req.expect(200).end(function(err, res) {
-          expect(err).to.not.exist;
-          expect(res.body.features).to.shallowDeepEqual({
-            domain_id: domain_id.toString(),
-            modules: [{
-              name: 'core',
-              features: [{
-                name: 'my-feature',
-                value: true
-              }]
-            }]
+        self.helpers.requireBackend('core/esn-config')(configName)
+          .inModule(moduleName)
+          .forUser({ preferredDomainId: domain_id })
+          .set(configValue, function(err) {
+            expect(err).to.not.exist;
+            var req = loggedInAsUser(request(app).get('/api/user'));
+
+            req.expect(200).end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body.features).to.shallowDeepEqual({
+                domain_id: domain_id.toString(),
+                modules: [{
+                  name: moduleName,
+                  configurations: [{
+                    name: configName,
+                    value: configValue
+                  }]
+                }]
+              });
+
+              done();
+            });
           });
-
-          done();
-        });
       });
     });
 

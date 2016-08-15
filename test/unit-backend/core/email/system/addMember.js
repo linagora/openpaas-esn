@@ -2,20 +2,13 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
-var q = require('q');
 
 describe('The add member email module', function() {
 
   var confirmation;
-  var domainConfigMock, i18nMock, emailMock;
+  var i18nMock, emailMock;
 
   beforeEach(function() {
-    domainConfigMock = {
-      get: function() {
-        return q({});
-      }
-    };
-
     i18nMock = {
       __: function() {
         return '';
@@ -30,7 +23,6 @@ describe('The add member email module', function() {
       }
     };
 
-    mockery.registerMock('../../domain-config', domainConfigMock);
     mockery.registerMock('../../../i18n', i18nMock);
     mockery.registerMock('../index', emailMock);
 

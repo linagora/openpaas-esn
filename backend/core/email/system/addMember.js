@@ -21,5 +21,5 @@ module.exports = function(invitation, done) {
     subject: i18n.__(properties.subject)
   };
 
-  email.getMailer(invitation.data.domain._id).sendHTML(message, properties.template, invitation.data, done);
+  email.getMailer(invitation.data.user).sendHTML(message, properties.template, invitation.data, done);
 };

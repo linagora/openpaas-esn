@@ -2,8 +2,8 @@
 
 var q = require('q');
 var mongoose = require('mongoose');
-require('../../../backend/core/db/mongo/models/features');
-var Features = mongoose.model('Features');
+require('../../../backend/core/db/mongo/models/configuration');
+var Configuration = mongoose.model('Configuration');
 
 module.exports = function(domains, host) {
   var jmapHost = process.env.JMAP_SERVER_HOST || host || 'localhost';
@@ -22,11 +22,11 @@ module.exports = function(domains, host) {
 
   function createInboxFeature() {
     var promises = domains.map(function(domain) {
-      var features = new Features({
+      var configuration = new Configuration({
         domain_id: domain._id || domain,
         modules:[{
           name: 'core',
-          features: [
+          configurations: [
             {
               name: 'application-menu.profile',
               value: true
@@ -34,7 +34,7 @@ module.exports = function(domains, host) {
           ]
         }, {
           name: 'linagora.esn.unifiedinbox',
-          features: [
+          configurations: [
             {
               name: 'api',
               value: api
@@ -73,8 +73,8 @@ module.exports = function(domains, host) {
         }]
       });
       var deferred = q.defer();
-      console.log('Creating feature flipping for inbox module', features);
-      features.save(deferred.makeNodeResolver());
+      console.log('Creating feature flipping for inbox module', configurations);
+      configuration.save(deferred.makeNodeResolver());
       return deferred.promise;
     });
 

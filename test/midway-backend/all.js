@@ -39,8 +39,7 @@ before(function() {
       return core;
     },
     initRedisConfiguration: function(mongoose, callback) {
-      var configuration = require('mongoconfig');
-      configuration.setDefaultMongoose(mongoose);
+      var configuration = require('../../backend/core/esn-config');
       mongoose.connect(this.mongoUrl);
       var self = this;
 
@@ -50,7 +49,8 @@ before(function() {
             console.log('Error while saving redis configuration', err);
             return callback(err);
           }
-          return callback();
+
+          callback();
         });
       });
     }
