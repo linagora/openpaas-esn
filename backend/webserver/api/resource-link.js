@@ -43,4 +43,32 @@ module.exports = function(router) {
     linkMiddleware.isLinkable,
     linkController.create);
 
+  /**
+   * @swagger
+   * /api/resource-links:
+   *   delete:
+   *     Delete an existant link between resources. For example, delete a 'like' link between a user (source) and a message (target)
+   *     parameters:
+   *       - name: resource-link
+   *         in: query
+   *         required: true
+   *         schema:
+   *           $ref: "#/definitions/ResourceLinkRequest"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_204"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.delete('/resource-links',
+    authorize.requiresAPILogin,
+    linkMiddleware.isResourceLink,
+    linkMiddleware.canDelete,
+    linkController.remove);
 };

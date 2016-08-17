@@ -26,6 +26,7 @@ module.exports.create = create;
 function remove(options) {
   var defer = q.defer();
   var query = {};
+
   if (options.type) {
     query.type = options.type;
   }
@@ -42,7 +43,6 @@ function remove(options) {
     if (err) {
       return defer.reject(err);
     }
-
     if (result) {
       pubsub.local.topic('resource:link:' + result.type + ':' + result.target.objectType + ':remove').publish(result);
     }

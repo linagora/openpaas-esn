@@ -60,3 +60,13 @@ function isLinkable(req, res, next) {
   next();
 }
 module.exports.isLinkable = isLinkable;
+
+function canDelete(req, res, next) {
+  if (!linkUtils.isOwnerLink(req.body.source.id, req.user._id)) {
+    return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Resource Link belongs to a different user'}});
+  }
+
+  next();
+}
+
+module.exports.canDelete = canDelete;
