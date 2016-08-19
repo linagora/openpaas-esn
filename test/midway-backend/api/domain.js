@@ -374,4 +374,83 @@ describe('The domain API', function() {
     });
   });
 
+  describe('POST /api/domains/:uuid/members', function() {
+    var newUser;
+
+    beforeEach(function() {
+      newUser = {
+        password: 'secret',
+        firstname: 'new',
+        lastname: 'member',
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          preferredEmailIndex: 0,
+          emails: ['newMember@lng.net']
+        }]
+      };
+    });
+
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'post', '/api/domains/' + domain1._id + '/members', done);
+    });
+
+    it('should send back 400 when request body empty', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+        req.send({});
+        req.expect(400).end(done);
+      });
+    });
+
+    it('should send back 403 when current user is not a domain manager', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+        req.expect(403).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exists;
+          expect(res.body.error).to.equal(403);
+          done();
+        });
+      });
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var domainId = 'notFoundDomain';
+        var req = requestAsMember(request(app).post('/api/domains/' + new ObjectId() + '/members'));
+        req.expect(404).end(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should send back 500 when save fail', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+        req.send({user: 'invalid user'});
+        req.expect(500).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exists;
+          expect(res.body.error.code).to.equal(500);
+          done();
+        });
+      });
+    });
+
+    it('should send back 201 when create success', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+        req.send(newUser);
+        req.expect(201).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exists;
+          done();
+        });
+      });
+    });
+  });
 });

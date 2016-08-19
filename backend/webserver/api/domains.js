@@ -81,6 +81,34 @@ module.exports = function(router) {
 
   /**
    * @swagger
+   * /domains/{domain_id}/members:
+   *   post:
+   *     tags:
+   *      - Domain
+   *     description: |
+   *       Create member for domain
+   *       Only the domain manager is able to create people to join a domain.
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *       - $ref: "#/parameters/dm_member"
+   *     responses:
+   *       201:
+   *         $ref: "#/responses/dm_member"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.post('/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.createMember);
+
+  /**
+   * @swagger
    * /domains/{domain_id}/invitations:
    *   post:
    *     tags:
