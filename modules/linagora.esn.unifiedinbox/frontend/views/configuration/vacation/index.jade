@@ -1,3 +1,5 @@
+-var defaultTextBody = __("Thanks a lot for your message. I am currently out of office and will get back to you soon.")
+
 sub-header
   inbox-configuration-vacation-subheader
 
@@ -41,4 +43,4 @@ sub-header
           input.input.form-control(type="text", ng-model="vacation.toDate", autoclose="0", time-format= "shortTime", placeholder="#{__('No end time')}", aria-expanded="false", ng-disabled="!vacation.hasToDate", ng-class="{'invalid': ctrl.toDateIsInvalid()}", ng-change="ctrl.fixTime('toDate'); ctrl.updateDateAndTime('toDate')", lng-clockpicker)
       .form-group.full-width.fg-line
         .field-name #{__('Message body')}
-        textarea.form-control(auto-size, rows="10", ng-model="vacation.textBody", placeholder="#{__('Start writing your vacation message here')}")
+        textarea.form-control(ng-init="defaultTextBody = '#{defaultTextBody}'", auto-size, rows="10", ng-model="vacation.textBody", placeholder="#{__('Start writing your vacation message here')}")
