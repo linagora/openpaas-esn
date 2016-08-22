@@ -29,4 +29,54 @@
  *       type: array
  *       items:
  *         $ref: "#/definitions/us_email"
+ *   dm_member:
+ *     name: member
+ *     in: body
+ *     description: The member
+ *     required: true
+ *     schema:
+ *       type: object
+ *       properties:
+ *        firstname:
+ *          type: string
+ *        lastname:
+ *          type: string
+ *        password:
+ *         type: string
+ *        account:
+ *          type: array
+ *          items:
+ *            type: object
+ *            properties:
+ *              type:
+ *                type: string
+ *                enum:
+ *                  - email
+ *                  - oauth
+ *              preferredEmailIndex:
+ *                type: number
+ *              emails:
+ *                type: array
+ *                 items:
+ *                   $ref: "#/definitions/us_email",
+ *               hosted:
+ *                 type: boolean
+ *        domains:
+ *          type: array
+ *          items:
+ *            $ref: "#/definitions/cm_tuple_id"
+ *        avatars:
+ *          type: array
+ *          items:
+ *            $ref: "#/definitions/cm_uuid"
+ *        job_title:
+ *          type: string
+ *        service:
+ *          type: string
+ *        building_location:
+ *          type: string
+ *        office_location:
+ *          type: string
+ *        main_phone:
+ *          $ref: "#/definitions/us_phone"
  */

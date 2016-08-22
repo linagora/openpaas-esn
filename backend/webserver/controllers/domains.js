@@ -4,12 +4,14 @@ var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 var User = mongoose.model('User');
 var userDomain = require('../../core/user/domain');
+var userIndex = require('../../core/user/index');
 var logger = require('../../core').logger;
 var async = require('async');
 var q = require('q');
 var pubsub = require('../../core/pubsub').local;
 var utils = require('./utils');
 var denormalizeUser = require('../denormalize/user').denormalize;
+var _ = require('lodash');
 
 function createDomain(req, res) {
   var data = req.body;
@@ -181,3 +183,18 @@ function getDomain(req, res) {
   return res.json(404, {error: 404, message: 'Not found', details: 'Domain not found'});
 }
 module.exports.getDomain = getDomain;
+
+function createMember(req, res) {
+  if (!req.body || _.isEmpty(req.body)) {
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Missing input member' } });
+  }
+
+  userIndex.recordUser(req.body, function(err, user) {
+    if (err) {
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not create member. ' + err.message } });
+    }
+
+    return res.status(201).json(user);
+  });
+}
+module.exports.createMember = createMember;
