@@ -54,6 +54,10 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
         options = null;
         sidebar = null;
       });
+
+      scope.$on('application-menu.open', function () {
+        sidebar && sidebar.hide();
+      });
     }
 
     return {

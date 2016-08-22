@@ -30,7 +30,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       return _.template(featureFlag ? featureFlagTemplate : template)(context);
     };
   })
-  .directive('applicationMenuToggler', function($document, $popover, POPOVER_APPLICATION_MENU_OPTIONS) {
+  .directive('applicationMenuToggler', function($rootScope, $document, $popover, POPOVER_APPLICATION_MENU_OPTIONS) {
     return {
       restrict: 'E',
       scope: true,
@@ -45,6 +45,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
         popover.$scope.$on('application-menu.show.before', function() {
           body.append(backdrop);
           scope.isShown = true;
+          $rootScope.$broadcast('application-menu.open');
           scope.$digest();
         });
 
