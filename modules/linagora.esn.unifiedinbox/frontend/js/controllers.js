@@ -348,6 +348,11 @@ angular.module('linagora.esn.unifiedinbox')
           client.getVacationResponse()
             .then(function(vacation) {
               $scope.vacation = vacation;
+
+              // defaultTextBody is being initialised in vacation/index.jade
+              if (!$scope.vacation.isEnabled && !$scope.vacation.textBody) {
+                $scope.vacation.textBody = $scope.defaultTextBody;
+              }
             })
             .then(function() {
               if (!$scope.vacation.fromDate) {

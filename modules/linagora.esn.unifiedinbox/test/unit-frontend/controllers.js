@@ -1169,6 +1169,67 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(scope.vacation).to.deep.equal({ a: 'b' });
     });
 
+    it('should init to a default vacation textBody if none has been specified and vacation disabled', function(done) {
+      vacation = {
+        isEnabled: false,
+        textBody: null
+      };
+      scope.defaultTextBody = 'defaultTextBody';
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal(scope.defaultTextBody);
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    it('should init to an empty textBody if none has been specified and vacation enabled', function(done) {
+      vacation = {
+        isEnabled: true,
+        textBody: ''
+      };
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal('');
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    it('should init to the existing textBody if set and vacation enabled', function(done) {
+      vacation = {
+        isEnabled: true,
+        textBody: 'existing textBody'
+      };
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal('existing textBody');
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    it('should init to the existing textBody if set and vacation disabled', function(done) {
+      vacation = {
+        isEnabled: false,
+        textBody: 'existing textBody'
+      };
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal('existing textBody');
+
+        done();
+      });
+      scope.$digest();
+    });
+
     describe('the toDateIsInvalid function', function() {
       it('should return true if vacation.fromDate > vacation.toDate', function() {
         vacation = {
