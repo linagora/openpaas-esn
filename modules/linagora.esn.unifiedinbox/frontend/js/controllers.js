@@ -268,7 +268,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, $modal, mailboxesService, _, rejectWithErrorNotification) {
+  .controller('editFolderController', function($scope, $state, $stateParams, mailboxesService, _, rejectWithErrorNotification) {
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
@@ -284,38 +284,35 @@ angular.module('linagora.esn.unifiedinbox')
 
       return mailboxesService.updateMailbox($scope.mailbox);
     };
+  })
 
-    $scope.confirmationDialog = function() {
-      $scope.message = _generateDeletionMessage();
+  .controller('inboxDeleteFolderController', function($scope, $state, $stateParams, mailboxesService, _) {
+    mailboxesService
+      .assignMailbox($stateParams.mailbox, $scope, true)
+      .then(function(mailbox) {
+        var descendants = mailbox.descendants,
+            numberOfDescendants = descendants.length,
+            numberOfMailboxesToDisplay = 3,
+            more = numberOfDescendants - numberOfMailboxesToDisplay;
 
-      $modal({ scope: $scope, templateUrl: '/unifiedinbox/views/configuration/folders/delete/index', backdrop: 'static', placement: 'center' });
-    };
+        $scope.message = 'You are about to remove folder ' + mailbox.displayName;
 
-    $scope.deleteFolder = function() {
+        if (numberOfDescendants > 0) {
+          $scope.message += ' and its descendants including ' + descendants.slice(0, numberOfMailboxesToDisplay).map(_.property('displayName')).join(', ');
+        }
+
+        if (more === 1) {
+          $scope.message += ' and ' + descendants[numberOfMailboxesToDisplay].displayName;
+        } else if (more > 1) {
+          $scope.message += ' and ' + more + ' more';
+        }
+      });
+
+    this.deleteFolder = function() {
       $state.go('unifiedinbox');
 
       return mailboxesService.destroyMailbox($scope.mailbox);
     };
-
-    function _generateDeletionMessage() {
-      var descendants = $scope.mailbox.descendants;
-      var numberOfDescendants = descendants.length;
-      var numberOfMailboxesToDisplay = 3;
-      var more = numberOfDescendants - numberOfMailboxesToDisplay;
-      var message = 'You are about to remove folder ' + $scope.mailbox.displayName;
-
-      if (numberOfDescendants > 0) {
-        message += ' and its descendants including ' + descendants.slice(0, numberOfMailboxesToDisplay).map(_.property('displayName')).join(', ');
-      }
-
-      if (more === 1) {
-        message += ' and ' + descendants[numberOfMailboxesToDisplay].displayName;
-      } else if (more > 1) {
-        message += ' and ' + more + ' more';
-      }
-
-      return message;
-    }
   })
 
   .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $stateParams, $q, moment, jmap,

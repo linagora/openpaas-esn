@@ -2738,6 +2738,20 @@ describe('The Unified Inbox Angular module services', function() {
         mailboxesService.assignMailbox(2);
       });
 
+      it('should not query the backend if useCache is true and the mailbox is already cached', function(done) {
+        jmapClient.getMailboxes = sinon.spy();
+        inboxMailboxesCache[0] = { id: 1, name: '1' };
+        inboxMailboxesCache[1] = { id: 2, name: '2' };
+
+        mailboxesService.assignMailbox(2, null, true).then(function(mailbox) {
+          expect(jmapClient.getMailboxes).to.have.not.been.calledWith();
+          expect(mailbox.name).to.equal('2');
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
       it('should assign dst.mailbox if dst is given', function(done) {
         var object = {};
 

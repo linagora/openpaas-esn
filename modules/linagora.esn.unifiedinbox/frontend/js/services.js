@@ -737,11 +737,11 @@ angular.module('linagora.esn.unifiedinbox')
       };
     }
 
-    function assignMailbox(id, dst) {
-      var specialMailbox = inboxSpecialMailboxes.get(id);
+    function assignMailbox(id, dst, useCache) {
+      var localMailbox = inboxSpecialMailboxes.get(id) || (useCache && _findMailboxInCache(id));
 
-      if (specialMailbox) {
-        return $q.when(_assignToObject(dst, 'mailbox')(specialMailbox));
+      if (localMailbox) {
+        return $q.when(_assignToObject(dst, 'mailbox')(localMailbox));
       }
 
       return withJmapClient(function(client) {
