@@ -383,4 +383,32 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       templateUrl: '/views/modules/avatar/avatar-picker.html',
       link: link
     };
+  })
+  .directive('avatarImg', function($timeout) {
+    function link(scope) {
+      scope.getURL = function() {
+        if (scope.avatarUser) {
+          return '/api/users/' + scope.avatarUser._id + '/profile/avatar?cb=' + Date.now();
+        }
+
+        return '/api/user/profile/avatar?cb=' + Date.now();
+      };
+
+      scope.avatarURL = scope.getURL();
+      scope.$on('avatar:updated', function() {
+        $timeout(function() {
+          scope.avatarURL = scope.getURL();
+        });
+      });
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        avatarUser: '=?'
+      },
+      template: '<img ng-src="{{avatarURL}}" />',
+      link: link
+    };
   });
