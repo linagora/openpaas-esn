@@ -113,6 +113,42 @@ describe('The Domain Angular module', function() {
         this.$httpBackend.flush();
       });
     });
+
+    describe('createMember() method', function() {
+      var domainId, newUser;
+
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend) {
+        this.domainAPI = domainAPI;
+        this.$httpBackend = $httpBackend;
+
+        domainId = '123456789';
+        newUser = {
+          password: 'secret',
+          firstname: 'new',
+          lastname: 'member',
+          accounts: [{
+            type: 'email',
+            hosted: true,
+            preferredEmailIndex: 0,
+            emails: ['newMember@lng.net']
+          }]
+        };
+      }));
+
+      it('shoud send a POST to /api/domains/:uuid/members', function(done) {
+        var self = this;
+
+        self.$httpBackend.expectPOST('/api/domains/' + domainId + '/members').respond(201, newUser);
+        self.domainAPI.createMember(domainId, newUser)
+          .then(function(response) {
+            expect(response.data.lastname).to.be.equal(newUser.lastname);
+
+            done();
+          });
+
+        self.$httpBackend.flush();
+      });
+    });
   });
 
   describe('inviteMembersInput directive', function() {

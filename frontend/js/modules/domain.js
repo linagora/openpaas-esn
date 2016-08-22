@@ -50,11 +50,22 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
       return esnRestangular.one('domains', id).get();
     }
 
+    /**
+    * Create domain's member
+    *
+    * @param {String} domainId - The domain id
+    * @param {Object} user - The user object
+    */
+    function createMember(domainId, user) {
+      return esnRestangular.one('domains', domainId).one('members').customPOST(user);
+    }
+
     return {
       getMembers: getMembers,
       inviteUsers: inviteUsers,
       isManager: isManager,
-      get: get
+      get: get,
+      createMember: createMember
     };
   })
 
