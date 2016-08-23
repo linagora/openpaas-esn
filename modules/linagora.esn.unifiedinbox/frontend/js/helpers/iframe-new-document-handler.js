@@ -30,6 +30,11 @@ function setDocument(newDocument) {
     document.head.appendChild(createHtmlElement('script', 'src', script));
   });
 
+  var cssToInclude = createHtmlElement('link', 'rel', 'stylesheet');
+  cssToInclude.setAttribute('href', absoluteUrl('/unifiedinbox/css/static/iframe.css'));
+
+  document.head.appendChild(cssToInclude);
+
   // mailto: URLs will open a composer
   Array.prototype.forEach.call(document.querySelectorAll('a[href^="mailto"]'), function(element) {
     element.onclick = function(event) {
