@@ -62,7 +62,6 @@
   "An invitation has not been sent": "An invitation has not been sent",
   "is not a valid user": "is not a valid user",
   "Please enter at least one user to send an invitation": "Please enter at least one user to send an invitation",
-  "The two passwords does not match": "The two passwords does not match",
   "There is no result matching your query": "There is no result matching your query",
   "Results": "results",
   "Result": "result",
@@ -172,7 +171,6 @@
   "There was an error while sending your feedback. Please try again.": "There was an error while sending your feedback. Please try again.",
   "Creator": "Creator",
   "More": "More",
-  "Join": "Join",
   "members": "members",
   "member": "member",
   "Description": "Description",
@@ -300,6 +298,5 @@
   "New password": "New password",
   "Confirm your password": "Confirm your password",
   "Old password is not valid.": "Old password is not valid.",
-  "Successfully changed your password.": "Successfully changed your password.",
-  "The two passwords do not match": "The two passwords do not match"
+  "Successfully changed your password.": "Successfully changed your password."
 }
