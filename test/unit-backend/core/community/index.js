@@ -3,8 +3,81 @@
 var mockery = require('mockery');
 var expect = require('chai').expect;
 var sinon = require('sinon');
+var CONSTANTS = require('../../../../backend/core/community/constants');
 
 describe('The community module', function() {
+
+  describe('The update fn', function() {
+    it('should update the document correctly and save it', function() {
+      this.helpers.mock.models({});
+      var modifications = {
+        title: 'new title',
+        avatar: 'new avatar',
+        newMembers: [{_id: 42}],
+        deleteMembers: [{_id: 3}]
+      };
+
+      var communityLib = this.helpers.requireBackend('core/community/index');
+
+      var newCommunity = {};
+
+      var community = {
+        title: 'title',
+        avatar: 'avatar',
+        members: [{member: {id: 3}}],
+        save: function(callback) {
+          callback(null, newCommunity);
+        }
+      };
+
+      var callbackSpy = sinon.spy();
+
+      communityLib.update(community, modifications, callbackSpy);
+
+      expect(callbackSpy).to.have.been.calledWith(null, sinon.match.same(newCommunity));
+      expect(community).to.deep.equals({
+        title: modifications.title,
+        avatar: modifications.avatar,
+        members: [{member: {id: 42, objectType: 'user'}}],
+        save: community.save
+      });
+    });
+
+    it('should pubsub the modification if it succeed', function() {
+      this.helpers.mock.models({});
+      var forwardMock = sinon.spy();
+      var globalpubsubMock = {};
+      var localTopicMock = sinon.stub().returns({forward: forwardMock});
+
+      mockery.registerMock('../pubsub', {
+        local: {
+          topic: localTopicMock
+        },
+        global: globalpubsubMock
+      });
+
+      var modifications = {};
+      var newCommunity;
+      var community = {
+        title: 'title',
+        avatar: 'avatar',
+        members: [{member: {id: 3}}],
+        save: function(callback) {
+          callback(null, newCommunity);
+        }
+      };
+
+      var communityLib = this.helpers.requireBackend('core/community/index');
+
+      communityLib.update(community, modifications, sinon.spy());
+      expect(localTopicMock).to.have.been.calledWith(CONSTANTS.EVENTS.communityUpdate);
+      expect(forwardMock).to.have.been.calledWith(sinon.match.same(globalpubsubMock), {
+        modifications: sinon.match.same(modifications),
+        community: sinon.match.same(newCommunity)
+      });
+    });
+  });
+
   describe('The save fn', function() {
     it('should send back error if community is undefined', function(done) {
       this.helpers.mock.models({});

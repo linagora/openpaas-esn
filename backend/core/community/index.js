@@ -7,7 +7,8 @@ var logger = require('../logger');
 var permission = require('./permission');
 var collaborationModule = require('../collaboration');
 var tuple = require('../tuple');
-var pubsub = require('../pubsub').local;
+var localpubsub = require('../pubsub').local;
+var globalpubsub = require('../pubsub').global;
 var CONSTANTS = require('./constants');
 
 var communityObjectType = CONSTANTS.OBJECT_TYPE;
@@ -45,13 +46,23 @@ module.exports.update = function(community, modifications, callback) {
   if (modifications.deleteMembers) {
     modifications.deleteMembers.forEach(function(member) {
       var idMember = member._id || member;
+
       community.members = community.members.filter(function(memberCommunity) {
         return memberCommunity.member.id.toString() !== idMember.toString();
       });
     });
   }
 
-  community.save(callback);
+  community.save(function(err, community) {
+    if (!err) {
+      localpubsub.topic(CONSTANTS.EVENTS.communityUpdate).forward(globalpubsub, {
+        modifications: modifications,
+        community: community
+      });
+    }
+
+    callback.apply(null, arguments);
+  });
 };
 
 module.exports.updateAvatar = function(community, avatar, callback) {
@@ -79,13 +90,15 @@ module.exports.save = function(community, callback) {
   }
 
   var com = new Community(community);
+
   com.save(function(err, response) {
     if (!err) {
       logger.info('Added new community:', { _id: response._id });
-      pubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
+      localpubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
     } else {
       logger.error('Error while trying to add a new community:', err.message);
     }
+
     return callback(err, response);
   });
 };
@@ -96,6 +109,7 @@ module.exports.load = function(community, callback) {
   }
 
   var id = community._id || community;
+
   return Community.findOne({_id: id}, callback);
 };
 
@@ -104,6 +118,7 @@ module.exports.loadWithDomains = function(community, callback) {
     return callback(new Error('Community is required'));
   }
   var id = community._id || community;
+
   return Community.findOne({_id: id}).populate('domain_ids', null, 'Domain').exec(callback);
 };
 
@@ -116,6 +131,7 @@ module.exports.delete = function(community, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
   }
+
   return callback(new Error('Not implemented'));
 };
 
@@ -137,6 +153,7 @@ module.exports.isMember = function(community, tuple, callback) {
 
 module.exports.userToMember = function(document) {
   var result = {};
+
   if (!document || !document.member) {
     return result;
   }
@@ -161,18 +178,23 @@ module.exports.userToMember = function(document) {
 module.exports.getMembers = function(community, query, callback) {
   query = query ||  {};
   var id = community._id || community;
+
   Community.findById(id, function(err, community) {
     if (err) { return callback(err); }
 
     var members = community.members.slice().splice(query.offset || CONSTANTS.DEFAULT_OFFSET, query.limit || CONSTANTS.DEFAULT_LIMIT);
+
     var memberIds = members.map(function(member) { return member.member.id; });
+
     User.find({_id: {$in: memberIds}}, function(err, users) {
       if (err) { return callback(err); }
       var hash = {};
+
       users.forEach(function(u) { hash[u._id] = u; });
       members.forEach(function(m) {
         m.member = hash[m.member.id];
       });
+
       return callback(null, members);
     });
   });
@@ -182,6 +204,7 @@ module.exports.getManagers = function(community, query, callback) {
   var id = community._id || community;
 
   var q = Community.findById(id);
+
   // TODO Right now creator is the only manager. It will change in the futur.
   // query = query ||  {};
   // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
@@ -190,12 +213,14 @@ module.exports.getManagers = function(community, query, callback) {
     if (err) {
       return callback(err);
     }
+
     return callback(null, community ? [community.creator] : []);
   });
 };
 
 function getUserCommunities(user, options, callback) {
   var q = options || {};
+
   if (typeof options === 'function') {
     callback = options;
     q = {};
