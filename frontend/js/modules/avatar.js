@@ -103,23 +103,30 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
     $scope.initUploadContext();
 
-  }).factory('avatarAPI', function($upload) {
-
-    function uploadAvatar(blob, mime) {
-      return $upload.http({
-        method: 'POST',
-        url: '/api/user/profile/avatar',
-        headers: {'Content-Type': mime},
-        data: blob,
-        params: {mimetype: mime, size: blob.size},
-        withCredentials: true
-      });
-    }
+  }).provider('avatarAPI', function() {
+    var baseUrl = '';
 
     return {
-      uploadAvatar: uploadAvatar
-    };
+      setBaseUrl: function(value) {
+        baseUrl = value || '';
+      },
+      $get: function($upload) {
+        function uploadAvatar(blob, mime) {
+          return $upload.http({
+            method: 'POST',
+            url: baseUrl + '/api/user/profile/avatar',
+            headers: {'Content-Type': mime},
+            data: blob,
+            params: {mimetype: mime, size: blob.size},
+            withCredentials: true
+          });
+        }
 
+        return {
+          uploadAvatar: uploadAvatar
+        };
+      }
+    };
   }).factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
 
     var sharedService = {};
@@ -374,6 +381,34 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       scope: {},
       restrict: 'E',
       templateUrl: '/views/modules/avatar/avatar-picker.html',
+      link: link
+    };
+  })
+  .directive('avatarImg', function($timeout) {
+    function link(scope) {
+      scope.getURL = function() {
+        if (scope.avatarUser) {
+          return '/api/users/' + scope.avatarUser._id + '/profile/avatar?cb=' + Date.now();
+        }
+
+        return '/api/user/profile/avatar?cb=' + Date.now();
+      };
+
+      scope.avatarURL = scope.getURL();
+      scope.$on('avatar:updated', function() {
+        $timeout(function() {
+          scope.avatarURL = scope.getURL();
+        });
+      });
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        avatarUser: '=?'
+      },
+      template: '<img ng-src="{{avatarURL}}" />',
       link: link
     };
   });
