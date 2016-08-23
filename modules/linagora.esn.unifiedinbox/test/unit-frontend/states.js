@@ -35,7 +35,9 @@ describe('The Inbox states', function() {
 
     angular.mock.module(function($provide) {
       $provide.value('$modal', $modal = sinon.spy(function() {
-        return { hide: hideModal = sinon.spy() };
+        var modal = { hide: hideModal = sinon.spy() };
+
+        return modal;
       }));
       $provide.value('withJmapClient', function(callback) {
         return callback(jmapClient);
