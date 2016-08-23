@@ -16,6 +16,9 @@ angular.module('esn.user', ['esn.http', 'esn.object-type'])
         }
         return user;
       };
+      model.__id = function(user) {
+        return user._id || user;
+      };
       return model;
     });
   })
