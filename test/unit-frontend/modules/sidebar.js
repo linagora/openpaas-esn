@@ -31,13 +31,15 @@ describe('The Sidebar Angular module', function() {
       angular.mock.module(function($provide) {
         $provide.value('contextualSidebarService', contextualSidebarService);
       });
+      angular.mock.module('esn.application-menu');
     });
 
-    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _$timeout_) {
+    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _$timeout_, _APP_MENU_OPEN_EVENT_) {
       this.$compile = _$compile_;
       this.$rootScope = _$rootScope_;
       this.$scope = this.$rootScope.$new();
       this.$timeout = _$timeout_;
+      this.APP_MENU_OPEN_EVENT = _APP_MENU_OPEN_EVENT_;
 
       this.initDirective = function(html, scope) {
         this.element = this.$compile(html)(scope);
@@ -148,7 +150,7 @@ describe('The Sidebar Angular module', function() {
       var element = this.initDirective('<div contextual-sidebar />', this.$scope);
 
       element.click();
-      this.$scope.$broadcast('application-menu.open');
+      this.$rootScope.$broadcast(this.APP_MENU_OPEN_EVENT);
 
       expect(hide).to.have.been.calledOnce;
     });
@@ -158,7 +160,7 @@ describe('The Sidebar Angular module', function() {
       element.click();
       element.click();
 
-      this.$scope.$broadcast('application-menu.open');
+      this.$rootScope.$broadcast(this.APP_MENU_OPEN_EVENT);
 
       expect(hide).to.have.been.calledOnce;
     });
