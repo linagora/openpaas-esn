@@ -2,18 +2,20 @@
 
 angular.module('esn.infinite-list', ['infinite-scroll'])
 
+  .constant('INFINITE_LIST_LOAD_EVENT', 'infiniteList:loadMoreElements')
+
   .constant('defaultConfiguration', {
-    scrollDistance: 1,
+    scrollDistance: 0.5,
     scrollDisabled: false,
     scrollImmediateCheck: 'true',
-    throttle: 1000
+    throttle: 10
   })
 
   .config(function($provide, defaultConfiguration) {
     $provide.value('THROTTLE_MILLISECONDS', defaultConfiguration.throttle);
   })
 
-  .directive('infiniteList', function(defaultConfiguration) {
+  .directive('infiniteList', function(defaultConfiguration, INFINITE_LIST_LOAD_EVENT) {
     return {
       restrict: 'E',
       transclude: true,
@@ -42,6 +44,7 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
             scope.infiniteScrollDisabled = angular.isDefined(scope.infiniteScrollDisabled) ? scope.infiniteScrollDisabled : defaultConfiguration.scrollDisabled;
             scope.infiniteScrollImmediateCheck = angular.isDefined(scope.infiniteScrollImmediateCheck) ? scope.infiniteScrollImmediateCheck : defaultConfiguration.scrollImmediateCheck;
             scope.infiniteScrollContainer = scope.scrollInsideContainer ? element.parent() : null;
+            scope.infiniteScrollListenForEvent = INFINITE_LIST_LOAD_EVENT;
             scope.marker = 'test';
           },
           post: angular.noop

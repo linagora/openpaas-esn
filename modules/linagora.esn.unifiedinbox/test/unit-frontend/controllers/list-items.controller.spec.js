@@ -9,9 +9,9 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
   // Injected
   var scope, $controller, jmap, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-    ELEMENTS_PER_REQUEST, JMAP_GET_MESSAGES_LIST;
+      ELEMENTS_PER_REQUEST, JMAP_GET_MESSAGES_LIST;
   // Mocked
-  var $stateParams, jmapClient, mailboxIdsFilter, resolvedProvider;
+  var $stateParams, jmapClient, mailboxIdsFilter, resolvedProvider, ELEMENTS_PER_PAGE;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     $stateParams = {
@@ -38,6 +38,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
     $provide.service('hostedMailProvider', function() {
       return resolvedProvider;
     });
+    $provide.constant('ELEMENTS_PER_PAGE', 2);
   }));
 
   beforeEach(inject(function(_$rootScope_, _$controller_, _jmap_,
@@ -245,7 +246,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
       it('should add email and date for each thread', function() {
         var thread1 = {id: 'thread1', messageIds: ['msg1']},
-          thread2 = {id: 'thread2', messageIds: ['msg2']};
+            thread2 = {id: 'thread2', messageIds: ['msg2']};
         var messageListResult = {
           threadIds: [1, 2],
           getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'}, {id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'}];}),

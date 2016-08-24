@@ -391,7 +391,7 @@ describe('The esn.provider module', function() {
   });
 
   function iteratorToList(iterator, betweenEachStep) {
-    return $q(function(resolve, reject) {
+    return $q(function(resolve) {
       var result = [];
 
       function step() {
@@ -400,7 +400,7 @@ describe('The esn.provider module', function() {
           betweenEachStep && betweenEachStep();
 
           return step();
-        }, function(error) {
+        }, function() {
           resolve(result);
         });
       }
@@ -410,7 +410,7 @@ describe('The esn.provider module', function() {
   }
 
   describe('infiniteScrollHelper', function() {
-    var ELEMENTS_PER_PAGE, infiniteScrollHelper, $q, $rootScope;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_LOAD_EVENT, $timeout, infiniteScrollHelper, $q, $rootScope;
 
     beforeEach(function() {
       ELEMENTS_PER_PAGE = 3;
@@ -419,17 +419,19 @@ describe('The esn.provider module', function() {
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_) {
+    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_, _$timeout_, _INFINITE_LIST_LOAD_EVENT_) {
       infiniteScrollHelper = _infiniteScrollHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
+      $timeout = _$timeout_;
+      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
     }));
 
     describe('The return iterator', function() {
       var sourceIterator, resultingIterator, scope;
 
       beforeEach(function() {
-        scope = {};
+        scope = $rootScope.$new();
         sourceIterator = sinon.stub();
 
         sourceIterator.onCall(0).returns($q.when([1, 2, 3]))
@@ -475,6 +477,20 @@ describe('The esn.provider module', function() {
           done();
         });
         $rootScope.$digest();
+      });
+
+      it('should $emit INFINITE_LIST_LOAD_EVENT when it fetches some data', function() {
+        var spy = sinon.spy();
+
+        scope.$on(INFINITE_LIST_LOAD_EVENT, spy);
+
+        resultingIterator();
+        $rootScope.$digest();
+        resultingIterator();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expect(spy).to.have.been.calledTwice;
       });
 
     });
