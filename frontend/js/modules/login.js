@@ -87,7 +87,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     };
   })
   .controller('forgotPassword', function($scope, loginAPI) {
-    $scope.email = '';
+    $scope.input = {};
     $scope.running = false;
     $scope.hasFailed = false;
     $scope.hasSucceeded = false;
@@ -99,7 +99,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
 
       $scope.running = true;
 
-      return loginAPI.askForPasswordReset($scope.email).then(
+      return loginAPI.askForPasswordReset($scope.input.email).then(
         function() {
           $scope.running = false;
           $scope.hasSucceeded = true;
