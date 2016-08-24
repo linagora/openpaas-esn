@@ -45,21 +45,43 @@
       .inbox-list-item-content {
         padding: 7px 10px;
 
-        .badge-number {
-          .flex-noshrink;
+        .media-body {
+          .flex-space-between;
+          .flex-shorthand(1, 1);
+          .flex-vertical-centered;
+        }
 
-          padding-left: 5px;
+        .badge-number {
+          margin-right: 5px;
           color: lighten(@text-color, 30%);
         }
 
-        .date-container {
-          .flex-noshrink;
+        .inbox-list-item-subject-and-from {
+          .flex-column;
 
-          padding-left: 15px;
+          min-width: 0;
+
+          .inbox-preview-inline {
+            display: none;
+          }
+        }
+
+        .inbox-list-item-date-and-indicators {
+          .flex-column;
+          .flex-shorthand(1);
+
+          .date-container {
+            margin-left: 5px;
+            text-align: right;
+          }
         }
 
         .preview {
+          font-size: 12px;
+          color: @lighterSecondaryTextColor;
+
           margin-top: 5px;
+          min-width: 0;
         }
       }
     }
@@ -71,7 +93,54 @@
     .inbox-items-group {
       .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
         .inbox-list-item-content {
-          padding: 17px 20px;
+          padding: 10px 15px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: @screen-xl-min) {
+  .inbox-root {
+    .inbox-items-group {
+      .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+        .inbox-list-item-content {
+          padding: 3px 10px;
+
+          .inbox-preview-block {
+            display: none;
+          }
+
+          .inbox-list-item-subject-and-from {
+            .flex-row-reverse;
+
+            .inbox-from {
+              min-width: 230px;
+              max-width: 230px;
+              margin: auto 5px auto 0;
+
+              .email {
+                display: none;
+              }
+            }
+
+            .inbox-preview-divider {
+              margin: 0 5px;
+            }
+
+            .inbox-preview-inline {
+              display: inline;
+              font-weight: normal;
+            }
+          }
+
+          .inbox-list-item-date-and-indicators {
+            .flex-row-reverse;
+
+            .date-container {
+              min-width: 80px;
+            }
+          }
 
           &.dragging {
             background-color: @inboxDraggingItemBgColor;

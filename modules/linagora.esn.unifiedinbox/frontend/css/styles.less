@@ -30,7 +30,7 @@
       font-size: 20px;
       vertical-align: middle;
 
-      margin-left: 10px;
+      margin-left: 5px;
 
       &.mdi-star {
         color: @primaryColor;
@@ -46,7 +46,8 @@
     }
 
     .list-image {
-      float: left;
+      .flex-noshrink;
+
       height: 40px;
 
       img {
@@ -55,8 +56,6 @@
     }
 
     .indicators {
-      margin-top: 5px;
-
       .mdi-paperclip {
         font-size: 18px;
       }
@@ -108,6 +107,7 @@
 .inbox-root, .inbox-aside {
   .inbox-item-with-icon {
     .flex-start;
+    .flex-vertical-centered;
   }
 }
 
@@ -115,6 +115,20 @@
   .inbox-root {
     .clickable:hover {
       color: @text-color;
+    }
+  }
+}
+
+@media (min-width: @screen-xl-min) {
+  .inbox-root {
+    .inbox-main {
+      .list-image {
+        height: 28px;
+
+        img {
+          .avatar(28px);
+        }
+      }
     }
   }
 }

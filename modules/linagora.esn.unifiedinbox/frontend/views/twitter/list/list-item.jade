@@ -1,12 +1,16 @@
 .inbox-twitter-list-item
   .inbox-list-item-content
-    .list-image.badge-container
-      img(ng-src='{{ ::item.author.avatar }}')
-      i.mdi.mdi-twitter-box.twitter-icon-overlay
-    .media-body
-      .flex-space-between
-        .flex-start.ellipsis
-          .lv-title {{ ::item.author.displayName }}
-            span.account-inline(ng-bind-html="::item.author.screenName | autolink")
-        .date-container {{ ::item.date | date: group.dateFormat }}
-      .lv-small.preview(ng-bind-html="::item.text | autolink")
+    .inbox-item-with-icon
+      .list-image.badge-container
+        img(ng-src='{{ ::item.author.avatar }}')
+        i.mdi.mdi-twitter-box.twitter-icon-overlay
+      .media-body
+        .inbox-list-item-subject-and-from
+          .inbox-subject
+            .inbox-twitter-screenname.lv-title.hidden-xl(ng-bind-html="::item.author.screenName | autolink")
+            .inbox-preview-inline.preview(ng-bind-html="::item.text | autolink")
+          .inbox-from.lv-title {{ ::item.author.displayName }}
+            span.inbox-twitter-screenname.inbox-twitter-screenname-inline(ng-bind-html="::item.author.screenName | autolink")
+        .inbox-list-item-date-and-indicators
+          .date-container {{ ::item.date | date: group.dateFormat }}
+    .inbox-preview-block.preview(ng-bind-html="::item.text | autolink")

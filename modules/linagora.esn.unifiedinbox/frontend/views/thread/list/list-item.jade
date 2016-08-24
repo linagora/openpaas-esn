@@ -1,23 +1,27 @@
-.inbox-thread-list-item.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{leftTemplate}}")
+.inbox-thread-list-item.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{ leftTemplate }}")
   .inbox-list-item-content.clickable(
       ng-click="esnIsDragging || ctrl.openThread(item)",
       esn-draggable,
       inbox-draggable-list-item,
+      inbox-swipeable-list-item,
       esn-drag-message="{{ ::item.email.subject }}",
       esn-drag-data="item",
       esn-drag-class="dragging",
       esn-on-drag-end="onDragEnd($dropped)",
       esn-on-drop-failure="onDropFailure()"
     )
-    .list-image.badge-container
-      inbox-emailer-avatar(emailer='::item.email.from')
-    .media-body(ng-class="{bold: item.email.isUnread}")
-      .flex-space-between
-        .flex-start.ellipsis
-          .inbox-subject.lv-title {{ ::item.email.subject }}
-          .badge-number(ng-if='item.messageIds.length > 1') ({{ item.messageIds.length }})
-        .date-container {{ ::item.email.date | date: group.dateFormat }}
-      .flex-space-between
-        inbox-emailer.lv-title(emailer="::item.email.from")
-        inbox-indicators(item="item.email")
-    .lv-small.preview {{ ::item.email.preview }}
+    .inbox-item-with-icon
+      .list-image.badge-container
+        inbox-emailer-avatar(emailer='::item.email.from')
+      .media-body
+        .inbox-list-item-subject-and-from
+          .inbox-subject.lv-title
+            span.badge-number(ng-if="::item.messageIds.length > 1", ng-class="{bold: item.isUnread}") ({{ ::item.messageIds.length }})
+            span.inbox-subject-inline(ng-class="{bold: item.isUnread}") {{ ::item.email.subject }}
+            span.inbox-preview-inline.inbox-preview-divider(ng-if='::item.email.subject') -
+            .inbox-preview-inline.lv-small.preview(ng-if="::item.email.preview") {{ ::item.email.preview }}
+          inbox-emailer.inbox-from.lv-title(emailer="::item.email.from", ng-class="{bold: item.isUnread}")
+        .inbox-list-item-date-and-indicators(ng-class="{bold: item.isUnread}")
+          .date-container {{ ::item.email.date | date: group.dateFormat }}
+          inbox-indicators(item="::item.email")
+    .inbox-preview-block.lv-small.preview {{ ::item.email.preview }}
