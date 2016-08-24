@@ -970,24 +970,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   describe('The editFolderController', function() {
+    var chosenMailbox;
 
-    it('should set $scope.mailboxes to the qualified list of mailboxes', function() {
-      jmapClient.getMailboxes = function() {
-        return $q.when([
-          { id: 1, name: '1', role: { value: 'inbox' } },
-          { id: 2, name: '2', role: {} }
-        ]);
-      };
-
-      initController('editFolderController');
-
-      expect(scope.mailboxes).to.deep.equal([
-        { id: 1, name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } },
-        { id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }
-      ]);
-    });
-
-    it('should set $scope.mailbox to the found mailbox', function() {
+    beforeEach(function() {
       jmapClient.getMailboxes = function() {
         return $q.when([
           { id: 'chosenMailbox', name: '1', role: { value: 'inbox' } },
@@ -997,7 +982,22 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('editFolderController');
 
-      expect(scope.mailbox).to.deep.equal({ id: 'chosenMailbox', name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } });
+      chosenMailbox = _.find(scope.mailboxes, { id: $stateParams.mailbox });
+    });
+
+    it('should set $scope.mailboxes to the qualified list of mailboxes', function() {
+      expect(scope.mailboxes).to.deep.equal([
+        { id: 'chosenMailbox', name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } },
+        { id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }
+      ]);
+    });
+
+    it('should set $scope.mailbox to the found mailbox', function() {
+      expect(scope.mailbox).to.deep.equal(chosenMailbox);
+    });
+
+    it('should clone $scope.mailbox from the matched mailbox of $scope.mailboxes', function() {
+      expect(scope.mailbox).to.not.equal(chosenMailbox);
     });
 
     describe('The editFolder method', function() {
