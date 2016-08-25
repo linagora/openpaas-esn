@@ -5,7 +5,8 @@ module.exports = {
   EVENTS: {
     communityCreated: 'communities:community:add',
     communityUpdated: 'communities:community:update',
-    communityDeleted: 'communities:community:delete'
+    communityDeleted: 'communities:community:delete',
+    communityUpdate: 'communities:community:update'
   },
   ELASTICSEARCH: {
     type: 'communities',
