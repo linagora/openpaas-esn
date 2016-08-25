@@ -31,14 +31,17 @@ angular.module('esn.ui', ['op.dynamicDirective', 'esn.autolinker-wrapper'])
   .directive('fabScrollTop', function($window, elementScrollService) {
     return {
       restrict: 'E',
-      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide" data-on-scroll-top="hide" data-on-scroll-up="show" />',
+      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide()" data-on-scroll-top="hide()" data-on-scroll-up="show()" />',
       link: function(scope, element) {
 
         function _scrollIsTwiceScreenHeight() {
           return ($window.innerHeight * 2) < $window.scrollY;
         }
 
-        scope.hide = element.addClass.bind(element, 'hidden');
+        scope.hide = function() {
+          element.addClass('hidden');
+        };
+
         scope.show = function() {
           if (_scrollIsTwiceScreenHeight()) {
             element.removeClass('hidden');
