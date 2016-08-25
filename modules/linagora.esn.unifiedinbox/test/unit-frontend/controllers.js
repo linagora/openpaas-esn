@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
-      mailboxesService, inboxThreadService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache;
+      mailboxesService, inboxThreadService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache, touchscreenDetectorService;
   var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
@@ -69,6 +69,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('filter', { filter: 'condition' });
       $provide.value('searchService', { searchByEmail: function() { return $q.when(); }});
       $provide.value('navigateTo', navigateTo = sinon.spy());
+      $provide.value('touchscreenDetectorService', touchscreenDetectorService = {});
     });
   });
 
@@ -887,6 +888,23 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
     });
 
+  });
+
+  describe('The inboxConfigurationIndexController', function() {
+
+    it('should go to unifiedinbox.configuration.vacation state if not a touchscreen', function() {
+      touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(false);
+      initController('inboxConfigurationIndexController');
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.vacation');
+    });
+
+    it('should go to unifiedinbox.configuration.folders state if touchscreen', function() {
+      touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(true);
+      initController('inboxConfigurationIndexController');
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.folders');
+    });
   });
 
   describe('The inboxConfigurationFolderController', function() {

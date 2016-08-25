@@ -82,15 +82,10 @@ angular.module('linagora.esn.unifiedinbox', [
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
-        deepStateRedirect: {
-          default: 'unifiedinbox.configuration.folders',
-          fn: function() {
-            return { state: 'unifiedinbox.configuration.folders' };
-          }
-        },
         views: {
           'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/configuration/index'
+            templateUrl: '/unifiedinbox/views/configuration/index',
+            controller: 'inboxConfigurationIndexController'
           }
         }
       })
