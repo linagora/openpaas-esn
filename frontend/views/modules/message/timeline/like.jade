@@ -4,9 +4,14 @@
       a.pull-left(ng-href='#/profile/{{::entry.actor._id}}')
         img.lv-img(src='/images/user.png', ng-src='/api/users/{{::entry.actor._id}}/profile/avatar')
       .media-body
-        h2
+        h2(ng-if='entry.object._id === user._id')
           a(ng-href="#/profile/{{::entry.actor._id}}") {{::entry.actor.displayName}}
           span &nbsp;#{__('liked')}
           a(ng-href="#/messages/{{::entry.object._id}}") &nbsp;#{__('a message')}
+        h2(ng-if='entry.actor._id === user._id')
+          span #{__('You')}
+          span &nbsp;#{__('liked')}
+          a(ng-href="#/messages/{{::entry.object._id}}") &nbsp;#{__('a message')}
+
         small
           span(am-time-ago="::entry.published")
