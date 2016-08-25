@@ -877,14 +877,14 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function updateMailbox(mailbox) {
-      return asyncJmapAction('Modification of folder ' + mailbox.displayName, function(client) {
-        return client.updateMailbox(mailbox.id, {
-          name: mailbox.name,
-          parentId: mailbox.parentId
+    function updateMailbox(oldMailbox, newMailbox) {
+      return asyncJmapAction('Modification of folder ' + oldMailbox.displayName, function(client) {
+        return client.updateMailbox(oldMailbox.id, {
+          name: newMailbox.name,
+          parentId: newMailbox.parentId
         });
       })
-        .then(_.constant(mailbox))
+        .then(_.assign.bind(null, oldMailbox, newMailbox))
         .then(_updateMailboxCache);
     }
 

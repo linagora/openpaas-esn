@@ -2787,7 +2787,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should add level and qualifiedName properties to mailbox', function() {
         mailboxesService.assignMailbox().then(function() {
-          expect(inboxMailboxesCache[0]).to.deep.equal({name: 'name', level: 1, qualifiedName: 'name'});
+          expect(inboxMailboxesCache[0]).to.deep.equal({ name: 'name', level: 1, qualifiedName: 'name' });
         });
 
         $rootScope.$digest();
@@ -3123,6 +3123,11 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     describe('The updateMailbox function', function() {
+      var originalMailbox;
+
+      beforeEach(function() {
+        originalMailbox = Mailbox({ id: 'id', name: 'name' });
+      });
 
       it('should call client.updateMailbox, passing the new options', function(done) {
         jmapClient.updateMailbox = function(id, options) {
@@ -3135,7 +3140,7 @@ describe('The Unified Inbox Angular module services', function() {
           done();
         };
 
-        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name', parentId: 123 }));
+        mailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name', parentId: 123 });
       });
 
       it('should not update the cache if the update fails', function(done) {
@@ -3143,7 +3148,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.reject();
         };
 
-        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name' })).then(null, function() {
+        mailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name' }).then(null, function() {
           expect(inboxMailboxesCache.length).to.equal(0);
 
           done();
@@ -3156,7 +3161,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.when(new jmap.Mailbox(jmapClient, 'id', 'name'));
         };
 
-        mailboxesService.updateMailbox(Mailbox({ id: 'id', name: 'name' })).then(function() {
+        mailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name' }).then(function() {
           expect(inboxMailboxesCache).to.shallowDeepEqual([{
             id: 'id',
             name: 'name',
@@ -3178,7 +3183,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.when(new jmap.Mailbox(jmapClient, '1', '1_Renamed'));
         };
 
-        mailboxesService.updateMailbox(Mailbox({ id: '1', name: '1_Renamed' })).then(function() {
+        mailboxesService.updateMailbox(originalMailbox, { id: '1', name: '1_Renamed' }).then(function() {
           expect(inboxMailboxesCache).to.shallowDeepEqual([{
             id: '1',
             name: '1_Renamed',

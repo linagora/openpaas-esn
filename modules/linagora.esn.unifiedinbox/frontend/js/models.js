@@ -126,7 +126,7 @@ angular.module('linagora.esn.unifiedinbox')
         get: function() {
           var displayName = $filter('limitTo')(this.name, INBOX_DISPLAY_NAME_SIZE);
 
-          if (this.name.length > INBOX_DISPLAY_NAME_SIZE) {
+          if (this.name && this.name.length > INBOX_DISPLAY_NAME_SIZE) {
             displayName = displayName + '...';
           }
 
