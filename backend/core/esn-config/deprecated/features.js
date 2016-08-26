@@ -14,7 +14,7 @@ try {
 }
 
 function findByDomainId(domain_id, callback) {
-  Features.findOne({ domain_id: domain_id }, function(err, feature) {
+  Features.findOne({ domain_id: domain_id }).lean().exec(function(err, feature) {
     callback(err, _qualifyFeature(feature));
   });
 }
@@ -80,5 +80,6 @@ function getFromAllDomains(moduleName, configName) {
 
 module.exports = {
   get: getDomainConfig,
-  getFromAllDomains: getFromAllDomains
+  getFromAllDomains: getFromAllDomains,
+  findByDomainId: findByDomainId
 };
