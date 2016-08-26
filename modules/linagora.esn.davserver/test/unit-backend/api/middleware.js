@@ -30,8 +30,8 @@ describe('The davserver middleware', function() {
       };
       var davServerUrl = 'http://localhost';
 
-      utilsMock.getDavEndpoint = function(domainId, callback) {
-        expect(domainId).to.equal(req.user.preferredDomainId);
+      utilsMock.getDavEndpoint = function(user, callback) {
+        expect(user).to.equal(req.user);
         callback(davServerUrl);
       };
 

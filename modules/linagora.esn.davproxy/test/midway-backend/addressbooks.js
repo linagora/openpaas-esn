@@ -60,7 +60,6 @@ describe('The addressbooks dav proxy', function() {
 
       var port = self.testEnv.serversConfig.express.port;
       var caldavConfiguration = {
-        _id: 'davserver',
         backend: {
           url: 'http://localhost:' + port
         },
@@ -70,7 +69,7 @@ describe('The addressbooks dav proxy', function() {
       };
 
       self.davServer = self.dav.listen(port, function() {
-        self.helpers.mongo.saveDoc('configuration', caldavConfiguration, done);
+        self.helpers.requireBackend('core/esn-config')('davserver').store(caldavConfiguration, done);
       });
     };
 

@@ -7,17 +7,19 @@ var expect = chai.expect;
 describe('The davserver lib utils module', function() {
 
   var deps;
-  var esnConfigMock, domainConfigMock;
+  var esnConfigMock;
+  var DEFAULT_DAV_SERVER = 'http://localhost:80';
 
   beforeEach(function() {
     esnConfigMock = {};
-    domainConfigMock = {};
 
     deps = {
       'esn-config': function() {
         return esnConfigMock;
       },
-      'domain-config': domainConfigMock
+      logger: {
+        error: function() {}
+      }
     };
   });
 
@@ -31,79 +33,64 @@ describe('The davserver lib utils module', function() {
 
   describe('The getDavEndpoint fn', function() {
 
-    it('should get DAV configuration from domain-config', function(done) {
-      var domainId = 'domain123';
+    it('should get DAV configuration from specified user', function(done) {
+      var user = { _id: '111' };
       var config = {
         backend: {
           url: 'http://localhost'
         }
       };
 
-      domainConfigMock.get = function(id, configName) {
-        expect(id).to.equal(domainId);
-        expect(configName).to.equal('davserver');
+      esnConfigMock.forUser = function(_user) {
+        expect(_user).to.deep.equal(user);
 
-        return q(config);
+        return {
+          get: function() {
+            return q(config);
+          }
+        };
       };
 
-      getModule().getDavEndpoint(domainId, function(url) {
+      getModule().getDavEndpoint(user, function(url) {
         expect(url).to.equal(config.backend.url);
         done();
       });
     });
 
-    it('should fallback to esn-config if domainId is not provided', function(done) {
-      var config = {
-        backend: {
-          url: 'http://localhost'
-        }
+    it('should return DEFAULT_DAV_SERVER if DAV configuration is not available', function(done) {
+      var user = { _id: '111' };
+
+      esnConfigMock.forUser = function(_user) {
+        expect(_user).to.deep.equal(user);
+
+        return {
+          get: function() {
+            return q(null);
+          }
+        };
       };
 
-      esnConfigMock.get = function(callback) {
-        return callback(null, config);
-      };
-
-      getModule().getDavEndpoint(function(url) {
-        expect(url).to.equal(config.backend.url);
+      getModule().getDavEndpoint(user, function(url) {
+        expect(url).to.equal(DEFAULT_DAV_SERVER);
         done();
       });
     });
 
-    it('should callback to esn-config when domain-config rejects', function(done) {
-      var domainId = 'domain123';
-      var config = {
-        backend: {
-          url: 'http://localhost'
-        }
+    it('should return DEFAULT_DAV_SERVER if it failed to get DAV configuration', function(done) {
+      var user = { _id: '111' };
+
+      esnConfigMock.forUser = function(_user) {
+        expect(_user).to.deep.equal(user);
+
+        return {
+          get: function() {
+            return q.reject(new Error());
+          }
+        };
       };
 
-      esnConfigMock.get = function(callback) {
-        return callback(null, config);
-      };
-
-      domainConfigMock.get = function() {
-        return q.reject();
-      };
-
-      getModule().getDavEndpoint(domainId, function(url) {
-        expect(url).to.equal(config.backend.url);
-        done();
-      });
-    });
-
-    it('should return DEFAULT_DAV_SERVER if both domain-config and esn-config failed', function(done) {
-      var domainId = 'domain123';
-
-      esnConfigMock.get = function(callback) {
-        return callback(new Error());
-      };
-
-      domainConfigMock.get = function() {
-        return q.reject();
-      };
-
-      getModule().getDavEndpoint(domainId, function(url) {
-        expect(url).to.equal('http://localhost:80');
+      getModule().getDavEndpoint(user, function(url) {
+        expect(url).to.equal(DEFAULT_DAV_SERVER);
         done();
       });
     });

@@ -89,7 +89,7 @@ module.exports = function(dependencies) {
 
     return contactModule.lib.client({
         ESNToken: options.esnToken,
-        domainId: options.user.preferredDomainId
+        user: options.user
       })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)

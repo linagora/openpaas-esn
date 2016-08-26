@@ -16,7 +16,7 @@ var TYPE = CONSTANTS.TYPE;
 module.exports.TYPE = TYPE;
 
 function getUserTemplate(callback) {
-  esnConfig('user', 'templates').get(callback);
+  esnConfig('user').get(callback);
 }
 
 function extendUserTemplate(template, data) {
@@ -43,7 +43,6 @@ module.exports.provisionUser = function(data, callback) {
     if (err) {
       return callback(err);
     }
-    delete user._id;
     extendUserTemplate(user, data);
     recordUser(user, callback);
   });

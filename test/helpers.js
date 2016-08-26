@@ -293,8 +293,7 @@ module.exports = function(mixin, testEnv) {
     },
 
     saveTestConfiguration: function(callback) {
-      mixin.mongo.saveDoc('configuration', {
-        _id: 'elasticsearch',
+      mixin.requireBackend('core/esn-config')('elasticsearch').store({
         host: testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port
       }, callback);
     }
@@ -375,9 +374,11 @@ module.exports = function(mixin, testEnv) {
   };
 
   mixin.mail = {
+    saveConfiguration: function(configuration, callback) {
+      mixin.requireBackend('core/esn-config')('mail').store(configuration, callback);
+    },
     saveTestConfiguration: function(callback) {
-      mixin.mongo.saveDoc('configuration', {
-        _id: 'mail',
+      mixin.requireBackend('core/esn-config')('mail').store({
         mail: {
           noreply: 'noreply@open-paas.org'
         },

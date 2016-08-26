@@ -19,7 +19,7 @@ describe('The contact client APIs', function() {
       },
       davserver: {
         utils: {
-          getDavEndpoint: function(domainId, callback) {
+          getDavEndpoint: function(user, callback) {
             callback(DAV_PREFIX);
           }
         }
@@ -53,11 +53,11 @@ describe('The contact client APIs', function() {
   it('should call getDavEndpoint to get DAV endpoint and cache it if davserver option is not provided', function() {
     var clientOptions = {
       ESNToken: '1111',
-      domainId: 'domain123'
+      user: { _id: '1', preferredDomainId: 'domain123' }
     };
 
-    deps.davserver.utils.getDavEndpoint = sinon.spy(function(domainId, callback) {
-      expect(domainId).to.equal(clientOptions.domainId);
+    deps.davserver.utils.getDavEndpoint = sinon.spy(function(user, callback) {
+      expect(user).to.equal(clientOptions.user);
       callback('http://localhost:80');
     });
 
@@ -67,7 +67,7 @@ describe('The contact client APIs', function() {
     client.addressbookHome().addressbook().create();
 
     expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledOnce;
-    expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledWith(clientOptions.domainId, sinon.match.func);
+    expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledWith(clientOptions.user, sinon.match.func);
   });
 
   describe('The addressbookHome fn', function() {

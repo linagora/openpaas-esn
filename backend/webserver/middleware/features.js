@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var features = require('../../core/features');
 
 module.exports.loadFeaturesForUser = function(req, res, next) {
@@ -13,7 +12,6 @@ module.exports.loadFeaturesForUser = function(req, res, next) {
       return next(err);
     }
 
-    _.remove(features.modules, { name: 'configurations' });
     req.user.features = features;
 
     next();

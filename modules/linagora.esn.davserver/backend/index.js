@@ -8,7 +8,6 @@ var AwesomeDavModule = new AwesomeModule('linagora.esn.davserver', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.domain-config', 'domain-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
 

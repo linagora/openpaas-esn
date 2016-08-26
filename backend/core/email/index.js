@@ -1,13 +1,11 @@
 'use strict';
 
 var q = require('q');
-var domainConfig = require('../domain-config');
-var logger = require('../logger');
 var esnConfig = require('../esn-config')('mail');
 var mailSenderBuilder = require('./mail-sender');
 
-function getMailer(domainId) {
-  var mailSenderPromise = getMailSender(domainId);
+function getMailer(user) {
+  var mailSenderPromise = getMailSender(user);
 
   function send(type) {
     var args = Array.prototype.slice.call(arguments, 1);
@@ -38,20 +36,17 @@ function getMailer(domainId) {
   };
 }
 
-function getMailSender(domainId) {
-  return getMailConfig(domainId).then(mailSenderBuilder);
+function getMailSender(user) {
+  return getMailConfig(user).then(mailSenderBuilder);
 }
 
-function getMailConfig(domainId) {
-  // fallback to esn-config
-  if (!domainId) {
-    return q.ninvoke(esnConfig, 'get');
-  }
+function getMailConfig(user) {
+  return esnConfig.forUser(user).get().then(function(data) {
+    if (!data) {
+      return q.reject(new Error('mail is not configured'));
+    }
 
-  return domainConfig.get(domainId, 'mail').catch(function(err) {
-    logger.info('Failed to get mail configuration of domain %s, falling back to ESN config: %s', domainId, err.message);
-
-    return q.ninvoke(esnConfig, 'get');
+    return data;
   });
 }
 

@@ -121,9 +121,9 @@ function _populateConfiguration(host, admin, domain) {
   console.log('[INFO] POPULATE Configuration');
 
   var technicalUsers = require('./data/technical-users');
-  var features = require('./data/features');
+  var configuration = require('./data/configuration');
 
-  return q.all([technicalUsers([domain]), features([domain], host)])
+  return q.all([technicalUsers([domain]), configuration([domain], host)])
     .then(function() {
       return q([admin, domain]);
     });

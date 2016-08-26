@@ -652,7 +652,7 @@ describe('The contact import module', function() {
       contactModuleMock.lib.client = function(options) {
         expect(options).to.deep.equal({
           ESNToken: optionsMock.esnToken,
-          domainId: optionsMock.user.preferredDomainId
+          user: optionsMock.user
         });
         done();
 

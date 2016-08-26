@@ -129,7 +129,7 @@ describe('The contact import helper module', function() {
       deps.contact.lib.client = function(options) {
         expect(options).to.deep.equal({
           ESNToken: token.token,
-          domainId: domainId
+          user: options.user
         });
         done();
       };

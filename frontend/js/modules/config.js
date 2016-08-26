@@ -8,7 +8,7 @@ angular.module('esn.configuration', ['esn.session', 'feature-flags'])
 
       if (features) {
         featureFlags.set(features.modules.reduce(function(list, module) {
-          return list.concat(module.features.map(function(feature) {
+          return list.concat(module.configurations.map(function(feature) {
             return {
               key: module.name + '.' + feature.name,
               name: feature.name,

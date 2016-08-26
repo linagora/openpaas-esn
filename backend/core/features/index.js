@@ -1,21 +1,22 @@
 'use strict';
 
-var Features = require('mongoose').model('Features');
+var _ = require('lodash');
+var configuration = require('../configuration');
 
-function findFeaturesForDomain(domain_id, callback) {
-  Features.findOne({ domain_id: domain_id }, callback);
-}
+function findFeaturesForDomain(domainId, callback) {
+  configuration.findByDomainId(domainId, function(err, config) {
+    if (err) {
+      return callback(err);
+    }
 
-function updateFeatures(feature, callback) {
-  feature.save(callback);
-}
+    if (config && config.modules) {
+      _.remove(config.modules, { name: 'core' });
+    }
 
-function getAllFeatures(callback) {
-  Features.find({}, callback);
+    callback(err, config);
+  });
 }
 
 module.exports = {
-  findFeaturesForDomain: findFeaturesForDomain,
-  updateFeatures: updateFeatures,
-  getAllFeatures: getAllFeatures
+  findFeaturesForDomain: findFeaturesForDomain
 };
