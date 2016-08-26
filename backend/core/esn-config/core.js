@@ -77,38 +77,46 @@ function set(esnConfig, configName, key, value, callback) {
 
   callback = callback || function() {};
 
-  esnConfig.set({
+  return esnConfig.set({
     name: configName,
     key: key,
     value: value
   })
   .then(function(data) {
     callback(null, data);
+
+    return data;
   })
   .catch(function(err) {
     callback(err);
+
+    return q.reject(err);
   });
 }
 
 function store(esnConfig, configName, value, callback) {
   callback = callback || function() {};
 
-  esnConfig.set({
+  return esnConfig.set({
     name: configName,
     value: value
   })
   .then(function(data) {
     callback(null, data);
+
+    return data;
   })
   .catch(function(err) {
     callback(err);
+
+    return q.reject(err);
   });
 }
 
 function getFromAllDomains(esnConfig, configName, callback) {
   callback = callback || function() {};
 
-  esnConfig.getConfigsFromAllDomains(configName)
+  return esnConfig.getConfigsFromAllDomains(configName)
     .then(function(configs) {
       if (!configs || !configs.length) {
         return q.reject();
