@@ -248,6 +248,12 @@ angular.module('linagora.esn.unifiedinbox')
     }.bind(this));
   })
 
+  .controller('inboxConfigurationIndexController', function($scope, $state, touchscreenDetectorService) {
+    $scope.hasTouchscreen = touchscreenDetectorService.hasTouchscreen();
+
+    $scope.hasTouchscreen ? $state.go('unifiedinbox.configuration.folders') : $state.go('unifiedinbox.configuration.vacation');
+  })
+
   .controller('inboxConfigurationFolderController', function($scope, mailboxesService) {
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })

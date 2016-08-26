@@ -84,7 +84,8 @@ angular.module('esnApp', [
   'esn.file-preview.image',
   'esn.login',
   'uuid4',
-  'luegg.directives'
+  'luegg.directives',
+  'esn.touchscreen-detector'
 ].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
