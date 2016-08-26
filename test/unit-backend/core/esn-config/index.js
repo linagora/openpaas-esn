@@ -171,29 +171,39 @@ describe('The core/esn-config module', function() {
       describe('Fallback to features collection', function() {
 
         beforeEach(function() {
-          featuresModelMock.findOne = function(query, callback) {
+          featuresModelMock.findOne = function(query) {
             expect(query).to.deep.equal({ domain_id: USER.preferredDomainId });
-            callback(null, {
-              modules: [{
-                name: 'configurations',
-                features: [{
-                  name: 'config1',
-                  value: 'config1'
-                }, {
-                  name: 'config2',
-                  value: { key1: { key2: 'config2' } }
-                }]
-              }, {
-                name: 'inbox',
-                features: [{
-                  name: 'inbox1',
-                  value: 'inbox1'
-                }, {
-                  name: 'inbox2',
-                  value: 'inbox2'
-                }]
-              }]
-            });
+
+            return {
+              lean: function() {
+                return {
+                  exec: function(callback) {
+                    callback(null, {
+                      modules: [{
+                        name: 'configurations',
+                        features: [{
+                          name: 'config1',
+                          value: 'config1'
+                        }, {
+                          name: 'config2',
+                          value: { key1: { key2: 'config2' } }
+                        }]
+                      }, {
+                        name: 'inbox',
+                        features: [{
+                          name: 'inbox1',
+                          value: 'inbox1'
+                        }, {
+                          name: 'inbox2',
+                          value: 'inbox2'
+                        }]
+                      }]
+                    });
+                  }
+                };
+              }
+            };
+
           };
         });
 
@@ -254,8 +264,16 @@ describe('The core/esn-config module', function() {
             callback(null, null);
           };
 
-          featuresModelMock.findOne = function(query, callback) {
-            callback(null, null);
+          featuresModelMock.findOne = function() {
+            return {
+              lean: function() {
+                return {
+                  exec: function(query, callback) {
+                    callback(null, null);
+                  }
+                };
+              }
+            };
           };
         });
 
