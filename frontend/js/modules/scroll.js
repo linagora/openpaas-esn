@@ -5,37 +5,38 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
     RESET_SCROLL: 'scroll:reset'
   })
   .constant('SCROLL_DIFF_DELTA', 30) // in px
-  .directive('keepScrollPosition', function($log, SCROLL_EVENTS, $cacheFactory, $location, $document, $timeout) {
-    var CACHE_KEY = 'scrollPosition';
+  .constant('SCROLL_CACHE_KEY', 'scrollPosition')
+
+  .directive('keepScrollPosition', function($cacheFactory, $location, $document, $timeout, SCROLL_EVENTS, SCROLL_CACHE_KEY) {
+    var cache;
 
     return {
       restrict: 'A',
       link: function(scope) {
-        var scrollPositionCache = $cacheFactory.get(CACHE_KEY);
+        var url = $location.absUrl();
 
-        if (!scrollPositionCache) {
-          scrollPositionCache = $cacheFactory(CACHE_KEY);
+        if (!cache) {
+          cache = $cacheFactory(SCROLL_CACHE_KEY);
         }
-        var currentPath = $location.path();
 
-        // store current scroll position before switch
-        scope.$on('$locationChangeStart', function() {
-          scrollPositionCache.put(currentPath, $document.scrollTop());
+        scope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
+          if (url === oldUrl) {
+            cache.put(url, $document.scrollTop());
+          }
         });
 
         scope.$on(SCROLL_EVENTS.RESET_SCROLL, function() {
-          scrollPositionCache.put(currentPath, 0);
+          cache.put(url, 0);
         });
 
-        // scroll to stored position
-        scope.$on('viewRenderFinished', function() {
-          var position = scrollPositionCache.get(currentPath) || 0;
+        scope.$on('$locationChangeSuccess', function(event, newUrl) {
+          if (url === newUrl) {
+            var position = cache.get(url) || 0;
 
-          $log.debug('Scrolling to:', position);
-          $timeout(function() {
-            $document.scrollTop(position);
-          });
-
+            $timeout(function() {
+              $document.scrollTop(position);
+            }, 0, false);
+          }
         });
       }
     };

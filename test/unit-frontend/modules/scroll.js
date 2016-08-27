@@ -54,28 +54,27 @@ describe('The Scroll Angular module', function() {
   });
 
   describe('The keepScrollPosition directive', function() {
-    var $location;
-    var $timeout;
-    var $scope;
+    var path = '/a/path/here', position = 100;
+    var $cacheFactory, $timeout, $scope, SCROLL_CACHE_KEY;
 
     function doInject() {
-      inject(function(_$location_, _$timeout_, $compile, $rootScope) {
-        $location = _$location_;
+      inject(function(_$cacheFactory_, _$timeout_, $compile, $rootScope, _SCROLL_CACHE_KEY_) {
+        $cacheFactory = _$cacheFactory_;
         $timeout = _$timeout_;
+        SCROLL_CACHE_KEY = _SCROLL_CACHE_KEY_;
         $scope = $rootScope.$new();
+
         $compile('<div keep-scroll-position></div>')($scope);
       });
     }
 
-    it('should save scroll position on $locationChangeStart event', function(done) {
-      var path = '/a/path/here';
-      var position = 100;
-
+    it('should save scroll position on $locationChangeStart event', function() {
       module('esn.scroll', function($provide) {
         $provide.decorator('$location', function($delegate) {
-          $delegate.path = function() {
+          $delegate.absUrl = function() {
             return path;
           };
+
           return $delegate;
         });
 
@@ -83,63 +82,45 @@ describe('The Scroll Angular module', function() {
           $delegate.scrollTop = function() {
             return position;
           };
-          return $delegate;
-        });
 
-        $provide.decorator('$cacheFactory', function($delegate) {
-          $delegate.get = function() {
-            return {
-              put: function(key, value) {
-                expect(key).to.equal(path, position);
-                done();
-              }
-            };
-          };
           return $delegate;
         });
       });
 
       doInject();
       $scope.$digest();
-      $scope.$emit('$locationChangeStart');
+
+      $scope.$emit('$locationChangeStart', '', path);
+
+      expect($cacheFactory.get(SCROLL_CACHE_KEY).get(path)).to.equal(position);
     });
 
-    it('should scroll to saved position on viewRenderFinished event', function(done) {
-      var path = '/a/path/here';
-      var position = 100;
-
+    it('should scroll to saved position on $locationChangeSuccess event', function(done) {
       module('esn.scroll', function($provide) {
         $provide.decorator('$location', function($delegate) {
-          $delegate.path = function() {
+          $delegate.absUrl = function() {
             return path;
           };
+
           return $delegate;
         });
 
         $provide.decorator('$document', function($delegate) {
           $delegate.scrollTop = function(top) {
             expect(top).to.equal(position);
+
             done();
           };
-          return $delegate;
-        });
 
-        $provide.decorator('$cacheFactory', function($delegate) {
-          $delegate.get = function() {
-            return {
-              get: function(key) {
-                expect(key).to.equal(path);
-                return position;
-              }
-            };
-          };
           return $delegate;
         });
       });
 
       doInject();
       $scope.$digest();
-      $scope.$emit('viewRenderFinished');
+      $cacheFactory.get(SCROLL_CACHE_KEY).put(path, position);
+
+      $scope.$emit('$locationChangeSuccess', path);
       $timeout.flush();
     });
 

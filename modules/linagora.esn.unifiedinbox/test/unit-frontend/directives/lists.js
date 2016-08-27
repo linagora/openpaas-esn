@@ -98,7 +98,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-thread-list-item />');
         openThread({ id: 'expectedId', email: {} });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', {
+        expect($state.go).to.have.been.calledWith('.thread', {
           threadId: 'expectedId',
           mailbox: $stateParams.mailbox
         });
@@ -110,7 +110,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-thread-list-item />');
         openThread({ id: 'expectedId', email: {} });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', {
+        expect($state.go).to.have.been.calledWith('.thread', {
           threadId: 'expectedId',
           mailbox: $scope.mailbox.id
         });
@@ -120,7 +120,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-thread-list-item />');
         openThread({ id: 'expectedId', email: { mailboxIds: ['chosenMailbox', 'mailbox2'] } });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads.thread', {
+        expect($state.go).to.have.been.calledWith('.thread', {
           threadId: 'expectedId',
           mailbox: 'chosenMailbox'
         });
@@ -283,7 +283,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         $stateParams = _$stateParams_;
         newComposerService = _newComposerService_;
 
-        $state.go = sinon.spy();
+        $state.go = sinon.spy($state.go);
         $stateParams.mailbox = null;
       }));
 
@@ -307,7 +307,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-message-list-item />');
         openEmail({ id: 'expectedId' });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', {
+        expect($state.go).to.have.been.calledWith('.message', {
           emailId: 'expectedId',
           mailbox: $stateParams.mailbox
         });
@@ -319,7 +319,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-message-list-item />');
         openEmail({ id: 'expectedId' });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', {
+        expect($state.go).to.have.been.calledWith('.message', {
           emailId: 'expectedId',
           mailbox: $scope.mailbox.id
         });
@@ -329,7 +329,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-message-list-item />');
         openEmail({ id: 'expectedId', mailboxIds: ['chosenMailbox', 'mailbox2'] });
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages.message', {
+        expect($state.go).to.have.been.calledWith('.message', {
           emailId: 'expectedId',
           mailbox: 'chosenMailbox'
         });
