@@ -8,15 +8,15 @@ var DEFAULT_JWT_PRIVATE = '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAtlCh
 function readFile(path) {
   try {
     return fs.readFileSync(path, 'ascii');
-  } catch(err) {
+  } catch (err) {
     console.log('WARN: Cannot read JWT file: ' + path, err);
   }
 }
 
 module.exports = function() {
 
-  var publicKey = readFile(process.env.CONFIG_DIR + '/jwt/public') || DEFAULT_JWT_PUBLIC;
-  var privateKey = readFile(process.env.CONFIG_DIR + '/jwt/private') || DEFAULT_JWT_PRIVATE;
+  var publicKey = readFile(process.env.CONFIG_DIR + '/jwt/public') || DEFAULT_JWT_PUBLIC;
+  var privateKey = readFile(process.env.CONFIG_DIR + '/jwt/private') || DEFAULT_JWT_PRIVATE;
 
   return {
     algorithm: 'RS256',
