@@ -170,3 +170,5 @@ function find(query, callback) {
 module.exports.find = find;
 
 module.exports.domain = require('./domain');
+
+module.exports.follow = require('./follow');
