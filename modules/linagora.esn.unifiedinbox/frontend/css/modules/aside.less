@@ -65,8 +65,14 @@
 
 @media(min-width: @screen-md-min) {
   .inbox-aside {
-    margin-top: 45px;
+    position: fixed;
+    width: 23%;
     max-width: 300px;
+    overflow: auto;
+
+    top: ~"calc(@{header-height} + @{sub-header-height})";
+    bottom: 10px;
+    margin-top: 40px;
 
     .listview:not(.lv-lg):not(.lv-message) {
       .lv-item.menu-heading {
