@@ -6,9 +6,9 @@ require('../../../backend/core/db/mongo/models/configuration');
 var Configuration = mongoose.model('Configuration');
 
 module.exports = function(domains, host) {
-  var jmapHost = process.env.JMAP_SERVER_HOST || host || 'localhost';
-  var port = process.env.JMAP_SERVER_PORT || 1080;
-  var path = process.env.JMAP_SERVER_PATH || 'jmap';
+  var jmapHost = process.env.JMAP_SERVER_HOST || host || 'localhost';
+  var port = process.env.JMAP_SERVER_PORT || 1080;
+  var path = process.env.JMAP_SERVER_PATH || 'jmap';
   var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED === 'false' ? false : true;
   var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED === 'true' ? true : false;
   var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED === 'false' ? false : true;
@@ -56,8 +56,8 @@ module.exports = function(domains, host) {
               value: isSaveDraftBeforeSendingEnabled
             },
             {
-              name : 'composer.attachments',
-              value : isAttachmentsEnabled
+              name: 'composer.attachments',
+              value: isAttachmentsEnabled
             },
             {
               name: 'maxSizeUpload',
@@ -73,7 +73,7 @@ module.exports = function(domains, host) {
         }]
       });
       var deferred = q.defer();
-      console.log('Creating feature flipping for inbox module', configurations);
+      console.log('Creating feature flipping for inbox module', configuration);
       configuration.save(deferred.makeNodeResolver());
       return deferred.promise;
     });

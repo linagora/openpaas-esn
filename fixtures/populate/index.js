@@ -92,28 +92,31 @@ function _createUser(index, community, domain) {
       return user[0];
     })
     .then(function(user) {
-      return _joinDomain(user, domain)
+      return _joinDomain(user, domain);
     })
     .spread(function(user) {
-       return q.ninvoke(
-          Community, 'update',
-          {
-            _id: community._id,
-            'members.user': {$ne: user._id}
-          },
-          {
-            $push: { members: _buildMember(user._id) }
-          });
+      return q.ninvoke(
+        Community, 'update',
+        {
+          _id: community._id,
+          'members.user': {$ne: user._id}
+        },
+        {
+          $push: { members: _buildMember(user._id) }
+        });
     });
 }
 
 function _populateMembers(community, domain) {
   console.log('[INFO] POPULATE members');
   var createUsers = [];
-  for(var i = 0; i < 20; i++) {
-    var promise = _createUser(i, community, domain)
-    createUsers.push(promise)
+
+  for (var i = 0; i < 20; i++) {
+    var promise = _createUser(i, community, domain);
+
+    createUsers.push(promise);
   }
+
   return q.allSettled(createUsers);
 }
 
@@ -136,5 +139,5 @@ module.exports = function(host) {
     .spread(_populateConfiguration.bind(null, host))
     .spread(_joinDomain)
     .spread(_populateCommunity)
-    .spread(_populateMembers)
+    .spread(_populateMembers);
 };
