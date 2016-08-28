@@ -340,25 +340,34 @@ describe('The core/esn-config module', function() {
         callback(null, []);
       };
 
-      featuresModelMock.find = function(query, callback) {
+      featuresModelMock.find = function(query) {
         expect(query).to.deep.equal({});
-        callback(null, [{
-          modules: [{
-            name: 'core',
-            features: [{
-              name: 'key',
-              value: 'domain1'
-            }]
-          }]
-        }, {
-          modules: [{
-            name: 'core',
-            features: [{
-              name: 'key',
-              value: 'domain2'
-            }]
-          }]
-        }]);
+
+        return {
+          lean: function() {
+            return {
+              exec: function(callback) {
+                callback(null, [{
+                  modules: [{
+                    name: 'core',
+                    features: [{
+                      name: 'key',
+                      value: 'domain1'
+                    }]
+                  }]
+                }, {
+                  modules: [{
+                    name: 'core',
+                    features: [{
+                      name: 'key',
+                      value: 'domain2'
+                    }]
+                  }]
+                }]);
+              }
+            };
+          }
+        };
       };
 
       this.getModule()('key').getFromAllDomains(function(err, data) {
