@@ -120,6 +120,16 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
+      mockery.registerMock('../pubsub', {
+        local: {
+          topic: function() {
+            return {
+              publish: function() {},
+              subscribe: function() {}
+            };
+          }
+        }
+      });
       userModule = this.helpers.requireBackend('core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
