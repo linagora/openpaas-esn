@@ -25,7 +25,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type'])
   .factory('userAPI', function(esnRestangular) {
 
     function currentUser() {
-      return esnRestangular.one('user').get();
+      return esnRestangular.one('user').get({_: Date.now()});
     }
 
     function user(uuid) {
