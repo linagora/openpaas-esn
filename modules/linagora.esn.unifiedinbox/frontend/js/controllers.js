@@ -189,39 +189,39 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $stateParams, withJmapClient, Email, inboxEmailService, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewEmailController', function($scope, $stateParams, withJmapClient, Email, inboxEmailService, jmapEmailService) {
+    $scope.email = $stateParams.item;
 
-    $scope.mailbox = $stateParams.mailbox;
-    $scope.emailId = $stateParams.emailId;
+    jmapEmailService.getMessageById($stateParams.emailId).then(function(message) {
+      if (!$scope.email) {
+        $scope.email = Email(message);
+      } else {
+        ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
+          $scope.email[property] = message[property];
+        });
+      }
 
-    withJmapClient(function(client) {
-      client.getMessages({
-        ids: [$scope.emailId],
-        properties: JMAP_GET_MESSAGES_VIEW
-      }).then(function(messages) {
-        $scope.email = Email(messages[0]); // We expect a single message here
-
-        inboxEmailService.markAsRead($scope.email);
-      });
+      inboxEmailService.markAsRead($scope.email);
     });
-
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxThreadService, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
+    $scope.thread = $stateParams.item;
 
     withJmapClient(function(client) {
       client
-        .getThreads({ids: [$stateParams.threadId], fetchMessages: false})
-        .then(function(threads) {
-          $scope.thread = threads[0];
+        .getThreads({ ids: [$stateParams.threadId] })
+        .then(_.head)
+        .then(function(thread) {
+          if (!$scope.thread) {
+            $scope.thread = Thread(thread);
+          }
 
-          return $scope.thread.getMessages({
-            properties: JMAP_GET_MESSAGES_VIEW
-          });
+          return thread.getMessages({ properties: JMAP_GET_MESSAGES_VIEW });
         })
         .then(function(messages) { return messages.map(Email); })
         .then(function(emails) {
-          $scope.thread = new Thread($scope.thread, emails);
+          $scope.thread.setEmails(emails);
         })
         .then(function() {
           $scope.thread.emails.forEach(function(email, index, emails) {

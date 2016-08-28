@@ -259,6 +259,42 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]).hasAttachment).to.equal(true);
     });
 
+    describe('The setEmails function', function() {
+
+      it('should replace thread.emails', function() {
+        var thread = new Thread({});
+
+        expect(thread.emails.length).to.equal(0);
+        thread.setEmails([{ hasAttachment: false }, { hasAttachment: true }]);
+        expect(thread.emails.length).to.equal(2);
+      });
+
+      it('should replace thread.subject', function() {
+        var thread = new Thread({}, [{ subject: 'subject1' }]);
+
+        expect(thread.subject).to.equal('subject1');
+        thread.setEmails([{ subject: 'subject2' }]);
+        expect(thread.subject).to.equal('subject2');
+      });
+
+      it('should replace thread.lastEmail', function() {
+        var thread = new Thread({}, [{ id: '1' }, { id: '2' }]);
+
+        expect(thread.lastEmail.id).to.equal('2');
+        thread.setEmails([{ id: '3' }]);
+        expect(thread.lastEmail.id).to.equal('3');
+      });
+
+      it('should replace thread.hasAttachment', function() {
+        var thread = new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]);
+
+        expect(thread.hasAttachment).to.equal(true);
+        thread.setEmails([{ hasAttachment: false }]);
+        expect(thread.hasAttachment).to.equal(false);
+      });
+
+    });
+
   });
 
   describe('The Emailer factory', function() {

@@ -66,13 +66,18 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function Thread(thread, emails) {
-      thread.subject = emails && emails[0] ? emails[0].subject : '';
-      thread.emails = emails || [];
-      thread.lastEmail = _.last(thread.emails);
-      thread.hasAttachment = !!(thread.lastEmail && thread.lastEmail.hasAttachment);
-
       _defineFlagProperty(thread, 'isUnread');
       _defineFlagProperty(thread, 'isFlagged');
+
+      thread.setEmails = function(emails) {
+        thread.emails = emails || [];
+
+        thread.subject = emails && emails[0] ? emails[0].subject : '';
+        thread.lastEmail = _.last(thread.emails);
+        thread.hasAttachment = !!(thread.lastEmail && thread.lastEmail.hasAttachment);
+      };
+
+      thread.setEmails(emails);
 
       return thread;
     }

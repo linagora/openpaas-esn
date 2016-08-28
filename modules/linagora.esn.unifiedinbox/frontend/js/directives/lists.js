@@ -62,7 +62,8 @@ angular.module('linagora.esn.unifiedinbox')
 
             $state.go('.message', {
               mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
-              emailId: email.id
+              emailId: email.id,
+              item: email
             }).finally(unregisterStateNotFoundListener);
           }
         };
@@ -109,7 +110,8 @@ angular.module('linagora.esn.unifiedinbox')
           } else {
             $state.go('.thread', {
               mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
-              threadId: thread.id
+              threadId: thread.id,
+              item: thread
             });
           }
         };

@@ -47,7 +47,7 @@ angular.module('linagora.esn.unifiedinbox', [
       };
     }
 
-    function stateOpeningListElement(state) {
+    function stateOpeningListItem(state) {
       function toggleElementOpened(toggle) {
         return function($rootScope) {
           $rootScope.inbox.list.isElementOpened = toggle;
@@ -56,6 +56,9 @@ angular.module('linagora.esn.unifiedinbox', [
 
       state.onEnter = toggleElementOpened(true);
       state.onExit = toggleElementOpened(false);
+
+      state.params = state.params || {};
+      state.params.item = undefined;
 
       return state;
     }
@@ -168,7 +171,7 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
-      .state('unifiedinbox.inbox.message', stateOpeningListElement({
+      .state('unifiedinbox.inbox.message', stateOpeningListItem({
         url: '/:emailId',
         views: {
           'preview-pane@unifiedinbox.inbox': {
@@ -209,7 +212,7 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailMessagesProvider'
         }
       })
-      .state('unifiedinbox.list.messages.message', stateOpeningListElement({
+      .state('unifiedinbox.list.messages.message', stateOpeningListItem({
         url: '/:emailId',
         views: {
           'preview-pane@unifiedinbox.list.messages': {
@@ -230,7 +233,7 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailThreadsProvider'
         }
       })
-      .state('unifiedinbox.list.threads.thread', stateOpeningListElement({
+      .state('unifiedinbox.list.threads.thread', stateOpeningListItem({
         url: '/:threadId',
         views: {
           'preview-pane@unifiedinbox.list.threads': {

@@ -92,37 +92,46 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       });
 
       it('should change state to thread view with $stateParams.mailbox parameter', function() {
+        var thread = { id: 'expectedId', email: {} };
+
         $stateParams.mailbox = '123';
         $scope.mailbox = { id: '456' };
 
         compileDirective('<inbox-thread-list-item />');
-        openThread({ id: 'expectedId', email: {} });
+        openThread(thread);
 
         expect($state.go).to.have.been.calledWith('.thread', {
           threadId: 'expectedId',
-          mailbox: $stateParams.mailbox
+          mailbox: $stateParams.mailbox,
+          item: thread
         });
       });
 
       it('should change state to $scope.mailbox.id if present and message is not a draft', function() {
+        var thread = { id: 'expectedId', email: {} };
+
         $scope.mailbox = { id: 'chosenMailbox' };
 
         compileDirective('<inbox-thread-list-item />');
-        openThread({ id: 'expectedId', email: {} });
+        openThread(thread);
 
         expect($state.go).to.have.been.calledWith('.thread', {
           threadId: 'expectedId',
-          mailbox: $scope.mailbox.id
+          mailbox: $scope.mailbox.id,
+          item: thread
         });
       });
 
       it('should change state to the first mailbox of the message if message is not a draft', function() {
+        var thread = { id: 'expectedId', email: { mailboxIds: ['chosenMailbox', 'mailbox2'] } };
+
         compileDirective('<inbox-thread-list-item />');
-        openThread({ id: 'expectedId', email: { mailboxIds: ['chosenMailbox', 'mailbox2'] } });
+        openThread(thread);
 
         expect($state.go).to.have.been.calledWith('.thread', {
           threadId: 'expectedId',
-          mailbox: 'chosenMailbox'
+          mailbox: 'chosenMailbox',
+          item: thread
         });
       });
 
@@ -301,37 +310,45 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       });
 
       it('should change state to message view with $stateParams.mailbox parameter', function() {
+        var email = { id: 'expectedId' };
+
         $stateParams.mailbox = '123';
         $scope.mailbox = { id: '456' };
 
         compileDirective('<inbox-message-list-item />');
-        openEmail({ id: 'expectedId' });
+        openEmail(email);
 
         expect($state.go).to.have.been.calledWith('.message', {
           emailId: 'expectedId',
-          mailbox: $stateParams.mailbox
+          mailbox: $stateParams.mailbox,
+          item: email
         });
       });
 
       it('should change state to $scope.mailbox.id if present and message is not a draft', function() {
-        $scope.mailbox = { id: 'chosenMailbox' };
+        var email = { id: 'expectedId' };
 
+        $scope.mailbox = { id: 'chosenMailbox' };
         compileDirective('<inbox-message-list-item />');
-        openEmail({ id: 'expectedId' });
+        openEmail(email);
 
         expect($state.go).to.have.been.calledWith('.message', {
           emailId: 'expectedId',
-          mailbox: $scope.mailbox.id
+          mailbox: $scope.mailbox.id,
+          item: email
         });
       });
 
       it('should change state to the first mailbox of the message if message is not a draft', function() {
+        var email = { id: 'expectedId', mailboxIds: ['chosenMailbox', 'mailbox2'] };
+
         compileDirective('<inbox-message-list-item />');
-        openEmail({ id: 'expectedId', mailboxIds: ['chosenMailbox', 'mailbox2'] });
+        openEmail(email);
 
         expect($state.go).to.have.been.calledWith('.message', {
           emailId: 'expectedId',
-          mailbox: 'chosenMailbox'
+          mailbox: 'chosenMailbox',
+          item: email
         });
       });
 

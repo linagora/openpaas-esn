@@ -10,7 +10,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
-      mailboxesService, inboxThreadService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache, touchscreenDetectorService;
+      mailboxesService, inboxThreadService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
+      touchscreenDetectorService, Thread;
   var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
@@ -76,7 +77,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxThreadService_,
-                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_) {
+                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -91,6 +92,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     INBOX_EVENTS = _INBOX_EVENTS_;
     moment = _moment_;
     Mailbox = _Mailbox_;
+    Thread = _Thread_;
 
     scope = $rootScope.$new();
   }));
@@ -645,13 +647,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapMessage.setIsUnread = sinon.stub().returns($q.when());
 
       jmapClient.getMessages = function() { return $q.when([jmapMessage]); };
-    });
-
-    it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
-      initController('viewEmailController');
-
-      expect(scope.mailbox).to.equal('chosenMailbox');
-      expect(scope.emailId).to.equal('4');
+      jmapClient.updateMessage = function() { return $q.when(); };
     });
 
     it('should call jmapClient.getMessages with correct arguments', function(done) {
@@ -676,6 +672,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       scope.$watch('email', function(before, after) {
         expect(after).to.shallowDeepEqual({ isUnread: false, property: 'property', mailboxIds: [] });
+
+        done();
+      });
+
+      scope.$digest();
+    });
+
+    it('should update $scope.email if it exists (opening an item from the list)', function(done) {
+      $stateParams.item = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
+        id: 'id',
+        isFlagged: false
+      });
+      jmapClient.getMessages = function() {
+        return $q.when([{ isFlagged: true, textBody: 'textBody', htmlBody: 'htmlBody', attachments: [] }]);
+      };
+
+      initController('viewEmailController');
+
+      scope.$watch('email', function(before, after) {
+        expect(after).to.shallowDeepEqual({ id: 'messageId1', isUnread: false, isFlagged: true, textBody: 'textBody', htmlBody: 'htmlBody', attachments: [] });
 
         done();
       });
@@ -728,7 +744,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should search for message ids of the given thread id', function(done) {
       $stateParams.threadId = 'expectedThreadId';
       jmapClient.getThreads = function(options) {
-        expect(options).to.deep.equal({ids: ['expectedThreadId'], fetchMessages: false});
+        expect(options).to.deep.equal({ids: ['expectedThreadId'] });
+
         done();
       };
 
@@ -764,6 +781,25 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(scope.thread.emails).to.shallowDeepEqual([
         {id: 'email1', subject: 'thread subject'}
+      ]);
+    });
+
+    it('should update $scope.thread if it exists (opening an item from the list)', function() {
+      $stateParams.item = Thread(jmapThread);
+
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [{ id: 'email1', subject: 'thread subject' }, { id: 'email2', subject: 'thread subject' }];
+          }
+        }]);
+      };
+
+      initController('viewThreadController');
+
+      expect(scope.thread.emails).to.shallowDeepEqual([
+        { id: 'email1', subject: 'thread subject' },
+        { id: 'email2', subject: 'thread subject' }
       ]);
     });
 
