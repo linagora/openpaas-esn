@@ -108,10 +108,16 @@ module.exports.sendPasswordReset = function(user, callback) {
       return callback(err);
     }
 
-    async.waterfall([
-      generateJWTurl.bind(null, results[1]),
-      createNewPasswordReset,
-      sendEmail.bind(null, results[0])
-    ], callback);
+    PasswordReset.find({email: to}, function(err, result) {
+      if (result) {
+        sendEmail(results[0], result[0], callback);
+      } else {
+        async.waterfall([
+          generateJWTurl.bind(null, results[1]),
+          createNewPasswordReset,
+          sendEmail.bind(null, results[0])
+        ], callback);
+      }
+    });
   });
 };
