@@ -24,7 +24,7 @@ function _sendConfirmation(user, template, callback) {
       url: url
     };
 
-    mailer.sendHTML({to: user.preferredEmail, subject: i18n.__('Your password have changed!')}, template, locals).then(function() {
+    mailer.sendHTML({to: user.preferredEmail, subject: i18n.__('Your password has been changed!')}, template, locals).then(function() {
       callback();
     }, callback);
   });
