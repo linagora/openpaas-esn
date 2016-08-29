@@ -275,10 +275,13 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('editFolderController', function($scope, $state, $stateParams, mailboxesService, _, rejectWithErrorNotification) {
+    var originalMailbox;
+
     mailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
-        $scope.mailbox = _.clone(_.find(mailboxes, { id: $stateParams.mailbox }));
+        originalMailbox = _.find(mailboxes, { id: $stateParams.mailbox });
+        $scope.mailbox =  _.clone(originalMailbox);
       });
 
     $scope.editFolder = function() {
@@ -288,7 +291,7 @@ angular.module('linagora.esn.unifiedinbox')
 
       $state.go('unifiedinbox');
 
-      return mailboxesService.updateMailbox($scope.mailbox);
+      return mailboxesService.updateMailbox(originalMailbox, $scope.mailbox);
     };
   })
 

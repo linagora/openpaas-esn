@@ -294,78 +294,115 @@ describe('The Unified Inbox Angular module models', function() {
 
   describe('The Mailbox factory', function() {
 
-    var Mailbox, inboxMailboxesCache;
+    var Mailbox, inboxMailboxesCache, INBOX_DISPLAY_NAME_SIZE, _;
 
-    beforeEach(inject(function(_Mailbox_, _inboxMailboxesCache_) {
-      Mailbox = _Mailbox_;
-      inboxMailboxesCache = _inboxMailboxesCache_;
+    beforeEach(module(function($provide) {
+      $provide.constant('INBOX_DISPLAY_NAME_SIZE', INBOX_DISPLAY_NAME_SIZE = 10);
     }));
 
-    it('mailbox.descendants should return empty array if the cache is empty', function() {
-      expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+    beforeEach(inject(function(_Mailbox_, _inboxMailboxesCache_, _INBOX_DISPLAY_NAME_SIZE_, ___) {
+      Mailbox = _Mailbox_;
+      inboxMailboxesCache = _inboxMailboxesCache_;
+      INBOX_DISPLAY_NAME_SIZE = _INBOX_DISPLAY_NAME_SIZE_;
+      _ = ___;
+    }));
+
+    describe('mailbox.displayName property', function() {
+
+      it('should leverage name property', function() {
+        expect(Mailbox({ name: 'm1' }).displayName).to.equal('m1');
+      });
+
+      it('should return undefined when name.length is 0', function() {
+        expect(Mailbox({}).displayName).to.be.undefined;
+      });
+
+      it('should be ellipsesed when name.length > INBOX_DISPLAY_NAME_SIZE', function() {
+        expect(Mailbox({ name: '112233445566778899' }).displayName).to.equal('1122334455...');
+      });
+
+      it('should be configurable', function() {
+        var mailbox = Mailbox({ name: 'm1' });
+
+        delete mailbox.displayName;
+        expect(mailbox.displayName).to.be.undefined;
+      });
+
     });
 
-    it('mailbox.descendants should return empty array if the mailbox has no child', function() {
-      inboxMailboxesCache.push({ parentId: 'm2' });
+    describe('mailbox.descendants property', function() {
+      it('should be configurable', function() {
+        var mailbox = Mailbox({ name: 'm1' });
 
-      expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+        delete mailbox.descendants;
+        expect(mailbox.descendants).to.be.undefined;
+      });
+
+      it('mailbox.descendants should return empty array if the cache is empty', function() {
+        expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+      });
+
+      it('mailbox.descendants should return empty array if the mailbox has no child', function() {
+        inboxMailboxesCache.push({ parentId: 'm2' });
+
+        expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+      });
+
+      it('mailbox.descendants should return an array of descendants in the right order', function() {
+        var mailboxId = 'm1';
+        var descendants = [{
+          id: 'c1',
+          parentId: mailboxId
+        }, {
+          id: 'c3',
+          parentId: mailboxId
+        }, {
+          id: 'c11',
+          parentId: 'c1'
+        }, {
+          id: 'c12',
+          parentId: 'c1'
+        }, {
+          id: 'c31',
+          parentId: 'c3'
+        }];
+
+        inboxMailboxesCache.push({ parentId: 'm2' });
+        descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
+
+        expect(Mailbox({ id: mailboxId }).descendants).to.deep.equal(descendants);
+      });
+
+      it('mailbox.descendants should cache the results of the computation', function() {
+        var mailboxId = 'm1';
+        var descendants = [{
+          id: 'c1',
+          parentId: mailboxId
+        }, {
+          id: 'c3',
+          parentId: mailboxId
+        }, {
+          id: 'c11',
+          parentId: 'c1'
+        }, {
+          id: 'c12',
+          parentId: 'c1'
+        }, {
+          id: 'c31',
+          parentId: 'c3'
+        }];
+        var mailbox = Mailbox({ id: mailboxId });
+
+        inboxMailboxesCache.push({ parentId: 'm2' });
+        descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
+
+        expect(mailbox.descendants).to.deep.equal(descendants);
+
+        inboxMailboxesCache.length = 0;
+
+        expect(mailbox.descendants).to.deep.equal(descendants);
+      });
     });
-
-    it('mailbox.descendants should return an array of descendants in the right order', function() {
-      var mailboxId = 'm1';
-      var descendants = [{
-        id: 'c1',
-        parentId: mailboxId
-      }, {
-        id: 'c3',
-        parentId: mailboxId
-      }, {
-        id: 'c11',
-        parentId: 'c1'
-      }, {
-        id: 'c12',
-        parentId: 'c1'
-      }, {
-        id: 'c31',
-        parentId: 'c3'
-      }];
-
-      inboxMailboxesCache.push({ parentId: 'm2' });
-      descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
-
-      expect(Mailbox({ id: mailboxId }).descendants).to.deep.equal(descendants);
-    });
-
-    it('mailbox.descendants should cache the results of the computation', function() {
-      var mailboxId = 'm1';
-      var descendants = [{
-        id: 'c1',
-        parentId: mailboxId
-      }, {
-        id: 'c3',
-        parentId: mailboxId
-      }, {
-        id: 'c11',
-        parentId: 'c1'
-      }, {
-        id: 'c12',
-        parentId: 'c1'
-      }, {
-        id: 'c31',
-        parentId: 'c3'
-      }];
-      var mailbox = Mailbox({ id: mailboxId });
-
-      inboxMailboxesCache.push({ parentId: 'm2' });
-      descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
-
-      expect(mailbox.descendants).to.deep.equal(descendants);
-
-      inboxMailboxesCache.length = 0;
-
-      expect(mailbox.descendants).to.deep.equal(descendants);
-    });
-
   });
 
 });
