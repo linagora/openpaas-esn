@@ -82,6 +82,12 @@ angular.module('linagora.esn.unifiedinbox', [
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
+        deepStateRedirect: {
+          default: 'unifiedinbox.configuration.folders',
+          fn: function(touchscreenDetectorService) {
+            return { state: touchscreenDetectorService.hasTouchscreen() ? 'unifiedinbox.configuration.folders' : 'unifiedinbox.configuration.vacation' };
+          }
+        },
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/index',
