@@ -20,7 +20,7 @@ function findByDomainId(domain_id, callback) {
 }
 
 function getAll(callback) {
-  Features.find({}, function(err, features) {
+  Features.find({}).lean().exec(function(err, features) {
     if (!err && Array.isArray(features)) {
       features = features.map(_qualifyFeature);
     }
