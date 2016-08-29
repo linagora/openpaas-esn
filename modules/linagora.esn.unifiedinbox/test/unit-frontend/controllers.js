@@ -892,18 +892,18 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The inboxConfigurationIndexController', function() {
 
-    it('should go to unifiedinbox.configuration.vacation state if not a touchscreen', function() {
-      touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(false);
-      initController('inboxConfigurationIndexController');
-
-      expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.vacation');
-    });
-
-    it('should go to unifiedinbox.configuration.folders state if touchscreen', function() {
+    it('should initiate hasTouchscreen to true if service responds true', function() {
       touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(true);
       initController('inboxConfigurationIndexController');
 
-      expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.folders');
+      expect(scope.hasTouchscreen).to.be.true;
+    });
+
+    it('should initiate hasTouchscreen to false if service responds false', function() {
+      touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(false);
+      initController('inboxConfigurationIndexController');
+
+      expect(scope.hasTouchscreen).to.be.false;
     });
   });
 
