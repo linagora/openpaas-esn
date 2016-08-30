@@ -11,19 +11,28 @@
       }
     }
 
-    .lv-title .account-inline a {
-      color: lighten(@text-color, 40%);
-      padding-left: 3px;
-    }
-
-    .media-body {
-      padding: 0;
-
-      .preview {
-        white-space: initial;
+    .inbox-twitter-screenname {
+      &.inbox-twitter-screenname-inline {
+        display: none;
 
         a {
-          opacity: 0.8;
+          margin-left: 3px;
+        }
+      }
+
+      a:not(:hover) {
+        color: @lighterSecondaryTextColor;
+      }
+    }
+  }
+}
+
+@media (min-width: @screen-xl-min) {
+  .inbox-root {
+    .inbox-twitter-list-item {
+      .inbox-twitter-screenname {
+        &.inbox-twitter-screenname-inline {
+          display: inline;
         }
       }
     }

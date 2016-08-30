@@ -1,4 +1,4 @@
-.inbox-message-list-item.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{leftTemplate}}")
+.inbox-message-list-item.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{ leftTemplate }}")
   .inbox-list-item-content.clickable(
       ng-click="esnIsDragging || ctrl.openEmail(item)",
       esn-draggable,
@@ -10,13 +10,17 @@
       esn-on-drag-end="onDragEnd($dropped)",
       esn-on-drop-failure="onDropFailure()"
     )
-    .list-image.badge-container
-      inbox-emailer-avatar(emailer='::item.from')
-    .media-body(ng-class="{bold: item.isUnread}")
-      .flex-space-between
-        .inbox-subject.lv-title.ellipsis {{ ::item.subject}}
-        .date-container {{ ::item.date | date: group.dateFormat }}
-      .flex-space-between
-        inbox-emailer.lv-title(emailer="::item.from")
-        inbox-indicators(item="item")
-    .lv-small.preview {{ ::item.preview }}
+    .inbox-item-with-icon
+      .list-image.badge-container
+        inbox-emailer-avatar(emailer='::item.from')
+      .media-body
+        .inbox-list-item-subject-and-from
+          .inbox-subject.lv-title
+            span.inbox-subject-inline(ng-class="{bold: item.isUnread}") {{ ::item.subject }}
+            span.inbox-preview-inline.inbox-preview-divider(ng-if='::item.subject') -
+            .inbox-preview-inline.lv-small.preview(ng-if="::item.preview") {{ ::item.preview }}
+          inbox-emailer.inbox-from.lv-title(emailer="::item.from", ng-class="{bold: item.isUnread}")
+        .inbox-list-item-date-and-indicators(ng-class="{bold: item.isUnread}")
+          .date-container {{ ::item.date | date: group.dateFormat }}
+          inbox-indicators(item="::item")
+    .inbox-preview-block.lv-small.preview {{ ::item.preview }}

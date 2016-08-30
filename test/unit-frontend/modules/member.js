@@ -232,10 +232,12 @@ describe('The Member Angular module', function() {
       };
 
       function check(result) {
-        expect(result.length).to.equal(members.length);
+        expect(result.length).to.equal(ELEMENTS_PER_PAGE);
+
         members.forEach(function(member) {
           expect(member).to.have.ownProperty('type');
         });
+
         done();
       }
 

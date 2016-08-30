@@ -47,6 +47,8 @@ describe('The Unified Inbox Angular module providers', function() {
       $provide.value('withJmapClient', function(cb) {
         return cb(jmapClient);
       });
+
+      $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE = 20);
     });
   });
 
@@ -60,7 +62,6 @@ describe('The Unified Inbox Angular module providers', function() {
     $httpBackend = _$httpBackend_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
-    ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
   }));
 
   describe('The inboxHostedMailMessagesProvider factory', function() {

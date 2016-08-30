@@ -53,10 +53,18 @@ angular.module('linagora.esn.unifiedinbox')
           if (email.isDraft) {
             newComposerService.openDraft(email.id);
           } else {
-            $state.go('unifiedinbox.list.messages.message', {
-              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
-              emailId: email.id
+            // Used to fallback to the absolute state name if the transition to a relative state does not work
+            // This allows us to plug '.message' states where we want and guarantee the email can still be opened
+            // when coming from a state that does not get a .message child state (like search for instance)
+            var unregisterStateNotFoundListener = $scope.$on('$stateNotFound', function(event, redirect) {
+              redirect.to = 'unifiedinbox.list.messages.message';
             });
+
+            $state.go('.message', {
+              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
+              emailId: email.id,
+              item: email
+            }).finally(unregisterStateNotFoundListener);
           }
         };
 
@@ -100,9 +108,10 @@ angular.module('linagora.esn.unifiedinbox')
           if (thread.email.isDraft) {
             newComposerService.openDraft(thread.email.id);
           } else {
-            $state.go('unifiedinbox.list.threads.thread', {
+            $state.go('.thread', {
               mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
-              threadId: thread.id
+              threadId: thread.id,
+              item: thread
             });
           }
         };

@@ -22,8 +22,10 @@
         inbox-star(item='::email')
 
   .email-body
+    .text-center(ng-if="!email.htmlBody && !email.textBody", openpaas-logo-spinner, spinner-start-active="1", spinner-size="0.5")
+
     html-email-body(ng-if="email.htmlBody", email="::email")
-    .lv-item.multilines(ng-if="!email.htmlBody", esn-string-to-dom="::email.textBody | escapeHtml | autolink")
+    .lv-item.multilines(ng-if="!email.htmlBody", esn-string-to-dom="email.textBody | escapeHtml | autolink")
 
   .lv-footer.attachments(ng-if="email.attachments.length > 0")
     inbox-attachment(ng-repeat="attachment in email.attachments", ng-if="::!attachment.isInline", attachment="::attachment")

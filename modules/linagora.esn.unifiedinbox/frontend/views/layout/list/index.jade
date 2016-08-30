@@ -1,7 +1,9 @@
-sub-header
+sub-header(ng-if="!inbox.list.isElementOpened")
   block subheader
 
-infinite-list(load-more-elements='loadMoreElements()', element-selector=".inbox-list-item").inbox-list
+.ui-view(name="preview-pane", noanimation)
+
+infinite-list(ng-class="{ offscreen: inbox.list.isElementOpened }", keep-scroll-position, load-more-elements="loadMoreElements()", element-selector=".inbox-list-item", infinite-scroll-disabled="inbox.list.isElementOpened").inbox-list
 
   .inbox-items-group(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
     .block-header(ng-if="visibleItemsInGroup.length > 0")
@@ -19,5 +21,5 @@ infinite-list(load-more-elements='loadMoreElements()', element-selector=".inbox-
     block empty-message
       inbox-empty-container-message(ng-if="::mailbox", mailbox="::mailbox")
 
-inbox-fab
-fab-scroll-top
+  inbox-fab
+  fab-scroll-top

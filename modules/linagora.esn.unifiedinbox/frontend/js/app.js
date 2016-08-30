@@ -47,6 +47,22 @@ angular.module('linagora.esn.unifiedinbox', [
       };
     }
 
+    function stateOpeningListItem(state) {
+      function toggleElementOpened(toggle) {
+        return function($rootScope) {
+          $rootScope.inbox.list.isElementOpened = toggle;
+        };
+      }
+
+      state.onEnter = toggleElementOpened(true);
+      state.onExit = toggleElementOpened(false);
+
+      state.params = state.params || {};
+      state.params.item = undefined;
+
+      return state;
+    }
+
     $stateProvider
       .state('unifiedinbox', {
         url: '/unifiedinbox',
@@ -161,6 +177,15 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
+      .state('unifiedinbox.inbox.message', stateOpeningListItem({
+        url: '/:emailId',
+        views: {
+          'preview-pane@unifiedinbox.inbox': {
+            templateUrl: '/unifiedinbox/views/email/view/index',
+            controller: 'viewEmailController as ctrl'
+          }
+        }
+      }))
       .state('unifiedinbox.twitter', {
         url: '/twitter/:username',
         views: {
@@ -193,15 +218,15 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailMessagesProvider'
         }
       })
-      .state('unifiedinbox.list.messages.message', {
+      .state('unifiedinbox.list.messages.message', stateOpeningListItem({
         url: '/:emailId',
         views: {
-          'main@unifiedinbox': {
+          'preview-pane@unifiedinbox.list.messages': {
             templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
         }
-      })
+      }))
       .state('unifiedinbox.list.threads', {
         url: '/threads',
         views: {
@@ -214,15 +239,15 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailThreadsProvider'
         }
       })
-      .state('unifiedinbox.list.threads.thread', {
+      .state('unifiedinbox.list.threads.thread', stateOpeningListItem({
         url: '/:threadId',
         views: {
-          'main@unifiedinbox': {
+          'preview-pane@unifiedinbox.list.threads': {
             templateUrl: '/unifiedinbox/views/thread/view/index',
             controller: 'viewThreadController as ctrl'
           }
         }
-      });
+      }));
 
     var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45}),
         attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
@@ -263,4 +288,12 @@ angular.module('linagora.esn.unifiedinbox', [
         }
       );
     });
+  })
+
+  .run(function($rootScope) {
+    $rootScope.inbox = {
+      list: {
+        isElementOpened: false
+      }
+    };
   });

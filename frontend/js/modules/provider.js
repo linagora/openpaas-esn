@@ -1,9 +1,14 @@
 'use strict';
 
-angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper', 'uuid4'])
+angular.module('esn.provider', [
+  'esn.aggregator',
+  'esn.lodash-wrapper',
+  'esn.infinite-list',
+  'uuid4'
+])
 
   .constant('ELEMENTS_PER_REQUEST', 200)
-  .constant('ELEMENTS_PER_PAGE', 20)
+  .constant('ELEMENTS_PER_PAGE', 1)
 
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
 
@@ -229,9 +234,11 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper', 'uuid4']
 
     return ByDateElementGroupingTool;
   })
-  .factory('infiniteScrollHelperBuilder', function($q, ELEMENTS_PER_PAGE) {
+  .factory('infiniteScrollHelperBuilder', function($q, $timeout, defaultConfiguration,
+                                                   ELEMENTS_PER_PAGE, INFINITE_LIST_LOAD_EVENT) {
     return function(scope, loadNextItems, updateScope, elements_per_page) {
       elements_per_page = elements_per_page || ELEMENTS_PER_PAGE;
+
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
           return $q.reject();
@@ -259,6 +266,13 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper', 'uuid4']
             scope.infiniteScrollCompleted = true;
 
             return $q.reject(err);
+          })
+          .then(function(result) {
+            $timeout(function() {
+              scope.$emit(INFINITE_LIST_LOAD_EVENT);
+            }, defaultConfiguration.throttle, false);
+
+            return result;
           })
           .finally(function() {
             scope.infiniteScrollDisabled = false;
