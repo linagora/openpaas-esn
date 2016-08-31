@@ -56,9 +56,14 @@ angular.module('esn.provider', [
             }));
         });
       },
-      getAllProviderNames: function() {
+      getAllProviderDefinitions: function() {
         return $q.all(this.providersPromises).then(function(providers) {
-          return _.map(_.flatten(providers), 'name');
+          return _.map(_.flatten(providers), function(provider) {
+            return {
+              id: provider.id,
+              name: provider.name
+            };
+          });
         });
       }
     };

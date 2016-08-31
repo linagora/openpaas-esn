@@ -53,17 +53,21 @@ describe('The esn.provider module', function() {
       });
     });
 
-    describe('The getAllProviderNames function', function() {
+    describe('The getAllProviderDefinitions function', function() {
 
-      it('should return an array containing all names of added providers', function() {
-        providers.add($q.when({name: 'provider1'}));
-        providers.add({name: 'provider2'});
-
+      it('should return an array containing names and ids of added providers', function() {
         var spy = sinon.spy();
-        providers.getAllProviderNames().then(spy);
 
+        providers.add($q.when({ id: 1, name: 'provider1', property: 'value' }));
+        providers.add({ id: 2, name: 'provider2', another: 'value2' });
+
+        providers.getAllProviderDefinitions().then(spy);
         $rootScope.$digest();
-        expect(spy).to.have.been.calledWith(['provider1', 'provider2']);
+
+        expect(spy).to.have.been.calledWith([
+          { id: 1, name: 'provider1' },
+          { id: 2, name: 'provider2' }
+        ]);
       });
 
     });

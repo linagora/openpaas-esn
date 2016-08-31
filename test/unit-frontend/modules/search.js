@@ -195,7 +195,7 @@ describe('The Search Form Angular module', function() {
   });
 
   describe('The searchSidebarController', function() {
-    var $controller, $scope, $q, $rootScope, $stateParams, searchProviders;
+    var $controller, $scope, $rootScope, $stateParams, searchProviders;
 
     function initController() {
       $scope = {};
@@ -203,30 +203,26 @@ describe('The Search Form Angular module', function() {
       $rootScope.$digest();
     }
 
-    beforeEach(inject(function(_$controller_, _$q_, _$rootScope_, _$stateParams_, _searchProviders_) {
+    beforeEach(inject(function(_$controller_, _$rootScope_, _$stateParams_, _searchProviders_) {
       $controller = _$controller_;
-      $q = _$q_;
       $rootScope = _$rootScope_;
       $stateParams = _$stateParams_;
       searchProviders = _searchProviders_;
-      searchProviders.getAll = function() {
-        return $q.when([
-          { id: '123', name: 'cat' },
-          { id: '456', name: 'dog' }
-        ]);
-      };
+
+      searchProviders.add({ id: '123', name: 'cat' });
+      searchProviders.add({ id: '456', name: 'dog' });
 
       initController();
     }));
 
-    it('should create a new filters Array when initialising ctrl with no stateParams.filters', function() {
+    it('should create a new filters Array when initializing ctrl with no stateParams.filters', function() {
       expect($scope.filters).to.deep.equal([
         { id: '123', name: 'cat', checked: true },
         { id: '456', name: 'dog', checked: true }
       ]);
     });
 
-    it('should create a new filters Array with existing filters when initialising ctrl with stateParams.filters', function() {
+    it('should create a new filters Array with existing filters when initializing ctrl with stateParams.filters', function() {
       var filters = [
         { id: '123', name: 'platypus', checked: true },
         { id: '456', name: 'penguin', checked: false }
