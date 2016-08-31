@@ -60,7 +60,7 @@ function getDomainConfig(moduleName, domainId, configName) {
   });
 
   return esnConfig.get(configName).then(function(config) {
-    if (!config) {
+    if (typeof config === 'undefined') {
       return q.reject(new Error('No configuration found in features collection for: ' + configName));
     }
 

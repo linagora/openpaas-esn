@@ -49,9 +49,7 @@ EsnConfig.prototype.get = function(configName) {
   return this.getMultiple([configName]).then(function(configs) {
     var config = _.find(configs, { name: configName });
 
-    if (config && config.value) {
-      return config.value;
-    }
+    return config && config.value;
   });
 };
 
@@ -125,10 +123,10 @@ EsnConfig.prototype.getConfigsFromAllDomains = function(configName) {
       return configurations.map(function(configuration) {
         var config = _.find(configuration, { name: configName });
 
-        if (config && config.value) {
-          return config.value;
-        }
-      }).filter(Boolean);
+        return config && config.value;
+      }).filter(function(value) {
+        return !_.isUndefined(value);
+      });
     });
 };
 
@@ -136,9 +134,7 @@ EsnConfig.prototype._extractModuleConfigs = function(modulName, confObj) {
   if (confObj) {
     var module = _.find(confObj.modules, { name: modulName });
 
-    if (module && module.configurations) {
-      return module.configurations;
-    }
+    return module && module.configurations;
   }
 };
 
