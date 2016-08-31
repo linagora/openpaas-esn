@@ -169,6 +169,21 @@ describe('The core/esn-config module', function() {
         });
       });
 
+      it('should not fallback to mongoconfig when get configuration from custom module (not the default one)', function(done) {
+        var key = 'key1.key2';
+        var configName = 'some_name';
+
+        confModuleMock.findByDomainId = function(domainId, callback) {
+          callback(new Error('some_error'));
+        };
+
+        this.getModule()(configName).inModule('not_core').get(key, function(err) {
+          expect(err).to.exist;
+          expect(mongoconfigMock).to.not.have.been.called;
+          done();
+        });
+      });
+
     });
 
     describe('Fallback when get domain-wide configuration', function() {

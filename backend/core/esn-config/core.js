@@ -26,17 +26,22 @@ function _getDomainWideConfig(esnConfig, configName) {
 
 function _getSystemWideConfig(moduleName, configName) {
   var esnConfig = new EsnConfig(moduleName, constants.DEFAULT_DOMAIN_ID);
+  // only fallback to mongoconfig when it is default(core) module
+  var isDefaultModule = moduleName === constants.DEFAULT_MODULE;
 
   return esnConfig.get(configName)
     .then(function(config) {
-      if (typeof config === 'undefined') {
-        return q.reject(new Error('No system-wide configuration found for: ' + configName));
+      if (typeof config === 'undefined' && isDefaultModule) {
+        return deprecatedApi.mongoconfig.get(configName);
       }
 
       return config;
-    })
-    .catch(function() {
-      return deprecatedApi.mongoconfig.get(configName);
+    }, function(err) {
+      if (isDefaultModule) {
+        return deprecatedApi.mongoconfig.get(configName);
+      }
+
+      return q.reject(err);
     });
 }
 
