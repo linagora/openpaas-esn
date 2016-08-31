@@ -87,7 +87,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
     }
 
     if (!$scope.filters) {
-      searchProviders.getAll().then(function(providers) {
+      searchProviders.getAllProviderDefinitions().then(function(providers) {
         $scope.filters = providers.map(function(provider) {
           return {
             id: provider.id,
