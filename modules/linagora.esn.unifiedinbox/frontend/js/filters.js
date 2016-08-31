@@ -70,4 +70,22 @@ angular.module('linagora.esn.unifiedinbox')
 
       return _.filter(items, inboxFilteringService.getJmapFilter());
     };
-  });
+  })
+
+ .filter('inboxFilterDescendantMailboxes', function(_) {
+   return function(mailboxes, id) {
+     if (!mailboxes || !id) {
+       return mailboxes;
+     }
+
+     var parent = _.find(mailboxes, { id: id });
+
+     if (!parent) {
+       return mailboxes;
+     }
+
+     return _.filter(mailboxes, function(mailbox) {
+       return mailbox.id !== id && !_.find(parent.descendants, { id: mailbox.id });
+     });
+   };
+ });
