@@ -8,7 +8,7 @@
           a(ng-href="#/profile/{{::entry.actor._id}}") {{::entry.actor.displayName}}
           span &nbsp;#{__('started to follow you')}
         h2(ng-if='entry.actor._id === user._id')
-          span &nbsp;#{__('You started to follow')}
+          span #{__('You started to follow')}
           a(ng-href="#/profile/{{::entry.object._id}}") &nbsp;{{::entry.object.displayName}}
         small
           span(am-time-ago="::entry.published")
