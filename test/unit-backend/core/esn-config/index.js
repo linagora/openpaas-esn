@@ -28,7 +28,7 @@ describe('The core/esn-config module', function() {
           value: 'inbox1'
         }, {
           name: 'inbox2',
-          value: 'inbox2'
+          value: false
         }]
       }]
     };
@@ -55,6 +55,13 @@ describe('The core/esn-config module', function() {
     it('should return promise that resolves configuration', function(done) {
       this.getModule()('config1').get().then(function(data) {
         expect(data).to.equal('config1');
+        done();
+      });
+    });
+
+    it('should return promise resolving configuration even it has falsy value', function(done) {
+      this.getModule()('inbox2').inModule('inbox').get().then(function(data) {
+        expect(data).to.equal(false);
         done();
       });
     });
@@ -195,7 +202,7 @@ describe('The core/esn-config module', function() {
                           value: 'inbox1'
                         }, {
                           name: 'inbox2',
-                          value: 'inbox2'
+                          value: false
                         }]
                       }]
                     });
@@ -405,7 +412,7 @@ describe('The core/esn-config module', function() {
             value: 'inbox1'
           }, {
             name: 'inbox2',
-            value: 'inbox2'
+            value: false
           }]
         }]
       };
@@ -439,7 +446,7 @@ describe('The core/esn-config module', function() {
             value: 'inbox1'
           }, {
             name: 'inbox2',
-            value: 'inbox2'
+            value: false
           }]
         }]
       };
@@ -483,7 +490,7 @@ describe('The core/esn-config module', function() {
             value: 'inbox1'
           }, {
             name: 'inbox2',
-            value: 'inbox2'
+            value: false
           }]
         }]
       };

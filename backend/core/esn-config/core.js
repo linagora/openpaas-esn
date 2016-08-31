@@ -13,7 +13,7 @@ function _getDomainWideConfig(esnConfig, configName) {
 
   return esnConfig.get(configName)
     .then(function(config) {
-      if (!config) {
+      if (typeof config === 'undefined') {
         return q.reject(new Error('No domain-wide configuration found for: ' + configName));
       }
 
@@ -29,7 +29,7 @@ function _getSystemWideConfig(moduleName, configName) {
 
   return esnConfig.get(configName)
     .then(function(config) {
-      if (!config) {
+      if (typeof config === 'undefined') {
         return q.reject(new Error('No system-wide configuration found for: ' + configName));
       }
 

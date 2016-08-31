@@ -146,6 +146,27 @@ describe('The core/esn-config/esn-config.js module', function() {
       }, done.bind(null, 'should resolve'));
     });
 
+    it('should resolve a single configuration if found even it is falsy', function(done) {
+      var config1 = {
+        name: 'key1',
+        value: false
+      };
+      var config2 = {
+        name: 'key2',
+        value: 'val2'
+      };
+
+      confModuleMock.findByDomainId = function(domainId, callback) {
+        expect(domainId).to.equal(DOMAIN_ID);
+        callback(null, createConfiguration(MODULE_NAME, [config1, config2]));
+      };
+
+      esnConfig.get(config1.name).then(function(data) {
+        expect(data).to.equal(config1.value);
+        done();
+      }, done.bind(null, 'should resolve'));
+    });
+
     it('should resolve undefined if no configuration found', function(done) {
       var config1 = {
         name: 'key1',
@@ -302,16 +323,21 @@ describe('The core/esn-config/esn-config.js module', function() {
         name: configName,
         value: 'val2'
       };
+      var config3 = {
+        name: configName,
+        value: false
+      };
 
       confModuleMock.getAll = function(callback) {
         callback(null, [
           createConfiguration(MODULE_NAME, [config1]),
-          createConfiguration(MODULE_NAME, [config2])
+          createConfiguration(MODULE_NAME, [config2]),
+          createConfiguration(MODULE_NAME, [config3])
         ]);
       };
 
       esnConfig.getConfigsFromAllDomains(configName).then(function(data) {
-        expect(data).to.deep.equal([config1.value, config2.value]);
+        expect(data).to.deep.equal([config1.value, config2.value, config3.value]);
         done();
       }, done.bind(null, 'should resolve'));
     });
