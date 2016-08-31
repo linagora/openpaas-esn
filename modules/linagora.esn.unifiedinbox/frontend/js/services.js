@@ -414,11 +414,8 @@ angular.module('linagora.esn.unifiedinbox')
     function newMobileComposer(email, compositionOptions) {
       $state.go('unifiedinbox.compose', {
         email: email,
-        compositionOptions: compositionOptions,
-        previousState: {
-          name: $state.current.name,
-          params: $state.params
-        }});
+        compositionOptions: compositionOptions
+      });
     }
 
     function newBoxedComposerCustomTitle(email, compositionOptions) {

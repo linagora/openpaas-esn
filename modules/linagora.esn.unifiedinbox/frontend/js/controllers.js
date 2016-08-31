@@ -256,7 +256,7 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, mailboxesService, Mailbox, rejectWithErrorNotification) {
+  .controller('addFolderController', function($scope, $state, mailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousState) {
     mailboxesService.assignMailboxesList($scope);
 
     $scope.mailbox = new Mailbox({});
@@ -266,13 +266,14 @@ angular.module('linagora.esn.unifiedinbox')
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      $state.go('unifiedinbox');
+      esnPreviousState.go('unifiedinbox');
 
       return mailboxesService.createMailbox($scope.mailbox);
     };
   })
 
-  .controller('editFolderController', function($scope, $state, $stateParams, mailboxesService, _, rejectWithErrorNotification) {
+  .controller('editFolderController', function($scope, $state, $stateParams, mailboxesService, _,
+                                               rejectWithErrorNotification, esnPreviousState) {
     var originalMailbox;
 
     mailboxesService
@@ -287,13 +288,13 @@ angular.module('linagora.esn.unifiedinbox')
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      $state.go('unifiedinbox');
+      esnPreviousState.go('unifiedinbox');
 
       return mailboxesService.updateMailbox(originalMailbox, $scope.mailbox);
     };
   })
 
-  .controller('inboxDeleteFolderController', function($scope, $state, $stateParams, mailboxesService, _) {
+  .controller('inboxDeleteFolderController', function($scope, $state, $stateParams, mailboxesService, _, esnPreviousState) {
     mailboxesService
       .assignMailbox($stateParams.mailbox, $scope, true)
       .then(function(mailbox) {
@@ -316,14 +317,15 @@ angular.module('linagora.esn.unifiedinbox')
       });
 
     this.deleteFolder = function() {
-      $state.go('unifiedinbox');
+      esnPreviousState.go('unifiedinbox');
 
       return mailboxesService.destroyMailbox($scope.mailbox);
     };
   })
 
-  .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $stateParams, $q, moment, jmap,
-                                                               withJmapClient, rejectWithErrorNotification, asyncJmapAction, INBOX_EVENTS) {
+  .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $stateParams, $q,
+                                                               moment, jmap, withJmapClient, rejectWithErrorNotification,
+                                                               asyncJmapAction, esnPreviousState, INBOX_EVENTS) {
     var self = this;
 
     this.momentTimes = {
@@ -409,7 +411,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.updateVacation = function() {
       return _validateVacationLogic()
         .then(function() {
-          $state.go('unifiedinbox');
+          esnPreviousState.go('unifiedinbox');
 
           if (!$scope.vacation.hasToDate) {
             $scope.vacation.toDate = null;

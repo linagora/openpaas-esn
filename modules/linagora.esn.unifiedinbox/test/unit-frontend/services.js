@@ -1679,8 +1679,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
           email: undefined,
-          compositionOptions: undefined,
-          previousState: { name: 'stateName', params: 'stateParams' }
+          compositionOptions: undefined
         });
       });
 
@@ -1716,8 +1715,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
           email: { id: 'id' },
-          compositionOptions: undefined,
-          previousState: { name: 'stateName', params: 'stateParams' }
+          compositionOptions: undefined
         });
       });
 
@@ -1764,8 +1762,8 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
           email: {expected: 'field'},
-          compositionOptions: undefined,
-          previousState: { name: 'stateName', params: 'stateParams' }});
+          compositionOptions: undefined
+        });
       });
 
       it('should delegate to boxOverlayOpener if deviceDetector returns false', function() {
@@ -1806,8 +1804,8 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect($state.go).to.have.been.calledWith('unifiedinbox.compose', {
           email: {expected: 'field'},
-          compositionOptions: {expected: 'options'},
-          previousState: { name: 'stateName', params: 'stateParams' }});
+          compositionOptions: {expected: 'options'}
+        });
       });
 
       it('should forward the compositionOptions when "open" is called and is not on mobile', function() {

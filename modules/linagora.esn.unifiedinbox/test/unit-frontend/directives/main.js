@@ -11,7 +11,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
       sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _, INBOX_EVENTS,
-      notificationFactory, IFRAME_MESSAGE_PREFIXES;
+      notificationFactory, esnPreviousState, IFRAME_MESSAGE_PREFIXES;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -21,6 +21,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     angular.mock.module('esn.session');
     angular.mock.module('esn.configuration');
     angular.mock.module('esn.dropdownList');
+    angular.mock.module('esn.previous-state');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
   });
@@ -28,7 +29,10 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   beforeEach(module(function($provide) {
     isMobile = false;
     windowMock = {
-      open: sinon.spy()
+      open: sinon.spy(),
+      history: {
+        back: angular.noop()
+      }
     };
     inboxConfigMock = {};
 
@@ -73,7 +77,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_,
-                             _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _IFRAME_MESSAGE_PREFIXES_) {
+                             _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _esnPreviousState_, _IFRAME_MESSAGE_PREFIXES_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
@@ -82,6 +86,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     $state = _$state_;
     jmap = _jmap_;
     _ = ___;
+    esnPreviousState = _esnPreviousState_;
     INBOX_EVENTS = _INBOX_EVENTS_;
     notificationFactory = _notificationFactory_;
     IFRAME_MESSAGE_PREFIXES = _IFRAME_MESSAGE_PREFIXES_;
@@ -424,7 +429,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl;
+      var directive, ctrl, toState = { name: 'toStateName' };
 
       beforeEach(function() {
         $stateParams.previousState = {
@@ -435,10 +440,11 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
         $state.go = sinon.spy();
+        esnPreviousState.go = sinon.spy();
       });
 
       it('should save draft when state has successfully changed', function() {
-        $rootScope.$broadcast('$stateChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess', toState);
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
@@ -451,14 +457,14 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should disable the listener when state has successfully changed to a state with ignoreSaveAsDraft=true', function() {
         $rootScope.$broadcast('$stateChangeSuccess', { data: { ignoreSaveAsDraft: true } });
-        $rootScope.$broadcast('$stateChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess', toState);
 
         expect(ctrl.saveDraft).to.have.not.been.calledWith();
       });
 
       it('should save draft only once when close is called, then location has successfully changed', function() {
         $scope.close();
-        $rootScope.$broadcast('$stateChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess', toState);
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
@@ -471,8 +477,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should back to previous state with correct parameters when the composer is closed', function() {
         $scope.close();
-        expect($state.go).to.have.been.calledOnce;
-        expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
+        expect(esnPreviousState.go).to.have.been.calledOnce;
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -484,8 +490,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should back to previous state with correct parameters when the composer is hidden', function() {
         $scope.hide();
 
-        expect($state.go).to.have.been.calledOnce;
-        expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
+        expect(esnPreviousState.go).to.have.been.calledOnce;
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
       function sendDraftWhileOffline(email) {
