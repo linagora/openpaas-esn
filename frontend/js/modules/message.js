@@ -586,6 +586,14 @@ angular.module('esn.message', ['esn.timeline', 'esn.maps', 'esn.file', 'esn.back
           $scope.message.likes.total_count++;
         };
 
+        $scope.onMessageUnliked = function() {
+          if ($scope.message.likes.total_count <= 0) {
+            $scope.message.likes.total_count = 0;
+          } else {
+            $scope.message.likes.total_count--;
+          }
+        };
+
         if (!$scope.activitystream) {
           var origins = $scope.message.streamOrigins;
           if (origins && origins.length > 0) {

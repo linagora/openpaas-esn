@@ -12,7 +12,8 @@ angular.module('esn.like', [
         liked: '=',
         targetId: '=',
         targetObjectType: '=',
-        onLiked: '&'
+        onLiked: '&',
+        onUnliked: '&'
       },
       templateUrl: '/views/modules/like/like-button.html',
       link: function(scope) {
@@ -36,6 +37,28 @@ angular.module('esn.like', [
             scope.onLiked();
           }, function(err) {
             $log.error('Error while liking resource', err);
+          });
+        };
+
+        scope.unlike = function() {
+          if (!scope.liked) {
+            return;
+          }
+
+          var source = {
+            objectType: 'user',
+            id: session.user._id
+          };
+          var target = {
+            objectType: scope.targetObjectType,
+            id: scope.targetId
+          };
+
+          ResourceLinkAPI.remove(source, target, LIKE_LINK_TYPE).then(function() {
+            scope.liked = false;
+            scope.onUnliked && scope.onUnliked();
+          }, function(err) {
+            $log.error('Error while disliking resource', err);
           });
         };
       }

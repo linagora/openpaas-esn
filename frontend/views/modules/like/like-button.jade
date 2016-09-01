@@ -1,2 +1,2 @@
-a.like-button(ng-href="", ng-click='like()', ng-class='liked ? "liked" : ""')
+a.like-button(ng-href="", ng-click='liked ? unlike(): like()', ng-class="{'liked': liked}")
   i.mdi.mdi-thumb-up

@@ -39,5 +39,32 @@ describe('The esn.resource-link Angular module', function() {
         this.$httpBackend.flush();
       });
     });
+    describe('The remove function', function() {
+      it('should send a valid request', function(done) {
+        var source = {
+          objectType: 'user',
+          id: '123'
+        };
+
+        var target = {
+          objectType: 'esn.message',
+          id: '456'
+        };
+
+        var type = 'like';
+
+        this.$httpBackend.expect('DELETE', '/api/resource-links', {
+          source: source,
+          target: target,
+          type: type
+        }, {'Content-Type': 'application/json', Accept: 'application/json, text/plain, */*'}).respond(204);
+        this.ResourceLinkAPI
+          .remove(source, target, type)
+          .then(function() {
+            done();
+          });
+        this.$httpBackend.flush();
+      });
+    });
   });
 });

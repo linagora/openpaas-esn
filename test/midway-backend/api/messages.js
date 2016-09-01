@@ -1296,6 +1296,57 @@ describe.skip('The messages API', function() {
       });
     });
 
+    describe('When user wants to unlike a message', function() {
+
+      describe('DELETE /api/resource-links', function() {
+
+        it('should be able to unlike a message when message belongs to a "likable" stream', function(done) {
+          var self = this;
+          var link = {
+            type: 'like',
+            source: {objectType: 'user', id: String(testuser._id)},
+            target: {objectType: 'esn.message', id: String(message1._id)}
+          };
+
+          self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+            loggedInAsUser(request(app)
+              .delete('/api/resource-links'))
+              .send(link)
+              .expect(204)
+              .end(function(err, res) {
+                if (err) {
+                  return done(err);
+                }
+                done();
+              });
+          }));
+        });
+
+        it('should not be able to unlike a message for another user', function(done) {
+          var self = this;
+          var link = {
+            type: 'like',
+            sourceId: String(testuser._id),
+            sourceObjectType: 'user',
+            targetId: String(message1._id),
+            targetObjectType: 'esn.message'
+          };
+          self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+            loggedInAsUser(request(app)
+              .delete('/api/resource-links'))
+              .send(link)
+              .expect(403)
+              .end(function(err, res) {
+                if (err) {
+                  return done(err);
+                }
+                done();
+              });
+          }));
+        });
+      });
+    });
+
     describe('When messages are liked', function() {
 
       beforeEach(function() {

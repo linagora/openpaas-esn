@@ -21,8 +21,13 @@ angular.module('esn.resource-link', ['esn.http'])
     }
 
     function remove(source, target, type) {
-      return get(source, target, type).then(function(link) {
-        return esnRestangular.all('resource-links').customDELETE(link._id);
+      return esnRestangular.all('resource-links').customDELETE(null, null, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/plain, */*'
+      }, {
+        source: source,
+        target: target,
+        type: type
       });
     }
 
