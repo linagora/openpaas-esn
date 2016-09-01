@@ -3,6 +3,22 @@
 angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
   .constant('AVATAR_MIN_SIZE_PX', 256)
   .constant('AVATAR_MAX_SIZE_MB', 5)
+  .provider('avatarDefaultUrl', function() {
+    var url = '/images/community.png';
+
+    return {
+      set: function(value) {
+        url = value || '/images/community.png';
+      },
+      $get: function() {
+        return {
+          get: function() {
+            return url;
+          }
+        };
+      }
+    };
+  })
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
@@ -335,12 +351,12 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       }
     };
   })
-  .directive('avatarPicker', function(selectionService, $alert) {
+  .directive('avatarPicker', function(selectionService, $alert, avatarDefaultUrl) {
     function link($scope, element, attrs) {
       $scope.image = {
         selected: false
       };
-      $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : '/images/community.png';
+      $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : avatarDefaultUrl.get();
 
       var alertInstance = null;
       function destroyAlertInstance() {
