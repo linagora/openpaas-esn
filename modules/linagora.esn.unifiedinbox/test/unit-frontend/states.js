@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The Inbox states', function() {
 
   var $rootScope, $templateCache, $state, $modal;
-  var jmapClient, hideModal;
+  var jmapClient, hideModal, esnPreviousState;
   var HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT;
 
   function mockTemplate(templateUri) {
@@ -24,6 +24,7 @@ describe('The Inbox states', function() {
     angular.mock.module('esn.core');
     angular.mock.module('jadeTemplates');
     angular.mock.module('linagora.esn.unifiedinbox');
+    angular.mock.module('esn.previous-state');
   });
 
   beforeEach(function() {
@@ -46,11 +47,12 @@ describe('The Inbox states', function() {
   });
 
   beforeEach(function() {
-    inject(function(_$rootScope_, _$templateCache_, _$state_,
+    inject(function(_$rootScope_, _$templateCache_, _$state_, _esnPreviousState_,
                     _HEADER_VISIBILITY_EVENT_, _HEADER_DISABLE_SCROLL_LISTENER_EVENT_) {
       $rootScope = _$rootScope_;
       $templateCache = _$templateCache_;
       $state = _$state_;
+      esnPreviousState = _esnPreviousState_;
 
       HEADER_VISIBILITY_EVENT = _HEADER_VISIBILITY_EVENT_;
       HEADER_DISABLE_SCROLL_LISTENER_EVENT = _HEADER_DISABLE_SCROLL_LISTENER_EVENT_;
@@ -62,6 +64,8 @@ describe('The Inbox states', function() {
       mockTemplate('/unifiedinbox/views/configuration/folders/index');
       mockTemplate('/unifiedinbox/views/configuration/folders/edit/index');
       mockTemplate('/unifiedinbox/views/configuration/folders/delete/index');
+      mockTemplate('/unifiedinbox/views/unified-inbox/index');
+      mockTemplate('/unifiedinbox/views/configuration/vacation/index');
     });
   });
 
@@ -111,6 +115,23 @@ describe('The Inbox states', function() {
       goTo('unifiedinbox');
     });
 
+  });
+
+  describe('The unifiedinbox configuration root state', function() {
+    it('should call set esnPreviousState when entering any configuration state', function() {
+      esnPreviousState.set = sinon.spy();
+      goTo('unifiedinbox.configuration.folders');
+
+      expect(esnPreviousState.set).to.have.been.calledWith();
+    });
+
+    it('should call set esnPreviousState only once when navigating through siblings states', function() {
+      esnPreviousState.set = sinon.spy();
+      goTo('unifiedinbox.configuration.folders');
+      goTo('unifiedinbox.configuration.vacation');
+
+      expect(esnPreviousState.set).to.have.been.calledOnce;
+    });
   });
 
   describe('The unifiedinbox.configuration.folders.folder.delete state', function() {

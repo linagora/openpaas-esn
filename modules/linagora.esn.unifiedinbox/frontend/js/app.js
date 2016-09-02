@@ -81,7 +81,10 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, compositionOptions: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
+        params: { email: {}, compositionOptions: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } },
+        onEnter: function(esnPreviousState) {
+          esnPreviousState.set();
+        }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
@@ -109,6 +112,9 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/configuration/index',
             controller: 'inboxConfigurationIndexController'
           }
+        },
+        onEnter: function(esnPreviousState) {
+          esnPreviousState.set();
         }
       })
       .state('unifiedinbox.configuration.folders', {
