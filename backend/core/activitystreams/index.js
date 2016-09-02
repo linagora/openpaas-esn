@@ -129,6 +129,15 @@ function getTimelineEntries(options, callback) {
     }
 
     q = q.or(or);
+
+    if (options.excludeVerbs) {
+      var and = options.excludeVerbs.map(function(verb) {
+        return { verb: { $ne: verb } };
+      });
+
+      q = q.where('verb').and(and);
+    }
+
     return q;
   }
 
