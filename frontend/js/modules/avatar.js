@@ -3,6 +3,39 @@
 angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
   .constant('AVATAR_MIN_SIZE_PX', 256)
   .constant('AVATAR_MAX_SIZE_MB', 5)
+  .constant('AVATAR_OFFSET', 10)
+  .provider('avatarDefaultUrl', function() {
+    var url = '/images/community.png';
+
+    return {
+      set: function(value) {
+        url = value || '/images/community.png';
+      },
+      $get: function() {
+        return {
+          get: function() {
+            return url;
+          }
+        };
+      }
+    };
+  })
+  .provider('jcropExtendOptions', function() {
+    var options = {};
+
+    return {
+      set: function(value) {
+        options = value || {};
+      },
+      $get: function() {
+        return {
+          get: function() {
+            return options;
+          }
+        };
+      }
+    };
+  })
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
@@ -233,7 +266,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       }
     };
   })
-  .directive('imgLoaded', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
+  .directive('imgLoaded', function(selectionService, AVATAR_MIN_SIZE_PX, AVATAR_OFFSET, deviceDetector, jcropExtendOptions) {
     return {
       restrict: 'E',
       replace: true,
@@ -260,6 +293,8 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           var height = image.height * (width / image.width);
           var ratio = image.width / width;
           var minsize = AVATAR_MIN_SIZE_PX / ratio;
+          var minSetSelectSizeX = width - AVATAR_OFFSET;
+          var minSetSelectSizeY = height - AVATAR_OFFSET;
           canvas.width = width;
           canvas.height = height;
 
@@ -276,16 +311,16 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
             selectionService.broadcastSelection({cords: x, ratio: ratio});
           };
 
-          angular.element(myImg).Jcrop({
+          angular.element(myImg).Jcrop(angular.extend({}, {
             bgColor: 'black',
             bgOpacity: 0.6,
-            setSelect: [0, 0, minsize, minsize],
+            setSelect: [AVATAR_OFFSET, AVATAR_OFFSET, minSetSelectSizeX, minSetSelectSizeY],
             minSize: [minsize, minsize],
             aspectRatio: 1,
             touchSupport: true,
             onSelect: broadcastSelection,
-            onChange: deviceDetector.isDesktop() ? broadcastSelection : function(x) {}
-          });
+            onChange: deviceDetector.isDesktop() ? broadcastSelection : function() {}
+          }, jcropExtendOptions.get()));
 
         });
         scope.$on('$destroy', clear);
@@ -302,6 +337,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           evt.stopPropagation();
           evt.preventDefault();
           selectionService.reset();
+          selectionService.clear();
           var file = evt.dataTransfer !== undefined ? evt.dataTransfer.files[0] : evt.target.files[0];
           if (!file || !file.type.match(/^image\//)) {
             selectionService.setError('Wrong file type, please select a valid image');
@@ -335,12 +371,12 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       }
     };
   })
-  .directive('avatarPicker', function(selectionService, $alert) {
+  .directive('avatarPicker', function(selectionService, $alert, avatarDefaultUrl) {
     function link($scope, element, attrs) {
       $scope.image = {
         selected: false
       };
-      $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : '/images/community.png';
+      $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : avatarDefaultUrl.get();
 
       var alertInstance = null;
       function destroyAlertInstance() {
