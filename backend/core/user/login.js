@@ -6,10 +6,12 @@ var mongoose = require('mongoose');
 
 var config = require('../esn-config')('login');
 var pubsub = require('../pubsub').local;
+var globalpubsub = require('../pubsub').global;
 var jwt = require('../auth').jwt;
 var email = require('../email');
 var i18n =  require('../../i18n');
 var helpers = require('../../helpers');
+var CONSTANTS = require('./constants');
 
 var User = mongoose.model('User');
 var PasswordReset = mongoose.model('PasswordReset');
@@ -119,5 +121,16 @@ module.exports.sendPasswordReset = function(user, callback) {
         ], callback);
       }
     });
+  });
+};
+
+module.exports.setDisabled = function(user, disabled, callback) {
+  user.login.disabled = disabled;
+  user.save(function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    pubsub.topic(CONSTANTS.EVENTS.userDisabled).forward(globalpubsub, {user: result, disabled: disabled});
+    callback(null, result);
   });
 };

@@ -7,7 +7,8 @@ module.exports = {
   EVENTS: {
     userCreated: 'users:user:add',
     userUpdated: 'users:user:update',
-    userDeleted: 'users:user:delete'
+    userDeleted: 'users:user:delete',
+    userDisabled: 'users:user:disable'
   },
   ELASTICSEARCH: {
     type: 'users',

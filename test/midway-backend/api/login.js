@@ -186,4 +186,38 @@ describe('The login API', function() {
         .end(done);
     });
   });
+
+  it('should not be able to login when user is disabled', function(done) {
+
+    var User = this.mongoose.model('User');
+    User.loadFromEmail(email, function(err, currentUser) {
+      if (err) {
+        return done(err);
+      }
+
+      currentUser.login = { disabled: true };
+      currentUser.save(function(err) {
+        if (err) {
+          return done(err);
+        }
+
+        request(app)
+          .post('/api/login')
+          .send({username: email, password: password, rememberme: false})
+          .expect(403)
+          .end(function(err, res) {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 403, message: 'Forbidden', details: 'The specified account is disabled'
+              }
+            });
+            done();
+          });
+      });
+    });
+  });
+
 });
