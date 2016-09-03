@@ -12,88 +12,216 @@ describe('The login-rules middleware', function() {
     mockery.registerMock('../../core/logger', loggerMock);
   });
 
-  it('should call next when username is not set', function(done) {
-    var req = {
-      body: {}
-    };
+  describe('The checkLoginCount function', function() {
 
-    var next = function() {
-      done();
-    };
+    it('should call next when username is not set', function(done) {
+      var req = {
+        body: {}
+      };
 
-    var userLoginMocked = {
-      canLogin: function(username, callback) {}
-    };
-    mockery.registerMock('../../core/user/login', userLoginMocked);
+      var next = function() {
+        done();
+      };
 
-    var userMocked = {
-    };
-    mockery.registerMock('../../core/user', userMocked);
+      var userLoginMocked = {
+        canLogin: function(username, callback) {
+        }
+      };
+      mockery.registerMock('../../core/user/login', userLoginMocked);
 
-    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
-    middleware(req, {}, next);
+      var userMocked = {};
+      mockery.registerMock('../../core/user', userMocked);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
+      middleware(req, {}, next);
+    });
+
+    it('should call next when user login limit is not reached', function(done) {
+      var req = {
+        body: {
+          username: 'aUsername'
+        }
+      };
+
+      var next = function() {
+        expect(req.recaptchaFlag).not.to.exist;
+        done();
+      };
+
+      var userLoginMocked = {
+        canLogin: function(username, callback) {
+          callback(null, true);
+        }
+      };
+      mockery.registerMock('../../core/user/login', userLoginMocked);
+
+      var userMocked = {
+        findByEmail: function(email, callback) {
+          return callback(null, {});
+        }
+      };
+      mockery.registerMock('../../core/user', userMocked);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
+      middleware(req, {}, next);
+    });
+
+    it('should add a flag recaptchaFlag setted to true with too many attemps', function(done) {
+      var req = {
+        body: {
+          username: 'aUsername'
+        }
+      };
+
+      var next = function() {
+        expect(req.recaptchaFlag).to.be.true;
+        done();
+      };
+
+      var userLoginMocked = {
+        canLogin: function(username, callback) {
+          callback(null, false);
+        }
+      };
+      mockery.registerMock('../../core/user/login', userLoginMocked);
+
+      var userMocked = {
+        findByEmail: function(email, callback) {
+          return callback(null, {});
+        }
+      };
+      mockery.registerMock('../../core/user', userMocked);
+      var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
+      middleware(req, {}, next);
+    });
+
+    it('should return 500 on error with canLogin method', function(done) {
+      var req = {
+        body: {
+          username: 'aUsername'
+        }
+      };
+
+      var res = {
+        status: function(code) {
+          expect(code).to.equal(500);
+          return {
+            json: function(data) {
+              expect(data.error.message).to.match(/Server Error/);
+              done();
+            }
+          };
+        }
+      };
+
+      var userLoginMocked = {
+        canLogin: function(username, callback) {
+          callback(new Error(''), false);
+        }
+      };
+      mockery.registerMock('../../core/user/login', userLoginMocked);
+
+      var userMocked = {
+        findByEmail: function(email, callback) {
+          return callback(null, {});
+        }
+      };
+      mockery.registerMock('../../core/user', userMocked);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
+      middleware(req, res, {});
+    });
+
+    it('should return 500 on error with findByEmail method', function(done) {
+      var req = {
+        body: {
+          username: 'aUsername'
+        }
+      };
+
+      var res = {
+        status: function(code) {
+          expect(code).to.equal(500);
+          return {
+            json: function(data) {
+              expect(data.error.message).to.match(/Server Error/);
+              done();
+            }
+          };
+        }
+      };
+
+      var userLoginMocked = {
+        canLogin: function(username, callback) {
+        }
+      };
+      mockery.registerMock('../../core/user/login', userLoginMocked);
+
+      var userMocked = {
+        findByEmail: function(email, callback) {
+          return callback(new Error());
+        }
+      };
+      mockery.registerMock('../../core/user', userMocked);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
+      middleware(req, res, {});
+    });
+
+    it('should call next if user is not found', function(done) {
+      var req = {
+        body: {
+          username: 'aUsername'
+        }
+      };
+
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(500);
+          expect(data.message).to.equal('Server Error');
+          done();
+        }
+      };
+
+      var userLoginMocked = {
+        canLogin: function(username, callback) {
+        }
+      };
+      mockery.registerMock('../../core/user/login', userLoginMocked);
+
+      var userMocked = {
+        findByEmail: function(email, callback) {
+          return callback();
+        }
+      };
+      mockery.registerMock('../../core/user', userMocked);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
+      middleware(req, res, function() {
+        done();
+      });
+    });
   });
 
-  it('should call next when user login limit is not reached', function(done) {
-    var req = {
-      body: {
-        username: 'aUsername'
-      }
-    };
+  describe('The checkDisabled function', function() {
 
-    var next = function() {
-      expect(req.recaptchaFlag).not.to.exist;
-      done();
-    };
+    it('should call next when username is not set', function(done) {
+      var req = {
+        body: {}
+      };
 
-    var userLoginMocked = {
-      canLogin: function(username, callback) {
-        callback(null, true);
-      }
-    };
-    mockery.registerMock('../../core/user/login', userLoginMocked);
+      mockery.registerMock('../../core/user/login', {});
+      mockery.registerMock('../../core/user', {
+        findByEmail: function() {
+          done(new Error());
+        }
+      });
 
-    var userMocked = {
-      findByEmail: function(email, callback) {
-        return callback(null, {});
-      }
-    };
-    mockery.registerMock('../../core/user', userMocked);
-
-    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
-    middleware(req, {}, next);
+      this.helpers.requireBackend('webserver/middleware/login-rules').checkDisabled(req, {}, done);
+    });
   });
 
-  it('should add a flag recaptchaFlag setted to true with too many attemps', function(done) {
-    var req = {
-      body: {
-        username: 'aUsername'
-      }
-    };
-
-    var next = function() {
-      expect(req.recaptchaFlag).to.be.true;
-      done();
-    };
-
-    var userLoginMocked = {
-      canLogin: function(username, callback) {
-        callback(null, false);
-      }
-    };
-    mockery.registerMock('../../core/user/login', userLoginMocked);
-
-    var userMocked = {
-      findByEmail: function(email, callback) {
-        return callback(null, {});
-      }
-    };
-    mockery.registerMock('../../core/user', userMocked);
-    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
-    middleware(req, {}, next);
-  });
-
-  it('should return 500 on error with canLogin method', function(done) {
+  it('should return error when user.findByEmail fails', function(done) {
     var req = {
       body: {
         username: 'aUsername'
@@ -101,64 +229,47 @@ describe('The login-rules middleware', function() {
     };
 
     var res = {
-      json: function(code, data) {
+      status: function(code) {
         expect(code).to.equal(500);
-        expect(data.message).to.equal('Server Error');
-        done();
+        return {
+          json: function(data) {
+            expect(data.error.message).to.match(/Server Error/);
+            done();
+          }
+        };
       }
     };
 
-    var userLoginMocked = {
-      canLogin: function(username, callback) {
-        callback(new Error(''), false);
-      }
-    };
-    mockery.registerMock('../../core/user/login', userLoginMocked);
-
-    var userMocked = {
-      findByEmail: function(email, callback) {
-        return callback(null, {});
-      }
-    };
-    mockery.registerMock('../../core/user', userMocked);
-
-    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
-    middleware(req, res, {});
-  });
-
-  it('should return 500 on error with findByEmail method', function(done) {
-    var req = {
-      body: {
-        username: 'aUsername'
-      }
-    };
-
-    var res = {
-      json: function(code, data) {
-        expect(code).to.equal(500);
-        expect(data.message).to.equal('Server Error');
-        done();
-      }
-    };
-
-    var userLoginMocked = {
-      canLogin: function(username, callback) {
-      }
-    };
-    mockery.registerMock('../../core/user/login', userLoginMocked);
-
-    var userMocked = {
+    mockery.registerMock('../../core/user/login', {});
+    mockery.registerMock('../../core/user', {
       findByEmail: function(email, callback) {
         return callback(new Error());
       }
-    };
-    mockery.registerMock('../../core/user', userMocked);
+    });
 
-    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
-    middleware(req, res, {});
+    this.helpers.requireBackend('webserver/middleware/login-rules').checkDisabled(req, res, function() {
+      done(new Error());
+    });
   });
 
-  it('should call next if user is not found', function(done) {
+  it('should call next when user is not found', function(done) {
+    var req = {
+      body: {
+        username: 'aUsername'
+      }
+    };
+
+    mockery.registerMock('../../core/user/login', {});
+    mockery.registerMock('../../core/user', {
+      findByEmail: function(email, callback) {
+        return callback();
+      }
+    });
+
+    this.helpers.requireBackend('webserver/middleware/login-rules').checkDisabled(req, {}, done);
+  });
+
+  it('should return HTTP 403 when user is disabled', function(done) {
     var req = {
       body: {
         username: 'aUsername'
@@ -166,29 +277,45 @@ describe('The login-rules middleware', function() {
     };
 
     var res = {
-      json: function(code, data) {
-        expect(code).to.equal(500);
-        expect(data.message).to.equal('Server Error');
-        done();
+      status: function(code) {
+        expect(code).to.equal(403);
+        return {
+          json: function(data) {
+            expect(data.error.message).to.match(/Forbidden/);
+            expect(data.error.details).to.match(/The specified account is disabled/);
+            done();
+          }
+        };
       }
     };
 
-    var userLoginMocked = {
-      canLogin: function(username, callback) {
-      }
-    };
-    mockery.registerMock('../../core/user/login', userLoginMocked);
-
-    var userMocked = {
+    mockery.registerMock('../../core/user/login', {});
+    mockery.registerMock('../../core/user', {
       findByEmail: function(email, callback) {
-        return callback();
+        return callback(null, {login: {disabled: true}});
       }
-    };
-    mockery.registerMock('../../core/user', userMocked);
+    });
 
-    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
-    middleware(req, res, function() {
-      done();
+    this.helpers.requireBackend('webserver/middleware/login-rules').checkDisabled(req, res, function() {
+      done(new Error());
     });
   });
+
+  it('should call next when user is not disabled', function(done) {
+    var req = {
+      body: {
+        username: 'aUsername'
+      }
+    };
+
+    mockery.registerMock('../../core/user/login', {});
+    mockery.registerMock('../../core/user', {
+      findByEmail: function(email, callback) {
+        return callback(null, {login: {disabled: false}});
+      }
+    });
+
+    this.helpers.requireBackend('webserver/middleware/login-rules').checkDisabled(req, {}, done);
+  });
+
 });

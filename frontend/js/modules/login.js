@@ -61,12 +61,16 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
           $scope.error = err.data;
           $scope.credentials.password = '';
           loginErrorService.set($scope.credentials, err.data);
-          notificationFactory.weakError('Login error', 'Please check your credentials');
-          $scope.recaptcha.needed = err.data.recaptcha || false;
-          try {
-            vcRecaptchaService.reload();
-          } catch (e) {
-            $log.error(e);
+          if (err.data.error && err.data.error.details && err.data.error.details.match(/The specified account is disabled/)) {
+            notificationFactory.weakError('Login disabled', 'This account has been disabled');
+          } else {
+            notificationFactory.weakError('Login error', 'Please check your credentials');
+            $scope.recaptcha.needed = err.data.recaptcha || false;
+            try {
+              vcRecaptchaService.reload();
+            } catch (e) {
+              $log.error(e);
+            }
           }
         }
       );

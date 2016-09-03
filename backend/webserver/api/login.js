@@ -28,5 +28,5 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify, loginController.login);
+  router.post('/login', loginRules.checkLoginCount, loginRules.checkDisabled, cookielifetime.set, recaptcha.verify, loginController.login);
 };

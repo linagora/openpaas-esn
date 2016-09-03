@@ -76,6 +76,7 @@ var UserSchema = new mongoose.Schema({
   },
   domains: {type: [MemberOfDomainSchema]},
   login: {
+    disabled: {type: Boolean, default: false},
     failures: {
       type: [Date]
     },

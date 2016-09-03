@@ -5,6 +5,10 @@ var mockery = require('mockery');
 
 describe('The domains controller', function() {
 
+  beforeEach(function() {
+    mockery.registerMock('./login', {});
+  });
+
   describe('The getDomain fn', function() {
 
     it('should return HTTP 404 when domain is not available in the request', function(done) {
