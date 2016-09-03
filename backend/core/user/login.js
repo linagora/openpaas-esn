@@ -109,7 +109,7 @@ module.exports.sendPasswordReset = function(user, callback) {
     }
 
     PasswordReset.find({email: to}, function(err, result) {
-      if (result) {
+      if (result && result.length) {
         sendEmail(results[0], result[0], callback);
       } else {
         async.waterfall([
