@@ -80,7 +80,7 @@ describe('The password API', function() {
         .end(done);
     });
 
-    it('should return 200 if the email is correctly sent with correct context and a PasswordReset has been created', function(done) {
+    it.skip('should return 200 if the email is correctly sent with correct context and a PasswordReset has been created', function(done) {
       var self = this;
 
       request(webserver.application)
