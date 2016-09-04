@@ -269,13 +269,16 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
   .directive('imgLoaded', function(selectionService, AVATAR_MIN_SIZE_PX, AVATAR_OFFSET, deviceDetector, jcropExtendOptions) {
     return {
       restrict: 'E',
-      replace: true,
       scope: {
         width: '='
       },
       link: function(scope, element, attr) {
-        var myImg;
+        var myImg, myJcropAPI;
         var clear = function() {
+          if (myJcropAPI) {
+            myJcropAPI.destroy();
+            myJcropAPI = null;
+          }
           if (myImg) {
             myImg.next().remove();
             myImg.remove();
@@ -320,7 +323,9 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
             touchSupport: true,
             onSelect: broadcastSelection,
             onChange: deviceDetector.isDesktop() ? broadcastSelection : function() {}
-          }, jcropExtendOptions.get()));
+          }, jcropExtendOptions.get()), function() {
+            myJcropAPI = this; // jscs:ignore safeContextKeyword
+          });
 
         });
         scope.$on('$destroy', clear);
