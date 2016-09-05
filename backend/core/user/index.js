@@ -11,6 +11,7 @@ var trim = require('trim');
 var User = mongoose.model('User');
 var emailAddresses = require('email-addresses');
 var CONSTANTS = require('./constants');
+var moderation = require('./moderation');
 
 var TYPE = CONSTANTS.TYPE;
 module.exports.TYPE = TYPE;
@@ -169,8 +170,15 @@ function find(query, callback) {
 }
 module.exports.find = find;
 
+function init() {
+  moderation.init();
+}
+module.exports.init = init;
+
 module.exports.domain = require('./domain');
 
 module.exports.follow = require('./follow');
 
 module.exports.login = require('./login');
+
+module.exports.moderation = moderation;
