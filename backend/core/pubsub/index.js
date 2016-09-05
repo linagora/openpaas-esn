@@ -9,4 +9,5 @@ module.exports.init = function() {
   require('../elasticsearch/pubsub').init();
   require('../resource-link/pubsub').init();
   require('../timeline').init();
+  require('../user').init();
 };

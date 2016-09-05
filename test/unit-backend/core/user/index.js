@@ -13,6 +13,7 @@ describe('The user core module', function() {
     mockEsnConfig = this.helpers.mock.esnConfig;
     mockery.registerMock('../auth/token', {getNewToken: function() {}});
     mockery.registerMock('./login', {});
+    mockery.registerMock('./moderation', {});
   });
 
   describe('recordUser method', function() {
