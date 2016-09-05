@@ -38,12 +38,18 @@ function setIsFollowing(user, loggedUser) {
   });
 }
 
+function setState(user, sanitized) {
+  sanitized.disabled = !!user.login.disabled;
+  return q(sanitized);
+}
+
 function denormalize(user, options) {
   options = options || {};
   return sanitize(user, options)
     .then(function(sanitized) {
       return setIsFollowing(sanitized, options.user);
     })
-    .then(follow);
+    .then(follow)
+    .then(setState.bind(this, user));
 }
 module.exports.denormalize = denormalize;
