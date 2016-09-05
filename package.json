@@ -49,6 +49,7 @@
     "ldapauth-fork": "~2.2.12",
     "less": "^2.5.0",
     "less-middleware": "^1.0.3",
+    "linagora.esn.admin": "git+https://ci.open-paas.org/stash/scm/om/linagora.esn.admin.git",
     "lodash": "4.11.1",
     "mailparser": "~0.4.1",
     "moment": "^2.10.3",
