@@ -65,6 +65,4 @@ describe('The message role module', function() {
       });
     });
   });
-
-
 });
