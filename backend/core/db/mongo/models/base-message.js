@@ -44,5 +44,6 @@ module.exports = {
   copyOf: {type: CopyOf.tree, required: false},
   parsers: [
     {name: {type: String, required: true}}
-  ]
+  ],
+  status: {type: String, required: false}
 };
