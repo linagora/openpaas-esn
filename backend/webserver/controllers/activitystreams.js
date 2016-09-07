@@ -110,10 +110,8 @@ function get(req, res) {
     }
 
     async.filter(timelineEntriesFound, function(timelineEntry, callback) {
-      activitystreams.permission.canRead(timelineEntry, {objectType: 'user', id: req.user._id}, function(err, readable) {
-        return callback(err ? false : readable);
-      });
-    }, function(timelineEntriesReadable) {
+      activitystreams.permission.canRead(timelineEntry, {objectType: 'user', id: req.user._id}, callback);
+    }, function(err, timelineEntriesReadable) {
       res.json(timelineEntriesReadable);
       updateTracker(req, timelineEntriesReadable);
     });

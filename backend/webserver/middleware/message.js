@@ -107,15 +107,13 @@ module.exports.canShareTo = function(req, res, next) {
     function(tuple, callback) {
       collaborationModule.findCollaborationFromActivityStreamID(tuple.id, function(err, collaboration) {
         if (err || !collaboration || collaboration.length === 0) {
-          return callback(false);
+          return callback(err, false);
         }
 
-        collaborationPermission.canWrite(collaboration[0], {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
-          return callback(!err && writable);
-        });
+        collaborationPermission.canWrite(collaboration[0], {objectType: 'user', id: req.user._id + ''}, callback);
       });
     },
-    function(results) {
+    function(err, results) {
 
       if (!results || results.length === 0) {
         return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Can not find any writable target in request'}});

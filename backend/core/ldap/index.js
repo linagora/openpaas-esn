@@ -41,16 +41,8 @@ function findLDAPForUser(email, callback) {
     }
 
     async.filter(ldapConfigs, function(ldap, callback) {
-      emailExists(email, ldap.configuration, function(err, user) {
-        if (err || !user) {
-          return callback(false);
-        }
-
-        return callback(true);
-      });
-    }, function(results) {
-      return callback(null, results);
-    });
+      emailExists(email, ldap.configuration, callback);
+    }, callback);
   });
 }
 module.exports.findLDAPForUser = findLDAPForUser;

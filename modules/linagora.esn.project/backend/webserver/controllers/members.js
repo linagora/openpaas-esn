@@ -63,9 +63,9 @@ module.exports = function(lib, deps) {
 
       async.filter(result.list, function(community, callback) {
         communityIsInProject(community, function(member) {
-          return callback(!member);
+          return callback(null, !member);
         });
-      }, function(results) {
+      }, function(err, results) {
         results = results.map(function(result) {
           return {
             id: result._id,

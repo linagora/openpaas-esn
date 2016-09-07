@@ -162,13 +162,8 @@ module.exports.list = function(req, res) {
     }
 
     async.filter(response, function(community, callback) {
-      permission.canFind(community, {objectType: 'user', id: req.user._id}, function(err, canFind) {
-        if (err) {
-          return callback(false);
-        }
-        return callback(canFind);
-      });
-    }, function(filterResults) {
+      permission.canFind(community, {objectType: 'user', id: req.user._id}, callback);
+    }, function(err, filterResults) {
       async.map(filterResults, function(community, callback) {
         transform(community, req.user, function(transformed) {
           return callback(null, transformed);

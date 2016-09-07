@@ -19,9 +19,9 @@ module.exports.userCanReadNotification = userCanReadNotification;
 
 var userCanReadAllNotifications = function(req, res, next) {
   function checkUserNotifications(usernotification, callback) {
-    return callback(checkIsTarget(req.user._id, usernotification));
+    return callback(null, checkIsTarget(req.user._id, usernotification));
   }
-  async.every(req.usernotifications, checkUserNotifications, function(result) {
+  async.every(req.usernotifications, checkUserNotifications, function(err, result) {
     if (!result) {
       return res.status(403).json({error: {status: 403, message: 'Forbidden', details: 'User is not the notifications target'}});
     }

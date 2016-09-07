@@ -72,13 +72,8 @@ function projectControllers(lib, dependencies) {
       }
 
       async.filter(response, function(project, callback) {
-        permission.canFind(project, {objectType: 'user', id: req.user._id}, function(err, canFind) {
-          if (err) {
-            return callback(false);
-          }
-          return callback(canFind);
-        });
-      }, function(filterResults) {
+        permission.canFind(project, {objectType: 'user', id: req.user._id}, callback);
+      }, function(err, filterResults) {
         async.map(filterResults, function(project, callback) {
           transform(lib, project, req.user, function(transformed) {
             return callback(null, transformed);

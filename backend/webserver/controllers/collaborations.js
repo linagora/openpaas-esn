@@ -64,18 +64,16 @@ module.exports.searchWhereMember = function(req, res) {
 
       permission.canRead(collaboration, tuple, function(err, canRead) {
         if (err) {
-          return callback(false);
+          return callback(err);
         }
 
         if (canRead) {
-          return callback(true);
+          return callback(null, true);
         }
 
-        collaborationModule.isMember(collaboration, tuple, function(err, member) {
-          return callback(err ? false : member);
-        });
+        collaborationModule.isMember(collaboration, tuple, callback);
       });
-    }, function(results) {
+    }, function(err, results) {
       async.map(results, function(element, callback) {
         transform(element, req.user, function(transformed) {
           return callback(null, transformed);

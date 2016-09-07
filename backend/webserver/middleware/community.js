@@ -47,15 +47,13 @@ module.exports.filterWritableTargets = function(req, res, next) {
       Community.getFromActivityStreamID(item.id, function(err, community) {
 
         if (err || !community) {
-          return callback(false);
+          return callback(err, false);
         }
 
-        communityPermission.canWrite(community, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
-          return callback(!err && writable);
-        });
+        communityPermission.canWrite(community, {objectType: 'user', id: req.user._id + ''}, callback);
       });
     },
-    function(results) {
+    function(err, results) {
       if (!results || results.length === 0) {
         return next();
       }

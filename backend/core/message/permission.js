@@ -15,25 +15,21 @@ function canRead(message, tuple, callback) {
     return callback(null, false);
   }
 
-  async.some(message.shares, function(share, canReadShare) {
+  async.some(message.shares, function(share, callback) {
     if (share.objectType !== 'activitystream') {
-      return canReadShare(false);
+      return callback(null, false);
     }
 
     collaborationModule.findCollaborationFromActivityStreamID(share.id, function(err, collaborations) {
       if (err || !collaborations || collaborations.length === 0 || !collaborations[0]) {
-        return canReadShare(false);
+        return callback(null, false);
       }
 
       // Check if the tuple can read in the collaboration
-      collaborationModule.permission.canRead(collaborations[0], tuple, function(err, readable) {
-        return canReadShare(!err && readable === true);
-      });
+      collaborationModule.permission.canRead(collaborations[0], tuple, callback);
     });
 
-  }, function(result) {
-    return callback(null, result);
-  });
+  }, callback);
 }
 module.exports.canRead = canRead;
 
@@ -52,24 +48,20 @@ module.exports.canReply = function(message, user, callback) {
     return callback(new Error('Message and user are required'));
   }
 
-  async.some(message.shares, function(share, found) {
+  async.some(message.shares, function(share, callback) {
     if (share.objectType !== 'activitystream') {
-      return found(false);
+      return callback(null, false);
     }
 
     collaborationModule.findCollaborationFromActivityStreamID(share.id, function(err, collaborations) {
       if (err || !collaborations || collaborations.length === 0 || !collaborations[0]) {
-        return found(false);
+        return callback(null, false);
       }
 
-      collaborationModule.permission.canWrite(collaborations[0], {objectType: 'user', id: user._id + ''}, function(err, writable) {
-        return found(!err && writable === true);
-      });
+      collaborationModule.permission.canWrite(collaborations[0], {objectType: 'user', id: user._id + ''}, callback);
     });
 
-  }, function(result) {
-    return callback(null, result);
-  });
+  }, callback);
 };
 
 /**
