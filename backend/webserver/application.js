@@ -30,12 +30,17 @@ application.use('/js', express.static(FRONTEND_PATH + '/js'));
 var bodyParser = require('body-parser');
 application.use(bodyParser.json());
 application.use(bodyParser.urlencoded());
-var cookieParser = require('cookie-parser');
-application.use(cookieParser('this is the secret!'));
+
 var session = require('express-session');
-var sessionMiddleware = cdm(session({ cookie: { maxAge: 60000 }}));
+var sessionMiddleware = cdm(session({
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 6000000 },
+  secret: 'this is the secret!'
+}));
 application.use(sessionMiddleware);
 require('./middleware/setup-sessions')(sessionMiddleware);
+
 application.use(i18n.init); // Should stand before app.route
 require('./passport');
 
