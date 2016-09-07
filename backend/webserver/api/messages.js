@@ -15,7 +15,7 @@ module.exports = function(router) {
    *   get:
    *     tags:
    *      - Message
-   *     description: List all the notifications where the target is the current user.
+   *     description: List all the messages from the given message ids.
    *     parameters:
    *       - $ref: "#/parameters/msg_ids"
    *     responses:

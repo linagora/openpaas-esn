@@ -458,6 +458,9 @@ describe('The messages controller', function() {
       var messageModuleMocked = {
         findByIds: function(ids, callback) {
           callback(new Error('an error has occured'));
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -510,6 +513,9 @@ describe('The messages controller', function() {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
           }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -562,6 +568,63 @@ describe('The messages controller', function() {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
           }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, true);
+        }
+      };
+      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
+
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
+      messages.getMessages(validReq, res);
+    });
+
+    it('should not return message when status is not valid', function(done) {
+      var res = {
+        json: function(code, message) {
+          expect(code).to.equal(200);
+          expect(message[0]._id.toString()).to.equal('1');
+          expect(message.length).to.equal(1);
+          done();
+        }
+      };
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var messageModuleMocked = {
+        findByIds: function(ids, callback) {
+          expect(ids).to.deep.equal(['1', '2']);
+          callback(null, [
+            {
+              _id: {
+                toString: function() {
+                  return '1';
+                }
+              }
+            },
+            {
+              _id: {
+                toString: function() {
+                  return '2';
+                }
+              }
+            }
+          ]);
+        },
+        filterReadableResponses: function(message, user, callback) {
+          return callback(null, message);
+        },
+        permission: {
+          canRead: function(message, tuple, callback) {
+            return callback(null, true);
+          }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, message._id.toString() === '1');
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -664,6 +727,9 @@ describe('The messages controller', function() {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
           }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          callback(null, true);
         }
       };
       mockery.registerMock('../../core/message/email', {});

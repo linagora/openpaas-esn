@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var q = require('q');
 
 describe('The message core module', function() {
   beforeEach(function() {
@@ -578,6 +579,73 @@ describe('The message core module', function() {
       });
     });
 
+  });
+
+  describe('The filterReadableResponsesFromObjectType function', function() {
+    it('should ', function() {
+
+    });
+  });
+
+  describe('The canReadMessageFromStatus function', function() {
+    it('should return the value of the role.canReadMessage call', function(done) {
+      var result = 'My result';
+
+      mockery.registerMock('./role', {
+        canReadMessage: function() {
+          return q(result);
+        }
+      });
+
+      var module = this.helpers.requireBackend('core/message');
+      module.canReadMessageFromStatus(null, null, function(err, r) {
+        if (err) {
+          return done(err);
+        }
+        expect(r).to.equal(result);
+        done();
+      });
+    });
+
+    it('should return false when role.cabReadMessage fails', function(done) {
+      mockery.registerMock('./role', {
+        canReadMessage: function() {
+          return q.reject(new Error());
+        }
+      });
+
+      var module = this.helpers.requireBackend('core/message');
+      module.canReadMessageFromStatus(null, null, function(err, r) {
+        if (err) {
+          return done(err);
+        }
+        expect(r).to.be.false;
+        done();
+      });
+    });
+  });
+
+  describe('The filterReadableResponsesFromStatus function', function() {
+    it('should keep only the responses which can be read by user', function(done) {
+      var message = {
+        responses: [{_id: 1}, {_id: 2}]
+      };
+      mockery.registerMock('./role', {
+        canReadMessage: function(message) {
+          return q(message._id === 1);
+        }
+      });
+
+      var module = this.helpers.requireBackend('core/message');
+      module.filterReadableResponsesFromStatus(message, null, function(err, result) {
+        if (err) {
+          return done(err);
+        }
+
+        expect(result).to.deep.equals({responses: [{_id: 1}]});
+        done();
+      });
+    });
   });
 
 });

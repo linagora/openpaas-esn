@@ -140,11 +140,21 @@ function getMessages(messageIds, user, callback) {
           return callback(null, [{ error: { code: 403, message: 'Forbidden', details: 'You do not have the permission to read message ' + message._id.toString()}}]);
         }
 
-        messageModule.filterReadableResponses(message, user, function(err, messageFiltered) {
+        messageModule.canReadMessageFromStatus(message, user, function(err, readable) {
           if (err) {
-            return callback(null, [{ error: { code: 500, message: 'Server Error when checking the read permission', details: err.message}}]);
+            return callback(null, [{ error: { code: 500, message: 'Server Error when checking the read status permission', details: err.message}}]);
           }
-          return callback(null, [messageFiltered]);
+
+          if (!readable) {
+            return callback(null, []);
+          }
+
+          messageModule.filterReadableResponses(message, user, function(err, messageFiltered) {
+            if (err) {
+              return callback(null, [{ error: { code: 500, message: 'Server Error when checking the read permission', details: err.message}}]);
+            }
+            return callback(null, [messageFiltered]);
+          });
         });
       });
     }, function(err, messages) {
