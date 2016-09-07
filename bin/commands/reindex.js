@@ -16,8 +16,13 @@ function exec(dbHost, dbPort, dbName, esHost, esPort, type) {
   if (!handler) {
     return q.reject('Unknown data type ' + type);
   }
-
-  return handler(dbHost, dbPort, dbName, esHost, esPort);
+  try {
+    return commons.loadMongooseModels().then(function() {
+      return handler(dbHost, dbPort, dbName, esHost, esPort);
+    });
+  } catch (e) {
+    return q.reject(e);
+  }
 }
 
 function queryElasticsearch(method, url, data) {

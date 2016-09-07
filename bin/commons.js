@@ -1,7 +1,12 @@
 'use strict';
 
 var request = require('request'),
-    ESConfiguration = require('esn-elasticsearch-configuration');
+    ESConfiguration = require('esn-elasticsearch-configuration'),
+    Path = require('path'),
+    q = require('q'),
+    fs = require('fs');
+
+var readdir = q.denodeify(fs.readdir);
 
 module.exports.getDBOptions = function(host, port, dbName) {
 
@@ -17,7 +22,6 @@ module.exports.getESConfiguration = function(host, port) {
 };
 
 module.exports.exit = function() {
-  console.log('Done');
   process.exit();
 };
 
@@ -49,4 +53,19 @@ module.exports.logInfo = function(message) {
 
 module.exports.logError = function(message) {
   log('ERROR', message);
+};
+
+module.exports.loadMongooseModels = function loadMongooseModels() {
+  var ESN_ROOT = Path.resolve(__dirname, '../');
+  var MODELS_ROOT = Path.resolve(ESN_ROOT, 'backend/core/db/mongo/models');
+
+  return readdir(MODELS_ROOT).then(function(files) {
+    files.forEach(function(filename) {
+      var file = Path.resolve(MODELS_ROOT, filename);
+
+      if (fs.statSync(file).isFile()) {
+        require(file);
+      }
+    });
+  });
 };
