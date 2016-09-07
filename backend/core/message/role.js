@@ -20,7 +20,7 @@ function canReadMessage(message, user, options) {
   options = options || {};
 
   var promises = _.values(roleHandlers).map(function(handler) {
-    return handler(MODES.READ, user, message, options)
+    return handler(MODES.READ, user, message, options);
   });
 
   if (!promises.length) {
@@ -30,7 +30,7 @@ function canReadMessage(message, user, options) {
   return q.all(promises).then(function(results) {
     return results.every(function(result) {
       return result;
-    })
+    });
   });
 }
 module.exports.canReadMessage = canReadMessage;
