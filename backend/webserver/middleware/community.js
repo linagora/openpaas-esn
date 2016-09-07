@@ -137,11 +137,11 @@ module.exports.checkUserParamIsNotMember = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
   }
 
-  if (!req.param('user_id')) {
+  if (!req.params.user_id) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
   }
 
-  communityModule.isMember(req.community, req.param('user_id'), function(err, isMember) {
+  communityModule.isMember(req.community, req.params.user_id, function(err, isMember) {
     if (err) {
       return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }
@@ -174,11 +174,11 @@ module.exports.checkUserIdParameterIsCurrentUser = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  if (!req.param('user_id')) {
+  if (!req.params.user_id) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
   }
 
-  if (!req.user._id.equals(req.param('user_id'))) {
+  if (!req.user._id.equals(req.params.user_id)) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Parameters do not match'});
   }
   return next();

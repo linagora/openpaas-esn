@@ -57,12 +57,12 @@ function projectControllers(lib, dependencies) {
       query.domain_ids = [req.domain._id];
     }
 
-    if (req.param('creator')) {
-      query.creator = req.param('creator');
+    if (req.query.creator) {
+      query.creator = req.query.creator;
     }
 
-    if (req.param('title')) {
-      var escapedString = escapeStringRegexp(req.param('title'));
+    if (req.query.title) {
+      var escapedString = escapeStringRegexp(req.query.title);
       query.title = new RegExp('^' + escapedString + '$', 'i');
     }
 

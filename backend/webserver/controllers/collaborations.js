@@ -189,8 +189,8 @@ function getInvitablePeople(req, res) {
   }
 
   var query = {
-    limit: req.param('limit') || 5,
-    search: req.param('search') || null,
+    limit: req.query.limit || 5,
+    search: req.query.search || null,
     not_in_collaboration: collaboration
   };
 
@@ -280,15 +280,15 @@ function getMembershipRequests(req, res) {
   }
 
   var query = {};
-  if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'), 10);
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
-  if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'), 10);
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }

@@ -74,9 +74,9 @@ function getMembers(req, res) {
   }
 
   var query = {
-    limit: req.param('limit') || 50,
-    offset: req.param('offset') || 0,
-    search: req.param('search') || null
+    limit: req.query.limit || 50,
+    offset: req.query.offset || 0,
+    search: req.query.search || null
   };
 
   Domain.loadFromID(uuid, function(err, domain) {

@@ -202,11 +202,11 @@ function get(req, res) {
 }
 
 function getOne(req, res) {
-  if (!req.param('id')) {
+  if (!req.params.id) {
     return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Message ID is required'}});
   }
 
-  var id = req.param('id');
+  var id = req.params.id;
 
   getMessages([id], req.user, function(err, messagesObject) {
     if (err) {
@@ -222,7 +222,7 @@ function getOne(req, res) {
 }
 
 function copy(req, res) {
-  var id = req.param('id');
+  var id = req.params.id;
   var resource = req.body.resource;
   var target = req.body.target;
 

@@ -35,9 +35,9 @@ module.exports = function(lib, deps) {
     }
 
     var query = {
-      limit: req.param('limit') || DEFAULT_LIMIT,
-      offset: req.param('offset') || DEFAULT_OFFSET,
-      search: req.param('search') || null
+      limit: req.query.limit || DEFAULT_LIMIT,
+      offset: req.query.offset || DEFAULT_OFFSET,
+      search: req.query.search || null
     };
 
     var domains = [];

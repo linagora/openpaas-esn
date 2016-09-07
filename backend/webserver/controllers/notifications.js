@@ -47,7 +47,7 @@ module.exports.created = function(req, res) {
 
 module.exports.list = function(req, res) {
   var user_id = req.user._id;
-  var read = req.param('read');
+  var read = req.query.read;
 
   var options = {
     'target.id': user_id

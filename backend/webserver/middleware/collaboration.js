@@ -79,11 +79,11 @@ module.exports.checkUserParamIsNotMember = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
   }
 
-  if (!req.param('user_id')) {
+  if (!req.params.user_id) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
   }
 
-  collaborationModule.isMember(req.collaboration, req.param('user_id'), function(err, isMember) {
+  collaborationModule.isMember(req.collaboration, req.params.user_id, function(err, isMember) {
     if (err) {
       return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }
@@ -118,11 +118,11 @@ function checkUserIdParameterIsCurrentUser(req, res, next) {
     return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Missing user'}});
   }
 
-  if (!req.param('user_id')) {
+  if (!req.params.user_id) {
     return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Missing user id'}});
   }
 
-  if (!req.user._id.equals(req.param('user_id'))) {
+  if (!req.user._id.equals(req.params.user_id)) {
     return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You do not have the permission to invite another user'}});
   }
 

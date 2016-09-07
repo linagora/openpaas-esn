@@ -143,16 +143,16 @@ module.exports.list = function(req, res) {
     query.domain_ids = [req.domain._id];
   }
 
-  if (req.param('creator')) {
-    query.creator = req.param('creator');
+  if (req.query.creator) {
+    query.creator = req.query.creator;
   }
 
-  if (req.param('type')) {
-    query.type = req.param('type');
+  if (req.query.type) {
+    query.type = req.query.type;
   }
 
-  if (req.param('title')) {
-    var escapedString = escapeStringRegexp(req.param('title'));
+  if (req.query.title) {
+    var escapedString = escapeStringRegexp(req.query.title);
     query.title = new RegExp('^' + escapedString + '$', 'i');
   }
 
@@ -368,15 +368,15 @@ module.exports.getMembers = function(req, res) {
   }
 
   var query = {};
-  if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'), 10);
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
-  if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'), 10);
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }
@@ -513,15 +513,15 @@ module.exports.getMembershipRequests = function(req, res) {
   }
 
   var query = {};
-  if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'), 10);
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
-  if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'), 10);
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }

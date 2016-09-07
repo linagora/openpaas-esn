@@ -20,24 +20,24 @@ module.exports.list = function(req, res) {
   var user = req.user;
 
   var query = {};
-  if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'), 10);
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
-  if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'), 10);
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }
   }
 
-  if (req.param('read') === 'true') {
+  if (req.query.read === 'true') {
     query.read = true;
   }
-  if (req.param('read') === 'false') {
+  if (req.query.read === 'false') {
     query.read = false;
   }
 
