@@ -112,11 +112,11 @@ function list(options) {
 
   var resourceLinkQuery = ResourceLink.find(query);
   if (options.offset > 0) {
-    resourceLinkQuery = resourceLinkQuery.skip(options.offset);
+    resourceLinkQuery = resourceLinkQuery.skip(+options.offset);
   }
 
   if (options.limit > 0) {
-    resourceLinkQuery = resourceLinkQuery.limit(options.limit);
+    resourceLinkQuery = resourceLinkQuery.limit(+options.limit);
   }
 
   resourceLinkQuery.sort('-timestamps.creation').exec(defer.makeNodeResolver());

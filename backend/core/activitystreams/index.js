@@ -68,7 +68,7 @@ function query(options, cb) {
 
   var q = TimelineEntry.find().where('target.objectType').equals(options.target.objectType).where('target._id').equals(options.target._id);
   if (options.limit) {
-    q.limit(options.limit);
+    q.limit(+options.limit);
   }
 
   if (options.after) {
@@ -149,11 +149,11 @@ function getTimelineEntries(options, callback) {
     var timelineQuery = getQuery();
 
     if (options.offset > 0) {
-      timelineQuery = timelineQuery.skip(options.offset);
+      timelineQuery = timelineQuery.skip(+options.offset);
     }
 
     if (options.limit > 0) {
-      timelineQuery = timelineQuery.limit(options.limit);
+      timelineQuery = timelineQuery.limit(+options.limit);
     }
 
     timelineQuery.sort('-published').exec(function(err, results) {

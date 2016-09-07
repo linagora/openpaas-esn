@@ -110,7 +110,7 @@ function getUsersList(domains, query, cb) {
   var totalCountQuery = require('extend')(true, {}, userQuery);
   totalCountQuery.count();
 
-  userQuery.skip(query.offset).limit(query.limit).sort({firstname: 'asc'});
+  userQuery.skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'});
 
   return totalCountQuery.exec(function(err, count) {
     if (err) {
