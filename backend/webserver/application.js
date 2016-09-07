@@ -29,7 +29,9 @@ application.use('/js', express.static(FRONTEND_PATH + '/js'));
 
 var bodyParser = require('body-parser');
 application.use(bodyParser.json());
-application.use(bodyParser.urlencoded());
+application.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 var session = require('express-session');
 var sessionMiddleware = cdm(session({
