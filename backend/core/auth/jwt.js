@@ -41,8 +41,8 @@ function generateWebToken(payload, callback) {
     if (err) {
       return callback(err);
     }
-    jwt.sign(payload, config.privateKey, {algorithm: config.algorithm}, function(token) {
-      return callback(null, token);
+    jwt.sign(payload, config.privateKey, {algorithm: config.algorithm}, function(err, token) {
+      return callback(err, token);
     });
   });
 }
