@@ -39,12 +39,12 @@ module.exports.logout = logout;
 function profile(req, res) {
   var uuid = req.params.uuid;
   if (!uuid) {
-    return res.json(400, {error: {code: 400, message: 'Bad parameters', details: 'User ID is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User ID is missing'}});
   }
 
   userModule.get(uuid, function(err, user) {
     if (err) {
-      return res.json(500, {
+      return res.status(500).json({
         error: 500,
         message: 'Error while loading user ' + uuid,
         details: err.message
@@ -52,7 +52,7 @@ function profile(req, res) {
     }
 
     if (!user) {
-      return res.json(404, {
+      return res.status(404).json({
         error: 404,
         message: 'User not found',
         details: 'User ' + uuid + ' has not been found'
@@ -132,7 +132,7 @@ module.exports.updatePassword = updatePassword;
  */
 function user(req, res) {
   if (!req.user) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   denormalizeUser(req.user).then(function(denormalized) {
@@ -143,21 +143,21 @@ module.exports.user = user;
 
 function postProfileAvatar(req, res) {
   if (!req.user) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
   if (!req.query.mimetype) {
-    return res.json(400, {error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
+    return res.status(400).json({error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
   }
   var mimetype = req.query.mimetype.toLowerCase();
   if (acceptedImageTypes.indexOf(mimetype) < 0) {
-    return res.json(400, {error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
+    return res.status(400).json({error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
   }
   if (!req.query.size) {
-    return res.json(400, {error: 400, message: 'Parameter missing', details: 'size parameter is required'});
+    return res.status(400).json({error: 400, message: 'Parameter missing', details: 'size parameter is required'});
   }
   var size = parseInt(req.query.size, 10);
   if (isNaN(size)) {
-    return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
+    return res.status(400).json({error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
   }
   var avatarId = new ObjectId();
 
@@ -167,23 +167,23 @@ function postProfileAvatar(req, res) {
 
     userModule.recordUser(req.user, function(err, user) {
       if (err) {
-        return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+        return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       }
-      return res.json(200, {_id: avatarId});
+      return res.status(200).json({_id: avatarId});
     });
   }
 
   function avatarRecordResponse(err, storedBytes) {
     if (err) {
       if (err.code === 1) {
-        return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+        return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       } else if (err.code === 2) {
-        return res.json(500, {error: 500, message: 'Image processing failure', details: err.message});
+        return res.status(500).json({error: 500, message: 'Image processing failure', details: err.message});
       } else {
-        return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+        return res.status(500).json({error: 500, message: 'Internal server error', details: err.message});
       }
     } else if (storedBytes !== size) {
-      return res.json(412, {error: 412, message: 'Image size does not match', details: 'Image size given by user agent is ' + size +
+      return res.status(412).json({error: 412, message: 'Image size does not match', details: 'Image size given by user agent is ' + size +
                            ' and image size returned by storage system is ' + storedBytes});
     }
     updateUserProfile();
@@ -201,7 +201,7 @@ module.exports.postProfileAvatar = postProfileAvatar;
 
 function getProfileAvatar(req, res) {
   if (!req.user) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   if (!req.user.currentAvatar) {

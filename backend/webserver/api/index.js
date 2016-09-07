@@ -14,7 +14,7 @@ var API_FIRST_VERSION = 'v0.1';
 var API_CURRENT_VERSION = API_FIRST_VERSION;
 
 function getVersions(req, res) {
-  return res.json(200, _.map(API_VERSIONS, function(apiversion) {
+  return res.status(200).json(_.map(API_VERSIONS, function(apiversion) {
     return apiversion;
   }));
 }
@@ -23,14 +23,14 @@ function getVersionById(req, res) {
   var version = API_VERSIONS[req.params.id];
 
   if (version) {
-    return res.json(200, version);
+    return res.status(200).json(version);
   } else {
-    return res.json(404, { error: { code: 404, message: 'Version does not exist.'}});
+    return res.status(404).json({ error: { code: 404, message: 'Version does not exist.'}});
   }
 }
 
 function getLatestVersion(req, res) {
-  return res.json(200, {latest: API_CURRENT_VERSION});
+  return res.status(200).json({latest: API_CURRENT_VERSION});
 }
 
 function setupAPI(application) {

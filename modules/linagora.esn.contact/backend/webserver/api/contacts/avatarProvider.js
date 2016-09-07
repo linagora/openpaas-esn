@@ -24,7 +24,7 @@ module.exports.init = function(dependencies) {
     getAvatar: function(contact, req, res) {
       authModule.token.getNewToken({user: contact._source.userId}, function(err, token) {
         if (err || !token) {
-          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not generate token'}});
+          return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not generate token'}});
         }
         req.token = token;
         davServer.getDavEndpoint(function(davServerURL) {

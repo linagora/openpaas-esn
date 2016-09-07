@@ -24,17 +24,17 @@ function createNewMessage(message, req, res) {
     }
 
     publishMessageEvents(savedMessage, req.body.targets, req.user, 'post');
-    res.json(201, { _id: savedMessage._id });
+    res.status(201).json({ _id: savedMessage._id });
   }
 
   messageModule.getInstance(message.objectType, message).save(function(err, saved) {
     if (err) {
       var errorData = { error: { status: 500, message: 'Server Error', details: 'Cannot create message . ' + err.message }};
-      return res.json(500, errorData);
+      return res.status(500).json(errorData);
     }
 
     if (!saved) {
-      return res.json(404);
+      return res.status(404);
     }
 
     if (message.attachments && message.attachments.length > 0) {
@@ -54,18 +54,16 @@ function commentMessage(message, inReplyTo, req, res) {
 
   var comment;
   if (!inReplyTo._id) {
-    return res.json(400, { error: { status: 400, message: 'Bad parameter', details: 'Missing inReplyTo _id in body'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad parameter', details: 'Missing inReplyTo _id in body'}});
   }
   try {
     comment = messageModule.getInstance(message.objectType, message);
   } catch (e) {
-    return res.json(400, { error: { status: 400, message: 'Bad parameter', details: 'Unknown message type ' + message.objectType}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad parameter', details: 'Unknown message type ' + message.objectType}});
   }
   messageModule.addNewComment(comment, inReplyTo, function(err, childMessage, parentMessage) {
     if (err) {
-      return res.json(
-        500,
-        { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message }});
+      return res.status(500).json({ error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message } });
     }
 
     if (message.attachments && message.attachments.length > 0) {
@@ -74,22 +72,22 @@ function commentMessage(message, inReplyTo, req, res) {
           logger.warn('Can not set attachment references', err);
         }
         publishCommentActivity(parentMessage, childMessage);
-        return res.json(201, { _id: childMessage._id, parentId: parentMessage._id });
+        return res.status(201).json({ _id: childMessage._id, parentId: parentMessage._id });
       });
     } else {
       publishCommentActivity(parentMessage, childMessage);
-      return res.json(201, { _id: childMessage._id, parentId: parentMessage._id });
+      return res.status(201).json({ _id: childMessage._id, parentId: parentMessage._id });
     }
   });
 }
 
 function create(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.json(500, { error: { status: 500, message: 'Server Error', details: 'User is not set.'}});
+    return res.status(500).json({ error: { status: 500, message: 'Server Error', details: 'User is not set.'}});
   }
 
   if (!req.body) {
-    return res.json(400, 'Missing message in body');
+    return res.status(400).json('Missing message in body');
   }
 
   if (req.message_targets) {
@@ -168,17 +166,17 @@ function getMessages(messageIds, user, callback) {
 
 function get(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.json(500, { error: { code: 500, message: 'Server Error', details: 'User can not be set.'}});
+    return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'User can not be set.'}});
   }
 
   if (!req.query || !req.query.ids) {
-    return res.json(400, 'Missing ids in query');
+    return res.status(400).json('Missing ids in query');
   }
   var messageIds = req.query.ids;
 
   getMessages(messageIds, req.user, function(err, messagesObject) {
     if (err) {
-      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
     }
     var messagesFound = messagesObject.messages;
     var messagesNotFound = messagesObject.messagesNotFound;
@@ -190,34 +188,34 @@ function get(req, res) {
       });
 
       return q.all(promises).then(function(messages) {
-        res.json(200, messages.concat(messagesNotFound));
+        res.status(200).json(messages.concat(messagesNotFound));
       }, function(err) {
         logger.error('Error while denormalizing messages', err);
-        res.json(200, messagesFound.concat(messagesNotFound));
+        res.status(200).json(messagesFound.concat(messagesNotFound));
       });
     }
 
-    return res.json(404, messagesNotFound);
+    return res.status(404).json(messagesNotFound);
   });
 }
 
 function getOne(req, res) {
   if (!req.params.id) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Message ID is required'}});
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Message ID is required'}});
   }
 
   var id = req.params.id;
 
   getMessages([id], req.user, function(err, messagesObject) {
     if (err) {
-      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
     }
     var messagesFound = messagesObject.messages;
     var messagesNotFound = messagesObject.messagesNotFound;
     if (messagesFound && messagesFound.length > 0) {
-      return res.json(200, messagesFound[0]);
+      return res.status(200).json(messagesFound[0]);
     }
-    return res.json(404, messagesNotFound[0]);
+    return res.status(404).json(messagesNotFound[0]);
   });
 }
 
@@ -228,15 +226,15 @@ function copy(req, res) {
 
   messageModule.copy(id, req.user._id, resource, target, function(err, copy) {
     if (err) {
-      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot copy message. ' + err.message}});
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Cannot copy message. ' + err.message}});
     }
 
     if (!copy) {
-      return res.json(404, { error: { code: 404, message: 'Message not found', details: 'Message has not been found ' + id}});
+      return res.status(404).json({ error: { code: 404, message: 'Message not found', details: 'Message has not been found ' + id}});
     }
 
     publishMessageEvents(copy, req.body.target, req.user, 'post');
-    res.json(201, { _id: copy._id});
+    res.status(201).json({ _id: copy._id});
   });
 }
 
@@ -244,18 +242,18 @@ function createMessageFromEmail(req, res) {
 
   var objectType = req.query.objectType ||  req.query.objectType;
   if (!objectType) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'objectType is mandatory'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'objectType is mandatory'}});
   }
 
   var id = req.query.id;
   if (!id) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'ID is mandatory'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'ID is mandatory'}});
   }
 
   var shares = [{objectType: objectType, id: id}];
   emailModule.saveEmail(req, req.user, shares, function(err, email) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server error', details: err.message}});
+      return res.status(500).json({ error: { status: 500, message: 'Server error', details: err.message}});
     }
 
     if (email) {
@@ -263,9 +261,9 @@ function createMessageFromEmail(req, res) {
       var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(email, 'post', req.user, targets);
       localpubsub.topic('message:activity').publish(activity);
       globalpubsub.topic('message:activity').publish(activity);
-      return res.json(201, { _id: email._id});
+      return res.status(201).json({ _id: email._id});
     }
-    return res.json(404, { error: { status: 404, message: 'Not found', details: 'Can not find created message'}});
+    return res.status(404).json({ error: { status: 404, message: 'Not found', details: 'Can not find created message'}});
   });
 }
 

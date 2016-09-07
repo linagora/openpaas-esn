@@ -7,7 +7,7 @@ function monitoring(req, res) {
     lag: core.monitoring.lag()
   };
 
-  res.json(200, data);
+  res.status(200).json(data);
 }
 
 module.exports = monitoring;

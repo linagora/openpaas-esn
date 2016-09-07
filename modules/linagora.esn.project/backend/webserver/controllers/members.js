@@ -11,18 +11,18 @@ module.exports = function(lib, deps) {
 
   controllers.add = function(req, res) {
     if (!req.project) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Project is required'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Project is required'}});
     }
 
     if (!req.body.id || !req.body.objectType) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Member is malformed'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Member is malformed'}});
     }
 
     lib.addMember(req.project, req.user, req.body, function(err, update) {
       if (err) {
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+        return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
       }
-      return res.json(201, update);
+      return res.status(201).json(update);
     });
   };
 
@@ -31,7 +31,7 @@ module.exports = function(lib, deps) {
 
     var project = req.project;
     if (!project) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Project is missing'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Project is missing'}});
     }
 
     var query = {
@@ -53,12 +53,12 @@ module.exports = function(lib, deps) {
 
     communityModule.search.find(domains, query, function(err, result) {
       if (err) {
-        return res.json(500, { error: { code: 500, message: 'Server error', details: 'Error while searching communities: ' + err.message}});
+        return res.status(500).json({ error: { code: 500, message: 'Server error', details: 'Error while searching communities: ' + err.message}});
       }
 
       if (!result || !result.list || result.list.length === 0) {
         res.header('X-ESN-Items-Count', 0);
-        return res.json(200, []);
+        return res.status(200).json([]);
       }
 
       async.filter(result.list, function(community, callback) {
@@ -74,7 +74,7 @@ module.exports = function(lib, deps) {
           };
         });
         res.header('X-ESN-Items-Count', results.length);
-        return res.json(200, results);
+        return res.status(200).json(results);
       });
     });
   };

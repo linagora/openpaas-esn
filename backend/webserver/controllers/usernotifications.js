@@ -9,9 +9,9 @@ function getUnreadCount(req, res) {
   };
   notificationModule.countForUser(req.user._id.toString(), query, function(err, count) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot get unread notification for current user: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot get unread notification for current user: ' + err.message}});
     }
-    return res.json(200, { unread_count: count });
+    return res.status(200).json({ unread_count: count });
   });
 }
 module.exports.getUnreadCount = getUnreadCount;
@@ -43,7 +43,7 @@ module.exports.list = function(req, res) {
 
   notificationModule.getForUser(user._id.toString(), query, function(err, notifications) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
 
     notifications = notifications || [];
@@ -54,7 +54,7 @@ module.exports.list = function(req, res) {
         count = notifications.length;
       }
       res.header('X-ESN-Items-Count', count);
-      return res.json(200, notifications);
+      return res.status(200).json(notifications);
     });
   });
 };
@@ -63,23 +63,23 @@ function load(req, res, next) {
   if (req.params.id) {
     notificationModule.get(req.params.id, function(err, usernotification) {
       if (err) {
-        return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot load user notification: ' + err.message}});
+        return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot load user notification: ' + err.message}});
       }
       if (!usernotification) {
-        return res.json(404, {error: { status: 404, message: 'Not found', details: 'The user notification has not been found'}});
+        return res.status(404).json({error: { status: 404, message: 'Not found', details: 'The user notification has not been found'}});
       }
       req.usernotification = usernotification;
       next();
     });
   } else {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Missing parameter id'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Missing parameter id'}});
   }
 }
 module.exports.load = load;
 
 function loadAll(req, res, next) {
   if (!req.query || !req.query.ids) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Missing ids in query'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Missing ids in query'}});
   }
 
   if (!(req.query.ids instanceof Array)) {
@@ -88,12 +88,12 @@ function loadAll(req, res, next) {
 
   notificationModule.getAll(req.query.ids, function(err, usernotifications) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot load user notifications: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot load user notifications: ' + err.message}});
     }
 
     usernotifications = usernotifications || [];
     if (usernotifications.length === 0) {
-      return res.json(404, {error: { status: 404, message: 'Not found', details: 'No user notifications have not been found'}});
+      return res.status(404).json({error: { status: 404, message: 'Not found', details: 'No user notifications have not been found'}});
     }
 
     var foundIds = usernotifications.map(function(usernotification) {
@@ -114,16 +114,16 @@ module.exports.loadAll = loadAll;
 function setRead(req, res) {
 
   if (!req.body) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
   }
 
   if (req.body.value !== true && req.body.value !== false) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
   }
 
   notificationModule.setRead(req.usernotification, req.body.value, function(err) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as read: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as read: ' + err.message}});
     }
     return res.send(205);
   });
@@ -134,16 +134,16 @@ module.exports.setRead = setRead;
 function setAllRead(req, res) {
 
   if (!req.body) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
   }
 
   if (req.body.value !== true && req.body.value !== false) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
   }
 
   notificationModule.setAllRead(req.usernotifications, req.body.value, function(err) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot set the user notifications as read: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notifications as read: ' + err.message}});
     }
     return res.send(205);
   });
@@ -154,16 +154,16 @@ module.exports.setAllRead = setAllRead;
 function setAcknowledged(req, res) {
 
   if (!req.body) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
   }
 
   if (req.body.value !== true && req.body.value !== false) {
-    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
   }
 
   notificationModule.setAcknowledged(req.usernotification, req.body.value, function(err) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as acknowledged: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as acknowledged: ' + err.message}});
     }
     return res.send(205);
   });

@@ -21,9 +21,9 @@ module.exports.signup = function(req, res) {
  */
 module.exports.get = function(req, res) {
   if (req.invitation) {
-    return res.json(200, req.invitation);
+    return res.status(200).json(req.invitation);
   }
-  return res.json(404);
+  return res.status(404);
 };
 
 /**
@@ -39,10 +39,10 @@ module.exports.load = function(req, res, next) {
     }
     handler.isStillValid(invitation, function(err, stillValid) {
       if (err) {
-        return res.json(500, {error: 500, message: 'Internal Server Error', details: err});
+        return res.status(500).json({error: 500, message: 'Internal Server Error', details: err});
       }
       if (!stillValid) {
-        return res.json(404, {error: 404, message: 'Not found', details: 'Invitation expired'});
+        return res.status(404).json({error: 404, message: 'Not found', details: 'Invitation expired'});
       }
       req.invitation = invitation;
       return next();
@@ -55,12 +55,12 @@ module.exports.load = function(req, res, next) {
  */
 module.exports.confirm = function(req, res) {
   if (!req.invitation) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Invitation is missing'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Invitation is missing'});
   }
 
   return handler.process(req.invitation, {}, function(err, result) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Internal error', details: 'Handler is unable to process the invitation ' + err.message});
+      return res.status(500).json({error: 500, message: 'Internal error', details: 'Handler is unable to process the invitation ' + err.message});
     }
 
     if (result) {
@@ -69,11 +69,11 @@ module.exports.confirm = function(req, res) {
       }
 
       if (result.status && result.status >= 200 && result.status < 300) {
-        return res.json(result.status, result.result);
+        return res.status(result.status).json(result.result);
       }
 
     } else {
-      return res.json(200);
+      return res.status(200);
     }
   });
 };
@@ -89,26 +89,26 @@ module.exports.create = function(req, res) {
   var payload = req.body;
   handler.validate(payload, function(err, result) {
     if (err) {
-      return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
+      return res.status(400).json({ error: { status: 400, message: 'Bad request', details: err.message}});
     }
 
     if (!result) {
-      return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Data is invalid'}});
+      return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Data is invalid'}});
     }
 
     var invitation = new Invitation(payload);
     invitation.save(function(err, saved) {
       if (err) {
-        return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
+        return res.status(400).json({ error: { status: 400, message: 'Bad request', details: err.message}});
       }
 
       saved.data.url = getInvitationURL(req, saved);
 
       handler.init(saved, function(err, result) {
         if (err) {
-          return res.json(500, { error: { status: 500, message: 'Server error', details: err.message}});
+          return res.status(500).json({ error: { status: 500, message: 'Server error', details: err.message}});
         }
-        return res.json(201, result);
+        return res.status(201).json(result);
       });
     });
   });
@@ -120,7 +120,7 @@ module.exports.create = function(req, res) {
 module.exports.finalize = function(req, res) {
 
   if (!req.invitation) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Invitation is missing'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Invitation is missing'});
   }
 
   var data = {
@@ -130,7 +130,7 @@ module.exports.finalize = function(req, res) {
 
   handler.finalize(req.invitation, data, function(err, result) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Internal error', details: 'Handler is unable to finalize the invitation ' + err.message});
+      return res.status(500).json({error: 500, message: 'Internal error', details: 'Handler is unable to finalize the invitation ' + err.message});
     }
 
     if (result) {
@@ -139,13 +139,13 @@ module.exports.finalize = function(req, res) {
       }
 
       if (result.status && result.status >= 200 && result.status < 300) {
-        return res.json(result.status, result.result);
+        return res.status(result.status).json(result.result);
       }
 
-      return res.json(201, result);
+      return res.status(201).json(result);
 
     } else {
-      return res.json(201);
+      return res.status(201);
     }
   });
 };

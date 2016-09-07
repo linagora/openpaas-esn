@@ -7,11 +7,11 @@ var logger = require('../../core/logger');
 function loadFollowing(req, res, next) {
   userModule.get(req.params.tid, function(err, following) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server error', details: 'Error while loading following'}});
+      return res.status(500).json({error: {code: 500, message: 'Server error', details: 'Error while loading following'}});
     }
 
     if (!following) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Can not find following'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Can not find following'}});
     }
 
     req.following = following;
@@ -24,27 +24,27 @@ function canUnfollow(req, res, next) {
   var following = req.following;
 
   if (req.user._id.equals(following._id)) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You can not unfollow yourself'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You can not unfollow yourself'}});
   }
 
   followModule.follows(req.user, following).then(function(result) {
     if (!result) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You can not unfollow this unfollowed user'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You can not unfollow this unfollowed user'}});
     }
 
     followModule.canUnfollow(req.user, following).then(function(result) {
       if (!result) {
-        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You do not have permission to unfollow this user'}});
+        return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You do not have permission to unfollow this user'}});
       }
       next();
     }, function(err) {
       logger.error('Error while checking if user can unfollow other user', err);
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while checking if user can unfollow other user'}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while checking if user can unfollow other user'}});
     });
 
   }, function(err) {
     logger.error('Error while checking if user is already followed by user', err);
-    return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user already follows other user'}});
+    return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user already follows other user'}});
   });
 }
 module.exports.canUnfollow = canUnfollow;
@@ -53,27 +53,27 @@ function canFollow(req, res, next) {
   var following = req.following;
 
   if (req.user._id.equals(following._id)) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You can not follow yourself'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You can not follow yourself'}});
   }
 
   followModule.follows(req.user, following).then(function(result) {
     if (result) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You already follow this user'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You already follow this user'}});
     }
 
     followModule.canFollow(req.user, following).then(function(result) {
       if (!result) {
-        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You do not have permission to follow this user'}});
+        return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You do not have permission to follow this user'}});
       }
       next();
     }, function(err) {
       logger.error('Error while checking if user is can follow other user', err);
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while checking if user is can follow other user'}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while checking if user is can follow other user'}});
     });
 
   }, function(err) {
     logger.error('Error while checking if user is already followed by user', err);
-    return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not check if user already follows other user'}});
+    return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user already follows other user'}});
   });
 }
 module.exports.canFollow = canFollow;

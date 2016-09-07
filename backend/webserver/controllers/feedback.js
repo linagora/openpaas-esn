@@ -10,9 +10,9 @@ function createFeedback(req, res) {
 
   feedback.save(feedbackObject, function(err, response) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot save feedback: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot save feedback: ' + err.message}});
     }
-    return res.json(201, response);
+    return res.status(201).json(response);
   });
 }
 

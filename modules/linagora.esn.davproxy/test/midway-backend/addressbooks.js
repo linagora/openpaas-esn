@@ -158,7 +158,7 @@ describe('The addressbooks dav proxy', function() {
         var result = [{foo: 'bar'}];
         self.dav.get(path, function(req, res) {
           called = true;
-          return res.json(200, result);
+          return res.status(200).json(result);
         });
 
         self.createDavServer(function(err) {
@@ -304,7 +304,7 @@ describe('The addressbooks dav proxy', function() {
 
         self.dav.put(path, function(req, res) {
           called = true;
-          return res.json(201, result);
+          return res.status(201).json(result);
         });
 
         self.createDavServer(function(err) {
@@ -457,7 +457,7 @@ describe('The addressbooks dav proxy', function() {
 
         self.dav.post(path, function(req, res) {
           called = true;
-          return res.json(201, result);
+          return res.status(201).json(result);
         });
 
         self.createDavServer(function(err) {

@@ -7,9 +7,9 @@ module.exports.create = function(req, res) {
   n.author = req.user._id;
   notificationModule.save(n, function(err, notification) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot create notification: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot create notification: ' + err.message}});
     }
-    return res.json(201, notification);
+    return res.status(201).json(notification);
   });
 };
 
@@ -27,9 +27,9 @@ module.exports.load = load;
 
 module.exports.get = function(req, res) {
   if (req.notification) {
-    return res.json(200, req.notification);
+    return res.status(200).json(req.notification);
   }
-  return res.json(404, {error: {status: 404, message: 'Not found', details: 'Notification has not been found'}});
+  return res.status(404).json({error: {status: 404, message: 'Not found', details: 'Notification has not been found'}});
 };
 
 module.exports.created = function(req, res) {
@@ -39,9 +39,9 @@ module.exports.created = function(req, res) {
   };
   notificationModule.find(options, function(err, results) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot get created notifications: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot get created notifications: ' + err.message}});
     }
-    return res.json(200, results);
+    return res.status(200).json(results);
   });
 };
 
@@ -63,20 +63,20 @@ module.exports.list = function(req, res) {
 
   notificationModule.find(options, function(err, results) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot get notifications: ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot get notifications: ' + err.message}});
     }
-    return res.json(200, results);
+    return res.status(200).json(results);
   });
 };
 
 module.exports.setAsRead = function(req, res) {
   if (!req.notification) {
-    return res.json(404, {error: { status: 404, message: 'Not found', details: 'Notification has not been found'}});
+    return res.status(404).json({error: { status: 404, message: 'Not found', details: 'Notification has not been found'}});
   }
 
   notificationModule.setAsRead(req.notification, function(err, udated) {
     if (err) {
-      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot create set notification as read . ' + err.message}});
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot create set notification as read . ' + err.message}});
     }
     return res.send(205);
   });
