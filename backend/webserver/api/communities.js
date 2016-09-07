@@ -50,7 +50,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/ct_title"
    *       - $ref: "#/parameters/ct_description"
    *       - $ref: "#/parameters/ct_domain_ids"
-   *       - $ref: "#/parameters/ct_noTitleCheck
+   *       - $ref: "#/parameters/ct_noTitleCheck"
    *     responses:
    *       201:
    *         $ref: "#/responses/cm_201"

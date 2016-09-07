@@ -9,6 +9,8 @@ module.exports = function(router) {
    * @swagger
    * /timelineentries:
    *   get:
+   *     tags:
+   *      - Timeline Entries
    *     description:
    *       Query the timeline of the current user
    *     parameters:
