@@ -19,7 +19,7 @@ describe('The User model', function() {
     email_ci = 'FOO@LiNaGoRa.com ';
     email2 = 'bar@linagora.com';
     email2_ci = '   bAR@linagora.com';
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
+    this.connectMongoose(this.mongoose, done);
   });
 
   afterEach(function(done) {
@@ -43,13 +43,13 @@ describe('The User model', function() {
   it('should fail when user has empty accounts', function(done) {
     var user = userFixtures.newDummyUser();
     user.accounts = [];
-    user.save(helpers.callbacks.errorWithMessage(done, 'Validation failed'));
+    user.save(helpers.callbacks.errorWithMessage(done, 'User validation failed'));
   });
 
   it('should fail when user has undefined accounts', function(done) {
     var user = userFixtures.newDummyUser();
     user.accounts = null;
-    user.save(helpers.callbacks.errorWithMessage(done, 'Validation failed'));
+    user.save(helpers.callbacks.errorWithMessage(done, 'User validation failed'));
   });
 
   it('should load the user from email', function(done) {

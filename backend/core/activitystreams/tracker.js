@@ -181,7 +181,7 @@ module.exports.getTracker = function(type) {
 
         stream.on('error', callback);
 
-        stream.on('close', function() {
+        stream.on('end', function() {
           var elligibleEntries = removeDeletedActivities(hash);
           countObjectsUpdate(elligibleEntries, callback);
         });
@@ -240,7 +240,7 @@ module.exports.getTracker = function(type) {
 
         stream.on('error', callback);
 
-        stream.on('close', function() {
+        stream.on('end', function() {
           return callback(null, hash);
         });
       });

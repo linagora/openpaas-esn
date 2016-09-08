@@ -82,8 +82,7 @@ module.exports = function(grunt) {
     },
     shell: {
       redis: shell.newShell(command.redis, /on port/, 'Redis server is started.'),
-      mongo: shell.newShell(command.mongo(false), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
-      mongo_replSet: shell.newShell(command.mongo(true), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
+      mongo: shell.newShell(command.mongo(), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       ldap: shell.newShell(command.ldap, /LDAP server up at/, 'Ldap server is started.'),
       elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.')
     },
@@ -137,17 +136,6 @@ module.exports = function(grunt) {
           Cmd: ['mongod', '--nojournal']
         }, {
           PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] }
-        }, {}, {
-          regex: new RegExp('connections on port 27017'),
-          info: 'MongoDB server is started.'
-        }),
-      mongo_replSet: container.newContainer({
-          Image: servers.mongodb.container.image,
-          name: servers.mongodb.container.name,
-          Cmd: util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' ')
-        }, {
-          PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
-          ExtraHosts: ['mongo:127.0.0.1']
         }, {}, {
           regex: new RegExp('connections on port 27017'),
           info: 'MongoDB server is started.'
@@ -241,23 +229,22 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo_replSet', 'container:elasticsearch']);
-  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo_replSet:pull', 'container:elasticsearch:pull']);
-  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:mongo_replSet:remove', 'container:elasticsearch:remove']);
-  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'mongoReplicationMode:docker', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
+  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo', 'container:elasticsearch']);
+  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo:pull', 'container:elasticsearch:pull']);
+  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:mongo:remove', 'container:elasticsearch:remove']);
+  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
-  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo_replSet', 'shell:elasticsearch']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo_replSet:kill', 'shell:elasticsearch:kill']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo', 'shell:elasticsearch']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:elasticsearch:kill']);
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', gruntfileUtils.setupEnvironment());
   grunt.registerTask('clean-environment', 'remove temp folder for tests', gruntfileUtils.cleanEnvironment());
-  grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', gruntfileUtils.setupMongoReplSet());
   grunt.registerTask('setupElasticsearchUsersIndex', 'setup elasticsearch users index', gruntfileUtils.setupElasticsearchUsersIndex());
   grunt.registerTask('setupElasticsearchContactsIndex', 'setup elasticsearch contacts index', gruntfileUtils.setupElasticsearchContactsIndex());
   grunt.registerTask('setupElasticsearchEventsIndex', 'setup elasticsearch events index', gruntfileUtils.setupElasticsearchEventsIndex());
 
   grunt.registerTask('dev', ['nodemon:dev']);
   grunt.registerTask('debug', ['node-inspector:dev']);
-  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
+  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
   grunt.registerTask('test-e2e', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down', 'continue:off', 'continue:fail-on-warning']);
   grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'run_grunt:e2e']);

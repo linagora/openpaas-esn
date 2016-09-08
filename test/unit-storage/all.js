@@ -1,6 +1,7 @@
 'use strict';
 
-var mockery = require('mockery'),
+var mongoose = require('mongoose'),
+    mockery = require('mockery'),
     chai = require('chai'),
     path = require('path'),
     fs = require('fs-extra'),
@@ -11,6 +12,8 @@ var mockery = require('mockery'),
 var testConfig = require('../config/servers-conf.js');
 
 before(function() {
+  var self = this;
+
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
@@ -45,6 +48,11 @@ before(function() {
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');
+
+  this.connectMongoose = function(mongoose, done) {
+    mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
+    mongoose.connect(self.testEnv.mongoUrl, done);
+  };
 });
 
 after(function(done) {
@@ -55,12 +63,11 @@ after(function(done) {
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
-  mockery.registerMock('./logger', this.helpers.requireFixture('logger-noop')());
 });
 
 afterEach(function() {
   try {
-    require('mongoose').disconnect();
+    mongoose.disconnect();
   } catch (e) {
     console.error(e);
   }

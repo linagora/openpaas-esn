@@ -14,7 +14,7 @@ describe('the Usernotification mongoose model', function() {
   beforeEach(function() {
     mongoose = require('mongoose');
     Model = require(moduleFile);
-    mongoose.connect(this.testEnv.mongoUrl);
+    this.connectMongoose(mongoose);
   });
 
   afterEach(function(done) {
@@ -307,7 +307,7 @@ describe('the Usernotification mongoose model', function() {
     });
   });
   describe('action field', function() {
-    it('should record an empty array if not an array', function(done) {
+    it('should not validate if not an array', function(done) {
       var data = {
         subject: {objectType: 'user', id: 'user1'},
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
@@ -317,10 +317,8 @@ describe('the Usernotification mongoose model', function() {
         action: {notAnArray: true}
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
-        expect(err).to.be.not.ok;
-        expect(data.action).to.be.an('array');
-        expect(data.action).to.have.length(0);
+      notif.save(function(err) {
+        expect(err).to.be.ok;
         done();
       });
     });

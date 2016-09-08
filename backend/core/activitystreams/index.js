@@ -55,7 +55,7 @@ function query(options, cb) {
 
   var getEntries = function(q, callback) {
     if (options.stream) {
-      return callback(null, q.stream());
+      return callback(null, q.cursor());
     }
 
     q.exec(function(err, results) {

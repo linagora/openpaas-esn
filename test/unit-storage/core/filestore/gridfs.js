@@ -16,7 +16,7 @@ describe('The filestore gridfs module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    this.conn = this.mongoose.connect(this.testEnv.mongoUrl);
+    this.connectMongoose(this.mongoose);
     this.mongoose.connection.on('open', function() {
       // ensure that the connection is open before using the file store
       done();

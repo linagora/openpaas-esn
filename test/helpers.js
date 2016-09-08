@@ -253,7 +253,11 @@ module.exports = function(mixin, testEnv) {
           setTimeout(function() {
             request
               .get(elasticsearchURL + '/' + index + '/' + type + '/_search?q=_id:' + id)
-              .end(function(res) {
+              .end(function(err, res) {
+                if (err) {
+                  return callback(err);
+                }
+
                 if (check(res)) {
                   finish = true;
                   return callback();

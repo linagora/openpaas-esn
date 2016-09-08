@@ -129,7 +129,7 @@ describe('The addmember handler', function() {
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
+      this.connectMongoose(this.mongoose);
 
       Domain = this.helpers.requireBackend('core/db/mongo/models/domain');
       User = this.helpers.requireBackend('core/db/mongo/models/user');

@@ -17,7 +17,7 @@ describe('The domain model module', function() {
     userFixtures = this.helpers.requireFixture('models/users.js')(User);
     emails = ['foo@linagora.com', 'bar@linagora.com'];
 
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
+    this.connectMongoose(this.mongoose, done);
   });
 
   afterEach(function(done) {

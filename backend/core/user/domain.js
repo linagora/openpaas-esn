@@ -25,7 +25,7 @@ function joinDomain(user, domain, callback) {
   if (!validateDomains(domainId)) {
     return callback(new Error('User is already in domain ' + domainId));
   } else {
-    return User.findOneAndUpdate({_id: user._id}, {$push: {domains: {domain_id: domain}}}, function(err, result) {
+    return User.findOneAndUpdate({_id: user._id}, {$push: {domains: {domain_id: domain}}}, { new: true }, function(err, result) {
       if (!err && result) {
         pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(result);
       }
@@ -95,7 +95,12 @@ function getUsersList(domains, query, cb) {
   if (domains.length === 0) {
     return cb(new Error('At least one domain is mandatory'));
   }
-  query = query || {limit: defaultLimit, offset: defaultOffset};
+
+  query = {
+    limit: query && query.limit || defaultLimit,
+    offset: query && query.offset || defaultOffset,
+    not_in_collaboration: query && query.not_in_collaboration
+  };
 
   var collaboration = query.not_in_collaboration;
   var limit = query.limit;

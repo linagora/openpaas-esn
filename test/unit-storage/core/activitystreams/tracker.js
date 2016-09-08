@@ -17,7 +17,7 @@ describe('the TimelineEntriesTracker module', function() {
     ObjectId = require('bson').ObjectId;
     userId = new ObjectId('538d87b37779021a1acf1b10');
     activityStreamUuid = '46e2250b-29c7-49c6-aae4-12e6574ea911';
-    timelineEntryId = new ObjectId('538d87b37779021a1acf1b12');
+    timelineEntryId = '538d87b37779021a1acf1b12';
 
     this.mongoose = require('mongoose');
     this.helpers.requireBackend('core/db/mongo/models/timelineentry');
@@ -27,7 +27,8 @@ describe('the TimelineEntriesTracker module', function() {
     ReadTimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
     tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
     this.testEnv.writeDBConfigFile();
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
+
+    this.connectMongoose(this.mongoose, done);
   });
 
   afterEach(function(done) {
@@ -58,7 +59,7 @@ describe('the TimelineEntriesTracker module', function() {
     this.helpers.mongo.saveDoc('timelineEntriesTrackers', timelineEntriesTracker, function(err) {
       if (err) { done(err); }
 
-      var timelineEntryId_2 = new ObjectId('538d87b37779021a1acf1b13');
+      var timelineEntryId_2 = '538d87b37779021a1acf1b13';
       tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId_2, function(err) {
         expect(err).to.not.exist;
 

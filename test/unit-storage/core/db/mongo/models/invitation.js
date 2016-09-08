@@ -7,7 +7,7 @@ describe('The Invitation model', function() {
 
   beforeEach(function() {
     var mongoose = require('mongoose');
-    mongoose.connect(this.testEnv.mongoUrl);
+    this.connectMongoose(mongoose);
     this.helpers.requireBackend('core/db/mongo/models/invitation');
     Invitation = mongoose.model('Invitation');
   });
