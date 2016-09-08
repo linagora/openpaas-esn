@@ -1,6 +1,6 @@
 .clickable.attachment(ng-click="ctrl.download(attachment)")
   .icon
-    img(fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png")
+    img(fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png", alt='attachment')
   .metadata
     .name.ellipsis {{ ::attachment.name }}
     .size {{ ::attachment.size | bytes }}

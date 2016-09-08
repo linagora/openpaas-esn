@@ -3,7 +3,7 @@
     .flex-start
       .p-10.flex-noshrink
         .card-image
-          img(ng-src='{{::displayShell.getAvatar(avatarSize)}}')
+          img(ng-src='{{::displayShell.getAvatar(avatarSize)}}', alt='avatar')
           i.mdi.i-contact-card(ng-class="displayShell.getOverlayIcon()")
       .p-t-10.p-r-10.contact-info
         div

@@ -2,7 +2,7 @@ div.col-xs-12.nopadding
   .col-xs-12
     hr
   .col-lg-2.col-sm-3.col-xs-4
-    img.thumbnail(src='/images/user.png', ng-src='/api/users/{{::request.user._id}}/profile/avatar')
+    img.thumbnail(src='/images/user.png', ng-src='/api/users/{{::request.user._id}}/profile/avatar', alt='profile avatar')
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading
       a(ng-href="#/profile/{{::request.user._id}}") {{::request.user.firstname}} {{::request.user.lastname}}

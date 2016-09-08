@@ -1,5 +1,5 @@
 a
-  img(ng-class="{'esn-avatar': listView, 'clickable': editable}" ng-src='{{displayShell.getAvatar(avatarSize)}}' fallback-src="{{displayShell.getDefaultAvatar()}}")
+  img(ng-class="{'esn-avatar': listView, 'clickable': editable}" ng-src='{{displayShell.getAvatar(avatarSize)}}' fallback-src="{{displayShell.getDefaultAvatar()}}", alt='profile picture')
   i.mdi.i-contact-list(ng-class="displayShell.getOverlayIcon()")
 a.edit-hint(ng-if='editable')
   i.mdi.mdi-camera

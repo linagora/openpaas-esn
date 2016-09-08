@@ -11,7 +11,7 @@
     .flex-horizontal-centered
       .p-20.hidden-xs
         a(href='#/project/{{::project._id}}')
-          img(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{::project._id}}/avatar')
+          img(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{::project._id}}/avatar', alt='project avatar')
       .project-details
         .flex-horizontal-centered
           .p-startdate

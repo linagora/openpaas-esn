@@ -1,6 +1,6 @@
 div.media
   a.media-left.pull-left(ng-href='#/profile/{{::message.author._id}}')
-    img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+    img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='message author')
   div.media-body
     div
       h4.media-heading

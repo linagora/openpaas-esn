@@ -8,14 +8,14 @@ div.btn-group
   ul.dropdown-menu.dropdown-menu-right(role="menu")
     li
       a(href="" ng-click="clearStreamSelection()")
-        img(src='/images/activitystream.png')
+        img(src='/images/activitystream.png', alt='')
         span #{__("All")}
     li
       a(href="" ng-click="selectStream(activitystream)")
-        img(ng-src='{{activitystream.avatarUrl}}')
+        img(ng-src='{{activitystream.avatarUrl}}', alt='')
         span #{__("Current")}
     li.divider
     li(ng-repeat="stream in displayList")
       a(href="" ng-click="selectStream(stream)")
-        img(ng-src='{{stream.avatarUrl}}')
+        img(ng-src='{{stream.avatarUrl}}', alt='')
         span {{::stream.displayName}}
