@@ -5,6 +5,7 @@ var User = mongoose.model('User');
 var utils = require('./utils');
 var CONSTANTS = require('./constants');
 var pubsub = require('../../core/pubsub').local;
+var domainModule = require('../domain');
 
 var defaultLimit = 50;
 var defaultOffset = 0;
@@ -144,3 +145,24 @@ function getUsersList(domains, query, cb) {
 module.exports.getUsersList = getUsersList;
 
 module.exports.getUsersSearch = require('./search').searchByDomain;
+
+/**
+ * Get all administrators in a domain
+ *
+ * @param {Domain} domain object of domain where search administrators
+ * @param {function} callback - as fn(err, results) with results: [Admin1, Admin2, ...]
+ */
+function getAdministrators(domain, callback) {
+  if (!domain) {
+    return callback(new Error('Domain must not be null'));
+  }
+
+  var administratorIds = domainModule.getDomainAdministrators(domain)
+    .map(function(administrator) {
+      return administrator.user_id;
+    });
+
+  return User.find().where('_id').in(administratorIds)
+    .exec(callback);
+}
+module.exports.getAdministrators = getAdministrators;

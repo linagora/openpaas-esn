@@ -434,7 +434,6 @@ describe('The domain API', function() {
     it('should send back 404 when domain is not found', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
-        var domainId = 'notFoundDomain';
         var req = requestAsMember(request(app).post('/api/domains/' + new ObjectId() + '/members'));
         req.expect(404).end(helpers.callbacks.noError(done));
       });
@@ -465,6 +464,49 @@ describe('The domain API', function() {
           done();
         });
       });
+    });
+  });
+
+  describe('GET /api/domains/:uuid/administrators', function() {
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/administrators', done);
+    });
+
+    it('should send back 403 when current user is not a domain administrator', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
+        var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/administrators'));
+        req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body).to.exists;
+          expect(res.body.error).to.equal(403);
+          done();
+        }));
+      }));
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
+        var req = requestAsMember(request(app).get('/api/domains/' + new ObjectId() + '/administrators'));
+        req.expect(404).end(helpers.callbacks.noError(done));
+      }));
+    });
+
+    it('should send back 500 when get fail', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
+        var domainId = 'abc';
+        var req = requestAsMember(request(app).get('/api/domains/' + domainId + '/administrators'));
+        req.expect(500).end(helpers.callbacks.noError(done));
+      }));
+    });
+
+    it('should send back 200 when get success', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
+        var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/administrators'));
+        req.expect(200).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body).to.exists;
+          expect(res.body[0]._id).to.equal(user1Domain1Manager._id + '');
+          done();
+        }));
+      }));
     });
   });
 });

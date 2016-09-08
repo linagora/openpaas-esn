@@ -157,4 +157,27 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_404"
    */
   router.get('/domains/:uuid/manager', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.getDomain);
+
+  /**
+   * @swagger
+   * /domains/{domain_id}/administrators:
+   *   get:
+   *     tags:
+   *      - Domain
+   *     description: get list administrators of a domain.
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/dm_members"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get('/domains/:uuid/administrators', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.getDomainAdministrators);
 };

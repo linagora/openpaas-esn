@@ -22,6 +22,7 @@ function getDomainAdministrators(domain) {
 
   return administrators;
 }
+module.exports.getDomainAdministrators = getDomainAdministrators;
 
 function list(options, callback) {
   options = options || {};
