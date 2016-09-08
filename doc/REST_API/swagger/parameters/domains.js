@@ -44,23 +44,7 @@
  *        password:
  *         type: string
  *        account:
- *          type: array
- *          items:
- *            type: object
- *            properties:
- *              type:
- *                type: string
- *                enum:
- *                  - email
- *                  - oauth
- *              preferredEmailIndex:
- *                type: number
- *              emails:
- *                type: array
- *                 items:
- *                   $ref: "#/definitions/us_email",
- *               hosted:
- *                 type: boolean
+ *          $ref: "#/definitions/us_account"
  *        domains:
  *          type: array
  *          items:

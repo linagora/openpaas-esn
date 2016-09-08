@@ -105,23 +105,7 @@
   *       password:
   *         type: string
   *       account:
-  *         type: array
-  *         items:
-  *           type: object
-  *           properties:
-  *             type:
-  *               type: string
-  *               enum:
-  *                 - email
-  *                 - oauth
-  *             preferredEmailIndex:
-  *               type: number
-  *             emails:
-  *               type: array
-  *                items:
-  *                  $ref: "#/definitions/us_email",
-  *              hosted:
-  *                type: boolean
+  *         $ref: "#/definitions/us_account"
   *       domains:
   *         type: array
   *         items:
@@ -140,4 +124,22 @@
   *         type: string
   *       main_phone:
   *         $ref: "#/definitions/us_phone"
+  *   us_account:
+  *     type: array
+  *     items:
+  *       type: object
+  *       properties:
+  *         type:
+  *           type: string
+  *           enum:
+  *             - email
+  *             - oauth
+  *           preferredEmailIndex:
+  *             type: number
+  *           emails:
+  *             type: array
+  *             items:
+  *               $ref: "#/definitions/us_email"
+  *           hosted:
+  *             type: boolean
   */

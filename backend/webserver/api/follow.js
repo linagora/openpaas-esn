@@ -10,6 +10,9 @@ module.exports = function(router) {
    * @swagger
    * /users/{id}/followers:
    *   get:
+   *     tags:
+   *      - Users
+   *      - Follow
    *     description:
    *       Get the followers of the given user.
    *     parameters:
@@ -34,6 +37,9 @@ module.exports = function(router) {
    * @swagger
    * /users/{id}/followings:
    *   get:
+   *     tags:
+   *      - Users
+   *      - Follow
    *     description:
    *       Get the users the given user is following.
    *     parameters:
@@ -58,6 +64,9 @@ module.exports = function(router) {
    * @swagger
    * /users/{id}/followings/{tid}:
    *   get:
+   *     tags:
+   *      - Users
+   *      - Follow
    *     description:
    *       Check if a user follows another user
    *     parameters:
@@ -81,6 +90,9 @@ module.exports = function(router) {
    * @swagger
    * /users/{id}/followings/{tid}:
    *   put:
+   *     tags:
+   *      - Users
+   *      - Follow
    *     description:
    *       Follow an user.
    *     parameters:
@@ -104,6 +116,9 @@ module.exports = function(router) {
    * @swagger
    * /users/{id}/followings/{tid}:
    *   delete:
+   *     tags:
+   *      - Users
+   *      - Follow
    *     description:
    *       Unfollow an user.
    *     parameters:

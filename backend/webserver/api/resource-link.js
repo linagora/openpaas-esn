@@ -10,23 +10,19 @@ module.exports = function(router) {
    * @swagger
    * /api/resource-links:
    *   post:
+   *     tags:
+   *      - Resource Links
    *     description:
    *       Create a new typed link between resources. For example, create a 'like' link between a user (source) and a message (target)
    *     produces:
    *       - application/json
    *     parameters:
-   *       - name: resource-link
-   *         in: body
-   *         required: true
-   *         schema:
-   *           $ref: "#/definitions/ResourceLinkRequest"
+   *       $ref: "#/parameters/rl_request"
    *     responses:
    *       "201":
    *         description: Created.
    *         schema:
-   *           type: object
-   *           items:
-   *             $ref: "#/definitions/ResourceLink"
+   *           $ref: "#/definitions/ResourceLink"
    *       "400":
    *         description: Bad request
    *       "500":
@@ -47,13 +43,12 @@ module.exports = function(router) {
    * @swagger
    * /api/resource-links:
    *   delete:
-   *     Delete an existant link between resources. For example, delete a 'like' link between a user (source) and a message (target)
+   *     tags:
+   *      - Resource Links
+   *     description:
+   *       Delete an existant link between resources. For example, delete a 'like' link between a user (source) and a message (target)
    *     parameters:
-   *       - name: resource-link
-   *         in: query
-   *         required: true
-   *         schema:
-   *           $ref: "#/definitions/ResourceLinkRequest"
+   *       $ref: "#/parameters/rl_request"
    *     responses:
    *       204:
    *         $ref: "#/responses/cm_204"
