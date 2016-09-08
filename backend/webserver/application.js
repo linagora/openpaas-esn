@@ -8,20 +8,20 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
 var config = require('../core').config('default');
+var logger = require('../core').logger;
 
 var application = express();
 exports = module.exports = application;
 application.set('views', FRONTEND_PATH + '/views');
 application.set('view engine', 'jade');
 
-if (process.env.NODE_ENV !== 'test') {
-  var morgan = require('morgan');
-  if (process.env.NODE_ENV === 'dev') {
-    application.use(morgan('dev'));
-  } else {
-    application.use(morgan());
-  }
+var morgan = require('morgan');
+var format = 'default';
+
+if (process.env.NODE_ENV === 'dev') {
+  format = 'dev';
 }
+application.use(morgan({format: format, stream: logger.stream}));
 
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
 application.use('/images', express.static(FRONTEND_PATH + '/images'));
