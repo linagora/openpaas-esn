@@ -47,6 +47,7 @@ module.exports.timelineToActivity = function(entry) {
     verb: entry.verb,
     language: entry.language,
     published: entry.published,
+    status: entry.status,
     actor: {
       _id: entry.actor._id,
       objectType: entry.actor.objectType,
