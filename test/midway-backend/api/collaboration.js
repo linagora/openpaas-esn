@@ -768,7 +768,7 @@ describe.skip('The collaborations API', function() {
 
       async.series([
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -835,7 +835,7 @@ describe.skip('The collaborations API', function() {
 
         async.series([
           function(callback) {
-            domain.administrator = user._id;
+            domain.administrators = [{ user_id: user._id }];
             saveDomain(domain, callback);
           },
           function(callback) {
@@ -1042,7 +1042,7 @@ describe.skip('The collaborations API', function() {
             saveUser(foouser, callback);
           },
           function(callback) {
-            domain.administrator = user._id;
+            domain.administrators = [{ user_id: user._id }];
             saveDomain(domain, callback);
           },
           function(callback) {

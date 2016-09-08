@@ -127,18 +127,24 @@ module.exports = function(mixin, testEnv) {
 
     function createDomain() {
       var domain = extend(true, {}, deployment.domain);
-      delete domain.administrator;
+
+      delete domain.administrators;
+
       return q.npost(new Domain(domain), 'save').spread(function(domain) {
         deployment.models.domain = domain;
       });
     }
 
     function updateDomainAdministrator() {
+      // set the first user as domain administrator
       var domain = deployment.models.domain;
-      var administrator = deployment.models.users.filter(function(u) { return u.emails.indexOf(deployment.domain.administrator) >= 0; });
-      if (administrator.length) {
-        domain.administrator = administrator[0]._id;
+
+      if (deployment.models.users.length === 0) {
+        return q();
       }
+
+      domain.administrators = [{ user_id: deployment.models.users[0]._id }];
+
       return q.npost(domain, 'save').spread(function(domain) {
         deployment.models.domain = domain;
       });
@@ -146,21 +152,23 @@ module.exports = function(mixin, testEnv) {
 
     function createUsers() {
       var domainModule = require('../backend/core/user/domain');
+
       return q.all(deployment.users.map(function(user) {
         return self.createUser(user);
       }))
       .then(function(users) {
         return q.all(
-          users.map(function(u) {
-            return q.ninvoke(domainModule, 'joinDomain', u, deployment.models.domain)
-            .then(function() {
-              return q(u);
-            });
+          users.map(function(user) {
+            return q.ninvoke(domainModule, 'joinDomain', user, deployment.models.domain)
+              .then(function() {
+                return q(user);
+              });
           })
         );
       })
       .then(function(users) {
         deployment.models.users = users;
+
         return q(deployment);
       });
     }

@@ -58,7 +58,7 @@ describe('The domain model module', function() {
         var dom = {
           name: initialName,
           company_name: 'Foo Corporate',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         saveDomain(dom, test);
@@ -101,7 +101,7 @@ describe('The domain model module', function() {
         var dom = {
           name: 'the domain',
           company_name: initialName,
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         saveDomain(dom, test);
@@ -123,7 +123,7 @@ describe('The domain model module', function() {
         var dom = {
           name: 'Marketing',
           company_name: 'Foo Corporate',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         var i = new Domain(dom);
@@ -150,7 +150,7 @@ describe('The domain model module', function() {
         var dom = {
           name: 'Marketing',
           company_name: 'Foo Corporate',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         var i = new Domain(dom);
@@ -188,7 +188,7 @@ describe('The domain model module', function() {
         var dom = {
           name: 'Marketing',
           company_name: 'Foo Corporate',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         var i = new Domain(dom);
@@ -215,7 +215,7 @@ describe('The domain model module', function() {
         var dom = {
           name: 'Marketing',
           company_name: 'Foo Corporate',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         var i = new Domain(dom);

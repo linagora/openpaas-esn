@@ -16,6 +16,8 @@ module.exports = function(router) {
    *       Create an ESN domain.
    *     parameters:
    *       - $ref: "#/parameters/dm_name"
+   *       - $ref: "#/parameters/dm_company_name"
+   *       - $ref: "#/parameters/dm_administrators"
    *     responses:
    *       201:
    *         $ref: "#/responses/cm_201"

@@ -44,7 +44,7 @@ describe('The companies routes', function() {
       var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
 
       var json = {name: 'Marketing', company_name: 'Corporate',
-        administrator: u
+        administrators: [{ user_id: u }]
       };
       var domain = new Domain(json);
 
@@ -85,7 +85,7 @@ describe('The companies routes', function() {
       var json = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administrator: u
+        administrators: [{ user_id: u }]
       };
       var domain = new Domain(json);
 

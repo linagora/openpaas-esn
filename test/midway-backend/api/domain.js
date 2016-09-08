@@ -53,7 +53,7 @@ describe('The domain API', function() {
   });
 
   describe('POST /api/domains', function() {
-    it('should send back 400 when administrator is not set', function(done) {
+    it('should send back 400 when administrators is not set', function(done) {
       var json = {
         name: 'Marketing',
         company_name: 'Corporate'
@@ -62,7 +62,17 @@ describe('The domain API', function() {
       request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
     });
 
-    it('should send back 400 when administrator user is not correctly filled (emails is mandatory)', function(done) {
+    it('should send back 400 when administrators is empty', function(done) {
+      var json = {
+        name: 'Marketing',
+        company_name: 'Corporate',
+        administrators: []
+      };
+
+      request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
+    });
+
+    it('should send back 400 when administrator users is not correctly filled (emails is mandatory)', function(done) {
       var user = {
         firstname: 'foo',
         lastname: 'bar'
@@ -71,13 +81,13 @@ describe('The domain API', function() {
       var json = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administrator: user
+        administratosr: [user]
       };
 
       request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
     });
 
-    it('should send back 201, create a domain with name, company_name and administrator in lower case', function(done) {
+    it('should send back 201, create a domain with name, company_name and administrators in lower case', function(done) {
       var user = {
         firstname: 'foo',
         lastname: 'bar',
@@ -90,7 +100,7 @@ describe('The domain API', function() {
       var json = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administrator: user
+        administrators: [user]
       };
 
       request(app).post('/api/domains').send(json).expect(201).end(function(err, res) {
@@ -100,7 +110,11 @@ describe('The domain API', function() {
         Domain.findOne({name: 'marketing', company_name: 'corporate'}, function(err, doc) {
           expect(err).to.not.exist;
           expect(doc).to.exist;
-          expect(doc).to.shallowDeepEqual({name: 'marketing', company_name: 'corporate'});
+          expect(doc).to.shallowDeepEqual({
+            name: 'marketing',
+            company_name: 'corporate',
+            administrators: [{}]
+          });
           done();
         });
       });

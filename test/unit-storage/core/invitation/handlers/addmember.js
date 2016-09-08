@@ -235,7 +235,7 @@ describe('The addmember handler', function() {
         var dom = {
           name: 'ESN',
           company_name: 'Linagora',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         var domain = new Domain(dom);

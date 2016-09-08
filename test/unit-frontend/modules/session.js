@@ -10,6 +10,7 @@ describe('The esn.session Angular module', function() {
   describe('session service', function() {
     beforeEach(function() {
       var self = this;
+
       inject(function(session) {
         self.session = session;
       });
@@ -130,35 +131,36 @@ describe('The esn.session Angular module', function() {
     });
 
     describe('userIsDomainAdministrator function', function() {
+
       beforeEach(function() {
-        var domain = {
+        this.session.setDomain({
           _id: '1',
           name: 'hello',
-          administrator: 'admin'
-        };
-
-        this.session.setDomain(domain);
-      });
-
-      it('should return true if user is domain administrator', function() {
+          administrators: []
+        });
         this.session.setUser({
           _id: 'admin',
           name: 'admin',
           emails: ['admin@example.com']
         });
+      });
+
+      it('should return false if user is not domain administrator', function() {
+        expect(this.session.userIsDomainAdministrator()).to.be.false;
+      });
+
+      it('should return true if user is domain administrator', function() {
+        this.session.domain.administrators.push({ user_id: this.session.user._id });
 
         expect(this.session.userIsDomainAdministrator()).to.be.true;
       });
 
-      it('should return false if user is not domain administrator', function() {
-        this.session.setUser({
-          _id: 'user',
-          name: 'user',
-          emails: ['user@example.com']
-        });
+      it('should return true if user is domain administrator (deprecated)', function() {
+        this.session.domain.administrator = this.session.user._id;
 
-        expect(this.session.userIsDomainAdministrator()).to.be.false;
+        expect(this.session.userIsDomainAdministrator()).to.be.true;
       });
+
     });
   });
 
