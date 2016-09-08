@@ -32,16 +32,12 @@ describe('The authjwt controller', function() {
           _id: '123'
         }
       };
-      var res = {
-        status: function(status) {
+      var res = self.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(500);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.generateWebToken(req, res);
     });
 
@@ -60,16 +56,12 @@ describe('The authjwt controller', function() {
           _id: '123'
         }
       };
-      var res = {
-        status: function(status) {
+      var res = self.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(500);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.generateWebToken(req, res);
     });
 
@@ -88,16 +80,12 @@ describe('The authjwt controller', function() {
           _id: '123'
         }
       };
-      var res = {
-        status: function(status) {
+      var res = self.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(200);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.generateWebToken(req, res);
     });
 
@@ -114,11 +102,10 @@ describe('The authjwt controller', function() {
 
       var controller = self.helpers.requireBackend('webserver/controllers/authjwt');
 
-      var res = {
-        status: function() {
-          return { json: function() {} };
+      var res = self.helpers.express.jsonResponse(
+        function() {
         }
-      };
+      );
 
       controller.generateWebToken(req, res);
     }

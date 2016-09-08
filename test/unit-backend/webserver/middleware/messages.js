@@ -39,12 +39,12 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -62,12 +62,12 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -92,12 +92,12 @@ describe('The messages middleware', function() {
         user: {
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -122,12 +122,12 @@ describe('The messages middleware', function() {
         user: {
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -187,12 +187,12 @@ describe('The messages middleware', function() {
         user: {
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res, done);
     });
 
@@ -220,12 +220,12 @@ describe('The messages middleware', function() {
         user: {
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       middleware(req, res, done);
     });
   });
@@ -245,13 +245,13 @@ describe('The messages middleware', function() {
       var req = {
         body: {}
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(400);
           expect(body.error.details).to.match(/Target is required/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -262,13 +262,13 @@ describe('The messages middleware', function() {
           target: []
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(400);
           expect(body.error.details).to.match(/Target is required/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -294,13 +294,13 @@ describe('The messages middleware', function() {
           ]
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(400);
           expect(body.error.details).to.match(/Can not find any writable target in request/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -357,13 +357,13 @@ describe('The messages middleware', function() {
       var req = {
         body: {}
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(400);
           expect(body.error.details).to.match(/Invalid tuple/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -376,13 +376,13 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(400);
           expect(body.error.details).to.match(/Invalid tuple/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -400,13 +400,13 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(500);
           expect(body.error.details).to.match(/Server Error while searching collaboration/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -425,13 +425,13 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(404);
           expect(body.error.details).to.match(/Collaboration not found/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -456,13 +456,13 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(500);
           expect(body.error.details).to.match(/Server Error while checking read rights/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 
@@ -487,13 +487,13 @@ describe('The messages middleware', function() {
           }
         }
       };
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(403);
           expect(body.error.details).to.match(/Not enough rights to read messages from collaboration/);
           done();
         }
-      };
+      );
       middleware(req, res, this.helpers.callbacks.notCalled(done));
     });
 

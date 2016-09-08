@@ -102,17 +102,13 @@ describe('The login-rules middleware', function() {
         }
       };
 
-      var res = {
-        status: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
-          return {
-            json: function(data) {
-              expect(data.error.message).to.match(/Server Error/);
-              done();
-            }
-          };
+          expect(data.error.message).to.match(/Server Error/);
+          done();
         }
-      };
+      );
 
       var userLoginMocked = {
         canLogin: function(username, callback) {
@@ -139,17 +135,13 @@ describe('The login-rules middleware', function() {
         }
       };
 
-      var res = {
-        status: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
-          return {
-            json: function(data) {
-              expect(data.error.message).to.match(/Server Error/);
-              done();
-            }
-          };
+          expect(data.error.message).to.match(/Server Error/);
+          done();
         }
-      };
+      );
 
       var userLoginMocked = {
         canLogin: function(username, callback) {
@@ -175,13 +167,13 @@ describe('The login-rules middleware', function() {
         }
       };
 
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.message).to.equal('Server Error');
           done();
         }
-      };
+      );
 
       var userLoginMocked = {
         canLogin: function(username, callback) {
@@ -228,17 +220,13 @@ describe('The login-rules middleware', function() {
       }
     };
 
-    var res = {
-      status: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data) {
         expect(code).to.equal(500);
-        return {
-          json: function(data) {
-            expect(data.error.message).to.match(/Server Error/);
-            done();
-          }
-        };
+        expect(data.error.message).to.match(/Server Error/);
+        done();
       }
-    };
+    );
 
     mockery.registerMock('../../core/user/login', {});
     mockery.registerMock('../../core/user', {
@@ -276,18 +264,14 @@ describe('The login-rules middleware', function() {
       }
     };
 
-    var res = {
-      status: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data) {
         expect(code).to.equal(403);
-        return {
-          json: function(data) {
-            expect(data.error.message).to.match(/Forbidden/);
-            expect(data.error.details).to.match(/The specified account is disabled/);
-            done();
-          }
-        };
+        expect(data.error.message).to.match(/Forbidden/);
+        expect(data.error.details).to.match(/The specified account is disabled/);
+        done();
       }
-    };
+    );
 
     mockery.registerMock('../../core/user/login', {});
     mockery.registerMock('../../core/user', {

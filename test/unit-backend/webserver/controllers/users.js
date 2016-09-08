@@ -98,17 +98,14 @@ describe('The User controller', function() {
           }]
         }
       };
-      var res = {
-        status: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
-          return {
-            json: function(data) {
-              expect(data).to.shallowDeepEqual(req.user);
-              done();
-            }
-          };
+          expect(data).to.shallowDeepEqual(req.user);
+
+          done();
         }
-      };
+      );
       users.user(req, res);
     });
 
@@ -116,12 +113,12 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(404);
           done();
         }
-      };
+      );
       users.user(req, res);
     });
   });
@@ -209,75 +206,75 @@ describe('The User controller', function() {
     it('should return 404 if the user is not actually logged in', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(404);
           expect(data.error).to.equal(404);
           expect(data.message).to.equal('Not found');
           expect(data.details).to.equal('User not found');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the mimetype argument is not set', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Parameter missing');
           expect(data.details).to.equal('mimetype parameter is required');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the mimetype argument is not an image mimetype', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'application/yolo'}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Bad parameter');
           expect(data.details).to.equal('mimetype application/yolo is not acceptable');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the size argument is not set', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png'}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Parameter missing');
           expect(data.details).to.equal('size parameter is required');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the size argument is not an integer', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 'yolo'}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Bad parameter');
           expect(data.details).to.equal('size parameter should be an integer');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -331,15 +328,15 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Datastore failure');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -354,15 +351,15 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Image processing failure');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -376,15 +373,15 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Internal server error');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -397,14 +394,14 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(412);
           expect(data.error).to.equal(412);
           expect(data.message).to.equal('Image size does not match');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -432,10 +429,10 @@ describe('The User controller', function() {
         currentAvatar: undefined
       };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -462,15 +459,15 @@ describe('The User controller', function() {
         currentAvatar: undefined
       };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Datastore failure');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -496,14 +493,14 @@ describe('The User controller', function() {
         currentAvatar: undefined
       };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
           expect(data._id).to.exist;
           expect(data._id).to.have.property('toHexString');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
   });
@@ -512,13 +509,13 @@ describe('The User controller', function() {
     it('should return 404 if the user is not logged in', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(404);
           expect(data).to.deep.equal({error: 404, message: 'Not found', details: 'User not found'});
           done();
         }
-      };
+      );
       users.getProfileAvatar(req, res);
     });
 

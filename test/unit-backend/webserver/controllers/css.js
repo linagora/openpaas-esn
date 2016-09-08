@@ -14,15 +14,12 @@ describe('the css webserver controller', function() {
       this.controller = this.helpers.requireBackend('webserver/controllers/css');
     });
     it('should return a 404 error if the params.app is not defined', function(done) {
-      var res = {
-        status: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
-
-          return {
-            json: done.bind(null, null)
-          };
+          done();
         }
-      };
+      );
       this.controller.getCss({params: {}}, res);
     });
     it('should return the base CSS file', function(done) {
@@ -73,15 +70,12 @@ describe('the css webserver controller', function() {
       this.controller.getCss({params: {app: 'foo'}}, res);
     });
     it('should send a 500 error when the less compilation fails', function(done) {
-      var res = {
-        status: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
-
-          return {
-            json: done.bind(null, null)
-          };
+          done();
         }
-      };
+      );
       var css = this.helpers.requireBackend('core').css;
       css.addLessInjection('modX', [this.testEnv.fixtures + '/css/file2.less'], ['foo']);
       this.controller.getCss({params: {app: 'foo'}}, res);

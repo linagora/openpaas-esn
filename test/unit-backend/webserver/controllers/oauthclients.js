@@ -7,12 +7,12 @@ describe('The oauthclients controller', function() {
 
   describe('list method', function() {
     it('should return 500 if the oautclient listing fails', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -46,15 +46,15 @@ describe('The oauthclients controller', function() {
           name: 'anotherName'
         }
       ];
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.exist;
           expect(data.length).to.equal(2);
           expect(data).to.deep.equal(oauthclients);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -80,12 +80,12 @@ describe('The oauthclients controller', function() {
 
   describe('created method', function() {
     it('should return 500 if the oautclient listing fails', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -119,15 +119,15 @@ describe('The oauthclients controller', function() {
           name: 'anotherName'
         }
       ];
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.exist;
           expect(data.length).to.equal(2);
           expect(data).to.deep.equal(oauthclients);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -166,12 +166,12 @@ describe('The oauthclients controller', function() {
     });
 
     it('should return 400 if the user is not set in the request', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {}
       });
@@ -181,12 +181,12 @@ describe('The oauthclients controller', function() {
     });
 
     it('should return 500 if the creation of the OAuthclient fails', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       var mongooseMocked = {
         model: function(model) {
           function OAuthClient(data) {}
@@ -204,14 +204,14 @@ describe('The oauthclients controller', function() {
 
     it('should return 201 if the creation of the OAuthclient succeeds', function(done) {
       var testId = '123';
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(201);
           expect(code).to.exist;
           expect(data._id).to.equal(testId);
           done();
         }
-      };
+      );
       var mongooseMocked = {
         model: function(model) {
           function OAuthClient(data) {}
@@ -239,12 +239,12 @@ describe('The oauthclients controller', function() {
     });
 
     it('should return 500 if the search fails', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -260,12 +260,12 @@ describe('The oauthclients controller', function() {
     });
 
     it('should return 404 if the search returns nothing', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -285,13 +285,13 @@ describe('The oauthclients controller', function() {
         _id: '123',
         name: 'aName'
       };
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.deep.equal(client);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -318,12 +318,12 @@ describe('The oauthclients controller', function() {
     });
 
     it('should return 500 if the find and remove fails', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -339,12 +339,12 @@ describe('The oauthclients controller', function() {
     });
 
     it('should return 404 if the oauthclient is not found', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -364,13 +364,13 @@ describe('The oauthclients controller', function() {
         _id: '123',
         name: 'aName'
       };
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.deep.equal(client);
           done();
         }
-      };
+      );
       mockery.registerMock('mongoose', {
         model: function() {
           return {

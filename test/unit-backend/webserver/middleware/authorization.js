@@ -31,7 +31,7 @@ describe('The authorization middleware', function() {
         }
       };
       var next = function() {
-        expect(redirectTarget).to.be.null;
+        expect(redirectTarget).to.equal(null);
         done();
       };
       middleware(req, res, next);
@@ -68,11 +68,11 @@ describe('The authorization middleware', function() {
           return false;
         }
       };
-      var res = {
-        json: function() {
+      var res = this.helpers.express.jsonResponse(
+        function() {
           done();
         }
-      };
+      );
       var next = function() {
       };
       middleware(req, res, next);
@@ -144,12 +144,12 @@ describe('The authorization middleware', function() {
           _id: 123456789
         }
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(400);
           done();
         }
-      };
+      );
       var next = function() {};
 
       middleware(req, res, next);
@@ -161,12 +161,12 @@ describe('The authorization middleware', function() {
           _id: 123456789
         }
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(400);
           done();
         }
-      };
+      );
       var next = function() {};
 
       middleware(req, res, next);
@@ -179,12 +179,12 @@ describe('The authorization middleware', function() {
         domain: {
         }
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(400);
           done();
         }
-      };
+      );
       var next = function() {};
 
       middleware(req, res, next);
@@ -200,12 +200,12 @@ describe('The authorization middleware', function() {
           administrators: []
         }
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(403);
           done();
         }
-      };
+      );
       var next = function() {};
 
       domainModuleMock.userIsDomainAdministrator = function(user, domain, callback) {
@@ -227,8 +227,7 @@ describe('The authorization middleware', function() {
           administrators: []
         }
       };
-      var res = {
-      };
+      var res = {};
       var next = done.bind(null, null);
 
       domainModuleMock.userIsDomainAdministrator = function(user, domain, callback) {
@@ -256,12 +255,12 @@ describe('The authorization middleware', function() {
         domain: {}
       };
       var next = function() {};
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       middleware(req, res, next);
     });
@@ -271,12 +270,12 @@ describe('The authorization middleware', function() {
         user: {}
       };
       var next = function() {};
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       middleware(req, res, next);
     });
@@ -312,12 +311,12 @@ describe('The authorization middleware', function() {
           _id: user_id
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       var next = function() {};
 
       domainModuleMock.userIsDomainMember = function(user, domain, callback) {
@@ -328,7 +327,6 @@ describe('The authorization middleware', function() {
 
       middleware(req, res, next);
     });
-
   });
 
   describe('The requiresCommunityCreator fn', function() {
@@ -338,12 +336,12 @@ describe('The authorization middleware', function() {
       var req = {
         community: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -353,12 +351,12 @@ describe('The authorization middleware', function() {
       var req = {
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -370,12 +368,12 @@ describe('The authorization middleware', function() {
         user: {_id: user_id},
         community: {creator: new ObjectId()}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 

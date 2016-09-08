@@ -7,12 +7,12 @@ describe('load() method', function() {
   var collaborationMW;
 
   it('should send back 500 if collaboration module sends back error on load', function(done) {
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
 
     var req = {
       params: {
@@ -35,12 +35,12 @@ describe('load() method', function() {
 
   it('should send back 404 if collaboration can not be found', function(done) {
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(404);
         done();
       }
-    };
+    );
 
     var req = {
       params: {
@@ -201,12 +201,12 @@ describe('requiresCollaborationMember fn', function() {
       collaboration: {},
       user: {}
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
 
     mockery.registerMock('../../core/collaboration', {
       isMember: function(com, user, callback) {
@@ -222,12 +222,12 @@ describe('requiresCollaborationMember fn', function() {
       collaboration: {},
       user: {}
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(403);
         done();
       }
-    };
+    );
 
     mockery.registerMock('../../core/collaboration', {
       isMember: function(com, user, callback) {
@@ -270,12 +270,12 @@ describe('the checkUserParamIsNotMember fn', function() {
         return '123';
       }
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -284,16 +284,14 @@ describe('the checkUserParamIsNotMember fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
-      param: function() {
-        return null;
-      }
+      params: {}
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -306,16 +304,16 @@ describe('the checkUserParamIsNotMember fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
-      param: function() {
-        return '123';
+      params: {
+        user_id: '123'
       }
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -328,16 +326,16 @@ describe('the checkUserParamIsNotMember fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
-      param: function() {
-        return '123';
+      params: {
+        user_id: '123'
       }
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -350,8 +348,8 @@ describe('the checkUserParamIsNotMember fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
-      param: function() {
-        return '123';
+      params: {
+        user_id: '123'
       }
     };
     var res = {
@@ -372,12 +370,12 @@ describe('flagCollaborationManager() method', function() {
     var req = {
       user: {}
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -387,12 +385,12 @@ describe('flagCollaborationManager() method', function() {
     var req = {
       collaboration: {}
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -410,12 +408,12 @@ describe('flagCollaborationManager() method', function() {
         objectType: 'collaboration'
       }
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -461,11 +459,11 @@ describe('the ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser fn', fu
       },
       isCollaborationManager: true
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         done(new Error('Should not called res.json()'));
       }
-    };
+    );
     middleware(req, res, done);
   });
 
@@ -481,12 +479,12 @@ describe('the ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser fn', fu
       },
       isCollaborationManager: false
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     var next = function() {
       done(new Error('Should not called next'));
     };
@@ -501,12 +499,12 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -515,16 +513,14 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
       user: {},
-      param: function() {
-        return;
-      }
+      params: {}
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -536,16 +532,16 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
       user: {_id: id},
-      param: function() {
-        return '' + new ObjectId();
+      params: {
+        user_id: new ObjectId()
       }
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(403);
         done();
       }
-    };
+    );
     middleware(req, res);
   });
 
@@ -557,15 +553,15 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
       user: {_id: id},
-      param: function() {
-        return '' + id;
+      params: {
+        user_id: '' + id
       }
     };
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         done(new Error());
       }
-    };
+    );
     middleware(req, res, done);
   });
 });

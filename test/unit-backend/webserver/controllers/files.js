@@ -16,13 +16,13 @@ describe('The files controller', function() {
     it('should send 400 if the size param is negative', function(done) {
       mockery.registerMock('../../core/filestore', mockNoStore(done));
       var req = { query: { name: 'filename', mimetype: 'text/plain', size: -1 }, body: 'yeah' };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(400);
           expect(detail.message).to.equal('Bad Parameter');
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -30,13 +30,13 @@ describe('The files controller', function() {
     it('should send 400 if the size param is not an integer', function(done) {
       mockery.registerMock('../../core/filestore', mockNoStore(done));
       var req = { query: { name: 'filename', mimetype: 'text/plain', size: 'large' }, body: 'yeah' };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(400);
           expect(detail.message).to.equal('Bad Parameter');
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -64,14 +64,14 @@ describe('The files controller', function() {
         },
         on: function() {}
       };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(201);
           expect(detail).to.be.an('object');
           expect(detail._id).to.equal(storeId);
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -100,14 +100,14 @@ describe('The files controller', function() {
         },
         on: function() {}
       };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(201);
           expect(detail).to.be.an('object');
           expect(detail._id).to.equal(storeId);
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -136,8 +136,8 @@ describe('The files controller', function() {
         },
         on: function() {}
       };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(deleteCalled).to.be.true;
           expect(code).to.equal(412);
           expect(detail).to.be.an('object');
@@ -146,7 +146,7 @@ describe('The files controller', function() {
           expect(detail.error.message).to.equal('File size mismatch');
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -173,8 +173,8 @@ describe('The files controller', function() {
         },
         on: function() {}
       };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(500);
           expect(detail).to.be.an('object');
           expect(detail).to.not.have.ownProperty('_id');
@@ -182,7 +182,7 @@ describe('The files controller', function() {
           expect(detail.error.details).to.be.equal('fooled by a test');
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -229,28 +229,28 @@ describe('The files controller', function() {
       });
 
       var req = { params: { id: '123' } };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(503);
           expect(detail).to.be.an('object');
           expect(detail.error).to.equal(503);
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
     it('should return 400 if the id parameter is missing', function(done) {
       var req = { params: {} };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(400);
           expect(detail).to.be.an('object');
           expect(detail.error).to.equal(400);
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
@@ -264,15 +264,15 @@ describe('The files controller', function() {
       });
 
       var req = { params: { id: '123' }, accepts: function() {return false;} };
-      var res = {
-        json: function(code, detail) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, detail) {
           expect(code).to.equal(404);
           expect(detail).to.be.an('object');
           expect(detail.error).to.equal(404);
           expect(detail.message).to.equal('Not Found');
           done();
         }
-      };
+      );
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });

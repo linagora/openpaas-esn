@@ -18,15 +18,15 @@ describe('The usernotification middleware', function() {
         }
       };
 
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(403);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(403);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
 
       var middleware = this.helpers.requireBackend('webserver/middleware/usernotifications').userCanReadNotification;
       middleware(req, res, function() {});
@@ -63,15 +63,15 @@ describe('The usernotification middleware', function() {
         ]
       };
 
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(403);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(403);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
 
       var middleware = this.helpers.requireBackend('webserver/middleware/usernotifications').userCanReadAllNotifications;
       middleware(req, res, function() {});

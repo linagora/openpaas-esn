@@ -12,12 +12,12 @@ describe('getMembers fn', function() {
   });
 
   it('should send back 500 if req.collaboration is undefined', function(done) {
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
 
     var req = {};
 
@@ -26,12 +26,12 @@ describe('getMembers fn', function() {
   });
 
   it('should send back 500 if collaboration.getMembers returns error', function(done) {
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
 
     var req = {
       params: {
@@ -51,13 +51,12 @@ describe('getMembers fn', function() {
   });
 
   it('should send back 200 is collaboration.getMembers returns result', function(done) {
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(200);
         done();
-      },
-      header: function() {}
-    };
+      }
+    );
 
     var req = {
       params: {
@@ -79,16 +78,16 @@ describe('getMembers fn', function() {
   it('should set the header with the members size', function(done) {
     var members = [1, 2, 3];
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data, headers) {
         expect(code).to.equal(200);
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': members.length
+        });
+
         done();
-      },
-      header: function(name, value) {
-        expect(name).to.equal('X-ESN-Items-Count');
-        expect(value).to.equal(members.length);
       }
-    };
+    );
 
     var req = {
       params: {
@@ -116,16 +115,16 @@ describe('getMembers fn', function() {
   });
 
   it('should filter by object type', function(done) {
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data, headers) {
         expect(code).to.equal(200);
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': 1
+        });
+
         done();
-      },
-      header: function(name, value) {
-        expect(name).to.equal('X-ESN-Items-Count');
-        expect(value).to.equal(1);
       }
-    };
+    );
 
     var req = {
       params: {
@@ -158,16 +157,16 @@ describe('getMembers fn', function() {
     var limit = 23;
     var offset = 45;
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data, headers) {
         expect(code).to.equal(200);
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': members.length
+        });
+
         done();
-      },
-      header: function(name, value) {
-        expect(name).to.equal('X-ESN-Items-Count');
-        expect(value).to.equal(members.length);
       }
-    };
+    );
 
     var req = {
       params: {
@@ -216,12 +215,12 @@ describe('The getMembershipRequests fn', function() {
   it('should send back 400 is req.collaboration is undefined', function(done) {
     mockery.registerMock('../../core/collaboration/index', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
     };
@@ -237,16 +236,16 @@ describe('The getMembershipRequests fn', function() {
       }
     });
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
 
     var req = {
       collaboration: {},
-      param: function() {},
+      query: {},
       isCollaborationManager: true,
       params: {
         objectType: 'community'
@@ -264,17 +263,16 @@ describe('The getMembershipRequests fn', function() {
       }
     });
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(200);
         done();
-      },
-      header: function() {}
-    };
+      }
+    );
 
     var req = {
       collaboration: {},
-      param: function() {},
+      query: {},
       isCollaborationManager: true,
       params: {
         objectType: 'community'
@@ -293,22 +291,22 @@ describe('The getMembershipRequests fn', function() {
       }
     });
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data, headers) {
         expect(code).to.equal(200);
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': requests.length
+        });
+
         done();
-      },
-      header: function(name, value) {
-        expect(name).to.equal('X-ESN-Items-Count');
-        expect(value).to.equal(requests.length);
       }
-    };
+    );
 
     var req = {
       collaboration: {
         membershipRequests: requests
       },
-      param: function() {},
+      query: {},
       isCollaborationManager: true,
       params: {
         objectType: 'community'
@@ -333,29 +331,25 @@ describe('The getMembershipRequests fn', function() {
       }
     });
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data, headers) {
         expect(code).to.equal(200);
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': requests.length
+        });
+
         done();
-      },
-      header: function(name, value) {
-        expect(name).to.equal('X-ESN-Items-Count');
-        expect(value).to.equal(requests.length);
       }
-    };
+    );
 
     var req = {
       isCollaborationManager: true,
       collaboration: {
         membershipRequests: requests
       },
-      param: function(name) {
-        if (name === 'limit') {
-          return limit;
-        }
-        if (name === 'offset') {
-          return offset;
-        }
+      query: {
+        offset: offset,
+        limit: limit
       },
       params: {
         objectType: 'community'
@@ -379,12 +373,12 @@ describe('The leave fn', function() {
   it('should send back 400 if req.collaboration is undefined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
       user: {},
@@ -401,12 +395,12 @@ describe('The leave fn', function() {
   it('should send back 400 if req.user is undefined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
       collaboration: {},
@@ -423,12 +417,12 @@ describe('The leave fn', function() {
   it('should send back 400 if req.params.user_id is undefined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
       user: {},
@@ -449,12 +443,12 @@ describe('The leave fn', function() {
       }
     });
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
 
     var req = {
       collaboration: {},
@@ -510,12 +504,12 @@ describe('removeMembershipRequest() method', function() {
   it('should send back 400 if req.collaboration is undefined', function(done) {
     mockery.registerMock('../../core/collaboration/index', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
       user: {},
@@ -532,12 +526,12 @@ describe('removeMembershipRequest() method', function() {
   it('should send back 400 if req.user is undefined', function(done) {
     mockery.registerMock('../../core/collaboration/index', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
       collaboration: {},
@@ -554,12 +548,12 @@ describe('removeMembershipRequest() method', function() {
   it('should send back 400 if the user_id parameter is undefined', function(done) {
     mockery.registerMock('../../core/collaboration/index', {});
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     var req = {
       collaboration: {},
@@ -578,13 +572,13 @@ describe('removeMembershipRequest() method', function() {
     it('should send back 403 when req.params.user_id is not the current user id', function(done) {
       mockery.registerMock('../../core/collaboration/index', {});
 
-      var res = {
-        json: function(code, err) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, err) {
           expect(code).to.equal(403);
           expect(err.error.details).to.match(/Current user is not the target user/);
           done();
         }
-      };
+      );
 
       var req = {
         collaboration: {_id: '1'},
@@ -612,12 +606,12 @@ describe('removeMembershipRequest() method', function() {
         }
       });
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
 
       var req = {
         collaboration: {
@@ -693,12 +687,12 @@ describe('removeMembershipRequest() method', function() {
         }
       });
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
 
       var req = {
         isCollaborationManager: true,
@@ -777,13 +771,13 @@ describe('getWritable fn', function() {
   it('should send back 400 when req.user does not exist', function(done) {
     mockery.registerMock('../../core/collaboration/index', {});
 
-    var res = {
-      json: function(code, err) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, err) {
         expect(code).to.equal(400);
         expect(err).to.exist;
         done();
       }
-    };
+    );
 
     var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getWritable({}, res);
@@ -796,13 +790,13 @@ describe('getWritable fn', function() {
       }
     });
 
-    var res = {
-      json: function(code, err) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, err) {
         expect(code).to.equal(500);
         expect(err).to.exist;
         done();
       }
-    };
+    );
 
     var req = {
       user: '123'
@@ -819,13 +813,13 @@ describe('getWritable fn', function() {
       }
     });
 
-    var res = {
-      json: function(code, results) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, results) {
         expect(code).to.equal(200);
         expect(results).to.deep.equal([]);
         done();
       }
-    };
+    );
 
     var req = {
       user: '123'
@@ -863,13 +857,13 @@ describe('getWritable fn', function() {
       }
     });
 
-    var res = {
-      json: function(code, results) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, results) {
         expect(code).to.equal(200);
         expect(results).to.deep.equal(testCollaborations);
         done();
       }
-    };
+    );
 
     var req = {
       user: {

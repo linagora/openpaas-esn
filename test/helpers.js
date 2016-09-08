@@ -369,6 +369,32 @@ module.exports = function(mixin, testEnv) {
     }
   };
 
+  mixin.express = {
+    response: function(callback) {
+      return {
+        status: function(code) {
+          return callback(code);
+        }
+      };
+    },
+    jsonResponse: function(callback) {
+      var _headers = {};
+
+      return {
+        header: function(key, value) {
+          _headers[key] = value;
+        },
+        status: function(code) {
+          return {
+            json: function(data) {
+              return callback(code, data, _headers);
+            }
+          };
+        }
+      };
+    }
+  };
+
   mixin.toComparableObject = function(object) {
     return JSON.parse(JSON.stringify(typeof object.toObject === 'function' ? object.toObject() : object));
   };

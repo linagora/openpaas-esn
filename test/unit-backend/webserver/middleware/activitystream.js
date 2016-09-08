@@ -28,12 +28,12 @@ describe('The activitystream middleware', function() {
           id: 1
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       var next = function() {};
       middleware(req, res, next);
     });
@@ -54,12 +54,12 @@ describe('The activitystream middleware', function() {
           objectType: 1
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       var next = function() {};
       middleware(req, res, next);
     });
@@ -85,12 +85,12 @@ describe('The activitystream middleware', function() {
           id: 2
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       var next = function() {};
       middleware(req, res, next);
     });
@@ -116,12 +116,12 @@ describe('The activitystream middleware', function() {
           id: 2
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       var next = function() {};
       middleware(req, res, next);
     });
@@ -186,12 +186,12 @@ describe('The activitystream middleware', function() {
           id: id
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res, function() {
         return done(new Error());
       });

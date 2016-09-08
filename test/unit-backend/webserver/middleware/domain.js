@@ -104,16 +104,14 @@ describe('The domain middleware', function() {
       this.helpers.mock.models({});
 
       var req = {
-        param: function() {
-          return null;
-        }
+        query: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       var mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res);
     });
@@ -128,8 +126,8 @@ describe('The domain middleware', function() {
       });
 
       var req = {
-        param: function() {
-          return '123';
+        query: {
+          domain_id: '123'
         }
       };
       var res = {};
@@ -152,17 +150,17 @@ describe('The domain middleware', function() {
       });
 
       var req = {
-        param: function() {
-          return '123';
+        query: {
+          domain_id: '123'
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
       var next = function() {};
 
       var mw = this.helpers.requireBackend('webserver/middleware/domain');
@@ -180,8 +178,8 @@ describe('The domain middleware', function() {
       });
 
       var req = {
-        param: function() {
-          return '123';
+        query: {
+          domain_id: '123'
         }
       };
 

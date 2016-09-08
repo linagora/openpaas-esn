@@ -5,10 +5,11 @@ var expect = require('chai').expect,
 
 describe('The webserver document-store middleware', function() {
 
+  var configured = false;
+
   beforeEach(function() {
-    this.configured = false;
     var configuredMock = function() {
-      return this.configured;
+      return configured;
     };
 
     mockery.registerMock('../../core', {configured: configuredMock.bind(this), db: {mongo: {}}});
@@ -23,31 +24,23 @@ describe('The webserver document-store middleware', function() {
     });
 
     it('should call next() if the system is not configured', function(done) {
-      this.configured = false;
-      var req = {};
-      var res = {};
-      var next = done;
+      configured = false;
 
-      failIfConfigured(req, res, next);
+      failIfConfigured({}, {}, done);
     });
 
     it('should call res.json(400) if the system is configured', function(done) {
-      this.configured = true;
-      var req = {};
-      var res = {
-        status: function(code) {
+      configured = true;
+
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
-
-          return {
-            json: function(data) {
-              expect(data.error.details).to.equal('the database connection is already configured');
-              done();
-            }
-          };
+          expect(data.error.details).to.equal('the database connection is already configured');
+          done();
         }
-      };
+      );
 
-      failIfConfigured(req, res);
+      failIfConfigured({}, res);
     });
   });
 

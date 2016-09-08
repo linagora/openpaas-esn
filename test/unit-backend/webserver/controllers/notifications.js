@@ -23,12 +23,12 @@ describe('The notification controller', function() {
         user: {_id: 123}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       controller.create(req, res);
     });
 
@@ -47,12 +47,12 @@ describe('The notification controller', function() {
         user: {_id: 123}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(201);
           done();
         }
-      };
+      );
       controller.create(req, res);
     });
   });
@@ -118,13 +118,13 @@ describe('The notification controller', function() {
         notification: notification
       };
 
-      var res = {
-        json: function(code, notification) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, notification) {
           expect(code).to.equal(200);
           expect(notification).to.deep.equal(notification);
           done();
         }
-      };
+      );
       controller.get(req, res);
     });
 
@@ -136,12 +136,12 @@ describe('The notification controller', function() {
       var req = {
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
       controller.get(req, res);
     });
   });
@@ -162,12 +162,12 @@ describe('The notification controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(200);
           done();
         }
-      };
+      );
       controller.created(req, res);
     });
 
@@ -186,12 +186,12 @@ describe('The notification controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       controller.created(req, res);
     });
   });
@@ -210,17 +210,15 @@ describe('The notification controller', function() {
         user: {
           _id: 123
         },
-        param: function() {
-          return '';
-        }
+        query: {}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(200);
           done();
         }
-      };
+      );
       controller.list(req, res);
     });
 
@@ -237,17 +235,17 @@ describe('The notification controller', function() {
         user: {
           _id: 123
         },
-        param: function() {
-          return '';
+        query: {
+          read: ''
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       controller.list(req, res);
     });
   });
@@ -262,12 +260,12 @@ describe('The notification controller', function() {
       var req = {
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
       controller.setAsRead(req, res);
     });
 
@@ -306,12 +304,12 @@ describe('The notification controller', function() {
         notification: {_id: 123}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       controller.setAsRead(req, res);
     });
 

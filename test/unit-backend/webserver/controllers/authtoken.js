@@ -41,16 +41,12 @@ describe('The authtoken controller', function() {
           _id: '123'
         }
       };
-      var res = {
-        status: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(500);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.getNewToken(req, res);
     });
 
@@ -69,16 +65,12 @@ describe('The authtoken controller', function() {
           _id: '123'
         }
       };
-      var res = {
-        status: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(500);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.getNewToken(req, res);
     });
 
@@ -97,16 +89,12 @@ describe('The authtoken controller', function() {
           _id: '123'
         }
       };
-      var res = {
-        status: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(200);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.getNewToken(req, res);
     });
   });
@@ -128,17 +116,13 @@ describe('The authtoken controller', function() {
         },
         token: token
       };
-      var res = {
-        status: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status, json) {
           expect(status).to.equal(200);
-          return {
-            json: function(json) {
-              expect(json).to.deep.equal(token);
-              done();
-            }
-          };
+          expect(json).to.deep.equal(token);
+          done();
         }
-      };
+      );
       controller.getToken(req, res);
     });
   });
@@ -162,16 +146,12 @@ describe('The authtoken controller', function() {
         },
         params: {}
       };
-      var res = {
-        status: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(400);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.isValid(req, res);
     });
 
@@ -194,16 +174,12 @@ describe('The authtoken controller', function() {
           token: 123
         }
       };
-      var res = {
-        status: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(200);
-          return {
-            json: function() {
-              done();
-            }
-          };
+          done();
         }
-      };
+      );
       controller.isValid(req, res);
     });
   });
@@ -442,18 +418,14 @@ describe('The authtoken controller', function() {
             callback();
           }
         };
-        var res = {
-          status: function(status) {
+        var res = this.helpers.express.jsonResponse(
+          function(status, json) {
             expect(status).to.equal(200);
-            return {
-              json: function(json) {
-                expect(json).to.deep.equal(u);
-                expect(req._loginCalled).to.be.true;
-                done();
-              }
-            };
+            expect(json).to.deep.equal(u);
+            expect(req._loginCalled).to.be.true;
+            done();
           }
-        };
+        );
         controller.authenticateByToken(req, res);
 
       });
@@ -485,18 +457,14 @@ describe('The authtoken controller', function() {
             callback();
           }
         };
-        var res = {
-          status: function(status) {
+        var res = this.helpers.express.jsonResponse(
+          function(status, json) {
             expect(status).to.equal(200);
-            return {
-              json: function(json) {
-                expect(json).to.deep.equal(u);
-                expect(req._loginCalled).to.be.false;
-                done();
-              }
-            };
+            expect(json).to.deep.equal(u);
+            expect(req._loginCalled).to.be.false;
+            done();
           }
-        };
+        );
         controller.authenticateByToken(req, res);
       });
     });

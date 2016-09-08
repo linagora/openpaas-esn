@@ -9,7 +9,7 @@ describe('The i18n module', function() {
     mockery.registerMock('../core/config', function() {
       return {
         i18n: {
-          directory: './test/unit-backend/fixtures/locales',
+          directory: __dirname + '/../fixtures/locales',
           defaultLocale: 'fr',
           locales: ['fr']
         }

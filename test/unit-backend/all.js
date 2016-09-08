@@ -50,6 +50,11 @@ after(function() {
   fs.unlinkSync(this.testEnv.tmp + '/default.json');
 });
 
+// https://github.com/mfncooper/mockery/issues/34
+before(function() {
+  require('canvas');
+});
+
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
   mockery.registerMock('./logger', this.helpers.requireFixture('logger-noop')());
