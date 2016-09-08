@@ -29,13 +29,24 @@
   },
   "log": {
     "file": {
-      "enabled": true,
+      "enabled": false,
       "filename": "./log/application.log",
       "level": "info",
       "handleExceptions": true,
       "json": false,
       "prettyPrint": true,
       "colorize": false
+    },
+    "rotate": {
+      "enabled": true,
+      "file": "./log/application.log",
+      "level": "info",
+      "handleExceptions": true,
+      "json": false,
+      "prettyPrint": true,
+      "colorize": false,
+      "size": "10m",
+      "skip": 5
     },
     "console": {
       "enabled": true,

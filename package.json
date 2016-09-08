@@ -51,6 +51,7 @@
     "less-middleware": "^1.0.3",
     "linagora.esn.admin": "git+https://ci.open-paas.org/stash/scm/om/linagora.esn.admin.git",
     "lodash": "4.11.1",
+    "logrotate-stream": "^0.2.5",
     "mailparser": "~0.4.1",
     "moment": "^2.10.3",
     "moment-timezone": "^0.4.1",
