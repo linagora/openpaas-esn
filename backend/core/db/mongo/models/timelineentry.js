@@ -26,6 +26,7 @@ var TimelineEntrySchema = new mongoose.Schema({
     objectType: {type: String},
     _id: {type: mongoose.Schema.ObjectId, required: true}
   }],
+  status: {type: String, required: false},
   to: {type: [Tuple], validate: [tuple.validateTuples, 'Bad to tuple']},
   bto: {type: [Tuple], validate: [tuple.validateTuples, 'Bad to tuple']}
 }, {collection: 'timelineentries'});
