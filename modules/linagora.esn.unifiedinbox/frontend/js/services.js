@@ -456,7 +456,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
                                    backgroundAction, emailBodyService, waitUntilMessageIsComplete, newComposerService,
-                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest, _) {
+                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest, _, inboxConfig) {
 
     function prepareEmail(email) {
       var clone = angular.copy(email = email || {});
@@ -479,20 +479,31 @@ angular.module('linagora.esn.unifiedinbox')
       }
     };
 
+    function _areDraftsEnabled() {
+      return inboxConfig('drafts')
+        .then(function(drafts) {
+          return drafts ? $q.when() : $q.reject();
+        });
+    }
+
     Composition.prototype.saveDraft = function(options) {
-      this._cancelDelayedDraftSave();
+      var self = this;
 
-      return this.draft.save(this.email, options)
-        .then(function(newEmailstate) {
-          this.draft.destroy();
+      return _areDraftsEnabled().then(function() {
+        self._cancelDelayedDraftSave();
 
-          return newEmailstate;
-        }.bind(this))
-        .then(function(newEmailstate) {
-          this.draft = draftService.startDraft(prepareEmail(newEmailstate));
+        return self.draft.save(self.email, options)
+          .then(function(newEmailstate) {
+            self.draft.destroy();
 
-          return newEmailstate;
-        }.bind(this));
+            return newEmailstate;
+          })
+          .then(function(newEmailstate) {
+            self.draft = draftService.startDraft(prepareEmail(newEmailstate));
+
+            return newEmailstate;
+          });
+      });
     };
 
     Composition.prototype.saveDraftSilently = function() {
@@ -576,20 +587,24 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     Composition.prototype.destroyDraft = function() {
-      this._cancelDelayedDraftSave();
+      var self = this;
 
-      if (!this.isEmailEmpty()) {
-        return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
-          .then(function(result) {
-            if (result.cancelled) {
-              _makeReopenComposerFn(this.email)({ fromDraft: this.draft });
-            } else {
-              this.draft.destroy();
-            }
-          }.bind(this));
-      } else {
-        return this.draft.destroy();
-      }
+      return _areDraftsEnabled().then(function() {
+        self._cancelDelayedDraftSave();
+
+        if (!self.isEmailEmpty()) {
+          return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
+            .then(function(result) {
+              if (result.cancelled) {
+                _makeReopenComposerFn(self.email)({ fromDraft: self.draft });
+              } else {
+                self.draft.destroy();
+              }
+            });
+        } else {
+          return self.draft.destroy();
+        }
+      });
     };
 
     return Composition;

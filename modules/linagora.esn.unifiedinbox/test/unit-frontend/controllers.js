@@ -361,6 +361,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should save the composition each time that and upload succeeds', function() {
+        config['linagora.esn.unifiedinbox.drafts'] = true;
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();

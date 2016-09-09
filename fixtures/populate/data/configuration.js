@@ -12,6 +12,7 @@ module.exports = function(domains, host) {
   var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED === 'false' ? false : true;
   var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED === 'true' ? true : false;
   var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED === 'false' ? false : true;
+  var drafts = process.env.DRAFTS === 'false' ? false : true;
   var maxSizeUpload = parseInt(process.env.JMAP_MAX_SIZE_UPLOAD, 10) || 20971520;
   var jmapHostPort = 'http://' + jmapHost + ':' + port;
   var api = jmapHostPort + '/' + path;
@@ -62,10 +63,16 @@ module.exports = function(domains, host) {
             {
               name: 'maxSizeUpload',
               value: maxSizeUpload
-            }, {
+            },
+            {
+              name: 'drafts',
+              value: drafts
+            },
+            {
               name: 'view',
               value: view
-            }, {
+            },
+            {
               name: 'swipeRightAction',
               value: swipeRightAction
             }

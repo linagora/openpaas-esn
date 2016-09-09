@@ -1835,6 +1835,8 @@ describe('The Unified Inbox Angular module services', function() {
         notifyOfGracedRequest, graceRequestResult;
 
     beforeEach(module(function($provide) {
+      config['linagora.esn.unifiedinbox.drafts'] = true;
+
       jmapClient = {
         destroyMessage: sinon.spy(function() { return $q.when(); }),
         saveAsDraft: sinon.spy(function() {
@@ -1937,6 +1939,22 @@ describe('The Unified Inbox Angular module services', function() {
       }).then(done, done);
       $timeout.flush();
     }
+
+    it('should not save the draft when drafts is false', function(done) {
+      config['linagora.esn.unifiedinbox.drafts'] = false;
+
+      var composition = new Composition({});
+      composition.email.htmlBody = 'modified';
+      composition.email.to.push({email: '1@linagora.com'});
+
+      composition.saveDraft().then(done.bind(null, 'should not resolved'), function() {
+        expect(jmapClient.saveAsDraft).to.not.have.been.called;
+
+        done();
+      });
+
+      $timeout.flush();
+    });
 
     it('should save the draft when saveDraft is called', function(done) {
       saveDraftTest('saveDraft', done);
@@ -2209,6 +2227,18 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     describe('The "destroyDraft" function', function() {
+
+      it('should do nothing when drafts is false', function(done) {
+        config['linagora.esn.unifiedinbox.drafts'] = false;
+
+        new Composition({subject: 'a subject'}).destroyDraft().then(done.bind(null, 'should not resolved'), function() {
+          expect(notifyOfGracedRequest).to.not.have.been.called;
+
+          done();
+        });
+
+        $timeout.flush();
+      });
 
       it('should generate expected notification when called', function(done) {
         new Composition({subject: 'a subject'}).destroyDraft().then(function() {

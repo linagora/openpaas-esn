@@ -88,6 +88,12 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 ```
 ```
 {
+    "name" : "drafts",
+    "value" : false
+}
+```
+```
+{
     "name" : "swipeRightAction",
     "value" : "markAsRead" (default) | "moveToTrash"
 }

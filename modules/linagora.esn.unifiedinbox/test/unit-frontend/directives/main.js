@@ -691,6 +691,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       it('should still save a draft if the user changes body then presses on Edit Quoted Mail', function() {
+        inboxConfigMock.drafts = true;
         jmapClient.saveAsDraft = sinon.spy(function() {
           return $q.when({});
         });
@@ -709,6 +710,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       it('should still save a draft if the user changes recipients then presses on Edit Quoted Mail', function() {
+        inboxConfigMock.drafts = true;
         jmapClient.saveAsDraft = sinon.spy(function() {
           return $q.when({});
         });

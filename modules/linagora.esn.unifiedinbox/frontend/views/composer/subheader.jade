@@ -12,5 +12,5 @@ block right
     button.send.btn.btn-link(ng-click='send()', ng-disabled="isSendingMessage")
       | #{__('Send')}
       i.mdi.mdi-send.m-l-5.m-r-5
-    span.btn.btn-link(action-list="/unifiedinbox/views/composer/more-button.html")
+    span.btn.btn-link(feature-flag="linagora.esn.unifiedinbox.drafts", action-list="/unifiedinbox/views/composer/more-button.html")
       i.mdi.mdi-dots-vertical
