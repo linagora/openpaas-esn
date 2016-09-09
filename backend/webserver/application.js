@@ -16,12 +16,12 @@ application.set('views', FRONTEND_PATH + '/views');
 application.set('view engine', 'jade');
 
 var morgan = require('morgan');
-var format = 'default';
+var format = 'combined';
 
 if (process.env.NODE_ENV === 'dev') {
   format = 'dev';
 }
-application.use(morgan({format: format, stream: logger.stream}));
+application.use(morgan(format, { stream: logger.stream }));
 
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
 application.use('/images', express.static(FRONTEND_PATH + '/images'));
