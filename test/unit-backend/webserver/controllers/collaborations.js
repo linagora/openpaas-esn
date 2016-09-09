@@ -470,12 +470,12 @@ describe('The leave fn', function() {
       }
     });
 
-    var res = {
-      send: function(code) {
+    var res = this.helpers.express.response(
+      function(code) {
         expect(code).to.equal(204);
         done();
       }
-    };
+    );
 
     var req = {
       collaboration: {},
@@ -647,12 +647,12 @@ describe('removeMembershipRequest() method', function() {
         }
       });
 
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(204);
           done();
         }
-      };
+      );
 
       var req = {
         collaboration: {
@@ -729,12 +729,12 @@ describe('removeMembershipRequest() method', function() {
         }
       });
 
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(204);
           done();
         }
-      };
+      );
 
       var req = {
         isCollaborationManager: true,

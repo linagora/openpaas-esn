@@ -1000,12 +1000,12 @@ describe('The communities controller', function() {
         query: {
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(304);
           done();
         }
-      };
+      );
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
@@ -1454,12 +1454,12 @@ describe('The communities controller', function() {
       });
       mockery.registerMock('../../core/community/permission', {});
 
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
 
       var req = {
         community: {
@@ -1701,12 +1701,12 @@ describe('The communities controller', function() {
         });
         mockery.registerMock('../../core/community/permission', {});
 
-        var res = {
-          send: function(code) {
+        var res = this.helpers.express.response(
+          function(code) {
             expect(code).to.equal(204);
             done();
           }
-        };
+        );
 
         var req = {
           isCommunityManager: true,
@@ -1902,12 +1902,12 @@ describe('The communities controller', function() {
           };
           mockery.registerMock('../../core/community', communityModuleMock);
 
-          var res = {
-            send: function(code) {
+          var res = this.helpers.express.response(
+            function(code) {
               expect(code).to.equal(204);
               done();
             }
-          };
+          );
 
           var req = {
             user: {
@@ -1977,12 +1977,12 @@ describe('The communities controller', function() {
           });
           mockery.registerMock('../../core/community/permission', {});
 
-          var res = {
-            send: function(code) {
+          var res = this.helpers.express.response(
+            function(code) {
               expect(code).to.equal(204);
               done();
             }
-          };
+          );
 
           var req = {
             community: {
@@ -2107,12 +2107,12 @@ describe('The communities controller', function() {
       });
       mockery.registerMock('../../core/community/permission', {});
 
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(204);
           done();
         }
-      };
+      );
 
       var req = {
         community: {},
@@ -2273,12 +2273,12 @@ describe('The communities controller', function() {
         });
         mockery.registerMock('../../core/community/permission', {});
 
-        var res = {
-          send: function(code) {
+        var res = this.helpers.express.response(
+          function(code) {
             expect(code).to.equal(204);
             done();
           }
-        };
+        );
 
         var req = {
           community: {
@@ -2355,12 +2355,12 @@ describe('The communities controller', function() {
         });
         mockery.registerMock('../../core/community/permission', {});
 
-        var res = {
-          send: function(code) {
+        var res = this.helpers.express.response(
+          function(code) {
             expect(code).to.equal(204);
             done();
           }
-        };
+        );
 
         var req = {
           isCommunityManager: true,

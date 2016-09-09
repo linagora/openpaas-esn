@@ -100,12 +100,12 @@ describe('The domains controller', function() {
           _id: 456
         }
       };
-      var res = {
-        send: function(status) {
+      var res = this.helpers.express.response(
+        function(status) {
           expect(status).to.equal(202);
           done();
         }
-      };
+      );
       var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
@@ -150,10 +150,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var res = {
-        send: function() {
-        }
-      };
+      var res = this.helpers.express.response();
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
@@ -200,10 +197,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var res = {
-        send: function() {
-        }
-      };
+      var res = this.helpers.express.response();
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
@@ -258,10 +252,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var res = {
-        send: function() {
-        }
-      };
+      var res = this.helpers.express.response();
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {

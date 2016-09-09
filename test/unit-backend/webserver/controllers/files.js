@@ -298,6 +298,10 @@ describe('The files controller', function() {
         },
         status: function(code) {
           expect(code).to.equal(404);
+
+          return {
+            end: function() {}
+          };
         }
       };
       var files = this.helpers.requireBackend('webserver/controllers/files');
@@ -398,9 +402,12 @@ describe('The files controller', function() {
         type: function(ctype) {
           expect(ctype).to.equal('text/plain');
         },
-        send: function(code) {
+        status: function(code) {
           expect(code).to.equal(304);
-          done();
+
+          return {
+            end: done
+          };
         }
       };
       var files = this.helpers.requireBackend('webserver/controllers/files');

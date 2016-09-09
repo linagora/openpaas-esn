@@ -77,12 +77,12 @@ describe('the invitation controller', function() {
       var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
       middleware.load(
         {params: {uuid: invitationId }},
-        {
-          send: function(code) {
+        this.helpers.express.response(
+          function(code) {
             expect(code).to.equal(404);
             done();
           }
-        },
+        ),
         function() {}
       );
     });

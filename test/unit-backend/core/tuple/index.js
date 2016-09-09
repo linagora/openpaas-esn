@@ -66,7 +66,7 @@ describe('The tuple core module', function() {
       try {
         this.mod.user('bad');
       } catch (e) {
-        console.error(e);
+        // Do nothing
       }
       expect(spy).to.have.thrown();
     });
@@ -75,7 +75,7 @@ describe('The tuple core module', function() {
       try {
         this.mod.user('');
       } catch (e) {
-        console.error(e);
+        // Do nothing
       }
       expect(spy).to.have.thrown();
     });

@@ -282,12 +282,12 @@ describe('The notification controller', function() {
         notification: {_id: 123}
       };
 
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           done();
         }
-      };
+      );
       controller.setAsRead(req, res);
     });
 

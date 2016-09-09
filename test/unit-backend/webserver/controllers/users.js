@@ -60,24 +60,24 @@ describe('The User controller', function() {
         user: {
         }
       };
-      var res = {
-        send: function(status) {
+      var res = this.helpers.express.response(
+        function(status) {
           expect(status).to.equal(500);
           done();
         }
-      };
+      );
       users.logmein(req, res);
     });
 
     it('should return HTTP 500 if user is not set in request', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
-      var res = {
-        send: function(status) {
+      var res = this.helpers.express.response(
+        function(status) {
           expect(status).to.equal(500);
           done();
         }
-      };
+      );
       users.logmein(req, res);
     });
   });
@@ -687,12 +687,12 @@ describe('The User controller', function() {
         query: {
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(304);
           done();
         }
-      };
+      );
 
       users.getProfileAvatar(req, res);
     });

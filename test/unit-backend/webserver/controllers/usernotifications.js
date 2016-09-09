@@ -614,13 +614,13 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           expect(readArgs).to.be.true;
           done();
         }
-      };
+      );
       controller.setRead(req, res);
     });
   });
@@ -706,13 +706,13 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           expect(readArgs).to.be.true;
           done();
         }
-      };
+      );
       controller.setAllRead(req, res);
     });
   });
@@ -798,13 +798,13 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           expect(readArgs).to.be.true;
           done();
         }
-      };
+      );
       controller.setAcknowledged(req, res);
     });
   });

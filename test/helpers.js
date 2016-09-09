@@ -377,11 +377,12 @@ module.exports = function(mixin, testEnv) {
     response: function(callback) {
       return {
         status: function(code) {
-          callback(code);
+          callback && callback(code);
 
           return {
-            end: function() {}
-          }
+            end: function() {},
+            send: function() {}
+          };
         }
       };
     },
@@ -395,7 +396,7 @@ module.exports = function(mixin, testEnv) {
         status: function(code) {
           return {
             json: function(data) {
-              return callback(code, data, _headers);
+              return callback && callback(code, data, _headers);
             }
           };
         }

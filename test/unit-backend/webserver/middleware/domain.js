@@ -54,12 +54,12 @@ describe('The domain middleware', function() {
         }
       };
 
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
       var next = function() {};
 
       var middleware = this.helpers.requireBackend('webserver/middleware/domain');
