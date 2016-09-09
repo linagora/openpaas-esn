@@ -14,9 +14,9 @@ module.exports = function(dependencies) {
     esnConfig('jmap').get(function(err, config) {
 
       if (err) {
-        res.send(500, err);
+        res.status(500).send(err);
       } else if (!config) {
-        res.send(404, 'the "jmap" config cannot be found');
+        res.status(404).send('the "jmap" config cannot be found');
       } else {
         delete config._id;
         res.send(config);

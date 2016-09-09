@@ -46,9 +46,14 @@ describe('The in memory grace period module', function() {
         expect(name).to.equal('X-ESN-Task-Id');
         expect(value).to.equal(id);
       },
-      json: function(code) {
+      status: function(code) {
         expect(code).to.equal(202);
-        done();
+
+        return {
+          json: function() {
+            done();
+          }
+        };
       }
     }, {});
   });
@@ -63,9 +68,14 @@ describe('The in memory grace period module', function() {
     };
 
     getModule()({user: {_id: 2}}, {
-      json: function(code) {
+      status: function(code) {
         expect(code).to.equal(500);
-        done();
+
+        return {
+          json: function() {
+            done();
+          }
+        };
       }
     }, {});
   });
@@ -112,9 +122,13 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest();
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest();
+            }
+          };
         }
       }, options);
     });
@@ -135,9 +149,13 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest();
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest();
+            }
+          };
         }
       }, options);
     });
@@ -148,12 +166,17 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest(function(err) {
-            expect(err).to.exist;
-            done();
-          });
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest(function(err) {
+                expect(err).to.exist;
+
+                done();
+              });
+            }
+          };
         }
       }, options);
     });
@@ -167,13 +190,18 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest(function(err) {
-            expect(err).to.exist;
-            expect(options.onError).to.have.been.called;
-            done();
-          });
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest(function(err) {
+                expect(err).to.exist;
+                expect(options.onError).to.have.been.called;
+
+                done();
+              });
+            }
+          };
         }
       }, options);
     });
@@ -187,14 +215,19 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest(function(err, response) {
-            expect(err).to.not.exist;
-            expect(options.onSuccess).to.have.been.called;
-            expect(response).to.deep.equal({statusCode: 200});
-            done();
-          });
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest(function(err, response) {
+                expect(err).to.not.exist;
+                expect(options.onSuccess).to.have.been.called;
+                expect(response).to.deep.equal({statusCode: 200});
+
+                done();
+              });
+            }
+          };
         }
       }, options);
     });
@@ -205,13 +238,18 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest(function(err, response) {
-            expect(err).to.not.exist;
-            expect(response).to.deep.equal({statusCode: 200});
-            done();
-          });
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest(function(err, response) {
+                expect(err).to.not.exist;
+                expect(response).to.deep.equal({statusCode: 200});
+
+                done();
+              });
+            }
+          };
         }
       }, options);
     });
@@ -222,13 +260,18 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest(function(err, response) {
-            expect(err).to.exist;
-            expect(response).to.deep.equal({statusCode: 412});
-            done();
-          });
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest(function(err, response) {
+                expect(err).to.exist;
+                expect(response).to.deep.equal({statusCode: 412});
+
+                done();
+              });
+            }
+          };
         }
       }, options);
     });
@@ -242,14 +285,19 @@ describe('The in memory grace period module', function() {
       });
       getModule()(req, {
         set: function() {},
-        json: function(code, task) {
-          var forwardRequest = task.id;
-          forwardRequest(function(err, response) {
-            expect(err).to.exist;
-            expect(options.onError).to.have.been.called;
-            expect(response).to.deep.equal({statusCode: 412});
-            done();
-          });
+        status: function() {
+          return {
+            json: function(task) {
+              var forwardRequest = task.id;
+              forwardRequest(function(err, response) {
+                expect(err).to.exist;
+                expect(options.onError).to.have.been.called;
+                expect(response).to.deep.equal({statusCode: 412});
+
+                done();
+              });
+            }
+          };
         }
       }, options);
     });

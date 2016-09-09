@@ -21,12 +21,10 @@ describe('The graceperiod controller', function() {
 
   describe('The flush function', function() {
     it('should send back HTTP 404 when task is not in request', function(done) {
-      getController().flush({}, {
-        json: function(code) {
-          expect(code).to.equal(404);
-          done();
-        }
-      });
+      getController().flush({}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(404);
+        done();
+      }));
     });
 
     it('should call cancel on task and return HTTP 204', function(done) {
@@ -37,25 +35,22 @@ describe('The graceperiod controller', function() {
             called = true;
           }
         }
-      }, {
-        send: function(code) {
-          expect(code).to.equal(204);
-          expect(called).to.be.true;
-          done();
-        }
-      });
+      }, this.helpers.express.response(function(code) {
+        expect(code).to.equal(204);
+        expect(called).to.be.true;
+
+        done();
+      }));
     });
   });
 
   describe('The cancel function', function() {
 
     it('should send back HTTP 404 when task is not in request', function(done) {
-      getController().cancel({}, {
-        json: function(code) {
-          expect(code).to.equal(404);
-          done();
-        }
-      });
+      getController().cancel({}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(404);
+        done();
+      }));
     });
 
     it('should call cancel on task and return HTTP 204', function(done) {
@@ -66,13 +61,12 @@ describe('The graceperiod controller', function() {
             called = true;
           }
         }
-      }, {
-        send: function(code) {
-          expect(code).to.equal(204);
-          expect(called).to.be.true;
-          done();
-        }
-      });
+      }, this.helpers.express.response(function(code) {
+        expect(code).to.equal(204);
+        expect(called).to.be.true;
+
+        done();
+      }));
     });
   });
 });

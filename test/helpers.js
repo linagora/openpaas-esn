@@ -377,7 +377,11 @@ module.exports = function(mixin, testEnv) {
     response: function(callback) {
       return {
         status: function(code) {
-          return callback(code);
+          callback(code);
+
+          return {
+            end: function() {}
+          }
         }
       };
     },

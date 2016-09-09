@@ -112,7 +112,7 @@ module.exports = function(appstoremanager) {
       }
 
       if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-        return res.send(304);
+        return res.status(304).end();
       } else {
         res.header('Last-Modified', fileStoreMeta.uploadDate);
         res.status(200);

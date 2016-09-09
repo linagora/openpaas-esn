@@ -120,7 +120,7 @@ describe('The addressbooks dav proxy', function() {
             expect(req.headers.yo).to.equal(yo);
             expect(req.headers.lo).to.equal(lo);
             called = true;
-            return res.send(200);
+            return res.status(200).end();
           });
 
           self.createDavServer(function(err) {
@@ -339,7 +339,7 @@ describe('The addressbooks dav proxy', function() {
 
         self.dav.delete(path, function(req, res) {
           called = true;
-          return res.send(204);
+          return res.status(204).end();
         });
 
         self.createDavServer(function(err) {
@@ -380,7 +380,7 @@ describe('The addressbooks dav proxy', function() {
 
         self.dav.delete(path, function(req, res) {
           called = true;
-          return res.send(204);
+          return res.status(204).end();
         });
 
         self.createDavServer(function(err) {
@@ -421,7 +421,7 @@ describe('The addressbooks dav proxy', function() {
 
         self.dav.delete(path, function(req, res) {
           called = true;
-          return res.send(204);
+          return res.status(204).end();
         });
 
         self.createDavServer(function(err) {

@@ -12,7 +12,7 @@ module.exports = function(lib, dependencies) {
     }
 
     task.cancel();
-    return res.send(204);
+    return res.status(204).end();
   }
 
   function flush(req, res) {
@@ -23,7 +23,7 @@ module.exports = function(lib, dependencies) {
     }
 
     task.flush();
-    return res.send(204);
+    return res.status(204).end();
   }
 
   return {

@@ -6,7 +6,7 @@ function routes(app, lib, dependencies) {
   var controllers = require('./controllers')(dependencies, lib);
 
   app.get('/api/messages/email/reply/check', mw.loadUser, mw.canReplyTo, function(req, res) {
-    return res.send(200);
+    return res.status(200).end();
   });
   app.post('/api/messages/email/reply', mw.loadUser, mw.canReplyTo, controllers.replyMessageFromEmail);
 }
