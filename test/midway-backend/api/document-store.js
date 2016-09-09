@@ -265,7 +265,7 @@ describe('The document store routes resource', function() {
         var uri = '/api/document-store/connection/localhost/' +
             this.testEnv.serversConfig.mongodb.port + '/' +
             this.testEnv.serversConfig.mongodb.dbname;
-        request(webserver.application).put(uri).expect('Content-Type', /json/).expect(200).end(function(err, res) {
+        request(webserver.application).put(uri).expect(200).end(function(err) {
           expect(err).to.be.null;
           done();
         });
@@ -283,10 +283,9 @@ describe('The document store routes resource', function() {
         webserver.ipv6 = config.webserver.ipv6;
         webserver.start();
 
-        var findport = require('find-port');
-        findport(27020, 27050, function(ports) {
+        require('find-port')('localhost', 27020, 27050, function(ports) {
           expect(ports).to.have.length.of.at.least(1);
-          request(webserver.application).put('/api/document-store/connection/localhost/' + ports[0] + '/rsetest').expect('Content-Type', /json/).expect(503).end(function(err, res) {
+          request(webserver.application).put('/api/document-store/connection/localhost/' + ports[0] + '/rsetest').expect('Content-Type', /json/).expect(503).end(function(err) {
             expect(err).to.be.null;
             done();
           });

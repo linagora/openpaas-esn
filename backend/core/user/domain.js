@@ -96,11 +96,7 @@ function getUsersList(domains, query, cb) {
     return cb(new Error('At least one domain is mandatory'));
   }
 
-  query = {
-    limit: query && query.limit || defaultLimit,
-    offset: query && query.offset || defaultOffset,
-    not_in_collaboration: query && query.not_in_collaboration
-  };
+  query = query || { limit: defaultLimit, offset: defaultOffset };
 
   var collaboration = query.not_in_collaboration;
   var limit = query.limit;
@@ -111,20 +107,17 @@ function getUsersList(domains, query, cb) {
   var domainIds = domains.map(function(domain) {
     return domain._id || domain;
   });
-  var userQuery = User.find().where('domains.domain_id').in(domainIds);
-  var totalCountQuery = require('extend')(true, {}, userQuery);
-  totalCountQuery.count();
 
-  userQuery.skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'});
-
-  return totalCountQuery.exec(function(err, count) {
+  return User.find().where('domains.domain_id').in(domainIds).count().exec(function(err, count) {
     if (err) {
       return cb(new Error('Cannot count users of domain'));
     }
-    userQuery.exec(function(err, list) {
+
+    User.find().where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec(function(err, list) {
       if (err) {
         return cb(new Error('Cannot execute find request correctly on domains collection'));
       }
+
       if (collaboration) {
         utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, function(err, results) {
           if (err) {

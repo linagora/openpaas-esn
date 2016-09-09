@@ -26,14 +26,16 @@ describe('The communities API', function() {
 
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      Community = helpers.requireBackend('core/db/mongo/models/community');
-      User = helpers.requireBackend('core/db/mongo/models/user');
-      Domain = helpers.requireBackend('core/db/mongo/models/domain');
-      fixtures = helpers.requireFixture('models/users.js')(User);
-      webserver = helpers.requireBackend('webserver').webserver;
-      userDomainModule = helpers.requireBackend('core/user/domain');
+      helpers.elasticsearch.saveTestConfiguration(function() {
+        Community = helpers.requireBackend('core/db/mongo/models/community');
+        User = helpers.requireBackend('core/db/mongo/models/user');
+        Domain = helpers.requireBackend('core/db/mongo/models/domain');
+        fixtures = helpers.requireFixture('models/users.js')(User);
+        webserver = helpers.requireBackend('webserver').webserver;
+        userDomainModule = helpers.requireBackend('core/user/domain');
 
-      saveUser(user = fixtures.newDummyUser([email], password), done);
+        saveUser(user = fixtures.newDummyUser([email], password), done);
+      });
     });
   });
 
@@ -815,8 +817,7 @@ describe('The communities API', function() {
         self.title = 'toto';
         self.avatar = new ObjectId();
         self.newUser = new ObjectId();
-        self.userToRemove = new ObjectId();
-        self.userToRemove = new ObjectId();
+        self.userToRemove = self.userInCommunity._id;
         self.body = {
           title: self.title,
           avatar: self.avatar,
@@ -829,7 +830,7 @@ describe('The communities API', function() {
           title: 'test',
           domain_ids: [domain._id],
           members:
-            {member: {id: self.userInCommunity._id}}
+            {member: {objectType: 'user', id: self.userInCommunity._id}}
         };
 
         async.series([
