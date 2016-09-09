@@ -46,7 +46,7 @@ module.exports = function(config) {
       'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'frontend/components/localforage/dist/localforage.min.js',
       'frontend/components/angular-localforage/dist/angular-localForage.js',
-      'node_modules/async/lib/async.js',
+      'node_modules/async/dist/async.js',
       'node_modules/chai-jquery/chai-jquery.js',
       'frontend/components/angular-bootstrap-switch/dist/angular-bootstrap-switch.js',
       'frontend/components/showdown/compressed/showdown.js',

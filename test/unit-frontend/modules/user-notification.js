@@ -267,7 +267,7 @@ describe('The esn.user-notification Angular module', function() {
       }));
 
       it('should update local notifications request success', function(done) {
-        var array = [1, 2, 3];
+        var array = [{ a: 1 }, { a: 2 }, { a: 3 }];
         var size = 103;
 
         this.userNotificationAPI.list = function(options) {
@@ -284,7 +284,7 @@ describe('The esn.user-notification Angular module', function() {
       });
 
       it('should define the pagination page based on response data', function(done) {
-        var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        var array = [{ a: 1 }, { a: 2 }];
         var size = 101;
 
         this.userNotificationAPI.list = function(options) {
