@@ -125,7 +125,7 @@ function setRead(req, res) {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as read: ' + err.message}});
     }
-    return res.send(205);
+    return res.status(205).end();
   });
 }
 
@@ -145,7 +145,7 @@ function setAllRead(req, res) {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notifications as read: ' + err.message}});
     }
-    return res.send(205);
+    return res.status(205).end();
   });
 }
 
@@ -165,7 +165,7 @@ function setAcknowledged(req, res) {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as acknowledged: ' + err.message}});
     }
-    return res.send(205);
+    return res.status(205).end();
   });
 }
 

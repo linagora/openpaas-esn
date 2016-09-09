@@ -18,7 +18,7 @@ function createDomain(req, res) {
   var name = data.name;
 
   if (!data.administrators || !data.administrators.length) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
+    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
   }
 
   var users = data.administrators.map(function(administrator) {
@@ -30,7 +30,7 @@ function createDomain(req, res) {
   });
 
   if (missEmailsField) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
+    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
   }
 
   var administrators = users.map(function(user) {
@@ -49,13 +49,13 @@ function createDomain(req, res) {
 
   domain.save(function(err, saved) {
     if (err) {
-      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+      return res.status(500).send({ error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
     }
     if (saved) {
-      return res.send(201);
+      return res.status(201).end();
     }
 
-    return res.send(404);
+    return res.status(404).end();
   });
 }
 
@@ -138,7 +138,7 @@ function sendInvitations(req, res) {
   var getInvitationURL = require('./invitation').getInvitationURL;
   var sent = [];
 
-  res.send(202);
+  res.status(202).end();
 
   var sendInvitation = function(email, callback) {
 

@@ -226,7 +226,7 @@ module.exports.delete = function(req, res) {
     if (err) {
       return res.status(500).json({ error: { status: 500, message: 'Community delete failed', details: err}});
     }
-    return res.status(204);
+    return res.status(204).end();
   });
 };
 
@@ -330,7 +330,7 @@ module.exports.getAvatar = function(req, res) {
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.send(304);
+      return res.status(304).end();
     } else {
       res.header('Last-Modified', fileStoreMeta.uploadDate);
       res.status(200);
@@ -407,9 +407,9 @@ module.exports.getMember = function(req, res) {
     }
 
     if (result) {
-      return res.status(200);
+      return res.status(200).end();
     }
-    return res.send(404);
+    return res.status(404).end();
   });
 };
 
@@ -440,7 +440,7 @@ module.exports.join = function(req, res) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
-        return res.send(204);
+        return res.status(204).end();
       });
     });
 
@@ -465,7 +465,7 @@ module.exports.join = function(req, res) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
-          return res.send(204);
+          return res.status(204).end();
         });
       });
     } else {
@@ -478,7 +478,7 @@ module.exports.join = function(req, res) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
-          return res.send(204);
+          return res.status(204).end();
         });
       });
     }
@@ -497,7 +497,7 @@ module.exports.leave = function(req, res) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
-    return res.send(204);
+    return res.status(204).end();
   });
 };
 
@@ -551,7 +551,7 @@ module.exports.removeMembershipRequest = function(req, res) {
   }
 
   if (!req.community.membershipRequests || !('filter' in req.community.membershipRequests)) {
-    return res.send(204);
+    return res.status(204).end();
   }
 
   var memberships = req.community.membershipRequests.filter(function(mr) {
@@ -559,7 +559,7 @@ module.exports.removeMembershipRequest = function(req, res) {
   });
 
   if (!memberships.length) {
-    return res.send(204);
+    return res.status(204).end();
   }
   var membership = memberships[0];
 
@@ -567,7 +567,7 @@ module.exports.removeMembershipRequest = function(req, res) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
-    res.send(204);
+    res.status(204).end();
   }
 
   /*

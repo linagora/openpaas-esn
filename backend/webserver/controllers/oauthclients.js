@@ -26,7 +26,7 @@ function create(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
   }
   var oauthClientData = req.body;
-  oauthClientData.creator = req.user;
+  oauthClientData.creator = req.user._id; // https://github.com/Automattic/mongoose/issues/3254
 
   var oauthclient = new OAuthClient(oauthClientData);
   oauthclient.save(function(error, client) {

@@ -105,7 +105,7 @@ function get(req, res) {
 
     if (!readStream) {
       if (req.accepts('html')) {
-        res.status(404);
+        res.status(404).end();
         return res.render('commons/404', { url: req.url });
       } else {
         return res.status(404).json({
@@ -124,7 +124,7 @@ function get(req, res) {
       serverMod.setMilliseconds(0);
 
       if (modSince && clientMod.getTime() === serverMod.getTime()) {
-        return res.send(304);
+        return res.status(304).end();
       } else {
         res.set('Last-Modified', fileMeta.uploadDate);
       }
@@ -160,7 +160,7 @@ function remove(req, res) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message || err}});
     }
-    return res.send(204);
+    return res.status(204).end();
   });
 }
 

@@ -78,6 +78,6 @@ module.exports.setAsRead = function(req, res) {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot create set notification as read . ' + err.message}});
     }
-    return res.send(205);
+    return res.status(205).end();
   });
 };

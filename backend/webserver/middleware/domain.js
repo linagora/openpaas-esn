@@ -15,7 +15,7 @@ function load(req, res, next) {
       return next(err);
     }
     if (!domain) {
-      return res.send(404);
+      return res.status(404).end();
     }
     req.domain = domain;
     return next();

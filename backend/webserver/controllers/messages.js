@@ -34,7 +34,7 @@ function createNewMessage(message, req, res) {
     }
 
     if (!saved) {
-      return res.status(404);
+      return res.status(404).end();
     }
 
     if (message.attachments && message.attachments.length > 0) {

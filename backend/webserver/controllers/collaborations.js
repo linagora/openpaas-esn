@@ -338,7 +338,7 @@ function join(req, res) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
-        return res.send(204);
+        return res.status(204).end();
       });
     });
 
@@ -363,7 +363,7 @@ function join(req, res) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
-          return res.send(204);
+          return res.status(204).end();
         });
       });
     } else {
@@ -376,7 +376,7 @@ function join(req, res) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
-          return res.send(204);
+          return res.status(204).end();
         });
       });
     }
@@ -396,7 +396,7 @@ function leave(req, res) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
-    return res.send(204);
+    return res.status(204).end();
   });
 }
 module.exports.leave = leave;
@@ -410,7 +410,7 @@ function removeMembershipRequest(req, res) {
   }
 
   if (!req.collaboration.membershipRequests || !('filter' in req.collaboration.membershipRequests)) {
-    return res.send(204);
+    return res.status(204).end();
   }
 
   var memberships = req.collaboration.membershipRequests.filter(function(mr) {
@@ -418,7 +418,7 @@ function removeMembershipRequest(req, res) {
   });
 
   if (!memberships.length) {
-    return res.send(204);
+    return res.status(204).end();
   }
   var membership = memberships[0];
 
@@ -426,7 +426,7 @@ function removeMembershipRequest(req, res) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
-    res.send(204);
+    res.status(204).end();
   }
 
   /*
@@ -467,9 +467,9 @@ function getMember(req, res) {
     }
 
     if (result) {
-      return res.status(200);
+      return res.status(200).end();
     }
-    return res.send(404);
+    return res.status(404).end();
   });
 }
 module.exports.getMember = getMember;
@@ -495,7 +495,7 @@ function getAvatar(req, res) {
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.send(304);
+      return res.status(304).end();
     } else {
       res.header('Last-Modified', fileStoreMeta.uploadDate);
       res.status(200);

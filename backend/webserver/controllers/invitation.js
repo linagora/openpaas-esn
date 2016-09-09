@@ -23,7 +23,7 @@ module.exports.get = function(req, res) {
   if (req.invitation) {
     return res.status(200).json(req.invitation);
   }
-  return res.status(404);
+  return res.status(404).end();
 };
 
 /**
@@ -35,7 +35,7 @@ module.exports.load = function(req, res, next) {
       return next(err);
     }
     if (!invitation) {
-      return res.send(404);
+      return res.status(404).end();
     }
     handler.isStillValid(invitation, function(err, stillValid) {
       if (err) {
@@ -73,7 +73,7 @@ module.exports.confirm = function(req, res) {
       }
 
     } else {
-      return res.status(200);
+      return res.status(200).end();
     }
   });
 };
@@ -83,7 +83,7 @@ module.exports.confirm = function(req, res) {
  */
 module.exports.create = function(req, res) {
   if (!req.body) {
-    return res.send(400, { error: { status: 400, message: 'Bad request', details: 'Missing JSON payload'}});
+    return res.status(400).send({ error: { status: 400, message: 'Bad request', details: 'Missing JSON payload'}});
   }
 
   var payload = req.body;
@@ -145,7 +145,7 @@ module.exports.finalize = function(req, res) {
       return res.status(201).json(result);
 
     } else {
-      return res.status(201);
+      return res.status(201).end();
     }
   });
 };

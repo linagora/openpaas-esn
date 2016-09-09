@@ -66,7 +66,7 @@ function test(req, res) {
     if (err) {
       res.status(503).json({ error: { code: 503, message: 'Connection error', details: err.message}});
     } else {
-      res.status(200);
+      res.status(200).end();
     }
   });
 }

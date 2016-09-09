@@ -87,7 +87,7 @@ module.exports.passwordResetIndex = passwordResetIndex;
 
 var user = function(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.send(500, {
+    return res.status(500).send({
       error: {
         code: 500,
         message: 'Internal error',

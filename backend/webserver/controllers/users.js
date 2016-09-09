@@ -12,7 +12,7 @@ var denormalizeUser = require('../denormalize/user').denormalize;
  */
 function logmein(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.send(500, 'User not set');
+    return res.status(500).send('User not set');
   }
   return res.redirect('/');
 }
@@ -225,7 +225,7 @@ function getProfileAvatar(req, res) {
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.send(304);
+      return res.status(304).end();
     } else {
       res.header('Last-Modified', fileStoreMeta.uploadDate);
       res.status(200);
