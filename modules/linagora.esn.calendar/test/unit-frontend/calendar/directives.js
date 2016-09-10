@@ -77,7 +77,7 @@ describe('The calendar module directives', function() {
     beforeEach(function() {
       calendarServiceMock = {
         listCalendars: function() {
-          return self.$q.when([]);
+          return $q.when([]);
         }
       };
 
