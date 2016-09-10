@@ -303,6 +303,23 @@ module.exports = function(mixin, testEnv) {
     }
   };
 
+  mixin.davserver = {
+    saveTestConfiguration: function(callback) {
+      mixin.requireBackend('core/esn-config')('davserver').store({
+        backend: {
+          url: 'http://' + testEnv.serversConfig.host + ':' + testEnv.serversConfig.davserver.port
+        }
+      }, callback);
+    },
+    runServer: function(servedData) {
+      return require('express')()
+        .get('/*', function(req, res) {
+          res.status(200).send(servedData);
+        })
+        .listen(testEnv.serversConfig.davserver.port);
+    }
+  };
+
   mixin.mock = {
     models: mockModels,
     pubsub: mockPubSub,
@@ -438,7 +455,12 @@ module.exports = function(mixin, testEnv) {
 
   mixin.redis = {
     publishConfiguration: function() {
+      mixin.requireBackend('core/esn-config')('redis').store({
+        url: testEnv.redisUrl
+      });
+
       var pubsub = mixin.requireBackend('core/pubsub');
+
       pubsub.local.topic('redis:configurationAvailable').publish({
         host: testEnv.serversConfig.host,
         port: testEnv.serversConfig.redis.port

@@ -6,7 +6,9 @@ var DEFAULT_PORTS = {
   mongo: 23456,
   redis: 23457,
   ldap: 23458,
-  elasticsearch: 23459
+  elasticsearch: 23459,
+  elasticsearch_comm: 23460,
+  davserver: 23461
 };
 
 var images = require('../../docker/images.json');
@@ -65,7 +67,7 @@ module.exports = {
   elasticsearch: {
     cmd: process.env.CMD_ELASTICSEARCH || 'elasticsearch',
     port: process.env.PORT_ELASTICSEARCH || DEFAULT_PORTS.elasticsearch,
-    communication_port: process.env.COMMUNICATION_PORT_ELASTICSEARCH || 23460,
+    communication_port: process.env.COMMUNICATION_PORT_ELASTICSEARCH || DEFAULT_PORTS.elasticsearch_comm,
     interval_index: process.env.ELASTICSEARCH_INTERVAL_INDEX || 1000,
     tries_index: process.env.ELASTICSEARCH_TRIES_INDEX || 20,
     cluster_name: 'elasticsearch',
@@ -76,5 +78,9 @@ module.exports = {
       image: images.elasticsearch,
       name: 'elasticsearch_for_esn_test'
     }
+  },
+
+  davserver: {
+    port: process.env.PORT_DAVSERVER || DEFAULT_PORTS.davserver
   }
 };
