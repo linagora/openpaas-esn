@@ -81,7 +81,7 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, compositionOptions: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } },
+        params: { email: {}, compositionOptions: {}, composition: null },
         onEnter: function(esnPreviousState) {
           esnPreviousState.set();
         }
