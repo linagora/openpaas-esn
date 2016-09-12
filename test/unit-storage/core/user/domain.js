@@ -20,7 +20,7 @@ describe('The user domain module', function() {
     beforeEach(function(done) {
       var self = this;
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+      this.connectMongoose(this.mongoose, function(err) {
         if (err) {
           done(err);
         }
@@ -146,7 +146,7 @@ describe('The user domain module', function() {
 
       var self = this;
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+      this.connectMongoose(this.mongoose, function(err) {
         if (err) { done(err); }
 
         self.helpers.elasticsearch.saveTestConfiguration(function(err) {
@@ -183,7 +183,7 @@ describe('The user domain module', function() {
       userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, done);
+      this.connectMongoose(this.mongoose, done);
     });
 
     afterEach(function(done) {
@@ -382,7 +382,7 @@ describe('The user domain module', function() {
 
       var self = this;
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+      this.connectMongoose(this.mongoose, function(err) {
         if (err) { done(err); }
 
         self.helpers.elasticsearch.saveTestConfiguration(function(err) {
@@ -413,7 +413,7 @@ describe('The user domain module', function() {
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, done);
+      this.connectMongoose(this.mongoose, done);
     });
 
     afterEach(function(done) {
@@ -479,7 +479,7 @@ describe('The user domain module', function() {
 
       var self = this;
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+      this.connectMongoose(this.mongoose, function(err) {
         if (err) {
           done(err);
         }
@@ -559,7 +559,7 @@ describe('The user domain module', function() {
       Community = this.helpers.requireBackend('core/db/mongo/models/community');
 
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, done);
+      this.connectMongoose(this.mongoose, done);
     });
 
     afterEach(function(done) {

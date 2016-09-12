@@ -46,17 +46,17 @@ function ensureLoginCommunityAndUserId(req, res) {
   var user = req.user;
 
   if (!user) {
-    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
     return false;
   }
 
   if (!req.params || !req.params.user_id) {
-    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
+    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
     return false;
   }
 
   if (!community) {
-    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
     return false;
   }
   return true;
@@ -65,10 +65,10 @@ function ensureLoginCommunityAndUserId(req, res) {
 module.exports.loadDomainForCreate = function(req, res, next) {
   var domains = req.body.domain_ids;
   if (!domains) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Domain ids is mandatory'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Domain ids is mandatory'}});
   }
   if (domains.length === 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Domain id is mandatory'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Domain id is mandatory'}});
   }
   req.params.uuid = domains[0];
   var domainMiddleware = require('../middleware/domain');
@@ -97,15 +97,15 @@ module.exports.create = function(req, res) {
   };
 
   if (!community.title) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community title is mandatory'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Community title is mandatory'}});
   }
 
   if (!req.body.domain_ids) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community domain is mandatory'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Community domain is mandatory'}});
   }
 
   if (req.body.domain_ids.length === 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'At least a domain is required'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'At least a domain is required'}});
   }
 
   community.domain_ids = req.body.domain_ids;
@@ -143,38 +143,33 @@ module.exports.list = function(req, res) {
     query.domain_ids = [req.domain._id];
   }
 
-  if (req.param('creator')) {
-    query.creator = req.param('creator');
+  if (req.query.creator) {
+    query.creator = req.query.creator;
   }
 
-  if (req.param('type')) {
-    query.type = req.param('type');
+  if (req.query.type) {
+    query.type = req.query.type;
   }
 
-  if (req.param('title')) {
-    var escapedString = escapeStringRegexp(req.param('title'));
+  if (req.query.title) {
+    var escapedString = escapeStringRegexp(req.query.title);
     query.title = new RegExp('^' + escapedString + '$', 'i');
   }
 
   communityModule.query(query, function(err, response) {
     if (err) {
-      return res.json(500, { error: { code: 500, message: 'Community list failed', details: err.message}});
+      return res.status(500).json({ error: { code: 500, message: 'Community list failed', details: err.message}});
     }
 
     async.filter(response, function(community, callback) {
-      permission.canFind(community, {objectType: 'user', id: req.user._id}, function(err, canFind) {
-        if (err) {
-          return callback(false);
-        }
-        return callback(canFind);
-      });
-    }, function(filterResults) {
+      permission.canFind(community, {objectType: 'user', id: req.user._id}, callback);
+    }, function(err, filterResults) {
       async.map(filterResults, function(community, callback) {
         transform(community, req.user, function(transformed) {
           return callback(null, transformed);
         });
       }, function(err, mapResults) {
-        return res.json(200, mapResults);
+        return res.status(200).json(mapResults);
       });
     });
   });
@@ -186,7 +181,7 @@ module.exports.load = function(req, res, next) {
       return next(err);
     }
     if (!community) {
-      return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+      return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
     }
     req.community = community;
     return next();
@@ -219,14 +214,14 @@ module.exports.get = function(req, res) {
 
 module.exports.delete = function(req, res) {
   if (!req.community) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
   }
 
   communityModule.delete(req.community, function(err) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Community delete failed', details: err}});
+      return res.status(500).json({ error: { status: 500, message: 'Community delete failed', details: err}});
     }
-    return res.json(204);
+    return res.status(204).end();
   });
 };
 
@@ -254,48 +249,48 @@ module.exports.update = function(req, res) {
 
 module.exports.uploadAvatar = function(req, res) {
   if (!req.community) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
   }
 
   if (!req.query.mimetype) {
-    return res.json(400, {error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
+    return res.status(400).json({error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
   }
 
   var mimetype = req.query.mimetype.toLowerCase();
   if (acceptedImageTypes.indexOf(mimetype) < 0) {
-    return res.json(400, {error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
+    return res.status(400).json({error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
   }
 
   if (!req.query.size) {
-    return res.json(400, {error: 400, message: 'Parameter missing', details: 'size parameter is required'});
+    return res.status(400).json({error: 400, message: 'Parameter missing', details: 'size parameter is required'});
   }
 
   var size = parseInt(req.query.size, 10);
   if (isNaN(size)) {
-    return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
+    return res.status(400).json({error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
   }
   var avatarId = new ObjectId();
 
   function updateCommunityAvatar() {
     communityModule.updateAvatar(req.community, avatarId, function(err, update) {
       if (err) {
-        return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+        return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       }
-      return res.json(200, {_id: avatarId});
+      return res.status(200).json({_id: avatarId});
     });
   }
 
   function avatarRecordResponse(err, storedBytes) {
     if (err) {
       if (err.code === 1) {
-        return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+        return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       } else if (err.code === 2) {
-        return res.json(500, {error: 500, message: 'Image processing failure', details: err.message});
+        return res.status(500).json({error: 500, message: 'Image processing failure', details: err.message});
       } else {
-        return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+        return res.status(500).json({error: 500, message: 'Internal server error', details: err.message});
       }
     } else if (storedBytes !== size) {
-      return res.json(412, {error: 412, message: 'Image size does not match', details: 'Image size given by user agent is ' + size +
+      return res.status(412).json({error: 412, message: 'Image size does not match', details: 'Image size given by user agent is ' + size +
         ' and image size returned by storage system is ' + storedBytes});
     }
     updateCommunityAvatar();
@@ -311,7 +306,7 @@ module.exports.uploadAvatar = function(req, res) {
 
 module.exports.getAvatar = function(req, res) {
   if (!req.community) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+    return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
   }
 
   if (!req.community.avatar) {
@@ -330,7 +325,7 @@ module.exports.getAvatar = function(req, res) {
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.send(304);
+      return res.status(304).end();
     } else {
       res.header('Last-Modified', fileStoreMeta.uploadDate);
       res.status(200);
@@ -343,19 +338,19 @@ module.exports.getMine = function(req, res) {
   var user = req.user;
 
   if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
   }
 
   communityModule.getUserCommunities(user._id, {member: true}, function(err, communities) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
     async.map(communities, function(community, callback) {
       transform(community, req.user, function(transformed) {
         return callback(null, transformed);
       });
     }, function(err, results) {
-      return res.json(200, results);
+      return res.status(200).json(results);
     });
   });
 };
@@ -364,19 +359,19 @@ module.exports.getMembers = function(req, res) {
   var community = req.community;
 
   if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
   var query = {};
-  if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'), 10);
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
-  if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'), 10);
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }
@@ -384,13 +379,13 @@ module.exports.getMembers = function(req, res) {
 
   communityModule.getMembers(community, query, function(err, members) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
     res.header('X-ESN-Items-Count', req.community.members ? req.community.members.length : 0);
     var result = members.map(function(member) {
       return communityModule.userToMember(member);
     });
-    return res.json(200, result || []);
+    return res.status(200).json(result || []);
   });
 };
 
@@ -398,18 +393,18 @@ module.exports.getMember = function(req, res) {
   var community = req.community;
 
   if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
   communityModule.isMember(community, {objectType: 'user', id: req.params.user_id}, function(err, result) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
 
     if (result) {
-      return res.json(200);
+      return res.status(200).end();
     }
-    return res.send(404);
+    return res.status(404).end();
   });
 };
 
@@ -424,61 +419,61 @@ module.exports.join = function(req, res) {
   if (req.isCommunityManager) {
 
     if (user._id.equals(targetUserId)) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a community'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a community'}});
     }
 
     if (!communityModule.getMembershipRequest(community, {_id: targetUserId})) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User did not request to join community'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User did not request to join community'}});
     }
 
     communityModule.join(community, user, targetUserId, 'manager', function(err) {
       if (err) {
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+        return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
       communityModule.cleanMembershipRequest(community, targetUserId, function(err) {
         if (err) {
-          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+          return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
-        return res.send(204);
+        return res.status(204).end();
       });
     });
 
   } else {
 
     if (!user._id.equals(targetUserId)) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
     if (req.community.type !== collaborationConstants.COLLABORATION_TYPES.OPEN) {
       var membershipRequest = communityModule.getMembershipRequest(community, user);
       if (!membershipRequest) {
-        return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User was not invited to join community'}});
+        return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User was not invited to join community'}});
       }
 
       communityModule.join(community, user, user, null, function(err) {
         if (err) {
-          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+          return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
         communityModule.cleanMembershipRequest(community, user, function(err) {
           if (err) {
-            return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+            return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
-          return res.send(204);
+          return res.status(204).end();
         });
       });
     } else {
       communityModule.join(community, user, targetUserId, 'user', function(err) {
         if (err) {
-          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+          return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
         communityModule.cleanMembershipRequest(community, user, function(err) {
           if (err) {
-            return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+            return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
-          return res.send(204);
+          return res.status(204).end();
         });
       });
     }
@@ -495,9 +490,9 @@ module.exports.leave = function(req, res) {
 
   communityModule.leave(community, user, targetUserId, function(err) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
-    return res.send(204);
+    return res.status(204).end();
   });
 };
 
@@ -505,23 +500,23 @@ module.exports.getMembershipRequests = function(req, res) {
   var community = req.community;
 
   if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
   if (!req.isCommunityManager) {
-    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Only community managers can get requests'}});
+    return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Only community managers can get requests'}});
   }
 
   var query = {};
-  if (req.param('limit')) {
-    var limit = parseInt(req.param('limit'), 10);
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
-  if (req.param('offset')) {
-    var offset = parseInt(req.param('offset'), 10);
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset)) {
       query.offset = offset;
     }
@@ -529,7 +524,7 @@ module.exports.getMembershipRequests = function(req, res) {
 
   communityModule.getMembershipRequests(community, query, function(err, membershipRequests) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
     res.header('X-ESN-Items-Count', req.community.membershipRequests ? req.community.membershipRequests.length : 0);
     var result = membershipRequests.map(function(request) {
@@ -538,7 +533,7 @@ module.exports.getMembershipRequests = function(req, res) {
       result.timestamp = request.timestamp;
       return result;
     });
-    return res.json(200, result || []);
+    return res.status(200).json(result || []);
   });
 };
 
@@ -547,11 +542,11 @@ module.exports.removeMembershipRequest = function(req, res) {
     return;
   }
   if (!req.isCommunityManager && !req.user._id.equals(req.params.user_id)) {
-    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
+    return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
   }
 
   if (!req.community.membershipRequests || !('filter' in req.community.membershipRequests)) {
-    return res.send(204);
+    return res.status(204).end();
   }
 
   var memberships = req.community.membershipRequests.filter(function(mr) {
@@ -559,15 +554,15 @@ module.exports.removeMembershipRequest = function(req, res) {
   });
 
   if (!memberships.length) {
-    return res.send(204);
+    return res.status(204).end();
   }
   var membership = memberships[0];
 
   function onResponse(err, resp) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
-    res.send(204);
+    res.status(204).end();
   }
 
   /*

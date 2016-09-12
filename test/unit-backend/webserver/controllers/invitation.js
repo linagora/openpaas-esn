@@ -77,12 +77,12 @@ describe('the invitation controller', function() {
       var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
       middleware.load(
         {params: {uuid: invitationId }},
-        {
-          send: function(code) {
+        this.helpers.express.response(
+          function(code) {
             expect(code).to.equal(404);
             done();
           }
-        },
+        ),
         function() {}
       );
     });
@@ -133,13 +133,11 @@ describe('the invitation controller', function() {
         var err = new Error('it breaks');
         middleware.load(
           {params: {uuid: this.invitationId }},
-          {
-            json: function(code, data) {
-              expect(code).to.equal(500);
-              expect(data).to.deep.equal({error: 500, message: 'Internal Server Error', details: err});
-              done();
-            }
-          },
+          this.helpers.express.jsonResponse(function(code, data) {
+            expect(code).to.equal(500);
+            expect(data).to.deep.equal({error: 500, message: 'Internal Server Error', details: err});
+            done();
+          }),
           function() {}
         );
         this.callback(err);
@@ -149,13 +147,11 @@ describe('the invitation controller', function() {
         var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
         middleware.load(
           {params: {uuid: this.invitationId }},
-          {
-            json: function(code, data) {
-              expect(code).to.equal(404);
-              expect(data).to.deep.equal({error: 404, message: 'Not found', details: 'Invitation expired'});
-              done();
-            }
-          },
+          this.helpers.express.jsonResponse(function(code, data) {
+            expect(code).to.equal(404);
+            expect(data).to.deep.equal({error: 404, message: 'Not found', details: 'Invitation expired'});
+            done();
+          }),
           function() {}
         );
         this.callback(null, false);

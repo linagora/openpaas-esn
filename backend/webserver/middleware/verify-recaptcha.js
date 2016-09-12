@@ -11,7 +11,7 @@ module.exports.verify = function(req, res, next) {
   }
 
   if (!req.body.recaptcha || !req.body.recaptcha.data) {
-    return res.json(403, {
+    return res.status(403).json({
       recaptcha: true,
       error: {
         code: 403,
@@ -30,7 +30,7 @@ module.exports.verify = function(req, res, next) {
   config.get(function(err, recaptchaConfig) {
     if (err) {
       logger.error('Could not get recaptcha keys in esn config.', err.message);
-      return res.json(500, {
+      return res.status(500).json({
         error: 500,
         message: 'Server Error',
         details: 'Internal server error'
@@ -47,7 +47,7 @@ module.exports.verify = function(req, res, next) {
       if (success) {
         return next();
       }
-      return res.json(403, {
+      return res.status(403).json({
         recaptcha: true,
         error: {
           code: 403,

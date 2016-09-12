@@ -5,6 +5,9 @@
 var expect = chai.expect;
 
 describe('The esn.activitystream Angular module', function() {
+
+  var self = this;
+
   describe('activitystreamController', function() {
 
     beforeEach(function() {
@@ -12,50 +15,49 @@ describe('The esn.activitystream Angular module', function() {
     });
 
     beforeEach(angular.mock.inject(function($controller, $rootScope) {
-      this.rootScope = $rootScope;
-      this.scope = $rootScope.$new();
-      this.controller = $controller;
+      self.rootScope = $rootScope;
+      self.scope = $rootScope.$new();
+      self.controller = $controller;
     }));
 
     describe('at instantiation', function() {
       it('should initialize a listener on rootScope', function(done) {
-        this.rootScope.$on = function(topic, callback) {
+        self.rootScope.$on = function(topic, callback) {
           expect(topic).to.equal('activitystream:userUpdateRequest');
           expect(callback).to.exist;
           done();
         };
-        this.controller('activitystreamController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
+        self.controller('activitystreamController', {
+          $rootScope: self.rootScope,
+          $scope: self.scope
         });
       });
     });
 
     describe('reset method', function() {
       it('should reset scope variables', function() {
-        this.controller('activitystreamController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
+        self.controller('activitystreamController', {
+          $rootScope: self.rootScope,
+          $scope: self.scope
         });
 
-        this.scope.reset();
-        expect(this.scope.restActive).to.deep.equal({});
-        expect(this.scope.updateMessagesActive).to.be.false;
-        expect(this.scope.threads).to.deep.equal([]);
-        expect(this.scope.mostRecentActivityID).to.be.null;
+        self.scope.reset();
+        expect(self.scope.restActive).to.deep.equal({});
+        expect(self.scope.updateMessagesActive).to.be.false;
+        expect(self.scope.threads).to.deep.equal([]);
+        expect(self.scope.mostRecentActivityID).to.be.null;
       });
     });
 
     describe('loadMoreElements method', function() {
 
       beforeEach(function() {
-        this.usSpinnerService = {};
-        this.usSpinnerService.spin = function(id) {};
-        this.usSpinnerService.stop = function(id) {};
+        self.usSpinnerService = {};
+        self.usSpinnerService.spin = function(id) {};
+        self.usSpinnerService.stop = function(id) {};
 
-        this.loadCount = 0;
-        var self = this;
-        this.aggregatorService = function(id, limit) {
+        self.loadCount = 0;
+        self.aggregatorService = function(id, limit) {
           return {
             loadMoreElements: function(callback) {
               self.loadCount++;
@@ -65,46 +67,45 @@ describe('The esn.activitystream Angular module', function() {
           };
         };
 
-        this.alert = function(msgObject) {};
-        this.controller('activitystreamController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope,
-          activitystreamAggregatorCreator: this.aggregatorService,
-          usSpinnerService: this.usSpinnerService,
-          alert: this.alert
+        self.alert = function(msgObject) {};
+        self.controller('activitystreamController', {
+          $rootScope: self.rootScope,
+          $scope: self.scope,
+          activitystreamAggregatorCreator: self.aggregatorService,
+          usSpinnerService: self.usSpinnerService,
+          alert: self.alert
         });
       });
 
       it('should not call the aggregator loadMoreElements method if a rest request is active', function() {
-        this.loadCount = 0;
-        this.scope.updateMessagesActive = true;
-        this.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
-        this.scope.loadMoreElements();
-        expect(this.loadCount).to.equal(0);
+        self.loadCount = 0;
+        self.scope.updateMessagesActive = true;
+        self.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
+        self.scope.loadMoreElements();
+        expect(self.loadCount).to.equal(0);
       });
 
       it('should not call the aggregator loadMoreElements method if the activity stream uuid is not set', function() {
-        this.loadCount = 0;
-        this.scope.restActive = {};
-        this.scope.streams = null;
-        this.scope.loadMoreElements();
-        expect(this.loadCount).to.equal(0);
+        self.loadCount = 0;
+        self.scope.restActive = {};
+        self.scope.streams = null;
+        self.scope.loadMoreElements();
+        expect(self.loadCount).to.equal(0);
       });
 
       it('should call the aggregator loadMoreElements method', function() {
-        this.loadCount = 0;
-        this.scope.restActive = {};
-        this.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
-        this.scope.loadMoreElements();
-        expect(this.loadCount).to.equal(1);
+        self.loadCount = 0;
+        self.scope.restActive = {};
+        self.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
+        self.scope.loadMoreElements();
+        expect(self.loadCount).to.equal(1);
       });
 
       describe('aggregator loadMoreElements() response', function() {
         it('should handle error', function() {
           var id = '0987654321';
-          var self = this;
           var errorMsg = 'An Error';
-          this.aggregatorService = function(id, limit) {
+          self.aggregatorService = function(id, limit) {
             return {
               loadMoreElements: function(callback) {
                 self.loadCount++;
@@ -113,129 +114,126 @@ describe('The esn.activitystream Angular module', function() {
               endOfStream: false
             };
           };
-          this.thrownError = null;
-          this.spinnerStopped = false;
-          this.usSpinnerService.stop = function(id) {
+          self.thrownError = null;
+          self.spinnerStopped = false;
+          self.usSpinnerService.stop = function(id) {
             expect(id).to.equal('activityStreamSpinner');
             self.spinnerStopped = true;
           };
 
           angular.mock.inject(function($controller) {
             $controller('activitystreamController', {
-              $scope: this.scope,
-              activitystreamAggregatorCreator: this.aggregatorService,
-              usSpinnerService: this.usSpinnerService
+              $scope: self.scope,
+              activitystreamAggregatorCreator: self.aggregatorService,
+              usSpinnerService: self.usSpinnerService
             });
           });
 
-          this.loadCount = 0;
-          this.scope.updateMessagesActive = false;
-          this.scope.streams = [{activity_stream: {uuid: id}}];
-          this.scope.displayError = function(err) {
+          self.loadCount = 0;
+          self.scope.updateMessagesActive = false;
+          self.scope.streams = [{activity_stream: {uuid: id}}];
+          self.scope.displayError = function(err) {
             self.thrownError = err;
           };
 
-          this.scope.loadMoreElements();
-          expect(this.thrownError).to.contain(errorMsg);
-          expect(this.loadCount).to.equal(1);
-          expect(this.scope.updateMessagesActive).to.be.false;
-          expect(this.spinnerStopped).to.be.true;
-          expect(this.scope.threads.length).to.equal(0);
+          self.scope.loadMoreElements();
+          expect(self.thrownError).to.contain(errorMsg);
+          expect(self.loadCount).to.equal(1);
+          expect(self.scope.updateMessagesActive).to.be.false;
+          expect(self.spinnerStopped).to.be.true;
+          expect(self.scope.threads.length).to.equal(0);
         });
 
         it('should handle success', function() {
-          this.spinnerStopped = false;
-          var self = this;
-          this.usSpinnerService.stop = function(id) {
+          self.spinnerStopped = false;
+          self.usSpinnerService.stop = function(id) {
             expect(id).to.equal('activityStreamSpinner');
             self.spinnerStopped = true;
           };
 
-          this.loadCount = 0;
-          this.scope.updateMessagesActive = false;
-          this.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
-          this.thrownError = null;
-          this.scope.displayError = function(err) {
+          self.loadCount = 0;
+          self.scope.updateMessagesActive = false;
+          self.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
+          self.thrownError = null;
+          self.scope.displayError = function(err) {
             self.thrownError = err;
           };
-          this.scope.threads = [];
+          self.scope.threads = [];
 
-          this.scope.loadMoreElements();
-          expect(this.thrownError).to.be.null;
-          expect(this.loadCount).to.equal(1);
-          expect(this.scope.updateMessagesActive).to.be.false;
-          expect(this.spinnerStopped).to.be.true;
-          expect(this.scope.threads.length).to.equal(3);
+          self.scope.loadMoreElements();
+          expect(self.thrownError).to.be.null;
+          expect(self.loadCount).to.equal(1);
+          expect(self.scope.updateMessagesActive).to.be.false;
+          expect(self.spinnerStopped).to.be.true;
+          expect(self.scope.threads.length).to.equal(3);
         });
       });
 
       it('should start and stop the spinner service', function(done) {
         var isSpinning = false;
-        this.usSpinnerService.spin = function(id) {
+        self.usSpinnerService.spin = function(id) {
           expect(id).to.equal('activityStreamSpinner');
           isSpinning = true;
         };
-        this.usSpinnerService.stop = function(id) {
+        self.usSpinnerService.stop = function(id) {
           expect(isSpinning).to.be.true;
           expect(id).to.equal('activityStreamSpinner');
           done();
         };
 
-        this.scope.streams = [{activity_stream: {uuid: '123'}}];
-        this.scope.loadMoreElements();
+        self.scope.streams = [{activity_stream: {uuid: '123'}}];
+        self.scope.loadMoreElements();
       });
 
     });
 
     describe('getStreamUpdates() method', function() {
       beforeEach(function() {
-        this.usSpinnerService = {};
-        this.usSpinnerService.spin = function(id) {};
-        this.usSpinnerService.stop = function(id) {};
-        this.aggregatorService = function(id, limit) {};
-        this.activityStreamUpdates = function() {};
-        this.alert = function(msgObject) {};
+        self.usSpinnerService = {};
+        self.usSpinnerService.spin = function(id) {};
+        self.usSpinnerService.stop = function(id) {};
+        self.aggregatorService = function(id, limit) {};
+        self.activityStreamUpdates = function() {};
+        self.alert = function(msgObject) {};
       });
 
       describe('when a rest query is active for current stream', function() {
         beforeEach(function() {
-          this.activityStreamUpdates = function() {
+          self.activityStreamUpdates = function() {
             throw new Error('I should not be called');
           };
-          this.controller('activitystreamController', {
-            $scope: this.scope,
-            activitystreamAggregatorCreator: this.aggregatorService,
-            usSpinnerService: this.usSpinnerService,
-            alert: this.alert,
-            activityStreamUpdates: this.activityStreamUpdates
+          self.controller('activitystreamController', {
+            $scope: self.scope,
+            activitystreamAggregatorCreator: self.aggregatorService,
+            usSpinnerService: self.usSpinnerService,
+            alert: self.alert,
+            activityStreamUpdates: self.activityStreamUpdates
           });
-          this.scope.restActive['123'] = true;
+          self.scope.restActive['123'] = true;
         });
         it('should not call the activityStreamUpdates service', function() {
-          this.scope.getStreamUpdates('123');
+          self.scope.getStreamUpdates('123');
         });
       });
 
       describe('when no rest query is active', function() {
         it('should call the activityStreamUpdates service and set scope restActive to true', function(done) {
-          var self = this;
-          this.activityStreamUpdates = function() {
+          self.activityStreamUpdates = function() {
             expect(self.scope.restActive['123']).to.be.true;
             done();
           };
-          this.controller('activitystreamController', {
-            $scope: this.scope,
-            activitystreamAggregatorCreator: this.aggregatorService,
-            usSpinnerService: this.usSpinnerService,
-            alert: this.alert,
-            activityStreamUpdates: this.activityStreamUpdates
+          self.controller('activitystreamController', {
+            $scope: self.scope,
+            activitystreamAggregatorCreator: self.aggregatorService,
+            usSpinnerService: self.usSpinnerService,
+            alert: self.alert,
+            activityStreamUpdates: self.activityStreamUpdates
           });
 
-          this.scope.getStreamUpdates('123');
+          self.scope.getStreamUpdates('123');
         });
         it('should finally set the restActive to false', function(done) {
-          var self = this;
-          this.activityStreamUpdates = function() {
+          self.activityStreamUpdates = function() {
             return {
               then: function() {
                 return {
@@ -248,15 +246,15 @@ describe('The esn.activitystream Angular module', function() {
               }
             };
           };
-          this.controller('activitystreamController', {
-            $scope: this.scope,
-            activitystreamAggregatorCreator: this.aggregatorService,
-            usSpinnerService: this.usSpinnerService,
-            alert: this.alert,
-            activityStreamUpdates: this.activityStreamUpdates
+          self.controller('activitystreamController', {
+            $scope: self.scope,
+            activitystreamAggregatorCreator: self.aggregatorService,
+            usSpinnerService: self.usSpinnerService,
+            alert: self.alert,
+            activityStreamUpdates: self.activityStreamUpdates
           });
 
-          this.scope.getStreamUpdates('123');
+          self.scope.getStreamUpdates('123');
         });
       });
 
@@ -264,30 +262,29 @@ describe('The esn.activitystream Angular module', function() {
 
     describe('filterMessagesInSelectedStream() method', function() {
       beforeEach(function() {
-        this.activityStreamHelper = {};
-        this.controller('activitystreamController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope,
-          activitystreamHelper: this.activityStreamHelper
+        self.activityStreamHelper = {};
+        self.controller('activitystreamController', {
+          $rootScope: self.rootScope,
+          $scope: self.scope,
+          activitystreamHelper: self.activityStreamHelper
         });
       });
 
       it('should return true if scope.selectedStream is falsy', function() {
-        this.scope.selectedStream = false;
-        expect(this.scope.filterMessagesInSelectedStream()).to.be.true;
+        self.scope.selectedStream = false;
+        expect(self.scope.filterMessagesInSelectedStream()).to.be.true;
       });
 
       it('should return the result of activityStreamHelper#messageIsSharedInStreams if scope.selectedStream exists', function() {
-        this.scope.selectedStream = 'selectedStream';
+        self.scope.selectedStream = 'selectedStream';
         var testThread = 'testThread';
         var result = 'testResult';
-        var self = this;
-        this.activityStreamHelper.messageIsSharedInStreams = function(thread, arrayOfStream) {
+        self.activityStreamHelper.messageIsSharedInStreams = function(thread, arrayOfStream) {
           expect(thread).to.equal(testThread);
           expect(arrayOfStream).to.deep.equal([self.scope.selectedStream]);
           return result;
         };
-        expect(this.scope.filterMessagesInSelectedStream(testThread)).to.equal(result);
+        expect(self.scope.filterMessagesInSelectedStream(testThread)).to.equal(result);
       });
     });
 

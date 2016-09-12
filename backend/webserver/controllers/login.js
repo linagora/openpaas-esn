@@ -20,7 +20,7 @@ module.exports.index = index;
 
 var login = function(req, res, next) {
   if (!req.body.username || !req.body.password) {
-    return res.json(400, {
+    return res.status(400).json({
       recaptcha: req.recaptchaFlag || false,
       error: {
         code: 400,
@@ -43,7 +43,7 @@ var login = function(req, res, next) {
         if (err) {
           logger.error('Problem while setting login failure for user ' + username, err);
         }
-        return res.json(403, {
+        return res.status(403).json({
           recaptcha: req.recaptchaFlag || false,
           error: {
             code: 403,
@@ -68,7 +68,7 @@ var login = function(req, res, next) {
             result = user.toObject();
             delete result.password;
           }
-          return res.json(200, result);
+          return res.status(200).json(result);
         });
       });
     }
@@ -87,7 +87,7 @@ module.exports.passwordResetIndex = passwordResetIndex;
 
 var user = function(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.send(500, {
+    return res.status(500).send({
       error: {
         code: 500,
         message: 'Internal error',
@@ -95,6 +95,6 @@ var user = function(req, res) {
       }
     });
   }
-  return res.json(200, req.user);
+  return res.status(200).json(req.user);
 };
 module.exports.user = user;

@@ -45,15 +45,13 @@ module.exports = function(lib, deps) {
         lib.getFromActivityStreamID(item.id, function(err, project) {
 
           if (err || !project) {
-            return callback(false);
+            return callback(err, false);
           }
 
-          permission.canWrite(project, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
-            return callback(!err && writable);
-          });
+          permission.canWrite(project, {objectType: 'user', id: req.user._id + ''}, callback);
         });
       },
-      function(results) {
+      function(err, results) {
         if (!results || results.length === 0) {
           return next();
         }

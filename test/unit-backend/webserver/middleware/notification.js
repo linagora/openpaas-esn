@@ -11,12 +11,12 @@ describe('The notification middleware', function() {
         notification: {}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, function() {});
@@ -27,12 +27,12 @@ describe('The notification middleware', function() {
         user: {}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, function() {});
@@ -68,12 +68,12 @@ describe('The notification middleware', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
 
       var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, function() {});

@@ -97,9 +97,14 @@ describe('The contacts api avatar provider', function() {
     beforeEach(function() {
       this.resWithError500 = function(done) {
         return {
-          json: function(code) {
+          status: function(code) {
             expect(code).to.equal(500);
-            done();
+
+            return {
+              json: function() {
+                done();
+              }
+            };
           }
         };
       };

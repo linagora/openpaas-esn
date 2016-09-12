@@ -8,20 +8,20 @@ var expect = chai.expect;
 
 describe('The event-message Angular module directives', function() {
 
-  var self;
+  var self = this;
+
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod', 'jadeTemplates');
-    self = this;
   });
 
   describe('The event message service', function() {
     beforeEach(angular.mock.inject(function(eventMessageService) {
-      this.eventMessageService = eventMessageService;
+      self.eventMessageService = eventMessageService;
     }));
 
     it('should not fail for empty and null attendee', function() {
       [null, [], undefined].forEach(function(nullAttendees) {
-        expect(this.eventMessageService.computeAttendeeStats(nullAttendees)).to.deep.equal({
+        expect(self.eventMessageService.computeAttendeeStats(nullAttendees)).to.deep.equal({
           'NEEDS-ACTION': 0,
           ACCEPTED: 0,
           TENTATIVE: 0,
@@ -41,7 +41,7 @@ describe('The event-message Angular module directives', function() {
       var other3 = { partstat: 'eless' };
 
       var attendees = [needAction, other1, accepted, other2, tentative, other3, declined, accepted, tentative];
-      expect(this.eventMessageService.computeAttendeeStats(attendees)).to.deep.equal({
+      expect(self.eventMessageService.computeAttendeeStats(attendees)).to.deep.equal({
         'NEEDS-ACTION': 1,
         ACCEPTED: 2,
         TENTATIVE: 2,
@@ -55,22 +55,22 @@ describe('The event-message Angular module directives', function() {
   describe('The eventMessage directive', function() {
     beforeEach(function() {
 
-      this.event = {
+      self.event = {
         vcalendar: 'vcalendar',
         attendees: 'attendees',
         path: 'par la, il y a des fraises',
         etag: 'ada'
       };
 
-      this.eventAfterChangePart = {
+      self.eventAfterChangePart = {
         attendees:['it has been changed']
       };
 
-      this.sessionMock = {
+      self.sessionMock = {
         user: { emails: 'emails' }
       };
 
-      this.eventServiceMock = {
+      self.eventServiceMock = {
         getEvent: sinon.spy(function() {
           return $q.when(self.event);
         }),
@@ -83,12 +83,12 @@ describe('The event-message Angular module directives', function() {
         })
       };
 
-      this.partstat = {
+      self.partstat = {
         OTHER: 42
       };
 
-      this.eventMessageServiceMock = {
-        computeAttendeeStats: sinon.stub().returns(this.partstat)
+      self.eventMessageServiceMock = {
+        computeAttendeeStats: sinon.stub().returns(self.partstat)
       };
 
       angular.mock.module(function($provide) {
@@ -104,88 +104,88 @@ describe('The event-message Angular module directives', function() {
     });
 
     beforeEach(angular.mock.inject(function($rootScope, $compile) {
-      this.$rootScope = $rootScope;
-      this.$scope = this.$rootScope.$new();
-      this.$compile = $compile;
-      this.$scope.message = {
+      self.$rootScope = $rootScope;
+      self.$scope = self.$rootScope.$new();
+      self.$compile = $compile;
+      self.$scope.message = {
         eventId: 'eventId'
       };
 
-      this.initDirective = function() {
+      self.initDirective = function() {
         var html = '<event-message></event-message>';
-        this.element = this.$compile(html)(self.$scope);
-        this.$scope.$digest();
+        self.element = self.$compile(html)(self.$scope);
+        self.$scope.$digest();
       };
 
-      this.initDirective();
+      self.initDirective();
     }));
 
     it('should fetch event and his getInvitedAttendees correctly', function() {
-      expect(this.eventServiceMock.getEvent).to.have.been.calledWith(this.$scope.message.eventId);
-      expect(this.eventServiceMock.getInvitedAttendees).to.have.been.calledWith(this.$scope.event.vcalendar, this.sessionMock.user.emails);
+      expect(self.eventServiceMock.getEvent).to.have.been.calledWith(self.$scope.message.eventId);
+      expect(self.eventServiceMock.getInvitedAttendees).to.have.been.calledWith(self.$scope.event.vcalendar, self.sessionMock.user.emails);
     });
 
     it('should remove loading and set error if getEvent failed', function() {
       var statusText = 'status are made of stone';
-      this.eventServiceMock.getEvent = function() {
+      self.eventServiceMock.getEvent = function() {
         return $q.reject({
           statusText: statusText
         });
       };
 
-      this.initDirective();
-      expect(this.element.find('>div>.loading').hasClass('hidden')).to.be.true;
-      expect(this.element.find('>div>.error').hasClass('hidden')).to.be.false;
+      self.initDirective();
+      expect(self.element.find('>div>.loading').hasClass('hidden')).to.be.true;
+      expect(self.element.find('>div>.error').hasClass('hidden')).to.be.false;
     });
 
     it('should remove loading and set message if getEvent succed', function() {
-      expect(this.element.find('>div>.loading').hasClass('hidden')).to.be.true;
-      expect(this.element.find('>div>.message').hasClass('hidden')).to.be.false;
+      expect(self.element.find('>div>.loading').hasClass('hidden')).to.be.true;
+      expect(self.element.find('>div>.message').hasClass('hidden')).to.be.false;
     });
 
     it('should take partstat of first attendee if not organizer', function() {
-      expect(this.$scope.partstat).to.equal('partstart');
+      expect(self.$scope.partstat).to.equal('partstart');
     });
 
     it('should take partstat of organizer if any', function() {
       var orgPartstat = 'orgPartstat';
-      this.eventServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
-      this.initDirective();
-      expect(this.$scope.partstat).to.equal(orgPartstat);
+      self.eventServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
+      self.initDirective();
+      expect(self.$scope.partstat).to.equal(orgPartstat);
     });
 
     it('should compute partstat', function() {
-      expect(this.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(this.event.attendees);
-      expect(this.$scope.attendeesPerPartstat).to.equal(this.partstat);
+      expect(self.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.event.attendees);
+      expect(self.$scope.attendeesPerPartstat).to.equal(self.partstat);
     });
 
     it('should compute hasAttendee', function() {
-      expect(this.$scope.hasAttendees).to.be.true;
-      this.event.attendees = null;
-      this.initDirective();
-      expect(this.$scope.hasAttendees).to.be.false;
+      expect(self.$scope.hasAttendees).to.be.true;
+      self.event.attendees = null;
+      self.initDirective();
+      expect(self.$scope.hasAttendees).to.be.false;
     });
 
     describe('scope.changeParticipation ', function() {
       it('should call eventService.changeParticipation correctly', function() {
         var partstat = 'ACCEPTED';
-        this.$scope.changeParticipation(partstat);
-        expect(this.eventServiceMock.changeParticipation).to.have.been.calledWith(this.event.path, this.event, this.sessionMock.user.emails, partstat);
+        self.$scope.changeParticipation(partstat);
+        expect(self.eventServiceMock.changeParticipation).to.have.been.calledWith(self.event.path, self.event, self.sessionMock.user.emails, partstat);
       });
 
       it('should update event ', function() {
         var partstat = 'ACCEPTED';
-        this.$scope.changeParticipation(partstat);
-        this.$rootScope.$digest();
-        expect(this.$scope.event).to.equal(this.eventAfterChangePart);
+        self.$scope.changeParticipation(partstat);
+        self.$rootScope.$digest();
+        expect(self.$scope.event).to.equal(self.eventAfterChangePart);
       });
 
       it('should update attendee stats correctly', function() {
         var partstat = 'ACCEPTED';
-        this.$scope.changeParticipation(partstat);
-        this.$rootScope.$digest();
-        expect(this.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(this.eventAfterChangePart.attendees);
-        expect(this.$scope.attendeesPerPartstat.ACCEPTED).to.equal(1);
+        self.$scope.changeParticipation(partstat);
+        self.$rootScope.$digest();
+        expect(self.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.eventAfterChangePart.attendees);
+        expect(self.$scope.attendeesPerPartstat.ACCEPTED).to.equal(1);
       });
     });
   });
@@ -193,11 +193,11 @@ describe('The event-message Angular module directives', function() {
   describe('The eventMessageEditionController', function() {
     beforeEach(function() {
       angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
-      this.CalendarShellMock = {
+      self.CalendarShellMock = {
         fromIncompleteShell: sinon.spy(_.identity)
       };
 
-      this.calendarUtilsMock = {
+      self.calendarUtilsMock = {
         getNewStartDate: sinon.spy(function() {
           return self.start;
         }),
@@ -206,11 +206,11 @@ describe('The event-message Angular module directives', function() {
         })
       };
 
-      this.calendarServiceMock = {
+      self.calendarServiceMock = {
         calendarHomeId: 'calendarHomeId'
       };
 
-      this.eventServiceMock = {
+      self.eventServiceMock = {
         createEvent: sinon.spy(function() {
           return self.$q.when({
             headers: function() {
@@ -220,11 +220,11 @@ describe('The event-message Angular module directives', function() {
         })
       };
 
-      this.notificationFactoryMock = {
+      self.notificationFactoryMock = {
         weakError: sinon.spy()
       };
 
-      this.calendarEventEmitterMock = {
+      self.calendarEventEmitterMock = {
         activitystream: {
           emitPostedMessage: sinon.spy()
         }
@@ -263,123 +263,123 @@ describe('The event-message Angular module directives', function() {
     }));
 
     afterEach(function() {
-      this.$rootScope.$destroy();
+      self.$rootScope.$destroy();
     });
 
     it('should init an empty event with CalendarShell', function() {
       var calendarShell = 'kitten';
-      this.CalendarShellMock.fromIncompleteShell = sinon.stub().returns(calendarShell);
-      this.initController();
+      self.CalendarShellMock.fromIncompleteShell = sinon.stub().returns(calendarShell);
+      self.initController();
 
-      expect(this.calendarUtilsMock.getNewStartDate).to.have.been.calledOnce;
-      expect(this.calendarUtilsMock.getNewEndDate).to.have.been.calledOnce;
+      expect(self.calendarUtilsMock.getNewStartDate).to.have.been.calledOnce;
+      expect(self.calendarUtilsMock.getNewEndDate).to.have.been.calledOnce;
 
-      expect(this.CalendarShellMock.fromIncompleteShell).to.have.been.calledWith({
-        start: this.start,
-        end: this.end
+      expect(self.CalendarShellMock.fromIncompleteShell).to.have.been.calledWith({
+        start: self.start,
+        end: self.end
       });
 
-      expect(this.$scope.event).to.equal(calendarShell);
+      expect(self.$scope.event).to.equal(calendarShell);
     });
 
     describe('$scope.submit', function() {
       beforeEach(function() {
-        this.initController();
+        self.initController();
       });
 
       it('should replace empty title by default title', function() {
         ['', undefined, null, '     '].forEach(function(title) {
-          this.$scope.event.title = title;
-          this.$scope.submit();
-          expect(this.$scope.event.title).to.equal(this.EVENT_FORM.title.default);
+          self.$scope.event.title = title;
+          self.$scope.submit();
+          expect(self.$scope.event.title).to.equal(self.EVENT_FORM.title.default);
         }, this);
       });
 
       it('should not replace non title by default title', function() {
         var title = ' a title';
-        this.$scope.event.title = title;
-        this.$scope.submit();
-        expect(this.$scope.event.title).to.equal(title);
+        self.$scope.event.title = title;
+        self.$scope.submit();
+        expect(self.$scope.event.title).to.equal(title);
       });
 
       it('should call eventService.createEvent with $scope.calendarHomeId if defined', function() {
-        this.$scope.calendarHomeId = 'et';
-        this.$scope.submit();
-        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(this.$scope.calendarHomeId);
+        self.$scope.calendarHomeId = 'et';
+        self.$scope.submit();
+        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(self.$scope.calendarHomeId);
       });
 
       it('should call eventService.createEvent with calendarService.calendarHomeId if $scope.calendarHomeId is not defined', function() {
-        this.$scope.submit();
-        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(this.calendarServiceMock.calendarHomeId);
+        self.$scope.submit();
+        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(self.calendarServiceMock.calendarHomeId);
       });
 
       it('should give path to default calendars "/events"', function() {
-        this.$scope.submit();
-        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, '/calendars/calendarHomeId/events');
+        self.$scope.submit();
+        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, '/calendars/calendarHomeId/events');
       });
 
       it('should path the event and option that disable graceperiod', function() {
-        this.$scope.event = 'telephon maison';
-        this.$scope.submit();
-        expect(this.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, sinon.match.any, this.$scope.event, { graceperiod: false });
+        self.$scope.event = { title: 'telephon maison' };
+        self.$scope.submit();
+        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, sinon.match.any, self.$scope.event, { graceperiod: false });
       });
 
       it('should not call createEvent and display an error if no activity_stream.uuid', function() {
         [{ activity_stream: null }, { activity_stream: { uuid: null } }].forEach(function(activitystream) {
-          this.$scope.displayError = sinon.spy();
-          this.$scope.activitystream = activitystream;
-          this.$scope.submit();
-          expect(this.$scope.displayError).to.have.been.calledOnce;
-          expect(this.eventServiceMock.createEvent).to.have.not.been.called;
+          self.$scope.displayError = sinon.spy();
+          self.$scope.activitystream = activitystream;
+          self.$scope.submit();
+          expect(self.$scope.displayError).to.have.been.calledOnce;
+          expect(self.eventServiceMock.createEvent).to.have.not.been.called;
 
         }, this);
       });
 
       it('should set $scope.restActive to true only meanwhile eventService.createEvent resolve', function() {
-        expect(this.$scope.restActive).to.be.false;
+        expect(self.$scope.restActive).to.be.false;
 
-        var defer = this.$q.defer();
-        this.eventServiceMock.createEvent = _.constant(defer.promise);
-        this.$scope.submit();
-        expect(this.$scope.restActive).to.be.true;
+        var defer = self.$q.defer();
+        self.eventServiceMock.createEvent = _.constant(defer.promise);
+        self.$scope.submit();
+        expect(self.$scope.restActive).to.be.true;
         defer.resolve(null);
-        this.$rootScope.$digest();
-        expect(this.$scope.restActive).to.be.false;
+        self.$rootScope.$digest();
+        expect(self.$scope.restActive).to.be.false;
       });
 
       it('should call notificationFactory.weakError if eventService.createEvent fail', function() {
-        this.eventServiceMock.createEvent = function() {
+        self.eventServiceMock.createEvent = function() {
           return self.$q.reject({});
         };
-        this.$scope.submit();
-        this.$rootScope.$digest();
-        expect(this.notificationFactoryMock.weakError).to.have.been.called;
+        self.$scope.submit();
+        self.$rootScope.$digest();
+        expect(self.notificationFactoryMock.weakError).to.have.been.called;
       });
 
       it('should call $parent.show if creating the event success', function() {
-        this.$parentScope.show = sinon.spy();
-        this.$scope.submit();
-        this.$rootScope.$digest();
-        expect(this.$parentScope.show).to.have.been.calledWith('whatsup');
+        self.$parentScope.show = sinon.spy();
+        self.$scope.submit();
+        self.$rootScope.$digest();
+        expect(self.$parentScope.show).to.have.been.calledWith('whatsup');
       });
 
       it('should reset event if creating the event success', function() {
-        this.$scope.event = 'it will disapear';
-        this.$scope.submit();
-        this.$rootScope.$digest();
-        expect(this.$scope.event).to.deep.equal({
-          start: this.start,
-          end: this.end,
+        self.$scope.event = { title: 'it will disapear' };
+        self.$scope.submit();
+        self.$rootScope.$digest();
+        expect(self.$scope.event).to.deep.equal({
+          start: self.start,
+          end: self.end,
           diff: 1
         });
 
-        expect(this.$scope.rows).to.equal(1);
+        expect(self.$scope.rows).to.equal(1);
       });
 
       it('should call calendarEventEmitterMock if creating the event success', function() {
-        this.$scope.submit();
-        this.$rootScope.$digest();
-        expect(this.calendarEventEmitterMock.activitystream.emitPostedMessage).to.have.been.calledWith(this.responseHeaders, this.activitystream.activity_stream.uuid);
+        self.$scope.submit();
+        self.$rootScope.$digest();
+        expect(self.calendarEventEmitterMock.activitystream.emitPostedMessage).to.have.been.calledWith(self.responseHeaders, self.activitystream.activity_stream.uuid);
       });
     });
 

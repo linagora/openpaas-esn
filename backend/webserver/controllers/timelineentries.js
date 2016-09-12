@@ -26,7 +26,7 @@ function list(req, res) {
   activitystreamModule.getTimelineEntries(options, function(err, result) {
     if (err) {
       logger.error('Error while getting timelineentries', options, err);
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
 
     q.all(result.list.map(function(entry) {
@@ -36,7 +36,7 @@ function list(req, res) {
       return res.status(200).json(denormalized || []);
     }, function(err) {
       logger.error('Error while denormalizing timelineentries', err);
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while denormalizing timelineentries'}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while denormalizing timelineentries'}});
     });
   });
 }

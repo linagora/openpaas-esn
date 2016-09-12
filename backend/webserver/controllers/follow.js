@@ -34,7 +34,7 @@ module.exports.follow = follow;
 
 function unfollow(req, res) {
   followModule.unfollow(req.user, req.following).then(function() {
-    res.status(204).send();
+    res.status(204).end();
   }, function(err) {
     logger.error('Error while unfollowing user', err);
     res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
@@ -75,9 +75,9 @@ module.exports.getFollowings = getFollowings;
 function isFollowing(req, res) {
   followModule.follows({_id: req.params.id}, {_id: req.params.tid}).then(function(result) {
     if (result) {
-      return res.status(204).send();
+      return res.status(204).end();
     }
-    res.status(404).send();
+    res.status(404).end();
   }, function(err) {
     logger.error('Error while getting following status', err);
     res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});

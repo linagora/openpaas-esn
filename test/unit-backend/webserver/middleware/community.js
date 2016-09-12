@@ -19,12 +19,12 @@ describe('The community middleware', function() {
       var req = {
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -34,12 +34,12 @@ describe('The community middleware', function() {
       var req = {
         community: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -53,12 +53,12 @@ describe('The community middleware', function() {
           user_id: {}
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -99,12 +99,12 @@ describe('The community middleware', function() {
           user_id: {}
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -117,12 +117,12 @@ describe('The community middleware', function() {
           user_id: {}
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -133,12 +133,12 @@ describe('The community middleware', function() {
         user: {},
         community: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -154,12 +154,12 @@ describe('The community middleware', function() {
           user_id: id
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -197,12 +197,12 @@ describe('The community middleware', function() {
       var req = {
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -212,12 +212,12 @@ describe('The community middleware', function() {
       var req = {
         community: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -232,12 +232,12 @@ describe('The community middleware', function() {
         community: {},
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -252,12 +252,12 @@ describe('The community middleware', function() {
         community: {},
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -296,12 +296,12 @@ describe('The community middleware', function() {
       var req = {
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -311,12 +311,12 @@ describe('The community middleware', function() {
       var req = {
         community: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -328,12 +328,12 @@ describe('The community middleware', function() {
         community: {creator: new ObjectId()},
         user: {_id: new ObjectId()}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -369,12 +369,12 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -383,16 +383,14 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
         user: {},
-        param: function() {
-          return;
-        }
+        params: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -404,16 +402,16 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
         user: {_id: id},
-        param: function() {
-          return '' + new ObjectId();
+        params: {
+          user_id: new ObjectId()
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -425,15 +423,15 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
         user: {_id: id},
-        param: function() {
-          return '' + id;
+        params: {
+          user_id: '' + id
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           done(new Error());
         }
-      };
+      );
       middleware(req, res, done);
     });
   });
@@ -454,12 +452,12 @@ describe('The community middleware', function() {
           return '123';
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -468,16 +466,14 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
-        param: function() {
-          return null;
-        }
+        params: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -490,16 +486,16 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
-        param: function() {
-          return '123';
+        params: {
+          user_id: '123'
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -512,16 +508,16 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
-        param: function() {
-          return '123';
+        params: {
+          user_id: '123'
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -534,8 +530,8 @@ describe('The community middleware', function() {
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
-        param: function() {
-          return '123';
+        params: {
+          user_id: '123'
         }
       };
       var res = {
@@ -630,12 +626,12 @@ describe('The community middleware', function() {
       var req = {
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -645,12 +641,12 @@ describe('The community middleware', function() {
       var req = {
         community: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -665,12 +661,12 @@ describe('The community middleware', function() {
         community: {},
         user: {}
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
       middleware(req, res);
     });
 
@@ -714,12 +710,12 @@ describe('The community middleware', function() {
         body: {
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res, done);
     });
 
@@ -738,12 +734,12 @@ describe('The community middleware', function() {
           targets: []
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res, done);
     });
 
@@ -762,12 +758,12 @@ describe('The community middleware', function() {
           targets: undefined
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
       middleware(req, res, done);
     });
 
@@ -802,10 +798,10 @@ describe('The community middleware', function() {
           ]
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
         }
-      };
+      );
       var next = function() {
         expect(req.body.targets.length).to.equal(2);
         done();
@@ -848,10 +844,10 @@ describe('The community middleware', function() {
           ]
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
         }
-      };
+      );
       var next = function() {
         expect(req.message_targets).to.exist;
         expect(req.message_targets.length).to.equal(1);
@@ -903,11 +899,11 @@ describe('The community middleware', function() {
           ]
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           done(new Error());
         }
-      };
+      );
       var next = function() {
         expect(req.message_targets).to.exist;
         expect(req.message_targets.length).to.equal(2);
@@ -962,12 +958,12 @@ describe('The community middleware', function() {
           ]
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(403);
           return done();
         }
-      };
+      );
       middleware(req, res, done);
     });
 
@@ -1015,11 +1011,11 @@ describe('The community middleware', function() {
           uuid: 1
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           done(new Error());
         }
-      };
+      );
       var next = function(err) {
         expect(err).to.exist;
         done();
@@ -1048,11 +1044,11 @@ describe('The community middleware', function() {
           uuid: 1
         }
       };
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           done(new Error('Should not be called'));
         }
-      };
+      );
       var next = function() {
         done();
       };

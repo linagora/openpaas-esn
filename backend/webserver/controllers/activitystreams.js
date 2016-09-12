@@ -41,13 +41,13 @@ function updateTracker(req, timelineEntriesReadable) {
 function getMine(req, res) {
   function streamsCallback(err, streams) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server error', details: err.message}});
+      return res.status(500).json({error: {code: 500, message: 'Server error', details: err.message}});
     }
-    return res.json(200, streams || []);
+    return res.status(200).json(streams || []);
   }
 
   if (!req.user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User missing'}});
   }
 
   var options = {};
@@ -76,7 +76,7 @@ function get(req, res) {
   var activity_stream = req.activity_stream;
 
   if (!activity_stream) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
   }
 
   var options = {
@@ -85,35 +85,33 @@ function get(req, res) {
 
   if (req.query.limit) {
     if (!isLimitvalid(req.query.limit)) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Limit parameter must be strictly positive'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Limit parameter must be strictly positive'}});
     }
     options.limit = req.query.limit;
   }
 
   if (req.query.before) {
     if (!isValidObjectId(req.query.before)) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: '"before" parameter must be a valid ObjectId.'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: '"before" parameter must be a valid ObjectId.'}});
     }
     options.before = req.query.before;
   }
 
   if (req.query.after) {
     if (!isValidObjectId(req.query.after)) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: '"after" parameter must be a valid ObjectId.'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: '"after" parameter must be a valid ObjectId.'}});
     }
     options.after = req.query.after;
   }
 
   activitystreams.query(options, function(err, timelineEntriesFound) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Internal error', details: 'Can not get Activity Stream for resource ' + activity_stream}});
+      return res.status(500).json({error: {code: 500, message: 'Internal error', details: 'Can not get Activity Stream for resource ' + activity_stream}});
     }
 
     async.filter(timelineEntriesFound, function(timelineEntry, callback) {
-      activitystreams.permission.canRead(timelineEntry, {objectType: 'user', id: req.user._id}, function(err, readable) {
-        return callback(err ? false : readable);
-      });
-    }, function(timelineEntriesReadable) {
+      activitystreams.permission.canRead(timelineEntry, {objectType: 'user', id: req.user._id}, callback);
+    }, function(err, timelineEntriesReadable) {
       res.json(timelineEntriesReadable);
       updateTracker(req, timelineEntriesReadable);
     });
@@ -125,16 +123,16 @@ function getUnreadCount(req, res) {
   var activity_stream = req.activity_stream;
 
   if (!activity_stream) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
   }
 
   tracker.countSinceLastTimelineEntry(req.user._id, req.activity_stream._id, function(err, count) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Internal error',
+      return res.status(500).json({error: {code: 500, message: 'Internal error',
         details: 'Fail to get the number of unread timeline entries for this activity stream ( ' +
           req.activity_stream._id + '): ' + err.message}});
     }
-    return res.json(200, {
+    return res.status(200).json({
       _id: req.activity_stream._id,
       unread_count: count
     });
@@ -146,13 +144,13 @@ function getResource(req, res) {
   var activity_stream = req.activity_stream;
 
   if (!activity_stream) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
   }
 
   if (!activity_stream.target) {
-    return res.json(404, {error: {code: 404, message: 'Not found', details: 'Could not find a resource for this stream.'}});
+    return res.status(404).json({error: {code: 404, message: 'Not found', details: 'Could not find a resource for this stream.'}});
   }
 
-  return res.json(200, activity_stream.target);
+  return res.status(200).json(activity_stream.target);
 }
 module.exports.getResource = getResource;

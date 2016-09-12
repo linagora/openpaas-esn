@@ -15,22 +15,18 @@ module.exports.canRead = function(timelineEntry, tuple, callback) {
     return callback(null, false);
   }
 
-  async.some(timelineEntry.target, function(target, canReadTimelineEntryTarget) {
+  async.some(timelineEntry.target, function(target, callback) {
     if (target.objectType !== 'activitystream') {
-      return canReadTimelineEntryTarget(false);
+      return callback(null, false);
     }
 
     collaborationModule.findCollaborationFromActivityStreamID(target._id, function(err, collaborations) {
       if (err || !collaborations || collaborations.length === 0 || !collaborations[0]) {
-        return canReadTimelineEntryTarget(false);
+        return callback(null, false);
       }
 
       // Check if the tuple can read in the collaboration
-      collaborationModule.permission.canRead(collaborations[0], tuple, function(err, readable) {
-        return canReadTimelineEntryTarget(!err && readable === true);
-      });
+      collaborationModule.permission.canRead(collaborations[0], tuple, callback);
     });
-  }, function(canRead) {
-    return callback(null, canRead);
-  });
+  }, callback);
 };

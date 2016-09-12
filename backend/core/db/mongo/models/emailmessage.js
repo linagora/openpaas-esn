@@ -11,7 +11,7 @@ var Address = new mongoose.Schema({
 
 var emailSpecificSchema = {
   objectType: {type: String, required: true, default: 'email'},
-  headers: [mongoose.Schema.Mixed],
+  headers: [mongoose.Schema.Types.Mixed],
   parsedHeaders: {
     to: {type: [Address]},
     from: {type: Address.tree},

@@ -27,11 +27,11 @@ function list(options, callback) {
   options = options || {};
   var domainQuery = Domain.find();
   if (options.offset > 0) {
-    domainQuery = domainQuery.skip(options.offset);
+    domainQuery = domainQuery.skip(+options.offset);
   }
 
   if (options.limit > 0) {
-    domainQuery = domainQuery.limit(options.limit);
+    domainQuery = domainQuery.limit(+options.limit);
   }
   domainQuery.sort('-timestamps.creation').exec(callback);
 }

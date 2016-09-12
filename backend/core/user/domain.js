@@ -25,7 +25,7 @@ function joinDomain(user, domain, callback) {
   if (!validateDomains(domainId)) {
     return callback(new Error('User is already in domain ' + domainId));
   } else {
-    return User.findOneAndUpdate({_id: user._id}, {$push: {domains: {domain_id: domain}}}, function(err, result) {
+    return User.findOneAndUpdate({_id: user._id}, {$push: {domains: {domain_id: domain}}}, { new: true }, function(err, result) {
       if (!err && result) {
         pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(result);
       }
@@ -95,7 +95,8 @@ function getUsersList(domains, query, cb) {
   if (domains.length === 0) {
     return cb(new Error('At least one domain is mandatory'));
   }
-  query = query || {limit: defaultLimit, offset: defaultOffset};
+
+  query = query || { limit: defaultLimit, offset: defaultOffset };
 
   var collaboration = query.not_in_collaboration;
   var limit = query.limit;
@@ -106,20 +107,17 @@ function getUsersList(domains, query, cb) {
   var domainIds = domains.map(function(domain) {
     return domain._id || domain;
   });
-  var userQuery = User.find().where('domains.domain_id').in(domainIds);
-  var totalCountQuery = require('extend')(true, {}, userQuery);
-  totalCountQuery.count();
 
-  userQuery.skip(query.offset).limit(query.limit).sort({firstname: 'asc'});
-
-  return totalCountQuery.exec(function(err, count) {
+  return User.find().where('domains.domain_id').in(domainIds).count().exec(function(err, count) {
     if (err) {
       return cb(new Error('Cannot count users of domain'));
     }
-    userQuery.exec(function(err, list) {
+
+    User.find().where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec(function(err, list) {
       if (err) {
         return cb(new Error('Cannot execute find request correctly on domains collection'));
       }
+
       if (collaboration) {
         utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, function(err, results) {
           if (err) {

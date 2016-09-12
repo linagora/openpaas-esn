@@ -7,7 +7,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 function create(req, res) {
   var size = parseInt(req.query.size, 10);
   if (isNaN(size) || size < 1) {
-    return res.json(400, {
+    return res.status(400).json({
       error: 400,
       message: 'Bad Parameter',
       details: 'size parameter should be a positive integer'
@@ -33,7 +33,7 @@ function create(req, res) {
 
     return filestore.store(fileId, req.query.mimetype, metadata, stream, options, function(err, saved) {
       if (err) {
-        return res.json(500, {
+        return res.status(500).json({
           error: {
             code: 500,
             message: 'Server error',
@@ -44,7 +44,7 @@ function create(req, res) {
 
       if (saved.length !== size || interrupted) {
         return filestore.delete(fileId, function(err) {
-          res.json(412, {
+          res.status(412).json({
             error: {
               code: 412,
               message: 'File size mismatch',
@@ -55,7 +55,7 @@ function create(req, res) {
           });
         });
       }
-      return res.json(201, {_id: fileId});
+      return res.status(201).json({_id: fileId});
     });
   };
 
@@ -69,7 +69,7 @@ function create(req, res) {
 
     busboy.on('finish', function() {
       if (nb === 0) {
-        res.json(400, {
+        res.status(400).json({
           error: {
             code: 400,
             message: 'Bad request',
@@ -87,7 +87,7 @@ function create(req, res) {
 
 function get(req, res) {
   if (!req.params.id) {
-    return res.json(400, {
+    return res.status(400).json({
       error: 400,
       message: 'Bad Request',
       details: 'Missing id parameter'
@@ -96,7 +96,7 @@ function get(req, res) {
 
   filestore.get(req.params.id, function(err, fileMeta, readStream) {
     if (err) {
-      return res.json(503, {
+      return res.status(503).json({
         error: 503,
         message: 'Server error',
         details: err.message || err
@@ -105,10 +105,10 @@ function get(req, res) {
 
     if (!readStream) {
       if (req.accepts('html')) {
-        res.status(404);
+        res.status(404).end();
         return res.render('commons/404', { url: req.url });
       } else {
-        return res.json(404, {
+        return res.status(404).json({
           error: 404,
           message: 'Not Found',
           details: 'Could not find file'
@@ -124,7 +124,7 @@ function get(req, res) {
       serverMod.setMilliseconds(0);
 
       if (modSince && clientMod.getTime() === serverMod.getTime()) {
-        return res.send(304);
+        return res.status(304).end();
       } else {
         res.set('Last-Modified', fileMeta.uploadDate);
       }
@@ -148,19 +148,19 @@ function get(req, res) {
 
 function remove(req, res) {
   if (!req.params.id) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Missing id parameter'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Missing id parameter'}});
   }
   var meta = req.fileMeta;
 
   if (meta.metadata.referenced) {
-    return res.json(409, {error: {code: 409, message: 'Conflict', details: 'File is used and can not be deleted'}});
+    return res.status(409).json({error: {code: 409, message: 'Conflict', details: 'File is used and can not be deleted'}});
   }
 
   filestore.delete(req.params.id, function(err) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message || err}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message || err}});
     }
-    return res.send(204);
+    return res.status(204).end();
   });
 }
 

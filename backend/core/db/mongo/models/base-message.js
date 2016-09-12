@@ -40,7 +40,7 @@ module.exports = {
     objectType: {type: String},
     id: {type: String}
   }],
-  responses: [mongoose.Schema.Mixed],
+  responses: [mongoose.Schema.Types.Mixed],
   copyOf: {type: CopyOf.tree, required: false},
   parsers: [
     {name: {type: String, required: true}}

@@ -23,12 +23,11 @@ describe('The davserver controller', function() {
         return callback(new Error());
       };
 
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      };
+      var res = this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(500);
+
+        done();
+      });
 
       module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/controller')(this.moduleHelpers.dependencies);
       module.getDavUrl(null, res);
@@ -40,15 +39,14 @@ describe('The davserver controller', function() {
         return callback(null, url);
       };
 
-      var res = {
-        json: function(code, data) {
-          expect(code).to.equal(200);
-          expect(data).to.deep.equal({
-            url: url
-          });
-          done();
-        }
-      };
+      var res = this.helpers.express.jsonResponse(function(code, data) {
+        expect(code).to.equal(200);
+        expect(data).to.deep.equal({
+          url: url
+        });
+
+        done();
+      });
 
       module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/controller')(this.moduleHelpers.dependencies);
       module.getDavUrl(null, res);

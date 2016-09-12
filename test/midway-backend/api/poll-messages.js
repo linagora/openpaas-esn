@@ -78,7 +78,7 @@ describe('The messages API', function() {
           .end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
-            expect(res.body.error.details).to.contain('Validation');
+            expect(res.body.error.details).to.contain('validation');
             done();
           });
         });

@@ -2,7 +2,7 @@
 
 var userCanReadNotification = function(req, res, next) {
   if (!req.user || !req.notification) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or notification'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user or notification'});
   }
 
   if (req.notification.author.equals(req.user._id)) {
@@ -14,7 +14,7 @@ var userCanReadNotification = function(req, res, next) {
   });
 
   if (!isInTarget) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the notification target'});
+    return res.status(403).json({error: 403, message: 'Forbidden', details: 'User is not the notification target'});
   }
 
   next();

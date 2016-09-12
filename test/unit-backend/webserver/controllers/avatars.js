@@ -21,12 +21,12 @@ describe('The avatars controller', function() {
           query: {}
         };
 
-        var res = {
-          json: function(code) {
+        var res = this.helpers.express.jsonResponse(
+          function(code) {
             expect(code).to.equal(400);
             done();
           }
-        };
+        );
 
         var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
@@ -49,12 +49,12 @@ describe('The avatars controller', function() {
           }
         };
 
-        var res = {
-          json: function(code) {
+        var res = this.helpers.express.jsonResponse(
+          function(code) {
             expect(code).to.equal(500);
             done();
           }
-        };
+        );
 
         var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
@@ -110,12 +110,12 @@ describe('The avatars controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
       avatars.get(req, res);
@@ -135,12 +135,12 @@ describe('The avatars controller', function() {
           }
         };
 
-        var res = {
-          json: function(code) {
+        var res = this.helpers.express.jsonResponse(
+          function(code) {
             expect(code).to.equal(400);
             done();
           }
-        };
+        );
 
         var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
@@ -191,12 +191,12 @@ describe('The avatars controller', function() {
           params: {}
         };
 
-        var res = {
-          json: function(code) {
+        var res = this.helpers.express.jsonResponse(
+          function(code) {
             expect(code).to.equal(500);
             done();
           }
-        };
+        );
 
         var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
@@ -337,12 +337,10 @@ describe('The avatars controller', function() {
         mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         this.error400 = function(done) {
-          return {
-            json: function(code) {
-              expect(code).to.equal(400);
-              done();
-            }
-          };
+          return this.helpers.express.jsonResponse(function(code) {
+            expect(code).to.equal(400);
+            done();
+          });
         };
       });
 

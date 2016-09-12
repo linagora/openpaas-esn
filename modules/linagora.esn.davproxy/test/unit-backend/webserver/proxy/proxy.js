@@ -34,13 +34,12 @@ describe('The proxy dispatcher module', function() {
       mockery.registerMock('./graceperiod', function() {});
 
       getHandler('http')({},
-        {
-          json: function(code, body) {
-            expect(code).to.equal(500);
-            expect(body.error.details).to.match(/Error while sending request to service/);
-            done();
-          }
-        },
+        this.helpers.express.jsonResponse(function(code, body) {
+          expect(code).to.equal(500);
+          expect(body.error.details).to.match(/Error while sending request to service/);
+
+          done();
+        }),
         {endpoint: 'http://localhost'}
       );
     });

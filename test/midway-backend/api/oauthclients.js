@@ -93,7 +93,7 @@ describe('The oauth client API', function() {
         req.send(json).expect(201);
         req.end(function(err, res) {
           expect(res.body).to.be.exist;
-          expect(res.body).to.shallowDeepEqual({name: 'newOauthClient', creator: user._id.toString()});
+          expect(res.body).to.shallowDeepEqual({ name: 'newOauthClient', creator: user.id });
           done();
         });
       });

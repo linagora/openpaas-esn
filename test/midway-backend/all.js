@@ -27,7 +27,9 @@ before(function() {
       fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://' + host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname, connectionOptions: {auto_reconnect: false}}));
     },
     removeDBConfigFile: function() {
-      fs.unlinkSync(tmpPath + '/db.json');
+      if (fs.existsSync(tmpPath + '/db.json')) {
+        fs.unlinkSync(tmpPath + '/db.json');
+      }
     },
     initCore: function(callback) {
       var core = require(basePath + '/backend/core');
@@ -40,6 +42,8 @@ before(function() {
     },
     initRedisConfiguration: function(mongoose, callback) {
       var configuration = require('../../backend/core/esn-config');
+
+      mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
       mongoose.connect(this.mongoUrl);
       var self = this;
 
@@ -75,6 +79,11 @@ after(function() {
   }
   delete process.env.NODE_CONFIG;
   delete process.env.NODE_ENV;
+});
+
+// https://github.com/mfncooper/mockery/issues/34
+before(function() {
+  require('canvas');
 });
 
 beforeEach(function() {

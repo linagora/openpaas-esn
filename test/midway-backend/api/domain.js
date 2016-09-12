@@ -306,8 +306,8 @@ describe('The domain API', function() {
       pubsubLocal.topic('domain:invitations:sent').subscribe(function(message) {
         expect(checkpoint).to.have.been.called;
         var expectedMessage = {
-          user: user2Domain1Member._id,
-          domain: domain1._id,
+          user: user2Domain1Member.id,
+          domain: domain1.id,
           emails: ['foo@bar.com']
         };
         expect(message).to.shallowDeepEqual(expectedMessage);
@@ -330,12 +330,12 @@ describe('The domain API', function() {
             var expectedObject = {
               type: 'addmember',
               data: {
-                user: user2Domain1Member.toObject(),
-                domain: domain1.toObject()
+                user: helpers.toComparableObject(user2Domain1Member),
+                domain: helpers.toComparableObject(domain1)
               }
             };
 
-            expect(docs[0]).to.shallowDeepEqual(expectedObject);
+            expect(helpers.toComparableObject(docs[0])).to.shallowDeepEqual(expectedObject);
             checkpoint();
           });
         });

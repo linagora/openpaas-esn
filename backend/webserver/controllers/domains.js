@@ -18,7 +18,7 @@ function createDomain(req, res) {
   var name = data.name;
 
   if (!data.administrators || !data.administrators.length) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
+    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
   }
 
   var users = data.administrators.map(function(administrator) {
@@ -30,7 +30,7 @@ function createDomain(req, res) {
   });
 
   if (missEmailsField) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
+    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
   }
 
   var administrators = users.map(function(user) {
@@ -49,13 +49,13 @@ function createDomain(req, res) {
 
   domain.save(function(err, saved) {
     if (err) {
-      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+      return res.status(500).send({ error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
     }
     if (saved) {
-      return res.send(201);
+      return res.status(201).end();
     }
 
-    return res.send(404);
+    return res.status(404).end();
   });
 }
 
@@ -70,28 +70,28 @@ module.exports.createDomain = createDomain;
 function getMembers(req, res) {
   var uuid = req.params.uuid;
   if (!uuid) {
-    return res.json(400, {error: {code: 400, message: 'Bad parameters', details: 'Domain ID is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'Domain ID is missing'}});
   }
 
   var query = {
-    limit: req.param('limit') || 50,
-    offset: req.param('offset') || 0,
-    search: req.param('search') || null
+    limit: req.query.limit || 50,
+    offset: req.query.offset || 0,
+    search: req.query.search || null
   };
 
   Domain.loadFromID(uuid, function(err, domain) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server error', details: 'Can not load domain: ' + err.message}});
+      return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Can not load domain: ' + err.message}});
     }
 
     if (!domain) {
-      return res.json(404, { error: { status: 404, message: 'Not Found', details: 'Domain ' + uuid + ' has not been found'}});
+      return res.status(404).json({ error: { status: 404, message: 'Not Found', details: 'Domain ' + uuid + ' has not been found'}});
     }
 
     if (query.search) {
       userDomain.getUsersSearch([domain], query, function(err, result) {
         if (err) {
-          return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
+          return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
         }
 
         q.all(result.list.map(function(user) {
@@ -104,7 +104,7 @@ function getMembers(req, res) {
     } else {
       userDomain.getUsersList([domain], query, function(err, result) {
         if (err) {
-          return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
+          return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
         }
 
         q.all(result.list.map(function(user) {
@@ -127,7 +127,7 @@ module.exports.getMembers = getMembers;
  */
 function sendInvitations(req, res) {
   if (!req.body || !(req.body instanceof Array)) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
   }
 
   var emails = req.body;
@@ -138,7 +138,7 @@ function sendInvitations(req, res) {
   var getInvitationURL = require('./invitation').getInvitationURL;
   var sent = [];
 
-  res.send(202);
+  res.status(202).end();
 
   var sendInvitation = function(email, callback) {
 
@@ -189,9 +189,9 @@ module.exports.sendInvitations = sendInvitations;
 
 function getDomain(req, res) {
   if (req.domain) {
-    return res.json(200, req.domain);
+    return res.status(200).json(req.domain);
   }
-  return res.json(404, {error: 404, message: 'Not found', details: 'Domain not found'});
+  return res.status(404).json({error: 404, message: 'Not found', details: 'Domain not found'});
 }
 module.exports.getDomain = getDomain;
 

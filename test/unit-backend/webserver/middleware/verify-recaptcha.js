@@ -36,13 +36,13 @@ describe('The verify-recaptcha middleware', function() {
 
   it('should response a 403 json with a flag recpatcha setted to true for the client if recaptcha data is not in the req', function(done) {
     delete req.body.recaptcha;
-    var res = {
-      json: function(code, data) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data) {
         expect(code).to.equal(403);
         expect(data.recaptcha).to.be.true;
         done();
       }
-    };
+    );
     var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, res, function() {});
   });
@@ -96,14 +96,14 @@ describe('The verify-recaptcha middleware', function() {
   });
 
   it('should return a json error if verify is a fail witch recaptcha setted to true', function(done) {
-    var res = {
-      json: function(statusCode, error) {
+    var res = this.helpers.express.jsonResponse(
+      function(statusCode, error) {
         expect(error.recaptcha).to.be.true;
         expect(statusCode).to.equal(403);
         expect(error.error.message).to.equal('Login error');
         done();
       }
-    };
+    );
     var RecaptchaMock = {
       Recaptcha: function Recaptcha(pubkey, privkey, data) {}
     };

@@ -47,12 +47,8 @@ module.exports.filterWritable = function(collaborations, tuple, callback) {
   }
 
   async.filter(collaborations, function(collaboration, callback) {
-    canWrite(collaboration, tuple, function(err, writable) {
-      return callback(!err && writable);
-    });
-  }, function(results) {
-    return callback(null, results);
-  });
+    canWrite(collaboration, tuple, callback);
+  }, callback);
 };
 
 module.exports.supportsMemberShipRequests = function(collaboration) {

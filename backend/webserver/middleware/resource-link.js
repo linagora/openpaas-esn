@@ -36,7 +36,7 @@ function isResourceLink(req, res, next) {
   var link = req.body;
 
   if (!linkUtils.isValidLink(link)) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Request is not a valid resource-link'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Request is not a valid resource-link'}});
   }
 
   req.link = link;
@@ -47,7 +47,7 @@ module.exports.isResourceLink = isResourceLink;
 function canCreate(req, res, next) {
   var middleware = canCreateMiddlewares[req.link.type];
   if (!middleware) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Resource Link of type ' + req.link.type + ' can not be processed'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Resource Link of type ' + req.link.type + ' can not be processed'}});
   }
   middleware(req, res, next);
 }
@@ -55,7 +55,7 @@ module.exports.canCreate = canCreate;
 
 function isLinkable(req, res, next) {
   if (!req.linkable) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Resources are not linkable'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Resources are not linkable'}});
   }
   next();
 }

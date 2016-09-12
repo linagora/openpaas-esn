@@ -23,7 +23,7 @@ describe('The contact WS events module', function() {
 
   describe('init function', function() {
 
-    var nbSubscribedTopics;
+    var nbSubscribedTopics, contactNamespace;
 
     beforeEach(function(done) {
 
@@ -63,7 +63,7 @@ describe('The contact WS events module', function() {
       };
 
       this.socketListeners = {};
-      this.contactNamespace = {
+      contactNamespace = {
         on: function() {},
         to: function(roomId) {
           return {
@@ -73,9 +73,8 @@ describe('The contact WS events module', function() {
       };
 
       this.io = {
-
         of: function(namespace) {
-          return self.contactNamespace;
+          return contactNamespace;
         }
       };
 
@@ -91,7 +90,7 @@ describe('The contact WS events module', function() {
 
       this.checkData = function(data, topic, done) {
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
-        this.contactNamespace = nsNotCalled(done);
+        contactNamespace = nsNotCalled(done);
         mod.init(this.moduleHelpers.dependencies);
         this.logger.warn = function(message) {
           expect(message).to.match(/Not well-formed data on/);
@@ -102,7 +101,7 @@ describe('The contact WS events module', function() {
 
       this.checkMode = function(data, topic, done) {
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
-        this.contactNamespace = nsNotCalled(done);
+        contactNamespace = nsNotCalled(done);
         mod.init(this.moduleHelpers.dependencies);
         this.logger.info = function(message) {
           expect(message).to.match(/notification is skipped/);
@@ -189,7 +188,7 @@ describe('The contact WS events module', function() {
           }
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
-        this.contactNamespace = {
+        contactNamespace = {
           on: function() {},
           to: function(roomId) {
             return {
@@ -252,7 +251,7 @@ describe('The contact WS events module', function() {
           contactId: '456'
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
-        this.contactNamespace = {
+        contactNamespace = {
           on: function() {},
           to: function(roomId) {
             return {
@@ -315,7 +314,7 @@ describe('The contact WS events module', function() {
           contactId: '456'
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
-        this.contactNamespace = {
+        contactNamespace = {
           on: function() {},
           to: function(roomId) {
             return {

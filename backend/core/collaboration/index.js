@@ -334,27 +334,23 @@ function isIndirectMember(collaboration, tuple, callback) {
   }
 
   function isInnerMember(members, tupleToFind, callback) {
-    async.some(members, function(tuple, found) {
+    async.some(members, function(tuple, callback) {
 
       var member = tuple.member;
       if (!isCollaboration(member)) {
-        return found(member.id + '' === tupleToFind.id + '' && member.objectType === tupleToFind.objectType);
+        return callback(null, member.id + '' === tupleToFind.id + '' && member.objectType === tupleToFind.objectType);
       }
 
       queryOne(member.objectType, {_id: member.id}, function(err, collaboration) {
         if (err) {
-          return found(false);
+          return callback(null, false);
         }
 
-        isInnerMember(collaboration.members, tupleToFind, function(err, result) {
-          return found(result);
-        });
-
+        isInnerMember(collaboration.members, tupleToFind, callback);
       });
-    }, function(result) {
-      return callback(null, result);
-    });
+    }, callback);
   }
+
   return isInnerMember(collaboration.members, tuple, callback);
 }
 
@@ -407,10 +403,8 @@ function findCollaborationFromActivityStreamID(id, callback) {
       return callback(err);
     }
     async.filter(results, function(item, callback) {
-      return callback(!!item);
-    }, function(results) {
-      return callback(null, results);
-    });
+      return callback(null, !!item);
+    }, callback);
   });
 }
 

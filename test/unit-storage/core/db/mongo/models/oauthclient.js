@@ -13,7 +13,7 @@ describe('The oauthclient model module', function() {
     User = this.mongoose.model('User');
     OAuthClient = this.mongoose.model('OAuthClient');
     userFixtures = this.helpers.requireFixture('models/users.js')(User);
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
+    this.connectMongoose(this.mongoose, done);
   });
 
   afterEach(function(done) {

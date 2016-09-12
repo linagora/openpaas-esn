@@ -5,13 +5,14 @@ var expect = require('chai').expect,
 
 describe('The webserver setup-route middleware', function() {
 
+  var configured = false;
+
   beforeEach(function() {
-    this.configured = false;
     this.routerMock = {
       get: function() {}
     };
     var configuredMock = function() {
-      return this.configured;
+      return configured;
     };
 
     mockery.registerMock('../../core', {configured: configuredMock.bind(this), db: {mongo: {}}});
@@ -34,7 +35,8 @@ describe('The webserver setup-route middleware', function() {
   describe('GET / callback', function() {
 
     it('should call res.render if the system is not yet configured', function(done) {
-      this.configured = false;
+      configured = false;
+
       var responseMock = {
         render: function(path) {
           expect(path).to.equal('setup/index');
@@ -53,7 +55,8 @@ describe('The webserver setup-route middleware', function() {
     });
 
     it('should call next() if the system is configured', function(done) {
-      this.configured = true;
+      configured = true;
+
       var nextMock = function() {
         done();
       };

@@ -41,7 +41,7 @@ module.exports = function(dependencies) {
       }
     })(req, res, function(err) {
       logger.error('Error while sending request to service', err);
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while sending request to service'}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while sending request to service'}});
     });
   }
 

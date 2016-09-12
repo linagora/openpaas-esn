@@ -12,8 +12,12 @@ var expressSession = require('express-session'),
 function setupSession(session) {
   var setSession = function() {
     logger.debug('mongo is connected, setting up mongo session store');
+
     session.setMiddleware(expressSession({
+      resave: false,
+      saveUninitialized: false,
       cookie: { maxAge: 6000000 },
+      secret: 'this is the secret!',
       store: new MongoStore({
         mongoose: mongoose
       })

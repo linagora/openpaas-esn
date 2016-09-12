@@ -14,15 +14,15 @@ var MAX_TRY_NUMBER = 12;
 
 function dispatchEvent(req, res) {
   if (!req.user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
 
   if (!req.collaboration) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Collaboration id is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration id is missing'}});
   }
 
   if (!req.body.event_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Event id is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Event id is missing'}});
   }
 
   calendar.dispatch({
@@ -33,14 +33,14 @@ function dispatchEvent(req, res) {
     if (err) {
       logger.error('Event creation error', err);
 
-      return res.json(500, { error: { code: 500, message: 'Event creation error', details: err.message }});
+      return res.status(500).json({ error: { code: 500, message: 'Event creation error', details: err.message }});
     } else if (!result) {
-      return res.json(403, { error: { code: 403, message: 'Forbidden', details: 'You may not create the calendar event' }});
+      return res.status(403).json({ error: { code: 403, message: 'Forbidden', details: 'You may not create the calendar event' }});
     }
 
     result = { _id: result._id, objectType: result.objectType };
 
-    return res.json(req.body.type === 'created' ? 201 : 200, result);
+    return res.status(req.body.type === 'created' ? 201 : 200).json(result);
   });
 }
 

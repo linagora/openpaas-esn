@@ -38,12 +38,11 @@ describe('The graceperiod middleware', function() {
           return q();
         }
       };
-      getMiddleware().load({params: {id: 1}}, {
-        json: function(code) {
-          expect(code).to.equal(404);
-          done();
-        }
-      });
+      getMiddleware().load({params: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(404);
+
+        done();
+      }));
     });
 
     it('should send back HTTP 500 when error occurs while retrieving task', function(done) {
@@ -54,12 +53,11 @@ describe('The graceperiod middleware', function() {
           return defer.promise;
         }
       };
-      getMiddleware().load({params: {id: 1}}, {
-        json: function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      });
+      getMiddleware().load({params: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(500);
+
+        done();
+      }));
     });
 
     it('should set the task in the request and call next', function(done) {
@@ -73,11 +71,9 @@ describe('The graceperiod middleware', function() {
           return defer.promise;
         }
       };
-      getMiddleware().load(req, {
-        json: function() {
-          done(new Error('Should not call res.json'));
-        }
-      }, function() {
+      getMiddleware().load(req, this.helpers.express.jsonResponse(function(code) {
+        done(new Error('Should not call res.json'));
+      }), function() {
         expect(req.task).to.deep.equal(task);
         done();
       });
@@ -87,12 +83,11 @@ describe('The graceperiod middleware', function() {
   describe('The isUserTask function', function() {
 
     it('should send back HTTP 404 when task is undefined', function(done) {
-      getMiddleware().isUserTask({}, {
-        json: function(code) {
-          expect(code).to.equal(404);
-          done();
-        }
-      });
+      getMiddleware().isUserTask({}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(404);
+
+        done();
+      }));
     });
 
     it('should send back HTTP 500 when getToken fails', function(done) {
@@ -100,12 +95,11 @@ describe('The graceperiod middleware', function() {
         return callback(new Error());
       };
 
-      getMiddleware().isUserTask({user: {_id: 123}, task: {id: 1}}, {
-        json: function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      });
+      getMiddleware().isUserTask({user: {_id: 123}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(500);
+
+        done();
+      }));
     });
 
     it('should send back HTTP 404 when token is not found', function(done) {
@@ -113,12 +107,11 @@ describe('The graceperiod middleware', function() {
         return callback();
       };
 
-      getMiddleware().isUserTask({user: {_id: 123}, task: {id: 1}}, {
-        json: function(code) {
-          expect(code).to.equal(404);
-          done();
-        }
-      });
+      getMiddleware().isUserTask({user: {_id: 123}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(404);
+
+        done();
+      }));
     });
 
     it('should send back HTTP 403 when task is not user one', function(done) {
@@ -127,12 +120,11 @@ describe('The graceperiod middleware', function() {
         return callback(null, {token: 2, user: '3'});
       };
 
-      getMiddleware().isUserTask({user: {_id: userId}, task: {id: 1}}, {
-        json: function(code) {
-          expect(code).to.equal(403);
-          done();
-        }
-      });
+      getMiddleware().isUserTask({user: {_id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+        expect(code).to.equal(403);
+
+        done();
+      }));
     });
 
     it('should call next when task is user one', function(done) {
@@ -141,11 +133,9 @@ describe('The graceperiod middleware', function() {
         return callback(null, {token: 2, user: userId + ''});
       };
 
-      getMiddleware().isUserTask({user: {_id: userId}, task: {id: 1}}, {
-        json: function() {
-          done(new Error());
-        }
-      }, done);
+      getMiddleware().isUserTask({user: {_id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+        done(new Error());
+      }), done);
     });
   });
 });
