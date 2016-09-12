@@ -3,6 +3,26 @@
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 
+function getDomainAdministrators(domain) {
+  var administrators = domain.administrators ? domain.administrators.slice() : [];
+  var oldAdministrator = domain.administrator;
+
+  if (oldAdministrator) {
+    var alreadyAdded = administrators.some(function(administrator) {
+      return oldAdministrator.equals(administrator.user_id);
+    });
+
+    if (!alreadyAdded) {
+      administrators.push({
+        user_id: oldAdministrator,
+        timestamps: { creation: domain.timestamps.creation }
+      });
+    }
+  }
+
+  return administrators;
+}
+
 function list(options, callback) {
   options = options || {};
   var domainQuery = Domain.find();
@@ -26,7 +46,7 @@ function load(id, callback) {
 module.exports.load = load;
 
 function userIsDomainAdministrator(user, domain, callback) {
-  if (!user ||   !user._id) {
+  if (!user || !user._id) {
     return callback(new Error('User object is required'));
   }
 
@@ -34,11 +54,11 @@ function userIsDomainAdministrator(user, domain, callback) {
     return callback(new Error('Domain object is required'));
   }
 
-  if (!domain.administrator) {
-    return callback(null, false);
-  }
+  var isDomainAdministrator = getDomainAdministrators(domain).some(function(administrator) {
+    return administrator.user_id.equals(user._id);
+  });
 
-  return callback(null, domain.administrator.equals(user._id));
+  return callback(null, isDomainAdministrator);
 }
 module.exports.userIsDomainAdministrator = userIsDomainAdministrator;
 

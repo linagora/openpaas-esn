@@ -73,7 +73,7 @@ describe('The notification API', function() {
       }
 
       function saveDomain(domain, user, cb) {
-        domain.administrator = user;
+        domain.administrators = [{ user_id: user }];
         domain.save(function(err, saved) {
           domain._id = saved._id;
           return cb(err, saved);

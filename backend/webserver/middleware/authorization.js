@@ -3,6 +3,7 @@
 var passport = require('passport');
 var config = require('../../core').config('default');
 var userModule = require('../../core/user');
+var domainModule = require('../../core/domain');
 
 //
 // Authorization middleware
@@ -49,39 +50,48 @@ exports.requiresAPILogin = function(req, res, next) {
  * @param {Function} next
  */
 exports.requiresDomainManager = function(req, res, next) {
-  if (!req.user || !req.domain || !req.user._id || !req.domain.administrator) {
+  if (!req.user || !req.domain || !req.user._id) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
 
-  if (!req.domain.administrator.equals(req.user._id)) {
+  domainModule.userIsDomainAdministrator(req.user, req.domain, function(err, isDomainAdministrator) {
+    if (err) {
+      return res.status(500).json({
+        error: {
+          status: 500, message: 'Server Error', details: err.message
+        }
+      });
+    }
+
+    if (isDomainAdministrator) {
+      return next();
+    }
+
     return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the domain manager'});
-  }
-  next();
+  });
 };
 
-var requiresDomainMember = function(req, res, next) {
+module.exports.requiresDomainMember = function(req, res, next) {
   if (!req.user || !req.domain) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
 
-  if (req.domain.administrator && req.domain.administrator.equals(req.user._id)) {
-    return next();
-  }
+  domainModule.userIsDomainMember(req.user, req.domain, function(err, isDomainMember) {
+    if (err) {
+      return res.status(500).json({
+        error: {
+          status: 500, message: 'Server Error', details: err.message
+        }
+      });
+    }
 
-  if (!req.user.domains || req.user.domains.length === 0) {
+    if (isDomainMember) {
+      return next();
+    }
+
     return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
-  }
-
-  var belongs = req.user.domains.some(function(domain) {
-    return domain.domain_id.equals(req.domain._id);
   });
-
-  if (!belongs) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
-  }
-  next();
 };
-module.exports.requiresDomainMember = requiresDomainMember;
 
 exports.requiresCommunityCreator = function(req, res, next) {
   if (!req.community) {

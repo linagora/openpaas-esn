@@ -4,7 +4,7 @@
  *   dm_name:
  *     name: name
  *     in: body
- *     description: The domain and company name.
+ *     description: The domain name.
  *     required: true
  *     schema:
  *       type: object
@@ -13,6 +13,21 @@
  *           type: string
  *         company_name:
  *           type: string
+ *   dm_company_name:
+ *     name: company_name
+ *     in: body
+ *     description: The domain company name.
+ *     required: true
+ *     type: string
+ *   dm_administrators:
+ *     name: administrators
+ *     in: body
+ *     description: Array of domain administrators.
+ *     required: true
+ *     schema:
+ *       type: array
+ *       items:
+ *         $ref: "#/definitions/us_content"
  *   dm_id:
  *     name: domain_id
  *     in: path

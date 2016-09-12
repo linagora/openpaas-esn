@@ -77,7 +77,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
       var domain2 = {
         name: 'MyDomain2',
@@ -134,7 +134,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
 
       var title = 'test1';
@@ -187,7 +187,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
       var user2 = fixtures.newDummyUser(['user2@linagora.com'], 'pwd');
       var title = 'C1';
@@ -240,7 +240,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
       var title = 'C1';
       var type = 'confidential';
@@ -291,7 +291,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
       var user2 = fixtures.newDummyUser(['user2@linagora.com'], 'pwd');
       var title = 'C1';
@@ -440,7 +440,7 @@ describe('The communities API', function() {
 
       async.series([
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function() {
@@ -494,7 +494,7 @@ describe('The communities API', function() {
 
       async.series([
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -542,7 +542,7 @@ describe('The communities API', function() {
 
       async.series([
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -617,7 +617,7 @@ describe('The communities API', function() {
           saveUser(foouser, callback);
         },
         function(callback) {
-          domain.administrator = foouser._id;
+          domain.administrators = [{ user_id: foouser._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -663,7 +663,7 @@ describe('The communities API', function() {
           saveUser(foouser, callback);
         },
         function(callback) {
-          domain.administrator = foouser._id;
+          domain.administrators = [{ user_id: foouser._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -707,7 +707,7 @@ describe('The communities API', function() {
           saveUser(foouser, callback);
         },
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -809,7 +809,7 @@ describe('The communities API', function() {
         var domain = {
           name: 'MyDomain',
           company_name: 'open-paas.org',
-          administrator: user._id
+          administrators: [{ user_id: user._id }]
         };
 
         self.title = 'toto';

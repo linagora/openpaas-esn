@@ -9,7 +9,6 @@ var logger = require('../../core').logger;
 var async = require('async');
 var q = require('q');
 var pubsub = require('../../core/pubsub').local;
-var utils = require('./utils');
 var denormalizeUser = require('../denormalize/user').denormalize;
 var _ = require('lodash');
 
@@ -18,20 +17,32 @@ function createDomain(req, res) {
   var company_name = data.company_name;
   var name = data.name;
 
-  if (!data.administrator) {
+  if (!data.administrators || !data.administrators.length) {
     return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
   }
 
-  var u = new User(data.administrator);
+  var users = data.administrators.map(function(administrator) {
+    return new User(administrator);
+  });
 
-  if (u.emails.length === 0) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'At least one administrator email address is required'}});
+  var missEmailsField = users.some(function(user) {
+    return !user.emails || user.emails.length === 0;
+  });
+
+  if (missEmailsField) {
+    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
   }
+
+  var administrators = users.map(function(user) {
+    return {
+      user_id: user
+    };
+  });
 
   var domainJson = {
     name: name,
     company_name: company_name,
-    administrator: u
+    administrators: administrators
   };
 
   var domain = new Domain(domainJson);
