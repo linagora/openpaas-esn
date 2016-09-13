@@ -226,3 +226,27 @@ function getDomainAdministrators(req, res) {
   });
 }
 module.exports.getDomainAdministrators = getDomainAdministrators;
+
+function addDomainAdministrator(req, res) {
+  var domain = req.domain;
+  var userIds = req.body;
+
+  if (!Array.isArray(userIds)) {
+    return res.status(400).json({
+      error: { code: 400, message: 'Bad request', details: 'body should be an array of user\'s ID'}
+    });
+  }
+
+  userDomain.addDomainAdministrator(domain, userIds, function(err) {
+    if (err) {
+      logger.error('Error while adding domain administrators:', err);
+
+      return res.status(500).json({
+        error: { code: 500, message: 'Server Error', details: 'Error while adding domain administrators' }
+      });
+    }
+
+    res.status(204).end();
+  });
+}
+module.exports.addDomainAdministrator = addDomainAdministrator;

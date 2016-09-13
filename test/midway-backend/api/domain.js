@@ -508,5 +508,79 @@ describe('The domain API', function() {
         }));
       }));
     });
+
+  });
+
+  describe('POST /api/domains/:uuid/administrators', function() {
+
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'post', '/api/domains/' + domain1._id + '/administrators', done);
+    });
+
+    it('should send back 400 when request body is not an array', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/administrators'));
+
+        req.send({});
+        req.expect(400).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body.error.code).to.equal(400);
+          done();
+        }));
+      });
+    });
+
+    it('should send back 403 when current user is not a domain manager', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/administrators'));
+
+        req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body.error).to.equal(403);
+          done();
+        }));
+      });
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + new ObjectId() + '/administrators'));
+
+        req.expect(404).end(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should send back 500 when server fails (userID is invalid)', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/administrators'));
+
+        req.send(['invalid userID']);
+        req.expect(500).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body.error.code).to.equal(500);
+          done();
+        }));
+      });
+    });
+
+    it('should send back 204 on success', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/administrators'));
+
+        req.send([user2Domain1Member._id]);
+        req.expect(204).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body).to.not.exists;
+          Domain.findById(domain1._id, function(err, domain) {
+            expect(domain.administrators.some(function(administrator) {
+              return administrator.user_id.equals(user2Domain1Member._id);
+            })).to.be.true;
+            done(err);
+          });
+        }));
+      });
+    });
+
   });
 });

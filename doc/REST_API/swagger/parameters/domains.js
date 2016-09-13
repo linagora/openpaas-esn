@@ -44,6 +44,14 @@
  *       type: array
  *       items:
  *         $ref: "#/definitions/us_email"
+ *   dm_user_ids:
+ *    name: userIds
+ *    in: body
+ *    description: Array of user ID to promoted as domain administrators
+ *    schema:
+ *      type: array
+ *      items:
+ *        $ref: "#/definitions/us_id"
  *   dm_member:
  *     name: member
  *     in: body

@@ -1,6 +1,9 @@
 /**
   * @swagger
   * definition:
+  *   us_id:
+  *     description: "a user ID"
+  *     type: string
   *   us_email:
   *     description: "a string containing @ character"
   *     type: string

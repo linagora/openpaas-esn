@@ -6,6 +6,7 @@ var utils = require('./utils');
 var CONSTANTS = require('./constants');
 var pubsub = require('../../core/pubsub').local;
 var domainModule = require('../domain');
+var _ = require('lodash');
 
 var defaultLimit = 50;
 var defaultOffset = 0;
@@ -34,7 +35,6 @@ function joinDomain(user, domain, callback) {
     });
   }
 }
-module.exports.joinDomain = joinDomain;
 
 function isMemberOfDomain(user, domain) {
   if (!user) {
@@ -49,7 +49,6 @@ function isMemberOfDomain(user, domain) {
     return d.domain_id.equals(domainId);
   });
 }
-module.exports.isMemberOfDomain = isMemberOfDomain;
 
 function getUserDomains(user, callback) {
   if (!user) {
@@ -76,7 +75,6 @@ function getUserDomains(user, callback) {
     return callback();
   });
 }
-module.exports.getUserDomains = getUserDomains;
 
 /**
  * Get all users in a domain.
@@ -142,9 +140,6 @@ function getUsersList(domains, query, cb) {
     });
   });
 }
-module.exports.getUsersList = getUsersList;
-
-module.exports.getUsersSearch = require('./search').searchByDomain;
 
 /**
  * Get all administrators in a domain
@@ -165,4 +160,48 @@ function getAdministrators(domain, callback) {
   return User.find().where('_id').in(administratorIds)
     .exec(callback);
 }
-module.exports.getAdministrators = getAdministrators;
+
+/**
+ * Add one or more domain administrators to current domain
+ * @param {Domain} domain A domain instance
+ * @param {Array|ObjectId} userIds  An array of user's ID or a user's ID
+ * @param {Function}       callback A callback(err, resp) function
+ */
+function addDomainAdministrator(domain, userIds, callback) {
+  if (!domain) {
+    return callback(new Error('domain cannot be null'));
+  }
+
+  if (!userIds) {
+    return callback(new Error('userIds cannot be null'));
+  }
+
+  userIds = Array.isArray(userIds) ? userIds : [userIds];
+
+  var administrators = domainModule.getDomainAdministrators(domain);
+
+  userIds.forEach(function(userId) {
+    var alreadyAdded = _.find(administrators, function(administrator) {
+      return String(administrator.user_id) === String(userId);
+    });
+
+    if (!alreadyAdded) {
+      administrators.push({ user_id: userId });
+    }
+  });
+  domain.administrators = administrators;
+
+  domain.save(function(err, updatedDomain) {
+    callback(err, updatedDomain);
+  });
+}
+
+module.exports = {
+  joinDomain: joinDomain,
+  isMemberOfDomain: isMemberOfDomain,
+  getUserDomains: getUserDomains,
+  getUsersList: getUsersList,
+  getUsersSearch: require('./search').searchByDomain,
+  getAdministrators: getAdministrators,
+  addDomainAdministrator: addDomainAdministrator
+};

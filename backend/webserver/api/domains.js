@@ -180,4 +180,29 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.get('/domains/:uuid/administrators', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.getDomainAdministrators);
+
+  /**
+   * @swagger
+   * /domains/{domain_id}/administrators:
+   *   post:
+   *     tags:
+   *      - Domain
+   *     description: Add administrators to a domain
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_204"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.post('/domains/:uuid/administrators', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.addDomainAdministrator);
 };

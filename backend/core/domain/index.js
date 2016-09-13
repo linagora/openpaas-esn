@@ -27,6 +27,7 @@ module.exports.getDomainAdministrators = getDomainAdministrators;
 function list(options, callback) {
   options = options || {};
   var domainQuery = Domain.find();
+
   if (options.offset > 0) {
     domainQuery = domainQuery.skip(+options.offset);
   }
@@ -36,15 +37,14 @@ function list(options, callback) {
   }
   domainQuery.sort('-timestamps.creation').exec(callback);
 }
-module.exports.list = list;
 
 function load(id, callback) {
   if (!id) {
     return callback(new Error('Domain id is required'));
   }
+
   return Domain.findOne({_id: id}, callback);
 }
-module.exports.load = load;
 
 function userIsDomainAdministrator(user, domain, callback) {
   if (!user || !user._id) {
@@ -61,7 +61,6 @@ function userIsDomainAdministrator(user, domain, callback) {
 
   return callback(null, isDomainAdministrator);
 }
-module.exports.userIsDomainAdministrator = userIsDomainAdministrator;
 
 function userIsDomainMember(user, domain, callback) {
   if (!user || !user._id) {
@@ -92,7 +91,15 @@ function userIsDomainMember(user, domain, callback) {
     if (!belongs) {
       return callback(null, false);
     }
+
     return callback(null, true);
   });
 }
-module.exports.userIsDomainMember = userIsDomainMember;
+
+module.exports = {
+  userIsDomainAdministrator: userIsDomainAdministrator,
+  userIsDomainMember: userIsDomainMember,
+  load: load,
+  list: list,
+  getDomainAdministrators: getDomainAdministrators
+};
