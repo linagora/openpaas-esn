@@ -13,7 +13,7 @@
     .flex-horizontal-centered
       .hidden-xs.p-20
         a(href='#/project/{{::project._id}}')
-          img(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{::project._id}}/avatar', alt='project avatar')
+          img(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{::project._id}}/avatar', alt='#{__("Project Avatar")}')
       .project-details
         .flex-horizontal-centered
           .p-20

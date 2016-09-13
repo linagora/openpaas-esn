@@ -25,26 +25,26 @@ html.mail
             td.logo(colspan="2")
               div
                 a(href="#{content.baseUrl}")
-                  img(src="cid:logo", alt="open-paas logo")
+                  img(src="cid:logo", alt='#{__("OpenPaas Logo")}')
             td.organizer(colspan="3")
               h5
                 p
                   | #{content.editor.displayName} (
                   span.small
                     a(href='mailto:#{content.editor.email}')
-                      img(src="cid:email", alt="Mail")
+                      img(src="cid:email", alt='#{__("Mail")}')
                     | )
                 p.big #{content.inviteMessage}
             td.avatar.indent-right
-              img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
+              img(src="#{content.event.organizer.avatar}", alt='#{__("Organizer Avatar")}', width="45px", height="42px")
           tr
             th(colspan="6").title.indent #{content.event.summary}
           tr
             td.indent
               if (content.event.end)
-                img(src="cid:clock", alt="From")
+                img(src="cid:clock", alt='#{__("From")}')
               else
-                img(src="cid:clock", alt="At")
+                img(src="cid:clock", alt='#{__("At")}')
             td
               p #{content.event.start.date}
               if (!content.event.allDay)
@@ -54,7 +54,7 @@ html.mail
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
                   p all day
                 else
-                  img.check-transform(src="cid:check", alt="To")
+                  img.check-transform(src="cid:check", alt='#{__("To")}')
               td
                 if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
                   p #{content.event.end.date}
@@ -68,13 +68,13 @@ html.mail
           if (content.event.location)
             tr
               td.indent
-                img(src="cid:map-marker", alt="Location")
+                img(src="cid:map-marker", alt='#{__("Location")}')
               td(colspan="4") #{content.event.location}
               td.indent-right
                 a(href='https://www.openstreetmap.org/search?query=#{content.event.location}') Map
           tr
             td.indent
-              img(src="cid:account-multiple", alt="Attendees")
+              img(src="cid:account-multiple", alt='#{__("Attendees")}')
             td(colspan="5")
               each details, mail in content.event.attendees
                 span
@@ -82,12 +82,12 @@ html.mail
           if (content.event.description)
             tr
               td
-                img(src="cid:format-align-justify", alt="Description")
+                img(src="cid:format-align-justify", alt='#{__("Description")}')
               td(colspan="5") #{content.event.description}
           if (content.event.files)
             tr
               td
-                img(src="cid:folder-download", alt="Files")
+                img(src="cid:folder-download", alt='#{__("Files")}')
               td(colspan="5")
                 span file.odt
 

@@ -2,7 +2,7 @@
   .card-header
     .media
       a.pull-left(ng-href='#/profile/{{::entry.actor._id}}')
-        img.lv-img(src='/images/user.png', ng-src='/api/users/{{::entry.actor._id}}/profile/avatar', alt='profile avatar')
+        img.lv-img(src='/images/user.png', ng-src='/api/users/{{::entry.actor._id}}/profile/avatar', alt='#{__("Profile Avatar")}')
       .media-body
         h2(ng-if='entry.object._id === user._id')
           a(ng-href="#/profile/{{::entry.actor._id}}") {{::entry.actor.displayName}}
