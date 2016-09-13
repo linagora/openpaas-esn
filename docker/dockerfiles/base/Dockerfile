@@ -6,10 +6,10 @@
 # docker build -f ./docker/dockerfiles/base/Dockerfile -t linagora/esn-base .
 #
 
-FROM node:0.10.36-slim
+FROM node:6.5.0-slim
 MAINTAINER Linagora Folks
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get install -y git \
             libjpeg-dev \
             graphicsmagick \
