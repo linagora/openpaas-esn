@@ -209,3 +209,20 @@ function createMember(req, res) {
   });
 }
 module.exports.createMember = createMember;
+
+function getDomainAdministrators(req, res) {
+  userDomain.getAdministrators(req.domain, function(err, administrators) {
+    if (err || !administrators) {
+      logger.error('Can not get domain administrators : %s', err);
+
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not get domain administrators. ' + err.message } });
+    }
+
+    q.all(administrators.map(function(user) {
+      return denormalizeUser(user);
+    })).then(function(denormalized) {
+      res.status(200).json(denormalized);
+    });
+  });
+}
+module.exports.getDomainAdministrators = getDomainAdministrators;
