@@ -180,6 +180,7 @@ describe('The user domain module', function() {
 
     beforeEach(function(done) {
       User = this.helpers.requireBackend('core/db/mongo/models/user');
+      this.helpers.requireBackend('core/db/mongo/models/domain');
       userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.mongoose = require('mongoose');
@@ -555,6 +556,7 @@ describe('The user domain module', function() {
 
     beforeEach(function(done) {
       User = this.helpers.requireBackend('core/db/mongo/models/user');
+      this.helpers.requireBackend('core/db/mongo/models/domain');
       userDomain = this.helpers.requireBackend('core/user/domain');
       Community = this.helpers.requireBackend('core/db/mongo/models/community');
 
