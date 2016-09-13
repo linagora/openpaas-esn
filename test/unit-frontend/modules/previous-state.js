@@ -114,5 +114,13 @@ describe('The esn.previous-state module', function() {
 
       expect($state.go).to.have.been.calledWith('last.eligible.state', { expected: 'params' });
     });
+
+    it('should destroy previousState when clicking the element', function() {
+      esnPreviousState.unset = sinon.spy();
+
+      element.click();
+
+      expect(esnPreviousState.unset).to.have.been.calledOnce;
+    });
   });
 });

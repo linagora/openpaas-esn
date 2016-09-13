@@ -24,10 +24,15 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
       return $state.go(defaultState);
     }
 
+    function unset() {
+      previousState = null;
+    }
+
     return {
       get: get,
       set: set,
-      go: go
+      go: go,
+      unset: unset
     };
   })
   .directive('esnBackButton', function(esnPreviousState) {
@@ -36,6 +41,7 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
       link: function(scope, element, attrs) {
         element.click(function() {
           esnPreviousState.go(attrs.esnBackButton);
+          esnPreviousState.unset();
         });
       }
     };
