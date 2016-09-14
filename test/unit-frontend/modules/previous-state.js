@@ -8,26 +8,51 @@ var expect = chai.expect;
 describe('The esn.previous-state module', function() {
 
   var $previousState, $state, esnPreviousState, $compile, $scope, $rootScope, $window, element;
+  var STATE = {
+    state: {
+      name: 'expected.previousState.name'
+    },
+    params: {
+      expected: 'params'
+    }
+  };
 
   beforeEach(module('esn.previous-state'));
   beforeEach(module('jadeTemplates'));
 
-  beforeEach(inject(function(_$previousState_, _$state_, _$compile_, _$rootScope_, _$window_, _esnPreviousState_) {
-    $previousState = _$previousState_;
-    $state = _$state_;
+  beforeEach(module(function($provide) {
+    $provide.value('$state', $state = {
+      go: sinon.spy()
+    });
+    $provide.value('$previousState', $previousState = {
+      get: sinon.stub().returns(STATE)
+    });
+  }));
+
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$window_, _esnPreviousState_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $window = _$window_;
+
     esnPreviousState = _esnPreviousState_;
   }));
 
   describe('the esnPreviousState factory', function() {
+
     describe('The set() Function', function() {
 
       it('should set previousState to $previousState service response if it exists', function() {
+        esnPreviousState.set();
+
+        expect(esnPreviousState.get()).to.deep.equal(STATE);
+      });
+
+      it('should not set the previousState if there is already one', function() {
+        esnPreviousState.set();
+
         $previousState.get = sinon.stub().returns({
           state: {
-            name: 'expected.previousState.name'
+            name: 'another.state.we.should.not.save'
           },
           params: {
             expected: 'params'
@@ -36,17 +61,22 @@ describe('The esn.previous-state module', function() {
 
         esnPreviousState.set();
 
-        expect(esnPreviousState.get()).to.deep.equal({
-          state: {
-            name: 'expected.previousState.name'
-          },
-          params: {
-            expected: 'params'
-          }
-        });
+        expect(esnPreviousState.get()).to.deep.equal(STATE);
       });
 
     });
+
+    describe('The go function', function() {
+
+      it('should unset previousState', function() {
+        esnPreviousState.set();
+        esnPreviousState.go();
+
+        expect(esnPreviousState.get()).to.equal(null);
+      });
+
+    });
+
   });
 
   describe('The esnBackButton directive', function() {
@@ -70,7 +100,6 @@ describe('The esn.previous-state module', function() {
 
     beforeEach(function() {
       $scope = $rootScope.$new();
-      $state.go = sinon.spy();
 
       compileDirective('<button esn-back-button="expected.default.state" />');
     });
@@ -100,27 +129,11 @@ describe('The esn.previous-state module', function() {
     });
 
     it('should go to last eligible state if $previousState exists', function() {
-      $previousState.get = sinon.stub().returns({
-        state: {
-          name: 'last.eligible.state'
-        },
-        params: {
-          expected: 'params'
-        }
-      });
       esnPreviousState.set();
 
       element.click();
 
-      expect($state.go).to.have.been.calledWith('last.eligible.state', { expected: 'params' });
-    });
-
-    it('should destroy previousState when clicking the element', function() {
-      esnPreviousState.unset = sinon.spy();
-
-      element.click();
-
-      expect(esnPreviousState.unset).to.have.been.calledOnce;
+      expect($state.go).to.have.been.calledWith(STATE.state.name, STATE.params);
     });
   });
 });

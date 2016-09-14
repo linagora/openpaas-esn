@@ -436,6 +436,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
           name: 'previousStateName',
           params: 'previousStateParams'
         };
+
         directive = compileDirective('<composer />');
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
@@ -473,12 +474,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         $scope.close();
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
-      });
-
-      it('should back to previous state with correct parameters when the composer is closed', function() {
-        $scope.close();
-        expect(esnPreviousState.go).to.have.been.calledOnce;
-        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
       it('should not save a draft when the composer is hidden', function() {

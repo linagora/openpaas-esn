@@ -305,8 +305,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($rootScope, $state, $timeout, $window,
-                                  elementScrollService, emailBodyService, autosize, esnPreviousState) {
+  .directive('composer', function($rootScope, $state, $timeout, elementScrollService, emailBodyService, autosize, esnPreviousState) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -341,10 +340,7 @@ angular.module('linagora.esn.unifiedinbox')
         });
 
         scope.hide = quit.bind(null, backToLastLocation);
-        scope.close = function() {
-          quitAsSaveDraft();
-          backToLastLocation();
-        };
+        scope.close = quitAsSaveDraft;
 
         scope.editQuotedMail = function() {
           var emailBody = element.find('.compose-body'),
