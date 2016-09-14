@@ -60,12 +60,22 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
       return esnRestangular.one('domains', domainId).one('members').customPOST(user);
     }
 
+    /**
+     * Add domain administrators
+     * @param {String} domainId The domain ID
+     * @param {Array} userIds  An array of user ID to set as domain administrators
+     */
+    function addAdministrators(domainId, userIds) {
+      return esnRestangular.one('domains', domainId).one('administrators').customPOST(userIds);
+    }
+
     return {
       getMembers: getMembers,
       inviteUsers: inviteUsers,
       isManager: isManager,
       get: get,
-      createMember: createMember
+      createMember: createMember,
+      addAdministrators: addAdministrators
     };
   })
 
