@@ -38,7 +38,7 @@
       "colorize": false
     },
     "rotate": {
-      "enabled": true,
+      "enabled": false,
       "file": "./log/application.log",
       "level": "info",
       "handleExceptions": true,
