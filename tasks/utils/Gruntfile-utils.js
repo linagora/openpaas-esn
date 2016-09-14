@@ -148,7 +148,7 @@ GruntfileUtils.prototype.container = function container() {
         WorkingDir: '/compose',
         Env: containerOptions.env || [],
         HostConfig: {
-          Binds: [path.normalize(__dirname + '../../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+          Binds: [path.normalize(__dirname + '/../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
         }
       }, {}, {}, taskOptions);
   }
