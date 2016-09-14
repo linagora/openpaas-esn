@@ -185,6 +185,24 @@ describe('The Domain Angular module', function() {
         $httpBackend.flush();
       });
     });
+
+    describe('The removeAdministrator fn', function() {
+
+      it('should send DELETE request to backend with the right parameters', function(done) {
+        var administratorId = 'adminId';
+        var domainId = 'domain123';
+
+        $httpBackend.expectDELETE('/api/domains/' + domainId + '/administrators/' + administratorId).respond(204);
+        domainAPI.removeAdministrator(domainId, administratorId)
+          .then(function(response) {
+            expect(response.data).to.not.be.defined;
+            done();
+          });
+
+        $httpBackend.flush();
+      });
+
+    });
   });
 
   describe('inviteMembersInput directive', function() {
