@@ -190,10 +190,45 @@ function addDomainAdministrator(domain, userIds, callback) {
     }
   });
   domain.administrators = administrators;
+  domain.administrator = null;
 
-  domain.save(function(err, updatedDomain) {
-    callback(err, updatedDomain);
+  domain.save(callback);
+}
+
+/**
+ * Remove one or more administrators from a domain
+ * @param  {Domain}   domain                   The domain object
+ * @param  {Array|ObjectId}   administratorIds Administrator ID or an array of
+ *                                             administrator ID
+ * @param  {Function} callback                 The callback(err, resp) function
+ */
+function removeDomainAdministrator(domain, administratorIds, callback) {
+  if (!domain) {
+    return callback(new Error('domain cannot be null'));
+  }
+
+  if (!administratorIds) {
+    return callback(new Error('administratorIds cannot be null'));
+  }
+
+  administratorIds = Array.isArray(administratorIds) ? administratorIds : [administratorIds];
+
+  var administrators = domainModule.getDomainAdministrators(domain);
+
+  administratorIds.forEach(function(administratorId) {
+    _.remove(administrators, function(administrator) {
+      return String(administrator.user_id) === String(administratorId);
+    });
   });
+
+  if (administrators.length) {
+    domain.administrators = administrators;
+    domain.administrator = null;
+
+    return domain.save(callback);
+  }
+
+  return callback(new Error('A domain must have at least one administrator'));
 }
 
 module.exports = {
@@ -203,5 +238,6 @@ module.exports = {
   getUsersList: getUsersList,
   getUsersSearch: require('./search').searchByDomain,
   getAdministrators: getAdministrators,
-  addDomainAdministrator: addDomainAdministrator
+  addDomainAdministrator: addDomainAdministrator,
+  removeDomainAdministrator: removeDomainAdministrator
 };

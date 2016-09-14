@@ -35,6 +35,12 @@
  *     required: true
  *     type: string
  *     format: uuid
+ *   dm_administrator_id:
+ *    name: administrator_id
+ *    in: path
+ *    description: The administrator ID
+ *    required: true
+ *    type: string
  *   dm_adresses:
  *     name: adresses
  *     in: body

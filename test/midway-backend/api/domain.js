@@ -573,12 +573,102 @@ describe('The domain API', function() {
         req.expect(204).end(helpers.callbacks.noErrorAnd(function(res) {
           expect(res.body).to.not.exists;
           Domain.findById(domain1._id, function(err, domain) {
+            expect(domain.administrator).to.not.exist;
             expect(domain.administrators.some(function(administrator) {
               return administrator.user_id.equals(user2Domain1Member._id);
             })).to.be.true;
             done(err);
           });
         }));
+      });
+    });
+
+  });
+
+  describe('DELETE /api/domains/:uuid/administrators/:administratorId', function() {
+
+    var endpoint;
+
+    beforeEach(function() {
+      endpoint = '/api/domains/' + domain1._id + '/administrators/' + user1Domain1Manager._id;
+    });
+
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'delete', endpoint, done);
+    });
+
+    it('should send back 403 when current user is not a domain manager', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).delete(endpoint));
+
+        req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body.error).to.equal(403);
+          done();
+        }));
+      });
+    });
+
+    it('should send back 403 when an administrator tries to remove himself', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).delete(endpoint));
+
+        req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
+          expect(res.body.error.code).to.equal(403);
+          done();
+        }));
+      });
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).delete('/api/domains/' + new ObjectId() + '/administrators/' + user1Domain1Manager._id));
+
+        req.expect(404).end(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should send back 500 when server fails (domainId is invalid)', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).delete('/api/domains/invalid/administrators/' + user1Domain1Manager._id));
+
+        req.expect(500).end(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should send back 204 on success', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+
+        // add user2 as administrator
+        Domain.findOneAndUpdate(
+          { _id: domain1._id },
+          {
+            $push: {
+              administrators: { user_id: user2Domain1Member._id }
+            }
+          },
+          function(err) {
+            expect(err).to.not.exist;
+
+            var endpoint = '/api/domains/' + domain1._id + '/administrators/' + user2Domain1Member._id;
+            var req = requestAsMember(request(app).delete(endpoint));
+
+            req.expect(204).end(helpers.callbacks.noErrorAnd(function(res) {
+              expect(res.body).to.not.exists;
+              Domain.findById(domain1._id, function(err, domain) {
+                // now only user1 is administrator
+                expect(domain.administrators.length).to.equal(1);
+                expect(String(domain.administrators[0].user_id)).to.equal(String(user1Domain1Manager._id));
+                done(err);
+              });
+            }));
+          }
+        );
+
       });
     });
 
