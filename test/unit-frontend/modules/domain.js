@@ -167,6 +167,24 @@ describe('The Domain Angular module', function() {
       });
 
     });
+
+    describe('The getAdministrators fn', function() {
+      it('should send GET request to /api/domains/:uuid/administrators', function(done) {
+        var domainId = 'domain123';
+        var administrators = ['Admin1', 'Admin2'];
+
+        $httpBackend.expectGET('/api/domains/' + domainId + '/administrators').respond(200, administrators);
+        domainAPI.getAdministrators(domainId)
+          .then(function(response) {
+            expect(response.data.length).to.be.equal(administrators.length);
+            expect(response.data[0]).to.be.equal(administrators[0]);
+            expect(response.data[1]).to.be.equal(administrators[1]);
+            done();
+          });
+
+        $httpBackend.flush();
+      });
+    });
   });
 
   describe('inviteMembersInput directive', function() {
