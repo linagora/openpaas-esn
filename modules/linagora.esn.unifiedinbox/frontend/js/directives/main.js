@@ -107,10 +107,11 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       replace: true,
       scope: {
-        mailbox: '='
+        mailbox: '=',
+        hideBadge: '@'
       },
       templateUrl: '/unifiedinbox/views/sidebar/email/menu-item.html',
-      link: function(scope, element) {
+      link: function(scope) {
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
 
         function isThread($dragData) {
@@ -557,6 +558,10 @@ angular.module('linagora.esn.unifiedinbox')
             });
           };
         }.bind(this));
+
+        this.move = function() {
+          $state.go('.move', { item: $scope.email }, { location: false });
+        };
 
         this.toggleIsCollapsed = function(email) {
           if (angular.isDefined(email.isCollapsed)) {

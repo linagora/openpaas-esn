@@ -294,6 +294,17 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.isolateScope().mailboxIcons).to.equal('testclass');
     });
 
+    it('should define $scope.hideBadge to the correct value', function() {
+      $scope.mailbox = {
+        role: {
+          value: null
+        }
+      };
+      compileDirective('<mailbox-display mailbox="mailbox" hide-badge=true />');
+
+      expect(element.isolateScope().hideBadge).to.equal('true');
+    });
+
     describe('The dragndrop feature', function() {
 
       var isolateScope;
@@ -1292,6 +1303,18 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
         expect($state.go).to.have.not.been.called;
         expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+    });
+
+    describe('The move fn', function() {
+      it('should expose a move function to the controller', function() {
+        compileDirective('<email/>');
+        var email = { to: [] };
+        element.isolateScope().email = email;
+
+        element.controller('email').move();
+
+        expect($state.go).to.have.been.calledWith('.move', { item: email }, { location: false });
       });
     });
 

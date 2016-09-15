@@ -236,6 +236,10 @@ describe('The Unified Inbox Angular module filters', function() {
       expect(_.map(filter(cache, '5'), 'id')).to.deep.equal(['1', '2', '3', '4']);
     });
 
+    it('should filter out the mailbox only when there is descendants but filterOnlyParentMailbox=true', function() {
+      expect(_.map(filter(cache, '1', true), 'id')).to.deep.equal(['2', '3', '4', '5']);
+    });
+
   });
 
 });

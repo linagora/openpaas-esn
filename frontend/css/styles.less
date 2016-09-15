@@ -159,13 +159,18 @@ html, body {
   min-height: 100%; // material admin set this property to 100vh. It does not work well on iOs.
 }
 
-body.modal-open {
+body {
   word-wrap: break-word;
 
-  .modal .modal-dialog {
+  .modal.center .modal-dialog {
     margin: 0;
     min-width: 300px;
     top: 50%;
+
+    .modal-body {
+      max-height: 60vh;
+      overflow: auto;
+    }
   }
 }
 

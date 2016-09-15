@@ -4539,11 +4539,12 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxFilteringAwareInfiniteScroll service', function() {
 
-    var $scope, service, INBOX_EVENTS;
+    var $scope, service, INBOX_EVENTS, INFINITE_LIST_LOAD_EVENT;
 
-    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_) {
+    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_, _INFINITE_LIST_LOAD_EVENT_) {
       service = inboxFilteringAwareInfiniteScroll;
       INBOX_EVENTS = _INBOX_EVENTS_;
+      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
 
       $scope = $rootScope.$new();
     }));
@@ -4613,6 +4614,33 @@ describe('The Unified Inbox Angular module services', function() {
 
       expect($scope.infiniteScrollDisabled).to.equal(false);
       expect($scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning no items
+    });
+
+    it('should call groups.addElement when ADD_ELEMENT_INFINITY_LIST is received', function() {
+      var item = { id: 'item' };
+
+      service($scope, function() {
+        return { id: 'filter' };
+      }, $q.when);
+      $scope.groups.addElement = sinon.spy();
+
+      $scope.$emit(INBOX_EVENTS.ADD_ELEMENT_INFINITY_LIST, item);
+
+      expect($scope.groups.addElement).to.have.been.calledWith(item);
+    });
+
+    it('should call groups.removeElement when REMOVE_ELEMENT_INFINITY_LIST is received', function(done) {
+      var item = { id: 'item' };
+
+      service($scope, function() {
+        return { id: 'filter' };
+      }, $q.when);
+
+      $scope.groups.removeElement = sinon.spy();
+      $scope.$on(INFINITE_LIST_LOAD_EVENT, done.bind(null, null));
+      $scope.$emit(INBOX_EVENTS.REMOVE_ELEMENT_INFINITY_LIST, item);
+
+      expect($scope.groups.removeElement).to.have.been.calledWith(item);
     });
 
   });

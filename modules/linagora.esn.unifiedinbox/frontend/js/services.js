@@ -976,7 +976,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxEmailService', function($q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+  .service('inboxEmailService', function($q, $state, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(email, options) {
       return backgroundAction('Move of message "' + email.subject + '" to trash', function() {
         return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1052,7 +1052,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxThreadService', function($q, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+  .service('inboxThreadService', function($q, $state, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(thread, options) {
       return backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
         return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1320,7 +1320,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
+  .factory('inboxFilteringAwareInfiniteScroll', function($rootScope, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS, INFINITE_LIST_LOAD_EVENT) {
     return function(scope, getAvailableFilters, buildLoadNextItemsFunction) {
       function setFilter() {
         scope.loadMoreElements = infiniteScrollOnGroupsHelper(
@@ -1331,6 +1331,15 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       scope.filters = getAvailableFilters();
+
+      scope.$on(INBOX_EVENTS.ADD_ELEMENT_INFINITY_LIST, function(event, item) {
+        scope.groups.addElement(item);
+      });
+
+      scope.$on(INBOX_EVENTS.REMOVE_ELEMENT_INFINITY_LIST, function(event, item) {
+        scope.groups.removeElement(item);
+        $rootScope.$broadcast(INFINITE_LIST_LOAD_EVENT);
+      });
 
       scope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
         scope.infiniteScrollDisabled = false;

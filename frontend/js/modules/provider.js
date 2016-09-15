@@ -157,7 +157,7 @@ angular.module('esn.provider', [
     return ByTypeElementGroupingTool;
   })
 
-  .factory('ByDateElementGroupingTool', function(moment) {
+  .factory('ByDateElementGroupingTool', function(moment, _) {
 
     function ByDateElementGroupingTool(elements) {
       this.todayElements = [];
@@ -203,7 +203,7 @@ angular.module('esn.provider', [
 
     ByDateElementGroupingTool.prototype.removeElement = function(element) {
       angular.forEach(this.allElements, function(group) {
-        var index = group.elements.indexOf(element);
+        var index = _.findIndex(group.elements, element);
 
         if (index > -1) {
           group.elements.splice(index, 1);

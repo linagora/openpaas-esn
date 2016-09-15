@@ -7,7 +7,7 @@
     esn-is-drop-zone="isDropZone($dragData)"
   )
   .badge-container
-    .badge(ng-hide='mailbox.unreadMessages === 0') {{ mailbox.unreadMessages | maxPlus:99 }}
+    .badge(ng-if="!hideBadge && mailbox.unreadMessages !== 0") {{ mailbox.unreadMessages | maxPlus:99 }}
     i.inbox-icon(ng-class='mailboxIcons')
   .menu-item
     span.menu-item-inner
