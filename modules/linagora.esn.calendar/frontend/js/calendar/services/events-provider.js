@@ -1,9 +1,36 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
-  .factory('eventsProviders', function($log, $q, $rootScope, calendarService, eventService, calendarHomeService, newProvider, searchProviders, ELEMENTS_PER_REQUEST, CALENDAR_EVENTS) {
+  angular.module('esn.calendar')
+         .factory('eventsProviders', eventsProviders);
+
+  eventsProviders.$inject = [
+    '$log',
+    '$q',
+    '$rootScope',
+    'calendarHomeService',
+    'calendarService',
+    'eventService',
+    'newProvider',
+    'searchProviders',
+    'CALENDAR_EVENTS',
+    'ELEMENTS_PER_REQUEST'
+  ];
+
+  function eventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, eventService, newProvider, searchProviders, CALENDAR_EVENTS, ELEMENTS_PER_REQUEST) {
+    var service = {
+      setUpSearchProviders: setUpSearchProviders,
+      getAll: getAll,
+      getForCalendar: getForCalendar
+    };
+
+    return service;
+
+    ////////////
+
     function buildProvider(calendar) {
       var name = 'Events from ' + calendar.name;
+
       return newProvider({
         name: name,
         fetch: function(query) {
@@ -19,12 +46,15 @@ angular.module('esn.calendar')
               offset: offset,
               limit: ELEMENTS_PER_REQUEST
             };
+
             return eventService.searchEvents(calendar.id, context)
               .then(function(events) {
                 offset += events.length;
+
                 return events.map(function(event) {
                   event.type = name;
                   _setRelevance(event);
+
                   return event;
                 });
               });
@@ -42,6 +72,7 @@ angular.module('esn.calendar')
         return calendars.map(buildProvider);
       }, function(error) {
         $log.error('Could not register search providers for calendar module', error);
+
         return [];
       });
     }
@@ -57,10 +88,6 @@ angular.module('esn.calendar')
         searchProviders.add(getForCalendar(calendar));
       });
     }
+  }
 
-    return {
-      setUpSearchProviders: setUpSearchProviders,
-      getAll: getAll,
-      getForCalendar: getForCalendar
-    };
-  });
+})();

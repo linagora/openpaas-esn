@@ -234,7 +234,7 @@
       }
     ],
     "spaced-comment": "off",
-    "strict": "error",
+    "strict": "off",
     "template-curly-spacing": "error",
     "valid-jsdoc": "off",
     "vars-on-top": "off",

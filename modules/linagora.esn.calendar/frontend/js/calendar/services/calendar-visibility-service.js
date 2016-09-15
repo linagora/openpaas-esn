@@ -1,8 +1,27 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
-  .factory('calendarVisibilityService', function($rootScope, CALENDAR_EVENTS, _) {
+  angular.module('esn.calendar')
+         .factory('calendarVisibilityService', calendarVisibilityService);
+
+  calendarVisibilityService.$inject = [
+    '$rootScope',
+    '_',
+    'CALENDAR_EVENTS'
+  ];
+
+  function calendarVisibilityService($rootScope, _, CALENDAR_EVENTS) {
     var cache = {};
+
+    var service = {
+      getHiddenCalendars: getHiddenCalendars,
+      isHidden: isHidden,
+      toggle: toggle
+    };
+
+    return service;
+
+    ////////////
 
     function isHidden(calendar) {
       return Boolean(cache[calendar.id] && cache[calendar.id].hidden);
@@ -22,10 +41,6 @@ angular.module('esn.calendar')
     function getHiddenCalendars() {
       return _.chain(cache).filter('hidden').map('calendar').value();
     }
+  }
 
-    return {
-      isHidden: isHidden,
-      getHiddenCalendars: getHiddenCalendars,
-      toggle: toggle
-    };
-  });
+})();

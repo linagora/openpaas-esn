@@ -1,25 +1,48 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar').factory('calendarEventEmitter', function($rootScope, CALENDAR_EVENTS) {
-  return {
-    activitystream: {
-      emitPostedMessage: function(messageId, activityStreamUuid) {
-        $rootScope.$emit('message:posted', {
-          activitystreamUuid: activityStreamUuid,
-          id: messageId
-        });
-      }
-    },
-    fullcalendar: {
-      emitCreatedEvent: function(shell) {
-        $rootScope.$emit(CALENDAR_EVENTS.ITEM_ADD, shell);
+  angular.module('esn.calendar')
+         .factory('calendarEventEmitter', calendarEventEmitter);
+
+  calendarEventEmitter.$inject = [
+    '$rootScope',
+    'CALENDAR_EVENTS'
+  ];
+
+  function calendarEventEmitter($rootScope, CALENDAR_EVENTS) {
+    var service = {
+      activitystream: {
+        emitPostedMessage: emitPostedMessage
       },
-      emitRemovedEvent: function(id) {
-        $rootScope.$emit(CALENDAR_EVENTS.ITEM_REMOVE, id);
-      },
-      emitModifiedEvent: function(shell) {
-        $rootScope.$emit(CALENDAR_EVENTS.ITEM_MODIFICATION, shell);
+      fullcalendar: {
+        emitCreatedEvent: emitCreatedEvent,
+        emitRemovedEvent: emitRemovedEvent,
+        emitModifiedEvent: emitModifiedEvent
       }
+    };
+
+    return service;
+
+    ////////////
+
+    function emitPostedMessage(messageId, activityStreamUuid) {
+      $rootScope.$emit('message:posted', {
+        activitystreamUuid: activityStreamUuid,
+        id: messageId
+      });
     }
-  };
-});
+
+    function emitCreatedEvent(shell) {
+      $rootScope.$emit(CALENDAR_EVENTS.ITEM_ADD, shell);
+    }
+
+    function emitRemovedEvent(id) {
+      $rootScope.$emit(CALENDAR_EVENTS.ITEM_REMOVE, id);
+    }
+
+    function emitModifiedEvent(shell) {
+      $rootScope.$emit(CALENDAR_EVENTS.ITEM_MODIFICATION, shell);
+    }
+  }
+
+})();

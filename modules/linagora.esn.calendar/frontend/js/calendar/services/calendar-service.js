@@ -1,9 +1,27 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
-  .service('calendarService', function($q, $rootScope, CalendarCollectionShell, calendarAPI, CALENDAR_EVENTS) {
+  angular.module('esn.calendar')
+         .service('calendarService', calendarService);
+
+  calendarService.$inject = [
+    '$q',
+    '$rootScope',
+    'calendarAPI',
+    'CalendarCollectionShell',
+    'CALENDAR_EVENTS'
+  ];
+
+  function calendarService($q, $rootScope, calendarAPI, CalendarCollectionShell, CALENDAR_EVENTS) {
     var calendarsCache = {};
     var promiseCache = {};
+
+    this.createCalendar = createCalendar;
+    this.getCalendar = getCalendar;
+    this.listCalendars = listCalendars;
+    this.modifyCalendar = modifyCalendar;
+
+    ////////////
 
     /**
      * List all calendars in the calendar home.
@@ -14,12 +32,15 @@ angular.module('esn.calendar')
       promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId)
         .then(function(calendars) {
           var vcalendars = [];
+
           calendars.forEach(function(calendar) {
             var vcal = new CalendarCollectionShell(calendar);
+
             vcalendars.push(vcal);
           });
 
           calendarsCache[calendarHomeId] = vcalendars;
+
           return calendarsCache[calendarHomeId];
         })
         .catch($q.reject);
@@ -52,6 +73,7 @@ angular.module('esn.calendar')
         .then(function() {
           (calendarsCache[calendarHomeId] || []).push(calendar);
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+
           return calendar;
         })
         .catch($q.reject);
@@ -72,13 +94,11 @@ angular.module('esn.calendar')
             }
           });
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, calendar);
+
           return calendar;
         })
         .catch($q.reject);
     }
+  }
 
-    this.listCalendars = listCalendars;
-    this.getCalendar = getCalendar;
-    this.createCalendar = createCalendar;
-    this.modifyCalendar = modifyCalendar;
-  });
+})();
