@@ -378,10 +378,10 @@ describe.skip('The messages API', function() {
                 expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
                 expect(results[0].object).to.exist;
                 expect(results[0].object.objectType).to.equal('whatsup');
-                expect(results[0].object._id + '').to.equal(res.body._id);
+                expect(results[0].object.id).to.equal(res.body._id);
                 expect(results[0].actor).to.exist;
                 expect(results[0].actor.objectType).to.equal('user');
-                expect(results[0].actor._id + '').to.equal('' + testuser._id);
+                expect(results[0].actor.id).to.equal(testuser.id);
                 done();
               });
             });
@@ -508,10 +508,10 @@ describe.skip('The messages API', function() {
                 expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
                 expect(results[0].object).to.exist;
                 expect(results[0].object.objectType).to.equal('whatsup');
-                expect(results[0].object._id + '').to.equal(res.body._id);
+                expect(results[0].object.id).to.equal(res.body._id);
                 expect(results[0].actor).to.exist;
                 expect(results[0].actor.objectType).to.equal('user');
-                expect(results[0].actor._id + '').to.equal('' + testuser._id);
+                expect(results[0].actor.id).to.equal(testuser.id);
                 done();
               });
             });
@@ -1008,10 +1008,10 @@ describe.skip('The messages API', function() {
               expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
               expect(results[0].object).to.exist;
               expect(results[0].object.objectType).to.equal('whatsup');
-              expect(results[0].object._id + '').to.equal(res.body._id);
+              expect(results[0].object.id).to.equal(res.body._id);
               expect(results[0].actor).to.exist;
               expect(results[0].actor.objectType).to.equal('user');
-              expect(results[0].actor._id + '').to.equal('' + testuser._id);
+              expect(results[0].actor.id).to.equal(testuser.id);
               done();
             });
           });
@@ -1055,7 +1055,7 @@ describe.skip('The messages API', function() {
             expect(message).to.exist;
             expect(message.attachments).to.exist;
             expect(message.attachments.length).to.equal(1);
-            expect(message.attachments[0]._id + '').to.equal(attachmentId + '');
+            expect(message.attachments[0].id).to.equal(attachmentId + '');
             expect(message.attachments[0].name).to.equal(attachment.name);
             expect(message.attachments[0].contentType).to.equal(attachment.contentType);
             expect(message.attachments[0].length).to.equal(attachment.length);
@@ -1129,7 +1129,7 @@ describe.skip('The messages API', function() {
                 expect(meta.metadata.referenced.length).to.equal(1);
                 expect(meta.metadata.referenced[0].objectType).to.exist;
                 expect(meta.metadata.referenced[0].objectType).to.equal('message');
-                expect(meta.metadata.referenced[0].id + '').to.equal(message._id + '');
+                expect(meta.metadata.referenced[0].id + '').to.equal(message.id);
                 done();
               });
             });

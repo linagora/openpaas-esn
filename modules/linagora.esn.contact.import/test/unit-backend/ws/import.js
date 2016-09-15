@@ -116,7 +116,7 @@ describe('The import WS event module', function() {
         };
 
         this.importNamespace.to = function(roomId) {
-          expect(roomId).to.equal(user._id + '');
+          expect(roomId).to.equal(user.id);
           return {
             emit: function(eventName, data) {
               expect(eventName).to.equal(IMPORT_ACCOUNT_ERROR);
@@ -161,7 +161,7 @@ describe('The import WS event module', function() {
         };
 
         this.importNamespace.to = function(roomId) {
-          expect(roomId).to.equal(user._id + '');
+          expect(roomId).to.equal(user.id);
           return {
             emit: function(eventName, data) {
               expect(eventName).to.equal(IMPORT_API_CLIENT_ERROR);
@@ -202,7 +202,7 @@ describe('The import WS event module', function() {
         };
 
         this.importNamespace.to = function(roomId) {
-          expect(roomId).to.equal(user._id + '');
+          expect(roomId).to.equal(user.id);
           return {
             emit: function(eventName, data) {
               expect(eventName).to.equal(IMPORT_CONTACT_CLIENT_ERROR);

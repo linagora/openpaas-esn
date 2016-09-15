@@ -207,11 +207,11 @@ function findByIds(ids, callback) {
   };
 
   function getMessage(message) {
-    if (ids.indexOf(message._id + '') >= 0) {
+    if (ids.indexOf(message.id) >= 0) {
       return message;
     }
     var result = message.responses.filter(function(response) {
-      return ids.indexOf(response._id + '') >= 0;
+      return ids.indexOf(response.id) >= 0;
     }).pop();
 
     if (result) {

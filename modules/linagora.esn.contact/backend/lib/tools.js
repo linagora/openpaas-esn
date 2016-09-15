@@ -54,7 +54,7 @@ module.exports = function(dependencies) {
   function reIndexContacts(options) {
     return q.nfbind(userModule.list)().then(function(users) {
       return q.all(users.map(function(user) {
-          var userId = user._id + '';
+          var userId = user.id;
           var addressBookHomeClient = contactClient(options).addressbookHome(userId);
           return indexUserContacts(addressBookHomeClient, userId);
         })

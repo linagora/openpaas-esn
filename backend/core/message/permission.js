@@ -58,7 +58,7 @@ module.exports.canReply = function(message, user, callback) {
         return callback(null, false);
       }
 
-      collaborationModule.permission.canWrite(collaborations[0], {objectType: 'user', id: user._id + ''}, callback);
+      collaborationModule.permission.canWrite(collaborations[0], {objectType: 'user', id: user.id}, callback);
     });
 
   }, callback);

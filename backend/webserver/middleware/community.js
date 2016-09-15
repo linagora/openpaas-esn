@@ -50,7 +50,7 @@ module.exports.filterWritableTargets = function(req, res, next) {
           return callback(err, false);
         }
 
-        communityPermission.canWrite(community, {objectType: 'user', id: req.user._id + ''}, callback);
+        communityPermission.canWrite(community, {objectType: 'user', id: req.user.id}, callback);
       });
     },
     function(err, results) {

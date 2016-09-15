@@ -45,7 +45,7 @@ function injectLib(dependencies) {
           return callback(err);
         }
         var otherTargetInjections = domain.injections.filter(function(injection) {
-          return injection.source.id + '' !== application._id + '';
+          return injection.source.id + '' !== application.id;
         });
         domain.injections = otherTargetInjections;
         domain.save(callback);
@@ -56,7 +56,7 @@ function injectLib(dependencies) {
           return callback(err);
         }
         var otherTargetInjections = community.injections.filter(function(injection) {
-          return injection.source.id + '' !== application._id + '';
+          return injection.source.id + '' !== application.id;
         });
         community.injections = otherTargetInjections;
         community.save(community, callback);

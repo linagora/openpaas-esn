@@ -48,7 +48,7 @@ module.exports = function(lib, deps) {
             return callback(err, false);
           }
 
-          permission.canWrite(project, {objectType: 'user', id: req.user._id + ''}, callback);
+          permission.canWrite(project, {objectType: 'user', id: req.user.id}, callback);
         });
       },
       function(err, results) {

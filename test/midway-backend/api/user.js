@@ -330,8 +330,8 @@ describe('User API', function() {
             expect(err).to.not.exist;
             expect(res.body).to.be.an.array;
             expect(res.body.length).to.equal(2);
-            expect(correctIds).to.contain(res.body[0]._id + '');
-            expect(correctIds).to.contain(res.body[1]._id + '');
+            expect(correctIds).to.contain(String(res.body[0]._id));
+            expect(correctIds).to.contain(String(res.body[1]._id));
             done();
           });
         });

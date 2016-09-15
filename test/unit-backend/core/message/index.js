@@ -407,10 +407,10 @@ describe('The message core module', function() {
     });
 
     it('should search for messages and their responses', function(done) {
-      var response = {_id: '5', author: '1'};
-      var messageA = {_id: '1', author: '1', responses: []};
-      var messageB = {_id: '2', author: '1', responses: []};
-      var messageC = {_id: '4', author: '1', responses: [response]};
+      var response = {_id: '5', id: '5', author: '1'};
+      var messageA = {_id: '1', id: '1', author: '1', responses: []};
+      var messageB = {_id: '2', id: '2', author: '1', responses: []};
+      var messageC = {_id: '4', id: '4', author: '1', responses: [response]};
 
       var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(modelName) {
@@ -471,7 +471,7 @@ describe('The message core module', function() {
             find: function() {
               return {
                 toArray: function(callback) {
-                  callback(null, [{_id: '1', author: '3'}, {_id: '2', author: '4'}]);
+                  callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
                 }
               };
             }
@@ -503,7 +503,7 @@ describe('The message core module', function() {
             find: function() {
               return {
                 toArray: function(callback) {
-                  callback(null, [{_id: '1', author: '3'}, {_id: '2', author: '4'}]);
+                  callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
                 }
               };
             }
@@ -520,10 +520,12 @@ describe('The message core module', function() {
       var messageModule = this.helpers.requireBackend('core/message');
       var user3 = {
         _id: '3',
+        id: '3',
         name: 'user3'
       };
       var user4 = {
         _id: '4',
+        id: '4',
         name: 'user4'
       };
       this.mongoose.model = function(modelName) {
@@ -555,8 +557,8 @@ describe('The message core module', function() {
             find: function() {
               return {
                 toArray: function(callback) {
-                  callback(null, [{_id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', author: '4'}]},
-                    {_id: '2', author: '4', objectType: 'email'}]);
+                  callback(null, [{_id: '1', id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', id: '5', author: '4'}]},
+                    {_id: '2', id: '2', author: '4', objectType: 'email'}]);
                 }
               };
             }

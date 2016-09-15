@@ -109,7 +109,7 @@ describe.skip('The collaborations API', function() {
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
             expect(res.body.length).to.equal(1);
-            expect(res.body[0]._id + '').to.equal(self.models.communities[1]._id + '');
+            expect(res.body[0].id).to.equal(self.models.communities[1].id);
             done();
           });
         });
@@ -135,7 +135,7 @@ describe.skip('The collaborations API', function() {
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
             expect(res.body.length).to.equal(1);
-            expect(res.body[0]._id + '').to.equal(self.models.communities[2]._id + '');
+            expect(res.body[0].id).to.equal(self.models.communities[2].id);
             done();
           });
         });
@@ -887,7 +887,7 @@ describe.skip('The collaborations API', function() {
                 expect(document.membershipRequests).to.exist;
                 expect(document.membershipRequests).to.be.an('array');
                 expect(document.membershipRequests).to.have.length(1);
-                expect(document.membershipRequests[0].user + '').to.equal(models.users[2]._id + '');
+                expect(document.membershipRequests[0].user + '').to.equal(models.users[2].id);
                 expect(document.membershipRequests[0].workflow).to.equal('invitation');
                 done();
               });
@@ -961,7 +961,7 @@ describe.skip('The collaborations API', function() {
                 return done(err);
               }
               expect(document[0].members.length).to.equal(1);
-              expect(document[0].members[0].member.id + '').to.equal('' + manager._id);
+              expect(document[0].members[0].member.id + '').to.equal(manager.id);
               done();
             });
           });
@@ -989,7 +989,7 @@ describe.skip('The collaborations API', function() {
                 return done(err);
               }
               expect(document[0].members.length).to.equal(1);
-              expect(document[0].members[0].member.id + '').to.equal('' + manager._id);
+              expect(document[0].members[0].member.id + '').to.equal(manager.id);
               done();
             });
           });
@@ -2184,7 +2184,7 @@ describe.skip('The collaborations API', function() {
 
     it('should return the list of collaborations the user can write into', function(done) {
       var self = this;
-      var correctIds = [self.models.communities[0]._id + '', self.models.communities[1]._id + '', self.models.communities[3]._id + ''];
+      var correctIds = [self.models.communities[0].id, self.models.communities[1].id, self.models.communities[3].id];
       self.helpers.api.loginAsUser(webserver.application, self.models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -2196,7 +2196,7 @@ describe.skip('The collaborations API', function() {
           expect(res.body).to.be.an.array;
           expect(res.body).to.have.length(correctIds.length);
           res.body.forEach(function(returnedCollaboration) {
-            expect(correctIds).to.contain(returnedCollaboration._id + '');
+            expect(correctIds).to.contain(returnedCollaboration.id);
           });
           done();
         });

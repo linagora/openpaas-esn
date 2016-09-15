@@ -825,10 +825,10 @@ describe('The daily digest core module', function() {
 
       var userId = '1';
       var message = {
-        author: {_id: userId}
+        author: {_id: userId, id: userId}
       };
       var thread = {};
-      var user = {_id: userId};
+      var user = {_id: userId, id: userId};
 
       var module = require('../../../lib/daily')(dependencies);
       return expect(module.setReadAndInvolvedFlags(message, thread, user)).to.eventually.shallowDeepEqual({
@@ -839,11 +839,11 @@ describe('The daily digest core module', function() {
     it('should set message and responses read flag to true if the message it not in the thread object', function() {
 
       var message = {
-        _id: '1',
+        _id: '1', id: '1',
         responses: [{
-          _id: '2'
+          _id: '2', id: '2'
         }, {
-          _id: '3'
+          _id: '3', id: '3'
         }]
       };
       var thread = {};
@@ -862,23 +862,25 @@ describe('The daily digest core module', function() {
     it('should set message and responses read flag to the thread read flag message and responses', function() {
 
       var message = {
-        _id: '1',
+        _id: '1', id: '1',
         responses: [{
-          _id: '2'
+          _id: '2', id: '2'
         }, {
-          _id: '3'
+          _id: '3', id: '3'
         }]
       };
       var thread = {
         read: false,
         responses: [{
           message: {
-            _id: message.responses[0]._id
+            _id: message.responses[0]._id,
+            id: message.responses[0]._id
           },
           read: false
         }, {
           message: {
-            _id: message.responses[1]._id
+            _id: message.responses[1]._id,
+            id: message.responses[1]._id
           },
           read: true
         }]
@@ -900,18 +902,18 @@ describe('The daily digest core module', function() {
       var userId = 'userId';
       var userId2 = 'userId2';
       var message = {
-        _id: '1',
-        author: {_id: userId},
+        _id: '1', id: '1',
+        author: {_id: userId, id: userId},
         responses: [{
-          _id: '2',
-          author: {_id: userId2}
+          _id: '2', id: '2',
+          author: {_id: userId2, id: userId2}
         }, {
-          _id: '3',
-          author: {_id: userId}
+          _id: '3', id: '3',
+          author: {_id: userId, id: userId}
         }]
       };
       var thread = {};
-      var user = {_id: userId2};
+      var user = {_id: userId2, id: userId2};
 
       var module = require('../../../lib/daily')(dependencies);
       return expect(module.setReadAndInvolvedFlags(message, thread, user)).to.eventually.shallowDeepEqual({
@@ -924,18 +926,18 @@ describe('The daily digest core module', function() {
       var userId = 'userId';
       var userId2 = 'userId2';
       var message = {
-        _id: '1',
-        author: {_id: userId},
+        _id: '1', id: '1',
+        author: {_id: userId, id: userId},
         responses: [{
-          _id: '2',
-          author: {_id: userId}
+          _id: '2', id: '2',
+          author: {_id: userId, id: userId}
         }, {
-          _id: '3',
-          author: {_id: userId}
+          _id: '3', id: '3',
+          author: {_id: userId, id: userId}
         }]
       };
       var thread = {};
-      var user = {_id: userId2};
+      var user = {_id: userId2, id: userId2};
 
       var module = require('../../../lib/daily')(dependencies);
       return expect(module.setReadAndInvolvedFlags(message, thread, user)).to.eventually.shallowDeepEqual({

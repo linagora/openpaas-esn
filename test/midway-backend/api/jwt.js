@@ -18,7 +18,7 @@ describe('The jwt API', function() {
         fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
         fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function(saved) {
-          userId = saved._id + '';
+          userId = saved.id;
           helpers.jwt.saveTestConfiguration(done);
         }));
       });

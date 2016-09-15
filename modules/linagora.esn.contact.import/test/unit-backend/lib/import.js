@@ -619,6 +619,7 @@ describe('The contact import module', function() {
         esnToken: 123,
         user: {
           _id: 'myId',
+          id: 'myId',
           accounts: [
             {
               type: 'oauth',

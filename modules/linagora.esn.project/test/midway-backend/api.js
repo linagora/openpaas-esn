@@ -415,7 +415,7 @@ describe('linagora.esn.project module', function() {
               expect(project.members.length).to.equal(2);
 
               var isMemberOf = project.members.filter(function(m) {
-                return m.member.id + '' === self.models.communities[0]._id + '' && m.member.objectType === 'community';
+                return m.member.id + '' === self.models.communities[0].id && m.member.objectType === 'community';
               });
               expect(isMemberOf.length).to.equal(1);
               done();

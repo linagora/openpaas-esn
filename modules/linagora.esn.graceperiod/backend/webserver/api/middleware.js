@@ -40,7 +40,7 @@ module.exports = function(lib, dependencies) {
         return res.status(404).json({error: {code: 404, message: 'Not found', details: 'Task not found'}});
       }
 
-      if (req.user._id + '' !== data.user) {
+      if (req.user.id !== data.user) {
         return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'User does not have enough rights to access this task'}});
       }
 
