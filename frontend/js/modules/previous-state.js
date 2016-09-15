@@ -9,10 +9,12 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
     }
 
     function set() {
-      previousState = $previousState.get();
+      if (!previousState) {
+        previousState = $previousState.get();
+      }
     }
 
-    function go(defaultState) {
+    function transition(defaultState) {
       if (previousState) {
         return $state.go(previousState.state.name, previousState.params || {});
       }
@@ -24,15 +26,18 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
       return $state.go(defaultState);
     }
 
-    function unset() {
+    function go(defaultState) {
+      var target = transition(defaultState);
+
       previousState = null;
+
+      return target;
     }
 
     return {
       get: get,
       set: set,
-      go: go,
-      unset: unset
+      go: go
     };
   })
   .directive('esnBackButton', function(esnPreviousState) {
@@ -41,7 +46,6 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
       link: function(scope, element, attrs) {
         element.click(function() {
           esnPreviousState.go(attrs.esnBackButton);
-          esnPreviousState.unset();
         });
       }
     };
