@@ -87,14 +87,23 @@ angular.module('esnApp', [
   'luegg.directives',
   'esn.touchscreen-detector',
   'esn.previous-state'
-].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
+].concat(angularInjections))
+
+.config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
   $urlRouterProvider.otherwise(function($injector, $location) {
-    return $location.search().continue || '/unifiedinbox/inbox';
+    return $location.search().continue || '/';
+  });
+
+  $urlRouterProvider.when('/', function(esnRouterHelper) {
+    esnRouterHelper.goToHomePage();
   });
 
   $stateProvider
+  .state('home', {
+    url: '/'
+  })
   .state('controlcenter.domainInviteMembers', {
     url: '/domains/:id/members/invite',
     templateUrl: '/views/esn/partials/domains/invite',
