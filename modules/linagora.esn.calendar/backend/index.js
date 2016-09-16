@@ -61,12 +61,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       var jsFiles = [
         'app.js',
         'constants.js',
-        'timezone.js',
         'ical.js',
-        'fcmoment.js',
-        'request.js',
-        'calendarshell.js',
-        'calendarcollectionshell.js',
+
         'components/event-date-edition.js',
         'components/event-date-consultation.js',
         'components/event-alarm-edition.js',
@@ -82,32 +78,50 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/mini-calendar/directive.js',
         'components/mini-calendar/controller.js',
         'components/mini-calendar/service.js',
+
         'calendar-configuration/calendar-edit.js',
         'calendar-configuration/calendars-edit.js',
-        'calendar/apis.js',
+
         'calendar/controllers.js',
         'calendar/directives.js',
+
+        'services/shells/calendar-collection-shell.js',
+        'services/shells/calendar-shell.js',
+        'services/shells/rrule-shell.js',
+        'services/shells/valarm-shell.js',
         'services/cached-event-source.js',
         'services/calendar-attendee-service.js',
         'services/calendar-current-view.js',
         'services/calendar-event-emitter.js',
         'services/calendar-event-source.js',
+        'services/calendar-api.js',
         'services/calendar-explored-period-service.js',
         'services/calendar-home-service.js',
+        'services/calendar-restangular.js',
         'services/calendar-service.js',
         'services/calendar-utils.js',
         'services/calendar-visibility-service.js',
+        'services/event-api.js',
         'services/event-service.js',
         'services/event-store.js',
         'services/event-utils.js',
-        'services/master-event-cache.js',
         'services/events-provider.js',
+        'services/fc-moment.js',
+        'services/master-event-cache.js',
+        'services/path-builder.js',
+        'services/request.js',
+        'services/timezone.js',
+
         'event-form/controllers.js',
         'event-form/services.js',
         'event-form/filters.js',
+
         'event-message/directives.js',
+
         'event-consult-form/directives.js',
+
         'event-quick-form/directives.js',
+
         'event-full-form/directives.js'
       ];
 
