@@ -1,46 +1,77 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
-  /**
-   * This directive display the calendars of the user and emit those events:
-   *     calendars-list:toggleView - with the calendar {href: '', name: '', color: '', description: '', toggled: true||false} which should be toggled
-   *
-   */
-  .directive('calendarsList', function(session, $rootScope, calendarService, calendarVisibilityService, CALENDAR_EVENTS) {
-    function link(scope) {
-      scope.onEditClick = scope.onEditClick || angular.noop;
-      scope.hiddenCalendars = {};
+  angular.module('esn.calendar')
+         .directive('calendarsList', calendarsList);
 
-      calendarVisibilityService.getHiddenCalendars().forEach(function(calendar) {
-        scope.hiddenCalendars[calendar.id] = true;
-      });
-
-      calendarService.listCalendars(session.user._id).then(function(calendars) {
-        scope.calendars = calendars;
-      });
-
-      scope.toggleCalendar = calendarVisibilityService.toggle;
-
-      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
-        scope.hiddenCalendars[data.calendar.id] = data.hidden;
-      });
-
-      scope.selectCalendar = function(calendar) {
-        scope.calendars.forEach(function(cal) {
-          cal.selected = calendar.id === cal.id;
-        });
-
-        scope.hiddenCalendars[calendar.id] && scope.toggleCalendar(calendar);
-      };
-    }
-
-    return {
+  function calendarsList() {
+    var directive = {
       restrict: 'E',
-      replace: true,
       templateUrl: '/calendar/views/components/calendars-list.html',
       scope: {
         onEditClick: '=?'
       },
-      link: link
+      replace: true,
+      controller: CalendarsListController,
+      controllerAs: 'vm',
+      bindToController: true
     };
-  });
+
+    return directive;
+  }
+
+  CalendarsListController.$inject = [
+    '$rootScope',
+    '$scope',
+    'calendarService',
+    'calendarVisibilityService',
+    'session',
+    'CALENDAR_EVENTS'
+  ];
+
+  function CalendarsListController($rootScope, $scope, calendarService, calendarVisibilityService, session, CALENDAR_EVENTS) {
+    var vm = this;
+
+    vm.onEditClick = vm.onEditClick || angular.noop;
+    vm.calendars = [];
+    vm.hiddenCalendars = {};
+    vm.selectCalendar = selectCalendar;
+    vm.toggleCalendar = calendarVisibilityService.toggle;
+
+    activate();
+
+    ////////////
+
+    function activate() {
+      listCalendars();
+      getHiddenCalendars();
+
+      var deregister = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) { // eslint-disable-line
+        vm.hiddenCalendars[data.calendar.id] = data.hidden;
+      });
+
+      $scope.$on('$destroy', deregister);
+    }
+
+    function selectCalendar(calendar) {
+      vm.calendars.forEach(function(cal) {
+        cal.selected = calendar.id === cal.id;
+      });
+
+      vm.hiddenCalendars[calendar.id] && vm.toggleCalendar(calendar);
+    }
+
+    function listCalendars() {
+      calendarService.listCalendars(session.user._id).then(function(calendars) {
+        vm.calendars = calendars;
+      });
+    }
+
+    function getHiddenCalendars() {
+      calendarVisibilityService.getHiddenCalendars().forEach(function(calendar) {
+        vm.hiddenCalendars[calendar.id] = true;
+      });
+    }
+  }
+
+})();

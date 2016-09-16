@@ -6,6 +6,7 @@ var expect = chai.expect;
 
 describe('The calendar color picker component', function() {
   var self;
+
   beforeEach(function() {
     self = this;
     module('jadeTemplates');
@@ -26,6 +27,7 @@ describe('The calendar color picker component', function() {
 
     this.initDirective = function(scope) {
       var html = '<div color="calendar.color" calendar-color-picker-toggler></div>';
+
       this.element = this.$compile(html)(scope);
       scope.$digest();
       this.eleScope = this.element.isolateScope();
@@ -36,9 +38,9 @@ describe('The calendar color picker component', function() {
     this.$scope.calendar.color = this.CALENDAR_LIST_OF_COLORS.indigo;
     this.initDirective(this.$scope);
     this.element.click();
-    expect(this.eleScope.selected).to.equal('indigo');
+    expect(this.eleScope.vm.selected).to.equal('indigo');
     expect(this.$modalMock).to.have.been.calledWith(sinon.match(function(object) {
-      return object.scope === self.eleScope;
+      return object.scope === self.eleScope.vm;
     }));
   });
 
@@ -46,9 +48,9 @@ describe('The calendar color picker component', function() {
     this.$scope.calendar.color = '#FFC101';
     this.initDirective(this.$scope);
     this.element.click();
-    expect(this.eleScope.selected).to.be.undefined;
+    expect(this.eleScope.vm.selected).to.be.undefined;
     expect(this.$modalMock).to.have.been.calledWith(sinon.match(function(object) {
-      return object.scope === self.eleScope;
+      return object.scope === self.eleScope.vm;
     }));
   });
 });

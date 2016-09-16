@@ -21,8 +21,10 @@ describe('The event-date-edition component', function() {
       this.initDirective = function(scope) {
         var html = '<event-date-edition event="event"></event-date-edition>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
         this.eleScope = element.isolateScope();
+
         return element;
       };
     }));
@@ -33,7 +35,7 @@ describe('The event-date-edition component', function() {
         end: this.fcMoment('2013-02-08 10:30')
       };
       this.initDirective(this.$scope);
-      expect(this.eleScope.diff).to.deep.equal(3600000);
+      expect(this.eleScope.vm.diff).to.deep.equal(3600000);
     });
 
     it('should clone event start and end on input blur', function() {
@@ -45,6 +47,7 @@ describe('The event-date-edition component', function() {
       var startBeforeBlur = this.$scope.event.start;
       var endBeforeBlur = this.$scope.event.end;
       var input = element.find('input');
+
       input.blur();
       expect(this.$scope.event.start).to.not.equal(startBeforeBlur);
       expect(this.$scope.event.end).to.not.equal(endBeforeBlur);
@@ -60,7 +63,7 @@ describe('The event-date-edition component', function() {
           allDay: true
         };
         this.initDirective(this.$scope);
-        this.eleScope.setEventDates();
+        this.eleScope.vm.setEventDates();
 
         expect(this.$scope.event.start.format('YYYY-MM-DD')).to.equal('2013-02-08');
         expect(this.$scope.event.start.hasTime()).to.be.false;
@@ -76,7 +79,7 @@ describe('The event-date-edition component', function() {
           allDay: false
         };
         this.initDirective(this.$scope);
-        this.eleScope.setEventDates();
+        this.eleScope.vm.setEventDates();
 
         expect(this.$scope.event.start.hasTime()).to.be.true;
         expect(this.$scope.event.end.hasTime()).to.be.true;
@@ -86,6 +89,7 @@ describe('The event-date-edition component', function() {
         var nextHour = this.fcMoment().startOf('hour').add(1, 'hour');
         var nextHourEnd = nextHour.clone().add(1, 'hour');
         var fmt = 'HH:mm:ss.SSS';
+
         expect(this.$scope.event.start.format(fmt)).to.equal(nextHour.format(fmt));
         expect(this.$scope.event.end.format(fmt)).to.equal(nextHourEnd.format(fmt));
       });
@@ -97,8 +101,9 @@ describe('The event-date-edition component', function() {
           allDay: false
         };
         this.initDirective(this.$scope);
-        this.eleScope.setEventDates();
+        this.eleScope.vm.setEventDates();
         var nextHour = this.fcMoment().endOf('hour').add(1, 'seconds');
+
         expect(this.$scope.event.start.time().seconds())
           .to.deep.equal(nextHour.time().seconds());
         expect(this.$scope.event.end.time().seconds())
@@ -109,6 +114,7 @@ describe('The event-date-edition component', function() {
         var HOUR = 60 * 60 * 1000;
         var origStart = this.fcMoment('2013-02-08 09:30');
         var origEnd = this.fcMoment('2013-02-08 10:30');
+
         this.$scope.event = {
           start: origStart.clone(),
           end: origEnd.clone(),
@@ -121,27 +127,27 @@ describe('The event-date-edition component', function() {
         expect(this.$scope.event.start.hasTime()).to.be.true;
         expect(this.$scope.event.end.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 10:30:00');
         expect(this.$scope.event.end.hasTime()).to.be.true;
-        expect(this.eleScope.diff).to.equal(1 * HOUR);
+        expect(this.eleScope.vm.diff).to.equal(1 * HOUR);
 
-        this.eleScope.allDay = true;
+        this.eleScope.vm.allDay = true;
         this.$scope.$digest();
-        this.eleScope.setEventDates();
+        this.eleScope.vm.setEventDates();
 
         expect(this.$scope.event.start.format('YYYY-MM-DD')).to.equal('2013-02-08');
         expect(this.$scope.event.start.hasTime()).to.be.false;
         expect(this.$scope.event.end.format('YYYY-MM-DD')).to.equal('2013-02-09');
         expect(this.$scope.event.end.hasTime()).to.be.false;
-        expect(this.eleScope.diff).to.equal(24 * HOUR);
+        expect(this.eleScope.vm.diff).to.equal(24 * HOUR);
 
-        this.eleScope.allDay = false;
+        this.eleScope.vm.allDay = false;
         this.$scope.$digest();
-        this.eleScope.setEventDates();
+        this.eleScope.vm.setEventDates();
 
         expect(this.$scope.event.start.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 09:30:00');
         expect(this.$scope.event.start.hasTime()).to.be.true;
         expect(this.$scope.event.end.format('YYYY-MM-DD HH:mm:ss')).to.equal('2013-02-08 10:30:00');
         expect(this.$scope.event.end.hasTime()).to.be.true;
-        expect(this.eleScope.diff).to.equal(1 * HOUR);
+        expect(this.eleScope.vm.diff).to.equal(1 * HOUR);
       });
     });
 
@@ -149,7 +155,7 @@ describe('The event-date-edition component', function() {
       it('should return null if start is undefined', function() {
         this.$scope.event = {};
         this.initDirective(this.$scope);
-        expect(this.eleScope.getMinDate()).to.be.null;
+        expect(this.eleScope.vm.getMinDate()).to.be.null;
       });
 
       it('should return start minus 1 day', function() {
@@ -160,7 +166,7 @@ describe('The event-date-edition component', function() {
         };
         this.initDirective(this.$scope);
         this.$scope.$digest();
-        expect(this.eleScope.getMinDate()).to.equal('2013-02-07');
+        expect(this.eleScope.vm.getMinDate()).to.equal('2013-02-07');
       });
     });
 
@@ -171,14 +177,16 @@ describe('The event-date-edition component', function() {
           end: this.fcMoment('2013-02-08 10:30')
         };
         this.initDirective(this.$scope);
-        this.eleScope.diff = 3600 * 1000 * 2; // 2 hours
-        this.eleScope.onStartDateChange();
+        this.eleScope.vm.diff = 3600 * 1000 * 2; // 2 hours
+        this.eleScope.vm.onStartDateChange();
         var isSame = this.fcMoment('2013-02-08 11:30').isSame(this.$scope.event.end);
+
         expect(isSame).to.be.true;
       });
 
       it('should ignore null date and invalid date', function() {
         var end = this.fcMoment('2013-02-08 13:30');
+
         this.$scope.event = {
           start: this.fcMoment('2013-02-08 09:30'),
           end: end.clone()
@@ -186,8 +194,9 @@ describe('The event-date-edition component', function() {
         this.initDirective(this.$scope);
         [null, this.fcMoment('invalid date')].forEach(function(date) {
           this.$scope.event.start = date;
-          this.eleScope.onStartDateChange();
+          this.eleScope.vm.onStartDateChange();
           var isSame = end.isSame(this.$scope.event.end);
+
           expect(isSame).to.be.true;
         }, this);
       });
@@ -200,8 +209,8 @@ describe('The event-date-edition component', function() {
           end: this.fcMoment('2013-02-08 13:30')
         };
         this.initDirective(this.$scope);
-        this.eleScope.onEndDateChange();
-        expect(this.eleScope.diff).to.equal(3600 * 1000 * 4);
+        this.eleScope.vm.onEndDateChange();
+        expect(this.eleScope.vm.diff).to.equal(3600 * 1000 * 4);
       });
 
       it('should set end to start plus 1 hour if end is before start', function() {
@@ -210,13 +219,15 @@ describe('The event-date-edition component', function() {
           end: this.fcMoment('2013-02-07 13:30')
         };
         this.initDirective(this.$scope);
-        this.eleScope.onEndDateChange();
+        this.eleScope.vm.onEndDateChange();
         var isSame = this.fcMoment('2013-02-08 10:30').isSame(this.$scope.event.end);
+
         expect(isSame).to.be.true;
       });
 
       it('should ignore null date and invalid date', function() {
         var start = this.fcMoment('2013-02-07 13:30');
+
         this.$scope.event = {
           end: this.fcMoment('2013-02-08 09:30'),
           start: start.clone()
@@ -224,8 +235,9 @@ describe('The event-date-edition component', function() {
         this.initDirective(this.$scope);
         [null, this.fcMoment('invalid date')].forEach(function(date) {
           this.$scope.event.end = date;
-          this.eleScope.onEndDateChange();
+          this.eleScope.vm.onEndDateChange();
           var isSame = start.isSame(this.$scope.event.start);
+
           expect(isSame).to.be.true;
         }, this);
       });
@@ -241,9 +253,11 @@ describe('The event-date-edition component', function() {
       this.fcMoment = fcMoment;
 
       this.initDirective = function(scope) {
-        var html = '<input ng-model="event.end" friendlify-end-date/>';
+        var html = '<input ng-model="event.end" data-is-all-day="event.allDay" friendlify-end-date/>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
+
         return element;
       };
     }]));
@@ -255,6 +269,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var controller = element.controller('ngModel');
+
       expect(controller.$viewValue).to.deep.equal('2015/07/02');
     });
 
@@ -264,6 +279,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var formatter = element.controller('ngModel').$formatters[0];
+
       expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
     });
 
@@ -274,6 +290,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
+
       expect(parser(this.fcMoment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment('2015/07/04').format('YYYY/MM/DD'));
     });
 
@@ -283,6 +300,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
+
       expect(parser(this.fcMoment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment('2015/07/03').format('YYYY/MM/DD'));
     });
   });
@@ -296,9 +314,11 @@ describe('The event-date-edition component', function() {
       this.fcMoment = fcMoment;
 
       this.initDirective = function(scope) {
-        var html = '<input ng-model="event.end" date-to-moment/>';
+        var html = '<input ng-model="event.end" data-is-all-day="event.allDay" date-to-moment/>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
+
         return element;
       };
     }]));
@@ -309,6 +329,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
+
       expect(parser('2015-07-03 10:30').hasTime()).to.be.false;
     });
 
@@ -318,6 +339,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
+
       expect(parser('2015-07-03 10:30').hasTime()).to.be.true;
     });
 
@@ -327,6 +349,7 @@ describe('The event-date-edition component', function() {
       };
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
+
       expect(parser('this is a bad date')).to.be.undefined;
     });
   });

@@ -1,22 +1,41 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
-  .directive('eventCreateButton', function(openEventForm, CalendarShell, calendarUtils) {
-    return {
+  angular.module('esn.calendar')
+         .directive('eventCreateButton', eventCreateButton);
+
+  function eventCreateButton() {
+    var directive = {
       restrict: 'E',
-      replace: true,
+      templateUrl: '/calendar/views/components/event-create-button.html',
       scope: {
         community: '=',
         user: '='
       },
-      templateUrl: '/calendar/views/components/event-create-button.html',
-      link: function(scope) {
-        scope.openEventForm = function() {
-          openEventForm(CalendarShell.fromIncompleteShell({
-            start: calendarUtils.getNewStartDate(),
-            end: calendarUtils.getNewEndDate()
-          }));
-        };
-      }
+      replace: true,
+      controller: EventCreateButtonController,
+      controllerAs: 'vm',
+      bindToController: true
     };
-  });
+
+    return directive;
+  }
+
+  EventCreateButtonController.$inject = ['CalendarShell', 'calendarUtils', 'openEventForm'];
+
+  function EventCreateButtonController(CalendarShell, calendarUtils, openEventForm) {
+    var vm = this;
+
+    vm.openEventForm = _openEventForm;
+
+    ////////////
+
+    function _openEventForm() {
+      openEventForm(CalendarShell.fromIncompleteShell({
+        start: calendarUtils.getNewStartDate(),
+        end: calendarUtils.getNewEndDate()
+      }));
+    }
+  }
+
+})();

@@ -1,22 +1,32 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
+  angular.module('esn.calendar')
+         .directive('eventAlarmConsultation', eventAlarmConsultation);
 
-  .directive('eventAlarmConsultation', function(TRIGGER) {
-    function link(scope) {
-      if (scope.event.alarm) {
-        scope.trigger = scope.event.alarm.trigger.toICALString();
-      }
-
-      scope.TRIGGER = TRIGGER;
-    }
-
-    return {
+  function eventAlarmConsultation() {
+    var directive = {
       restrict: 'E',
+      templateUrl: '/calendar/views/components/event-alarm-consultation.html',
       scope: {
         event: '='
       },
-      templateUrl: '/calendar/views/components/event-alarm-consultation.html',
-      link: link
+      replace: true,
+      controller: EventAlarmConsultationController,
+      controllerAs: 'vm',
+      bindToController: true
     };
-  });
+
+    return directive;
+  }
+
+  EventAlarmConsultationController.$inject = ['TRIGGER'];
+
+  function EventAlarmConsultationController(TRIGGER) {
+    var vm = this;
+
+    vm.trigger = vm.event.alarm.trigger.toICALString();
+    vm.TRIGGER = TRIGGER;
+  }
+
+})();

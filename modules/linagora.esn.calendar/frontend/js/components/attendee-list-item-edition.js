@@ -2,17 +2,16 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('attendeeListItem', attendeeListItem);
+         .directive('attendeeListItemEdition', attendeeListItemEdition);
 
-  function attendeeListItem() {
+  function attendeeListItemEdition() {
     var directive = {
       restrict: 'E',
-      templateUrl: '/calendar/views/components/attendee-list-item.html',
+      templateUrl: '/calendar/views/components/attendee-list-item-edition.html',
       scope: {
         attendee: '=',
         readOnly: '=',
-        isOrganizer: '=',
-        mode: '='
+        isOrganizer: '='
       },
       replace: true,
     };

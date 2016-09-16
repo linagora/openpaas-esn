@@ -1,62 +1,87 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
+  angular.module('esn.calendar')
+         .directive('attendeesAutocompleteInput', attendeesAutocompleteInput);
 
-  .directive('attendeesAutocompleteInput', function(session, calendarAttendeeService, emailService, naturalService, AUTOCOMPLETE_MAX_RESULTS) {
-    function link(scope) {
-      function getAddedAttendeeIds() {
-        var addedAttendees = scope.mutableAttendees.concat(scope.originalAttendees || []);
-        var addedAttendeeIds = [];
-        addedAttendees.forEach(function(att) {
-          addedAttendeeIds.push(att.id);
-        });
-        return addedAttendeeIds;
-      }
-
-      function isDuplicateAttendee(att, addedAttendeeIds) {
-        return (att.email in session.user.emailMap) ||
-               addedAttendeeIds.indexOf(att.id) > -1;
-      }
-
-      function fillNonDuplicateAttendees(attendees) {
-        var addedAttendeeIds = getAddedAttendeeIds();
-
-        return attendees.filter(function(att) {
-          return !isDuplicateAttendee(att, addedAttendeeIds);
-        });
-      }
-
-      scope.mutableAttendees = scope.mutableAttendees || [];
-      scope.onAddingAttendee = function(att) {
-        if (!att.id) {
-          att.id = att.displayName;
-          att.email = att.displayName;
-        }
-        return !isDuplicateAttendee(att, getAddedAttendeeIds()) &&
-               emailService.isValidEmail(att.email);
-      };
-
-      scope.getInvitableAttendees = function(query) {
-        scope.query = query;
-
-        return calendarAttendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
-          attendeeCandidates = fillNonDuplicateAttendees(attendeeCandidates);
-          attendeeCandidates.sort(function(a, b) {
-            return naturalService.naturalSort(a.displayName, b.displayName);
-          });
-          return attendeeCandidates.slice(0, AUTOCOMPLETE_MAX_RESULTS);
-        });
-      };
-    }
-
-    return {
+  function attendeesAutocompleteInput() {
+    var directive = {
       restrict: 'E',
-      replace: true,
       templateUrl: '/calendar/views/components/attendees-autocomplete-input.html',
-      link: link,
       scope: {
         originalAttendees: '=',
         mutableAttendees: '='
-      }
+      },
+      replace: true,
+      controller: AttendeesAutocompleteInputController,
+      controllerAs: 'vm',
+      bindToController: true
     };
-  });
+
+    return directive;
+  }
+
+  AttendeesAutocompleteInputController.$inject = [
+    'calendarAttendeeService',
+    'emailService',
+    'naturalService',
+    'session',
+    'AUTOCOMPLETE_MAX_RESULTS'
+  ];
+
+  function AttendeesAutocompleteInputController(calendarAttendeeService, emailService, naturalService, session, AUTOCOMPLETE_MAX_RESULTS) {
+    var vm = this;
+
+    vm.mutableAttendees = vm.mutableAttendees || [];
+    vm.onAddingAttendee = onAddingAttendee;
+    vm.getInvitableAttendees = getInvitableAttendees;
+
+    ////////////
+
+    function onAddingAttendee(att) {
+      if (!att.id) {
+        att.id = att.displayName;
+        att.email = att.displayName;
+      }
+
+      return !_isDuplicateAttendee(att, _getAddedAttendeeIds()) && emailService.isValidEmail(att.email);
+    }
+
+    function getInvitableAttendees(query) {
+      vm.query = query;
+
+      return calendarAttendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
+        attendeeCandidates = _fillNonDuplicateAttendees(attendeeCandidates);
+        attendeeCandidates.sort(function(a, b) {
+          return naturalService.naturalSort(a.displayName, b.displayName);
+        });
+
+        return attendeeCandidates.slice(0, AUTOCOMPLETE_MAX_RESULTS);
+      });
+    }
+
+    function _fillNonDuplicateAttendees(attendees) {
+      var addedAttendeeIds = _getAddedAttendeeIds();
+
+      return attendees.filter(function(att) {
+        return !_isDuplicateAttendee(att, addedAttendeeIds);
+      });
+    }
+
+    function _getAddedAttendeeIds() {
+      var addedAttendees = vm.mutableAttendees.concat(vm.originalAttendees || []);
+      var addedAttendeeIds = [];
+
+      addedAttendees.forEach(function(att) {
+        addedAttendeeIds.push(att.id);
+      });
+
+      return addedAttendeeIds;
+    }
+
+    function _isDuplicateAttendee(att, addedAttendeeIds) {
+      return (att.email in session.user.emailMap) || addedAttendeeIds.indexOf(att.id) > -1;
+    }
+  }
+
+})();

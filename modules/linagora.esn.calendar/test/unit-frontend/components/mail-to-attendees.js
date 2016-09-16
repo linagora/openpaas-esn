@@ -3,6 +3,7 @@
 /* global chai: false */
 
 var expect = chai.expect;
+
 describe('The mail-to-attendees component', function() {
 
   beforeEach(function() {
@@ -19,8 +20,10 @@ describe('The mail-to-attendees component', function() {
     this.initDirective = function(scope) {
       var html = '<mail-to-attendees event="event"/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
       this.eleScope = element.isolateScope();
+
       return element;
     };
   }]));
@@ -34,6 +37,7 @@ describe('The mail-to-attendees component', function() {
 
     this.initDirective(this.$scope);
     var attendeesMailTest = 'other1@example.com,other2@example.com,other3@example.com';
-    expect(this.eleScope.attendeesMail).to.equal(attendeesMailTest);
+
+    expect(this.eleScope.vm.attendeesMail).to.equal(attendeesMailTest);
   });
 });

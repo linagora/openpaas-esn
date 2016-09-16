@@ -61,8 +61,10 @@ describe('The attendees-autocomplete-input component', function() {
     this.initDirective = function(scope) {
       var html = '<attendees-autocomplete-input original-attendees="attendees" mutable-attendees="newAttendees"/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
       this.eleScope = element.isolateScope();
+
       return element;
     };
   }));
@@ -70,14 +72,14 @@ describe('The attendees-autocomplete-input component', function() {
   it('should initialize the model, if none given', function() {
     this.initDirective(this.$scope);
 
-    expect(this.eleScope.mutableAttendees).to.deep.equal([]);
+    expect(this.eleScope.vm.mutableAttendees).to.deep.equal([]);
   });
 
   it('should use the model, if one given', function() {
     this.$scope.newAttendees = [{ a: '1' }];
     this.initDirective(this.$scope);
 
-    expect(this.eleScope.mutableAttendees).to.deep.equal([{ a: '1' }]);
+    expect(this.eleScope.vm.mutableAttendees).to.deep.equal([{ a: '1' }]);
   });
 
   describe('getInvitableAttendees', function() {
@@ -85,7 +87,7 @@ describe('The attendees-autocomplete-input component', function() {
 
     it('should call calendarAttendeeService, remove session.user and sort the other users based on the displayName property ', function(done) {
       this.initDirective(this.$scope);
-      this.eleScope.getInvitableAttendees(query).then(function(response) {
+      this.eleScope.vm.getInvitableAttendees(query).then(function(response) {
         expect(response).to.deep.equal([
           { displayName: 'contact1', id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'},
           { displayName: 'contact3', id: '222222', email: 'fist@last', preferredEmail: 'fist@last', partstat: 'NEEDS-ACTION'},
@@ -98,11 +100,11 @@ describe('The attendees-autocomplete-input component', function() {
 
     it('should remove duplicate attendees based on ID comparing to added attendees', function(done) {
       this.initDirective(this.$scope);
-      this.eleScope.originalAttendees = [{
+      this.eleScope.vm.originalAttendees = [{
         id: '222222',
         email: 'fist@last'
       }];
-      this.eleScope.getInvitableAttendees(query).then(function(response) {
+      this.eleScope.vm.getInvitableAttendees(query).then(function(response) {
         expect(response).to.eql([
           { displayName: 'contact1', id: '333333', firstname: 'john', lastname: 'doe', email: 'johndoe@test.com', preferredEmail: 'johndoe@test.com', partstat: 'NEEDS-ACTION'},
           { displayName: 'contact20', id: '444444', email: '4@last', preferredEmail: '4@last', partstat: 'NEEDS-ACTION'}
@@ -116,15 +118,17 @@ describe('The attendees-autocomplete-input component', function() {
       attendeeServiceMock.getAttendeeCandidates = function(q) {
         expect(q).to.equal(query);
         var response = [];
+
         for (var i = 0; i < 20; i++) {
           response.push({id: 'contact' + i, email: i + 'mail@domain.com', partstat: 'NEEDS-ACTION'});
         }
+
         return $q.when(response);
       };
 
       this.initDirective(this.$scope);
 
-      this.eleScope.getInvitableAttendees(query).then(function(response) {
+      this.eleScope.vm.getInvitableAttendees(query).then(function(response) {
         expect(response.length).to.equal(autoCompleteMax);
         done();
       });
@@ -135,14 +139,15 @@ describe('The attendees-autocomplete-input component', function() {
   describe('onAddingAttendee', function() {
     it('should bail on invalid emails', function() {
       var att, res;
+
       this.initDirective(this.$scope);
 
       att = { id: 1, displayName: 'aaaaaaaaaarrrggghhhh' };
-      res = this.eleScope.onAddingAttendee(att);
+      res = this.eleScope.vm.onAddingAttendee(att);
       expect(res).to.be.false;
 
       att = { email: 'wooooohooooooooo', displayName: 'world' };
-      res = this.eleScope.onAddingAttendee(att);
+      res = this.eleScope.vm.onAddingAttendee(att);
       expect(res).to.be.false;
     });
 
@@ -150,7 +155,8 @@ describe('The attendees-autocomplete-input component', function() {
       it('should use displayName as ID and email', function() {
         var displayName = 'plain@email.com';
         var att = { displayName: displayName };
-        this.eleScope.onAddingAttendee(att);
+
+        this.eleScope.vm.onAddingAttendee(att);
         expect(att).to.eql({
           displayName: displayName,
           id: displayName,
@@ -160,11 +166,12 @@ describe('The attendees-autocomplete-input component', function() {
 
       it('should still return true when there is duplicate email from user/contact attendees', function() {
         var duplicateEmail = 'duplicate@email.com';
-        this.eleScope.originalAttendees = [{
+
+        this.eleScope.vm.originalAttendees = [{
           id: '1',
           email: duplicateEmail
         }];
-        expect(this.eleScope.onAddingAttendee({ displayName: duplicateEmail })).to.be.true;
+        expect(this.eleScope.vm.onAddingAttendee({ displayName: duplicateEmail })).to.be.true;
 
       });
     });

@@ -3,12 +3,12 @@
     .flex-start.flex-vertical-centered
       i.mdi.mdi-clock
       .date
-        span {{start}}
-      .to(ng-if='!event.allDay')
+        span {{vm.start}}
+      .to(ng-if='!vm.event.allDay')
         | #{__('To')}
-      .separator(ng-if='event.allDay')
+      .separator(ng-if='vm.event.allDay')
         | -
       .date
-        span {{end}}
-      .allday(ng-if='event.allDay')
+        span {{vm.end}}
+      .allday(ng-if='vm.event.allDay')
         | #{__('All day')}

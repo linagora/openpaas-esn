@@ -19,7 +19,9 @@ describe('the eventDateConsultation directive', function() {
     this.initDirective = function(scope) {
       var html = '<event-date-consultation event="event"/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
+
       return element.isolateScope();
     };
   }));
@@ -33,8 +35,9 @@ describe('the eventDateConsultation directive', function() {
         location: 'aLocation'
       };
       var isolateScope = this.initDirective(this.$scope);
-      expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D'));
-      expect(isolateScope.end).to.equal(this.$scope.event.end.clone().subtract(1, 'day').format('MMMM D'));
+
+      expect(isolateScope.vm.start).to.equal(this.$scope.event.start.format('MMMM D'));
+      expect(isolateScope.vm.end).to.equal(this.$scope.event.end.clone().subtract(1, 'day').format('MMMM D'));
     });
   });
 
@@ -48,8 +51,9 @@ describe('the eventDateConsultation directive', function() {
           location: 'aLocation'
         };
         var isolateScope = this.initDirective(this.$scope);
-        expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D hh:mma'));
-        expect(isolateScope.end).to.equal(this.$scope.event.end.format('hh:mma'));
+
+        expect(isolateScope.vm.start).to.equal(this.$scope.event.start.format('MMMM D hh:mma'));
+        expect(isolateScope.vm.end).to.equal(this.$scope.event.end.format('hh:mma'));
       });
     });
 
@@ -62,8 +66,9 @@ describe('the eventDateConsultation directive', function() {
           location: 'aLocation'
         };
         var isolateScope = this.initDirective(this.$scope);
-        expect(isolateScope.start).to.equal(this.$scope.event.start.format('MMMM D hh:mma'));
-        expect(isolateScope.end).to.equal(this.$scope.event.end.format('MMMM D hh:mma'));
+
+        expect(isolateScope.vm.start).to.equal(this.$scope.event.start.format('MMMM D hh:mma'));
+        expect(isolateScope.vm.end).to.equal(this.$scope.event.end.format('MMMM D hh:mma'));
       });
     });
   });

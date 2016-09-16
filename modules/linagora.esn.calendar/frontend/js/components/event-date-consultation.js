@@ -1,27 +1,50 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
+  angular.module('esn.calendar')
+         .directive('eventDateConsultation', eventDateConsultation);
 
-  .directive('eventDateConsultation', function() {
-    return {
+  function eventDateConsultation() {
+    var directive = {
       restrict: 'E',
-      replace: true,
       templateUrl: '/calendar/views/components/event-date-consultation.html',
       scope: {
         event: '='
       },
-      link: function(scope) {
-        if (!scope.event.allDay) {
-          scope.start = scope.event.start.format('MMMM D hh:mma');
-          if (scope.event.start.isSame(scope.event.end, 'day')) {
-            scope.end = scope.event.end.format('hh:mma');
-          } else {
-            scope.end = scope.event.end.format('MMMM D hh:mma');
-          }
-        } else {
-          scope.start = scope.event.start.format('MMMM D');
-          scope.end = scope.event.end.clone().subtract(1, 'day').format('MMMM D');
-        }
-      }
+      replace: true,
+      controller: EventDateConsultationController,
+      controllerAs: 'vm',
+      bindToController: true
     };
-  });
+
+    return directive;
+  }
+
+  EventDateConsultationController.$inject = [];
+
+  function EventDateConsultationController() {
+    var vm = this;
+
+    vm.start = undefined;
+    vm.end = undefined;
+
+    activate();
+
+    ////////////
+
+    function activate() {
+      if (!vm.event.allDay) {
+        vm.start = vm.event.start.format('MMMM D hh:mma');
+        if (vm.event.start.isSame(vm.event.end, 'day')) {
+          vm.end = vm.event.end.format('hh:mma');
+        } else {
+          vm.end = vm.event.end.format('MMMM D hh:mma');
+        }
+      } else {
+        vm.start = vm.event.start.format('MMMM D');
+        vm.end = vm.event.end.clone().subtract(1, 'day').format('MMMM D');
+      }
+    }
+  }
+
+})();

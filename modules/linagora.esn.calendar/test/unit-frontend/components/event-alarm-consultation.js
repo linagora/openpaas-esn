@@ -20,8 +20,10 @@ describe('The event-alarm-consultation component', function() {
     this.initDirective = function(scope) {
       var html = '<event-alarm-consultation event="event"/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
       this.eleScope = element.isolateScope();
+
       return element;
     };
   }]));
@@ -45,6 +47,6 @@ describe('The event-alarm-consultation component', function() {
     });
 
     this.initDirective(this.$scope);
-    expect(this.eleScope.trigger).to.deep.equal('-P1W');
+    expect(this.eleScope.vm.trigger).to.deep.equal('-P1W');
   });
 });

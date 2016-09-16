@@ -49,7 +49,7 @@
           mail-to-attendees(ng-if='composerExists && event.attendees.length', event='event')
             
         div(ng-show="selectedTab === 'more'")
-          event-alarm-consultation(ng-if="!isEdit", event="editedEvent")
+          event-alarm-consultation(ng-if="!isEdit && editedEvent.alarm", event="editedEvent")
           event-alarm-edition(ng-if="isEdit", event="editedEvent")
 
       .row.event-consult-form-footer.form-group.flex-vertical-centered.flex-space-between

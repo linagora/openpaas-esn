@@ -43,8 +43,10 @@ describe('The calendar-lists component', function() {
     this.initDirective = function(scope) {
       var html = '<calendars-list on-edit-click="click"/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
       this.eleScope = element.isolateScope();
+
       return element;
     };
 
@@ -65,22 +67,21 @@ describe('The calendar-lists component', function() {
     this.initDirective(this.$scope);
 
     expect(this.calendarVisibilityServiceMock.getHiddenCalendars).to.have.been.calledOnce;
-
-    expect(this.eleScope.hiddenCalendars).to.deep.equal({42: true});
-
-    expect(this.eleScope.onEditClick).to.exist;
+    expect(this.eleScope.vm.hiddenCalendars).to.deep.equal({42: true});
+    expect(this.eleScope.vm.onEditClick).to.exist;
   });
 
   it('should call onEditClick on settings icon click', function(done) {
     this.$scope.click = done;
     var element = this.initDirective(this.$scope);
+
     element.find('.configuration-button').click();
   });
 
   describe('scope.toggleCalendar', function() {
     it('should call calendarVisibilityService.toggle', function() {
       this.initDirective(this.$scope);
-      this.eleScope.toggleCalendar(this.eleScope.calendars[0]);
+      this.eleScope.vm.toggleCalendar(this.eleScope.vm.calendars[0]);
       expect(this.calendarVisibilityServiceMock.toggle).to.have.been.calledWith(this.calendars[0]);
     });
   });
@@ -95,7 +96,7 @@ describe('The calendar-lists component', function() {
       });
       this.$rootScope.$apply();
 
-      expect(this.eleScope.hiddenCalendars[this.calendars[0].id]).to.be.true;
+      expect(this.eleScope.vm.hiddenCalendars[this.calendars[0].id]).to.be.true;
 
       this.$rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
         calendar: this.calendars[0],
@@ -103,7 +104,7 @@ describe('The calendar-lists component', function() {
       });
       this.$rootScope.$apply();
 
-      expect(this.eleScope.hiddenCalendars[this.calendars[0].id]).to.be.false;
+      expect(this.eleScope.vm.hiddenCalendars[this.calendars[0].id]).to.be.false;
     });
   });
 
@@ -111,7 +112,7 @@ describe('The calendar-lists component', function() {
     it('should set selected on given calendar and remove it on others calendar', function() {
       this.calendars[0].selected = true;
       this.initDirective(this.$scope);
-      this.eleScope.selectCalendar(this.calendars[1]);
+      this.eleScope.vm.selectCalendar(this.calendars[1]);
       expect(this.calendars[1].selected).to.be.true;
       expect(!!this.calendars[0].selected).to.be.false;
     });
@@ -119,9 +120,10 @@ describe('The calendar-lists component', function() {
     it('should unhide a calendar if the selected calendar was hidden', function() {
       this.initDirective(this.$scope);
       var cal = this.calendars[1];
-      this.eleScope.hiddenCalendars[cal.id] = true;
 
-      this.eleScope.selectCalendar(cal);
+      this.eleScope.vm.hiddenCalendars[cal.id] = true;
+
+      this.eleScope.vm.selectCalendar(cal);
       expect(this.calendarVisibilityServiceMock.toggle).to.have.been.calledWith(cal);
     });
 
@@ -129,10 +131,11 @@ describe('The calendar-lists component', function() {
       this.$scope.selectedCalendarBox.calendar = {id: 3};
       this.initDirective(this.$scope);
       var cal = {id: 42};
-      this.eleScope.hiddenCalendars[cal.id] = true;
 
-      this.eleScope.selectCalendar(cal);
-      expect(!!this.eleScope.hiddenCalendars[3]).to.be.false;
+      this.eleScope.vm.hiddenCalendars[cal.id] = true;
+
+      this.eleScope.vm.selectCalendar(cal);
+      expect(!!this.eleScope.vm.hiddenCalendars[3]).to.be.false;
     });
   });
 });

@@ -1,11 +1,12 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
+  angular.module('esn.calendar')
+         .directive('attendeesList', attendeesList);
 
-  .directive('attendeesList', function(CALENDAR_EVENTS) {
-    return {
+  function attendeesList() {
+    var directive = {
       restrict: 'E',
-      replace: true,
       templateUrl: '/calendar/views/components/attendees-list.html',
       scope: {
         attendees: '=',
@@ -13,42 +14,64 @@ angular.module('esn.calendar')
         organizer: '=',
         mode: '@'
       },
-      link: function(scope) {
-        scope.attendeeClickedCount = 0;
-
-        function updateAttendeeStats(attendees) {
-          var partstatMap = scope.attendeesPerPartstat = {
-            'NEEDS-ACTION': 0,
-            ACCEPTED: 0,
-            TENTATIVE: 0,
-            DECLINED: 0,
-            OTHER: 0
-          };
-
-          if (!attendees || !attendees.length) {
-            return;
-          }
-
-          attendees.forEach(function(attendee) {
-            partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
-          });
-        }
-
-        scope.selectAttendee = function(attendee) {
-          if (scope.organizer.email !== attendee.email) {
-            attendee.clicked = !attendee.clicked;
-            scope.attendeeClickedCount += attendee.clicked ? 1 : -1;
-          }
-        };
-
-        scope.deleteSelectedAttendees = function() {
-          scope.attendees = scope.attendees.filter(function(attendee) { return !attendee.clicked;});
-        };
-
-        updateAttendeeStats(scope.attendees);
-        scope.$on(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) {
-          updateAttendeeStats(data);
-        });
-      }
+      replace: true,
+      controller: AttendeesListController,
+      controllerAs: 'vm',
+      bindToController: true
     };
-  });
+
+    return directive;
+  }
+
+  AttendeesListController.$inject = ['$scope', 'CALENDAR_EVENTS'];
+
+  function AttendeesListController($scope, CALENDAR_EVENTS) {
+    var vm = this;
+
+    vm.attendeesPerPartstat = {};
+    vm.attendeeClickedCount = 0;
+    vm.selectAttendee = selectAttendee;
+    vm.deleteSelectedAttendees = deleteSelectedAttendees;
+
+    activate();
+
+    ////////////
+
+    function activate() {
+      updateAttendeeStats(vm.attendees);
+      $scope.$on(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) { // eslint-disable-line
+        updateAttendeeStats(data);
+      });
+    }
+
+    function selectAttendee(attendee) {
+      if (vm.organizer.email !== attendee.email) {
+        attendee.clicked = !attendee.clicked;
+        vm.attendeeClickedCount += attendee.clicked ? 1 : -1;
+      }
+    }
+
+    function deleteSelectedAttendees() {
+      vm.attendees = vm.attendees.filter(function(attendee) { return !attendee.clicked;});
+    }
+
+    function updateAttendeeStats(attendees) {
+      var partstatMap = vm.attendeesPerPartstat = {
+        'NEEDS-ACTION': 0,
+        ACCEPTED: 0,
+        TENTATIVE: 0,
+        DECLINED: 0,
+        OTHER: 0
+      };
+
+      if (!attendees || !attendees.length) {
+        return;
+      }
+
+      attendees.forEach(function(attendee) {
+        partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
+      });
+    }
+  }
+
+})();

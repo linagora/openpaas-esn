@@ -27,8 +27,10 @@ describe('The event-recurrence-edition component', function() {
     this.initDirective = function(scope) {
       var html = '<event-recurrence-edition event="event" readonly="readOnly"/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
       this.eleScope = element.isolateScope();
+
       return element;
     };
   }]));
@@ -38,7 +40,7 @@ describe('The event-recurrence-edition component', function() {
       return true;
     };
     this.initDirective(this.$scope);
-    expect(this.eleScope.readOnly).to.be.true;
+    expect(this.eleScope.vm.readOnly).to.be.true;
   });
 
   describe('scope.toggleWeekdays', function() {
@@ -48,9 +50,9 @@ describe('The event-recurrence-edition component', function() {
         interval: null
       };
       this.initDirective(this.$scope);
-      this.eleScope.event.rrule.byday = ['SU', 'WE', 'TU', 'MO'];
-      this.eleScope.toggleWeekdays('W');
-      expect(this.eleScope.event.rrule.byday).to.deep.equal(['MO', 'TU', 'SU']);
+      this.eleScope.vm.event.rrule.byday = ['SU', 'WE', 'TU', 'MO'];
+      this.eleScope.vm.toggleWeekdays('W');
+      expect(this.eleScope.vm.event.rrule.byday).to.deep.equal(['MO', 'TU', 'SU']);
     });
 
     it('should push the weekday and sort the array', function() {
@@ -59,9 +61,9 @@ describe('The event-recurrence-edition component', function() {
         interval: null
       };
       this.initDirective(this.$scope);
-      this.eleScope.event.rrule.byday = ['SU', 'WE', 'TU', 'MO'];
-      this.eleScope.toggleWeekdays('F');
-      expect(this.eleScope.event.rrule.byday).to.deep.equal(['MO', 'TU', 'WE', 'FR', 'SU']);
+      this.eleScope.vm.event.rrule.byday = ['SU', 'WE', 'TU', 'MO'];
+      this.eleScope.vm.toggleWeekdays('F');
+      expect(this.eleScope.vm.event.rrule.byday).to.deep.equal(['MO', 'TU', 'WE', 'FR', 'SU']);
     });
   });
 
@@ -71,8 +73,10 @@ describe('The event-recurrence-edition component', function() {
         freq: 'WEEKLY'
       };
       var element = this.initDirective(this.$scope);
+
       this.eleScope.selectEndRadioButton(2);
       var radio = angular.element(element).find('input[name="inlineRadioEndOptions"]')[2];
+
       expect(radio.checked).to.be.true;
     });
 
@@ -83,7 +87,7 @@ describe('The event-recurrence-edition component', function() {
       };
       this.initDirective(this.$scope);
       this.eleScope.selectEndRadioButton(1);
-      expect(this.eleScope.event.rrule.until).to.be.undefined;
+      expect(this.eleScope.vm.event.rrule.until).to.be.undefined;
     });
 
     it('should set count to undefined if index is 2', function() {
@@ -93,21 +97,21 @@ describe('The event-recurrence-edition component', function() {
       };
       this.initDirective(this.$scope);
       this.eleScope.selectEndRadioButton(2);
-      expect(this.eleScope.event.rrule.count).to.be.undefined;
+      expect(this.eleScope.vm.event.rrule.count).to.be.undefined;
     });
   });
 
   describe('scope.setRRULE', function() {
     it('should set rrule to undefined if scope.freq equal undefined', function() {
-      this.eleScope.freq = undefined;
-      this.eleScope.setRRULE();
-      expect(this.eleScope.event.rrule).to.be.undefined;
+      this.eleScope.vm.freq = undefined;
+      this.eleScope.vm.setRRULE();
+      expect(this.eleScope.vm.event.rrule).to.be.undefined;
     });
 
     it('should set rrule if scope is not undefined', function() {
-      this.eleScope.freq = 'WEEKLY';
-      this.eleScope.setRRULE();
-      expect(this.eleScope.event.rrule.freq).to.be.equal('WEEKLY');
+      this.eleScope.vm.freq = 'WEEKLY';
+      this.eleScope.vm.setRRULE();
+      expect(this.eleScope.vm.event.rrule.freq).to.be.equal('WEEKLY');
     });
   });
 });
