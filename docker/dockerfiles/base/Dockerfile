@@ -9,6 +9,7 @@
 FROM node:6.5.0-slim
 MAINTAINER Linagora Folks
 
+RUN sed -i 's/httpredir.debian.org/deb.debian.org/g' /etc/apt/sources.list
 RUN apt-get update --fix-missing
 RUN apt-get install -y git \
             libjpeg-dev \
