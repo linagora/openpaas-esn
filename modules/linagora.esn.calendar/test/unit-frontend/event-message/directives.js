@@ -39,8 +39,8 @@ describe('The event-message Angular module directives', function() {
       var other1 = { partstat: 'e' };
       var other2 = { partstat: 'us' };
       var other3 = { partstat: 'eless' };
-
       var attendees = [needAction, other1, accepted, other2, tentative, other3, declined, accepted, tentative];
+
       expect(self.eventMessageService.computeAttendeeStats(attendees)).to.deep.equal({
         'NEEDS-ACTION': 1,
         ACCEPTED: 2,
@@ -80,8 +80,9 @@ describe('The event-message Angular module directives', function() {
         getInvitedAttendees: sinon.spy(function() {
           return [{ getParameter: _.constant('partstart') }];
         }),
-        changeParticipation: sinon.spy(function(_path, _event, _emails, partstat) {
+        changeParticipation: sinon.spy(function(_path, _event, _emails, partstat) { // eslint-disable-line
           self.partstat[partstat] = (self.partstat[partstat] || 0) + 1;
+
           return $q.when(self.eventAfterChangePart);
         })
       };
@@ -115,9 +116,11 @@ describe('The event-message Angular module directives', function() {
       };
 
       self.initDirective = function() {
-        var html = '<event-message></event-message>';
+        var html = '<event-message message="message"></event-message>';
+
         self.element = self.$compile(html)(self.$scope);
         self.$scope.$digest();
+        self.eleScope = self.element.isolateScope();
       };
 
       self.initDirective();
@@ -125,11 +128,12 @@ describe('The event-message Angular module directives', function() {
 
     it('should fetch event and his getInvitedAttendees correctly', function() {
       expect(self.eventServiceMock.getEvent).to.have.been.calledWith(self.$scope.message.eventId);
-      expect(self.eventServiceMock.getInvitedAttendees).to.have.been.calledWith(self.$scope.event.vcalendar, self.sessionMock.user.emails);
+      expect(self.eventServiceMock.getInvitedAttendees).to.have.been.calledWith(self.eleScope.vm.event.vcalendar, self.sessionMock.user.emails);
     });
 
     it('should remove loading and set error if getEvent failed', function() {
       var statusText = 'status are made of stone';
+
       self.eventServiceMock.getEvent = function() {
         return $q.reject({
           statusText: statusText
@@ -137,58 +141,60 @@ describe('The event-message Angular module directives', function() {
       };
 
       self.initDirective();
-      expect(self.element.find('>div>.loading').hasClass('hidden')).to.be.true;
-      expect(self.element.find('>div>.error').hasClass('hidden')).to.be.false;
+      expect(self.eleScope.vm.isLoadFailed).to.be.true;
     });
 
     it('should remove loading and set message if getEvent succed', function() {
-      expect(self.element.find('>div>.loading').hasClass('hidden')).to.be.true;
-      expect(self.element.find('>div>.message').hasClass('hidden')).to.be.false;
+      expect(self.eleScope.vm.isEventLoaded).to.be.true;
     });
 
     it('should take partstat of first attendee if not organizer', function() {
-      expect(self.$scope.partstat).to.equal('partstart');
+      expect(self.eleScope.vm.partstat).to.equal('partstart');
     });
 
     it('should take partstat of organizer if any', function() {
       var orgPartstat = 'orgPartstat';
+
       self.eventServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
       self.initDirective();
-      expect(self.$scope.partstat).to.equal(orgPartstat);
+      expect(self.eleScope.vm.partstat).to.equal(orgPartstat);
     });
 
     it('should compute partstat', function() {
       expect(self.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.event.attendees);
-      expect(self.$scope.attendeesPerPartstat).to.equal(self.partstat);
+      expect(self.eleScope.vm.attendeesPerPartstat).to.equal(self.partstat);
     });
 
     it('should compute hasAttendee', function() {
-      expect(self.$scope.hasAttendees).to.be.true;
+      expect(self.eleScope.vm.hasAttendees).to.be.true;
       self.event.attendees = null;
       self.initDirective();
-      expect(self.$scope.hasAttendees).to.be.false;
+      expect(self.eleScope.vm.hasAttendees).to.be.false;
     });
 
     describe('scope.changeParticipation ', function() {
       it('should call eventService.changeParticipation correctly', function() {
         var partstat = 'ACCEPTED';
-        self.$scope.changeParticipation(partstat);
+
+        self.eleScope.vm.changeParticipation(partstat);
         expect(self.eventServiceMock.changeParticipation).to.have.been.calledWith(self.event.path, self.event, self.sessionMock.user.emails, partstat);
       });
 
       it('should update event ', function() {
         var partstat = 'ACCEPTED';
-        self.$scope.changeParticipation(partstat);
+
+        self.eleScope.vm.changeParticipation(partstat);
         self.$rootScope.$digest();
-        expect(self.$scope.event).to.equal(self.eventAfterChangePart);
+        expect(self.eleScope.vm.event).to.equal(self.eventAfterChangePart);
       });
 
       it('should update attendee stats correctly', function() {
         var partstat = 'ACCEPTED';
-        self.$scope.changeParticipation(partstat);
+
+        self.eleScope.vm.changeParticipation(partstat);
         self.$rootScope.$digest();
         expect(self.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.eventAfterChangePart.attendees);
-        expect(self.$scope.attendeesPerPartstat.ACCEPTED).to.equal(1);
+        expect(self.eleScope.vm.attendeesPerPartstat.ACCEPTED).to.equal(1);
       });
     });
   });
@@ -271,6 +277,7 @@ describe('The event-message Angular module directives', function() {
 
     it('should init an empty event with CalendarShell', function() {
       var calendarShell = 'kitten';
+
       self.CalendarShellMock.fromIncompleteShell = sinon.stub().returns(calendarShell);
       self.initController();
 
@@ -300,6 +307,7 @@ describe('The event-message Angular module directives', function() {
 
       it('should not replace non title by default title', function() {
         var title = ' a title';
+
         self.$scope.event.title = title;
         self.$scope.submit();
         expect(self.$scope.event.title).to.equal(title);
@@ -342,6 +350,7 @@ describe('The event-message Angular module directives', function() {
         expect(self.$scope.restActive).to.be.false;
 
         var defer = self.$q.defer();
+
         self.eventServiceMock.createEvent = _.constant(defer.promise);
         self.$scope.submit();
         expect(self.$scope.restActive).to.be.true;
