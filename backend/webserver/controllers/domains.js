@@ -250,3 +250,27 @@ function addDomainAdministrator(req, res) {
   });
 }
 module.exports.addDomainAdministrator = addDomainAdministrator;
+
+function removeDomainAdministrator(req, res) {
+  var domain = req.domain;
+  var administratorId = req.params.administratorId;
+
+  if (req.user._id.equals(administratorId)) {
+    return res.status(403).json({
+      error: { code: 403, message: 'Forbidden', details: 'You cannot remove yourself' }
+    });
+  }
+
+  userDomain.removeDomainAdministrator(domain, administratorId, function(err) {
+    if (err) {
+      logger.error('Error while removing domain administrator:', err);
+
+      return res.status(500).json({
+        error: { code: 500, message: 'Server Error', details: 'Error while removing domain administrator' }
+      });
+    }
+
+    res.status(204).end();
+  });
+}
+module.exports.removeDomainAdministrator = removeDomainAdministrator;

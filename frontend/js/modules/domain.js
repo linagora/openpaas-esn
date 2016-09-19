@@ -63,7 +63,8 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     /**
      * Add domain administrators
      * @param {String} domainId The domain ID
-     * @param {Array} userIds  An array of user ID to set as domain administrators
+     * @param {Array} userIds   An array of user ID to set as domain administrators
+     * @return {Promise}        Resolve on success
      */
     function addAdministrators(domainId, userIds) {
       return esnRestangular.one('domains', domainId).one('administrators').customPOST(userIds);
@@ -77,14 +78,25 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
       return esnRestangular.one('domains', domainId).one('administrators').get();
     }
 
+    /**
+     * Remove a administrator from a domain
+     * @param  {String} domainId        The domain ID
+     * @param  {String} administratorId The administrator ID
+     * @return {Promise}                Resolve on success
+     */
+    function removeAdministrator(domainId, administratorId) {
+      return esnRestangular.one('domains', domainId).one('administrators', administratorId).remove();
+    }
+
     return {
       getMembers: getMembers,
       inviteUsers: inviteUsers,
       isManager: isManager,
       get: get,
       createMember: createMember,
+      getAdministrators: getAdministrators,
       addAdministrators: addAdministrators,
-      getAdministrators: getAdministrators
+      removeAdministrator: removeAdministrator
     };
   })
 

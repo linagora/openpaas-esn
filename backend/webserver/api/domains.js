@@ -205,4 +205,28 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.post('/domains/:uuid/administrators', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.addDomainAdministrator);
+
+  /**
+   * @swagger
+   * /domains/{domain_id}/administrators/{administrator_id}:
+   *   delete:
+   *     tags:
+   *      - Domain
+   *     description: Remove an administrator from a domain
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *       - $ref: "#/parameters/dm_administrator_id"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_204"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.delete('/domains/:uuid/administrators/:administratorId', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.removeDomainAdministrator);
 };
