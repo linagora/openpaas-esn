@@ -5,10 +5,8 @@
 var expect = chai.expect;
 
 describe('The calendar module directives', function() {
-  var self;
 
   beforeEach(function() {
-    self = this;
     module('jadeTemplates');
     angular.mock.module('linagora.esn.graceperiod', 'esn.calendar');
   });
@@ -41,14 +39,16 @@ describe('The calendar module directives', function() {
 
       this.initDirective = function(scope) {
         var element = this.$compile('<calendar-view ui-config="uiConfig"/>')(scope);
+
         element = this.$compile(element)(scope);
         scope.$digest();
+
         return element;
       };
     }));
 
     it('should broadcast "header:disable-scroll-listener" true', function(done) {
-      this.$scope.$on('header:disable-scroll-listener', function(event, data) {
+      this.$scope.$on('header:disable-scroll-listener', function(event, data) { // eslint-disable-line
         expect(data).to.be.true;
         done();
       });
@@ -56,7 +56,7 @@ describe('The calendar module directives', function() {
     });
 
     it('should broadcast "header:disable-scroll-listener" false on destroy', function(done) {
-      this.$scope.$on('header:disable-scroll-listener', function(event, data) {
+      this.$scope.$on('header:disable-scroll-listener', function(event, data) { // eslint-disable-line
         if (data) {
           return;
         } else {
@@ -94,8 +94,10 @@ describe('The calendar module directives', function() {
 
       this.initDirective = function(scope) {
         var element = this.$compile('<calendar-left-pane/>')(scope);
+
         element = this.$compile(element)(scope);
         scope.$digest();
+
         return element;
       };
 
@@ -107,6 +109,7 @@ describe('The calendar module directives', function() {
 
     it('change element height on calendar:height', function() {
       var element = this.initDirective(this.$scope);
+
       this.$rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, 1200);
       expect(element.height()).to.equal(1200 - LEFT_PANEL_BOTTOM_MARGIN);
     });
@@ -114,6 +117,7 @@ describe('The calendar module directives', function() {
 
   describe('autoSizeAndUpdate directive', function() {
     var autosizeSpy;
+
     beforeEach(function() {
       autosizeSpy = sinon.spy();
       angular.mock.module('esn.form.helper', function($provide) {
@@ -128,7 +132,9 @@ describe('The calendar module directives', function() {
 
       this.initDirective = function(scope) {
         var element = this.$compile('<div auto-size-and-update/>')(scope);
+
         scope.$digest();
+
         return element;
       };
     });
@@ -153,6 +159,7 @@ describe('The calendar module directives', function() {
       };
 
       var self = this;
+
       angular.mock.module('ui.calendar', function($provide) {
         $provide.value('calendarService', {calendarHomeId: '123'});
         $provide.value('miniCalendarService', {miniCalendarMobileId: '456'});
@@ -168,20 +175,25 @@ describe('The calendar module directives', function() {
       });
 
       this.initDirective = function(scope) {
-        var element = this.$compile('<span calendar-date-indicator>{{dateIndicator}}</span>')(scope);
+        var element = this.$compile('<span calendar-date-indicator>{{vm.dateIndicator}}</span>')(scope);
+
         scope.$digest();
+        this.eleScope = element.isolateScope();
+
         return element;
       };
     });
 
     it('should initialize the dateIndicator with the home calendar view title', function() {
       var element = this.initDirective(this.$scope);
+
       expect(this.uiCalendarConfig.calendars['123'].fullCalendar).to.have.been.calledWith('getView');
       expect(element.html()).to.equal('aDate');
     });
 
     it('should change the dateIndicator on home calendar change', function() {
       var element = this.initDirective(this.$scope);
+
       this.$rootScope.$broadcast('calendar:homeViewChange', {title: 'newDate'});
       this.$scope.$digest();
       expect(this.uiCalendarConfig.calendars['123'].fullCalendar).to.have.been.calledWith('getView');
@@ -205,6 +217,7 @@ describe('The calendar module directives', function() {
     it('should change the dateIndicator on mini calendar toggle if it is shown', function() {
       this.$scope.miniCalendarIsShown = false;
       var element = this.initDirective(this.$scope);
+
       this.$rootScope.$broadcast('calendar:mini:toggle');
       this.$scope.$digest();
 
@@ -216,6 +229,7 @@ describe('The calendar module directives', function() {
     it('should change the dateIndicator on home calendar toggle if mini calendar is not shown', function() {
       this.$scope.miniCalendarIsShown = true;
       var element = this.initDirective(this.$scope);
+
       this.$rootScope.$broadcast('calendar:mini:toggle');
       this.$scope.$digest();
       expect(element.html()).to.equal('aMiniDate');
