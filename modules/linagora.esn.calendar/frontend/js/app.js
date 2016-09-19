@@ -89,7 +89,7 @@ angular.module('esn.calendar', [
       url: '/edit/:calendarId',
       views: {
         content: {
-          template: '<calendar-edit calendar-home-id="calendarHomeId" calendar="calendar"/>',
+          template: '<calendar-configuration calendar-home-id="calendarHomeId" calendar="calendar"/>',
           resolve: {
             calendar: function($stateParams, calendarService, calendarHomeId) {
               return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
@@ -106,7 +106,7 @@ angular.module('esn.calendar', [
       url: '/add',
       views: {
         content: {
-          template: '<calendar-edit calendar-home-id="calendarHomeId"/>',
+          template: '<calendar-configuration calendar-home-id="calendarHomeId"/>',
           controller: function($scope, calendarHomeId) {
             $scope.calendarHomeId = calendarHomeId;
           }
@@ -117,7 +117,7 @@ angular.module('esn.calendar', [
       url: '/list',
       views: {
         content: {
-          template: '<calendars-edit calendars="calendars"/>',
+          template: '<calendars-configuration calendars="calendars"/>',
           resolve: {
             calendars: function(calendarService, calendarHomeId) {
               return calendarService.listCalendars(calendarHomeId);

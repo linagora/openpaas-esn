@@ -8,13 +8,13 @@ sub-header
   .card-body
     .listview
       .lv-body
-        a.lv-item(href="", ng-click="add()")
+        a.lv-item(href="", ng-click="vm.add()")
           .media
             .pull-left
               i.mdi.mdi-plus
               span #{__('Add a new calendar')}
         hr
-        a.lv-item(href="", ng-repeat="calendar in calendars", ng-click='modify(calendar)')
+        a.lv-item(href="", ng-repeat="calendar in vm.calendars", ng-click='vm.modify(calendar)')
           .media
             .pull-left
               i.mdi.mdi-label(ng-style="{'color': calendar.color}")

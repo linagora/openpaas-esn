@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The calendarEditionController controller', function() {
+describe.skip('The calendarEditionController controller', function() {
 
   beforeEach(function() {
     this.uuid4 = {
@@ -22,6 +22,7 @@ describe('The calendarEditionController controller', function() {
     this.screenSize = {};
 
     var self = this;
+
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
     angular.mock.module(function($provide) {
@@ -34,7 +35,7 @@ describe('The calendarEditionController controller', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($rootScope, $q, $controller, CalendarCollectionShell) {
+  beforeEach(angular.mock.inject(function($rootScope, $controller, CalendarCollectionShell) {
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
     this.CalendarCollectionShell = CalendarCollectionShell;
@@ -100,6 +101,7 @@ describe('The calendarEditionController controller', function() {
           name: 'N',
           color: 'aColor'
         });
+
         return {
           then: function(callback) {
             callback();
@@ -159,6 +161,7 @@ describe('The calendarEditionController controller', function() {
 
       it('should call modifyCalendar if the calendar has been modified (with name having only one char)', function() {
         var modifiedName = 'A';
+
         this.notificationFactoryMock.weakInfo = sinon.spy();
         this.stateMock.go = sinon.spy(function(path) {
           expect(path).to.equal('calendar.main');
@@ -169,6 +172,7 @@ describe('The calendarEditionController controller', function() {
             href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
             name: modifiedName
           });
+
           return {
             then: function(callback) {
               callback();

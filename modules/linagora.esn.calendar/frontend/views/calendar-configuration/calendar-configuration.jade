@@ -1,0 +1,66 @@
+sub-header
+  calendar-configuration-header.hidden-md
+
+.block-header.hidden-xs
+  h2 #{__('Calendar configuration')}
+
+.calendar-edit.card.form-container
+  .row
+    .col-xs-12.no-padding-xs
+      ul.esn-tab
+        li.btn-wave(ng-class="{'active': vm.selectedTab === 'main'}")
+          a(href="", ng-click="vm.getMainView()")
+            | #{__('Main')}
+        li.btn-wave(ng-class="{'active': vm.selectedTab === 'delegation'}")
+          a(href="", ng-click="vm.getDelegationView()")
+            | #{__('Delegation')}
+      .card-body.m-t-25
+        form(ng-submit='vm.submit()')
+          div(ng-show='vm.selectedTab === "main"')
+            .form-group.fg-line(ng-class='{"has-error": vm.calendar.name.length < 1}')
+              .field-name #{__('Name')}
+              input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="vm.calendar.name", maxlength="255")
+              span.help-block(ng-show="vm.calendar.name.length < 1")
+                | #{__('Please input a name if you want to save this calendar')}
+            .form-group.flex-vertical-centered
+              .field-name #{__('Color')}
+              .color-picker-container(calendar-color-picker-toggler, color="vm.calendar.color")
+                // .select > .form-control is mandatory here for the select-like behavior
+                // of material-admin
+                .select
+                  .form-control
+                i.color-picker-value(ng-style="{'background-color': vm.calendar.color}")
+            .visible-xs
+              span.delete-calendar-button.flex-vertical-centered(ng-if="!vm.newCalendar", type="button", ng-click="vm.openDeleteConfirmationDialog()")
+                | #{__('Delete this calendar')}
+            .hidden-xs
+              span.delete-calendar-button.flex-vertical-centered.m-t-10.pull-left(ng-if="!vm.newCalendar", type="button", ng-click="vm.openDeleteConfirmationDialog()")
+                | #{__('Delete this calendar')}
+              span.pull-right
+                button.btn.btn-default.btn-sm.m-t-10.visible-xs(type="button", ng-click="vm.mobileCancel()") #{__('Return to calendar')}
+                button.btn.btn-default.btn-sm.m-t-10.hidden-xs(type="button", ng-click="vm.cancel()") #{__('Return to calendar')}
+                button.btn.btn-primary.btn-sm.m-t-10(type="button", ng-click="vm.submit()")
+                  span(ng-if='vm.newCalendar') #{__('Create')}
+                  span(ng-if='!vm.newCalendar') #{__('Save')}
+              .clearfix
+          div.delegation(ng-show='vm.selectedTab === "delegation"')
+            .row.public.flex-wrap.flex-vertical-centered
+              .col-sm-6.col-xs-12
+                i.mdi.mdi-account-multiple.vertical-align.big
+                span.vertical-align
+                  | #{__('Public read')}
+              .col-sm-6.col-xs-12
+                span.vertical-align
+                  .input-group
+                    span.input-group-addon
+                      i.mdi.mdi-eye
+                    div.fg-line
+                      div.select
+                        select.form-control
+                          option(value="none")
+                            i.mdi.mdi-lock
+                            | #{__('None')}
+                          option(value="readonly")
+                            | #{__('Read only')}
+                          option(value="freebuzy")
+                            | #{__('Free/Buzy')}
