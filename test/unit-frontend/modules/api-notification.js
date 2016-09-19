@@ -20,6 +20,10 @@ describe('The esn.api-notification Angular module', function() {
     var asSession = {
       user: {
         _id: sessionId
+      },
+      domain: {},
+      ready: {
+        then: function() {}
       }
     };
 

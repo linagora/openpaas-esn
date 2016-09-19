@@ -189,7 +189,11 @@ describe('The esn.session Angular module', function() {
 
       session = {
         setUser: function() {},
-        setDomain: function() {}
+        setDomain: function() {},
+        domain: {},
+        ready: {
+          then: function() {}
+        }
       };
 
       tokenAPI = {

@@ -58,6 +58,9 @@ describe('The event-form module controllers', function() {
         lastname: 'last',
         emails: ['user@test.com'],
         emailMap: { 'user@test.com': true }
+      },
+      ready: {
+        then: function() {}
       }
     };
 

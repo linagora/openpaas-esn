@@ -1070,6 +1070,10 @@ describe('The esn.websocket Angular module', function() {
       self.sessionMock = {
         user: {
           _id: 'user1'
+        },
+        domain: {},
+        ready: {
+          then: function() {}
         }
       };
 

@@ -67,7 +67,10 @@ describe('The event-message Angular module directives', function() {
       };
 
       self.sessionMock = {
-        user: { emails: 'emails' }
+        user: { emails: 'emails' },
+        ready: {
+          then: function() {}
+        }
       };
 
       self.eventServiceMock = {
