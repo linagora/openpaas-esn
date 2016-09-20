@@ -97,6 +97,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/events-provider.js',
         'services/fc-moment.js',
         'services/master-event-cache.js',
+        'services/open-event-form.js',
         'services/path-builder.js',
         'services/request.js',
         'services/timezone.js',
@@ -121,8 +122,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
         'calendar/calendar-button-toolbar.directive.js',
         'calendar/calendar-controller.controller.js',
-        'calendar/calendar-head-content.directive.js',
-        'calendar/calendar-head-mobile.directive.js',
+        'calendar/calendar-header-content.directive.js',
+        'calendar/calendar-header-mobile.directive.js',
         'calendar/calendar-left-pane.directive.js',
         'calendar/calendar-view.directive.js',
 

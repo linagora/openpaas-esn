@@ -6,7 +6,7 @@
 
   function calendarHeaderMobile() {
     var directive = {
-      restrict: 'A',
+      restrict: 'E',
       templateUrl: '/calendar/views/calendar/calendar-header-mobile.html',
       replace: true
     };

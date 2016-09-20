@@ -7,7 +7,7 @@
   function calendarConfiguration() {
     var directive = {
       restrict: 'E',
-      templateUrl: '/calendar/views/calendar-configuration/calendar-configuration',
+      templateUrl: '/calendar/views/calendar-configuration/calendar-configuration.html',
       scope: {
         calendar: '=?',
         calendarHomeId: '='
@@ -24,6 +24,7 @@
   CalendarConfigurationController.$inject = [
     '$log',
     '$modal',
+    '$scope',
     '$state',
     'screenSize',
     'uuid4',
@@ -33,7 +34,7 @@
     'CALENDAR_MODIFY_COMPARE_KEYS'
   ];
 
-  function CalendarConfigurationController($log, $modal, $state, screenSize, uuid4, CalendarCollectionShell, calendarService, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS) {
+  function CalendarConfigurationController($log, $modal, $scope, $state, screenSize, uuid4, CalendarCollectionShell, calendarService, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS) {
     var vm = this;
 
     vm.newCalendar = !vm.calendar;
@@ -102,7 +103,16 @@
     }
 
     function openDeleteConfirmationDialog() {
-      vm.modal = $modal({scope: vm, templateUrl: '/calendar/views/calendar-configuration/calendar-edit-delete-confirmation.html', backdrop: 'static', placement: 'center'});
+      vm.modal = $modal({
+        templateUrl: '/calendar/views/calendar-configuration/calendar-configuration-delete-confirmation.html',
+        controller: function($scope) {
+          $scope.delete = function deleteCalendar() {
+            $log.debug('Delete calendar not implemented yet');
+          };
+        },
+        backdrop: 'static',
+        placement: 'center'
+      });
     }
 
     function deleteCalendar() {

@@ -7,7 +7,7 @@
   function calendarsConfigurationHeader() {
     var directive = {
       restrict: 'E',
-      templateUrl: '/calendar/views/calendar-configuration/CalendarsConfigurationHeaderController-header.html',
+      templateUrl: '/calendar/views/calendar-configuration/calendars-configuration-header.html',
       scope: {},
       replace: true,
       controller: CalendarsConfigurationHeaderController,

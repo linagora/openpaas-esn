@@ -7,7 +7,7 @@
   function calendarConfigurationHeader() {
     var directive = {
       restrict: 'E',
-      templateUrl: '/calendar/views/calendar-configuration/calendar-edit-header.html',
+      templateUrl: '/calendar/views/calendar-configuration/calendar-configuration-header.html',
       replace: true
     };
 

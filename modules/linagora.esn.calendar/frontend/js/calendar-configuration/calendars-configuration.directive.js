@@ -7,7 +7,7 @@
   function calendarsConfiguration() {
     var directive = {
       restrict: 'E',
-      templateUrl: 'calendar/views/calendar-configuration/calendars-configuration',
+      templateUrl: 'calendar/views/calendar-configuration/calendars-configuration.html',
       scope: {
         calendars: '='
       },
