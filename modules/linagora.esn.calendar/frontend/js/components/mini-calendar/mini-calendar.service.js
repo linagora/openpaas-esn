@@ -1,11 +1,33 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
-  .factory('miniCalendarService', function($q, fcMoment, _) {
+  angular.module('esn.calendar')
+         .constant('MINI_CALENDAR_DAY_FORMAT', 'YYYY-MM-DD')
+         .factory('miniCalendarService', miniCalendarService);
+
+  miniCalendarService.$inject = [
+    '$q',
+    '_',
+    'fcMoment',
+    'MINI_CALENDAR_DAY_FORMAT'
+  ];
+
+  function miniCalendarService($q, _, fcMoment, MINI_CALENDAR_DAY_FORMAT) {
+    var service = {
+      forEachDayOfEvent: forEachDayOfEvent,
+      getWeekAroundDay: getWeekAroundDay,
+      miniCalendarWrapper: miniCalendarWrapper
+    };
+
+    return service;
+
+    ////////////
+
 
     function forEachDayOfEvent(event, callback) {
       var day = fcMoment(event.start);
       var end = fcMoment(event.end || event.start);
+
       if (!(event.allDay && event.end)) {
         end.add(1, 'days');
       }
@@ -35,8 +57,6 @@ angular.module('esn.calendar')
       };
     }
 
-    var dayFormat = 'YYYY-MM-DD';
-
     function miniCalendarWrapper(calendar, eventSources) {
       var originalEvents = {};
       var fakeEvents = {};
@@ -55,7 +75,7 @@ angular.module('esn.calendar')
         }
 
         forEachDayOfEvent(event, function(day) {
-          var date = day.format(dayFormat);
+          var date = day.format(MINI_CALENDAR_DAY_FORMAT);
           var dayEvent = fakeEvents[date];
 
           if (!dayEvent) {
@@ -70,15 +90,16 @@ angular.module('esn.calendar')
           dayEvent._num = dayEvent._num + (add ? 1 : -1);
           dayEvent.title = dayEvent._num > 99 ? '99+' : ('' + dayEvent._num);
         });
-
       }
 
       function groupByDayEventSources(start, end, timezone, callback) {
         var eventsPromise = [];
+
         originalEvents = {};
         fakeEvents = {};
         eventSources.forEach(function(calendarEventSource) {
           var deferred = $q.defer();
+
           eventsPromise.push(deferred.promise);
           calendarEventSource(start, end, timezone, deferred.resolve);
         });
@@ -102,11 +123,6 @@ angular.module('esn.calendar')
         rerender: rerender
       };
     }
+  }
 
-    return {
-      forEachDayOfEvent: forEachDayOfEvent,
-      getWeekAroundDay: getWeekAroundDay,
-      miniCalendarWrapper: miniCalendarWrapper
-    };
-
-  });
+})();

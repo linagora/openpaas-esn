@@ -116,9 +116,10 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/event-date-edition.js',
         'components/event-recurrence-edition.js',
         'components/mail-to-attendees.js',
-        'components/mini-calendar/directive.js',
-        'components/mini-calendar/controller.js',
-        'components/mini-calendar/service.js',
+        'components/mini-calendar/mini-calendar-mobile.directive.js',
+        'components/mini-calendar/mini-calendar.controller.js',
+        'components/mini-calendar/mini-calendar.directive.js',
+        'components/mini-calendar/mini-calendar.service.js',
 
         'calendar/calendar-button-toolbar.directive.js',
         'calendar/calendar.controller.js',
