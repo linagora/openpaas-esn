@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The event-form module services', function() {
+describe('The open-event-form service', function() {
   var self;
 
   beforeEach(function() {

@@ -20,6 +20,7 @@ describe('The event-consult-form Angular module directives', function() {
       };
 
       var self = this;
+
       angular.mock.module(function($provide, $controllerProvider) {
         $controllerProvider.register('eventFormController', self.eventFormControllerMock);
         $provide.factory('eventAlarmConsultationDirective', function() { return {}; });
@@ -46,19 +47,23 @@ describe('The event-consult-form Angular module directives', function() {
       this.initDirective = function(scope) {
         var html = '<event-consult-form event="event"/>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
+
         return element;
       };
     }));
 
     it('should initialize scope.selectedTab to MAIN', function() {
       var element = this.initDirective(this.$scope);
+
       expect(element.isolateScope().selectedTab).to.equal(this.TABS.MAIN);
     });
 
     describe('The onSwipe function', function() {
       it('should call scope.onSwipe left from tab MAIN to tab ATTENDEES', function() {
         var element = this.initDirective(this.$scope);
+
         element.isolateScope().selectedTab = this.TABS.MAIN;
         element.isolateScope().onSwipe('left');
         expect(element.isolateScope().selectedTab).to.equal(this.TABS.ATTENDEES);
@@ -66,6 +71,7 @@ describe('The event-consult-form Angular module directives', function() {
 
       it('should call scope.onSwipe left from tab ATTENDEES to tab MORE', function() {
         var element = this.initDirective(this.$scope);
+
         element.isolateScope().selectedTab = this.TABS.ATTENDEES;
         element.isolateScope().onSwipe('left');
         expect(element.isolateScope().selectedTab).to.equal(this.TABS.MORE);
@@ -73,6 +79,7 @@ describe('The event-consult-form Angular module directives', function() {
 
       it('should call scope.onSwipe right from tab MORE to tab ATTENDEES', function() {
         var element = this.initDirective(this.$scope);
+
         element.isolateScope().selectedTab = this.TABS.MORE;
         element.isolateScope().onSwipe('right');
         expect(element.isolateScope().selectedTab).to.equal(this.TABS.ATTENDEES);
@@ -80,6 +87,7 @@ describe('The event-consult-form Angular module directives', function() {
 
       it('should call scope.onSwipe right from tab MAIN', function() {
         var element = this.initDirective(this.$scope);
+
         element.isolateScope().selectedTab = this.TABS.MAIN;
         element.isolateScope().onSwipe('right');
         expect(element.isolateScope().selectedTab).to.equal(this.TABS.MAIN);
@@ -87,6 +95,7 @@ describe('The event-consult-form Angular module directives', function() {
 
       it('should call scope.onSwipe left from tab MORE', function() {
         var element = this.initDirective(this.$scope);
+
         element.isolateScope().selectedTab = this.TABS.MORE;
         element.isolateScope().onSwipe('left');
         expect(element.isolateScope().selectedTab).to.equal(this.TABS.MORE);
@@ -105,6 +114,7 @@ describe('The event-consult-form Angular module directives', function() {
       });
 
       var element = this.initDirective(this.$scope);
+
       element.isolateScope().isEdit = true;
       element.isolateScope().editedEvent = element.isolateScope().event.clone();
       element.isolateScope().editedEvent.alarm = {

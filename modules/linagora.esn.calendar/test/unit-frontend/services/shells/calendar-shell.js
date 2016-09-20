@@ -938,15 +938,19 @@ describe('CalendarShell factory', function() {
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
         recurrenceId: fcMoment()
       });
+
       this.masterEventCache.save = sinon.spy();
 
       var masterEvent = CalendarShell.fromIncompleteShell({});
+
       masterEvent.modifyOccurrence(nonMasterEvent);
 
       var vevents = masterEvent.vcalendar.getAllSubcomponents('vevent');
+
       expect(vevents.length).to.equal(2);
 
       var numSame = 0;
+
       vevents.forEach(function(vevent) {
         numSame += angular.equals(vevent.toJSON(), nonMasterEvent.vevent.toJSON()) ? 1 : 0;
       });
@@ -956,6 +960,7 @@ describe('CalendarShell factory', function() {
 
     it('should replace the modified occurence in the vcalendar of the master shell if already there', function() {
       var recurrenceId = fcMoment();
+
       this.masterEventCache.save = sinon.spy();
 
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
@@ -974,6 +979,7 @@ describe('CalendarShell factory', function() {
       masterEvent.modifyOccurrence(nonMasterEventModified);
 
       var vevents = masterEvent.vcalendar.getAllSubcomponents('vevent');
+
       expect(vevents.length).to.equal(2);
       var numSame = 0;
 
@@ -1107,6 +1113,7 @@ describe('CalendarShell factory', function() {
         start: fcMoment('2015-01-01 18:00'),
         end: fcMoment('2015-01-01 18:00')
       });
+
       var eventB = CalendarShell.fromIncompleteShell({
         start: fcMoment('2015-01-01 18:00'),
         end: fcMoment('2015-01-01 18:00'),
@@ -1118,6 +1125,7 @@ describe('CalendarShell factory', function() {
           attendee: 'attendee'
         }
       });
+
       expect(eventA.equals(eventB)).to.be.false;
     });
 
@@ -1133,6 +1141,7 @@ describe('CalendarShell factory', function() {
       });
 
       var eventB = eventA.clone();
+
       eventB.rrule = undefined;
       expect(eventA.equals(eventB)).to.be.false;
     });
@@ -1145,6 +1154,7 @@ describe('CalendarShell factory', function() {
         end: fcMoment('2015-01-01 18:00'),
         recurrendId: fcMoment('2015-01-01 18:00')
       });
+
       eventA.alarm = {
         trigger: '-PT30M',
         attendee: 'test@open-paas.org'
@@ -1162,6 +1172,7 @@ describe('CalendarShell factory', function() {
         end: fcMoment('2015-01-01 18:00'),
         recurrendId: fcMoment('2015-01-01 18:00')
       });
+
       eventA.alarm = {
         trigger: '-PT30M',
         attendee: 'test@open-paas.org'
@@ -1184,6 +1195,7 @@ describe('CalendarShell factory', function() {
         end: fcMoment('2015-01-01 18:00'),
         recurrendId: fcMoment('2015-01-01 18:00')
       });
+
       try {
         eventA.alarm = {attendeeEmail: 'test'};
       } catch (e) {
@@ -1197,6 +1209,7 @@ describe('CalendarShell factory', function() {
         end: fcMoment('2015-01-01 18:00'),
         recurrendId: fcMoment('2015-01-01 18:00')
       });
+
       try {
         eventA.alarm = {trigger: 'test'};
       } catch (e) {
@@ -1211,6 +1224,7 @@ describe('CalendarShell factory', function() {
         start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
         end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
+
       shell = CalendarShell.fromIncompleteShell(shell);
       expect(shell.getOrganizerPartStat()).to.not.exist;
     });
@@ -1221,6 +1235,7 @@ describe('CalendarShell factory', function() {
         end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
       var shell = CalendarShell.fromIncompleteShell(data);
+
       shell.organizer = {
         email: 'user1@demo.open-paas.org',
         displayName: 'user1'
@@ -1248,7 +1263,9 @@ describe('CalendarShell factory', function() {
         start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
         end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
+
       shell = CalendarShell.fromIncompleteShell(shell);
+
       shell.setOrganizerPartStat('ACCEPTED');
       expect(shell.attendees).to.deep.equal([]);
     });
@@ -1258,6 +1275,7 @@ describe('CalendarShell factory', function() {
         start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
         end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
+
       shell = CalendarShell.fromIncompleteShell(shell);
       shell.organizer = {
         email: 'user1@demo.open-paas.org',
@@ -1278,6 +1296,7 @@ describe('CalendarShell factory', function() {
         start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
         end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
+
       shell = CalendarShell.fromIncompleteShell(shell);
       shell.organizer = {
         email: 'user1@demo.open-paas.org',
@@ -1442,6 +1461,7 @@ describe('CalendarShell factory', function() {
       };
 
       var shell = new  CalendarShell.fromIncompleteShell({rrule: rrule});
+
       expect(shell.rrule.freq).to.be.equal('WEEKLY');
     });
 
@@ -1450,35 +1470,11 @@ describe('CalendarShell factory', function() {
         freq: 'WEEKLY'
       };
       var shell = new  CalendarShell.fromIncompleteShell({rrule: rrule});
+
       expect(shell.rrule).to.exist;
 
       shell.rrule = undefined;
       expect(shell.rrule).to.be.undefined;
     });
-  });
-});
-
-describe('RRuleShell Factory', function() {
-  var RRuleShell, ICAL, RECUR_FREQ;
-
-  beforeEach(function() {
-    angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_RRuleShell_, _ICAL_, _RECUR_FREQ_) {
-      RRuleShell = _RRuleShell_;
-      ICAL = _ICAL_;
-      RECUR_FREQ = _RECUR_FREQ_;
-    });
-  });
-
-  describe('should create RRuleShell object funcation', function() {
-    it('should call updateParentEvent when create RRuleShell object with interval does not exist', function() {
-      var rrule = {
-        freq: RECUR_FREQ[0]
-      };
-      var vevent = new ICAL.Component('vevent');
-      var shell = new  RRuleShell(rrule, vevent);
-      expect(shell.vevent.getFirstPropertyValue('rrule').interval).to.deep.equal([1]);
-    });
-
   });
 });

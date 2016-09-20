@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The event-form module filters', function() {
+describe('The partstat filter', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');

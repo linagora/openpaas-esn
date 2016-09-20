@@ -49,6 +49,7 @@ describe('CalendarCollectionShell factory', function() {
         'apple:color': 'color',
         'caldav:description': 'description'
       };
+
       expect(this.CalendarCollectionShell.toDavCalendar(new this.CalendarCollectionShell(davCalendar))).to.deep.equal({
         'dav:name': 'name',
         'apple:color': 'color',
@@ -66,6 +67,7 @@ describe('CalendarCollectionShell factory', function() {
         description: 'description',
         href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json'
       });
+
       expect(calendarCollection.name).to.equal('name');
       expect(calendarCollection.color).to.equal('color');
       expect(calendarCollection.description).to.equal('description');

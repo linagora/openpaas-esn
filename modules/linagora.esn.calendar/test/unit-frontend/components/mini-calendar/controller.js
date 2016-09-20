@@ -24,16 +24,18 @@ describe('The mini-calendar controller', function() {
       listCalendars: function(userId) {
         expect(userId).to.equals($scope.calendarHomeId);
         var deferred = $q.defer();
+
         deferred.resolve([{
           href: 'href',
           id: 'id'
         }]);
+
         return deferred.promise;
       }
     };
 
     cachedEventSourceMock = {
-      wrapEventSource: sinon.spy(function(id, source) {
+      wrapEventSource: sinon.spy(function(id, source) { // eslint-disable-line
         return source;
       })
     };
@@ -79,6 +81,7 @@ describe('The mini-calendar controller', function() {
 
     calendarEventSourceMock = function(href) {
       expect(href).to.equals('href');
+
       return ['anEventSource'];
     };
 
@@ -131,6 +134,7 @@ describe('The mini-calendar controller', function() {
 
   it('should $rootScope.broadcast the view on viewRender call', function() {
     var handler = sinon.spy();
+
     $scope.$on('calendar:mini:viewchange', handler);
     initController();
     $scope.miniCalendarConfig.viewRender('aView');
@@ -182,6 +186,7 @@ describe('The mini-calendar controller', function() {
   describe('The selection of period in the mini calendar', function() {
 
     var firstWeekDay, dayInWeek, lastWeekDay;
+
     beforeEach(function() {
       firstWeekDay = fcMoment('2015-11-30');
       dayInWeek = fcMoment('2015-12-04');
@@ -219,7 +224,7 @@ describe('The mini-calendar controller', function() {
 
       $scope.miniCalendarConfig.viewRender();
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) {
+      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
         expect(day.isSame(_day, 'day')).to.be.true;
         unregister();
         done();
@@ -230,6 +235,7 @@ describe('The mini-calendar controller', function() {
 
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE when a day is selected', function(done) {
       var day = fcMoment();
+
       $scope.miniCalendarConfig.viewRender();
 
       var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
@@ -242,9 +248,10 @@ describe('The mini-calendar controller', function() {
 
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = fcMoment();
+
       $scope.miniCalendarConfig.viewRender();
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) {
+      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
         expect(day.isSame(_day, 'day')).to.be.true;
         unregister();
         done();
@@ -255,6 +262,7 @@ describe('The mini-calendar controller', function() {
 
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, when a event is clicked', function(done) {
       var day = fcMoment();
+
       $scope.miniCalendarConfig.viewRender();
 
       var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
@@ -267,6 +275,7 @@ describe('The mini-calendar controller', function() {
 
     it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with day as viewMode', function(done) {
       var day = fcMoment();
+
       $scope.miniCalendarConfig.viewRender();
       $scope.$digest();
 
@@ -301,6 +310,7 @@ describe('The mini-calendar controller', function() {
       miniCalendarServiceMock.getWeekAroundDay = sinon.spy(function(config, day) {
         expect(config).to.equals($scope.miniCalendarConfig);
         expect(day.isSame(dayInWeek, 'day')).to.be.true;
+
         return {firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay};
       });
 
@@ -333,6 +343,7 @@ describe('The mini-calendar controller', function() {
     it('should select the good period when user select a day in the small calendar and when the big calendar is in month view', function() {
       $scope.miniCalendarConfig.viewRender();
       var day = fcMoment();
+
       $scope.homeCalendarViewMode = 'month';
 
       $scope.miniCalendarConfig.select(day, null, true, null);

@@ -18,6 +18,7 @@ describe('The mini-calendar service', function() {
   });
 
   var fcMoment, miniCalenderService, $rootScope;
+
   beforeEach(angular.mock.inject(function(_fcMoment_, _miniCalendarService_, _$rootScope_) {
     fcMoment = _fcMoment_;
     miniCalenderService = _miniCalendarService_;
@@ -30,6 +31,7 @@ describe('The mini-calendar service', function() {
       function forEachDayInEachPossibleWeek(callback) {
         var start = fcMoment('2015-11-16');
         var nextWeekStart, day, i, j;
+
         for (i = 0; i < 7; i++) {
           nextWeekStart = fcMoment(start);
           nextWeekStart.add(7, 'days');
@@ -46,6 +48,7 @@ describe('The mini-calendar service', function() {
       //and for each day possible in the week, the computed period is good
       forEachDayInEachPossibleWeek(function(day, startWeek, nextWeekStart) {
         var week = miniCalenderService.getWeekAroundDay({firstDay: startWeek.isoWeekday()}, day);
+
         expect(startWeek.isSame(week.firstWeekDay, 'day')).to.be.true;
         expect(nextWeekStart.isSame(week.nextFirstWeekDay, 'day')).to.be.true;
       });
@@ -56,6 +59,7 @@ describe('The mini-calendar service', function() {
   describe('forEachDayOfEvent', function() {
 
     var event, aDay, spy;
+
     beforeEach(function() {
       aDay = fcMoment('2015-11-30T11:39:00.376Z');
       event = {start: fcMoment(aDay)};
@@ -90,7 +94,8 @@ describe('The mini-calendar service', function() {
 
   describe('miniCalendarWrapper', function() {
 
-    var calendar, calWrapper, eventSources, initWrapper, fcMethodMock, fcEvent;
+    var calendar, calWrapper, eventSources, initWrapper, fcMethodMock; // eslint-disable-line
+
     beforeEach(function() {
       fcMethodMock = {
         addEventSource: sinon.spy(),
@@ -173,7 +178,7 @@ describe('The mini-calendar service', function() {
         end: fcMoment('2015-01-01T15:31:25.724Z')
       }];
 
-      eventSources = [function(_start, _end, _timezone, callback) {
+      eventSources = [function(_start, _end, _timezone, callback) { // eslint-disable-line
         callback(sourceEvents);
       }];
 

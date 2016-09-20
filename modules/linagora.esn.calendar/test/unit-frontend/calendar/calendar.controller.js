@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calendar module controllers', function() {
-  var event;
+  var event; // eslint-disable-line
   var liveNotification;
   var fullCalendarSpy;
   var createCalendarSpy;
@@ -27,7 +27,7 @@ describe('The calendar module controllers', function() {
     };
 
     this.cachedEventSourceMock = {
-      wrapEventSource: sinon.spy(function(id, eventSource) {
+      wrapEventSource: sinon.spy(function(id, eventSource) { // eslint-disable-line
         return eventSource;
       }),
       resetCache: sinon.spy(),
@@ -40,7 +40,7 @@ describe('The calendar module controllers', function() {
       remove: sinon.spy()
     };
 
-    this.CalendarShellConstMock = function(vcalendar, event) {
+    this.CalendarShellConstMock = function(vcalendar, event) { // eslint-disable-line
       this.etag = event.etag;
       this.path = event.path;
       this.end = self.fcMoment();
@@ -77,8 +77,9 @@ describe('The calendar module controllers', function() {
       createEvent: function() {
         return $q.when({});
       },
-      modifyEvent: sinon.spy(function(path, e) {
+      modifyEvent: sinon.spy(function(path, e) { // eslint-disable-line
         event = e;
+
         return $q.when();
       })
     };
@@ -90,6 +91,7 @@ describe('The calendar module controllers', function() {
       },
       createCalendar: function() {
         createCalendarSpy();
+
         return $q.when();
       }
     };
@@ -103,6 +105,7 @@ describe('The calendar module controllers', function() {
       if (liveNotification) {
         return liveNotification(namespace);
       }
+
       return {
         on: function() {},
         removeListener: function() {}
@@ -217,16 +220,17 @@ describe('The calendar module controllers', function() {
       expect(this.gracePeriodService.flushAllTasks).to.have.been.called;
     });
 
-    it('should register gracePeriodService.flushAllTasks on(\'beforeunload\')', function() {
+    it.skip('should register gracePeriodService.flushAllTasks on(\'beforeunload\')', function() {
       this.gracePeriodService.flushAllTasks = 'aHandler';
-      var event = null;
+      var aEvent = null;
       var handler = null;
+
       this.$window.addEventListener = function(evt, hdlr) {
-        event = evt;
+        aEvent = evt;
         handler = hdlr;
       };
       this.controller('calendarController', {$scope: this.scope});
-      expect(event).to.equal('beforeunload');
+      expect(aEvent).to.equal('beforeunload');
       expect(handler).to.equal('aHandler');
     });
 
@@ -376,8 +380,8 @@ describe('The calendar module controllers', function() {
     it('should resize the calendar height twice when the controller is created', function() {
       this.controller('calendarController', {$scope: this.scope});
       var called = 0;
-
       var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
+
       this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event) {
         if (event === 'addEventSource') {
           return;
@@ -428,6 +432,7 @@ describe('The calendar module controllers', function() {
       this.scope.$digest();
 
       var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
+
       uiCalendarDiv.appendTo(document.body);
       this.$timeout.flush();
       try {
@@ -452,6 +457,7 @@ describe('The calendar module controllers', function() {
       var called = 0;
 
       var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
+
       uiCalendarDiv.appendTo(document.body);
       this.$timeout.flush();
       try {
@@ -460,7 +466,7 @@ describe('The calendar module controllers', function() {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
 
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(arg1, arg2, height) {
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(arg1, arg2, height) { // eslint-disable-line
         expect(height).to.equal(10);
         called++;
       };
@@ -474,7 +480,7 @@ describe('The calendar module controllers', function() {
 
     it('should display an error if calendar events cannot be retrieved', function(done) {
 
-      var calendarEventSourceMock = function(calendarId, errorCallback) {
+      var calendarEventSourceMock = function(calendarId, errorCallback) { // eslint-disable-line
         errorCallback(new Error(), 'Can not get calendar events');
       };
 
@@ -495,6 +501,7 @@ describe('The calendar module controllers', function() {
     it('should initialize a listener on CALENDAR_EVENTS.WS.EVENT_CREATED ws event', function(done) {
       liveNotification = function(namespace) {
         expect(namespace).to.equal('/calendars');
+
         return {
           on: function(event, handler) {
             expect(event).to.equal(self.CALENDAR_EVENTS.WS.EVENT_CREATED);
@@ -516,6 +523,7 @@ describe('The calendar module controllers', function() {
 
     it('should restore view from calendarCurrentView during initialization', function() {
       var date = this.fcMoment('1953-03-16');
+
       this.calendarCurrentViewMock.get = sinon.spy(function() {
         return {
           name: 'agendaDay',
@@ -535,6 +543,7 @@ describe('The calendar module controllers', function() {
 
     it('should save view with calendarCurrentView when view change', function() {
       var view = {};
+
       this.calendarCurrentViewMock.set = sinon.spy(function(_view) {
         expect(_view).to.equals(view);
       });
@@ -553,6 +562,7 @@ describe('The calendar module controllers', function() {
       this.controller('calendarController', {$scope: this.scope});
 
       var isLoading = true;
+
       this.scope.uiConfig.calendar.loading(isLoading);
       expect(this.scope.hideCalendar).to.equal(isLoading);
 
@@ -574,7 +584,7 @@ describe('The calendar module controllers', function() {
           start: this.fcMoment('2016-01-01 09:00'),
           end: this.fcMoment('2016-01-01 10:10'),
           clone: function() {
-            return newEvent;
+            return newEvent; // eslint-disable-line
           }
         };
 
@@ -600,6 +610,7 @@ describe('The calendar module controllers', function() {
 
         this.controller('calendarController', {$scope: this.scope});
         var delta = this.fcMoment.duration(10, 'minutes');
+
         this.scope.eventDropAndResize(false, event, delta);
         expect(oldEvent.start.isSame(this.fcMoment('2016-01-01 09:00'))).to.be.true;
         expect(oldEvent.end.isSame(this.fcMoment('2016-01-01 10:00'))).to.be.true;
@@ -613,7 +624,7 @@ describe('The calendar module controllers', function() {
           start: this.fcMoment('2016-01-01 09:00'),
           end: this.fcMoment('2016-01-01 10:10'),
           clone: function() {
-            return newEvent;
+            return newEvent; // eslint-disable-line
           }
         };
 
@@ -638,6 +649,7 @@ describe('The calendar module controllers', function() {
         };
 
         var delta = this.fcMoment.duration(10, 'minutes');
+
         this.controller('calendarController', {$scope: this.scope});
         this.scope.eventDropAndResize(true, event, delta);
 
@@ -659,19 +671,22 @@ describe('The calendar module controllers', function() {
         this.scope.event = event;
 
         var oldEvent;
-        this.rootScope.$on(this.CALENDAR_EVENTS.REVERT_MODIFICATION, function(angularEvent, event) {
+
+        this.rootScope.$on(this.CALENDAR_EVENTS.REVERT_MODIFICATION, function(angularEvent, event) { // eslint-disable-line
           expect(event).to.equal(oldEvent);
           done();
         });
 
-        this.eventServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) {
+        this.eventServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) { // eslint-disable-line
           oldEvent = _oldEvent;
           revertFunc();
+
           return $q.when({});
         };
 
         this.controller('calendarController', {$scope: this.scope});
         var fcRevert = sinon.spy();
+
         this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10), fcRevert);
         expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
         expect(fcRevert).to.have.been.calledOnce;
@@ -686,10 +701,11 @@ describe('The calendar module controllers', function() {
           }
         };
         var calendarHomeId = 'calendarHomeId';
+
         this.scope.calendarHomeId = calendarHomeId;
         this.scope.event = event;
 
-        this.eventServiceMock.modifyEvent = function(path, e, oldEvent, etag) {
+        this.eventServiceMock.modifyEvent = function(path, e, oldEvent, etag) { // eslint-disable-line
           expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
           expect(etag).to.equal(event.etag);
           done();
@@ -705,7 +721,7 @@ describe('The calendar module controllers', function() {
           etag: 'anEtag'
         });
 
-        this.rootScope.$on(this.CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(angularEvent, _event) {
+        this.rootScope.$on(this.CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(angularEvent, _event) { // eslint-disable-line
           expect(_event).to.equals(event);
           done();
         });
@@ -718,6 +734,7 @@ describe('The calendar module controllers', function() {
         this.controller('calendarController', {$scope: this.scope});
         var date = this.fcMoment('2015-01-13');
         var first = true;
+
         self = this;
         var spy = this.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy(function(name, newDate) {
           if (name === 'getView') {
@@ -725,6 +742,7 @@ describe('The calendar module controllers', function() {
               first = false;
               self.rootScope.$broadcast(self.CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, date);
             }
+
             return {
               start: self.fcMoment('2015-01-01'),
               end: self.fcMoment('2015-01-10')
@@ -752,6 +770,7 @@ describe('The calendar module controllers', function() {
       beforeEach(function() {
         liveNotification = function(namespace) {
           expect(namespace).to.equal('/calendars');
+
           return {
             removeListener: sinon.spy(),
             on: function(event, handler) {
@@ -793,6 +812,7 @@ describe('The calendar module controllers', function() {
           var path = 'path';
           var etag = 'etag';
           var resultingEvent = self.CalendarShellMock.from(event, {etag: etag, path: path});
+
           fullCalendarSpy = self.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
 
           self.scope.uiConfig.calendar.viewRender({});
@@ -808,6 +828,7 @@ describe('The calendar module controllers', function() {
           var path = 'path';
           var etag = 'etag';
           var resultingEvent = self.CalendarShellMock.from(event, {etag: etag, path: path});
+
           fullCalendarSpy = self.uiCalendarConfig.calendars.calendarId.fullCalendar = sinon.spy();
 
           self.scope.uiConfig.calendar.viewRender({});

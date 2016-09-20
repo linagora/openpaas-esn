@@ -15,6 +15,7 @@ describe('The event-full-form Angular module directives', function() {
     this.eventUtilsMock = {};
 
     var self = this;
+
     angular.mock.module(function($provide, $controllerProvider) {
       $controllerProvider.register('eventFormController', self.eventFormControllerMock);
       $provide.value('eventUtils', self.eventUtilsMock);
@@ -33,7 +34,9 @@ describe('The event-full-form Angular module directives', function() {
     this.initDirective = function(scope) {
       var html = '<event-full-form/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
+
       return element;
     };
   }));
@@ -41,6 +44,7 @@ describe('The event-full-form Angular module directives', function() {
   it('should reset eventUtils events by calling resetStoredEvents on element $destroy', function() {
     this.eventUtilsMock.resetStoredEvents = sinon.spy();
     var element = this.initDirective(this.$scope);
+
     element.remove();
     expect(this.eventUtilsMock.resetStoredEvents).to.have.been.calledOnce;
   });

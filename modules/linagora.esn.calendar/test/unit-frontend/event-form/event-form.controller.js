@@ -38,8 +38,9 @@ describe('The event-form module controllers', function() {
       changeParticipation: sinon.spy(function() {
         return $q.when({});
       }),
-      modifyEvent: function(path, e) {
+      modifyEvent: function(path, e) { // eslint-disable-line
         event = e;
+
         return $q.when();
       }
     };
@@ -198,6 +199,7 @@ describe('The event-form module controllers', function() {
           otherProperty: 'aString'
         });
         var clone = this.CalendarShell.fromIncompleteShell({_id: 'theclone'});
+
         this.scope.event.clone = sinon.spy(function() {
           return clone;
         });
@@ -280,11 +282,12 @@ describe('The event-form module controllers', function() {
         it('should call modifyEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
           this.scope.event = this.CalendarShell.fromIncompleteShell({ title: 'title' });
           this.$state.is = sinon.stub().returns(true);
-          this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) {
+          this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel, options) { // eslint-disable-line
             expect(options).to.deep.equal({
               graceperiod: true,
               notifyFullcalendar: true
             });
+
             return $q.when();
           });
 
@@ -302,6 +305,7 @@ describe('The event-form module controllers', function() {
             expect(alertObject.content).to.equal('You must define an event title');
             done();
           };
+
           this.controller('eventFormController', {
             $rootScope: this.rootScope,
             $scope: this.scope,
@@ -412,6 +416,7 @@ describe('The event-form module controllers', function() {
             title: 'title',
             diff: 123123
           });
+
           this.scope.$hide = function() {
             expect(event.diff).to.equal(123123);
             expect(editedEvent.diff).to.equal(234234);
@@ -565,6 +570,7 @@ describe('The event-form module controllers', function() {
         it('should changeParticipation with ACCEPTED', function(done) {
           var status = null;
           var self = this;
+
           this.scope.event = this.CalendarShell.fromIncompleteShell({});
 
           this.scope.$hide = function() {
@@ -573,8 +579,9 @@ describe('The event-form module controllers', function() {
             done();
           };
 
-          this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) { // eslint-disable-line
             status = _status_;
+
             return $q.when({});
           };
           this.initController();
@@ -590,9 +597,11 @@ describe('The event-form module controllers', function() {
         it('should no displayNotification if response is null', function(done) {
           var status = null;
           var self = this;
+
           this.scope.event = this.CalendarShell.fromIncompleteShell({});
-          this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) { // eslint-disable-line
             status = _status_;
+
             return $q.when(null);
           };
           this.scope.$hide = function() {
@@ -624,8 +633,10 @@ describe('The event-form module controllers', function() {
       it('should update the event', function() {
         this.scope.isOrganizer = false;
         var status;
-        this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) {
+
+        this.eventServiceMock.changeParticipation = function(path, event, emails, _status_) { // eslint-disable-line
           status = _status_;
+
           return $q.when({});
         };
 
@@ -679,11 +690,12 @@ describe('The event-form module controllers', function() {
 
       it('should call createEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
         this.$state.is = sinon.stub().returns(true);
-        this.eventServiceMock.createEvent = sinon.spy(function(calendarId, path, event, options) {
+        this.eventServiceMock.createEvent = sinon.spy(function(calendarId, path, event, options) { // eslint-disable-line
           expect(options).to.deep.equal({
             graceperiod: true,
             notifyFullcalendar: true
           });
+
           return $q.when();
         });
 
@@ -702,6 +714,7 @@ describe('The event-form module controllers', function() {
         }, {
           email: 'user2@test.com'
         }];
+
         this.scope.newAttendees = newAttendees;
         this.scope.createEvent();
         expect(this.scope.editedEvent).to.shallowDeepEqual({
@@ -734,6 +747,7 @@ describe('The event-form module controllers', function() {
         this.scope.createEvent();
         var calendarId = this.calendars[0].id;
         var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
+
         expect(this.$state.is).to.have.been.called;
         expect(this.eventServiceMock.createEvent).to.have.been.calledWith(calendarId, expectedPath, this.scope.editedEvent, {graceperiod: true, notifyFullcalendar: this.$state.is()});
       });
@@ -795,7 +809,7 @@ describe('The event-form module controllers', function() {
         });
 
         it('should modify attendees list and broadcast on CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
-          this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, attendees) {
+          this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, attendees) { // eslint-disable-line
             expect(attendees).to.shallowDeepEqual([{
               email: 'user@test.com',
               partstat: 'ACCEPTED'
@@ -815,6 +829,7 @@ describe('The event-form module controllers', function() {
 
         it('should not call broadcast if no change in the status', function(done) {
           var broadcastSpy = sinon.spy();
+
           this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, broadcastSpy);
 
           this.scope.editedEvent.changeParticipation = sinon.spy();
@@ -872,11 +887,12 @@ describe('The event-form module controllers', function() {
           attendee: 'test@open-paas.org'
         };
 
-        this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel) {
+        this.eventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag, onCancel) { // eslint-disable-line
           expect(path).to.equal('/path/to/event');
           expect(etag).to.equal('123456');
           expect(event.alarm.trigger.toICALString()).to.equal('-P2D');
           expect(oldEvent.alarm.trigger.toICALString()).to.equal('-PT1M');
+
           return $q.when();
         });
 

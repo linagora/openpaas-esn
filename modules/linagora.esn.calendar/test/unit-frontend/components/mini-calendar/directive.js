@@ -21,8 +21,10 @@ describe('The miniCalendar component', function() {
       this.initDirective = function(scope) {
         var html = '<mini-calendar-mobile calendar-id="123456" class="initial-state"></mini-calendar-mobile>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
         this.eleScope = element.isolateScope();
+
         return element;
       };
 
@@ -31,6 +33,7 @@ describe('The miniCalendar component', function() {
 
     it('should remove toggle the mini-calendar on CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE', function() {
       var element = this.initDirective(this.$scope);
+
       this.$rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
       this.$httpBackend.flush();
       expect(element.hasClass('initial-state')).to.be.false;

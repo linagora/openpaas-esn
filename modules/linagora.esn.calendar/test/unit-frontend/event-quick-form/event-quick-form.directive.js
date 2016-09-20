@@ -14,6 +14,7 @@ describe('The event-quick-form Angular module directives', function() {
       $scope.initFormData = function() {};
     };
     var self = this;
+
     angular.mock.module(function($provide, $controllerProvider) {
       $controllerProvider.register('eventFormController', self.eventFormControllerMock);
       $provide.value('eventUtils', self.eventUtilsMock);
@@ -37,7 +38,9 @@ describe('The event-quick-form Angular module directives', function() {
     this.initDirective = function(scope) {
       var html = '<event-quick-form/>';
       var element = this.$compile(html)(scope);
+
       scope.$digest();
+
       return element;
     };
   }));
@@ -47,6 +50,7 @@ describe('The event-quick-form Angular module directives', function() {
       done();
     };
     var element = this.initDirective(this.$scope);
+
     element.remove();
   });
 
@@ -55,6 +59,7 @@ describe('The event-quick-form Angular module directives', function() {
     this.initDirective(this.$scope);
     this.$scope.$isShown = true;
     var event = this.$scope.$broadcast('$locationChangeStart');
+
     expect(event.defaultPrevented).to.be.true;
     expect(this.$scope.$hide).to.have.been.calledOnce;
   });
@@ -63,17 +68,20 @@ describe('The event-quick-form Angular module directives', function() {
     this.initDirective(this.$scope);
     this.$scope.$isShown = false;
     var event = this.$scope.$broadcast('$locationChangeStart');
+
     expect(event.defaultPrevented).to.be.false;
   });
 
   it('should not prevent default back behavior when modal is undefined', function() {
     this.initDirective(this.$scope);
     var event = this.$scope.$broadcast('$locationChangeStart');
+
     expect(event.defaultPrevented).to.be.false;
   });
 
   it('should focus title on load', function(done) {
     var element = this.initDirective(this.$scope);
+
     element.find('.title')[0].focus = function() {
       done();
     };
