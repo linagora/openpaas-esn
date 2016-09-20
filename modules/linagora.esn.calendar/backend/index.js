@@ -121,7 +121,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/mini-calendar/service.js',
 
         'calendar/calendar-button-toolbar.directive.js',
-        'calendar/calendar-controller.controller.js',
+        'calendar/calendar.controller.js',
         'calendar/calendar-header-content.directive.js',
         'calendar/calendar-header-mobile.directive.js',
         'calendar/calendar-left-pane.directive.js',
@@ -136,7 +136,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-consult-form/event-consult-form-sub-header.directive.js',
         'event-consult-form/event-consult-form.directive.js',
 
-        'event-form/event-form-controller.controller.js',
+        'event-form/event-form.controller.js',
 
         'event-full-form/event-full-form-sub-header.directive.js',
         'event-full-form/event-full-form.directive.js',
