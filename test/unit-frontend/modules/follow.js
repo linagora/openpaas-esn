@@ -20,6 +20,10 @@ describe('The esn.follow Angular module', function() {
       sessionMock = {
         user: {
           _id: userId
+        },
+        domain: {},
+        ready: {
+          then: function() {}
         }
       };
 

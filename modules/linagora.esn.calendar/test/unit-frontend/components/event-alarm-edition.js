@@ -18,6 +18,9 @@ describe('The event-alarm-edition component', function() {
       domain: {
         company_name: 'test',
         _id: 'domainId'
+      },
+      ready: {
+        then: function() {}
       }
     };
 

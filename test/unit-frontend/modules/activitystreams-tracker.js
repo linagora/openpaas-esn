@@ -13,6 +13,9 @@ describe('The esn.activitystreams-tracker Angular module', function() {
       $provide.value('session', {
         domain: {
           _id: domainId
+        },
+        ready: {
+          then: function() {}
         }
       });
       $provide.value('$timeout', function(callback) { callback(); });

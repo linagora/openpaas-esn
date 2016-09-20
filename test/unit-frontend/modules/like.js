@@ -28,6 +28,10 @@ describe('The esn.like Angular module', function() {
       sessionMock = {
         user: {
           _id: userId
+        },
+        domain: {},
+        ready: {
+          then: function() {}
         }
       };
       module(function($provide) {

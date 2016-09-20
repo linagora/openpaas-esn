@@ -18,6 +18,9 @@ describe('The attendees-autocomplete-input component', function() {
       domain: {
         company_name: 'test',
         _id: 'domainId'
+      },
+      ready: {
+        then: function() {}
       }
     };
 

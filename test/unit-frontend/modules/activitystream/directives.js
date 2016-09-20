@@ -28,6 +28,9 @@ describe('The esn.activitystream Angular module', function() {
         },
         domain: {
           company_name: 'test'
+        },
+        ready: {
+          then: function() {}
         }
       };
 
