@@ -204,6 +204,20 @@ angular.module('linagora.esn.unifiedinbox')
       inboxEmailService.markAsRead($scope.email);
     });
 
+    ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+      this[action] = function() {
+        inboxEmailService[action]($scope.email);
+      };
+    }.bind(this));
+
+    ['markAsUnread', 'moveToTrash'].forEach(function(action) {
+      this[action] = function() {
+        inboxEmailService[action]($scope.email).then(function() {
+          $state.go('^');
+        });
+      };
+    }.bind(this));
+
     this.move = function() {
       $state.go('.move', { item: $scope.email }, { location: false });
     };

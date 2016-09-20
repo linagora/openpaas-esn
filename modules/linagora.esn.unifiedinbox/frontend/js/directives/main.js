@@ -545,17 +545,9 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       controller: function($scope) {
-        ['reply', 'replyAll', 'forward', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
           this[action] = function() {
             inboxEmailService[action]($scope.email);
-          };
-        }.bind(this));
-
-        ['markAsUnread', 'moveToTrash'].forEach(function(action) {
-          this[action] = function() {
-            inboxEmailService[action]($scope.email).then(function() {
-              $state.go('^');
-            });
           };
         }.bind(this));
 

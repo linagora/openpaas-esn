@@ -728,6 +728,48 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect($state.go).to.have.been.calledWith('.move', { item: email }, { location: false });
     });
 
+    describe('The markAsUnread fn', function() {
+      it('should mark email as unread then update location to parent state', inject(function($state) {
+        scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
+        $state.go = sinon.spy();
+        var controller = initController('viewEmailController');
+
+        controller.markAsUnread();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(scope.email.setIsUnread).to.have.been.calledWith(true);
+      }));
+    });
+
+    describe('The moveToTrash fn', function() {
+      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
+        inboxEmailService.moveToTrash = sinon.spy(function() {
+          return $q.when({});
+        });
+        var controller = initController('viewEmailController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+
+      it('should not update location if the email is not deleted', function() {
+        inboxEmailService.moveToTrash = sinon.spy(function() {
+          return $q.reject({});
+        });
+        var controller = initController('viewEmailController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.not.been.called;
+        expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+    });
+
   });
 
   describe('The inboxMoveItemController controller', function() {
