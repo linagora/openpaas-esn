@@ -273,3 +273,15 @@ Defines the algorithm, public-key and private-key that will be used to encode/de
   }
 }
 ```
+
+### Home page
+
+Home page is the first page that the user is redirected to after logged in to ESN.
+Valid values are ui-router states available in ESN.
+
+```
+{
+  "name": "homePage",
+  "value": "unifiedinbox"
+}
+```

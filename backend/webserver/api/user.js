@@ -2,7 +2,6 @@
 
 var authorize = require('../middleware/authorization');
 var users = require('../controllers/users');
-var features = require('../middleware/features');
 var usernotifications = require('../controllers/usernotifications');
 var usernotificationsAsMiddleware = require('../middleware/usernotifications');
 var oauthclients = require('../controllers/oauthclients');
@@ -26,7 +25,7 @@ module.exports = function(router) {
    *       404:
    *         $ref: "#/responses/cm_404"
    */
-  router.get('/user', authorize.requiresAPILogin, features.loadFeaturesForUser, users.user);
+  router.get('/user', authorize.requiresAPILogin, users.user);
 
   /**
    * @swagger
