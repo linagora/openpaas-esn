@@ -934,7 +934,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      searchByEmail: searchByEmail,
+      searchByEmail: _.memoize(searchByEmail),
       searchRecipients: searchRecipients
     };
   })
