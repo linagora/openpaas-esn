@@ -77,9 +77,16 @@ module.exports = function(config) {
       'frontend/components/Autolinker.js/dist/Autolinker.js',
       'frontend/components/angular-component/dist/angular-component.min.js',
       'frontend/js/**/*.js',
+
       'modules/**/frontend/js/**/*.js',
+      'modules/**/frontend/app/**/*.js',
+
       'modules/**/test/unit-frontend/**/*.js',
+      'modules/**/frontend/app/**/*.spec.js',
+
       'modules/**/frontend/views/**/*.jade',
+      'modules/**/frontend/app/**/*.jade',
+
       'frontend/views/modules/**/*.jade',
 
       // fixtures

@@ -61,7 +61,7 @@ describe('The open-event-form service', function() {
       expect(this.$modal).to.have.been.called;
       expect(this.$state.go).to.not.have.been;
       expect(this.$modal).to.have.been.calledWith(sinon.match({
-        templateUrl: '/calendar/views/event-quick-form/event-quick-form-view',
+        templateUrl: '/calendar/app/services/open-event-form/event-quick-form-view',
         backdrop: 'static',
         placement: 'center'
       }));
@@ -94,7 +94,7 @@ describe('The open-event-form service', function() {
     it('if event is a recurring event, it should ask for editting master or instance', function() {
       this.openEventForm(this.instance);
       expect(this.$modal).to.have.been.calledWith(sinon.match({
-        templateUrl: '/calendar/views/event-quick-form/edit-instance-or-serie',
+        templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-serie',
         resolve: {
           event: sinon.match.func.and(sinon.match(function(eventGetter) {
             return eventGetter() === self.instance;

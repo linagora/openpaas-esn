@@ -1,0 +1,22 @@
+.calendar-header-mobile
+  .calendar-controls.flex.flex-space-between
+    .left
+      a(href='', contextual-sidebar, data-content-template="/calendar/app/calendar/calendar-header/calendar-sidebar")
+        button.btn.btn-primary.waves-effect
+          i.mdi.mdi-menu
+
+      a.flex-vertical-centered(toggle-mini-calendar)
+        .date-indicator(calendar-date-indicator) {{vm.dateIndicator}}
+        button.mini-calendar-caret.btn.btn-primary.waves-effect
+          i.mdi.mdi-menu-down
+    .right.flex
+      a(toggle-calendar-today)
+        button.btn.btn-primary.waves-effect
+          | #{__('Today')}
+          i.mdi.mdi-calendar-today
+      a(calendar-view-translation='prev')
+        button.btn.btn-primary.waves-effect
+          i.mdi.mdi-chevron-left
+      a(calendar-view-translation='next')
+        button.btn.btn-primary.waves-effect
+          i.mdi.mdi-chevron-right

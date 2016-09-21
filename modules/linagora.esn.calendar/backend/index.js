@@ -61,19 +61,21 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       var jsFiles = [
         'app.js',
         'constants.js',
-        'ical.js',
 
         'core/application-menu-calendar.directive.js',
         'core/auto-size-and-update.directive.js',
         'core/calendar-date-indicator.directive.js',
         'core/calendar-view-translation.directive.js',
         'core/date-to-moment.directive.js',
+        'core/event-form.controller.js',
         'core/friendlify-end-date.directive.js',
         'core/partstat.filter.js',
         'core/toggle-calendar-today.directive.js',
         'core/toggle-calendar-view.directive.js',
         'core/toggle-mini-calendar.directive.js',
 
+        'services/events-provider/events-provider.js',
+        'services/open-event-form/open-event-form.js',
         'services/shells/calendar-collection-shell.js',
         'services/shells/calendar-shell.js',
         'services/shells/rrule-shell.js',
@@ -94,57 +96,54 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/event-service.js',
         'services/event-store.js',
         'services/event-utils.js',
-        'services/events-provider.js',
         'services/fc-moment.js',
+        'services/ical.js',
         'services/master-event-cache.js',
-        'services/open-event-form.js',
         'services/path-builder.js',
         'services/request.js',
         'services/timezone.js',
 
-        'components/attendee-list-item-consult.js',
-        'components/attendee-list-item-edition.js',
-        'components/attendee-list-item.js',
-        'components/attendees-autocomplete-input.js',
-        'components/attendees-list.js',
-        'components/calendar-color-picker.js',
-        'components/calendars-list.js',
-        'components/event-alarm-consultation.js',
-        'components/event-alarm-edition.js',
-        'components/event-create-button.js',
-        'components/event-date-consultation.js',
-        'components/event-date-edition.js',
-        'components/event-recurrence-edition.js',
-        'components/mail-to-attendees.js',
+        'components/attendee-list-item/attendee-list-item.js',
+        'components/attendee-list-item-consult/attendee-list-item-consult.js',
+        'components/attendee-list-item-edition/attendee-list-item-edition.js',
+        'components/attendees-autocomplete-input/attendees-autocomplete-input.js',
+        'components/attendees-list/attendees-list.js',
+        'components/calendar-color-picker/calendar-color-picker.js',
+        'components/calendar-community-button-toolbar/calendar-community-button-toolbar.directive.js',
+        'components/calendars-list/calendars-list.js',
+        'components/event-alarm-consultation/event-alarm-consultation.js',
+        'components/event-alarm-edition/event-alarm-edition.js',
+        'components/event-create-button/event-create-button.js',
+        'components/event-date-consultation/event-date-consultation.js',
+        'components/event-date-edition/event-date-edition.js',
+        'components/event-recurrence-edition/event-recurrence-edition.js',
+        'components/mail-to-attendees/mail-to-attendees.js',
         'components/mini-calendar/mini-calendar-mobile.directive.js',
         'components/mini-calendar/mini-calendar.controller.js',
         'components/mini-calendar/mini-calendar.directive.js',
         'components/mini-calendar/mini-calendar.service.js',
 
-        'calendar/calendar-button-toolbar.directive.js',
-        'calendar/calendar.controller.js',
-        'calendar/calendar-header-content.directive.js',
-        'calendar/calendar-header-mobile.directive.js',
-        'calendar/calendar-left-pane.directive.js',
-        'calendar/calendar-view.directive.js',
+        'calendar/calendar-header/calendar-header-content.directive.js',
+        'calendar/calendar-header/calendar-header-mobile.directive.js',
+        'calendar/calendar-left-pane/calendar-left-pane.directive.js',
+        'calendar/calendar-view/calendar-view.controller.js',
+        'calendar/calendar-view/calendar-view.directive.js',
 
-        'calendar-configuration/calendar-configuration-header.directive.js',
+        'calendar-configuration/calendar-configuration-header/calendar-configuration-header.directive.js',
+        'calendar-configuration/calendars-configuration-header/calendars-configuration-header.directive.js',
         'calendar-configuration/calendar-configuration.directive.js',
-        'calendar-configuration/calendars-configuration-header.directive.js',
         'calendar-configuration/calendars-configuration.directive.js',
 
         'event-consult-form/event-consult-form-body.directive.js',
         'event-consult-form/event-consult-form-sub-header.directive.js',
         'event-consult-form/event-consult-form.directive.js',
 
-        'event-form/event-form.controller.js',
-
         'event-full-form/event-full-form-sub-header.directive.js',
         'event-full-form/event-full-form.directive.js',
 
-        'event-message/event-message-edition-button.directive.js',
-        'event-message/event-message-edition.controller.js',
-        'event-message/event-message-edition.directive.js',
+        'event-message/event-message-edition/event-message-edition.controller.js',
+        'event-message/event-message-edition/event-message-edition.directive.js',
+        'event-message/event-message-edition-button/event-message-edition-button.directive.js',
         'event-message/event-message.directive.js',
         'event-message/event-message.service.js',
 
@@ -152,10 +151,9 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
       ];
 
-      webserverWrapper.injectAngularModules('calendar', jsFiles, ['esn.calendar', 'esn.ical'], ['esn']);
-      var lessFile = path.resolve(__dirname, '../frontend/css/styles.less');
+      var lessFile = 'styles.less';
 
-      webserverWrapper.injectLess('calendar', [lessFile], 'esn');
+      webserverWrapper.injectAngularAppModules('calendar', jsFiles, [lessFile], ['esn.calendar', 'esn.ical'], ['esn']);
       webserverWrapper.addApp('calendar', app);
 
       return callback();
