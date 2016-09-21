@@ -86,12 +86,12 @@ module.exports = function() {
     }
 
     function _checkMessage(message) {
-      var messageSubject = message.element(by.css('.inbox-subject'));
+      var messageSubject = message.element(by.css('.inbox-subject-inline'));
       var messageFrom = message.element(by.css('.emailer'));
-      var messagePreview = message.element(by.css('.inbox-preview-block.preview'));
+      var messagePreview = message.element(by.css('.inbox-preview-inline.preview'));
 
       return q.all([
-        _checkTextContain(messageFrom, self.USERS[from].email),
+        _checkTextContain(messageFrom, self.USERS[from].displayName),
         _checkTextEqual(messageSubject, subject),
         _checkTextContain(messagePreview, preview)
       ]).then(q.reject, q.when);

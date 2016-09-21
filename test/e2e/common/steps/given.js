@@ -20,7 +20,7 @@ module.exports = function() {
   });
 
   this.Given('I use a desktop screen', function() {
-    return browser.manage().window().setSize(1366, 768);
+    return browser.manage().window().setSize(1400, 768);
   });
 
 };
