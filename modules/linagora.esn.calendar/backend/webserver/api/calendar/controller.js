@@ -100,7 +100,7 @@ function changeParticipationSuccess(res, vcalendar, eventData) {
         calendar.generateActionLinks(baseUrl, eventData).then(function(links) {
           var eventJSON = JSON.stringify(vcalendar.toJSON());
 
-          return res.status(200).render('../event-consultation-app/views/index', {eventJSON: eventJSON, attendeeEmail: attendeeEmail, links: links});
+          return res.status(200).render('../event-consultation-app/index', {eventJSON: eventJSON, attendeeEmail: attendeeEmail, links: links});
         });
       });
     } else {
