@@ -12,7 +12,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       Composition, newComposerService = {}, $state, $modal, navigateTo,
       mailboxesService, inboxThreadService, inboxEmailService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
       touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter;
-  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, PROVIDER_INFINITY_LIST, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -80,7 +80,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_, _inboxEmailService_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxThreadService_,
-                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_) {
+                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_, _PROVIDER_INFINITY_LIST_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -94,6 +94,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     INBOX_EVENTS = _INBOX_EVENTS_;
+    PROVIDER_INFINITY_LIST = _PROVIDER_INFINITY_LIST_;
     moment = _moment_;
     Mailbox = _Mailbox_;
     Thread = _Thread_;
@@ -725,7 +726,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       controller.move();
 
-      expect($state.go).to.have.been.calledWith('.move', { item: email }, { location: false });
+      expect($state.go).to.have.been.calledWith('.move', { item: email });
     });
 
     describe('The markAsUnread fn', function() {
@@ -814,7 +815,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $stateParams.threadId = 'threadId';
       controller = initController('inboxMoveItemController');
 
-      scope.$on(INBOX_EVENTS.REMOVE_ELEMENT_INFINITY_LIST, function(event, item) {
+      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
         expect(item).to.deep.equal($stateParams.item);
 
         done();
@@ -830,7 +831,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $stateParams.emailId = 'emailId';
       controller = initController('inboxMoveItemController');
 
-      scope.$on(INBOX_EVENTS.REMOVE_ELEMENT_INFINITY_LIST, function(event, item) {
+      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
         expect(item).to.deep.equal($stateParams.item);
 
         done();
@@ -842,14 +843,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(inboxEmailService.moveToMailbox).to.have.been.calledWith($stateParams.item, mailbox);
     });
 
-    it('should add broadcast INBOX_EVENTS.ADD_ELEMENT_INFINITY_LIST when moveToMailbox reject', function(done) {
+    it('should add broadcast PROVIDER_INFINITY_LIST.ADD_ELEMENT when moveToMailbox reject', function(done) {
       inboxEmailService.moveToMailbox = sinon.spy(function() {
         return $q.reject();
       });
       $stateParams.emailId = 'emailId';
       controller = initController('inboxMoveItemController');
 
-      scope.$on(INBOX_EVENTS.ADD_ELEMENT_INFINITY_LIST, function(event, item) {
+      scope.$on(PROVIDER_INFINITY_LIST.ADD_ELEMENT, function(event, item) {
         expect(item).to.deep.equal($stateParams.item);
 
         done();
@@ -1081,7 +1082,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       controller.move();
 
-      expect($state.go).to.have.been.calledWith('.move', { item: thread, threadId: thread.id }, { location: false });
+      expect($state.go).to.have.been.calledWith('.move', { item: thread, threadId: thread.id });
     });
 
   });

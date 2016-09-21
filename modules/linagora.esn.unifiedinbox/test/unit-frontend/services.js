@@ -2593,6 +2593,20 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    describe('The isRestrictedMailbox function', function() {
+
+      it('should return true for restricted mailboxes', function() {
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: 'drafts' }})).to.equal(true);
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: 'outbox' }})).to.equal(true);
+      });
+
+      it('should return false for non restricted mailboxes', function() {
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: 'inbox' }})).to.equal(false);
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: undefined }})).to.equal(false);
+      });
+
+    });
+
     describe('The assignMailboxesList function', function() {
 
       it('should return a promise', function(done) {
@@ -4615,34 +4629,5 @@ describe('The Unified Inbox Angular module services', function() {
       expect($scope.infiniteScrollDisabled).to.equal(false);
       expect($scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning no items
     });
-
-    it('should call groups.addElement when ADD_ELEMENT_INFINITY_LIST is received', function() {
-      var item = { id: 'item' };
-
-      service($scope, function() {
-        return { id: 'filter' };
-      }, $q.when);
-      $scope.groups.addElement = sinon.spy();
-
-      $scope.$emit(INBOX_EVENTS.ADD_ELEMENT_INFINITY_LIST, item);
-
-      expect($scope.groups.addElement).to.have.been.calledWith(item);
-    });
-
-    it('should call groups.removeElement when REMOVE_ELEMENT_INFINITY_LIST is received', function(done) {
-      var item = { id: 'item' };
-
-      service($scope, function() {
-        return { id: 'filter' };
-      }, $q.when);
-
-      $scope.groups.removeElement = sinon.spy();
-      $scope.$on(INFINITE_LIST_LOAD_EVENT, done.bind(null, null));
-      $scope.$emit(INBOX_EVENTS.REMOVE_ELEMENT_INFINITY_LIST, item);
-
-      expect($scope.groups.removeElement).to.have.been.calledWith(item);
-    });
-
   });
-
 });

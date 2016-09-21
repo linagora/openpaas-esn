@@ -67,7 +67,7 @@ angular.module('linagora.esn.unifiedinbox', [
       return state;
     }
 
-    function stateOpeningModal(state, templateUrl, controller, params) {
+    function stateOpeningModal(state, templateUrl, controller) {
       state.resolve = {
         modalHolder: function() {
           return {};
@@ -85,8 +85,6 @@ angular.module('linagora.esn.unifiedinbox', [
       state.onExit = function(modalHolder) {
         modalHolder.modal.hide();
       };
-
-      params && (state.params = params);
 
       return state;
     }
@@ -239,8 +237,11 @@ angular.module('linagora.esn.unifiedinbox', [
         }
       })
       .state('unifiedinbox.list.messages.move', stateOpeningModal({
-        url: '/move'
-      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController', { item: undefined }))
+        url: '/move',
+        params: {
+          item: undefined
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.messages.message', stateOpeningListItem({
         url: '/:emailId',
         views: {
@@ -266,8 +267,12 @@ angular.module('linagora.esn.unifiedinbox', [
         }
       })
       .state('unifiedinbox.list.threads.move', stateOpeningModal({
-        url: '/move'
-      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController', { item: undefined, threadId: undefined }))
+        url: '/move',
+        params: {
+          item: undefined,
+          threadId: undefined
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.threads.thread', stateOpeningListItem({
         url: '/:threadId',
         views: {

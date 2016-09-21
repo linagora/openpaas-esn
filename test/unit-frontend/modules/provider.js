@@ -502,26 +502,53 @@ describe('The esn.provider module', function() {
   });
 
   describe('infiniteScrollOnGroupsHelper', function() {
-    var ELEMENTS_PER_PAGE, infiniteScrollOnGroupsHelper, $q, $rootScope;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_LOAD_EVENT, PROVIDER_INFINITY_LIST, infiniteScrollOnGroupsHelper, $q, $rootScope, elementGroupingTool;
 
     beforeEach(function() {
+      elementGroupingTool = {
+        getGroupedElements: angular.noop,
+        addElement: sinon.spy(),
+        removeElement: sinon.spy()
+      };
       ELEMENTS_PER_PAGE = 3;
       angular.mock.module(function($provide) {
         $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE);
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_) {
+    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_, _PROVIDER_INFINITY_LIST_, _INFINITE_LIST_LOAD_EVENT_) {
       infiniteScrollOnGroupsHelper = _infiniteScrollOnGroupsHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
+      PROVIDER_INFINITY_LIST = _PROVIDER_INFINITY_LIST_;
+      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
     }));
+
+
+    it('should call groups.addElement when ADD_ELEMENT is received', function() {
+      var scope = $rootScope.$new(), item = { id: 'item' };
+
+      infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+      scope.$emit(PROVIDER_INFINITY_LIST.ADD_ELEMENT, item);
+
+      expect(scope.groups.addElement).to.have.been.calledWith(item);
+    });
+
+    it('should call groups.removeElement when REMOVE_ELEMENT is received', function(done) {
+      var scope = $rootScope.$new(), item = { id: 'item' };
+
+      infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+      scope.$on(INFINITE_LIST_LOAD_EVENT, done.bind(null, null));
+      scope.$emit(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, item);
+
+      expect(scope.groups.removeElement).to.have.been.calledWith(item);
+    });
 
     describe('The return iterator', function() {
       var sourceIterator, resultingIterator, scope, elementGroupingTool, getGroupedElementsResult;
 
       beforeEach(function() {
-        scope = {};
+        scope = $rootScope.$new();
         sourceIterator = sinon.stub();
         getGroupedElementsResult = {};
 

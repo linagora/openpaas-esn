@@ -72,6 +72,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .filter('inboxFilterRestrictedMailboxes', function(mailboxesService, _) {
+    return function(mailboxes) {
+      return _.filter(mailboxes, function(mailbox) {
+        return !mailboxesService.isRestrictedMailbox(mailbox);
+      });
+    };
+  })
+
  .filter('inboxFilterDescendantMailboxes', function(_) {
    return function(mailboxes, id, filterOnlyParentMailbox) {
      if (!mailboxes || !id) {

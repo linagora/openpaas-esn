@@ -9,6 +9,10 @@ angular.module('esn.provider', [
 
   .constant('ELEMENTS_PER_REQUEST', 200)
   .constant('ELEMENTS_PER_PAGE', 1)
+  .constant('PROVIDER_INFINITY_LIST', {
+    ADD_ELEMENT: 'provider:addElementInfinityList',
+    REMOVE_ELEMENT: 'provider:removeElementInfinityList'
+  })
 
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
 
@@ -297,12 +301,21 @@ angular.module('esn.provider', [
       });
     };
   })
-  .factory('infiniteScrollOnGroupsHelper', function(infiniteScrollHelperBuilder) {
+  .factory('infiniteScrollOnGroupsHelper', function($rootScope, infiniteScrollHelperBuilder, PROVIDER_INFINITY_LIST, INFINITE_LIST_LOAD_EVENT) {
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
 
       scope.groups = groups;
       scope.groupedElements = groups.getGroupedElements();
+
+      scope.$on(PROVIDER_INFINITY_LIST.ADD_ELEMENT, function(event, item) {
+        scope.groups.addElement(item);
+      });
+
+      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
+        scope.groups.removeElement(item);
+        $rootScope.$broadcast(INFINITE_LIST_LOAD_EVENT);
+      });
 
       return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
         groups.addAll(newElements);

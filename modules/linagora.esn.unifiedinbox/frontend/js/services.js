@@ -673,6 +673,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('mailboxesService', function($q, _, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap, inboxSpecialMailboxes,
                                         inboxMailboxesCache, asyncJmapAction, Mailbox) {
+
     var RESTRICT_MAILBOXES = [
       jmap.MailboxRole.OUTBOX.value,
       jmap.MailboxRole.DRAFTS.value
@@ -785,7 +786,7 @@ angular.module('linagora.esn.unifiedinbox')
       _updateUnreadMessages(toMailboxIds, numberOfUnreadMessage);
     }
 
-    function _isMovingRestrictedMailbox(mailbox) {
+    function isRestrictedMailbox(mailbox) {
       if (mailbox && mailbox.role) {
         return RESTRICT_MAILBOXES.indexOf(mailbox.role.value) > -1;
       }
@@ -810,13 +811,13 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       // do not allow moving to restricted mailboxes
-      if (_isMovingRestrictedMailbox(toMailbox)) {
+      if (isRestrictedMailbox(toMailbox)) {
         return false;
       }
 
       // do not allow moving out restricted mailboxes
       return message.mailboxIds.every(function(mailboxId) {
-        return !_isMovingRestrictedMailbox(_.find(inboxMailboxesCache, { id: mailboxId }));
+        return !isRestrictedMailbox(_.find(inboxMailboxesCache, { id: mailboxId }));
       });
 
     }
@@ -910,7 +911,8 @@ angular.module('linagora.esn.unifiedinbox')
       getMessageListFilter: getMessageListFilter,
       createMailbox: createMailbox,
       destroyMailbox: destroyMailbox,
-      updateMailbox: updateMailbox
+      updateMailbox: updateMailbox,
+      isRestrictedMailbox: isRestrictedMailbox
     };
   })
 
@@ -976,7 +978,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxEmailService', function($q, $state, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+  .service('inboxEmailService', function($q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(email, options) {
       return backgroundAction('Move of message "' + email.subject + '" to trash', function() {
         return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1052,7 +1054,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxThreadService', function($q, $state, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+  .service('inboxThreadService', function($q, backgroundAction, jmap, jmapEmailService, mailboxesService) {
     function moveToTrash(thread, options) {
       return backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
         return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1320,7 +1322,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxFilteringAwareInfiniteScroll', function($rootScope, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS, INFINITE_LIST_LOAD_EVENT) {
+  .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
     return function(scope, getAvailableFilters, buildLoadNextItemsFunction) {
       function setFilter() {
         scope.loadMoreElements = infiniteScrollOnGroupsHelper(
@@ -1331,15 +1333,6 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       scope.filters = getAvailableFilters();
-
-      scope.$on(INBOX_EVENTS.ADD_ELEMENT_INFINITY_LIST, function(event, item) {
-        scope.groups.addElement(item);
-      });
-
-      scope.$on(INBOX_EVENTS.REMOVE_ELEMENT_INFINITY_LIST, function(event, item) {
-        scope.groups.removeElement(item);
-        $rootScope.$broadcast(INFINITE_LIST_LOAD_EVENT);
-      });
 
       scope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
         scope.infiniteScrollDisabled = false;

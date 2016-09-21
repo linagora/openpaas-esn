@@ -1282,18 +1282,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.find('.email-body a[href="mailto:me@open-paas.org"]')).to.have.length(1);
     });
 
-    describe('The move fn', function() {
-      it('should expose a move function to the controller', function() {
-        compileDirective('<email/>');
-        var email = { to: [] };
-        element.isolateScope().email = email;
-
-        element.controller('email').move();
-
-        expect($state.go).to.have.been.calledWith('.move', { item: email }, { location: false });
-      });
-    });
-
     describe('The toggleIsCollapsed function', function() {
 
       it('should do nothing if email.isCollapsed is not defined', function() {

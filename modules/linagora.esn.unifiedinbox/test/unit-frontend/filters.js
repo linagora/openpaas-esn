@@ -242,4 +242,27 @@ describe('The Unified Inbox Angular module filters', function() {
 
   });
 
+  describe('The inboxFilterRestrictedMailboxes filter', function() {
+
+    var inboxFilterRestrictedMailboxesFilter;
+
+    beforeEach(inject(function(_inboxFilterRestrictedMailboxesFilter_) {
+      inboxFilterRestrictedMailboxesFilter = _inboxFilterRestrictedMailboxesFilter_;
+    }));
+
+    it('should filter RestrictMailboxes', function() {
+      var mailboxes = [
+          { role: { value: 'outbox' }},
+          { role: { value: 'drafts' }},
+          { role: { value: undefined }},
+          { role: { value: 'inbox' }}
+        ],
+        expectedMailboxes = [
+          { role: { value: undefined }},
+          { role: { value: 'inbox' }}
+        ];
+     expect(inboxFilterRestrictedMailboxesFilter(mailboxes)).to.deep.equal(expectedMailboxes);
+    });
+  });
+
 });

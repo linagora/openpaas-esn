@@ -37,9 +37,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
   .constant('INBOX_EVENTS', {
     VACATION_STATUS: 'inbox:vacationStatusUpdated',
-    FILTER_CHANGED: 'inbox:filterChanged',
-    ADD_ELEMENT_INFINITY_LIST: 'inbox:addElementInfinityList',
-    REMOVE_ELEMENT_INFINITY_LIST: 'inbox:removeElementInfinityList'
+    FILTER_CHANGED: 'inbox:filterChanged'
   })
   .constant('INBOX_EMPTY_MESSAGE_MAPPING', {
     default: '/unifiedinbox/views/partials/empty-messages/containers/default.html',
