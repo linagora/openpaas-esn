@@ -14,6 +14,7 @@ describe('The eventService service', function() {
       _token: '123',
       getNewToken: function() {
         var token = this._token;
+
         return $q.when({ data: { token: token } });
       }
     };
@@ -31,6 +32,7 @@ describe('The eventService service', function() {
       },
       flushTasksFor: function(context) {
         expect(flushContext).to.deep.equal(context);
+
         return $q.when([]);
       },
       grace: function() {
@@ -90,6 +92,7 @@ describe('The eventService service', function() {
           remove: sinon.spy($delegate.remove),
           save: sinon.spy($delegate.save)
         };
+
         return self.masterEventCache;
       });
     });
@@ -112,6 +115,7 @@ describe('The eventService service', function() {
       var data = {
         match: { start: '20140101T000000', end: '20140102T000000' }
       };
+
       self.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
         _links: {
           self: { href: '/prepath/path/to/calendar.json' }
@@ -163,6 +167,7 @@ describe('The eventService service', function() {
       var data = {
         match: { start: '20140101T000000', end: '20140103T000000' }
       };
+
       self.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
         _links: {
           self: { href: '/prepath/path/to/calendar.json' }
@@ -312,6 +317,7 @@ describe('The eventService service', function() {
 
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vcalendar.addSubcomponent(vevent);
       var event = new self.CalendarShell(vcalendar);
@@ -336,6 +342,7 @@ describe('The eventService service', function() {
     it('should fail on a 2xx status that is not 202', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vcalendar.addSubcomponent(vevent);
       var event = new self.CalendarShell(vcalendar);
@@ -362,6 +369,7 @@ describe('The eventService service', function() {
     it('should succeed when everything is correct and return true', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
@@ -385,6 +393,7 @@ describe('The eventService service', function() {
       };
 
       var headers = { ETag: etag };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: gracePeriodTaskId});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
 
@@ -403,6 +412,7 @@ describe('The eventService service', function() {
     it('should succeed calling gracePeriodService.cancel and return false', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
@@ -410,6 +420,7 @@ describe('The eventService service', function() {
       var event = new self.CalendarShell(vcalendar);
 
       var successSpy = sinon.spy();
+
       self.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: true,
@@ -421,6 +432,7 @@ describe('The eventService service', function() {
       };
 
       var headers = { ETag: 'etag' };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
 
@@ -440,6 +452,7 @@ describe('The eventService service', function() {
     it('should call cachedEventSource.registerAdd', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vcalendar.addSubcomponent(vevent);
@@ -469,10 +482,12 @@ describe('The eventService service', function() {
     it('should call masterEventCache.save if and only if it is a recurring event', function() {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vcalendar.addSubcomponent(vevent);
       var event = new self.CalendarShell(vcalendar);
+
       event.isRecurring = _.constant(true);
 
       self.gracePeriodService.grace = $q.when.bind(null, {
@@ -503,6 +518,7 @@ describe('The eventService service', function() {
     it('should call cachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vcalendar.addSubcomponent(vevent);
@@ -531,6 +547,7 @@ describe('The eventService service', function() {
     it('should call masterEventCache.remove if the creation is cancelled and if and only if event is a recurring event', function() {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vcalendar.addSubcomponent(vevent);
@@ -564,6 +581,7 @@ describe('The eventService service', function() {
     it('should transmit an error message to grace task even if the error message from the backend is empty', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
       vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
@@ -582,13 +600,16 @@ describe('The eventService service', function() {
         });
       };
 
-      self.gracePeriodService.cancel = function(taskId) {
+      self.gracePeriodService.cancel = function() {
         var deffered = $q.defer();
+
         deffered.reject({statusText: statusErrorText});
+
         return deffered.promise;
       };
 
       var headers = { ETag: 'etag' };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
 
@@ -618,6 +639,7 @@ describe('The eventService service', function() {
       ];
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('summary', 'test event');
       vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(new Date())).setParameter('tzid', 'Europe/Paris');
@@ -626,6 +648,7 @@ describe('The eventService service', function() {
       attendees.forEach(function(attendee) {
         var mailto = 'mailto:' + attendee.emails[0];
         var property = vevent.addPropertyWithValue('attendee', mailto);
+
         property.setParameter('partstat', attendee.partstat);
         property.setParameter('rsvp', 'TRUE');
         property.setParameter('role', 'REQ-PARTICIPANT');
@@ -714,6 +737,7 @@ describe('The eventService service', function() {
 
     it('should be able to modify an instance', function(done) {
       var occShell = self.event.clone();
+
       occShell.recurrenceId = self.fcMoment();
 
       var headers = { ETag: 'etag' };
@@ -740,6 +764,7 @@ describe('The eventService service', function() {
       function checkPUT(data) {
         vcalendar = new ICAL.Component(JSON.parse(data));
         expect(vcalendar.getAllSubcomponents('vevent')).to.have.length(2);
+
         return true;
       }
 
@@ -772,7 +797,7 @@ describe('The eventService service', function() {
       };
 
       self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
-        function(shell) { done(); }, unexpected.bind(null, done)
+        function() { done(); }, unexpected.bind(null, done)
       );
 
       self.$rootScope.$apply();
@@ -781,12 +806,15 @@ describe('The eventService service', function() {
 
     it('should reset the attendees participation if hasSignificantChange parameter is true', function(done) {
       var headers = { ETag: 'changed-etag' };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY, function(data) {
         var vcalendar = new ICAL.Component(JSON.parse(data));
         var vevent = vcalendar.getFirstSubcomponent('vevent');
+
         vevent.getAllProperties('attendee').forEach(function(att) {
           expect(att.getParameter('partstat')).to.equal('NEEDS-ACTION');
         });
+
         return true;
       }).respond(202, { id: '123456789' });
       self.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, self.vcalendar.toJSON(), headers);
@@ -812,10 +840,13 @@ describe('The eventService service', function() {
 
     it('should raise the sequence if hasSignificantChange parameter is true', function(done) {
       var headers = { ETag: 'changed-etag' };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY, function(data) {
         var vcalendar = new ICAL.Component(JSON.parse(data));
         var vevent = vcalendar.getFirstSubcomponent('vevent');
+
         expect(vevent.getFirstPropertyValue('sequence')).to.equal(1);
+
         return true;
       }).respond(202, { id: '123456789' });
       self.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, self.vcalendar.toJSON(), headers);
@@ -841,6 +872,7 @@ describe('The eventService service', function() {
 
     it('should succeed calling gracePeriodService.cancel', function(done) {
       var successSpy = sinon.spy();
+
       self.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: true,
@@ -850,11 +882,14 @@ describe('The eventService service', function() {
 
       self.gracePeriodService.cancel = function() {
         var deffered = $q.defer();
+
         deffered.resolve({});
+
         return deffered.promise;
       };
 
       var headers = { ETag: 'etag' };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, self.vcalendar.toJSON(), headers);
 
@@ -874,6 +909,7 @@ describe('The eventService service', function() {
     it('should cancel the task if event is involved in a graceperiod', function(done) {
       self.gracePeriodService.cancel = function() { done(); };
       var event = self.event.clone();
+
       event.gracePeriodTaskId = '12345';
       self.eventService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true});
       self.$rootScope.$apply();
@@ -883,9 +919,10 @@ describe('The eventService service', function() {
     it('should call given cancelCallback when graceperiod is cancelled before calling calendarEventEmitter.fullCalendar.emitModifiedEvent', function(done) {
       self.gracePeriodService.grace = function() {
         self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent = function() {
-          expect(onCancel).to.have.been.calledOnce;
+          expect(onCancel).to.have.been.calledOnce; // eslint-disable-line
           done();
         };
+
         return $q.when({
           cancelled: true,
           success: angular.noop
@@ -894,7 +931,9 @@ describe('The eventService service', function() {
 
       self.gracePeriodService.cancel = function() {
         var deffered = $q.defer();
+
         deffered.resolve({});
+
         return deffered.promise;
       };
 
@@ -922,6 +961,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, self.vcalendar.toJSON(), {ETag: 'etag'});
 
       var event = self.event;
+
       self.eventService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function() {
           expect(cachedEventSourceMock.registerUpdate).to.have.been.calledWith(event);
@@ -945,10 +985,12 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
       var event = self.event;
+
       event.isRecurring = _.constant(true);
       var oldEvent = self.event.clone();
 
       var first = true;
+
       cachedEventSourceMock.registerUpdate = function(_event) {
         if (first) {
           expect(_event).to.equal(event);
@@ -1005,13 +1047,16 @@ describe('The eventService service', function() {
         });
       };
 
-      self.gracePeriodService.cancel = function(taskId) {
+      self.gracePeriodService.cancel = function() {
         var deffered = $q.defer();
+
         deffered.reject({statusText: statusErrorText});
+
         return deffered.promise;
       };
 
       var headers = { ETag: 'etag' };
+
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, self.vcalendar.toJSON(), headers);
 
@@ -1029,8 +1074,9 @@ describe('The eventService service', function() {
 
     describe('handler for grace period error', function() {
       var handler;
+
       beforeEach(function() {
-        self.gracePeriodLiveNotification.registerListeners = function(taskId, _handler) {
+        self.gracePeriodLiveNotification.registerListeners = function(taskId, _handler) { // eslint-disable-line
           handler = _handler;
         };
 
@@ -1073,6 +1119,7 @@ describe('The eventService service', function() {
       var vcalendar = new ICAL.Component('vcalendar');
 
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('summary', 'test event');
       vcalendar.addSubcomponent(vevent);
@@ -1143,6 +1190,7 @@ describe('The eventService service', function() {
     it('should cancel the task if event is involved in a graceperiod', function(done) {
       self.gracePeriodService.cancel = function() { done(); };
       var event = angular.copy(self.event);
+
       event.gracePeriodTaskId = '12345';
       self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', event, 'etag');
       self.$rootScope.$apply();
@@ -1187,6 +1235,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
       var event = self.event;
+
       self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         function() {
           expect(cachedEventSourceMock.registerDelete).to.have.been.calledWith(event);
@@ -1208,6 +1257,7 @@ describe('The eventService service', function() {
       self.gracePeriodService.cancel = $q.when.bind(null, {});
 
       var event = self.event;
+
       cachedEventSourceMock.deleteRegistration = function(_event) {
         expect(_event).to.equal(event);
         done();
@@ -1222,6 +1272,7 @@ describe('The eventService service', function() {
 
     it('should succeed calling gracePeriodService.cancel', function(done) {
       var successSpy = sinon.spy();
+
       self.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: true,
@@ -1260,9 +1311,11 @@ describe('The eventService service', function() {
         });
       };
 
-      self.gracePeriodService.cancel = function(taskId) {
+      self.gracePeriodService.cancel = function() {
         var deffered = $q.defer();
+
         deffered.reject({statusText: statusErrorText});
+
         return deffered.promise;
       };
 
@@ -1286,6 +1339,7 @@ describe('The eventService service', function() {
         expect(onError).to.be.a.function;
         expect(onSuccess).to.not.exist;
       });
+
       self.gracePeriodLiveNotification.registerListeners = registerSpy;
 
       self.gracePeriodService.grace = function() {
@@ -1314,12 +1368,13 @@ describe('The eventService service', function() {
 
     it('should succeed on 202', function(done) {
       var taskId = '123456789';
+
       self.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: false
         });
       };
-      self.gracePeriodService.remove = function(id) {
+      self.gracePeriodService.remove = function() {
         expect(taskId).to.equal(taskId);
       };
       self.gracePeriodService.hasTask = function() {
@@ -1380,6 +1435,7 @@ describe('The eventService service', function() {
 
     it('should remove master of event if event is the only instance of a recurring event', function(done) {
       var taskId = '123456789';
+
       self.master.expand = _.constant({length: 1});
 
       self.gracePeriodService.grace = function() {
@@ -1388,7 +1444,7 @@ describe('The eventService service', function() {
         });
       };
 
-      self.gracePeriodService.remove = function(id) {
+      self.gracePeriodService.remove = function() {
         expect(taskId).to.equal(taskId);
       };
 
@@ -1414,7 +1470,7 @@ describe('The eventService service', function() {
         });
       };
 
-      self.gracePeriodService.remove = function(id) {
+      self.gracePeriodService.remove = function() {
         expect(taskId).to.equal(taskId);
       };
 
@@ -1441,6 +1497,7 @@ describe('The eventService service', function() {
     beforeEach(function() {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
+
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('summary', 'test event');
       vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(self.fcMoment().toDate())).setParameter('tzid', self.jstz.determine().name());
@@ -1454,6 +1511,7 @@ describe('The eventService service', function() {
 
     it('should return null if event.attendees is an empty array', function(done) {
       var emails = ['test@example.com'];
+
       self.event.attendees = [];
 
       self.eventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED').then(function(response) {
@@ -1471,6 +1529,7 @@ describe('The eventService service', function() {
       var copy = new ICAL.Component(ICAL.helpers.clone(self.vcalendar.jCal, true));
       var vevent = copy.getFirstSubcomponent('vevent');
       var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
+
       att.setParameter('partstat', 'ACCEPTED');
       att.setParameter('rsvp', 'TRUE');
       att.setParameter('role', 'REQ-PARTICIPANT');
@@ -1492,6 +1551,7 @@ describe('The eventService service', function() {
       var emails = ['test@example.com'];
 
       var promiseSpy = sinon.spy();
+
       self.event.attendees = [{emails: emails, partstat: 'DECLINED'}];
       self.eventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'DECLINED').then(promiseSpy);
 
@@ -1505,6 +1565,7 @@ describe('The eventService service', function() {
       var copy = new ICAL.Component(ICAL.helpers.clone(self.vcalendar.jCal, true));
       var vevent = copy.getFirstSubcomponent('vevent');
       var att = vevent.getFirstProperty('attendee');
+
       att.setParameter('partstat', 'ACCEPTED');
 
       var requestHeaders = {
@@ -1544,17 +1605,19 @@ describe('The eventService service', function() {
     });
 
     it('should change the participation status if the event is recurrent', function(done) {
-      var recurrentCalendarShell = new self.CalendarShell(new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics'])), {path: '/path/to/uid.ics'}
-);
+      var recurrentCalendarShell = new self.CalendarShell(new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics'])), {path: '/path/to/uid.ics'});
+
       recurrentCalendarShell.attendees = [{email: 'test@example.com'}];
       var instance = recurrentCalendarShell.expand()[1];
 
       var emails = ['test@example.com'];
       var copy = new ICAL.Component(ICAL.helpers.clone(recurrentCalendarShell.vcalendar.jCal, true));
       var vevent = copy.getFirstSubcomponent('vevent');
+
       vevent.removeAllProperties('attendee');
 
       var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
+
       att.setParameter('partstat', 'ACCEPTED');
       att.setParameter('rsvp', 'TRUE');
       att.setParameter('role', 'REQ-PARTICIPANT');

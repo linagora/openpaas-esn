@@ -12,7 +12,7 @@ describe('The cachedEventSource service', function() {
     self.originalCallback = sinon.spy();
     self.calendarId = 'a/cal/id';
 
-    self.eventSource = function(start, end, timezone, callback) {
+    self.eventSource = function(start, end, timezone, callback) { // eslint-disable-line
       callback(self.events);
     };
     self.timezone = 'who care';
@@ -99,6 +99,7 @@ describe('The cachedEventSource service', function() {
       });
 
       var wrappedEventSource = self.cachedEventSource.wrapEventSource(self.calendarId, eventSource);
+
       self.originalCallback = sinon.spy(function(events) {
         expect(_.sortBy(events, 'id')).to.deep.equals(_.sortBy(self.events, 'id'));
       });
@@ -128,6 +129,7 @@ describe('The cachedEventSource service', function() {
     it('should not replace event if event that has been crud has been undo by the given callback when crud was registered', function() {
       ['registerAdd', 'registerDelete', 'registerUpdate'].forEach(function(action) {
         var undo = self.cachedEventSource[action](self.modifiedEvent);
+
         undo();
         self.cachedEventSource.wrapEventSource(self.calendarId, self.eventSource)(self.start, self.end, self.timezone, self.originalCallback);
         self.$rootScope.$apply();
@@ -206,6 +208,7 @@ describe('The cachedEventSource service', function() {
         };
 
         var modifiedSubInstanceAfter = _.clone(modifiedSubInstanceBefore);
+
         modifiedSubInstanceAfter.title = 'Modified';
 
         self.modifiedEvent.id = 'parent';
@@ -246,6 +249,7 @@ describe('The cachedEventSource service', function() {
         };
 
         var event1After = _.clone(event1Before);
+
         event1After.title = 'after';
 
         self.modifiedEvent.id = 'parent';
@@ -254,6 +258,7 @@ describe('The cachedEventSource service', function() {
         self.events = [];
 
         var wrapedEventSource = self.cachedEventSource.wrapEventSource(self.calendarId, self.eventSource);
+
         self.cachedEventSource.registerUpdate(self.modifiedEvent);
         wrapedEventSource(self.start, self.end, self.timezone, self.originalCallback);
         self.$rootScope.$apply();
@@ -570,6 +575,7 @@ describe('the calendarExploredPeriodService service', function() {
       self.calendarExploredPeriodService.registerExploredPeriod('calId', buildPeriod(6, 7));
 
       var result = self.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId', buildPeriod(1, 9));
+
       expect(result.map(periodToComparablePeriod)).to.deep.equals([buildPeriod(1, 2), buildPeriod(5, 5), buildPeriod(8, 9)].map(periodToComparablePeriod));
 
       result = self.calendarExploredPeriodService.getUnexploredPeriodsInPeriod('calId', buildPeriod(1, 3));
@@ -613,6 +619,7 @@ describe('eventStore', function() {
   describe('reset function', function() {
     it('should destroy previously saved event in given calId', function() {
       var event = createEvent('calId', 'a', 2, 2);
+
       self.eventStore.save(event);
       event.calendarId = 'calId2';
       self.eventStore.save(event);
@@ -623,6 +630,7 @@ describe('eventStore', function() {
 
     it('should destroy previously saved event in all calendar if not cal id given', function() {
       var event = createEvent('calId', 'a', 2, 2);
+
       self.eventStore.save(event);
       event.calendarId = 'calId2';
       self.eventStore.save(event);
@@ -636,6 +644,7 @@ describe('eventStore', function() {
     it('should properly save an event in his calendar', function() {
       var event = createEvent('calId', 'a', 2, 2);
       var event2 = createEvent('calId2', 'b', 2, 2);
+
       self.eventStore.save(event);
       self.eventStore.save(event2);
       expect(self.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([event]);
@@ -645,6 +654,7 @@ describe('eventStore', function() {
     it('should not save twice the same event', function() {
       var event = createEvent('calId', 'a', 2, 2);
       var event2 = createEvent('calId', 'b', 2, 2);
+
       self.eventStore.save(event);
       self.eventStore.save(createEvent('calId', 'a', 2, 2));
       expect(self.eventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([event]);

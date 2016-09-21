@@ -1,12 +1,12 @@
 'use strict';
 
-/* global chai: false, sinon: false */
+/* global chai: false */
 
 var expect = chai.expect;
 
 describe('The events-providers', function() {
 
-  var $rootScope, eventsProviders, $httpBackend, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE, calendarService;
+  var $rootScope, eventsProviders, $httpBackend, calendarService;
   var calendarHomeId = 'calendarHomeId';
 
   beforeEach(function() {
@@ -19,12 +19,10 @@ describe('The events-providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _eventsProviders_, _ELEMENTS_PER_REQUEST_, _ELEMENTS_PER_PAGE_, _calendarService_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _eventsProviders_, _calendarService_) {
     $rootScope = _$rootScope_;
     eventsProviders = _eventsProviders_;
     $httpBackend = _$httpBackend_;
-    ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
-    ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
     calendarService = _calendarService_;
   }));
 
@@ -72,6 +70,7 @@ describe('The events-providers', function() {
           }
         };
       });
+
       $httpBackend.expectGET('/dav/api/calendars/' + calendarHomeId + '.json').respond(200, {
         _embedded: {
           'dav:calendar': davCalendars

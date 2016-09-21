@@ -18,12 +18,14 @@ describe('The ICAL Angular module', function() {
 
       it('should parse the given ICS data', function() {
         var ICAL = this.ICAL;
-        var result = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/event.ics']);
+        var result = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/event.ics']);
+
         expect(result).to.exist;
 
         var comp = new ICAL.Component(result);
         var vevent = comp.getFirstSubcomponent('vevent');
         var summary = vevent.getFirstPropertyValue('summary');
+
         expect(summary).to.match(/Really long event name thing/);
       });
     });

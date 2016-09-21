@@ -25,12 +25,14 @@ describe('The calendarVisibilityService', function() {
 
     it('should return previous hidden calendar', function() {
       var hiddenCalendars = [{id: 1}, {id: 2}];
+
       hiddenCalendars.map(this.calendarVisibilityService.toggle);
       expect(this.calendarVisibilityService.getHiddenCalendars()).to.deep.equal(hiddenCalendars);
     });
 
     it('should not return unhidden calendar', function() {
       var hiddenCalendars = [{id: 1}, {id: 2}];
+
       hiddenCalendars.map(this.calendarVisibilityService.toggle);
 
       this.calendarVisibilityService.toggle(hiddenCalendars[0]);

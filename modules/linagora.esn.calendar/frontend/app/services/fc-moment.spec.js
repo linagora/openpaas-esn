@@ -27,6 +27,7 @@ describe('fcMoment factory', function() {
     };
 
     var self = this;
+
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('$window', self.window);
@@ -53,6 +54,7 @@ describe('fcMoment factory', function() {
 
   it('call fullCalendar.moment directly if the argument is not an ICAL.Time', function(done) {
     var date = new Date();
+
     this.window.$.fullCalendar.moment = function() {
       expect(arguments[0]).to.deep.equal(date);
       done();
@@ -62,12 +64,14 @@ describe('fcMoment factory', function() {
 
   it('call fullCalendar.moment with the result of toJSDate of ical', function() {
     var icalTime = this.ICAL.Time.fromJSDate(new Date());
+
     icalTime.isDate = true;
 
     var stripTimeFunc = sinon.spy();
 
     this.window.$.fullCalendar.moment = function(dt) {
       expect(dt).to.deep.equal(icalTime.toJSDate());
+
       return {
         stripTime: stripTimeFunc
       };

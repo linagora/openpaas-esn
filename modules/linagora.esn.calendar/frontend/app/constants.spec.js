@@ -8,6 +8,7 @@ describe('Calendar constants', function() {
 
   beforeEach(function() {
     var self = this;
+
     angular.mock.module('esn.calendar');
     angular.mock.inject(function(UI_CONFIG) {
       self.UI_CONFIG = UI_CONFIG;

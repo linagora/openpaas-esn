@@ -18,14 +18,14 @@ describe('The registerTimezones factory', function() {
   });
 
   it('should have register timezone', function() {
-    angular.forEach(TIMEZONES.zones, function(_data, key) {
+    angular.forEach(TIMEZONES.zones, function(_data, key) { // eslint-disable-line
       expect(ICAL.TimezoneService.get(key)).to.be.ok;
       expect(ICAL.TimezoneService.get(key).tzid).to.equal(key);
     });
   });
 
   it('should have register alias', function() {
-    angular.forEach(TIMEZONES.aliases, function(_data, key) {
+    angular.forEach(TIMEZONES.aliases, function(_data, key) { // eslint-disable-line
       expect(ICAL.TimezoneService.get(key)).to.be.ok;
     });
   });

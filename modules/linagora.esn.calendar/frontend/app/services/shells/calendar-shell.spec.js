@@ -81,7 +81,7 @@ describe('CalendarShell factory', function() {
 
     it('if recurrent it should remove exception if start or end date change', function() {
       ['end', 'start'].forEach(function(date) {
-        var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+        var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']));
         var shell = new CalendarShell(vcalendar);
 
         shell[date] = fcMoment([2015, 1, 6, 10, 40]);
@@ -90,7 +90,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('if recurrent it should not remove exception if start or end date change to the same value', function() {
-      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']));
       var shell = new CalendarShell(vcalendar);
 
       shell.start = fcMoment.utc([2016, 2, 7, 15, 0]);
@@ -100,7 +100,7 @@ describe('CalendarShell factory', function() {
 
     it('if recurrent it should remove exception if start pass to allDay', function() {
       var midnight = fcMoment.utc([2016, 2, 7, 17, 0]);
-      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']));
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']));
 
       vcalendar.getFirstSubcomponent('vevent').updatePropertyWithValue('dtstart', ICAL.Time.fromJSDate(midnight.toDate(), true).convertToZone(ICAL.TimezoneService.get(this.localTimezone)));
 
@@ -492,7 +492,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should not mute master event', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
       var masterIcsAfterExpand, masterIcsBeforeExpand;
 
@@ -504,7 +504,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should compute start date and end date of instance in same start date of master', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
       var event = shell.expand()[0];
 
@@ -557,7 +557,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should expand in element that has no trace of others exceptions', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
 
       shell.expand().forEach(function(shell) {
@@ -613,7 +613,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should expand correctly recurrent event with timezone', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
 
       expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
@@ -632,7 +632,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should expand correctly recurrent event with exdate', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithExdate.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithExdate.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
 
       expect(shell.expand().length).to.equal(2);
@@ -780,7 +780,7 @@ describe('CalendarShell factory', function() {
 
   describe('deleteInstance', function() {
     it('should correctly delete non exceptional instance', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
       var instances = shell.expand();
       var instanceToDelete = instances.pop();
@@ -794,7 +794,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should correctly delete exceptional instance', function() {
-      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithTz.ics']);
+      var vcalendar = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']);
       var shell = new CalendarShell(new ICAL.Component(vcalendar));
       var instances = shell.expand();
       var instanceToDelete = instances.shift();

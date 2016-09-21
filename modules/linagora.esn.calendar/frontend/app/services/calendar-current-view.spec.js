@@ -96,6 +96,7 @@ describe('The calendarCurrentView factory', function() {
         locationMock.search = sinon.stub().returns({viewMode: name});
 
         var view = calendarCurrentView.get();
+
         expect(locationMock.search).to.have.been.calledOnce;
         expect(view.name).to.equals(name);
       });
@@ -105,15 +106,18 @@ describe('The calendarCurrentView factory', function() {
       locationMock.search = sinon.stub().returns({viewMode: 'the beatles'});
 
       var view = calendarCurrentView.get();
+
       expect(locationMock.search).to.have.been.calledOnce;
       expect(view.name).to.be.undefined;
     });
 
     it('should return valid date from get param', function() {
       var validDate = '1980-12-08';
+
       locationMock.search = sinon.stub().returns({start: validDate});
 
       var view = calendarCurrentView.get();
+
       expect(locationMock.search).to.have.been.calledOnce;
       expect(view.start.format('YYYY-MM-DD')).to.equals(validDate);
     });
@@ -122,6 +126,7 @@ describe('The calendarCurrentView factory', function() {
       locationMock.search = sinon.stub().returns({start: '2001-11-29a'});
 
       var view = calendarCurrentView.get();
+
       expect(locationMock.search).to.have.been.calledOnce;
       expect(view.start).to.be.undefined;
     });
@@ -131,6 +136,7 @@ describe('The calendarCurrentView factory', function() {
       screenSizeMock.is = sinon.stub().returns(true);
 
       var view = calendarCurrentView.get();
+
       expect(locationMock.search).to.have.been.calledOnce;
       expect(screenSizeMock.is).to.have.been.calledWith('xs, sm');
       expect(view.name).to.equal('agendaThreeDays');
@@ -141,6 +147,7 @@ describe('The calendarCurrentView factory', function() {
       locationMock.search = sinon.stub().returns({viewMode: 'month', start: '2015-12-01'});
 
       var resGet = calendarCurrentView.get();
+
       expect(resGet.name).to.equal('month');
       expect(resGet.start.isSame(fcMoment('2015-12-01'))).to.be.true;
     });

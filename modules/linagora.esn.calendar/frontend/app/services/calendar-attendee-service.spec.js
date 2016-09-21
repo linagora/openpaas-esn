@@ -31,15 +31,18 @@ describe('the calendarAttendeeService', function() {
 
     it('should return a promise', function() {
       var promise = this.calendarAttendeeService.getAttendeeCandidates('query', 10);
+
       expect(promise.then).to.be.a.function;
     });
 
     it('should add a need-action parstat to all attendeeCandidates returned by the attendeeService', function(done) {
       var query = 'query';
       var limit = 42;
+
       attendeeService.getAttendeeCandidates = function(q, l) {
         expect(q).to.equal(query);
         expect(l).to.equal(limit);
+
         return $q.when([{_id: 'attendee1'}, {_id: 'attendee2'}]);
       };
 

@@ -35,6 +35,7 @@ describe('The calendarUtils service', function() {
       var expectedStart = self.fcMoment('2013-02-08 09:00:00');
       var expectedEnd = self.fcMoment('2013-02-08 10:00:00');
       var date = self.calendarUtils.getDateOnCalendarSelect(start, end);
+
       expect(expectedStart.isSame(date.start)).to.be.true;
       expect(expectedEnd.isSame(date.end)).to.be.true;
     });
@@ -45,6 +46,7 @@ describe('The calendarUtils service', function() {
       var expectedStart = self.fcMoment('2013-02-08 09:30:00');
       var expectedEnd = self.fcMoment('2013-02-08 10:30:00');
       var date = self.calendarUtils.getDateOnCalendarSelect(start, end);
+
       expect(expectedStart.isSame(date.start)).to.be.true;
       expect(expectedEnd.isSame(date.end)).to.be.true;
     });
@@ -55,6 +57,7 @@ describe('The calendarUtils service', function() {
       var expectedStart = self.fcMoment('2013-02-08 09:00:00');
       var expectedEnd = self.fcMoment('2013-02-08 11:30:00');
       var date = self.calendarUtils.getDateOnCalendarSelect(start, end);
+
       expect(expectedStart.isSame(date.start)).to.be.true;
       expect(expectedEnd.isSame(date.end)).to.be.true;
     });
@@ -75,6 +78,7 @@ describe('The calendarUtils service', function() {
         }).forEach(function(obj) {
           self.fcMomentMock = sinon.stub().returns(obj.input);
           var result = self.calendarUtils.getNewStartDate();
+
           expect(result.isSame(obj.output, 'second')).to.be.true;
           expect(self.fcMomentMock).to.have.been.calledOnce;
         }, this);
@@ -96,6 +100,7 @@ describe('The calendarUtils service', function() {
         }).forEach(function(obj) {
           self.fcMomentMock = sinon.stub().returns(obj.input);
           var result = self.calendarUtils.getNewEndDate();
+
           expect(result.isSame(obj.output, 'second')).to.be.true;
           expect(self.fcMomentMock).to.have.been.calledOnce;
         }, this);

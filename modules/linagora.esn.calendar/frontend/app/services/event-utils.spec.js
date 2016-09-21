@@ -26,6 +26,7 @@ describe('The eventUtils service', function() {
     if (content) {
       this.htmlContent = content;
     }
+
     return this.htmlContent;
   };
 
@@ -37,10 +38,13 @@ describe('The eventUtils service', function() {
   };
 
   var userEmail = 'aAttendee@open-paas.org';
+
   beforeEach(function() {
     self = this;
     var emailMap = {};
+
     emailMap[userEmail] = true;
+
     var asSession = {
       user: {
         _id: '123456',
@@ -51,6 +55,7 @@ describe('The eventUtils service', function() {
         company_name: 'test'
       }
     };
+
     calendarService = {};
 
     angular.mock.module('esn.calendar');
@@ -58,6 +63,7 @@ describe('The eventUtils service', function() {
     angular.mock.module(function($provide) {
       $provide.factory('session', function($q) {
         asSession.ready = $q.when(asSession);
+
         return asSession;
       });
       $provide.value('calendarService', calendarService);
@@ -90,7 +96,7 @@ describe('The eventUtils service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell, escapeHtmlUtils) {
+  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell) {
     this.eventUtils = eventUtils;
     this.$rootScope = $rootScope;
     this.fcMoment = fcMoment;
@@ -100,6 +106,7 @@ describe('The eventUtils service', function() {
   describe('applyReply', function() {
     it('should update reply\'s attendee participation without modifying other', function() {
       var origEvent = this.CalendarShell.fromIncompleteShell({title: 'second world war'});
+
       origEvent.attendees = [{
         email: 'winston.churchill@demo.open-paas.org',
         partstat: 'ACCEPTED'
@@ -210,6 +217,7 @@ describe('The eventUtils service', function() {
           email: 'aAttendee@open-paas.org'
         }
       };
+
       expect(this.eventUtils.isOrganizer(event)).to.be.true;
     });
 
@@ -219,6 +227,7 @@ describe('The eventUtils service', function() {
           email: 'not-organizer@bar.com'
         }
       };
+
       expect(this.eventUtils.isOrganizer(event)).to.be.false;
     });
 
@@ -230,6 +239,7 @@ describe('The eventUtils service', function() {
       var event = {
         organizer: null
       };
+
       expect(this.eventUtils.isOrganizer(event)).to.be.true;
     });
   });
@@ -244,6 +254,7 @@ describe('The eventUtils service', function() {
         start: this.fcMoment('2015-01-01 08:00:00'),
         end: this.fcMoment('2015-01-01 10:00:00')
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
@@ -256,6 +267,7 @@ describe('The eventUtils service', function() {
         start: this.fcMoment('2015-01-01 09:00:00'),
         end: this.fcMoment('2015-01-01 11:00:00')
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
@@ -270,6 +282,7 @@ describe('The eventUtils service', function() {
         end: this.fcMoment('2015-01-01 11:00:00'),
         due: 'due2'
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
@@ -290,6 +303,7 @@ describe('The eventUtils service', function() {
           until: this.fcMoment('2015-01-02 11:00:00').toDate()
         }
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
@@ -316,6 +330,7 @@ describe('The eventUtils service', function() {
           this.fcMoment('2015-01-03 11:00:00')
         ]
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
@@ -344,6 +359,7 @@ describe('The eventUtils service', function() {
         ],
         status: 'ACCEPTED'
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
@@ -372,6 +388,7 @@ describe('The eventUtils service', function() {
         ],
         status: 'ACCEPTED'
       });
+
       expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.false;
     });
   });

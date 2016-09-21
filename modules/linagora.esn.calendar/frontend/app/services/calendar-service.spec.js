@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai, sinon, _: false */
+/* global chai, sinon */
 
 var expect = chai.expect;
 
@@ -59,8 +59,10 @@ describe('The calendarService service', function() {
 
     it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
       var calendarCollection = {id: this.DEFAULT_CALENDAR_ID};
+
       CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
         expect(davCal).to.deep.equal(response._embedded['dav:calendar'][0]);
+
         return calendarCollection;
       });
 
@@ -108,8 +110,10 @@ describe('The calendarService service', function() {
       };
 
       var calendarCollection = {};
+
       CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
         expect(davCal).to.deep.equal(response);
+
         return calendarCollection;
       });
 
@@ -135,6 +139,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
 
       var promiseSpy = sinon.spy();
+
       this.calendarService.createCalendar('homeId', calendar).then(promiseSpy);
 
       this.$httpBackend.flush();
@@ -152,8 +157,9 @@ describe('The calendarService service', function() {
       }});
       this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
 
-      this.calendarService.listCalendars('homeId').then(function(calendars) {
+      this.calendarService.listCalendars('homeId').then(function() {
         var calendar = {id: 'calId'};
+
         CalendarCollectionShellMock.toDavCalendar = angular.identity;
         self.calendarService.createCalendar('homeId', calendar).then(function() {
           self.calendarService.listCalendars('homeId').then(function(calendar) {
@@ -197,6 +203,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/calId.json').respond(204, {});
 
       var promiseSpy = sinon.spy();
+
       this.calendarService.modifyCalendar('homeId', calendar).then(promiseSpy);
 
       this.$httpBackend.flush();
@@ -214,8 +221,9 @@ describe('The calendarService service', function() {
       }});
       this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/events.json').respond(204, {});
 
-      this.calendarService.listCalendars('homeId').then(function(calendars) {
+      this.calendarService.listCalendars('homeId').then(function() {
         var calendar = {id: 'events', name: 'modified cal'};
+
         CalendarCollectionShellMock.toDavCalendar = angular.identity;
         self.calendarService.modifyCalendar('homeId', calendar).then(function() {
           self.calendarService.listCalendars('homeId').then(function(calendar) {

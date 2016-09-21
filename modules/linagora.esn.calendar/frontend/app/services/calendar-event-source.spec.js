@@ -11,11 +11,13 @@ describe('The calendarEventSource', function() {
       _token: '123',
       getNewToken: function() {
         var token = this._token;
+
         return $q.when({data: {token: token}});
       }
     };
 
     var self = this;
+
     angular.mock.module('linagora.esn.graceperiod');
     angular.mock.module('esn.calendar');
     angular.mock.module('esn.ical');
@@ -35,6 +37,7 @@ describe('The calendarEventSource', function() {
     var data = {
       match: {start: '20140101T000000', end: '20140102T000000'}
     };
+
     this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
       _links: {self: {href: '/prepath/path/to/calendar.json'}},
       _embedded: {'dav:item': []}
@@ -46,7 +49,7 @@ describe('The calendarEventSource', function() {
     var source = this.calendarEventSource('/dav/api/calendars/test/events.json', function() {
     });
 
-    source(start, end, false, function(events) {
+    source(start, end, false, function() {
       // Just getting here is fine, the http backend will check for the
       // right URL.
       done();
@@ -64,6 +67,7 @@ describe('The calendarEventSource', function() {
     var data = {
       match: {start: '20140101T000000', end: '20140102T000000'}
     };
+
     this.$httpBackend.expectPOST('/dav/api/calendars/test/events.json', data).respond({
       _links: {
         self: { href: '/prepath/path/to/calendar.json' }
@@ -117,6 +121,7 @@ describe('The calendarEventSource', function() {
             expect(startMoment).to.deep.equal(start);
             expect(endMoment).to.deep.equal(end);
             expect(timezone).to.equals(localTimezone);
+
             return $q.reject('');
           }
         };
@@ -132,12 +137,13 @@ describe('The calendarEventSource', function() {
       expect(events).to.deep.equal([]);
     };
 
-    var displayCalendarErrorMock = function(errorObject, errorMessage) {
+    var displayCalendarErrorMock = function(errorObject, errorMessage) { // eslint-disable-line
       expect(errorMessage).to.equal('Can not get calendar events');
       done();
     };
 
     var factoryForCalendarEvents = this.calendarEventSource(calendarId, displayCalendarErrorMock);
+
     factoryForCalendarEvents(start, end, localTimezone, noErrorsCallback);
     this.$rootScope.$apply();
   });
