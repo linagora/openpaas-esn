@@ -417,7 +417,7 @@ angular.module('linagora.esn.unifiedinbox')
           return event.which || event.keyCode;
         }
 
-        scope.onInit = function() {
+        scope.onInit = function(event) {
           focusOnRightField(scope.email);
 
           element
@@ -438,6 +438,13 @@ angular.module('linagora.esn.unifiedinbox')
                 event.preventDefault();
               }
             });
+
+          // We initialize our Composition instance with the summernote representation of the body
+          // which allows us to later compare it with the current body, to detect user changes.
+          scope.email.htmlBody = event.note.summernote('code');
+          $timeout(function() {
+            controller.initCtrl(scope.email, scope.compositionOptions);
+          }, 0);
         };
 
         scope.focusEmailBody = function() {
@@ -447,18 +454,6 @@ angular.module('linagora.esn.unifiedinbox')
             element.find('.summernote').summernote('focus');
             element.find('.note-editable').focusEnd();
           }, 0);
-        };
-
-        // The onChange callback will be initially called by summernote when it is initialized
-        // either with an empty body (compose from scratch) or with an existing body (reply, forward, etc.)
-        // So we intercept this to initialize our Composition instance with the summernote representation of the body
-        // which allows us to later compare it with the current body, to detect user changes.
-        scope.onChange = function() {
-          $timeout(function() {
-            controller.initCtrl(scope.email, scope.compositionOptions);
-          }, 0);
-
-          scope.onChange = angular.noop;
         };
 
         scope.hide = scope.$hide;
