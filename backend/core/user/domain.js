@@ -152,13 +152,28 @@ function getAdministrators(domain, callback) {
     return callback(new Error('Domain must not be null'));
   }
 
+  var roles = {};
   var administratorIds = domainModule.getDomainAdministrators(domain)
     .map(function(administrator) {
+      roles[administrator.user_id] = administrator;
+
       return administrator.user_id;
     });
 
-  return User.find().where('_id').in(administratorIds)
-    .exec(callback);
+  return User.find()
+    .where('_id')
+    .in(administratorIds)
+    .exec(function(err, users) {
+      if (err) {
+        return callback(err);
+      }
+
+      users.forEach(function(user) {
+        user.role = roles[user._id];
+      });
+
+      callback(null, users);
+    });
 }
 
 /**

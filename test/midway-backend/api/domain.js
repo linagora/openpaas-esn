@@ -501,9 +501,17 @@ describe('The domain API', function() {
     it('should send back 200 when get success', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/administrators'));
+
         req.expect(200).end(helpers.callbacks.noErrorAnd(function(res) {
-          expect(res.body).to.exists;
-          expect(res.body[0]._id).to.equal(user1Domain1Manager._id + '');
+          expect(res.body).to.shallowDeepEqual([
+            {
+              _id: user1Domain1Manager.id,
+              role: {
+                timestamps: {},
+                user_id: user1Domain1Manager.id
+              }
+            }
+          ]);
           done();
         }));
       }));
