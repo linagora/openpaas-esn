@@ -218,11 +218,15 @@ function getDomainAdministrators(req, res) {
       return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not get domain administrators. ' + err.message } });
     }
 
-    q.all(administrators.map(function(user) {
-      return denormalizeUser(user);
-    })).then(function(denormalized) {
-      res.status(200).json(denormalized);
-    });
+    q.all(administrators.map(function(administrator) {
+        return denormalizeUser(administrator).then(function(denormalized) {
+          denormalized.role = administrator.role;
+          return denormalized;
+        });
+      }))
+      .then(function(denormalizeds) {
+        res.status(200).json(denormalizeds);
+      });
   });
 }
 module.exports.getDomainAdministrators = getDomainAdministrators;
