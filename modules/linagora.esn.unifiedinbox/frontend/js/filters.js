@@ -72,8 +72,16 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .filter('inboxFilterRestrictedMailboxes', function(mailboxesService, _) {
+    return function(mailboxes) {
+      return _.filter(mailboxes, function(mailbox) {
+        return !mailboxesService.isRestrictedMailbox(mailbox);
+      });
+    };
+  })
+
  .filter('inboxFilterDescendantMailboxes', function(_) {
-   return function(mailboxes, id) {
+   return function(mailboxes, id, filterOnlyParentMailbox) {
      if (!mailboxes || !id) {
        return mailboxes;
      }
@@ -85,7 +93,7 @@ angular.module('linagora.esn.unifiedinbox')
      }
 
      return _.filter(mailboxes, function(mailbox) {
-       return mailbox.id !== id && !_.find(parent.descendants, { id: mailbox.id });
+       return mailbox.id !== id && (filterOnlyParentMailbox || !_.find(parent.descendants, { id: mailbox.id }));
      });
    };
  });

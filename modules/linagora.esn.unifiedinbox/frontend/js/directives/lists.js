@@ -74,6 +74,10 @@ angular.module('linagora.esn.unifiedinbox')
           };
         });
 
+        self.move = function() {
+          $state.go('.move', { item: $scope.item });
+        };
+
         self.moveToTrash = function() {
           $scope.groups.removeElement($scope.item);
 
@@ -132,6 +136,10 @@ angular.module('linagora.esn.unifiedinbox')
             inboxThreadService[action]($scope.item);
           };
         });
+
+        self.move = function() {
+          $state.go('.move', { item: $scope.item, threadId:  $scope.item.id });
+        };
 
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
           markAsRead: self.markAsRead,

@@ -107,10 +107,11 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       replace: true,
       scope: {
-        mailbox: '='
+        mailbox: '=',
+        hideBadge: '@'
       },
       templateUrl: '/unifiedinbox/views/sidebar/email/menu-item.html',
-      link: function(scope, element) {
+      link: function(scope) {
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
 
         function isThread($dragData) {
@@ -539,17 +540,9 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       controller: function($scope) {
-        ['reply', 'replyAll', 'forward', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
           this[action] = function() {
             inboxEmailService[action]($scope.email);
-          };
-        }.bind(this));
-
-        ['markAsUnread', 'moveToTrash'].forEach(function(action) {
-          this[action] = function() {
-            inboxEmailService[action]($scope.email).then(function() {
-              $state.go('^');
-            });
           };
         }.bind(this));
 

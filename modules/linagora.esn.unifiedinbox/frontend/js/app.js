@@ -48,9 +48,13 @@ angular.module('linagora.esn.unifiedinbox', [
     }
 
     function stateOpeningListItem(state) {
-      function toggleElementOpened(toggle) {
-        return function($rootScope) {
-          $rootScope.inbox.list.isElementOpened = toggle;
+      function toggleElementOpened(opening) {
+        return function($rootScope, esnPreviousState) {
+          $rootScope.inbox.list.isElementOpened = opening;
+
+          if (opening) {
+            esnPreviousState.set();
+          }
         };
       }
 
@@ -59,6 +63,28 @@ angular.module('linagora.esn.unifiedinbox', [
 
       state.params = state.params || {};
       state.params.item = undefined;
+
+      return state;
+    }
+
+    function stateOpeningModal(state, templateUrl, controller) {
+      state.resolve = {
+        modalHolder: function() {
+          return {};
+        }
+      };
+      state.onEnter = function($modal, modalHolder) {
+        modalHolder.modal = $modal({
+          templateUrl: templateUrl,
+          controller: controller,
+          controllerAs: 'ctrl',
+          backdrop: 'static',
+          placement: 'center'
+        });
+      };
+      state.onExit = function(modalHolder) {
+        modalHolder.modal.hide();
+      };
 
       return state;
     }
@@ -144,26 +170,9 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
-      .state('unifiedinbox.configuration.folders.folder.delete', {
-        url: '/delete',
-        resolve: {
-          modalHolder: function() {
-            return {};
-          }
-        },
-        onEnter: function($modal, modalHolder) {
-          modalHolder.modal = $modal({
-            templateUrl: '/unifiedinbox/views/configuration/folders/delete/index',
-            controller: 'inboxDeleteFolderController',
-            controllerAs: 'ctrl',
-            backdrop: 'static',
-            placement: 'center'
-          });
-        },
-        onExit: function(modalHolder) {
-          modalHolder.modal.hide();
-        }
-      })
+      .state('unifiedinbox.configuration.folders.folder.delete', stateOpeningModal({
+        url: '/delete'
+      }, '/unifiedinbox/views/configuration/folders/delete/index', 'inboxDeleteFolderController'))
       .state('unifiedinbox.configuration.vacation', {
         url: '/vacation',
         views: {
@@ -192,6 +201,9 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       }))
+      .state('unifiedinbox.inbox.message.move', stateOpeningModal({
+        url: '/move'
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.twitter', {
         url: '/twitter/:username',
         views: {
@@ -224,6 +236,12 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailMessagesProvider'
         }
       })
+      .state('unifiedinbox.list.messages.move', stateOpeningModal({
+        url: '/move',
+        params: {
+          item: undefined
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.messages.message', stateOpeningListItem({
         url: '/:emailId',
         views: {
@@ -233,6 +251,9 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       }))
+      .state('unifiedinbox.list.messages.message.move', stateOpeningModal({
+        url: '/move'
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.threads', {
         url: '/threads',
         views: {
@@ -245,6 +266,13 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailThreadsProvider'
         }
       })
+      .state('unifiedinbox.list.threads.move', stateOpeningModal({
+        url: '/move',
+        params: {
+          item: undefined,
+          threadId: undefined
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.threads.thread', stateOpeningListItem({
         url: '/:threadId',
         views: {
@@ -253,7 +281,10 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'viewThreadController as ctrl'
           }
         }
-      }));
+      }))
+      .state('unifiedinbox.list.threads.thread.move', stateOpeningModal({
+        url: '/move'
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'));
 
     var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45}),
         attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');

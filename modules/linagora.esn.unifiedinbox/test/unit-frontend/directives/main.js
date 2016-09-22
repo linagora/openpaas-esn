@@ -294,6 +294,17 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.isolateScope().mailboxIcons).to.equal('testclass');
     });
 
+    it('should define $scope.hideBadge to the correct value', function() {
+      $scope.mailbox = {
+        role: {
+          value: null
+        }
+      };
+      compileDirective('<mailbox-display mailbox="mailbox" hide-badge=true />');
+
+      expect(element.isolateScope().hideBadge).to.equal('true');
+    });
+
     describe('The dragndrop feature', function() {
 
       var isolateScope;
@@ -1216,6 +1227,24 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The email directive', function() {
 
+    describe('the exposed functions from inboxEmailService', function() {
+      beforeEach(function() {
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
+          inboxEmailService[action] = sinon.spy();
+        });
+      });
+
+      it('should expose several functions to the element controller', function() {
+        compileDirective('<email email="email"/>');
+
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
+          element.controller('email')[action]();
+
+          expect(inboxEmailService[action]).to.have.been.called;
+        });
+      });
+    });
+
     it('should show reply button and hide replyAll button if email.hasReplyAll is false', function() {
       $scope.email = { id: 'id', hasReplyAll: false };
       compileDirective('<email email="email"/>');
@@ -1251,48 +1280,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(element.find('.email-body a[href="http://open-paas.org"]')).to.have.length(1);
       expect(element.find('.email-body a[href="mailto:me@open-paas.org"]')).to.have.length(1);
-    });
-
-    describe('The markAsUnread fn', function() {
-      it('should mark email as unread then update location to parent state', inject(function($state) {
-        $scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
-        $state.go = sinon.spy();
-        compileDirective('<email email="email" />');
-
-        element.controller('email').markAsUnread();
-        $scope.$digest();
-
-        expect($state.go).to.have.been.calledWith('^');
-        expect($scope.email.setIsUnread).to.have.been.calledWith(true);
-      }));
-    });
-
-    describe('The moveToTrash fn', function() {
-      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
-        inboxEmailService.moveToTrash = sinon.spy(function() {
-          return $q.when({});
-        });
-        compileDirective('<email/>');
-
-        element.controller('email').moveToTrash();
-        $scope.$digest();
-
-        expect($state.go).to.have.been.calledWith('^');
-        expect(inboxEmailService.moveToTrash).to.have.been.called;
-      });
-
-      it('should not update location if the email is not deleted', function() {
-        inboxEmailService.moveToTrash = sinon.spy(function() {
-          return $q.reject({});
-        });
-        compileDirective('<email/>');
-
-        element.controller('email').moveToTrash();
-        $scope.$digest();
-
-        expect($state.go).to.have.not.been.called;
-        expect(inboxEmailService.moveToTrash).to.have.been.called;
-      });
     });
 
     describe('The toggleIsCollapsed function', function() {

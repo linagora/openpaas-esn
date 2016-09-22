@@ -236,6 +236,33 @@ describe('The Unified Inbox Angular module filters', function() {
       expect(_.map(filter(cache, '5'), 'id')).to.deep.equal(['1', '2', '3', '4']);
     });
 
+    it('should filter out the mailbox only when there is descendants but filterOnlyParentMailbox=true', function() {
+      expect(_.map(filter(cache, '1', true), 'id')).to.deep.equal(['2', '3', '4', '5']);
+    });
+
+  });
+
+  describe('The inboxFilterRestrictedMailboxes filter', function() {
+
+    var inboxFilterRestrictedMailboxesFilter;
+
+    beforeEach(inject(function(_inboxFilterRestrictedMailboxesFilter_) {
+      inboxFilterRestrictedMailboxesFilter = _inboxFilterRestrictedMailboxesFilter_;
+    }));
+
+    it('should filter RestrictMailboxes', function() {
+      var mailboxes = [
+          { role: { value: 'outbox' }},
+          { role: { value: 'drafts' }},
+          { role: { value: undefined }},
+          { role: { value: 'inbox' }}
+        ],
+        expectedMailboxes = [
+          { role: { value: undefined }},
+          { role: { value: 'inbox' }}
+        ];
+     expect(inboxFilterRestrictedMailboxesFilter(mailboxes)).to.deep.equal(expectedMailboxes);
+    });
   });
 
 });

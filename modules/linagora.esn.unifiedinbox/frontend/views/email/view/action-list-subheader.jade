@@ -1,5 +1,5 @@
 .action-list(ng-click='$hide(); $event.stopPropagation()')
-  .action(ng-switch='thread.isUnread')
+  .action(ng-switch='email.isUnread')
     a(ng-switch-when='false', ng-click='ctrl.markAsUnread()', title="#{__('Mark as unread')}")
       i.mdi.mdi-eye-off
       span.label
@@ -8,7 +8,7 @@
       i.mdi.mdi-eye
       span.label
         | #{__('Mark as read')}
-  .action(ng-switch='thread.isFlagged')
+  .action(ng-switch='email.isFlagged')
     a(ng-switch-when='false', ng-click='ctrl.markAsFlagged()', title="#{__('Star')}")
       i.mdi.mdi-star
       span.label

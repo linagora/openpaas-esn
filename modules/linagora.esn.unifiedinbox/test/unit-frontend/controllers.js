@@ -10,9 +10,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
-      mailboxesService, inboxThreadService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
-      touchscreenDetectorService, Thread, esnPreviousState;
-  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+      mailboxesService, inboxThreadService, inboxEmailService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
+      touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, PROVIDER_INFINITY_LIST, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -36,6 +36,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {};
       config = {};
+      inboxFilterDescendantMailboxesFilter = sinon.spy();
       config['linagora.esn.unifiedinbox.uploadUrl'] = 'http://jmap';
       config['linagora.esn.unifiedinbox.maxSizeUpload'] = DEFAULT_MAX_SIZE_UPLOAD;
       fileUploadMock = {
@@ -72,25 +73,28 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('searchService', { searchByEmail: function() { return $q.when(); }});
       $provide.value('navigateTo', navigateTo = sinon.spy());
       $provide.value('touchscreenDetectorService', touchscreenDetectorService = {});
+      $provide.value('inboxFilterDescendantMailboxesFilter', inboxFilterDescendantMailboxesFilter);
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
-                                          _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
+                                          _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_, _inboxEmailService_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxThreadService_,
-                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_) {
+                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_, _PROVIDER_INFINITY_LIST_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
     inboxThreadService = _inboxThreadService_;
+    inboxEmailService = _inboxEmailService_;
     inboxMailboxesCache = _inboxMailboxesCache_;
     _ = ___;
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     INBOX_EVENTS = _INBOX_EVENTS_;
+    PROVIDER_INFINITY_LIST = _PROVIDER_INFINITY_LIST_;
     moment = _moment_;
     Mailbox = _Mailbox_;
     Thread = _Thread_;
@@ -715,6 +719,146 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(jmapMessage.isUnread).to.equal(false);
     });
 
+    it('should expose move to the controller', function() {
+      var email = { to: [] };
+      var controller = initController('viewEmailController');
+      scope.email = email;
+
+      controller.move();
+
+      expect($state.go).to.have.been.calledWith('.move', { item: email });
+    });
+
+    describe('The markAsUnread fn', function() {
+      it('should mark email as unread then update location to parent state', inject(function($state) {
+        scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
+        $state.go = sinon.spy();
+        var controller = initController('viewEmailController');
+
+        controller.markAsUnread();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(scope.email.setIsUnread).to.have.been.calledWith(true);
+      }));
+    });
+
+    describe('The moveToTrash fn', function() {
+      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
+        inboxEmailService.moveToTrash = sinon.spy(function() {
+          return $q.when({});
+        });
+        var controller = initController('viewEmailController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+
+      it('should not update location if the email is not deleted', function() {
+        inboxEmailService.moveToTrash = sinon.spy(function() {
+          return $q.reject({});
+        });
+        var controller = initController('viewEmailController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.not.been.called;
+        expect(inboxEmailService.moveToTrash).to.have.been.called;
+      });
+    });
+
+  });
+
+  describe('The inboxMoveItemController controller', function() {
+    var controller, mailbox;
+
+    beforeEach(function() {
+      mailbox = {
+        mailboxId: 'id'
+      };
+      $stateParams.mailbox = '$stateParams mailbox';
+      $stateParams.item = '$stateParams item';
+
+      mailboxesService.assignMailboxesList = sinon.spy(function(scope, filter) {
+        filter();
+      });
+
+      inboxThreadService.moveToMailbox = sinon.spy(function() {
+        return $q.when();
+      });
+      inboxEmailService.moveToMailbox = sinon.spy(function() {
+        return $q.when();
+      });
+    });
+
+    it('should call mailboxesService.assignMailboxesList with thread mailboxId if $stateParams.threadId is set', function() {
+      $stateParams.threadId = 'threadId';
+      initController('inboxMoveItemController');
+
+      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope, sinon.match.func);
+      expect(inboxFilterDescendantMailboxesFilter).to.have.been.calledWith('$stateParams mailbox', true);
+    });
+
+    it('should call mailboxesService.assignMailboxesList with email mailboxId if $stateParams.emailId is set', function() {
+      $stateParams.emailId = 'emailId';
+      initController('inboxMoveItemController');
+
+      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope, sinon.match.func);
+      expect(inboxFilterDescendantMailboxesFilter).to.have.been.calledWith($stateParams.mailbox, true);
+    });
+
+    it('should call inboxThreadService.moveToMailbox if $stateParams.threadId is set', function(done) {
+      $stateParams.threadId = 'threadId';
+      controller = initController('inboxMoveItemController');
+
+      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
+        expect(item).to.deep.equal($stateParams.item);
+
+        done();
+      });
+
+      controller.moveTo(mailbox);
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads', { mailbox: $stateParams.mailbox });
+      expect(inboxThreadService.moveToMailbox).to.have.been.calledWith($stateParams.item, mailbox);
+    });
+
+    it('should call inboxEmailService.moveToMailbox if $stateParams.threadId is not set', function(done) {
+      $stateParams.emailId = 'emailId';
+      controller = initController('inboxMoveItemController');
+
+      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
+        expect(item).to.deep.equal($stateParams.item);
+
+        done();
+      });
+
+      controller.moveTo(mailbox);
+
+      expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages', { mailbox: $stateParams.mailbox });
+      expect(inboxEmailService.moveToMailbox).to.have.been.calledWith($stateParams.item, mailbox);
+    });
+
+    it('should add broadcast PROVIDER_INFINITY_LIST.ADD_ELEMENT when moveToMailbox reject', function(done) {
+      inboxEmailService.moveToMailbox = sinon.spy(function() {
+        return $q.reject();
+      });
+      $stateParams.emailId = 'emailId';
+      controller = initController('inboxMoveItemController');
+
+      scope.$on(PROVIDER_INFINITY_LIST.ADD_ELEMENT, function(event, item) {
+        expect(item).to.deep.equal($stateParams.item);
+
+        done();
+      });
+
+      controller.moveTo(mailbox);
+      scope.$digest();
+    });
   });
 
   describe('The viewThreadController', function() {
@@ -929,6 +1073,16 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect($state.go).to.have.not.been.called;
         expect(inboxThreadService.moveToTrash).to.have.been.called;
       });
+    });
+
+    it('should expose move to the controller', function() {
+      var thread = { mailboxIds: [] };
+      var controller = initController('viewThreadController');
+      scope.thread = thread;
+
+      controller.move();
+
+      expect($state.go).to.have.been.calledWith('.move', { item: thread, threadId: thread.id });
     });
 
   });

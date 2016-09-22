@@ -2593,6 +2593,20 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
+    describe('The isRestrictedMailbox function', function() {
+
+      it('should return true for restricted mailboxes', function() {
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: 'drafts' }})).to.equal(true);
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: 'outbox' }})).to.equal(true);
+      });
+
+      it('should return false for non restricted mailboxes', function() {
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: 'inbox' }})).to.equal(false);
+        expect(mailboxesService.isRestrictedMailbox({ role: { value: undefined }})).to.equal(false);
+      });
+
+    });
+
     describe('The assignMailboxesList function', function() {
 
       it('should return a promise', function(done) {
@@ -4558,11 +4572,12 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxFilteringAwareInfiniteScroll service', function() {
 
-    var $scope, service, INBOX_EVENTS;
+    var $scope, service, INBOX_EVENTS, INFINITE_LIST_LOAD_EVENT;
 
-    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_) {
+    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_, _INFINITE_LIST_LOAD_EVENT_) {
       service = inboxFilteringAwareInfiniteScroll;
       INBOX_EVENTS = _INBOX_EVENTS_;
+      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
 
       $scope = $rootScope.$new();
     }));
@@ -4633,7 +4648,5 @@ describe('The Unified Inbox Angular module services', function() {
       expect($scope.infiniteScrollDisabled).to.equal(false);
       expect($scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning no items
     });
-
   });
-
 });

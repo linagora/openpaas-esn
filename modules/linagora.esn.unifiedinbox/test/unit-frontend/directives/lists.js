@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock;
+  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxThreadService, inboxEmailService;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
@@ -30,10 +30,12 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxThreadService_, _inboxEmailService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
+    inboxThreadService = _inboxThreadService_;
+    inboxEmailService = _inboxEmailService_;
 
     $scope = $rootScope.$new();
 
@@ -64,6 +66,23 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
   }
 
   describe('The inboxThreadListItem directive', function() {
+
+    describe('the exposed functions from inboxThreadService', function() {
+      beforeEach(function() {
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          inboxThreadService[action] = sinon.spy();
+        });
+      });
+
+      it('should expose several functions to the element controller', function() {
+        compileDirective('<inbox-thread-list-item />');
+
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          element.controller('inboxThreadListItem')[action]();
+          expect(inboxThreadService[action]).to.have.been.called;
+        });
+      });
+    });
 
     describe('openThread fn', function() {
 
@@ -282,6 +301,25 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
   });
 
   describe('The inboxMessageListItem directive', function() {
+
+
+    describe('the exposed functions from inboxEmailService', function() {
+      beforeEach(function() {
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          inboxEmailService[action] = sinon.spy();
+        });
+      });
+
+      it('should expose several functions to the element controller', function() {
+        compileDirective('<inbox-message-list-item />');
+
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          element.controller('inboxMessageListItem')[action]();
+
+          expect(inboxEmailService[action]).to.have.been.called;
+        });
+      });
+    });
 
     describe('openEmail fn', function() {
 

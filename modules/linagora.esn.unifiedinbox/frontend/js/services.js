@@ -673,6 +673,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('mailboxesService', function($q, _, withJmapClient, MAILBOX_LEVEL_SEPARATOR, jmap, inboxSpecialMailboxes,
                                         inboxMailboxesCache, asyncJmapAction, Mailbox) {
+
     var RESTRICT_MAILBOXES = [
       jmap.MailboxRole.OUTBOX.value,
       jmap.MailboxRole.DRAFTS.value
@@ -785,7 +786,7 @@ angular.module('linagora.esn.unifiedinbox')
       _updateUnreadMessages(toMailboxIds, numberOfUnreadMessage);
     }
 
-    function _isMovingRestrictedMailbox(mailbox) {
+    function isRestrictedMailbox(mailbox) {
       if (mailbox && mailbox.role) {
         return RESTRICT_MAILBOXES.indexOf(mailbox.role.value) > -1;
       }
@@ -810,13 +811,13 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       // do not allow moving to restricted mailboxes
-      if (_isMovingRestrictedMailbox(toMailbox)) {
+      if (isRestrictedMailbox(toMailbox)) {
         return false;
       }
 
       // do not allow moving out restricted mailboxes
       return message.mailboxIds.every(function(mailboxId) {
-        return !_isMovingRestrictedMailbox(_.find(inboxMailboxesCache, { id: mailboxId }));
+        return !isRestrictedMailbox(_.find(inboxMailboxesCache, { id: mailboxId }));
       });
 
     }
@@ -910,7 +911,8 @@ angular.module('linagora.esn.unifiedinbox')
       getMessageListFilter: getMessageListFilter,
       createMailbox: createMailbox,
       destroyMailbox: destroyMailbox,
-      updateMailbox: updateMailbox
+      updateMailbox: updateMailbox,
+      isRestrictedMailbox: isRestrictedMailbox
     };
   })
 
