@@ -138,7 +138,7 @@ angular.module('linagora.esn.unifiedinbox')
         });
 
         self.move = function() {
-          $state.go('.move', { item: $scope.item, threadId:  $scope.item.id });
+          $state.go('.move', { item: $scope.item });
         };
 
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {

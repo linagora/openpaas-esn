@@ -1380,7 +1380,7 @@ describe('The eventService service', function() {
 
     it('should remove master of event if event is the only instance of a recurring event', function(done) {
       var taskId = '123456789';
-      self.master.expand = _.constant({length:1});
+      self.master.expand = _.constant({length: 1});
 
       self.gracePeriodService.grace = function() {
         return $q.when({

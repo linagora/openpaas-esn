@@ -25,7 +25,7 @@ module.exports = function(domains, host) {
     var promises = domains.map(function(domain) {
       var configuration = new Configuration({
         domain_id: domain._id || domain,
-        modules:[{
+        modules: [{
           name: 'core',
           configurations: [
             {

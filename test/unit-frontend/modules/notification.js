@@ -77,7 +77,7 @@ describe('The esn.notification Angular modules', function() {
 
       notifyMock = sinon.spy(function(data, options) {
         expect(data).to.deep.equal({
-          title:  escapedString + 'title',
+          title: escapedString + 'title',
           message: escapedString + 'message'
         });
         expect(options).to.equal(options);

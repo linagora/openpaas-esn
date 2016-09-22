@@ -619,13 +619,13 @@ describe('CalendarShell factory', function() {
       expect(shell.expand().map(formatDates)).to.shallowDeepEqual({
         0: {
           formattedRecurrenceId: '2016-03-07T15:00:00Z',
-          formattedStart:  '2016-03-07T16:00:00Z',
-          formattedEnd:  '2016-03-07T17:00:00Z'
+          formattedStart: '2016-03-07T16:00:00Z',
+          formattedEnd: '2016-03-07T17:00:00Z'
         },
         1: {
           formattedRecurrenceId: '2016-03-08T15:00:00Z',
-          formattedStart:  '2016-03-08T15:00:00Z',
-          formattedEnd:  '2016-03-08T16:00:00Z'
+          formattedStart: '2016-03-08T15:00:00Z',
+          formattedEnd: '2016-03-08T16:00:00Z'
         },
         length: 2
       });

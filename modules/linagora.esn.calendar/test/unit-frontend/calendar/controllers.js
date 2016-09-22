@@ -350,7 +350,7 @@ describe('The calendar module controllers', function() {
         called++;
       };
 
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {hidden: false, calendar:{}});
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {hidden: false, calendar: {}});
       this.scope.$digest();
 
       expect(called).to.equal(1);

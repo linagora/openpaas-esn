@@ -781,11 +781,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         mailboxId: 'id'
       };
       $stateParams.mailbox = '$stateParams mailbox';
-      $stateParams.item = '$stateParams item';
+      $stateParams.item = {};
 
-      mailboxesService.assignMailboxesList = sinon.spy(function(scope, filter) {
-        filter();
-      });
+      mailboxesService.assignMailboxesList = sinon.spy();
 
       inboxThreadService.moveToMailbox = sinon.spy(function() {
         return $q.when();
@@ -795,24 +793,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
     });
 
-    it('should call mailboxesService.assignMailboxesList with thread mailboxId if $stateParams.threadId is set', function() {
-      $stateParams.threadId = 'threadId';
+    it('should call mailboxesService.assignMailboxesList', function() {
       initController('inboxMoveItemController');
 
-      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope, sinon.match.func);
-      expect(inboxFilterDescendantMailboxesFilter).to.have.been.calledWith('$stateParams mailbox', true);
+      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
     });
 
-    it('should call mailboxesService.assignMailboxesList with email mailboxId if $stateParams.emailId is set', function() {
-      $stateParams.emailId = 'emailId';
-      initController('inboxMoveItemController');
-
-      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope, sinon.match.func);
-      expect(inboxFilterDescendantMailboxesFilter).to.have.been.calledWith($stateParams.mailbox, true);
-    });
-
-    it('should call inboxThreadService.moveToMailbox if $stateParams.threadId is set', function(done) {
-      $stateParams.threadId = 'threadId';
+    it('should call inboxThreadService.moveToMailbox if $stateParams.item is a thread', function(done) {
+      $stateParams.item.messageIds = ['threadId'];
       controller = initController('inboxMoveItemController');
 
       scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
@@ -827,8 +815,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(inboxThreadService.moveToMailbox).to.have.been.calledWith($stateParams.item, mailbox);
     });
 
-    it('should call inboxEmailService.moveToMailbox if $stateParams.threadId is not set', function(done) {
-      $stateParams.emailId = 'emailId';
+    it('should call inboxEmailService.moveToMailbox if $stateParams.item is a message', function(done) {
       controller = initController('inboxMoveItemController');
 
       scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
@@ -1082,7 +1069,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       controller.move();
 
-      expect($state.go).to.have.been.calledWith('.move', { item: thread, threadId: thread.id });
+      expect($state.go).to.have.been.calledWith('.move', { item: thread });
     });
 
   });

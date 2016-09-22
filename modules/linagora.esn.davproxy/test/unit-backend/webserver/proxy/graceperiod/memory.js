@@ -90,7 +90,7 @@ describe('The in memory grace period module', function() {
           'A HEADER': 'WITH THIS VALUE'
         },
         body: 'aBody',
-        url:'.json',
+        url: '.json',
         token: { token: 'a new token' },
         user: { _id: 'aId' }
       };
