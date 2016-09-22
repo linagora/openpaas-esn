@@ -536,7 +536,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('email', function($state, inboxEmailService) {
+  .directive('email', function(inboxEmailService) {
     return {
       restrict: 'E',
       controller: function($scope) {

@@ -682,7 +682,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewEmailController');
 
       scope.$watch('email', function(before, after) {
-        expect(after).to.shallowDeepEqual({ isUnread: false, property: 'property', mailboxIds: [] });
+        expect(after).to.shallowDeepEqual({ isUnread: false, property: 'property', mailboxIds: [], loaded: true });
 
         done();
       });
@@ -702,7 +702,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewEmailController');
 
       scope.$watch('email', function(before, after) {
-        expect(after).to.shallowDeepEqual({ id: 'messageId1', isUnread: false, isFlagged: true, textBody: 'textBody', htmlBody: 'htmlBody', attachments: [] });
+        expect(after).to.shallowDeepEqual({ id: 'messageId1', isUnread: false, isFlagged: true, textBody: 'textBody', htmlBody: 'htmlBody', attachments: [], loaded: true });
 
         done();
       });
@@ -918,7 +918,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.emails).to.shallowDeepEqual([
-        {id: 'email1', subject: 'thread subject'}
+        { id: 'email1', subject: 'thread subject', loaded: true }
       ]);
     });
 
@@ -936,8 +936,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.emails).to.shallowDeepEqual([
-        { id: 'email1', subject: 'thread subject' },
-        { id: 'email2', subject: 'thread subject' }
+        { id: 'email1', subject: 'thread subject', loaded: true },
+        { id: 'email2', subject: 'thread subject', loaded: true }
       ]);
     });
 
