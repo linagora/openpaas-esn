@@ -192,17 +192,22 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('viewEmailController', function($scope, $state, $stateParams, Email, inboxEmailService, jmapEmailService) {
     $scope.email = $stateParams.item;
 
-    jmapEmailService.getMessageById($stateParams.emailId).then(function(message) {
-      if (!$scope.email) {
-        $scope.email = Email(message);
-      } else {
-        ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
-          $scope.email[property] = message[property];
-        });
-      }
+    jmapEmailService
+      .getMessageById($stateParams.emailId)
+      .then(function(message) {
+        if (!$scope.email) {
+          $scope.email = Email(message);
+        } else {
+          ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
+            $scope.email[property] = message[property];
+          });
+        }
 
-      inboxEmailService.markAsRead($scope.email);
-    });
+        inboxEmailService.markAsRead($scope.email);
+      })
+      .then(function() {
+        $scope.email.loaded = true;
+      });
 
     ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
       this[action] = function() {
@@ -237,7 +242,13 @@ angular.module('linagora.esn.unifiedinbox')
 
           return thread.getMessages({ properties: JMAP_GET_MESSAGES_VIEW });
         })
-        .then(function(messages) { return messages.map(Email); })
+        .then(function(messages) {
+          return messages.map(function(message) {
+            message.loaded = true;
+
+            return new Email(message);
+          });
+        })
         .then(function(emails) {
           $scope.thread.setEmails(emails);
         })
