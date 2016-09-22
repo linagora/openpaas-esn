@@ -289,7 +289,7 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl:'/unifiedinbox/views/attachment/attachment-download-action.html'
+      templateUrl: '/unifiedinbox/views/attachment/attachment-download-action.html'
     };
   })
 

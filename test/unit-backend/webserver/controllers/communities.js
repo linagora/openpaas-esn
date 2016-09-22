@@ -478,7 +478,7 @@ describe('The communities controller', function() {
 
   describe('get() method', function() {
     it('should send back HTTP 200 with community if defined in request', function(done) {
-      var community = {_id: 123, members: [{member:{objectType: 'user', id: 'user1'}}]};
+      var community = {_id: 123, members: [{member: {objectType: 'user', id: 'user1'}}]};
       var user = {_id: 'user1'};
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {

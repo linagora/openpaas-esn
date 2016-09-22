@@ -9,19 +9,19 @@ module.exports = function(dbHost, dbPort, dbName) {
   return {
     connectionOptions: {
       db: {
-        w:1,
-        fsync:true,
-        native_parser:true
+        w: 1,
+        fsync: true,
+        native_parser: true
       },
-      server:{
+      server: {
         socketOptions: {
-          keepAlive:10000,
-          connectTimeoutMS:10000
+          keepAlive: 10000,
+          connectTimeoutMS: 10000
         },
-        auto_reconnect:true,
-        poolSize:10
+        auto_reconnect: true,
+        poolSize: 10
       }
     },
-    connectionString:'mongodb://' + host + ':' + port + '/' + name
+    connectionString: 'mongodb://' + host + ':' + port + '/' + name
   };
 };

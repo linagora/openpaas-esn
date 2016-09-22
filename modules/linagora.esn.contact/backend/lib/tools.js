@@ -24,7 +24,7 @@ module.exports = function(dependencies) {
           var contact = {
             id: contactId,
             contactId: contactId,
-            bookId:  bookId,
+            bookId: bookId,
             user: { _id: userId },
             bookName: bookName,
             vcard: davItem.data

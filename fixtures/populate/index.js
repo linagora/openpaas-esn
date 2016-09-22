@@ -55,7 +55,7 @@ function _joinDomain(user, domain) {
 function _buildMember(id) {
   return {
     member: {
-      objectType:'user',
+      objectType: 'user',
       id: id
     },
     status: 'joined'

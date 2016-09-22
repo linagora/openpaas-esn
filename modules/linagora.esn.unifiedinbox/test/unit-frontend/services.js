@@ -1205,12 +1205,12 @@ describe('The Unified Inbox Angular module services', function() {
         var draft = draftService.startDraft({
           subject: 'yo',
           htmlBody: 'text',
-          to: [{email: 'to@domain', name:'before'}]
+          to: [{email: 'to@domain', name: 'before'}]
         });
         expect(draft.needToBeSaved({
           subject: 'yo',
           htmlBody: 'text',
-          to: [{email: 'to@domain', name:'after'}]
+          to: [{email: 'to@domain', name: 'after'}]
         })).to.equal(false);
       });
 
@@ -1730,7 +1730,7 @@ describe('The Unified Inbox Angular module services', function() {
           id: 'id',
           title: 'New message',
           templateUrl: '/unifiedinbox/views/composer/box-compose.html',
-          email:  { id: 'id' },
+          email: { id: 'id' },
           compositionOptions: undefined
         });
       });
@@ -3149,7 +3149,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should remove destroyed mailboxes from the cache, when call does not succeed completely', function(done) {
         inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1' }));
-        inboxMailboxesCache.push(Mailbox({ id: 2, name:'2' }));
+        inboxMailboxesCache.push(Mailbox({ id: 2, name: '2' }));
         jmapClient.setMailboxes = function() {
           return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1] }));
         };

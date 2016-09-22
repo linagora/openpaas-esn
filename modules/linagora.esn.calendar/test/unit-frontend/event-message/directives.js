@@ -63,7 +63,7 @@ describe('The event-message Angular module directives', function() {
       };
 
       self.eventAfterChangePart = {
-        attendees:['it has been changed']
+        attendees: ['it has been changed']
       };
 
       self.sessionMock = {
@@ -78,7 +78,7 @@ describe('The event-message Angular module directives', function() {
           return $q.when(self.event);
         }),
         getInvitedAttendees: sinon.spy(function() {
-          return [{ getParameter:_.constant('partstart') }];
+          return [{ getParameter: _.constant('partstart') }];
         }),
         changeParticipation: sinon.spy(function(_path, _event, _emails, partstat) {
           self.partstat[partstat] = (self.partstat[partstat] || 0) + 1;

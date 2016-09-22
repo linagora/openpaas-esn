@@ -59,7 +59,7 @@ describe('The google contact importer mapping function', function() {
             href: 'http://schemas.google.com'
           }
         }],
-        'gd:structuredPostalAddress':[{
+        'gd:structuredPostalAddress': [{
           $: {
             rel: 'http://schemas.google.com/g/2005#home'
           },

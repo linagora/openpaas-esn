@@ -30,7 +30,7 @@ angular.module('linagora.esn.profile', [
         url: '/profile/:user_id?',
         templateUrl: '/profile/views/index',
         controller: 'profileController',
-        params: {user_id: {value:null, squash: true}},
+        params: {user_id: {value: null, squash: true}},
         deepStateRedirect: {
           default: 'profile.details.view',
           params: true,

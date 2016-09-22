@@ -526,7 +526,7 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.goToRecipientsType = function(recipientsType) {
       $state.go('.', {
         recipientsType: recipientsType,
-        composition:  $stateParams.composition
+        composition: $stateParams.composition
       });
     };
   })

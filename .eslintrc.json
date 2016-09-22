@@ -76,7 +76,7 @@
     "indent": ["off", 2],
     "init-declarations": "off",
     "jsx-quotes": "error",
-    "key-spacing": "off",
+    "key-spacing": "error",
     "keyword-spacing": [
       "error",
       {

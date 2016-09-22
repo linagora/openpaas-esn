@@ -35,7 +35,7 @@ describe('The event-form module controllers', function() {
       createEvent: sinon.spy(function() {
         return $q.when({});
       }),
-      changeParticipation:  sinon.spy(function() {
+      changeParticipation: sinon.spy(function() {
         return $q.when({});
       }),
       modifyEvent: function(path, e) {
@@ -314,8 +314,8 @@ describe('The event-form module controllers', function() {
 
         it('should not send modify request if no change', function(done) {
           this.scope.event = this.CalendarShell.fromIncompleteShell({
-            start:  this.moment('2013-02-08 12:30'),
-            end:  this.moment('2013-02-08 13:30'),
+            start: this.moment('2013-02-08 12:30'),
+            end: this.moment('2013-02-08 13:30'),
             title: 'title'
           });
           this.scope.$hide = done;
@@ -759,7 +759,7 @@ describe('The event-form module controllers', function() {
     describe('changeParticipation function', function() {
       beforeEach(function() {
         this.scope.event = this.scope.event = this.CalendarShell.fromIncompleteShell({
-          start:  this.moment('2013-02-08 12:30'),
+          start: this.moment('2013-02-08 12:30'),
           attendees: []
         });
         this.initController();

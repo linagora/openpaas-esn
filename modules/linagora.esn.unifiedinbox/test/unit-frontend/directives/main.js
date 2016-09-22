@@ -159,7 +159,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       emailElement.click();
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMETHING'
         }]
@@ -172,7 +172,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       emailElement.click();
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMETHING'
         }]
@@ -227,7 +227,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       emailElement.click();
 
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMEONE'
         }]
@@ -241,7 +241,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       emailElement.click();
 
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMEONE'
         }]
@@ -254,7 +254,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       emailElement.click();
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE1',
           name: 'SOMEONE1'
         },
@@ -512,7 +512,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should notify of error featuring a resume action when sending offline', function() {
         var aFakeEmail = {
-          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc: [], bcc: [],
           subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
         };
 
@@ -526,7 +526,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should reopen composer when resuming after sending failed', inject(function(newComposerService) {
         var aFakeEmail = {
-          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc: [], bcc: [],
           subject: 'le sujet', htmlBody: '<p>Le contenu</p>',
           attachments: []
         };

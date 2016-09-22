@@ -35,7 +35,7 @@ describe('The calendarService service', function() {
       response = {
         _links: {
           self: {
-            href:'\/calendars\/56698ca29e4cf21f66800def.json'
+            href: '\/calendars\/56698ca29e4cf21f66800def.json'
           }
         },
         _embedded: {
@@ -147,8 +147,8 @@ describe('The calendarService service', function() {
     it('should sync cache of list calendars', function(done) {
       CalendarCollectionShellFuncMock = angular.identity;
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded:{
-        'dav:calendar': [{id:1}, {id:2}]
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded: {
+        'dav:calendar': [{id: 1}, {id: 2}]
       }});
       this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
 
@@ -209,8 +209,8 @@ describe('The calendarService service', function() {
     it('should sync cache of list calendars', function(done) {
       CalendarCollectionShellFuncMock = angular.identity;
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded:{
-        'dav:calendar': [{id:1}, {id:'events', selected: true}]
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded: {
+        'dav:calendar': [{id: 1}, {id: 'events', selected: true}]
       }});
       this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/events.json').respond(204, {});
 

@@ -112,7 +112,7 @@ function changeParticipationSuccess(res, vcalendar, eventData) {
 function tryUpdateParticipation(url, ESNToken, res, eventData, numTry) {
   numTry = numTry ? numTry + 1 : 1;
   if (numTry > MAX_TRY_NUMBER) {
-    return res.status(500).json({error: {code: 500, message:'Exceeded max number of try for atomic update of event'}});
+    return res.status(500).json({error: {code: 500, message: 'Exceeded max number of try for atomic update of event'}});
   }
 
   request({method: 'GET', url: url, headers: {ESNToken: ESNToken}}, function(err, response) {

@@ -41,11 +41,11 @@ describe('The datepicker utils module', function() {
     }));
 
     it('should fail if require is not a array but is not the expected controller', function() {
-      expect(self.getRequiredController.bind(null, 'controllerName', {}, {require:'badRequire'})).to.throw(Error);
+      expect(self.getRequiredController.bind(null, 'controllerName', {}, {require: 'badRequire'})).to.throw(Error);
     });
 
     it('should fail if require is a array that does not contains the expected controller', function() {
-      expect(self.getRequiredController.bind(null, 'controllerName', [{}], {require:['badRequire']})).to.throw(Error);
+      expect(self.getRequiredController.bind(null, 'controllerName', [{}], {require: ['badRequire']})).to.throw(Error);
     });
 
     it('should return given controller if require is a string and correct', function() {
