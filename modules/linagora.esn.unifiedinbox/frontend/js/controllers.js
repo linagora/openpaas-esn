@@ -266,27 +266,28 @@ angular.module('linagora.esn.unifiedinbox')
     }.bind(this));
 
     this.move = function() {
-      $state.go('.move', { item: $scope.thread, threadId:  $scope.thread.id });
+      $state.go('.move', { item: $scope.thread });
     };
   })
 
-  .controller('inboxMoveItemController', function($rootScope, $scope, $state, $stateParams, $q, mailboxesService, inboxFilterDescendantMailboxesFilter,
-                                                  _, inboxEmailService, inboxThreadService, PROVIDER_INFINITY_LIST) {
-    var mailboxId = $stateParams.mailbox, moveToMailbox;
+  .controller('inboxMoveItemController', function($rootScope, $scope, $stateParams, $q, mailboxesService, inboxEmailService,
+                                                  inboxThreadService, esnPreviousState, PROVIDER_INFINITY_LIST) {
+    var moveToMailbox;
 
-    if ($stateParams.threadId) {
+    // Threads have 'messageIds' property
+    if ('messageIds' in $stateParams.item) {
       moveToMailbox = inboxThreadService.moveToMailbox;
     } else {
       moveToMailbox = inboxEmailService.moveToMailbox;
     }
 
-    mailboxesService.assignMailboxesList($scope, _.partialRight(inboxFilterDescendantMailboxesFilter, mailboxId, true));
+    mailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
       var item = $stateParams.item;
 
       $rootScope.$broadcast(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, item);
-      $state.go('unifiedinbox.list.' + ($stateParams.threadId ? 'threads' : 'messages'), { mailbox: mailboxId });
+      esnPreviousState.go();
 
       return moveToMailbox(item, mailbox)
         .catch(function(err) {
