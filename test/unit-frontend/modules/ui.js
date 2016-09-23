@@ -418,4 +418,60 @@ describe('The UI module', function() {
 
   });
 
+  describe('The esnModalLauncher', function() {
+
+    var modalMock;
+
+    beforeEach(module(function($provide) {
+      modalMock = sinon.spy();
+
+      $provide.value('$modal', modalMock);
+    }));
+
+    beforeEach(inject(function($rootScope, _$compile_) {
+      $scope = $rootScope.$new();
+      $compile = _$compile_;
+    }));
+
+    it('should open modal with options when click on the element', function() {
+      initDirective([
+        '<div esn-modal-launcher="/path/to/template"',
+        'animation="animation"',
+        'backdrop-animation="backdropAnimation"',
+        'placement="placement"',
+        'backdrop="backdrop"',
+        'container="container"',
+        'controller="controller"',
+        'controller-as="controllerAs"',
+        '></div>'
+      ].join(' '));
+
+      element.click();
+
+      expect(modalMock).to.have.been.calledOnce;
+      expect(modalMock).to.have.been.calledWith({
+        templateUrl: '/path/to/template',
+        scope: sinon.match.object,
+        animation: 'animation',
+        backdropAnimation: 'backdropAnimation',
+        placement: 'placement',
+        backdrop: 'backdrop',
+        container: 'container',
+        controller: 'controller',
+        controllerAs: 'controllerAs',
+      });
+    });
+
+    it('should call event.stopPropagation on click', function() {
+      $scope.spy = sinon.spy();
+
+      initDirective('<div ng-click="spy()"><button esn-modal-launcher="/path/to/template"></button></div>');
+
+      element.find('button').click();
+
+      expect(modalMock).to.have.been.calledOnce;
+      expect($scope.spy).to.not.have.been.called;
+    });
+
+  });
 });
