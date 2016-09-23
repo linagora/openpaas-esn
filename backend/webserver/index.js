@@ -191,6 +191,20 @@ function addAngularModulesInjection(moduleName, files, angularModulesNames, inne
 
 webserver.addAngularModulesInjection = addAngularModulesInjection;
 
+function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames, innerApps) {
+  injections[moduleName] = injections[moduleName] || {};
+  innerApps.forEach(function(innerApp) {
+    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
+    injections[moduleName][innerApp].app = injections[moduleName][innerApp].app || {};
+    injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js || [];
+    injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js.concat(jsfiles);
+    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
+    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+  });
+}
+
+webserver.addAngularAppModulesInjection = addAngularAppModulesInjection;
+
 function getInjections() {
   return injections;
 }

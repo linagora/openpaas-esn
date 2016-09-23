@@ -1,0 +1,19 @@
+.calendars-configuration.card
+  sub-header
+    calendars-configuration-header.hidden-md
+  .block-header.hidden-xs
+    h2 #{__('Calendars configuration')}
+  .card-body
+    .listview
+      .lv-body
+        a.lv-item(href="", ng-click="vm.add()")
+          .media
+            .pull-left
+              i.mdi.mdi-plus
+              span #{__('Add a new calendar')}
+        hr
+        a.lv-item(href="", ng-repeat="calendar in vm.calendars", ng-click='vm.modify(calendar)')
+          .media
+            .pull-left
+              i.mdi.mdi-label(ng-style="{'color': calendar.color}")
+              span {{::calendar.name}}

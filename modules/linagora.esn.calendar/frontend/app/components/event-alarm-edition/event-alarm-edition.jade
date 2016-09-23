@@ -1,0 +1,12 @@
+.row
+  .col-xs-12
+    .form-group
+      .input-group
+        span.input-group-addon
+          i.mdi.mdi-alarm
+        .fg-line.select
+          select.form-control(
+            ng-model="vm.trigger",
+            ng-options="item.value as item.label for item in vm.TRIGGER",
+            ng-change="vm.setEventAlarm()")
+

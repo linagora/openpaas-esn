@@ -1,0 +1,53 @@
+.timeline-view.event-message(data-tv-type="event", ng-class="{'timeline-view-liner': vm.parentMessage, 'just-posted': vm.message._id === vm.lastPost.messageId, 'esn-panel': vm.parentMessage, 'thread': vm.parentMessage}")
+  .tv-header.media
+    a.tvh-user.pull-left(href='#')
+      img.img-responsive(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+    .media-body.p-t-5
+      i.mdi.mdi-email(ng-show='vm.message.source === "email"', title='sent via email reply')
+      strong {{vm.message.author.firstname}} {{vm.message.author.lastname}}
+      span &nbsp;#{__('created an event')}
+      br
+      message-date-link(message='vm.message', activitystream='vm.activitystream')
+      .share
+        message-bottom-links
+      activity-stream-origin(ng-if='vm.parentMessage && !vm.message.isOrigin', streams='vm.message.streamOrigins')
+  .tv-body
+    display-position(position='vm.vm.message.position')
+    .loading.text-center(ng-if='!vm.isEventLoaded || vm.isLoadFailed')
+      .throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner', spinner-size='0.3', spinner-start-active)
+      | #{__('Loading calendar event data, please wait...')}
+
+    p.multilines {{vm.event.description}}
+
+    p
+      .event-details
+        .text-center
+          strong.dates {{vm.event.formattedDate}} #{__('from')} {{vm.event.formattedStartTime}}&nbsp;
+            sup {{vm.event.formattedStartA}}
+            |&nbsp; #{__('to')} {{vm.event.formattedEndTime}}&nbsp;
+            sup {{vm.event.formattedEndA}}
+          .vertiz-space(style='color: #666' ng-show='vm.event.location')
+            u #{__('Location:')}
+            | &nbsp;{{vm.event.location}}
+          .vertiz-space
+            strong #{__('Do you want to participate?')}
+          .vertiz-space
+            button.btn.btn-link.accepted(ng-click='vm.changeParticipation("ACCEPTED")', ng-class='{ selected: vm.partstat == "ACCEPTED" }') #{__('Yes')}
+            button.btn.btn-link.declined(ng-click='vm.changeParticipation("DECLINED")', ng-class='{ selected: vm.partstat == "DECLINED" }') #{__('No')}
+            button.btn.btn-link.undecided(ng-click='vm.changeParticipation("TENTATIVE")', ng-class='{ selected: vm.partstat == "TENTATIVE" }') #{__('Maybe')}
+        .attendees
+          .statusrow(ng-if='vm.attendeesPerPartstat.ACCEPTED > 0') #{__('Going')}#{': '}
+            span(ng-repeat="attendee in vm.event.attendees | partstat:'ACCEPTED' track by attendee.email")
+              a(ng-href='mailto:{{attendee.email}}' title='{{attendee.fullmail}}') {{attendee.name}}
+              span(ng-if='!$last') #{', '}
+          .statusrow(ng-if='vm.attendeesPerPartstat.DECLINED > 0') #{__('Not Going')}#{': '}
+            span(ng-repeat="attendee in vm.event.attendees | partstat:'DECLINED' track by attendee.email")
+              a(ng-href='mailto:{{attendee.email}}' title='{{attendee.fullmail}}') {{attendee.name}}
+              span(ng-if='!$last') #{', '}
+
+    .row
+      message-attachments(message='vm.message')
+    .row
+      message-oembeds(message='vm.message')
+  .tv-comments
+    message-comments

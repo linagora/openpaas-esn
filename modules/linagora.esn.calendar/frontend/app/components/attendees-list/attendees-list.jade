@@ -1,0 +1,18 @@
+.attendees-list.picture-list.col-xs-12
+  .col-xs-10
+    div(ng-if='vm.attendeesPerPartstat.ACCEPTED > 0')
+      .fg-line.accepted #{__('Accepted')}
+      .fg-line.pl-body(ng-if='vm.attendeesPerPartstat.ACCEPTED > 0')
+        attendee-list-item(attendee='attendee', read-only='::vm.readOnly', is-organizer='vm.organizer.email === attendee.email', mode='::vm.mode', ng-click= "vm.selectAttendee(attendee)", ng-repeat="attendee in vm.attendees | partstat:'ACCEPTED' track by attendee.email")
+    div(ng-if='vm.attendeesPerPartstat.DECLINED > 0')
+      .fg-line.declined #{__('Declined')}
+      .fg-line.pl-body(ng-if='vm.attendeesPerPartstat.DECLINED > 0')
+        attendee-list-item(attendee='attendee', read-only='::vm.readOnly', is-organizer='vm.organizer.email === attendee.email', mode='::vm.mode', ng-click= "vm.selectAttendee(attendee)", ng-repeat="attendee in vm.attendees | partstat:'DECLINED' track by attendee.email")
+    .undecided-category(ng-if='vm.attendeesPerPartstat["NEEDS-ACTION"] > 0 || vm.attendeesPerPartstat["TENTATIVE"] > 0')
+      .fg-line.undecided #{__('Undecided')}
+      .fg-line.pl-body(ng-if='vm.attendeesPerPartstat["NEEDS-ACTION"] > 0 || vm.attendeesPerPartstat["TENTATIVE"] > 0')
+        attendee-list-item(attendee='attendee', read-only='::vm.readOnly', is-organizer='vm.organizer.email === attendee.email', mode='::vm.mode', ng-click= "vm.selectAttendee(attendee)", ng-repeat="attendee in vm.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
+        attendee-list-item(attendee='attendee', read-only='::vm.readOnly', is-organizer='vm.organizer.email === attendee.email', mode='::vm.mode', ng-click= "vm.selectAttendee(attendee)", ng-repeat="attendee in vm.attendees | partstat:'TENTATIVE' track by attendee.email")
+  .col-xs-2.attendees-bin(ng-if='!vm.readOnly && vm.attendeeClickedCount > 0', ng-click='vm.deleteSelectedAttendees()')
+    .trash
+      i.mdi.mdi-delete(ng-if='!vm.readOnly && vm.attendeeClickedCount > 0', ng-click='vm.deleteSelectedAttendees()')

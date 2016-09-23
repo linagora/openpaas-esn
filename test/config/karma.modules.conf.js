@@ -77,14 +77,22 @@ module.exports = function(config) {
       'frontend/components/Autolinker.js/dist/Autolinker.js',
       'frontend/components/angular-component/dist/angular-component.min.js',
       'frontend/js/**/*.js',
+
       'modules/**/frontend/js/**/*.js',
+      'modules/**/frontend/app/**/*.js',
+
       'modules/**/test/unit-frontend/**/*.js',
+      'modules/**/frontend/app/**/*.spec.js',
+
       'modules/**/frontend/views/**/*.jade',
+      'modules/**/frontend/app/**/*.jade',
+
       'frontend/views/modules/**/*.jade',
 
       // fixtures
       {pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true},
-      'modules/**/unit-frontend/fixtures/**'
+      'modules/**/unit-frontend/fixtures/**',
+      'modules/**/app/fixtures/**'
     ],
     proxies: {
       '/images/': 'frontend/images/',
@@ -101,7 +109,8 @@ module.exports = function(config) {
     preprocessors: {
       'modules/**/frontend/js/**/*.js': ['coverage'],
       '**/*.jade': ['ng-jade2module'],
-      'modules/**/unit-frontend/fixtures/**': ['raw2js']
+      'modules/**/unit-frontend/fixtures/**': ['raw2js'],
+      'modules/**/app/fixtures/**': ['raw2js']
     },
 
     plugins: [
@@ -125,6 +134,7 @@ module.exports = function(config) {
     ngJade2ModulePreprocessor: {
       cacheIdFromPath: function(filepath) {
         var cacheId = '';
+
         if (filepath.match(/^frontend*/)) {
           cacheId = filepath.substr(8).replace('.jade', '.html');
         } else if (filepath.match(/^modules*/)) {
@@ -132,6 +142,7 @@ module.exports = function(config) {
                             .replace('frontend/', '')
                             .replace('.jade', '.html');
         }
+
         return cacheId;
       },
       // setting this option will create only a single module that contains templates

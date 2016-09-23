@@ -5,6 +5,13 @@ mixin injectJSFromModules(module, injections)
       each file in moduleInjections.js
         script(src='/' + key + '/js/' + file)
 
+mixin injectJSAppFromModules(module, injections)
+  each injection, key in injections
+    - var moduleInjections = injection[module]
+    if (moduleInjections && moduleInjections.app && moduleInjections.app.js)
+      each file in moduleInjections.app.js
+        script(src='/' + key + '/app/' + file)
+
 mixin injectAngularFromModules(module, injections)
   script(type='text/javascript')
     | var angularInjections = []
@@ -20,3 +27,10 @@ mixin injectCSSFromModules(module, injections)
     if (moduleInjections && moduleInjections.css)
       each file in moduleInjections.css
         link(rel='stylesheet', href='/' + key + '/css/' + file)
+
+mixin injectCSSAppFromModules(module, injections)
+  each injection, key in injections
+    - var moduleInjections = injection[module]
+    if (moduleInjections && moduleInjections.app && moduleInjections.app.css)
+      each file in moduleInjections.app.css
+        link(rel='stylesheet', href='/' + key + '/app/' + file)
