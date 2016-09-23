@@ -1,12 +1,12 @@
 .calendar-configuration-header
   .flex-space-between.flex-vertical-centered
     .left
-      button.btn.btn-primary(ng-click="cancelMobile()")
+      button.btn.btn-primary(ng-click="vm.cancelMobile()")
         i.mdi.mdi-close
     .right
-      button.btn.btn-primary(ng-if='!newCalendar', ng-click='submit()')
+      button.btn.btn-primary(ng-if='!vm.newCalendar', ng-click='vm.submit()')
         | #{__('Save')}
         i.mdi.mdi-check
-      button.btn.btn-primary(ng-if='newCalendar', ng-click='submit()')
+      button.btn.btn-primary(ng-if='vm.newCalendar', ng-click='vm.submit()')
         | #{__('Create')}
         i.mdi.mdi-check

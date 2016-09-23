@@ -143,7 +143,7 @@ describe('The calendar module apis', function() {
 
     describe('remove request', function() {
       it('should return an id if status is 202', function(done) {
-        this.$httpBackend.expectDELETE('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, {'If-Match': 'etag', Accept:'application/json, text/plain, */*' }).respond(202, {id: 'anId'});
+        this.$httpBackend.expectDELETE('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, {'If-Match': 'etag', Accept: 'application/json, text/plain, */*' }).respond(202, {id: 'anId'});
 
         this.eventAPI.remove('/dav/api/calendars/test.json', 'etag')
           .then(function(response) {
@@ -155,7 +155,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 202', function(done) {
-        this.$httpBackend.expectDELETE('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, {'If-Match': 'etag', Accept:'application/json, text/plain, */*' }).respond(500, 'Error');
+        this.$httpBackend.expectDELETE('/dav/api/calendars/test.json?graceperiod=' + this.CALENDAR_GRACE_DELAY, {'If-Match': 'etag', Accept: 'application/json, text/plain, */*' }).respond(500, 'Error');
 
         this.eventAPI.remove('/dav/api/calendars/test.json', 'etag')
           .catch(function(err) {

@@ -39,9 +39,6 @@ describe('The calendar color picker component', function() {
     this.initDirective(this.$scope);
     this.element.click();
     expect(this.eleScope.vm.selected).to.equal('indigo');
-    expect(this.$modalMock).to.have.been.calledWith(sinon.match(function(object) {
-      return object.scope === self.eleScope.vm;
-    }));
   });
 
   it('should not be pre-selected if it is a random color not in the color list', function() {
@@ -49,9 +46,7 @@ describe('The calendar color picker component', function() {
     this.initDirective(this.$scope);
     this.element.click();
     expect(this.eleScope.vm.selected).to.be.undefined;
-    expect(this.$modalMock).to.have.been.calledWith(sinon.match(function(object) {
-      return object.scope === self.eleScope.vm;
-    }));
   });
+
 });
 

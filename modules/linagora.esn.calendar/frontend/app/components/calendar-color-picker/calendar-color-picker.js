@@ -71,8 +71,10 @@
       });
 
       $modal({
-        scope: vm,
         templateUrl: '/calendar/app/components/calendar-color-picker/calendar-color-picker.html',
+        controller: function($scope) {
+          angular.extend($scope, vm);
+        },
         backdrop: 'static',
         placement: 'center'
       });

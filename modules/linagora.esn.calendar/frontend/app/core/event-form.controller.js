@@ -239,8 +239,10 @@
         if (!$scope.calendarHomeId) {
           $scope.calendarHomeId = calendarService.calendarHomeId;
         }
-        if ($scope.editedEvent.alarm.trigger.toICALString() === $scope.event.alarm.trigger.toICALString()) {
-          return;
+        if ($scope.event.alarm && $scope.event.alarm.trigger) {
+          if (!$scope.editedEvent.alarm || $scope.editedEvent.alarm.trigger.toICALString() === $scope.event.alarm.trigger.toICALString()) {
+            return;
+          }
         }
         var path = $scope.editedEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
 
