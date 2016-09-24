@@ -511,12 +511,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxStar', function(jmapEmailService) {
+  .directive('inboxStar', function(jmapHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {
         this.setIsFlagged = function(state) {
-          jmapEmailService.setFlag($scope.item, 'isFlagged', state);
+          jmapHelper.setFlag($scope.item, 'isFlagged', state);
         };
       },
       controllerAs: 'ctrl',
