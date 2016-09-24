@@ -282,7 +282,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('inboxMoveItemController', function($rootScope, $scope, $stateParams, $q, mailboxesService, inboxEmailService,
-                                                  inboxThreadService, esnPreviousState, PROVIDER_INFINITY_LIST) {
+                                                  inboxThreadService, esnPreviousState, infiniteListService) {
     var moveToMailbox;
 
     // Threads have 'messageIds' property
@@ -297,12 +297,12 @@ angular.module('linagora.esn.unifiedinbox')
     this.moveTo = function(mailbox) {
       var item = $stateParams.item;
 
-      $rootScope.$broadcast(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, item);
+      infiniteListService.removeElement(item);
       esnPreviousState.go();
 
       return moveToMailbox(item, mailbox)
         .catch(function(err) {
-          $rootScope.$broadcast(PROVIDER_INFINITY_LIST.ADD_ELEMENT, item);
+          infiniteListService.addElement(item);
 
           return $q.reject(err);
         });

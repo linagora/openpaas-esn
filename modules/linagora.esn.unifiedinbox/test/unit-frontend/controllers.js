@@ -12,7 +12,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       Composition, newComposerService = {}, $state, $modal, navigateTo,
       mailboxesService, inboxThreadService, inboxEmailService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
       touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter;
-  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, PROVIDER_INFINITY_LIST, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, INFINITE_LIST_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -80,7 +80,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_, _inboxEmailService_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxThreadService_,
-                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_, _PROVIDER_INFINITY_LIST_) {
+                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_,
+                                          _INFINITE_LIST_EVENTS_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -94,7 +95,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     INBOX_EVENTS = _INBOX_EVENTS_;
-    PROVIDER_INFINITY_LIST = _PROVIDER_INFINITY_LIST_;
+    INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
     moment = _moment_;
     Mailbox = _Mailbox_;
     Thread = _Thread_;
@@ -803,7 +804,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $stateParams.item.messageIds = ['threadId'];
       controller = initController('inboxMoveItemController');
 
-      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
+      scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
         expect(item).to.deep.equal($stateParams.item);
 
         done();
@@ -818,7 +819,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should call inboxEmailService.moveToMailbox if $stateParams.item is a message', function(done) {
       controller = initController('inboxMoveItemController');
 
-      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
+      scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
         expect(item).to.deep.equal($stateParams.item);
 
         done();
@@ -837,7 +838,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $stateParams.emailId = 'emailId';
       controller = initController('inboxMoveItemController');
 
-      scope.$on(PROVIDER_INFINITY_LIST.ADD_ELEMENT, function(event, item) {
+      scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, item) {
         expect(item).to.deep.equal($stateParams.item);
 
         done();

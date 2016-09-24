@@ -9,10 +9,6 @@ angular.module('esn.provider', [
 
   .constant('ELEMENTS_PER_REQUEST', 200)
   .constant('ELEMENTS_PER_PAGE', 1)
-  .constant('PROVIDER_INFINITY_LIST', {
-    ADD_ELEMENT: 'provider:addElementInfinityList',
-    REMOVE_ELEMENT: 'provider:removeElementInfinityList'
-  })
 
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
 
@@ -243,8 +239,8 @@ angular.module('esn.provider', [
 
     return ByDateElementGroupingTool;
   })
-  .factory('infiniteScrollHelperBuilder', function($q, $timeout, defaultConfiguration,
-                                                   ELEMENTS_PER_PAGE, INFINITE_LIST_LOAD_EVENT) {
+  .factory('infiniteScrollHelperBuilder', function($q, $timeout, defaultConfiguration, infiniteListService,
+                                                   ELEMENTS_PER_PAGE) {
     return function(scope, loadNextItems, updateScope, elements_per_page) {
       elements_per_page = elements_per_page || ELEMENTS_PER_PAGE;
 
@@ -278,7 +274,7 @@ angular.module('esn.provider', [
           })
           .then(function(result) {
             $timeout(function() {
-              scope.$emit(INFINITE_LIST_LOAD_EVENT);
+              infiniteListService.loadMoreElements();
             }, defaultConfiguration.throttle, false);
 
             return result;
@@ -289,6 +285,7 @@ angular.module('esn.provider', [
       };
     };
   })
+
   .factory('infiniteScrollHelper', function(infiniteScrollHelperBuilder) {
     return function(scope, loadNextItems) {
 
@@ -301,20 +298,22 @@ angular.module('esn.provider', [
       });
     };
   })
-  .factory('infiniteScrollOnGroupsHelper', function($rootScope, infiniteScrollHelperBuilder, PROVIDER_INFINITY_LIST, INFINITE_LIST_LOAD_EVENT) {
+
+  .factory('infiniteScrollOnGroupsHelper', function($rootScope, infiniteScrollHelperBuilder, infiniteListService,
+                                                    INFINITE_LIST_EVENTS) {
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
 
       scope.groups = groups;
       scope.groupedElements = groups.getGroupedElements();
 
-      scope.$on(PROVIDER_INFINITY_LIST.ADD_ELEMENT, function(event, item) {
+      scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, item) {
         scope.groups.addElement(item);
       });
 
-      scope.$on(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, function(event, item) {
+      scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
         scope.groups.removeElement(item);
-        $rootScope.$broadcast(INFINITE_LIST_LOAD_EVENT);
+        infiniteListService.loadMoreElements();
       });
 
       return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {

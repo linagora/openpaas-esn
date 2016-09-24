@@ -4572,12 +4572,11 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxFilteringAwareInfiniteScroll service', function() {
 
-    var $scope, service, INBOX_EVENTS, INFINITE_LIST_LOAD_EVENT;
+    var $scope, service, INBOX_EVENTS;
 
-    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_, _INFINITE_LIST_LOAD_EVENT_) {
+    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_) {
       service = inboxFilteringAwareInfiniteScroll;
       INBOX_EVENTS = _INBOX_EVENTS_;
-      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
 
       $scope = $rootScope.$new();
     }));

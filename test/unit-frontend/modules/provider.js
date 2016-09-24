@@ -414,7 +414,7 @@ describe('The esn.provider module', function() {
   }
 
   describe('infiniteScrollHelper', function() {
-    var ELEMENTS_PER_PAGE, INFINITE_LIST_LOAD_EVENT, $timeout, infiniteScrollHelper, $q, $rootScope;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, $timeout, infiniteScrollHelper, $q, $rootScope;
 
     beforeEach(function() {
       ELEMENTS_PER_PAGE = 3;
@@ -423,12 +423,12 @@ describe('The esn.provider module', function() {
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_, _$timeout_, _INFINITE_LIST_LOAD_EVENT_) {
+    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_, _$timeout_, _INFINITE_LIST_EVENTS_) {
       infiniteScrollHelper = _infiniteScrollHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
       $timeout = _$timeout_;
-      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
+      INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
     }));
 
     describe('The return iterator', function() {
@@ -483,10 +483,10 @@ describe('The esn.provider module', function() {
         $rootScope.$digest();
       });
 
-      it('should $emit INFINITE_LIST_LOAD_EVENT when it fetches some data', function() {
+      it('should $emit INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS when it fetches some data', function() {
         var spy = sinon.spy();
 
-        scope.$on(INFINITE_LIST_LOAD_EVENT, spy);
+        scope.$on(INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS, spy);
 
         resultingIterator();
         $rootScope.$digest();
@@ -502,7 +502,7 @@ describe('The esn.provider module', function() {
   });
 
   describe('infiniteScrollOnGroupsHelper', function() {
-    var ELEMENTS_PER_PAGE, INFINITE_LIST_LOAD_EVENT, PROVIDER_INFINITY_LIST, infiniteScrollOnGroupsHelper, $q, $rootScope, elementGroupingTool;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, PROVIDER_INFINITY_LIST, infiniteScrollOnGroupsHelper, $q, $rootScope, elementGroupingTool;
 
     beforeEach(function() {
       elementGroupingTool = {
@@ -516,19 +516,18 @@ describe('The esn.provider module', function() {
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_, _PROVIDER_INFINITY_LIST_, _INFINITE_LIST_LOAD_EVENT_) {
+    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_, _INFINITE_LIST_EVENTS_) {
       infiniteScrollOnGroupsHelper = _infiniteScrollOnGroupsHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
-      PROVIDER_INFINITY_LIST = _PROVIDER_INFINITY_LIST_;
-      INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
+      INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
     }));
 
     it('should call groups.addElement when ADD_ELEMENT is received', function() {
       var scope = $rootScope.$new(), item = { id: 'item' };
 
       infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
-      scope.$emit(PROVIDER_INFINITY_LIST.ADD_ELEMENT, item);
+      scope.$emit(INFINITE_LIST_EVENTS.ADD_ELEMENT, item);
 
       expect(scope.groups.addElement).to.have.been.calledWith(item);
     });
@@ -537,8 +536,8 @@ describe('The esn.provider module', function() {
       var scope = $rootScope.$new(), item = { id: 'item' };
 
       infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
-      scope.$on(INFINITE_LIST_LOAD_EVENT, done.bind(null, null));
-      scope.$emit(PROVIDER_INFINITY_LIST.REMOVE_ELEMENT, item);
+      scope.$on(INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS, done.bind(null, null));
+      scope.$emit(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, item);
 
       expect(scope.groups.removeElement).to.have.been.calledWith(item);
     });

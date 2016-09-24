@@ -74,4 +74,57 @@ describe('The Infinite-list Angular module', function() {
 
   });
 
+  describe('The infiniteListService factory', function() {
+
+    var $rootScope, infiniteListService, INFINITE_LIST_EVENTS;
+    var dummyElement = { my: 'element' };
+
+    beforeEach(inject(function(_$rootScope_, _infiniteListService_, _INFINITE_LIST_EVENTS_) {
+      $rootScope = _$rootScope_;
+      infiniteListService = _infiniteListService_;
+      INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
+    }));
+
+    describe('The loadMoreElements function', function() {
+
+      it('should broadcast INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS event', function(done) {
+        $rootScope.$on(INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS, function() {
+          done();
+        });
+
+        infiniteListService.loadMoreElements();
+      });
+
+    });
+
+    describe('The addElement function', function() {
+
+      it('should broadcast INFINITE_LIST_EVENTS.ADD_ELEMENT event, passing the element', function(done) {
+        $rootScope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, element) {
+          expect(element).to.equal(dummyElement);
+
+          done();
+        });
+
+        infiniteListService.addElement(dummyElement);
+      });
+
+    });
+
+    describe('The removeElement function', function() {
+
+      it('should broadcast INFINITE_LIST_EVENTS.REMOVE_ELEMENT event, passing the element', function(done) {
+        $rootScope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, element) {
+          expect(element).to.equal(dummyElement);
+
+          done();
+        });
+
+        infiniteListService.removeElement(dummyElement);
+      });
+
+    });
+
+  });
+
 });
