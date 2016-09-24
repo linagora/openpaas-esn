@@ -189,7 +189,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $state, $stateParams, Email, inboxEmailService, jmapEmailService) {
+  .controller('viewEmailController', function($scope, $state, $stateParams, Email, inboxJmapItemService, jmapEmailService) {
     $scope.email = $stateParams.item;
 
     jmapEmailService
@@ -203,7 +203,7 @@ angular.module('linagora.esn.unifiedinbox')
           });
         }
 
-        inboxEmailService.markAsRead($scope.email);
+        inboxJmapItemService.markAsRead($scope.email);
       })
       .then(function() {
         $scope.email.loaded = true;
@@ -211,13 +211,13 @@ angular.module('linagora.esn.unifiedinbox')
 
     ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
       this[action] = function() {
-        inboxEmailService[action]($scope.email);
+        inboxJmapItemService[action]($scope.email);
       };
     }.bind(this));
 
     ['markAsUnread', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
-        inboxEmailService[action]($scope.email).then(function() {
+        inboxJmapItemService[action]($scope.email).then(function() {
           $state.go('^');
         });
       };
@@ -228,7 +228,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxThreadService, _, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxJmapItemService, _, JMAP_GET_MESSAGES_VIEW) {
     $scope.thread = $stateParams.item;
 
     withJmapClient(function(client) {
@@ -258,19 +258,19 @@ angular.module('linagora.esn.unifiedinbox')
           });
         })
         .then(function() {
-          inboxThreadService.markAsRead($scope.thread);
+          inboxJmapItemService.markAsRead($scope.thread);
         });
     });
 
     ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
       this[action] = function() {
-        inboxThreadService[action]($scope.thread);
+        inboxJmapItemService[action]($scope.thread);
       };
     }.bind(this));
 
     ['markAsUnread', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
-        inboxThreadService[action]($scope.thread).then(function() {
+        inboxJmapItemService[action]($scope.thread).then(function() {
           $state.go('^');
         });
       };
@@ -281,17 +281,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('inboxMoveItemController', function($rootScope, $scope, $stateParams, $q, mailboxesService, inboxEmailService,
-                                                  inboxThreadService, esnPreviousState, infiniteListService) {
-    var moveToMailbox;
-
-    // Threads have 'messageIds' property
-    if ('messageIds' in $stateParams.item) {
-      moveToMailbox = inboxThreadService.moveToMailbox;
-    } else {
-      moveToMailbox = inboxEmailService.moveToMailbox;
-    }
-
+  .controller('inboxMoveItemController', function($rootScope, $scope, $stateParams, $q, mailboxesService,
+                                                  inboxJmapItemService, esnPreviousState, infiniteListService) {
     mailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
@@ -300,7 +291,7 @@ angular.module('linagora.esn.unifiedinbox')
       infiniteListService.removeElement(item);
       esnPreviousState.go();
 
-      return moveToMailbox(item, mailbox)
+      return inboxJmapItemService.moveToMailbox(item, mailbox)
         .catch(function(err) {
           infiniteListService.addElement(item);
 

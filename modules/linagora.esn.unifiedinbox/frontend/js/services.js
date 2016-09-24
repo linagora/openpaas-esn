@@ -982,28 +982,28 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxEmailService', function($q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
-    function moveToTrash(email, options) {
-      return backgroundAction('Move of message "' + email.subject + '" to trash', function() {
-        return email.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
+  .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapEmailService, mailboxesService) {
+    function moveToTrash(item, options) {
+      return backgroundAction('Move of "' + item.subject + '" to trash', function() {
+        return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
       }, options);
     }
 
-    function moveToMailbox(message, mailbox) {
-      var fromMailboxIds = message.mailboxIds.slice(0);
-      var toMailboxIds = [mailbox.id];
+    function moveToMailbox(item, mailbox) {
+      var fromMailboxIds = item.mailboxIds.slice(0),
+          toMailboxIds = [mailbox.id];
 
-      if (message.isUnread) {
+      if (item.isUnread) {
         mailboxesService.moveUnreadMessages(fromMailboxIds, toMailboxIds, 1);
       }
 
       return backgroundAction(
-        'Move of message "' + message.subject + '" to ' + mailbox.displayName,
+        'Move of "' + item.subject + '" to ' + mailbox.displayName,
         function() {
-          return message.move(toMailboxIds);
+          return item.move(toMailboxIds);
         }, { silent: true }
       ).catch(function(err) {
-        if (message.isUnread) {
+        if (item.isUnread) {
           mailboxesService.moveUnreadMessages(toMailboxIds, fromMailboxIds, 1);
         }
 
@@ -1038,73 +1038,17 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsFlagged(email) {
-      jmapEmailService.setFlag(email, 'isFlagged', true);
+      return jmapEmailService.setFlag(email, 'isFlagged', true);
     }
 
     function unmarkAsFlagged(email) {
-      jmapEmailService.setFlag(email, 'isFlagged', false);
+      return jmapEmailService.setFlag(email, 'isFlagged', false);
     }
 
     return {
       reply: reply,
       replyAll: replyAll,
       forward: forward,
-      markAsUnread: markAsUnread,
-      markAsRead: markAsRead,
-      markAsFlagged: markAsFlagged,
-      unmarkAsFlagged: unmarkAsFlagged,
-      moveToTrash: moveToTrash,
-      moveToMailbox: moveToMailbox
-    };
-  })
-
-  .service('inboxThreadService', function($q, backgroundAction, jmap, jmapEmailService, mailboxesService) {
-    function moveToTrash(thread, options) {
-      return backgroundAction('Move of thread "' + thread.subject + '" to trash', function() {
-        return thread.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
-      }, options);
-    }
-
-    function moveToMailbox(thread, mailbox) {
-      var subject = thread.subject || (thread.email ? thread.email.subject : '');
-      var fromMailboxIds = thread.email.mailboxIds.slice(0);
-      var toMailboxIds = [mailbox.id];
-
-      if (thread.isUnread) {
-        mailboxesService.moveUnreadMessages(fromMailboxIds, toMailboxIds, 1);
-      }
-
-      return backgroundAction(
-        'Move of thread "' + subject + '" to ' + mailbox.displayName,
-        function() {
-          return thread.move(toMailboxIds);
-        }, { silent: true }
-      ).catch(function(err) {
-        if (thread.isUnread) {
-          mailboxesService.moveUnreadMessages(toMailboxIds, fromMailboxIds, 1);
-        }
-
-        return $q.reject(err);
-      });
-    }
-
-    function markAsRead(thread) {
-      return jmapEmailService.setFlag(thread, 'isUnread', false);
-    }
-
-    function markAsUnread(thread) {
-      return jmapEmailService.setFlag(thread, 'isUnread', true);
-    }
-
-    function markAsFlagged(thread) {
-      jmapEmailService.setFlag(thread, 'isFlagged', true);
-    }
-
-    function unmarkAsFlagged(thread) {
-      jmapEmailService.setFlag(thread, 'isFlagged', false);
-    }
-
-    return {
       markAsUnread: markAsUnread,
       markAsRead: markAsRead,
       markAsFlagged: markAsFlagged,

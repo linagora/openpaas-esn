@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-    $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST;
+      $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST;
 
   function elements(id, length, offset) {
     var array = [], start = offset || 0;
@@ -15,7 +15,9 @@ describe('The Unified Inbox Angular module providers', function() {
     for (var i = start; i < (start + length); i++) {
       array.push({
         id: id + '_' + i,
-        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i)
+        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i),
+        mailboxIds: ['id_inbox'],
+        threadId: 'thread_' + i
       });
     }
 

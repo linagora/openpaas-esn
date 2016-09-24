@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
-      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _, INBOX_EVENTS,
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxJmapItemService, _, INBOX_EVENTS,
       notificationFactory, esnPreviousState, IFRAME_MESSAGE_PREFIXES;
 
   beforeEach(function() {
@@ -76,13 +76,13 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_,
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxJmapItemService_, _$state_,
                              _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _esnPreviousState_, _IFRAME_MESSAGE_PREFIXES_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
-    inboxEmailService = _inboxEmailService_;
+    inboxJmapItemService = _inboxJmapItemService_;
     $state = _$state_;
     jmap = _jmap_;
     _ = ___;
@@ -324,14 +324,12 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       describe('The onDrop function', function() {
-        var inboxThreadService, inboxEmailService;
+        var inboxJmapItemService;
 
-        beforeEach(inject(function(_inboxThreadService_, _inboxEmailService_) {
-          inboxThreadService = _inboxThreadService_;
-          inboxEmailService = _inboxEmailService_;
+        beforeEach(inject(function(_inboxJmapItemService_) {
+          inboxJmapItemService = _inboxJmapItemService_;
 
-          inboxThreadService.moveToMailbox = sinon.spy();
-          inboxEmailService.moveToMailbox = sinon.spy();
+          inboxJmapItemService.moveToMailbox = sinon.spy();
         }));
 
         it('should move thread to mailbox if dragData is a thread', function() {
@@ -344,8 +342,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
           isolateScope.onDrop(thread);
 
-          expect(inboxThreadService.moveToMailbox).to.have.been.calledOnce;
-          expect(inboxThreadService.moveToMailbox).to.have.been.calledWith(thread, $scope.mailbox);
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledOnce;
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(thread, $scope.mailbox);
         });
 
         it('should move message to mailbox if dragData is a message', function() {
@@ -356,8 +354,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
           isolateScope.onDrop(message);
 
-          expect(inboxEmailService.moveToMailbox).to.have.been.calledOnce;
-          expect(inboxEmailService.moveToMailbox).to.have.been.calledWith(message, $scope.mailbox);
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledOnce;
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(message, $scope.mailbox);
         });
 
       });
@@ -1225,10 +1223,10 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The email directive', function() {
 
-    describe('the exposed functions from inboxEmailService', function() {
+    describe('the exposed functions from inboxJmapItemService', function() {
       beforeEach(function() {
         ['reply', 'replyAll', 'forward'].forEach(function(action) {
-          inboxEmailService[action] = sinon.spy();
+          inboxJmapItemService[action] = sinon.spy();
         });
       });
 
@@ -1238,7 +1236,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         ['reply', 'replyAll', 'forward'].forEach(function(action) {
           element.controller('email')[action]();
 
-          expect(inboxEmailService[action]).to.have.been.called;
+          expect(inboxJmapItemService[action]).to.have.been.called;
         });
       });
     });
@@ -1517,27 +1515,27 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       it('should expose a "reply" function', function() {
-        inboxEmailService.reply = sinon.spy();
+        inboxJmapItemService.reply = sinon.spy();
 
         controller.reply();
 
-        expect(inboxEmailService.reply).to.have.been.calledWith($scope.email);
+        expect(inboxJmapItemService.reply).to.have.been.calledWith($scope.email);
       });
 
       it('should expose a "replyAll" function', function() {
-        inboxEmailService.replyAll = sinon.spy();
+        inboxJmapItemService.replyAll = sinon.spy();
 
         controller.replyAll();
 
-        expect(inboxEmailService.replyAll).to.have.been.calledWith($scope.email);
+        expect(inboxJmapItemService.replyAll).to.have.been.calledWith($scope.email);
       });
 
       it('should expose a "forward" function', function() {
-        inboxEmailService.forward = sinon.spy();
+        inboxJmapItemService.forward = sinon.spy();
 
         controller.forward();
 
-        expect(inboxEmailService.forward).to.have.been.calledWith($scope.email);
+        expect(inboxJmapItemService.forward).to.have.been.calledWith($scope.email);
       });
     });
 

@@ -181,13 +181,13 @@ describe('The Unified Inbox Angular module models', function() {
       it('should allow replying all if there are more than one recipient', function() {
         var email = new Email({ id: 'id', to: [recipients[0]], cc: [recipients[1]] });
 
-        expect(email.hasReplyAll).to.be.true;
+        expect(email.hasReplyAll).to.equal(true);
       });
 
       it('should not allow replying all if there is only one recipient', function() {
         var email = new Email({ id: 'id', to: [recipients[0]], cc: [] });
 
-        expect(email.hasReplyAll).to.be.false;
+        expect(email.hasReplyAll).to.equal(false);
       });
 
     });
@@ -201,11 +201,12 @@ describe('The Unified Inbox Angular module models', function() {
       Thread = _Thread_;
     }));
 
-    it('should have id, subject and emails properties', function() {
-      var thread = new Thread({ id: 'threadId' }, [{ subject: 'firstEmailSubject' }, { subject: 'secondSubject' }]);
+    it('should have id, mailboxIds, subject and emails properties', function() {
+      var thread = new Thread({ id: 'threadId' }, [{ subject: 'firstEmailSubject', mailboxIds: ['1'] }, { subject: 'secondSubject' }]);
 
       expect(thread).to.shallowDeepEqual({
         id: 'threadId',
+        mailboxIds: ['1'],
         subject: 'firstEmailSubject',
         emails: [{ subject: 'firstEmailSubject' }, { subject: 'secondSubject' }]
       });
@@ -217,6 +218,10 @@ describe('The Unified Inbox Angular module models', function() {
 
     it('should have emails set to an empty array when null is given', function() {
       expect(new Thread({ id: 'threadId' }, null).emails).to.deep.equal([]);
+    });
+
+    it('should have mailboxIds set to an empty array when no emails are given', function() {
+      expect(new Thread({ id: 'threadId' }, null).mailboxIds).to.deep.equal([]);
     });
 
     it('should have subject set to an empty string when no emails are given', function() {

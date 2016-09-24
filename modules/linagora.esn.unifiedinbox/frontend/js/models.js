@@ -72,7 +72,8 @@ angular.module('linagora.esn.unifiedinbox')
       thread.setEmails = function(emails) {
         thread.emails = emails || [];
 
-        thread.subject = emails && emails[0] ? emails[0].subject : '';
+        thread.mailboxIds = thread.emails.length ? thread.emails[0].mailboxIds : [];
+        thread.subject = thread.emails.length ? thread.emails[0].subject : '';
         thread.lastEmail = _.last(thread.emails);
         thread.hasAttachment = !!(thread.lastEmail && thread.lastEmail.hasAttachment);
       };

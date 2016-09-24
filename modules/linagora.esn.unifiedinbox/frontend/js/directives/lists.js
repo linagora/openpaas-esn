@@ -40,7 +40,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxMessageListItem', function($state, $q, $stateParams, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
+  .directive('inboxMessageListItem', function($state, $q, $stateParams, newComposerService, _, inboxJmapItemService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -70,7 +70,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           self[action] = function() {
-            inboxEmailService[action]($scope.item);
+            inboxJmapItemService[action]($scope.item);
           };
         });
 
@@ -81,7 +81,7 @@ angular.module('linagora.esn.unifiedinbox')
         self.moveToTrash = function() {
           $scope.groups.removeElement($scope.item);
 
-          return inboxEmailService.moveToTrash($scope.item, { silent: true })
+          return inboxJmapItemService.moveToTrash($scope.item, { silent: true })
             .catch(function(err) {
               $scope.groups.addElement($scope.item);
 
@@ -99,7 +99,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxThreadListItem', function($state, $q, $stateParams, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
+  .directive('inboxThreadListItem', function($state, $q, $stateParams, newComposerService, _, inboxJmapItemService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -123,7 +123,7 @@ angular.module('linagora.esn.unifiedinbox')
         self.moveToTrash = function() {
           $scope.groups.removeElement($scope.item);
 
-          return inboxThreadService.moveToTrash($scope.item, { silent: true })
+          return inboxJmapItemService.moveToTrash($scope.item, { silent: true })
             .catch(function(err) {
               $scope.groups.addElement($scope.item);
 
@@ -133,7 +133,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           self[action] = function() {
-            inboxThreadService[action]($scope.item);
+            inboxJmapItemService[action]($scope.item);
           };
         });
 
