@@ -18,13 +18,11 @@
 
   CalendarDateIndicatorController.$inject = [
     '$scope',
-    'uiCalendarConfig',
-    'calendarService',
-    'miniCalendarService',
-    'CALENDAR_EVENTS'
+    'CALENDAR_EVENTS',
+    'calendarCurrentView'
   ];
 
-  function CalendarDateIndicatorController($scope, uiCalendarConfig, calendarService, miniCalendarService, CALENDAR_EVENTS) {
+  function CalendarDateIndicatorController($scope, CALENDAR_EVENTS, calendarCurrentView) {
     var vm = this;
     var miniCalendarIsShown = false;
 
@@ -37,26 +35,23 @@
     ////////////
 
     function activate() {
-      _calendarDateIndicator(uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
+      var view = calendarCurrentView.get();
+      view && _calendarDateIndicator(view);
     }
 
     function onCalendarHomeViewChange(event, view) { // eslint-disable-line
-      _calendarDateIndicator(view);
+      _calendarDateIndicator(view || calendarCurrentView.get());
     }
 
     function onMiniCalendarHomeViewChange(event, view) { // eslint-disable-line
       if (miniCalendarIsShown) {
-        _calendarDateIndicator(view || uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
+        _calendarDateIndicator(view || calendarCurrentView.getMinicalendarView());
       }
     }
 
     function onMiniCalendarToggle() {
       miniCalendarIsShown = !miniCalendarIsShown;
-      if (miniCalendarIsShown) {
-        _calendarDateIndicator(uiCalendarConfig.calendars[miniCalendarService.miniCalendarMobileId].fullCalendar('getView'));
-      } else {
-        _calendarDateIndicator(uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('getView'));
-      }
+      _calendarDateIndicator(miniCalendarIsShown ? calendarCurrentView.getMiniCalendarView() : calendarCurrentView.get());
     }
 
     function _calendarDateIndicator(view) {
