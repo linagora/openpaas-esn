@@ -3,7 +3,6 @@
 
   angular.module('esn.calendar', [
     'uuid4',
-    'ui.calendar',
     'ng.deviceDetector',
     'naturalSort',
     'ngTouch',

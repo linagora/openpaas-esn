@@ -65,20 +65,6 @@ describe('The event-form module controllers', function() {
       }
     };
 
-    this.uiCalendarConfig = {
-      calendars: {
-        calendarId: {
-          fullCalendar: function() {
-          },
-          offset: function() {
-            return {
-              top: 1
-            };
-          }
-        }
-      }
-    };
-
     this.notificationFactory = {
       weakInfo: sinon.spy(),
       weakError: sinon.spy()
@@ -91,9 +77,6 @@ describe('The event-form module controllers', function() {
     };
 
     angular.mock.module('esn.calendar');
-    angular.mock.module('ui.calendar', function($provide) {
-      $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
-    });
     angular.mock.module(function($provide) {
       $provide.decorator('calendarUtils', function($delegate) {
         return angular.extend($delegate, calendarUtilsMock);
