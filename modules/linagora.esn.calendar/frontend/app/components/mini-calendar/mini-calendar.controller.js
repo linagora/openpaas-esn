@@ -13,14 +13,12 @@
     'fcMoment',
     'UI_CONFIG',
     'CALENDAR_EVENTS',
-    'uiCalendarConfig',
     'calendarEventSource',
     'calendarService',
     'miniCalendarService',
     'notificationFactory',
     'calendarCurrentView',
     'cachedEventSource',
-    'uuid4',
     '_'
   ];
 
@@ -33,14 +31,12 @@
     fcMoment,
     UI_CONFIG,
     CALENDAR_EVENTS,
-    uiCalendarConfig,
     calendarEventSource,
     calendarService,
     miniCalendarService,
     notificationFactory,
     calendarCurrentView,
     cachedEventSource,
-    uuid4,
     _) {
 
       var calendarDeffered = $q.defer();
@@ -48,9 +44,9 @@
       var currentView = calendarCurrentView.get();
 
       $scope.miniCalendarConfig = angular.extend({}, UI_CONFIG.calendar, UI_CONFIG.miniCalendar);
-      $scope.miniCalendarId = uuid4.generate();
       $scope.events = [];
       $scope.homeCalendarViewMode = currentView.name || UI_CONFIG.calendar.defaultView;
+      $scope.calendarReady = calendarDeffered.resolve.bind(calendarDeffered);
 
       var prev = calendarPromise.then.bind(calendarPromise, function(cal) {
         cal.fullCalendar('prev');
@@ -96,7 +92,9 @@
       };
 
       function windowResize() {
-        uiCalendarConfig.calendars[$scope.miniCalendarId].fullCalendar('render');
+        calendarPromise.then(function(calendar) {
+          calendar.fullCalendar('render');
+        });
       }
 
       var windowJQuery = angular.element($window);
@@ -110,15 +108,13 @@
         windowJQuery.off('resize', windowResize);
       }
 
-      var calendarResolved = false;
+      var firstViewRender = true;
 
       $scope.miniCalendarConfig.viewRender = function(view) {
-        if (!calendarResolved) {
-          calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.miniCalendarId]);
-          unregisterWindowResize();
-          calendarResolved = true;
-        }
+        calendarCurrentView.setMiniCalendarView(view);
         $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, view);
+        firstViewRender && unregisterWindowResize();
+        firstViewRender = false;
       };
 
       $scope.miniCalendarConfig.eventClick = function(event) {

@@ -1,12 +1,12 @@
 'use strict';
-/* global chai, sinon: false */
+/* global chai, sinon, _: false */
 var expect = chai.expect;
 
 describe('The mini-calendar controller', function() {
 
   var $scope, $rootScope, $controller, $q, $window, fcMoment, fcMethodMock, calendarServiceMock, initController,
-    miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, uiCalendarConfigMock,
-    calendarCurrentViewMock, CALENDAR_EVENTS, cachedEventSourceMock, uniqueId, uuid4Mock, calWrapper;
+    miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarCurrentViewMock,
+      CALENDAR_EVENTS, cachedEventSourceMock, calWrapper;
 
   function sameDayMatcher(day) {
     return function(_day) {
@@ -16,9 +16,6 @@ describe('The mini-calendar controller', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
-    angular.mock.module('ui.calendar', function($provide) {
-      $provide.constant('uiCalendarConfig', uiCalendarConfigMock);
-    });
 
     calendarServiceMock = {
       listCalendars: function(userId) {
@@ -40,21 +37,17 @@ describe('The mini-calendar controller', function() {
       })
     };
 
-    uniqueId = 'this is supposed to be a very unique id';
-
     miniCalendarServiceMock = {
       getWeekAroundDay: sinon.stub().returns({firstWeekDay: null, nextFirstWeekDay: null}),
       miniCalendarWrapper: angular.identity
     };
 
-    uuid4Mock = {
-      generate: sinon.stub().returns(uniqueId)
-    };
-
     calendarEventSourceMock = {};
 
     calendarCurrentViewMock = {
-      save: angular.noop,
+      set: sinon.spy(),
+      getMiniCalendarView: sinon.stub().returns({}),
+      setMiniCalendarView: sinon.spy(),
       get: sinon.stub().returns({})
     };
 
@@ -72,12 +65,6 @@ describe('The mini-calendar controller', function() {
         return fcMethodMock[name].apply(this, Array.prototype.slice.call(arguments, 1));
       }
     };
-
-    uiCalendarConfigMock = {
-      calendars: {}
-    };
-
-    uiCalendarConfigMock.calendars[uniqueId] = calendar;
 
     calendarEventSourceMock = function(href) {
       expect(href).to.equals('href');
@@ -103,11 +90,9 @@ describe('The mini-calendar controller', function() {
     angular.mock.module(function($provide) {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarEventSource', calendarEventSourceMock);
-      $provide.value('uiCalendarConfig', uiCalendarConfigMock);
       $provide.value('miniCalendarService', miniCalendarServiceMock);
       $provide.value('cachedEventSource', cachedEventSourceMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
-      $provide.value('uuid4', uuid4Mock);
       $provide.constant('UI_CONFIG', UI_CONFIG_MOCK);
     });
 
@@ -143,16 +128,19 @@ describe('The mini-calendar controller', function() {
 
   it('should call render on window resize if viewRender was never called', function() {
     initController();
+    $scope.calendarReady(calendar);
     angular.element($window).resize();
     $scope.miniCalendarConfig.viewRender();
+    $scope.$digest();
     angular.element($window).resize();
+    $scope.$digest();
     expect(fcMethodMock.render).to.have.been.calledOnce;
   });
 
   it('should change view on VIEW_TRANSLATION only when mobile mini calendar is displayed', function() {
     initController();
     ['prev', 'next'].forEach(function(action) {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
 
       $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
 
@@ -169,7 +157,7 @@ describe('The mini-calendar controller', function() {
 
   it('should call fullCalendar next on swipeRight', function() {
     initController();
-    $scope.miniCalendarConfig.viewRender();
+    $scope.calendarReady(calendar);
     $scope.swipeRight();
     $scope.$digest();
     expect(fcMethodMock.prev).to.have.been.calledOnce;
@@ -177,7 +165,7 @@ describe('The mini-calendar controller', function() {
 
   it('should call fullCalendar next on swipeLeft', function() {
     initController();
-    $scope.miniCalendarConfig.viewRender();
+    $scope.calendarReady(calendar);
     $scope.swipeLeft();
     $scope.$digest();
     expect(fcMethodMock.next).to.have.been.calledOnce;
@@ -194,11 +182,6 @@ describe('The mini-calendar controller', function() {
       initController();
     });
 
-    it('should use uuid4.generate for miniCalendarId', function() {
-      expect(uuid4Mock.generate).to.have.been.calledOnce;
-      expect($scope.miniCalendarId).to.equal(uniqueId);
-    });
-
     it('should select and go to the current view when initializing the mini calendar', function() {
       var day = fcMoment('1940-03-10');
 
@@ -209,7 +192,7 @@ describe('The mini-calendar controller', function() {
 
       initController();
 
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
 
       expect(fcMethodMock.gotoDate).to.have.been.calledWith(sinon.match(sameDayMatcher(day)));
@@ -222,7 +205,7 @@ describe('The mini-calendar controller', function() {
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE when a day is selected', function(done) {
       var day = fcMoment();
 
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
 
       var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
         expect(day.isSame(_day, 'day')).to.be.true;
@@ -236,7 +219,7 @@ describe('The mini-calendar controller', function() {
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE when a day is selected', function(done) {
       var day = fcMoment();
 
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
 
       var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         unregister();
@@ -249,7 +232,7 @@ describe('The mini-calendar controller', function() {
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = fcMoment();
 
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
 
       var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
         expect(day.isSame(_day, 'day')).to.be.true;
@@ -263,7 +246,7 @@ describe('The mini-calendar controller', function() {
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, when a event is clicked', function(done) {
       var day = fcMoment();
 
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
 
       var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         unregister();
@@ -276,7 +259,7 @@ describe('The mini-calendar controller', function() {
     it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with day as viewMode', function(done) {
       var day = fcMoment();
 
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
 
       fcMethodMock.select = function(start, end) {
@@ -291,7 +274,7 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in day view', function() {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
       var day = fcMoment();
 
@@ -304,7 +287,7 @@ describe('The mini-calendar controller', function() {
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in week view', function() {
       $scope.homeCalendarViewMode = 'agendaWeek';
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
 
       miniCalendarServiceMock.getWeekAroundDay = sinon.spy(function(config, day) {
@@ -321,7 +304,7 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with week as view mode', function() {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
 
       miniCalendarServiceMock.getWeekAroundDay = sinon.stub().returns({firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay});
@@ -333,7 +316,7 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should unselect on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with month as view mode', function() {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
 
       $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'month', start: null});
       $scope.$digest();
@@ -341,7 +324,7 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should select the good period when user select a day in the small calendar and when the big calendar is in month view', function() {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       var day = fcMoment();
 
       $scope.homeCalendarViewMode = 'month';
@@ -360,13 +343,13 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should wrap calendars inside a miniCalendarWrapper', function() {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
       expect(miniCalendarServiceMock.miniCalendarWrapper).to.have.been.calledWith(calendar, ['anEventSource']);
     });
 
     it('should wrap calendars inside cachedEventSource.wrapEventSource', function() {
-      $scope.miniCalendarConfig.viewRender();
+      $scope.calendarReady(calendar);
       $scope.$digest();
       expect(cachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', ['anEventSource']);
     });
@@ -375,8 +358,7 @@ describe('The mini-calendar controller', function() {
       return function() {
         var event = {id: 'anId', start: fcMoment()};
 
-        calWrapper.modifyEvent = sinon.spy();
-        $scope.miniCalendarConfig.viewRender();
+        $scope.calendarReady(calendar);
         $rootScope.$broadcast(CALENDAR_EVENTS[nameOfEvent], event);
         $scope.$digest();
         expect(calWrapper.rerender).to.have.been.calledOnce;
