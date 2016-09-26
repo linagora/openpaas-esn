@@ -12,7 +12,6 @@
     '$state',
     '$timeout',
     '$window',
-    'uiCalendarConfig',
     'usSpinnerService',
     'cachedEventSource',
     'calendarCurrentView',
@@ -42,7 +41,6 @@
     $state,
     $timeout,
     $window,
-    uiCalendarConfig,
     usSpinnerService,
     cachedEventSource,
     calendarCurrentView,
@@ -98,7 +96,7 @@
 
       $scope.uiConfig.calendar.defaultDate = currentView.start || $scope.uiConfig.calendar.defaultDate;
       $scope.uiConfig.calendar.defaultView = currentView.name || $scope.uiConfig.calendar.defaultView;
-      $scope.uiConfig.calendar.eventRender = $scope.eventRender;
+
 
       /*
        * "eventAfterAllRender" is called when all events are fetched but it
@@ -113,6 +111,7 @@
       $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize.bind(null, true);
       $scope.uiConfig.calendar.select = select;
       $scope.uiConfig.calendar.loading = loading;
+      $scope.calendarReady = calendarDeffered.resolve.bind(calendarDeffered);
 
       activate();
 
@@ -187,7 +186,6 @@
       }
 
       function viewRender(view) {
-        calendarDeffered.resolve(uiCalendarConfig.calendars[$scope.calendarHomeId]);
         $timeout($scope.resizeCalendarHeight, 1000);
         calendarCurrentView.set(view);
         $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, view);
@@ -218,6 +216,14 @@
         $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, _rerenderCalendar),
         $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, _rerenderCalendar),
         $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, _rerenderCalendar),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TODAY, calendarPromise.then.bind(calendarPromise, function(calendar) {
+          calendar.fullCalendar('today');
+        }, null)),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, function(event, viewType) {
+          calendarPromise.then(function(calendar) {
+            calendar.fullCalendar('changeView', viewType);
+          });
+        }),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) { // eslint-disable-line
           calendarPromise.then(function(cal) {
             if (data.hidden) {
@@ -302,5 +308,4 @@
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
       }
   }
-
 })();

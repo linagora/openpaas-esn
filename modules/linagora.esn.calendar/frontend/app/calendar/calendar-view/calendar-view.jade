@@ -2,5 +2,5 @@
   mini-calendar-mobile(calendar-home-id="calendarHomeId").initial-state.hidden-md.hidden-lg
   .text-center
     .throbber(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5', spinner-key='calendar')
-  .main-calendar( ng-class="{activeCalendar: hideCalendar}", ui-calendar="uiConfig.calendar", ng-model="eventSources", calendar="{{calendarHomeId}}", ng-swipe-left="swipeLeft()", ng-swipe-right="swipeRight()", ng-swipe-disable-mouse)
+  esn-calendar.main-calendar(config='uiConfig.calendar', calendar-ready='calendarReady', ng-class="{activeCalendar: hideCalendar}", ng-swipe-left="swipeLeft()", ng-swipe-right="swipeRight()", ng-swipe-disable-mouse)
   event-create-button(ng-show="$state.includes('calendar.main')")
