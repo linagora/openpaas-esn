@@ -7,7 +7,8 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxJmapItemService, infiniteListService;
+  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService;
+  var INBOX_EVENTS;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
@@ -30,12 +31,17 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxJmapItemService_, _infiniteListService_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxJmapItemService_, _infiniteListService_,
+                             _inboxSelectionService_, _INBOX_EVENTS_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
     inboxJmapItemService = _inboxJmapItemService_;
     infiniteListService = _infiniteListService_;
+    inboxSelectionService = _inboxSelectionService_;
+    INBOX_EVENTS = _INBOX_EVENTS_;
+
+    inboxSelectionService.toggleItemSelection = sinon.spy(inboxSelectionService.toggleItemSelection);
 
     infiniteListService.addElement = sinon.spy(infiniteListService.addElement);
     infiniteListService.removeElement = sinon.spy(infiniteListService.removeElement);
@@ -84,6 +90,39 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
           expect(inboxJmapItemService[action]).to.have.been.called;
         });
       });
+    });
+
+    describe('The select function', function() {
+
+      var $event, item;
+
+      beforeEach(angular.mock.inject(function() {
+        $event = {
+          preventDefault: sinon.spy(),
+          stopPropagation: sinon.spy()
+        };
+        item = { a: 'b' };
+      }));
+
+      function select() {
+        return element.controller('inboxThreadListItem').select(item, $event);
+      }
+
+      it('should stop propagation of the event and prevent default action', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect($event.preventDefault).to.have.been.calledWith();
+        expect($event.stopPropagation).to.have.been.calledWith();
+      });
+
+      it('should delegate to inboxSelectionService', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item);
+      });
+
     });
 
     describe('openThread fn', function() {
@@ -310,6 +349,39 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
           expect(inboxJmapItemService[action]).to.have.been.called;
         });
       });
+    });
+
+    describe('The select function', function() {
+
+      var $event, item;
+
+      beforeEach(angular.mock.inject(function() {
+        $event = {
+          preventDefault: sinon.spy(),
+          stopPropagation: sinon.spy()
+        };
+        item = { a: 'b' };
+      }));
+
+      function select() {
+        return element.controller('inboxThreadListItem').select(item, $event);
+      }
+
+      it('should stop propagation of the event and prevent default action', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect($event.preventDefault).to.have.been.calledWith();
+        expect($event.stopPropagation).to.have.been.calledWith();
+      });
+
+      it('should delegate to inboxSelectionService', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item);
+      });
+
     });
 
     describe('openEmail fn', function() {
@@ -560,6 +632,56 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         expect($scope.swipeClose).to.have.been.calledWith();
       });
 
+    });
+
+  });
+
+  describe('The inboxGroupToggleSelection directive', function() {
+
+    var item1 = { id: 1, selectable: true },
+        item2 = { id: 2 },
+        item3 = { id: 3, selectable: true };
+
+    beforeEach(function() {
+      $scope.group = {
+        elements: [item1, item2, item3]
+      };
+
+      compileDirective('<div inbox-group-toggle-selection />');
+    });
+
+    it('should initialize scope.selected to false', function() {
+      expect($scope.selected).to.equal(false);
+    });
+
+    it('should select all selectable elements on click', function() {
+      compileDirective('<div inbox-group-toggle-selection />').click();
+
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item1, true);
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, true);
+    });
+
+    it('should update scope.selected on ITEM_SELECTION_CHANGED event', function() {
+      compileDirective('<div inbox-group-toggle-selection />');
+
+      $scope.group.elements[0].selected = true;
+      $scope.group.elements[0].selected = true;
+      $scope.$emit(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
+
+      expect($scope.selected).to.equal(true);
+    });
+
+    it('should unselect all selectable elements when they are all selected on click', function() {
+      compileDirective('<div inbox-group-toggle-selection />');
+
+      $scope.group.elements[0].selected = true;
+      $scope.group.elements[0].selected = true;
+      $scope.$emit(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
+
+      element.click();
+
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item1, false);
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, false);
     });
 
   });

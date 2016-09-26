@@ -734,8 +734,8 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function _updateUnreadMessages(mailboxIds, adjust) {
-      mailboxIds.forEach(function(mailboxId) {
-        var mailbox = _.find(inboxMailboxesCache, { id: mailboxId });
+      mailboxIds.forEach(function(id) {
+        var mailbox = _findMailboxInCache(id);
 
         if (mailbox) {
           mailbox.unreadMessages = Math.max(mailbox.unreadMessages + adjust, 0);
@@ -977,7 +977,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction, jmap, jmapHelper, mailboxesService) {
+  .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
+                                            jmap, jmapHelper, mailboxesService) {
     function moveToTrash(item, options) {
       return backgroundAction('Move of "' + item.subject + '" to trash', function() {
         return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1281,10 +1282,50 @@ angular.module('linagora.esn.unifiedinbox')
         scope.infiniteScrollDisabled = false;
         scope.infiniteScrollCompleted = false;
 
+        scope.loadMoreElements.destroy();
         setFilter();
         scope.loadMoreElements();
       });
 
       setFilter();
+    };
+  })
+
+  .factory('inboxSelectionService', function(_) {
+    var selectedItems = [],
+        selecting = false;
+
+    function toggleItemSelection(item, shouldSelect) {
+      var selected = angular.isDefined(shouldSelect) ? shouldSelect : !item.selected;
+
+      if (item.selected === selected) {
+        return;
+      }
+
+      item.selected = selected;
+
+      if (selected) {
+        selectedItems.push(item);
+      } else {
+        _.pull(selectedItems, item);
+      }
+
+      selecting = selectedItems.length > 0;
+    }
+
+    function unselectAllItems() {
+      selectedItems.forEach(function(item) {
+        item.selected = false;
+      });
+
+      selectedItems.length = 0;
+      selecting = false;
+    }
+
+    return {
+      isSelecting: function() { return selecting; },
+      getSelectedItems: function() { return selectedItems; },
+      toggleItemSelection: toggleItemSelection,
+      unselectAllItems: unselectAllItems
     };
   });

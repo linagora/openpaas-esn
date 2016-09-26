@@ -45,16 +45,6 @@
       }
     }
 
-    .list-image {
-      .flex-noshrink;
-
-      height: 40px;
-
-      img {
-        .avatar(40px);
-      }
-    }
-
     .indicators {
       .mdi-paperclip {
         font-size: 18px;
@@ -86,14 +76,27 @@
 
   .block-header {
     .inbox-ng-leave;
+    .flex-space-between;
 
     margin: 20px 0 10px 0;
     padding: 0 15px;
+    color: lighten(@secondaryTextColor, 20%);
 
     h2 {
       font-size: 1em;
-      color: lighten(@secondaryTextColor, 20%);
       text-transform: capitalize;
+    }
+
+    .block-header-actions {
+      .flex-start;
+
+      .mdi {
+        font-size: 1.5em;
+
+        &.selected {
+          color: @primaryColor;
+        }
+      }
     }
   }
 
@@ -115,20 +118,6 @@
   .inbox-root {
     .clickable:hover {
       color: @text-color;
-    }
-  }
-}
-
-@media (min-width: @screen-xl-min) {
-  .inbox-root {
-    .inbox-main {
-      .list-image {
-        height: 28px;
-
-        img {
-          .avatar(28px);
-        }
-      }
     }
   }
 }

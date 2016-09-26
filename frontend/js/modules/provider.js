@@ -299,25 +299,32 @@ angular.module('esn.provider', [
     };
   })
 
-  .factory('infiniteScrollOnGroupsHelper', function($rootScope, infiniteScrollHelperBuilder, infiniteListService,
-                                                    INFINITE_LIST_EVENTS) {
+  .factory('infiniteScrollOnGroupsHelper', function(infiniteScrollHelperBuilder, infiniteListService, INFINITE_LIST_EVENTS) {
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
 
-      scope.groups = groups;
-      scope.groupedElements = groups.getGroupedElements();
-
-      scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, item) {
+      var unregisterAddElementListener = scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, item) {
         scope.groups.addElement(item);
       });
-
-      scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
+      var unregisterRemoveElementListener = scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
         scope.groups.removeElement(item);
         infiniteListService.loadMoreElements();
       });
 
-      return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
+      var helper = infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
         groups.addAll(newElements);
       });
+
+      helper.destroy = function() {
+        unregisterAddElementListener();
+        unregisterRemoveElementListener();
+
+        scope.groups.reset();
+      };
+
+      scope.groups = groups;
+      scope.groupedElements = groups.getGroupedElements();
+
+      return helper;
     };
   });

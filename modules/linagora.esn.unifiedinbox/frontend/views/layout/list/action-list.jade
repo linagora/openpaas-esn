@@ -1,0 +1,16 @@
+.action-list(ng-click='$hide(); $event.stopPropagation()')
+  .action
+    a(ng-click='ctrl.markAsUnread()', title="#{__('Mark as unread')}")
+      i.mdi.mdi-eye-off
+      span.label
+        | #{__('Mark as unread')}
+  .action
+    a(ng-click='ctrl.markAsFlagged()', title="#{__('Star')}")
+      i.mdi.mdi-star
+      span.label
+        | #{__('Star')}
+  .action
+    a(ng-click='ctrl.unmarkAsFlagged()', title="#{__('Unstar')}")
+      i.mdi.mdi-star-off
+      span.label
+        | #{__('Unstar')}

@@ -41,7 +41,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .directive('inboxMessageListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
-                                              inboxSwipeHelper, infiniteListService) {
+                                              inboxSwipeHelper, infiniteListService, inboxSelectionService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -49,6 +49,13 @@ angular.module('linagora.esn.unifiedinbox')
 
         // need this scope value for action list
         $scope.email = $scope.item;
+
+        self.select = function(item, $event) {
+          $event.stopPropagation();
+          $event.preventDefault();
+
+          inboxSelectionService.toggleItemSelection(item);
+        };
 
         self.openEmail = function(email) {
           if (email.isDraft) {
@@ -96,7 +103,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .directive('inboxThreadListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
-                                             inboxSwipeHelper, infiniteListService) {
+                                             inboxSwipeHelper, infiniteListService, inboxSelectionService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -104,6 +111,13 @@ angular.module('linagora.esn.unifiedinbox')
 
         // need this scope value for action list
         $scope.thread = $scope.item;
+
+        self.select = function(item, $event) {
+          $event.stopPropagation();
+          $event.preventDefault();
+
+          inboxSelectionService.toggleItemSelection(item);
+        };
 
         self.openThread = function(thread) {
           if (thread.email.isDraft) {
@@ -147,5 +161,34 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/twitter/list/list-item.html'
+    };
+  })
+
+  .directive('inboxGroupToggleSelection', function(inboxSelectionService, _, INBOX_EVENTS) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        function getSelectableElements() {
+          return _.filter(scope.group.elements, { selectable: true });
+        }
+
+        scope.selected = false;
+
+        element.on('click', function() {
+          scope.$apply(function() {
+            var selected = !scope.selected;
+
+            getSelectableElements().forEach(function(item) {
+              inboxSelectionService.toggleItemSelection(item, selected);
+            });
+          });
+        });
+
+        scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
+          var selectableElements = getSelectableElements();
+
+          scope.selected = selectableElements.length > 0 && _.all(selectableElements, { selected: true });
+        });
+      }
     };
   });

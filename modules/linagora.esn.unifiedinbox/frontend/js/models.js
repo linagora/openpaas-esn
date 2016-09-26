@@ -23,7 +23,7 @@ angular.module('linagora.esn.unifiedinbox')
     return Emailer;
   })
 
-  .factory('Email', function(mailboxesService, emailSendingService, Emailer, _) {
+  .factory('Email', function(mailboxesService, emailSendingService, Emailer, _, Selectable) {
 
     function Email(email) {
       var isUnread = email.isUnread;
@@ -44,13 +44,13 @@ angular.module('linagora.esn.unifiedinbox')
       email.cc = _.map(email.cc, Emailer);
       email.bcc = _.map(email.bcc, Emailer);
 
-      return email;
+      return Selectable(email);
     }
 
     return Email;
   })
 
-  .factory('Thread', function(_) {
+  .factory('Thread', function(_, Selectable) {
 
     function _defineFlagProperty(object, flag) {
       Object.defineProperty(object, flag, {
@@ -80,11 +80,34 @@ angular.module('linagora.esn.unifiedinbox')
 
       thread.setEmails(emails);
 
-      return thread;
+      return Selectable(thread);
     }
 
     return Thread;
 
+  })
+
+  .factory('Selectable', function($rootScope, INBOX_EVENTS) {
+    function Selectable(item) {
+      var isSelected = false;
+
+      item.selectable = true;
+
+      Object.defineProperty(item, 'selected', {
+        enumerable: true,
+        get: function() { return isSelected; },
+        set: function(selected) {
+          if (isSelected !== selected) {
+            isSelected = selected;
+            $rootScope.$broadcast(INBOX_EVENTS.ITEM_SELECTION_CHANGED, item);
+          }
+        }
+      });
+
+      return item;
+    }
+
+    return Selectable;
   })
 
   .factory('Mailbox', function($filter, inboxMailboxesCache, _, INBOX_DISPLAY_NAME_SIZE) {

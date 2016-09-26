@@ -3,13 +3,14 @@
 angular.module('linagora.esn.unifiedinbox')
 
   .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders,
-                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, inboxFilteringService) {
+                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, inboxFilteringService, inboxSelectionService) {
     var aggregator;
 
     function load() {
       return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
     }
 
+    inboxSelectionService.unselectAllItems();
     inboxFilteringAwareInfiniteScroll($scope, function() {
       return inboxFilteringService.getFiltersForUnifiedInbox();
     }, function() {
@@ -571,4 +572,37 @@ angular.module('linagora.esn.unifiedinbox')
         emailer.resolve();
       }
     });
+  })
+
+  .controller('inboxListSubheaderController', function(inboxSelectionService, inboxJmapItemService, jmap, withJmapClient,
+                                                       Mailbox, infiniteListService) {
+    this.isSelecting = inboxSelectionService.isSelecting;
+    this.getSelectedItems = inboxSelectionService.getSelectedItems;
+    this.unselectAllItems = inboxSelectionService.unselectAllItems;
+
+    function executeOnSelectedItems(action) {
+      return function() {
+        inboxSelectionService.getSelectedItems().forEach(action);
+        inboxSelectionService.unselectAllItems();
+      };
+    }
+
+    this.markAsUnread = executeOnSelectedItems(inboxJmapItemService.markAsUnread);
+    this.markAsRead = executeOnSelectedItems(inboxJmapItemService.markAsRead);
+    this.unmarkAsFlagged = executeOnSelectedItems(inboxJmapItemService.unmarkAsFlagged);
+    this.markAsFlagged = executeOnSelectedItems(inboxJmapItemService.markAsFlagged);
+
+    this.moveToTrash = function() {
+      return withJmapClient(function(client) {
+        return client.getMailboxWithRole(jmap.MailboxRole.TRASH).then(Mailbox);
+      })
+        .then(function(trash) {
+          inboxSelectionService.getSelectedItems().forEach(function(item) {
+            infiniteListService.actionRemovingElement(function() {
+              return inboxJmapItemService.moveToMailbox(item, trash);
+            }, item);
+          });
+          inboxSelectionService.unselectAllItems();
+        });
+    };
   });

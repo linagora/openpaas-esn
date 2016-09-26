@@ -4437,4 +4437,97 @@ describe('The Unified Inbox Angular module services', function() {
       expect($scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning no items
     });
   });
+
+  describe('The inboxSelectionService factory', function() {
+
+    var inboxSelectionService;
+
+    beforeEach(inject(function(_inboxSelectionService_) {
+      inboxSelectionService = _inboxSelectionService_;
+    }));
+
+    describe('The isSelecting function', function() {
+
+      it('should return false when no items are selected', function() {
+        expect(inboxSelectionService.isSelecting()).to.equal(false);
+      });
+
+      it('should return true when at least one item is selected', function() {
+        inboxSelectionService.toggleItemSelection({});
+
+        expect(inboxSelectionService.isSelecting()).to.equal(true);
+      });
+
+    });
+
+    describe('The getSelectedItems function', function() {
+
+      it('should return an empty array when no items are selected', function() {
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([]);
+      });
+
+      it('should return the selected items when at least one item is selected', function() {
+        inboxSelectionService.toggleItemSelection({ id: 1 });
+        inboxSelectionService.toggleItemSelection({ id: 2 });
+
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([
+          { id: 1, selected: true },
+          { id: 2, selected: true }
+        ]);
+      });
+
+    });
+
+    describe('The unselectAllItems function', function() {
+
+      it('should unselect all items', function() {
+        var item1 = { id: 1 },
+            item2 = { id: 2 };
+
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        inboxSelectionService.unselectAllItems();
+
+        expect(item1).to.deep.equal({ id: 1, selected: false });
+        expect(item2).to.deep.equal({ id: 2, selected: false });
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([]);
+      });
+
+    });
+
+    describe('The toggleItemSelection function', function() {
+
+      it('should select an unselected item, when called with a single argument', function() {
+        inboxSelectionService.toggleItemSelection({ id: 1 });
+
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([{ id: 1, selected: true }]);
+      });
+
+      it('should unselect an selected item, when called with a single argument', function() {
+        var item1 = { id: 1, selected: true };
+
+        inboxSelectionService.toggleItemSelection(item1);
+
+        expect(item1).to.deep.equal({ id: 1, selected: false });
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([]);
+      });
+
+      it('should select an item, when called with true as the second argument', function() {
+        var item1 = { id: 1 };
+
+        inboxSelectionService.toggleItemSelection(item1, true);
+
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([{ id: 1, selected: true }]);
+      });
+
+      it('should unselect an item, when called with false as the second argument', function() {
+        inboxSelectionService.toggleItemSelection({ id: 1, selected: true }, false);
+
+        expect(inboxSelectionService.getSelectedItems()).to.deep.equal([]);
+      });
+
+    });
+
+  });
+
 });

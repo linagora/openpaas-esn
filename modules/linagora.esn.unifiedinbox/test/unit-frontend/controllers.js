@@ -11,7 +11,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
       mailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
-      touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter;
+      touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
   var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, INFINITE_LIST_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
@@ -81,7 +81,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
                                           _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_,
-                                          _INFINITE_LIST_EVENTS_) {
+                                          _INFINITE_LIST_EVENTS_, _inboxSelectionService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -99,6 +99,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     Mailbox = _Mailbox_;
     Thread = _Thread_;
     esnPreviousState = _esnPreviousState_;
+    inboxSelectionService = _inboxSelectionService_;
 
     scope = $rootScope.$new();
   }));
@@ -145,6 +146,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           JMAP: {}
         }
       });
+    });
+
+    it('should reset selection', function() {
+      inboxSelectionService.toggleItemSelection({});
+
+      initController('unifiedInboxController');
+
+      expect(inboxSelectionService.isSelecting()).to.equal(false);
     });
 
     it('should call our inbox provider as expected when loadMoreElements is called twice', function() {
@@ -1908,6 +1917,187 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('inboxSidebarTwitterController');
 
       expect(scope.twitterAccounts).to.deep.equal([]);
+    });
+
+  });
+
+  describe('The inboxListSubheaderController controller', function() {
+
+    var controller, inboxJmapItemService, infiniteListService, item1, item2;
+
+    beforeEach(function() {
+      item1 = { id: 1 };
+      item2 = { id: 2 };
+
+      controller = $controller('inboxListSubheaderController', {
+        inboxJmapItemService: inboxJmapItemService = {
+          markAsUnread: sinon.spy(),
+          markAsRead: sinon.spy(),
+          unmarkAsFlagged: sinon.spy(),
+          markAsFlagged: sinon.spy(),
+          moveToMailbox: sinon.spy()
+        },
+        infiniteListService: infiniteListService = {
+          actionRemovingElement: sinon.spy(function(action) {
+            action();
+          })
+        }
+      });
+    });
+
+    it('should expose some utility functions from inboxSelectionService', function() {
+      ['isSelecting', 'getSelectedItems', 'unselectAllItems'].forEach(function(method) {
+        expect(controller[method]).to.be.a('Function');
+      });
+    });
+
+    describe('The markAsUnread function', function() {
+
+      it('should call inboxJmapItemService.markAsUnread for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsUnread();
+
+        expect(inboxJmapItemService.markAsUnread).to.have.been.calledWith(item1);
+        expect(inboxJmapItemService.markAsUnread).to.have.been.calledWith(item2);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsUnread();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The markAsRead function', function() {
+
+      it('should call inboxJmapItemService.markAsRead for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsRead();
+
+        expect(inboxJmapItemService.markAsRead).to.have.been.calledWith(item1);
+        expect(inboxJmapItemService.markAsRead).to.have.been.calledWith(item2);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsRead();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The markAsFlagged function', function() {
+
+      it('should call inboxJmapItemService.markAsFlagged for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsFlagged();
+
+        expect(inboxJmapItemService.markAsFlagged).to.have.been.calledWith(item1);
+        expect(inboxJmapItemService.markAsFlagged).to.have.been.calledWith(item2);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsFlagged();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The unmarkAsFlagged function', function() {
+
+      it('should call inboxJmapItemService.unmarkAsFlagged for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.unmarkAsFlagged();
+
+        expect(inboxJmapItemService.unmarkAsFlagged).to.have.been.calledWith(item1);
+        expect(inboxJmapItemService.unmarkAsFlagged).to.have.been.calledWith(item2);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.unmarkAsFlagged();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The moveToTrash function', function() {
+
+      beforeEach(function() {
+        jmapClient.getMailboxWithRole = sinon.spy(function() {
+          return $q.when({ id: 'trash', name: 'Trash' });
+        });
+      });
+
+      it('should fetch the "Trash" mailbox', function(done) {
+        controller.moveToTrash().then(function() {
+          expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should wrap the "Trash" mailbox into a Mailbox model', function(done) {
+        inboxSelectionService.toggleItemSelection(item1);
+
+        controller.moveToTrash().then(function() {
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item1, sinon.match({
+            id: 'trash',
+            name: 'Trash',
+            displayName: 'Trash'
+          }));
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should delegate to infiniteListService.actionRemovingElement calling moveToMailbox for all selected items', function(done) {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+
+        controller.moveToTrash().then(function() {
+          expect(infiniteListService.actionRemovingElement).to.have.been.calledTwice;
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item1);
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item2);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should unselect all items', function(done) {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+
+        controller.moveToTrash().then(function() {
+          expect(item1.selected).to.equal(false);
+          expect(item2.selected).to.equal(false);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
     });
 
   });

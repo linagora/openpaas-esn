@@ -502,13 +502,14 @@ describe('The esn.provider module', function() {
   });
 
   describe('infiniteScrollOnGroupsHelper', function() {
-    var ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, PROVIDER_INFINITY_LIST, infiniteScrollOnGroupsHelper, $q, $rootScope, elementGroupingTool;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, infiniteScrollOnGroupsHelper, $q, $rootScope, elementGroupingTool;
 
     beforeEach(function() {
       elementGroupingTool = {
         getGroupedElements: angular.noop,
         addElement: sinon.spy(),
-        removeElement: sinon.spy()
+        removeElement: sinon.spy(),
+        reset: sinon.spy()
       };
       ELEMENTS_PER_PAGE = 3;
       angular.mock.module(function($provide) {
@@ -540,6 +541,40 @@ describe('The esn.provider module', function() {
       scope.$emit(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, item);
 
       expect(scope.groups.removeElement).to.have.been.calledWith(item);
+    });
+
+    describe('The destroy function', function() {
+
+      it('should reset the groups', function() {
+        var scope = $rootScope.$new(),
+            helper = infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+
+        helper.destroy();
+        expect(scope.groups.reset).to.have.been.calledWith();
+      });
+
+      it('should unregister the ADD_ELEMENT listener', function() {
+        var scope = $rootScope.$new(),
+            item = { a: 'b' },
+            helper = infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+
+        helper.destroy();
+        scope.$emit(INFINITE_LIST_EVENTS.ADD_ELEMENT, item);
+
+        expect(scope.groups.removeElement).to.have.not.been.calledWith();
+      });
+
+      it('should unregister the REMOVE_ELEMENT listener', function() {
+        var scope = $rootScope.$new(),
+            item = { a: 'b' },
+            helper = infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+
+        helper.destroy();
+        scope.$emit(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, item);
+
+        expect(scope.groups.removeElement).to.have.not.been.calledWith();
+      });
+
     });
 
     describe('The return iterator', function() {

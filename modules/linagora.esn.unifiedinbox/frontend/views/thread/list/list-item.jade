@@ -1,9 +1,8 @@
-.inbox-thread-list-item.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{ leftTemplate }}")
+.inbox-thread-list-item.swipe(inbox-swipeable-list-item, swipe-right="onSwipeRight", swipe-left="onSwipeLeft", left-template="{{ leftTemplate }}", ng-class="{ selected: item.selected }")
   .inbox-list-item-content.clickable(
       ng-click="esnIsDragging || ctrl.openThread(item)",
       esn-draggable,
       inbox-draggable-list-item,
-      inbox-swipeable-list-item,
       esn-drag-message="{{ ::item.email.subject }}",
       esn-drag-data="item",
       esn-drag-class="dragging",
@@ -11,8 +10,11 @@
       esn-on-drop-failure="onDropFailure()"
     )
     .inbox-item-with-icon
-      .list-image.badge-container
-        inbox-emailer-avatar(emailer='::item.email.from')
+      .list-image.badge-container(ng-click="ctrl.select(item, $event)", desktop-hover="hovering = hover && !esnIsDragging")
+        inbox-emailer-avatar(ng-hide="hovering || item.selected", emailer='::item.email.from')
+        label.checkbox.clickable(ng-hide="!hovering && !item.selected")
+          input(type='checkbox', ng-model="item.selected")
+          i.input-helper
       .media-body
         .inbox-list-item-subject-and-from
           .inbox-subject.lv-title

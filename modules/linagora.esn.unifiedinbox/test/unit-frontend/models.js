@@ -168,6 +168,10 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Email({ id: 'id' }).from).to.equal(undefined);
     });
 
+    it('should return a Selectable', function() {
+      expect(new Email({ id: 'id' }).selectable).to.equal(true);
+    });
+
     describe('The hasReplyAll attribute', function() {
 
       var recipients;
@@ -264,6 +268,10 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]).hasAttachment).to.equal(true);
     });
 
+    it('should return a Selectable', function() {
+      expect(new Thread({ id: 'id' }).selectable).to.equal(true);
+    });
+
     describe('The setEmails function', function() {
 
       it('should replace thread.emails', function() {
@@ -298,6 +306,43 @@ describe('The Unified Inbox Angular module models', function() {
         expect(thread.hasAttachment).to.equal(false);
       });
 
+    });
+
+  });
+
+  describe('The Selectable factory', function() {
+
+    var $rootScope, Selectable, INBOX_EVENTS;
+
+    beforeEach(inject(function(_$rootScope_, _Selectable_, _INBOX_EVENTS_) {
+      $rootScope = _$rootScope_;
+      Selectable = _Selectable_;
+      INBOX_EVENTS = _INBOX_EVENTS_;
+    }));
+
+    it('should set selectable=true on the source item', function() {
+      expect(new Selectable({}).selectable).to.equal(true);
+    });
+
+    it('should broadcast a ITEM_SELECTION_CHANGED event when selected flag changes on the item', function(done) {
+      var selectable = new Selectable({});
+
+      $rootScope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function(event, item) {
+        expect(item).to.deep.equal({ selected: true, selectable: true });
+
+        done();
+      });
+
+      selectable.selected = true;
+    });
+
+    it('should not broadcast a ITEM_SELECTION_CHANGED event when selected flag does not change on the item', function(done) {
+      var selectable = new Selectable({});
+
+      $rootScope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, done);
+
+      selectable.selected = false;
+      done();
     });
 
   });
