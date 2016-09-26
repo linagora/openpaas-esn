@@ -82,7 +82,6 @@ module.exports = function(config) {
       'modules/**/frontend/app/**/*.js',
 
       'modules/**/test/unit-frontend/**/*.js',
-      'modules/**/frontend/app/**/*.spec.js',
 
       'modules/**/frontend/views/**/*.jade',
       'modules/**/frontend/app/**/*.jade',
