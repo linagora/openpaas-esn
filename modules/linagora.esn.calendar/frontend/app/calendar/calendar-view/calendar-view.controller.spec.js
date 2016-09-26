@@ -176,7 +176,7 @@ describe('The calendarViewController', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, fcMoment, CALENDAR_EVENTS) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, fcMoment, CALENDAR_EVENTS, eventUtils) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -188,6 +188,7 @@ describe('The calendarViewController', function() {
     this.CalendarShell = CalendarShell;
     this.fcMoment = fcMoment;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
+    this.eventUtils = eventUtils;
   }));
 
   afterEach(function() {
@@ -236,7 +237,8 @@ describe('The calendarViewController', function() {
 
   it('should be created and its scope initialized', function() {
     this.controller('calendarViewController', {$scope: this.scope});
-    expect(this.scope.uiConfig.calendar.eventRender).to.equal(this.scope.eventRender);
+
+    expect(this.scope.uiConfig.calendar.eventRender).to.equal(this.eventUtils.render);
     expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
   });
 

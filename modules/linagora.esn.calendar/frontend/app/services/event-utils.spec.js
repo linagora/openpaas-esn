@@ -37,6 +37,9 @@ describe('The eventUtils service', function() {
   Element.prototype.append = function() {
   };
 
+  Element.prototype.prepend = function() {
+  };
+
   var userEmail = 'aAttendee@open-paas.org';
 
   beforeEach(function() {
@@ -173,13 +176,26 @@ describe('The eventUtils service', function() {
       expect(element.class).to.deep.equal(['event-needs-action']);
     });
 
-    it('should add event-tentative class if current user is found in the TENTATIVE attendees', function() {
+    it('should add event-tentative class if current user is found in the TENTATIVE attendees in not allDay event', function() {
       event.attendees.push({
         email: userEmail,
         partstat: 'TENTATIVE'
       });
+      event.allDay = false;
       this.eventUtils.render(event, element);
       expect(element.class).to.deep.equal(['event-tentative']);
+    });
+
+    it('should add event-tentative class if current user is found in the TENTATIVE attendees in allDay event', function() {
+      event.attendees.push({
+        email: userEmail,
+        partstat: 'TENTATIVE'
+      });
+      event.allDay = true;
+      fcTitle.prepend = sinon.spy();
+      this.eventUtils.render(event, element);
+      expect(element.class).to.deep.equal(['event-allDay-tentative']);
+      expect(fcTitle.prepend).to.have.been.calledOnce;
     });
 
     it('should add the event-is-instance class for instances', function() {

@@ -73,7 +73,7 @@
       $scope.$state = $state;
       $scope.eventClick = eventClick;
       $scope.eventDropAndResize = eventDropAndResize;
-      $scope.eventRender = eventUtils.render;
+      $scope.uiConfig.calendar.eventRender = eventUtils.render;
       $scope.displayCalendarError = displayCalendarError;
       $scope.resizeCalendarHeight = withCalendar(function(calendar) {
         var height = windowJQuery.height() - calendar.offset().top;
@@ -98,7 +98,6 @@
 
       $scope.uiConfig.calendar.defaultDate = currentView.start || $scope.uiConfig.calendar.defaultDate;
       $scope.uiConfig.calendar.defaultView = currentView.name || $scope.uiConfig.calendar.defaultView;
-
 
       /*
        * "eventAfterAllRender" is called when all events are fetched but it
