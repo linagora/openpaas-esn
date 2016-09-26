@@ -19,15 +19,34 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
     $provide.value('THROTTLE_MILLISECONDS', defaultConfiguration.throttle);
   })
 
-  .factory('infiniteListService', function($rootScope, INFINITE_LIST_EVENTS) {
-    function _broadcast(event, element) {
-      $rootScope.$broadcast(INFINITE_LIST_EVENTS[event], element);
+  .factory('infiniteListService', function($rootScope, $q, INFINITE_LIST_EVENTS) {
+    function loadMoreElements() {
+      $rootScope.$broadcast(INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS);
+    }
+
+    function addElement(element) {
+      $rootScope.$broadcast(INFINITE_LIST_EVENTS.ADD_ELEMENT, element);
+    }
+
+    function removeElement(element) {
+      $rootScope.$broadcast(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, element);
+    }
+
+    function actionRemovingElement(action, element) {
+      removeElement(element);
+
+      return action().catch(function(err) {
+        addElement(element);
+
+        return $q.reject(err);
+      });
     }
 
     return {
-      loadMoreElements: _broadcast.bind(null, 'LOAD_MORE_ELEMENTS'),
-      addElement: _broadcast.bind(null, 'ADD_ELEMENT'),
-      removeElement: _broadcast.bind(null, 'REMOVE_ELEMENT')
+      loadMoreElements: loadMoreElements,
+      addElement: addElement,
+      removeElement: removeElement,
+      actionRemovingElement: actionRemovingElement
     };
   })
 

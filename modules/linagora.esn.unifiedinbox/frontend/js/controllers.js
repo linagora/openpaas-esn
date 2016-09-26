@@ -281,22 +281,16 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('inboxMoveItemController', function($rootScope, $scope, $stateParams, $q, mailboxesService,
-                                                  inboxJmapItemService, esnPreviousState, infiniteListService) {
+  .controller('inboxMoveItemController', function($scope, $stateParams, mailboxesService, inboxJmapItemService,
+                                                  esnPreviousState, infiniteListService) {
     mailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
-      var item = $stateParams.item;
-
-      infiniteListService.removeElement(item);
       esnPreviousState.go();
 
-      return inboxJmapItemService.moveToMailbox(item, mailbox)
-        .catch(function(err) {
-          infiniteListService.addElement(item);
-
-          return $q.reject(err);
-        });
+      return infiniteListService.actionRemovingElement(function() {
+        return inboxJmapItemService.moveToMailbox($stateParams.item, mailbox);
+      }, $stateParams.item);
     };
   })
 

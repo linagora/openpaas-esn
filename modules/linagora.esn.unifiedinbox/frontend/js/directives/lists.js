@@ -2,18 +2,18 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('inboxDraggableListItem', function() {
+  .directive('inboxDraggableListItem', function(infiniteListService) {
     return {
       restrict: 'A',
       link: function(scope) {
         scope.onDragEnd = function($dropped) {
           if ($dropped) {
-            scope.groups.removeElement(scope.item);
+            infiniteListService.removeElement(scope.item);
           }
         };
 
         scope.onDropFailure = function() {
-          return scope.groups.addElement(scope.item);
+          infiniteListService.addElement(scope.item);
         };
       }
     };
@@ -40,7 +40,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxMessageListItem', function($state, $q, $stateParams, newComposerService, _, inboxJmapItemService, inboxSwipeHelper) {
+  .directive('inboxMessageListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
+                                              inboxSwipeHelper, infiniteListService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -79,14 +80,9 @@ angular.module('linagora.esn.unifiedinbox')
         };
 
         self.moveToTrash = function() {
-          $scope.groups.removeElement($scope.item);
-
-          return inboxJmapItemService.moveToTrash($scope.item, { silent: true })
-            .catch(function(err) {
-              $scope.groups.addElement($scope.item);
-
-              return $q.reject(err);
-            });
+          return infiniteListService.actionRemovingElement(function() {
+            return inboxJmapItemService.moveToTrash($scope.item, { silent: true });
+          }, $scope.item);
         };
 
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
@@ -99,7 +95,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxThreadListItem', function($state, $q, $stateParams, newComposerService, _, inboxJmapItemService, inboxSwipeHelper) {
+  .directive('inboxThreadListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
+                                             inboxSwipeHelper, infiniteListService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -121,14 +118,9 @@ angular.module('linagora.esn.unifiedinbox')
         };
 
         self.moveToTrash = function() {
-          $scope.groups.removeElement($scope.item);
-
-          return inboxJmapItemService.moveToTrash($scope.item, { silent: true })
-            .catch(function(err) {
-              $scope.groups.addElement($scope.item);
-
-              return $q.reject(err);
-            });
+          return infiniteListService.actionRemovingElement(function() {
+            return inboxJmapItemService.moveToTrash($scope.item, { silent: true });
+          }, $scope.item);
         };
 
         ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {

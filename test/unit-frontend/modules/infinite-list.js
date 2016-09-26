@@ -1,7 +1,6 @@
-
 'use strict';
 
-/* global chai: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
@@ -121,6 +120,44 @@ describe('The Infinite-list Angular module', function() {
         });
 
         infiniteListService.removeElement(dummyElement);
+      });
+
+    });
+
+    describe('The actionRemovingElement function', function() {
+
+      it('should broadcast INFINITE_LIST_EVENTS.REMOVE_ELEMENT event, and execute the action', function(done) {
+        var eventHandler = sinon.spy(function(event, element) {
+          expect(element).to.equal(dummyElement);
+        });
+        var action = sinon.spy(function() {
+          expect(eventHandler).to.have.been.calledWith();
+
+          done();
+        });
+
+        $rootScope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, eventHandler);
+
+        infiniteListService.actionRemovingElement(action, dummyElement);
+      });
+
+      it('should broadcast INFINITE_LIST_EVENTS.REMOVE_ELEMENT event, execute the action and add the element back if the action fails', function(done) {
+        var eventHandler = sinon.spy(function(event, element) {
+          expect(element).to.equal(dummyElement);
+        });
+
+        $rootScope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, eventHandler);
+        $rootScope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, element) {
+          expect(eventHandler).to.have.been.calledWith();
+          expect(element).to.equal(dummyElement);
+
+          done();
+        });
+
+        infiniteListService.actionRemovingElement(function() {
+          return $q.reject();
+        }, dummyElement);
+        $rootScope.$digest();
       });
 
     });

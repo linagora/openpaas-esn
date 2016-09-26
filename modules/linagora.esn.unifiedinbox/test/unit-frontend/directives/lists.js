@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxJmapItemService;
+  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxJmapItemService, infiniteListService;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
@@ -30,11 +30,16 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxJmapItemService_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxJmapItemService_, _infiniteListService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
     inboxJmapItemService = _inboxJmapItemService_;
+    infiniteListService = _infiniteListService_;
+
+    infiniteListService.addElement = sinon.spy(infiniteListService.addElement);
+    infiniteListService.removeElement = sinon.spy(infiniteListService.removeElement);
+    infiniteListService.actionRemovingElement = sinon.spy(infiniteListService.actionRemovingElement);
 
     $scope = $rootScope.$new();
 
@@ -170,25 +175,15 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         controller = element.controller('inboxThreadListItem');
       });
 
-      it('should immediately remove thread from the list', function() {
+      it('should delegate to infiniteListService.actionRemovingElement', function() {
         controller.moveToTrash();
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+
+        expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, $scope.item);
       });
 
       it('should move thread to Trash folder using moveToMailboxWithRole method', function() {
         controller.moveToTrash();
         expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-      });
-
-      it('should add thread to the list again on failure', function(done) {
-        $scope.item.moveToMailboxWithRole = function() {return $q.reject(); };
-
-        controller.moveToTrash().then(done.bind(null, 'should reject'), function() {
-          expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
-          done();
-        });
-
-        $rootScope.$digest();
       });
 
     });
@@ -261,8 +256,8 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         $scope.onDragEnd(true);
 
-        expect($scope.groups.removeElement).to.have.been.calledOnce;
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+        expect(infiniteListService.removeElement).to.have.been.calledOnce;
+        expect(infiniteListService.removeElement).to.have.been.calledWith($scope.item);
       });
 
       it('should not remove item from list on drag end with no drop', function() {
@@ -275,7 +270,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         $scope.onDragEnd(false);
 
-        expect($scope.groups.removeElement).to.have.been.callCount(0);
+        expect(infiniteListService.removeElement).to.have.been.callCount(0);
       });
 
       it('should add item back to the list on drop failure', function() {
@@ -288,8 +283,8 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         $scope.onDropFailure();
 
-        expect($scope.groups.addElement).to.have.been.calledOnce;
-        expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+        expect(infiniteListService.addElement).to.have.been.calledOnce;
+        expect(infiniteListService.addElement).to.have.been.calledWith($scope.item);
 
       });
 
@@ -405,25 +400,16 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         controller = element.controller('inboxMessageListItem');
       });
 
-      it('should immediately remove message from the list', function() {
+      it('should delegate to infiniteListService.actionRemovingElement', function() {
         controller.moveToTrash();
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+
+        expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, $scope.item);
       });
 
       it('should move message to Trash folder using moveToMailboxWithRole method', function() {
         controller.moveToTrash();
+
         expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-      });
-
-      it('should add message to the list again on failure', function(done) {
-        $scope.item.moveToMailboxWithRole = function() {return $q.reject(); };
-
-        controller.moveToTrash().then(done.bind(null, 'should reject'), function() {
-          expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
-          done();
-        });
-
-        $rootScope.$digest();
       });
 
     });
@@ -496,8 +482,8 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         $scope.onDragEnd(true);
 
-        expect($scope.groups.removeElement).to.have.been.calledOnce;
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+        expect(infiniteListService.removeElement).to.have.been.calledOnce;
+        expect(infiniteListService.removeElement).to.have.been.calledWith($scope.item);
       });
 
       it('should not remove item from list on drag end with no drop', function() {
@@ -523,8 +509,8 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         $scope.onDropFailure();
 
-        expect($scope.groups.addElement).to.have.been.calledOnce;
-        expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+        expect(infiniteListService.addElement).to.have.been.calledOnce;
+        expect(infiniteListService.addElement).to.have.been.calledWith($scope.item);
 
       });
 
