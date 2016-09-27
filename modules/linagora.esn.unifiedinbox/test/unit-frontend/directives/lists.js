@@ -285,45 +285,48 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         expect(element.find('.clickable').attr('esn-draggable')).to.equal('esn-draggable');
       });
 
-      it('should remove item from list on drag end with a drop', function() {
-        compileDirective('<inbox-thread-list-item />');
+      describe('The getDragData function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return an array containing the item, if there is no selection', function() {
+          $scope.item = { id: 1 };
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(true);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect(infiniteListService.removeElement).to.have.been.calledOnce;
-        expect(infiniteListService.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragData()).to.deep.equal([$scope.item]);
+        });
+
+        it('should return an array containing the selected items _including_ the item, if there is a selection', function() {
+          var item1 = { id: 1 },
+              item2 = { id: 2 };
+
+          $scope.item = { id: 3 };
+          inboxSelectionService.toggleItemSelection(item1);
+          inboxSelectionService.toggleItemSelection(item2);
+
+          compileDirective('<inbox-thread-list-item />');
+
+          expect($scope.getDragData()).to.deep.equal([item1, item2, $scope.item]);
+          expect($scope.item.selected).to.equal(true);
+        });
+
       });
 
-      it('should not remove item from list on drag end with no drop', function() {
-        compileDirective('<inbox-thread-list-item />');
+      describe('The getDragMessage function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return the item\'s subject if dragging a single item', function() {
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(false);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect(infiniteListService.removeElement).to.have.been.callCount(0);
-      });
+          expect($scope.getDragMessage([{ id: 1, subject: 'subject' }])).to.equal('subject');
+        });
 
-      it('should add item back to the list on drop failure', function() {
-        compileDirective('<inbox-thread-list-item />');
+        it('should return the number of items if dragging multiple items', function() {
+          compileDirective('<inbox-thread-list-item />');
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          addElement: sinon.spy()
-        };
-
-        $scope.onDropFailure();
-
-        expect(infiniteListService.addElement).to.have.been.calledOnce;
-        expect(infiniteListService.addElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
+        });
 
       });
 
@@ -544,45 +547,48 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         expect(element.find('.clickable').attr('esn-draggable')).to.equal('esn-draggable');
       });
 
-      it('should remove item from list on drag end with a drop', function() {
-        compileDirective('<inbox-message-list-item />');
+      describe('The getDragData function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return an array containing the item, if there is no selection', function() {
+          $scope.item = { id: 1 };
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(true);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect(infiniteListService.removeElement).to.have.been.calledOnce;
-        expect(infiniteListService.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragData()).to.deep.equal([$scope.item]);
+        });
+
+        it('should return an array containing the selected items _including_ the item, if there is a selection', function() {
+          var item1 = { id: 1 },
+            item2 = { id: 2 };
+
+          $scope.item = { id: 3 };
+          inboxSelectionService.toggleItemSelection(item1);
+          inboxSelectionService.toggleItemSelection(item2);
+
+          compileDirective('<inbox-thread-list-item />');
+
+          expect($scope.getDragData()).to.deep.equal([item1, item2, $scope.item]);
+          expect($scope.item.selected).to.equal(true);
+        });
+
       });
 
-      it('should not remove item from list on drag end with no drop', function() {
-        compileDirective('<inbox-message-list-item />');
+      describe('The getDragMessage function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return the item\'s subject if dragging a single item', function() {
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(false);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect($scope.groups.removeElement).to.have.been.callCount(0);
-      });
+          expect($scope.getDragMessage([{ id: 1, subject: 'subject' }])).to.equal('subject');
+        });
 
-      it('should add item back to the list on drop failure', function() {
-        compileDirective('<inbox-message-list-item />');
+        it('should return the number of items if dragging multiple items', function() {
+          compileDirective('<inbox-thread-list-item />');
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          addElement: sinon.spy()
-        };
-
-        $scope.onDropFailure();
-
-        expect(infiniteListService.addElement).to.have.been.calledOnce;
-        expect(infiniteListService.addElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
+        });
 
       });
 

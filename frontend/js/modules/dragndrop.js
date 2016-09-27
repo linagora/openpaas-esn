@@ -51,8 +51,8 @@ angular.module('esn.dragndrop', [
  * @example
  * <div
  *   esn-draggable
- *   esn-drag-message="This message is dragging"
- *   esn-drag-data="data"
+ *   esn-drag-message="computeDragMessage($dragData)"
+ *   esn-drag-data="computeDragData()"
  *   esn-drag-class="dragging"
  *   esn-on-drag-start="onDragStart()"
  *   esn-on-drag-end="onDragEnd($dropped)"
@@ -80,23 +80,21 @@ angular.module('esn.dragndrop', [
     var startX, startY;
     var centerX, centerY;
 
-    var esnDragData = $parse(attrs.esnDragData)(scope);
+    var esnDragData = $parse(attrs.esnDragData);
+    var esnDragMessage = $parse(attrs.esnDragMessage);
     var esnDragClass = attrs.esnDragClass;
     var esnOnDragStart = $parse(attrs.esnOnDragStart);
     var esnOnDragEnd = $parse(attrs.esnOnDragEnd);
     var esnOnDropSuccess = $parse(attrs.esnOnDropSuccess);
     var esnOnDropFailure = $parse(attrs.esnOnDropFailure);
 
-    // Exposed so that we can prevent clicks, mousover effect, etc. throughout OP
-    $rootScope.esnIsDragging = false;
-
-    initTooltip(attrs.esnDragMessage);
+    $rootScope.esnIsDragging = false; // Exposed so that we can prevent clicks, mousover effect, etc. throughout OP
 
     element.attr('draggable', false); // disable native HTML5 drag
     element.on('mousedown', onMouseDown);
 
-    function initTooltip(content) {
-      content = escapeHtmlUtils.escapeHTML(content);
+    function initTooltip($dragData) {
+      var content = escapeHtmlUtils.escapeHTML(esnDragMessage(scope, { $dragData: $dragData }));
 
       tooltipElement = angular.element(
         '<div class="tooltip right esn-drag-tooltip">' +
@@ -130,9 +128,12 @@ angular.module('esn.dragndrop', [
     }
 
     function onDragStart() {
+      var $dragData = esnDragData(scope);
+
+      initTooltip($dragData);
       addDragClass();
-      esnOnDragStart(scope);
-      esnDragService.onDragStart(esnDragData);
+      esnOnDragStart(scope, { $dragData: $dragData });
+      esnDragService.onDragStart($dragData);
 
       var offset = element.offset();
 
@@ -147,8 +148,6 @@ angular.module('esn.dragndrop', [
     }
 
     function onDragEnd() {
-      removeDragClass();
-
       var dropped = esnDragService.onDragEnd({
         onDropSuccess: esnOnDropSuccess.bind(null, scope),
         onDropFailure: esnOnDropFailure.bind(null, scope)
@@ -167,7 +166,7 @@ angular.module('esn.dragndrop', [
         return $timeout(function() {
           tooltipElement.removeClass(ESN_DRAG_ANIMATION_CLASS);
           hideTooltip();
-        }, ESN_DRAG_ANIMATION_DURATION, false);
+        }, ESN_DRAG_ANIMATION_DURATION);
       }
 
     }
@@ -175,9 +174,11 @@ angular.module('esn.dragndrop', [
     function onMouseMove(event) {
       if ($rootScope.esnIsDragging) {
         onDrag(event);
-      } else if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
-          Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
-        $rootScope.esnIsDragging = true;
+      } else if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD || Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
+        $rootScope.$apply(function() {
+          $rootScope.esnIsDragging = true;
+        });
+
         onDragStart();
         onDrag(event);
       }
@@ -190,6 +191,8 @@ angular.module('esn.dragndrop', [
 
       if ($rootScope.esnIsDragging) {
         onDragEnd().then(function() {
+          removeDragClass();
+
           $rootScope.esnIsDragging = false;
         });
       }
@@ -257,13 +260,13 @@ angular.module('esn.dragndrop', [
       esnDroptargetClass && element.removeClass(esnDroptargetClass);
     }
 
-    function onMouseEnter(event) {
+    function onMouseEnter() {
       addDroptargetClass();
       esnOnDragEnter(scope);
       isDropCandidate = true;
     }
 
-    function onMouseLeave(event) {
+    function onMouseLeave() {
       removeDroptargetClass();
       esnOnDragExit(scope);
       isDropCandidate = false;

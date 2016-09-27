@@ -324,38 +324,56 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       describe('The onDrop function', function() {
-        var inboxJmapItemService;
+        var inboxJmapItemService, infiniteListService, inboxSelectionService;
 
-        beforeEach(inject(function(_inboxJmapItemService_) {
+        beforeEach(inject(function(_inboxJmapItemService_, _infiniteListService_, _inboxSelectionService_) {
           inboxJmapItemService = _inboxJmapItemService_;
+          infiniteListService = _infiniteListService_;
+          inboxSelectionService = _inboxSelectionService_;
 
-          inboxJmapItemService.moveToMailbox = sinon.spy();
+          inboxJmapItemService.moveToMailbox = sinon.spy(function() {
+            return $q.when();
+          });
+          infiniteListService.actionRemovingElement = sinon.spy(infiniteListService.actionRemovingElement);
+          inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
         }));
 
-        it('should move thread to mailbox if dragData is a thread', function() {
-          var thread = {
-            messageIds: ['m1'],
-            email: {
-              mailboxIds: ['2']
-            }
-          };
+        it('should unselect all items', function() {
+          isolateScope.onDrop([]);
 
-          isolateScope.onDrop(thread);
-
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledOnce;
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(thread, $scope.mailbox);
+          expect(inboxSelectionService.unselectAllItems).to.have.been.calledWith();
         });
 
-        it('should move message to mailbox if dragData is a message', function() {
-          var message = {
-            id: 'm1',
+        it('should move a single item to mailbox, delegating to actionRemovingElement', function() {
+          var item = {
+            messageIds: ['m1'],
             mailboxIds: ['2']
           };
 
-          isolateScope.onDrop(message);
+          isolateScope.onDrop([item]);
 
           expect(inboxJmapItemService.moveToMailbox).to.have.been.calledOnce;
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(message, $scope.mailbox);
+          expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, item);
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item, $scope.mailbox);
+        });
+
+        it('should move multiple items, delegating to actionRemovingElement', function() {
+          var item = {
+            messageIds: ['m1'],
+            mailboxIds: ['2']
+          };
+          var item2 = {
+            messageIds: ['m2'],
+            mailboxIds: ['2']
+          };
+
+          isolateScope.onDrop([item, item2]);
+
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledTwice;
+          expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, item);
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item, $scope.mailbox);
+          expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, item2);
+          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item2, $scope.mailbox);
         });
 
       });
@@ -366,33 +384,39 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
         beforeEach(inject(function(_mailboxesService_) {
           mailboxesService = _mailboxesService_;
-          mailboxesService.canMoveMessage = sinon.spy();
+          mailboxesService.canMoveMessage = sinon.spy(function() {
+            return true;
+          });
         }));
 
-        it('should check result from mailboxesService.canMoveMessage if $dragData is thread', function() {
-          var thread = {
-            messageIds: ['m1'],
-            email: {
-              mailboxIds: ['2']
-            }
-          };
-
-          isolateScope.isDropZone(thread);
-
-          expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(thread.email);
-        });
-
-        it('should check result from mailboxesService.canMoveMessage if $dragData is message', function() {
-          var message = {
+        it('should check result from mailboxesService.canMoveMessage for a single item', function() {
+          var item = {
             mailboxIds: ['2']
           };
 
-          isolateScope.isDropZone(message);
+          isolateScope.isDropZone([item]);
 
           expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(message);
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
         });
+
+        it('should check result from mailboxesService.canMoveMessage for multiple items', function() {
+          var item = {
+            id: '1',
+            mailboxIds: ['2']
+          };
+          var item2 = {
+            id: '2',
+            mailboxIds: ['3']
+          };
+
+          isolateScope.isDropZone([item, item2]);
+
+          expect(mailboxesService.canMoveMessage).to.have.been.calledTwice;
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item2, $scope.mailbox);
+        });
+
       });
 
     });

@@ -3,11 +3,10 @@
       ng-click="esnIsDragging || ctrl.openEmail(item)",
       esn-draggable,
       inbox-draggable-list-item,
-      esn-drag-message="{{ ::item.subject }}",
-      esn-drag-data="item",
+      esn-drag-message="getDragMessage($dragData)",
+      esn-drag-data="getDragData()",
       esn-drag-class="dragging",
-      esn-on-drag-end="onDragEnd($dropped)",
-      esn-on-drop-failure="onDropFailure()"
+      ng-class="{ dragging: esnIsDragging && item.selected }"
     )
     .inbox-item-with-icon
       .list-image.badge-container(ng-click="ctrl.select(item, $event)", desktop-hover="hovering = hover && !esnIsDragging")
