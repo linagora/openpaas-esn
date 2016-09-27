@@ -25,7 +25,7 @@ angular.module('linagora.esn.contact', [
   'esn.highlight'
 ])
   .config(function($stateProvider, routeResolver) {
-    $stateProvider.state('/contact', {
+    $stateProvider.state('contact', {
       url: '/contact',
       templateUrl: '/contact/views/contacts',
       controller: 'contactsListController',
