@@ -30,7 +30,8 @@
     'openEventForm',
     'CALENDAR_EVENTS',
     'DEFAULT_CALENDAR_ID',
-    'MAX_CALENDAR_RESIZE_HEIGHT'
+    'MAX_CALENDAR_RESIZE_HEIGHT',
+    '_'
   ];
 
   function calendarViewController(
@@ -59,7 +60,8 @@
     openEventForm,
     CALENDAR_EVENTS,
     DEFAULT_CALENDAR_ID,
-    MAX_CALENDAR_RESIZE_HEIGHT) {
+    MAX_CALENDAR_RESIZE_HEIGHT,
+    _) {
 
       var windowJQuery = angular.element($window);
       var calendarDeffered = $q.defer();
@@ -73,7 +75,7 @@
       $scope.eventDropAndResize = eventDropAndResize;
       $scope.eventRender = eventUtils.render;
       $scope.displayCalendarError = displayCalendarError;
-      $scope.resizeCalendarHeight = calendarPromise.then.bind(calendarPromise, function(calendar) {
+      $scope.resizeCalendarHeight = calendarThenBinding(function(calendar) {
         var height = windowJQuery.height() - calendar.offset().top;
 
         height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
@@ -81,11 +83,11 @@
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
       });
 
-      var prev = calendarPromise.then.bind(calendarPromise, function(cal) {
+      var prev = calendarThenBinding(function(cal) {
         cal.fullCalendar('prev');
       });
 
-      var next = calendarPromise.then.bind(calendarPromise, function(cal) {
+      var next = calendarThenBinding(function(cal) {
         cal.fullCalendar('next');
       });
 
@@ -116,6 +118,17 @@
       activate();
 
       ////////////
+      function buildThenCallback(arg, callback) {
+        return callback ? _.partialRight.apply(_, [callback].concat(arg)) : null;
+      }
+
+      function calendarThenBinding(successCallback, errorCallback) {
+        return function() {
+          var arg = Array.prototype.slice.call(arguments);
+
+          return calendarPromise.then(buildThenCallback(arg, successCallback), buildThenCallback(arg, errorCallback));
+        };
+      }
 
       function activate() {
         calendarService.calendarHomeId = $scope.calendarHomeId;
@@ -216,32 +229,26 @@
         $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, _rerenderCalendar),
         $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, _rerenderCalendar),
         $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, _rerenderCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TODAY, calendarPromise.then.bind(calendarPromise, function(calendar) {
+        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TODAY, calendarThenBinding(function(calendar) {
           calendar.fullCalendar('today');
-        }, null)),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, function(event, viewType) {
-          calendarPromise.then(function(calendar) {
-            calendar.fullCalendar('changeView', viewType);
-          });
-        }),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) { // eslint-disable-line
-          calendarPromise.then(function(cal) {
-            if (data.hidden) {
-              cal.fullCalendar('removeEventSource', $scope.eventSourcesMap[data.calendar.href]);
-            } else {
-              cal.fullCalendar('addEventSource', $scope.eventSourcesMap[data.calendar.href]);
-            }
-          });
-        }),
-        $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, newDate) { // eslint-disable-line
-          calendarPromise.then(function(calendar) {
-            var view = calendar.fullCalendar('getView');
+        })),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, calendarThenBinding(function(calendar, event, viewType) {
+          calendar.fullCalendar('changeView', viewType);
+        })),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, calendarThenBinding(function(calendar, event, data) { // eslint-disable-line
+          if (data.hidden) {
+            calendar.fullCalendar('removeEventSource', $scope.eventSourcesMap[data.calendar.href]);
+          } else {
+            calendar.fullCalendar('addEventSource', $scope.eventSourcesMap[data.calendar.href]);
+          }
+        })),
+        $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, calendarThenBinding(function(calendar, event, newDate) { // eslint-disable-line
+          var view = calendar.fullCalendar('getView');
 
-            if (newDate && !newDate.isBetween(view.start, view.end)) {
-              calendar.fullCalendar('gotoDate', newDate);
-            }
-          });
-        }),
+          if (newDate && !newDate.isBetween(view.start, view.end)) {
+            calendar.fullCalendar('gotoDate', newDate);
+          }
+        })),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
           $scope.calendars.push(calendar);
         }),
