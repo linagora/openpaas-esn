@@ -71,7 +71,7 @@
             allDay: event.allDay
           };
         } else {
-          delete(originalEvents[event.id]);
+          delete originalEvents[event.id];
         }
 
         forEachDayOfEvent(event, function(day) {
