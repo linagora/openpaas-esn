@@ -1,5 +1,5 @@
 'use strict';
-//
+
 // MongoDB utilities
 
 var MongoClient = require('mongodb').MongoClient;

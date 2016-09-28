@@ -1,4 +1,5 @@
 'use strict';
+
 var async = require('async');
 var escapeStringRegexp = require('escape-string-regexp');
 var ObjectId = require('mongoose').Types.ObjectId;

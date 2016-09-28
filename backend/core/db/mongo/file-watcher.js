@@ -1,4 +1,5 @@
 'use strict';
+
 var chokidar = require('chokidar');
 var fs = require('fs');
 var hash_file = require('hash_file');
