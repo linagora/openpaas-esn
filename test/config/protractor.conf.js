@@ -14,11 +14,11 @@ exports.config = {
   framework: 'custom',
   frameworkPath: require.resolve('protractor-cucumber-framework'),
   capabilities: {
-    'browserName': process.env.BROWSER || 'firefox'
+    browserName: process.env.BROWSER || 'firefox'
   },
   suites: {
-    'modules': '../../modules/**/test/e2e/**/*.feature',
-    'core': '../e2e/**/*.feature'
+    modules: '../../modules/**/test/e2e/**/*.feature',
+    core: '../e2e/**/*.feature'
   },
   cucumberOpts: {
     require: [
