@@ -148,7 +148,7 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
       .pipe(tar.Parse())
       .on('entry', function(entry) {
         var self = this;
-        if (/\injection.json$/.test(entry.path)) {
+        if (/injection\.json$/.test(entry.path)) {
           stringModuleName = entry.path.split('/')[0];
           entry.on('data', function(chunk) {
             stringInjection += chunk;

@@ -35,7 +35,7 @@ describe('The calendarService service', function() {
       response = {
         _links: {
           self: {
-            href: '\/calendars\/56698ca29e4cf21f66800def.json'
+            href: '/calendars/56698ca29e4cf21f66800def.json'
           }
         },
         _embedded: {
@@ -43,12 +43,12 @@ describe('The calendarService service', function() {
             {
               _links: {
                 self: {
-                  href: '\/calendars\/56698ca29e4cf21f66800def\/events.json'
+                  href: '/calendars/56698ca29e4cf21f66800def/events.json'
                 }
               },
               'dav:name': null,
               'caldav:description': null,
-              'calendarserver:ctag': 'http:\/\/sabre.io\/ns\/sync\/3',
+              'calendarserver:ctag': 'http://sabre.io/ns/sync/3',
               'apple:color': null,
               'apple:order': null
             }
@@ -99,12 +99,12 @@ describe('The calendarService service', function() {
       var response = {
         _links: {
           self: {
-            href: '\/calendars\/56698ca29e4cf21f66800def\/events.json'
+            href: '/calendars/56698ca29e4cf21f66800def/events.json'
           }
         },
         'dav:name': null,
         'caldav:description': null,
-        'calendarserver:ctag': 'http:\/\/sabre.io\/ns\/sync\/3',
+        'calendarserver:ctag': 'http://sabre.io/ns/sync/3',
         'apple:color': null,
         'apple:order': null
       };

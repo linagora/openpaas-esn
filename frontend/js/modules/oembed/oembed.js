@@ -73,8 +73,7 @@ angular.module('esn.oembed', [])
       if (!fragment) {
         return;
       }
-      var find = 'https?:\/\/';
-      var re = new RegExp(find, 'g');
+      var re = new RegExp('https?:\\/\\/', 'g');
       return fragment.replace(re, '//');
     }
 
