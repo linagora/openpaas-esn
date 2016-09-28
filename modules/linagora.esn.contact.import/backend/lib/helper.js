@@ -104,9 +104,9 @@ module.exports = function(dependencies) {
    * Note:
    * - Sabre use `lastmodified` timestamp in seconds
    * @param  {Object} options           Contains:
-   *                                    	+ user
-   *                                    	+ addressbook
-   *                                    	+ esnToken
+   *                                      + user
+   *                                      + addressbook
+   *                                      + esnToken
    * @param  {Number} contactSyncTimeStamp Timestamp in miliseconds
    * @return {Promise}                   Resolve a list of removed contact IDs
    */
