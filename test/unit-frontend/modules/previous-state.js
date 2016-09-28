@@ -85,11 +85,9 @@ describe('The esn.previous-state module', function() {
       element.appendTo(document.body);
 
       if (data) {
-        for (var key in data) {
-          if (data.hasOwnProperty(key)) {
-            element.data(key, data[key]);
-          }
-        }
+        angular.forEach(data, function(value, key) {
+          element.data(key, value);
+        });
       }
 
       $compile(element)($scope);

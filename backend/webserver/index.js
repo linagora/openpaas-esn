@@ -140,14 +140,17 @@ function start(callback) {
   }
 
   function inState(state, invert) {
-    for (var k in states) {
+    var isInState = true;
+
+    Object.keys(states).forEach(function(k) {
       if (invert && states[k] === state) {
-        return false;
+        isInState = false;
       } else if (!invert && states[k] !== state) {
-        return false;
+        isInState = false;
       }
-    }
-    return true;
+    });
+
+    return isInState;
   }
 
   function setupEventListeners(server) {

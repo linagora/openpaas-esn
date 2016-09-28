@@ -59,14 +59,17 @@ angular.module('esn.oembed', [])
 
     function getProvider(url) {
       var providers = oembedRegistry.getProviders();
-      for (var key in providers) {
-        if (validate(url, providers[key].regexps)) {
-          return providers[key];
+      var provider = null;
+
+      angular.forEach(providers, function(value, key) {
+        if (validate(url, value.regexps)) {
+          provider = value;
         } else {
           $log.debug('URL ' + url + ' does not match the provider ' + key);
         }
-      }
-      return null;
+      });
+
+      return provider;
     }
 
     function fixHttpLinks(fragment) {
