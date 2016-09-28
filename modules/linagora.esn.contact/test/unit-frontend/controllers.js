@@ -37,8 +37,7 @@ describe('The Contacts controller module', function() {
       strongError: sinon.spy()
     };
     $location = {
-      path: function()
-      {},
+      path: function() {},
       url: function() {},
       search: function() {
         return {

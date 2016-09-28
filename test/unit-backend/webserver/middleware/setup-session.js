@@ -96,10 +96,12 @@ describe('the setup-session middleware', function() {
       logger: { debug: function() {} },
       pubsub: {
         local: {
-          topic: function(topic) { return {
-            subscribe: function(handler) { subscriptions[topic] = handler; },
-            publish: function() {}
-          }; }
+          topic: function(topic) {
+            return {
+              subscribe: function(handler) { subscriptions[topic] = handler; },
+              publish: function() {}
+            };
+          }
         }
       }
     };
