@@ -6,16 +6,21 @@ var expect = chai.expect;
 
 describe('The esnCalendar component controller', function() {
 
-  var $rootScope, $scope, $controller, initController, element, vm, calElement;
+  var $rootScope, $scope, $controller, initController, element, vm, calElement, $window;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_) {
+  afterEach(function() {
+    $scope.$destroy();
+  });
+
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$window_) {
     $rootScope = _$rootScope_;
     $scope = $rootScope.$new();
     $controller = _$controller_;
+    $window = _$window_;
 
     calElement = {
       fullCalendar: sinon.spy(),
@@ -90,10 +95,18 @@ describe('The esnCalendar component controller', function() {
       calendar.offset('yolo', 'yolo');
       expect(calElement.offset).to.have.been.calledWith('yolo', 'yolo');
     });
+  });
 
+  it('should call render on window resize if the calendar was never render', function() {
+    initController();
+    angular.element($window).resize();
+    expect(calElement.fullCalendar).to.have.been.calledWith('render');
+    calElement.fullCalendar.reset();
+    angular.element($window).resize();
+    expect(calElement.fullCalendar).to.not.have.been.called;
   });
 
   afterEach(function() {
-    $scope.$destroy();
+    vm.$onDestroy();
   });
 });

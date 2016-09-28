@@ -126,17 +126,6 @@ describe('The mini-calendar controller', function() {
     expect(handler).to.have.been.calledWith(sinon.match.any, 'aView');
   });
 
-  it('should call render on window resize if viewRender was never called', function() {
-    initController();
-    $scope.calendarReady(calendar);
-    angular.element($window).resize();
-    $scope.miniCalendarConfig.viewRender();
-    $scope.$digest();
-    angular.element($window).resize();
-    $scope.$digest();
-    expect(fcMethodMock.render).to.have.been.calledOnce;
-  });
-
   it('should change view on VIEW_TRANSLATION only when mobile mini calendar is displayed', function() {
     initController();
     ['prev', 'next'].forEach(function(action) {

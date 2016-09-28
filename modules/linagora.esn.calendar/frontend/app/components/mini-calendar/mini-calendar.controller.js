@@ -7,7 +7,6 @@
   miniCalendarController.$inject = [
     '$rootScope',
     '$q',
-    '$window',
     '$scope',
     '$log',
     'fcMoment',
@@ -25,7 +24,6 @@
   function miniCalendarController(
     $rootScope,
     $q,
-    $window,
     $scope,
     $log,
     fcMoment,
@@ -91,30 +89,9 @@
         }
       };
 
-      function windowResize() {
-        calendarPromise.then(function(calendar) {
-          calendar.fullCalendar('render');
-        });
-      }
-
-      var windowJQuery = angular.element($window);
-
-      //otherwise if when the directive is initialized hidden
-      //when the window is enlarger and the mini-calendar appear
-      //the calendar is not render
-      windowJQuery.on('resize', windowResize);
-
-      function unregisterWindowResize() {
-        windowJQuery.off('resize', windowResize);
-      }
-
-      var firstViewRender = true;
-
       $scope.miniCalendarConfig.viewRender = function(view) {
         calendarCurrentView.setMiniCalendarView(view);
         $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, view);
-        firstViewRender && unregisterWindowResize();
-        firstViewRender = false;
       };
 
       $scope.miniCalendarConfig.eventClick = function(event) {
@@ -174,8 +151,6 @@
         unregisterFunctions.forEach(function(unregisterFunction) {
           unregisterFunction();
         });
-        unregisterWindowResize();
       });
   }
-
 })();
