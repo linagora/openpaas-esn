@@ -194,7 +194,7 @@ angular.module('linagora.esn.contact')
               data: shells
             };
             if (!response.last_page) {
-              result.next_page =  parseInt(result.current_page, 10) + 1;
+              result.next_page = parseInt(result.current_page, 10) + 1;
             }
             return result;
           });

@@ -51,7 +51,7 @@
       if (text) {
         prepareText = text[1] + '://' + text[2] + text[3];
         if (text[5]) {
-          prepareText +=  ' ' + text[5];
+          prepareText += ' ' + text[5];
         }
       }
 

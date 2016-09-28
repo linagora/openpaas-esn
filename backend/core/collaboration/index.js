@@ -109,7 +109,7 @@ function fetchMember(tuple, callback) {
 }
 
 function getMembers(collaboration, objectType, query, callback) {
-  query = query ||  {};
+  query = query || {};
 
   var id = collaboration._id || collaboration;
 

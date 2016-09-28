@@ -27,7 +27,7 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
           exists: function() { return selectionService.getImage() ? true : false; },
           getBlob: function(mime, callback) { return selectionService.getBlob(mime, callback); }
         };
-        $scope.create =  { step: 'post', percent: 1 };
+        $scope.create = { step: 'post', percent: 1 };
         projectCreationService($scope.project)
         .then(onSuccess, onFailure, onNotification);
       };

@@ -56,7 +56,7 @@ describe('The contact import backend module', function() {
       pubsub: pubsubMock
     };
 
-    account =  {
+    account = {
       data: {
         provider: type,
         id: id

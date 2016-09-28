@@ -26,7 +26,7 @@ describe('The Contacts controller module', function() {
       build: function(shell) {return shell;}
     };
 
-    ContactShell =  function() {};
+    ContactShell = function() {};
     ContactLiveUpdate = {
       startListen: function() {},
       stopListen: function() {}

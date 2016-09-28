@@ -77,7 +77,7 @@ describe('The calendar controller', function() {
     }
 
     beforeEach(function() {
-      url =  '/test/unit-backend/fixtures/meeting.ics';
+      url = '/test/unit-backend/fixtures/meeting.ics';
       setMock();
     });
 
@@ -393,7 +393,7 @@ describe('The calendar controller', function() {
 
     describe('when the vevent is recurring with exception', function() {
       beforeEach(function() {
-        url =  '/test/unit-backend/fixtures/meeting-recurring-with-exception.ics';
+        url = '/test/unit-backend/fixtures/meeting-recurring-with-exception.ics';
         setMock();
       });
 

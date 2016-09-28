@@ -2,7 +2,7 @@
 
 angular.module('esn.activitystream')
 .controller('activitystreamController',
-  function($rootScope, $scope, activitystreamAggregatorCreator,  usSpinnerService, $alert, activityStreamUpdates, activitystreamHelper) {
+  function($rootScope, $scope, activitystreamAggregatorCreator, usSpinnerService, $alert, activityStreamUpdates, activitystreamHelper) {
 
     var spinnerKey = 'activityStreamSpinner', aggregator;
 

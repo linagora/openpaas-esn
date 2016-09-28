@@ -416,7 +416,7 @@ describe('The GracePeriod Angular module', function() {
         timeoutMock = sinon.spy(function(callback, delay) {
           if (delay === GRACE_DELAY - HTTP_LAG_UPPER_BOUND) {
             $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond(404, 'test');
-            promiseBeforeEndOfGraceperiod =  $q.when(callback());
+            promiseBeforeEndOfGraceperiod = $q.when(callback());
             return promiseBeforeEndOfGraceperiod;
           }
         });

@@ -26,7 +26,7 @@ addStreamWritableFinder(communityMiddleware.filterWritableTargets);
 module.exports.filterWritableTargets = writableFinder;
 
 module.exports.isValidStream = function(req, res, next) {
-  var objectType = req.query.objectType ||  req.query.objectType;
+  var objectType = req.query.objectType || req.query.objectType;
   if (!objectType) {
     return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'objectType is mandatory'}});
   }

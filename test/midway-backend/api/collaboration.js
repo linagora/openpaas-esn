@@ -1337,7 +1337,7 @@ describe.skip('The collaborations API', function() {
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
-              self.helpers.api.getCommunity(self.community._id, function(err, community)  {
+              self.helpers.api.getCommunity(self.community._id, function(err, community) {
                 if (err) {return done(err);}
                 var requests = community.membershipRequests.filter(function(mr) {
                   return mr.user.equals(self.jdee._id);
@@ -1383,7 +1383,7 @@ describe.skip('The collaborations API', function() {
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
-              self.helpers.api.getCommunity(self.community._id, function(err, community)  {
+              self.helpers.api.getCommunity(self.community._id, function(err, community) {
                 if (err) {return done(err);}
                 var requests = community.membershipRequests.filter(function(mr) {
                   return mr.user.equals(self.kcobain._id);
@@ -1432,7 +1432,7 @@ describe.skip('The collaborations API', function() {
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
-              self.helpers.api.getCommunity(self.community._id, function(err, community)  {
+              self.helpers.api.getCommunity(self.community._id, function(err, community) {
                 if (err) {return done(err);}
                 expect(community.membershipRequests).to.have.length(2);
                 done();
@@ -1453,7 +1453,7 @@ describe.skip('The collaborations API', function() {
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
-              self.helpers.api.getCommunity(self.community._id, function(err, community)  {
+              self.helpers.api.getCommunity(self.community._id, function(err, community) {
                 if (err) {return done(err);}
                 var requests = community.membershipRequests.filter(function(mr) {
                   return mr.user.equals(self.jdee._id);
@@ -1500,7 +1500,7 @@ describe.skip('The collaborations API', function() {
             );
             req.end(function(err, res) {
               expect(res.status).to.equal(204);
-              self.helpers.api.getCommunity(self.community._id, function(err, community)  {
+              self.helpers.api.getCommunity(self.community._id, function(err, community) {
                 if (err) {return done(err);}
                 var requests = community.membershipRequests.filter(function(mr) {
                   return mr.user.equals(self.kcobain._id);

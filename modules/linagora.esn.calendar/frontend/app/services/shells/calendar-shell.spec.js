@@ -55,17 +55,17 @@ describe('CalendarShell factory', function() {
     it('should convert date to localTimezone', function() {
       var shell = CalendarShell.fromIncompleteShell({});
 
-      shell.start  = fcMoment.tz([2015, 11, 11, 19, 0, 0], 'Europe/Paris');
+      shell.start = fcMoment.tz([2015, 11, 11, 19, 0, 0], 'Europe/Paris');
       expect(shell.vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal(this.localTimezone);
       expect(shell.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2015-12-12T01:00:00');
 
-      shell.end  = fcMoment.utc([2015, 11, 11, 19, 0, 0]);
+      shell.end = fcMoment.utc([2015, 11, 11, 19, 0, 0]);
       expect(shell.vevent.getFirstProperty('dtend').getParameter('tzid')).to.equal(this.localTimezone);
       expect(shell.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2015-12-12T02:00:00');
     });
 
     it('should not lose allday', function() {
-      var shell, start =  fcMoment(new Date(2014, 11, 29));
+      var shell, start = fcMoment(new Date(2014, 11, 29));
       var end = fcMoment(new Date(2014, 11, 29));
 
       start.stripTime();
@@ -1460,7 +1460,7 @@ describe('CalendarShell factory', function() {
         freq: 'WEEKLY'
       };
 
-      var shell = new  CalendarShell.fromIncompleteShell({rrule: rrule});
+      var shell = new CalendarShell.fromIncompleteShell({rrule: rrule});
 
       expect(shell.rrule.freq).to.be.equal('WEEKLY');
     });
@@ -1469,7 +1469,7 @@ describe('CalendarShell factory', function() {
       var rrule = {
         freq: 'WEEKLY'
       };
-      var shell = new  CalendarShell.fromIncompleteShell({rrule: rrule});
+      var shell = new CalendarShell.fromIncompleteShell({rrule: rrule});
 
       expect(shell.rrule).to.exist;
 

@@ -82,7 +82,7 @@ describe('The contact import module', function() {
       contact: contactModuleMock
     };
 
-    account =  {
+    account = {
       data: {
         provider: type,
         id: id

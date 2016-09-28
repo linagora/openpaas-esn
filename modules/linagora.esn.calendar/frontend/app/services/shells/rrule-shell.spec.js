@@ -22,7 +22,7 @@ describe('RRuleShell Factory', function() {
         freq: RECUR_FREQ[0]
       };
       var vevent = new ICAL.Component('vevent');
-      var shell = new  RRuleShell(rrule, vevent);
+      var shell = new RRuleShell(rrule, vevent);
 
       expect(shell.vevent.getFirstPropertyValue('rrule').interval).to.deep.equal([1]);
     });

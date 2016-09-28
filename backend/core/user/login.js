@@ -9,7 +9,7 @@ var pubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var jwt = require('../auth').jwt;
 var email = require('../email');
-var i18n =  require('../../i18n');
+var i18n = require('../../i18n');
 var helpers = require('../../helpers');
 var CONSTANTS = require('./constants');
 

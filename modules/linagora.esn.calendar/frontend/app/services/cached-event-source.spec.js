@@ -444,7 +444,7 @@ describe('The cachedEventSource service', function() {
 
       it('should ignore a event if it is not on the same calendar even if it is in the requested period', function() {
         self.modifiedEvent.id = 3;
-        self.modifiedEvent.calendarId =  'this_is_an_other_id';
+        self.modifiedEvent.calendarId = 'this_is_an_other_id';
         self.cachedEventSource.registerAdd(self.modifiedEvent);
         self.cachedEventSource.wrapEventSource(self.calendarId, self.eventSource)(self.start, self.end, null, self.originalCallback);
         self.$rootScope.$apply();

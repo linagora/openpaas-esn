@@ -34,7 +34,7 @@ function emitElasticSearchEvent(pubsub, msg) {
 
   data.ics = (new ICAL.Component(msg.event)).toString();
 
-  if (action === WS_EVENT.EVENT_CREATED  || action === WS_EVENT.EVENT_REQUEST) {
+  if (action === WS_EVENT.EVENT_CREATED || action === WS_EVENT.EVENT_REQUEST) {
     pubsub.local.topic(NOTIFICATIONS.EVENT_ADDED).publish(data);
   } else if (action === WS_EVENT.EVENT_UPDATED || action === WS_EVENT.EVENT_REPLY) {
     pubsub.local.topic(NOTIFICATIONS.EVENT_UPDATED).publish(data);
