@@ -38,44 +38,6 @@ var emitter = new AsyncEventEmitter();
 emitter.setMaxListeners(0);
 
 function start(callback) {
-  function listenCallback(server, err) {
-    if (server === webserver.server) { states.http4 = STARTED; }
-    if (server === webserver.sslserver) { states.ssl4 = STARTED; }
-    if (server === webserver.server6) { states.http6 = STARTED; }
-    if (server === webserver.sslserver6) { states.ssl6 = STARTED; }
-    var address = server.address();
-    if (address) {
-      console.log('Webserver listening on ' + address.address + ' port ' +
-                  address.port + ' (' + address.family + ')');
-    }
-
-    server.removeListener('listening', listenCallback);
-    server.removeListener('error', listenCallback);
-
-    // If an error occurred or all servers are listening, call the callback
-    if (!callbackFired) {
-      if (err || inState(STOPPED, true)) {
-        callbackFired = true;
-        callback(err);
-      }
-    }
-  }
-
-  function inState(state, invert) {
-    for (var k in states) {
-      if (invert && states[k] === state) {
-        return false;
-      } else if (!invert && states[k] !== state) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function setupEventListeners(server) {
-    server.on('listening', listenCallback.bind(null, server));
-    server.on('error', listenCallback.bind(null, server));
-  }
 
   if (!webserver.port && !webserver.ssl_port) {
     console.error('The webserver needs to be configured before it is started');
@@ -152,6 +114,45 @@ function start(callback) {
   if (states.ssl6 === STOPPED) {
     webserver.sslserver6 = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port, webserver.ssl_ipv6);
     setupEventListeners(webserver.sslserver6);
+  }
+
+  function listenCallback(server, err) {
+    if (server === webserver.server) { states.http4 = STARTED; }
+    if (server === webserver.sslserver) { states.ssl4 = STARTED; }
+    if (server === webserver.server6) { states.http6 = STARTED; }
+    if (server === webserver.sslserver6) { states.ssl6 = STARTED; }
+    var address = server.address();
+    if (address) {
+      console.log('Webserver listening on ' + address.address + ' port ' +
+                  address.port + ' (' + address.family + ')');
+    }
+
+    server.removeListener('listening', listenCallback);
+    server.removeListener('error', listenCallback);
+
+    // If an error occurred or all servers are listening, call the callback
+    if (!callbackFired) {
+      if (err || inState(STOPPED, true)) {
+        callbackFired = true;
+        callback(err);
+      }
+    }
+  }
+
+  function inState(state, invert) {
+    for (var k in states) {
+      if (invert && states[k] === state) {
+        return false;
+      } else if (!invert && states[k] !== state) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function setupEventListeners(server) {
+    server.on('listening', listenCallback.bind(null, server));
+    server.on('error', listenCallback.bind(null, server));
   }
 }
 

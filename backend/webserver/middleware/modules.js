@@ -3,6 +3,8 @@
 var logger = require('../../core').logger;
 
 function moduleHooks(req, res, next) {
+  var realjson = res.json;
+
   function jsonHook(code, json) {
     var specificRoute = 'route:' + req.method.toLowerCase() + ':' + req.route.path;
     var webserver = require('../index').webserver;
@@ -25,7 +27,6 @@ function moduleHooks(req, res, next) {
     });
   }
 
-  var realjson = res.json;
   res.json = jsonHook;
   next();
 }

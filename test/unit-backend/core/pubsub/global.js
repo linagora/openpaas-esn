@@ -40,6 +40,7 @@ describe('The global Pubsub object', function() {
   });
 
   it('should call the client "emit" method when publishing an event', function(done) {
+    var data = {test: true};
     var client = {
       emit: function(topicName, topicData) {
         expect(topicName).to.equal('test');
@@ -47,7 +48,6 @@ describe('The global Pubsub object', function() {
         done();
       }
     };
-    var data = {test: true};
 
     var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
@@ -105,6 +105,9 @@ describe('The global Pubsub object', function() {
 
   it('should cache the requests until a client is provided', function() {
     var counter = 0;
+    var publishData = {test: true};
+    var subscribeHandler = function() {};
+    var subscribeHandler2 = function() {};
     var client = {
       emit: function(topic, data) {
         expect(topic).to.equal('test');
@@ -121,9 +124,6 @@ describe('The global Pubsub object', function() {
         counter++;
       }
     };
-    var subscribeHandler = function() {};
-    var subscribeHandler2 = function() {};
-    var publishData = {test: true};
 
     var pubsub = new RedisPubsub(null);
     var topic = pubsub.topic('test');

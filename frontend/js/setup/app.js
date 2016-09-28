@@ -1,6 +1,6 @@
 'use strict';
 
-var angularInjections = angularInjections || [];
+var angularInjections = window.angularInjections || [];
 
 angular.module('setupApp', [].concat(angularInjections)).controller('wizardController', function($scope, setupAPI) {
   $scope.settings = {};

@@ -492,17 +492,17 @@ describe('The esn.websocket Angular module', function() {
       describe('message style IoAction', function() {
         it('should propagate namespace and broadcast properties to socketIO', function() {
           var ns = null, broadcast = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              ns = namespace;
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               emit: function(evt, data) {
                 broadcast = true;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              ns = namespace;
+              return sioMock;
             }
           };
 
@@ -514,17 +514,17 @@ describe('The esn.websocket Angular module', function() {
         });
         it('should call socketIO emit method', function() {
           var event = null, data = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               emit: function(e, d) {
                 event = e;
                 data = d;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
             }
           };
 
@@ -538,17 +538,17 @@ describe('The esn.websocket Angular module', function() {
       describe('subscription style IoAction', function() {
         it('should propagate namespace and broadcast properties to socketIO', function() {
           var ns = null, broadcast = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              ns = namespace;
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               on: function(evt, data) {
                 broadcast = true;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              ns = namespace;
+              return sioMock;
             }
           };
 
@@ -560,17 +560,17 @@ describe('The esn.websocket Angular module', function() {
         });
         it('should call socketIO on method', function() {
           var event = null, data = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               on: function(e, d) {
                 event = e;
                 data = d;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
             }
           };
 
@@ -584,15 +584,15 @@ describe('The esn.websocket Angular module', function() {
       describe('unsubscription style IoAction', function() {
         it('should call SocketIO removeListener with the ioOfflineBuffer buffered action', function() {
           var event, data;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              return sioMock;
-            }
-          };
           var sioMock = {
             removeListener: function(e, d) {
               event = e;
               data = d;
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
             }
           };
           var ioOfflineBufferMock = {

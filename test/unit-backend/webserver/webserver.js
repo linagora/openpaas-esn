@@ -14,6 +14,13 @@ describe('The Webserver module', function() {
       sslserver6Instance = null;
 
   function mockServer(basePath) {
+    var returnData = {
+      serverHttpPort: undefined,
+      serverHttpsPort: undefined,
+      serverHttpPort6: undefined,
+      serverHttpsPort6: undefined
+    };
+
     httpMock.serverInstance.listen = function(serverPort, serverIp) {
       if (serverIp === '127.0.0.1') {
         returnData.serverHttpPort = serverPort;
@@ -38,15 +45,8 @@ describe('The Webserver module', function() {
     mockery.registerMock('https', httpsMock);
     mockery.registerMock('express', expressMock);
 
-    var webserver = require(basePath + '/backend/webserver').webserver;
+    returnData.webserver = require(basePath + '/backend/webserver').webserver;
 
-    var returnData = {
-      webserver: webserver,
-      serverHttpPort: undefined,
-      serverHttpsPort: undefined,
-      serverHttpPort6: undefined,
-      serverHttpsPort6: undefined
-    };
     return returnData;
   }
 

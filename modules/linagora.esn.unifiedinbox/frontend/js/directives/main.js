@@ -313,24 +313,7 @@ angular.module('linagora.esn.unifiedinbox')
       controller: 'composerController',
       controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
-
         scope.isBoxed = function() {return false;};
-
-        function backToLastLocation() {
-          esnPreviousState.go('unifiedinbox');
-        }
-
-        function quit(action) {
-          disableOnBackAutoSave();
-
-          if (action) {
-            action();
-          }
-        }
-
-        function quitAsSaveDraft() {
-          quit(controller.saveDraft);
-        }
 
         var disableOnBackAutoSave = $rootScope.$on('$stateChangeSuccess', function(event, toState) {
           if (toState && toState.data && toState.data.ignoreSaveAsDraft) {
@@ -380,6 +363,22 @@ angular.module('linagora.esn.unifiedinbox')
             composition: controller.getComposition()
           });
         };
+
+        function backToLastLocation() {
+          esnPreviousState.go('unifiedinbox');
+        }
+
+        function quit(action) {
+          disableOnBackAutoSave();
+
+          if (action) {
+            action();
+          }
+        }
+
+        function quitAsSaveDraft() {
+          quit(controller.saveDraft);
+        }
 
       }
     };

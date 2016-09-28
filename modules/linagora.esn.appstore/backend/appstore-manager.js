@@ -468,6 +468,8 @@ AwesomeAppManager.prototype.install = function(application, target, callback) {
 };
 
 AwesomeAppManager.prototype.uninstall = function(application, target, callback) {
+  var self = this;
+
   if (!application) {
     return callback(new Error('Application is required.'));
   }
@@ -526,7 +528,6 @@ AwesomeAppManager.prototype.uninstall = function(application, target, callback) 
     callback(null);
   }
 
-  var self = this;
   async.waterfall([
     self.communityModule.load.bind(null, target.id),
     getDomainsRemovedFrom.bind(null, application),

@@ -43,19 +43,6 @@ describe('The files controller', function() {
 
     it('should send 201 on successful file storage', function(done) {
       var storeId = null;
-
-      mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, options, callback) {
-          expect(id).to.not.be.null;
-          expect(contentType).to.equal(req.query.mimetype);
-          expect(metadata).to.be.an('object');
-          expect(options.filename).to.equal(req.query.name);
-          expect(req).to.equal(stream);
-          storeId = id;
-          callback(null, { length: stream.body.length });
-        }
-      });
-
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 4 },
         body: 'yeah',
@@ -72,26 +59,25 @@ describe('The files controller', function() {
           done();
         }
       );
+
+      mockery.registerMock('../../core/filestore', {
+        store: function(id, contentType, metadata, stream, options, callback) {
+          expect(id).to.not.be.null;
+          expect(contentType).to.equal(req.query.mimetype);
+          expect(metadata).to.be.an('object');
+          expect(options.filename).to.equal(req.query.name);
+          expect(req).to.equal(stream);
+          storeId = id;
+          callback(null, { length: stream.body.length });
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
     it('should send 201 even without a name attribute', function(done) {
       var storeId = null;
-
-      mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, options, callback) {
-          expect(id).to.not.be.null;
-          storeId = id;
-
-          expect(contentType).to.equal(req.query.mimetype);
-          expect(metadata).to.be.an('object');
-          expect(metadata).to.not.have.ownProperty('name');
-          expect(req).to.equal(stream);
-          callback(null, { length: stream.body.length });
-        }
-      });
-
       var req = {
         query: { mimetype: 'text/plain', size: 4 },
         body: 'yeah',
@@ -108,26 +94,26 @@ describe('The files controller', function() {
           done();
         }
       );
+
+      mockery.registerMock('../../core/filestore', {
+        store: function(id, contentType, metadata, stream, options, callback) {
+          expect(id).to.not.be.null;
+          storeId = id;
+
+          expect(contentType).to.equal(req.query.mimetype);
+          expect(metadata).to.be.an('object');
+          expect(metadata).to.not.have.ownProperty('name');
+          expect(req).to.equal(stream);
+          callback(null, { length: stream.body.length });
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
     it('should send 412 and delete file on size mismatch', function(done) {
       var deleteCalled = false;
-
-      mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, options, callback) {
-          expect(id).to.not.be.null;
-          expect(contentType).to.equal(req.query.mimetype);
-          expect(req).to.equal(stream);
-          callback(null, { length: 666 });
-        },
-        delete: function(id, callback) {
-          deleteCalled = true;
-          callback(null);
-        }
-      });
-
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 4 },
         body: 'yeah',
@@ -147,24 +133,25 @@ describe('The files controller', function() {
           done();
         }
       );
+
+      mockery.registerMock('../../core/filestore', {
+        store: function(id, contentType, metadata, stream, options, callback) {
+          expect(id).to.not.be.null;
+          expect(contentType).to.equal(req.query.mimetype);
+          expect(req).to.equal(stream);
+          callback(null, { length: 666 });
+        },
+        delete: function(id, callback) {
+          deleteCalled = true;
+          callback(null);
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
     it('should send 500 on failing file storage', function(done) {
-      var storeId = null;
-      mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, options, callback) {
-          expect(id).not.to.be.null;
-          storeId = id;
-
-          expect(metadata).to.be.an('object');
-          expect(contentType).to.equal(req.query.mimetype);
-          expect(req).to.equal(stream);
-          callback(new Error('fooled by a test'), null);
-        }
-      });
-
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 2 },
         body: 'yeah',
@@ -183,6 +170,18 @@ describe('The files controller', function() {
           done();
         }
       );
+
+      mockery.registerMock('../../core/filestore', {
+        store: function(id, contentType, metadata, stream, options, callback) {
+          expect(id).not.to.be.null;
+
+          expect(metadata).to.be.an('object');
+          expect(contentType).to.equal(req.query.mimetype);
+          expect(req).to.equal(stream);
+          callback(new Error('fooled by a test'), null);
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
@@ -221,13 +220,6 @@ describe('The files controller', function() {
 
   describe('The get function', function() {
     it('should return 503 if the filestore fails', function(done) {
-      mockery.registerMock('../../core/filestore', {
-        get: function(id, callback) {
-          expect(id).to.equal(req.params.id);
-          callback(new Error('fooled by a test'), null, null);
-        }
-      });
-
       var req = { params: { id: '123' } };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
@@ -237,6 +229,14 @@ describe('The files controller', function() {
           done();
         }
       );
+
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(new Error('fooled by a test'), null, null);
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
@@ -256,13 +256,6 @@ describe('The files controller', function() {
     });
 
     it('should return 404 if the file is not found', function(done) {
-      mockery.registerMock('../../core/filestore', {
-        get: function(id, callback) {
-          expect(id).to.equal(req.params.id);
-          callback(null, null, null);
-        }
-      });
-
       var req = { params: { id: '123' }, accepts: function() {return false;} };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
@@ -273,11 +266,7 @@ describe('The files controller', function() {
           done();
         }
       );
-      var files = this.helpers.requireBackend('webserver/controllers/files');
-      files.get(req, res);
-    });
 
-    it('should redirect to the 404 page if the file is not found and request accepts html', function(done) {
       mockery.registerMock('../../core/filestore', {
         get: function(id, callback) {
           expect(id).to.equal(req.params.id);
@@ -285,6 +274,11 @@ describe('The files controller', function() {
         }
       });
 
+      var files = this.helpers.requireBackend('webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should redirect to the 404 page if the file is not found and request accepts html', function(done) {
       var req = {
         params: { id: '123' },
         accepts: function(type) {
@@ -304,22 +298,19 @@ describe('The files controller', function() {
           };
         }
       };
+
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, null, null);
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
     it('should send the request even if there is no metadata', function(done) {
-      mockery.registerMock('../../core/filestore', {
-        get: function(id, callback) {
-          expect(id).to.equal(req.params.id);
-          callback(null, null, {
-            pipe: function(res) {
-              done();
-            }
-          });
-        }
-      });
-
       var req = { params: { id: '123' } };
       var res = {
         type: function(ctype) {
@@ -332,21 +323,11 @@ describe('The files controller', function() {
           expect(code).to.equal(200);
         }
       };
-      var files = this.helpers.requireBackend('webserver/controllers/files');
-      files.get(req, res);
-    });
 
-    it('should send the file name if it exists', function(done) {
       mockery.registerMock('../../core/filestore', {
         get: function(id, callback) {
           expect(id).to.equal(req.params.id);
-          callback(null, {
-            contentType: 'text/plain',
-            metadata: {
-              name: 'fred "The Great"'
-            },
-            uploadDate: new Date()
-          }, {
+          callback(null, null, {
             pipe: function(res) {
               done();
             }
@@ -354,6 +335,11 @@ describe('The files controller', function() {
         }
       });
 
+      var files = this.helpers.requireBackend('webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should send the file name if it exists', function(done) {
       var req = {
         params: { id: '123' },
         get: function(hdr) {
@@ -374,23 +360,30 @@ describe('The files controller', function() {
           expect(code).to.equal(200);
         }
       };
+
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, {
+            contentType: 'text/plain',
+            metadata: {
+              name: 'fred "The Great"'
+            },
+            uploadDate: new Date()
+          }, {
+            pipe: function(res) {
+              done();
+            }
+          });
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
     it('should return 304 if the file was not modified', function(done) {
       var modified = new Date();
-      mockery.registerMock('../../core/filestore', {
-        get: function(id, callback) {
-          expect(id).to.equal(req.params.id);
-          callback(null, {
-            contentType: 'text/plain',
-            metadata: {},
-            uploadDate: modified
-          }, {});
-        }
-      });
-
       var req = {
         params: { id: '123' },
         get: function(hdr) {
@@ -410,6 +403,18 @@ describe('The files controller', function() {
           };
         }
       };
+
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, {
+            contentType: 'text/plain',
+            metadata: {},
+            uploadDate: modified
+          }, {});
+        }
+      });
+
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
