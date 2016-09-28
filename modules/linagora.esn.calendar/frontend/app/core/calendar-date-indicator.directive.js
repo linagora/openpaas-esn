@@ -23,7 +23,7 @@
   ];
 
   function CalendarDateIndicatorController($scope, CALENDAR_EVENTS, calendarCurrentView) {
-    var vm = this;
+    var self = this;
     var miniCalendarIsShown = false;
 
     $scope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, onCalendarHomeViewChange);
@@ -55,7 +55,7 @@
     }
 
     function _calendarDateIndicator(view) {
-      vm.dateIndicator = view.title;
+      self.dateIndicator = view.title;
     }
   }
 

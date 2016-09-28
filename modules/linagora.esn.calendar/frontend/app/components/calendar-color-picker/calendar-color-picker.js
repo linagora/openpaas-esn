@@ -35,45 +35,45 @@
   ];
 
   function CalendarColorPickerTogglerController($modal, CALENDAR_LIST_OF_COLORS) {
-    var vm = this;
+    var self = this;
 
-    vm.CALENDAR_LIST_OF_COLORS = CALENDAR_LIST_OF_COLORS;
-    vm.colorKeys = Object.keys(CALENDAR_LIST_OF_COLORS);
-    vm.set = set;
-    vm.select = select;
-    vm.isSelected = isSelected;
-    vm.openModal = openModal;
+    self.CALENDAR_LIST_OF_COLORS = CALENDAR_LIST_OF_COLORS;
+    self.colorKeys = Object.keys(CALENDAR_LIST_OF_COLORS);
+    self.set = set;
+    self.select = select;
+    self.isSelected = isSelected;
+    self.openModal = openModal;
 
     ////////////
 
     function set() {
-      if (vm.selected) {
-        vm.color = vm.CALENDAR_LIST_OF_COLORS[vm.selected];
+      if (self.selected) {
+        self.color = self.CALENDAR_LIST_OF_COLORS[self.selected];
       }
     }
 
     function select(color) {
-      vm.selected = color;
+      self.selected = color;
     }
 
     function isSelected(color) {
-      return vm.selected === color;
+      return self.selected === color;
     }
 
     function openModal() {
-      var colorHex = vm.color.toUpperCase();
+      var colorHex = self.color.toUpperCase();
 
-      vm.selected = undefined;
+      self.selected = undefined;
       angular.forEach(CALENDAR_LIST_OF_COLORS, function(value, key) {
         if (colorHex === value) {
-          vm.selected = key;
+          self.selected = key;
         }
       });
 
       $modal({
         templateUrl: '/calendar/app/components/calendar-color-picker/calendar-color-picker.html',
         controller: function($scope) {
-          angular.extend($scope, vm);
+          angular.extend($scope, self);
         },
         backdrop: 'static',
         placement: 'center'

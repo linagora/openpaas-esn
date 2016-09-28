@@ -23,10 +23,10 @@
   EventAlarmConsultationController.$inject = ['TRIGGER'];
 
   function EventAlarmConsultationController(TRIGGER) {
-    var vm = this;
+    var self = this;
 
-    vm.trigger = vm.event.alarm.trigger.toICALString();
-    vm.TRIGGER = TRIGGER;
+    self.trigger = self.event.alarm.trigger.toICALString();
+    self.TRIGGER = TRIGGER;
   }
 
 })();

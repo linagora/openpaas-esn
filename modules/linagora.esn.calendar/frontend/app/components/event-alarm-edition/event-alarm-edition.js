@@ -23,28 +23,28 @@
   EventAlarmEditionController.$inject = ['session', 'TRIGGER'];
 
   function EventAlarmEditionController(session, TRIGGER) {
-    var vm = this;
+    var self = this;
 
-    vm.trigger = undefined;
-    vm.TRIGGER = TRIGGER;
-    vm.setEventAlarm = setEventAlarm;
+    self.trigger = undefined;
+    self.TRIGGER = TRIGGER;
+    self.setEventAlarm = setEventAlarm;
 
     activate();
 
     ////////////
 
     function activate() {
-      if (vm.event.alarm) {
-        vm.trigger = vm.event.alarm.trigger.toICALString();
+      if (self.event.alarm) {
+        self.trigger = self.event.alarm.trigger.toICALString();
       }
     }
 
     function setEventAlarm() {
-      if (!vm.trigger) {
-        vm.event.alarm = undefined;
+      if (!self.trigger) {
+        self.event.alarm = undefined;
       } else {
-        vm.event.alarm = {
-          trigger: vm.trigger,
+        self.event.alarm = {
+          trigger: self.trigger,
           attendee: session.user.emails[0]
         };
       }

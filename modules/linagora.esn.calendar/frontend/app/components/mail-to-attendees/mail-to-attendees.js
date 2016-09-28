@@ -23,9 +23,9 @@
   MailToAttendeesController.$inject = ['_'];
 
   function MailToAttendeesController(_) {
-    var vm = this;
+    var self = this;
 
-    vm.attendeesMail = _.pluck(vm.event.attendees, 'email').join();
+    self.attendeesMail = _.pluck(self.event.attendees, 'email').join();
   }
 
 })();

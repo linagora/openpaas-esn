@@ -30,11 +30,11 @@
   ];
 
   function AttendeesAutocompleteInputController(calendarAttendeeService, emailService, naturalService, session, AUTOCOMPLETE_MAX_RESULTS) {
-    var vm = this;
+    var self = this;
 
-    vm.mutableAttendees = vm.mutableAttendees || [];
-    vm.onAddingAttendee = onAddingAttendee;
-    vm.getInvitableAttendees = getInvitableAttendees;
+    self.mutableAttendees = self.mutableAttendees || [];
+    self.onAddingAttendee = onAddingAttendee;
+    self.getInvitableAttendees = getInvitableAttendees;
 
     ////////////
 
@@ -48,7 +48,7 @@
     }
 
     function getInvitableAttendees(query) {
-      vm.query = query;
+      self.query = query;
 
       return calendarAttendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
         attendeeCandidates = _fillNonDuplicateAttendees(attendeeCandidates);
@@ -69,7 +69,7 @@
     }
 
     function _getAddedAttendeeIds() {
-      var addedAttendees = vm.mutableAttendees.concat(vm.originalAttendees || []);
+      var addedAttendees = self.mutableAttendees.concat(self.originalAttendees || []);
       var addedAttendeeIds = [];
 
       addedAttendees.forEach(function(att) {

@@ -31,20 +31,20 @@
   ];
 
   function EventMessageController($log, eventMessageService, eventService, session) {
-    var vm = this;
+    var self = this;
 
-    vm.changeParticipation = changeParticipation;
-    vm.isEventLoaded = false;
-    vm.isLoadFailed = false;
+    self.changeParticipation = changeParticipation;
+    self.isEventLoaded = false;
+    self.isLoadFailed = false;
 
     activate();
 
     ////////////
 
     function activate() {
-      eventService.getEvent(vm.message.eventId).then(function(event) {
+      eventService.getEvent(self.message.eventId).then(function(event) {
         // Set up dom nodes
-        vm.event = event;
+        self.event = event;
 
         // Load participation status
         var vcalendar = event.vcalendar;
@@ -57,37 +57,37 @@
         var attendee = organizer[0] || attendees[0];
 
         if (attendee) {
-          vm.partstat = attendee.getParameter('partstat');
+          self.partstat = attendee.getParameter('partstat');
         }
         _updateAttendeeStats();
-        vm.isEventLoaded = true;
+        self.isEventLoaded = true;
       }, function(response) {
         var error = 'Could not retrieve event: ' + response.statusText;
 
-        vm.isLoadFailed = true;
+        self.isLoadFailed = true;
         $log.error(error);
       });
     }
 
     function changeParticipation(partstat) {
-      var event = vm.event;
-      var path = vm.event.path;
-      var etag = vm.event.etag;
+      var event = self.event;
+      var path = self.event.path;
+      var etag = self.event.etag;
       var emails = session.user.emails;
 
       eventService.changeParticipation(path, event, emails, partstat, etag, false)
         .then(function(shell) {
-          vm.partstat = partstat;
+          self.partstat = partstat;
           if (shell) {
-            vm.event = shell;
+            self.event = shell;
             _updateAttendeeStats();
           }
         });
     }
 
     function _updateAttendeeStats() {
-      vm.attendeesPerPartstat = eventMessageService.computeAttendeeStats(vm.event.attendees);
-      vm.hasAttendees = !!vm.event.attendees;
+      self.attendeesPerPartstat = eventMessageService.computeAttendeeStats(self.event.attendees);
+      self.hasAttendees = !!self.event.attendees;
     }
   }
 

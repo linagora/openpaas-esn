@@ -35,34 +35,34 @@
   ];
 
   function CalendarConfigurationController($log, $modal, $scope, $state, screenSize, uuid4, CalendarCollectionShell, calendarService, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS) {
-    var vm = this;
+    var self = this;
 
-    vm.newCalendar = !vm.calendar;
-    vm.calendar = vm.calendar || {};
-    vm.oldCalendar = {};
-    vm.selectedTab = 'main';
-    vm.submit = submit;
-    vm.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
-    vm.delete = deleteCalendar;
-    vm.cancel = cancel;
-    vm.cancelMobile = cancelMobile;
-    vm.getMainView = getMainView;
-    vm.getDelegationView = getDelegationView;
+    self.newCalendar = !self.calendar;
+    self.calendar = self.calendar || {};
+    self.oldCalendar = {};
+    self.selectedTab = 'main';
+    self.submit = submit;
+    self.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
+    self.delete = deleteCalendar;
+    self.cancel = cancel;
+    self.cancelMobile = cancelMobile;
+    self.getMainView = getMainView;
+    self.getDelegationView = getDelegationView;
 
     activate();
 
     ////////////
 
     function activate() {
-      angular.copy(vm.calendar, vm.oldCalendar);
-      if (vm.newCalendar) {
-        vm.calendar.href = CalendarCollectionShell.buildHref(vm.calendarHomeId, uuid4.generate());
-        vm.calendar.color = '#' + Math.random().toString(16).substr(-6);
+      angular.copy(self.calendar, self.oldCalendar);
+      if (self.newCalendar) {
+        self.calendar.href = CalendarCollectionShell.buildHref(self.calendarHomeId, uuid4.generate());
+        self.calendar.color = '#' + Math.random().toString(16).substr(-6);
       }
     }
 
     function _canSaveCalendar() {
-      return !!vm.calendar.name && vm.calendar.name.length >= 1;
+      return !!self.calendar.name && self.calendar.name.length >= 1;
     }
 
     function _hasModifications(oldCalendar, newCalendar) {
@@ -76,16 +76,16 @@
         return;
       }
 
-      var shell = CalendarCollectionShell.from(vm.calendar);
+      var shell = CalendarCollectionShell.from(self.calendar);
 
-      if (vm.newCalendar) {
-        calendarService.createCalendar(vm.calendarHomeId, shell)
+      if (self.newCalendar) {
+        calendarService.createCalendar(self.calendarHomeId, shell)
           .then(function() {
-            notificationFactory.weakInfo('New calendar - ', vm.calendar.name + ' has been created.');
+            notificationFactory.weakInfo('New calendar - ', self.calendar.name + ' has been created.');
             $state.go('calendar.main');
           });
       } else {
-        if (!_hasModifications(vm.oldCalendar, vm.calendar)) {
+        if (!_hasModifications(self.oldCalendar, self.calendar)) {
           if (screenSize.is('xs, sm')) {
             $state.go('calendar.list');
           } else {
@@ -94,16 +94,16 @@
 
           return;
         }
-        calendarService.modifyCalendar(vm.calendarHomeId, shell)
+        calendarService.modifyCalendar(self.calendarHomeId, shell)
           .then(function() {
-            notificationFactory.weakInfo('Calendar - ', vm.calendar.name + ' has been modified.');
+            notificationFactory.weakInfo('Calendar - ', self.calendar.name + ' has been modified.');
             $state.go('calendar.main');
           });
       }
     }
 
     function openDeleteConfirmationDialog() {
-      vm.modal = $modal({
+      self.modal = $modal({
         templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation.html',
         controller: function($scope) {
           $scope.delete = function deleteCalendar() {
@@ -128,11 +128,11 @@
     }
 
     function getMainView() {
-      vm.selectedTab = 'main';
+      self.selectedTab = 'main';
     }
 
     function getDelegationView() {
-      vm.selectedTab = 'delegation';
+      self.selectedTab = 'delegation';
     }
   }
 
