@@ -5,7 +5,7 @@ angular.module('linagora.esn.contact')
 
     function getFormattedBirthday(birthday) {
       if (birthday instanceof Date) {
-        return moment(birthday).format('L'); // jshint ignore:line
+        return moment(birthday).format('L');
       }
       return birthday;
     }

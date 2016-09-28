@@ -40,22 +40,6 @@ module.exports = function(grunt) {
       }
 
     },
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        ignores: ['test/frontend/karma-include/*', 'frontend/js/modules/modernizr.js', 'modules/**/thirdparty/*.js'],
-        reporter: CI && 'checkstyle',
-        reporterOutput: CI && 'jshint.xml'
-      },
-      all: {
-        src: ['<%= eslint.all.src %>']
-      },
-      quick: {
-        // You must run the prepare-quick-lint target before jshint:quick,
-        // files are filled in dynamically.
-        src: ['<%= eslint.quick.src %>']
-      }
-    },
     lint_pattern: {
       options: {
         rules: [
@@ -195,10 +179,6 @@ module.exports = function(grunt) {
       modules_frontend: runGrunt.newProcess(['test-modules-frontend']),
       e2e: runGrunt.newProcess(['test-e2e'])
     },
-    watch: {
-      files: ['<%= jshint.files %>'],
-      tasks: ['jshint']
-    },
     'node-inspector': {
       dev: {
         options: {
@@ -212,7 +192,6 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');

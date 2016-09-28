@@ -1,7 +1,5 @@
 'use strict';
 
-//jscs:disable
-
 var seleniumWebapp = 'http://localhost:4444',
     testConfig = require('./servers-conf.js'),
     baseHost = process.env.LOCAL ? testConfig.host : 'esn_webapp';

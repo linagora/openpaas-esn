@@ -109,7 +109,6 @@
     "grunt-continue": "0.1.0",
     "grunt-contrib-clean": "1.0.0",
     "grunt-contrib-concat": "1.0.1",
-    "grunt-contrib-jshint": "1.0.0",
     "grunt-contrib-uglify": "2.0.0",
     "grunt-contrib-watch": "1.0.0",
     "grunt-docker-spawn": "git+https://ci.open-paas.org/stash/scm/olibs/grunt-docker-spawn.git#a4c8371fe23",

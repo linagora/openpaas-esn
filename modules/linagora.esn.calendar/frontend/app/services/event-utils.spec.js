@@ -71,7 +71,7 @@ describe('The eventUtils service', function() {
 
     var vcalendar = {};
 
-    vcalendar.hasOwnProperty = null; // jshint ignore:line
+    vcalendar.hasOwnProperty = null;
     event = {
       title: 'myTitle',
       description: 'description',

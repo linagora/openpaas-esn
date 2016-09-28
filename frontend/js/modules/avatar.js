@@ -324,7 +324,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
             onSelect: broadcastSelection,
             onChange: deviceDetector.isDesktop() ? broadcastSelection : function() {}
           }, jcropExtendOptions.get()), function() {
-            myJcropAPI = this; // jscs:ignore safeContextKeyword
+            myJcropAPI = this;
           });
 
         });
