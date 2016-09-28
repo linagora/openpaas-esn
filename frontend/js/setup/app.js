@@ -44,12 +44,12 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
   }
 
   $scope.ajaxRunning = function() {
-    return $scope.record.running || $scope.test.running ? true : false;
+    return Boolean($scope.record.running || $scope.test.running);
   };
 
   $scope.infocomplete = function() {
     var authInfosComplete = ($scope.settings.username && $scope.settings.password) || (!$scope.settings.username && !$scope.settings.password);
-    return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname && authInfosComplete ? true : false;
+    return Boolean($scope.settings.hostname && $scope.settings.port && $scope.settings.dbname && authInfosComplete);
   };
 
   $scope.testConnection = function() {

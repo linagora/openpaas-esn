@@ -241,7 +241,7 @@ angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
         };
 
         $boxOverlay.updateTitle = function(title) {
-          scope.title = title ? title : config.title;
+          scope.title = title || config.title;
         };
 
         return $boxOverlay;
