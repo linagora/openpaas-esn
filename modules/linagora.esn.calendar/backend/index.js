@@ -103,6 +103,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/request.js',
         'services/timezone.js',
 
+        'components/calendar/calendar.js',
         'components/attendee-list-item/attendee-list-item.js',
         'components/attendee-list-item-consult/attendee-list-item-consult.js',
         'components/attendee-list-item-edition/attendee-list-item-edition.js',

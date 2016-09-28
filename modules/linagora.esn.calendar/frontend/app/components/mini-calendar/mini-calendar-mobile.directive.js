@@ -15,18 +15,11 @@
       scope: {
         calendarHomeId: '='
       },
-      link: link,
       replace: true,
       controller: 'miniCalendarController'
     };
 
     return directive;
-
-    ////////////
-
-    function link(scope, element) { // eslint-disable-line
-      miniCalendarService.miniCalendarDesktopId = scope.miniCalendarId;
-    }
   }
 
 })();

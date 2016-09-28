@@ -27,8 +27,6 @@
     ////////////
 
     function link(scope, element) { // eslint-disable-line
-      miniCalendarService.miniCalendarMobileId = scope.miniCalendarId;
-
       scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         // initial-state is invisible and height: 0 so that the mini-calendar is not
         // expanded yet

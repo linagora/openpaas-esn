@@ -5,11 +5,11 @@
          .directive('toggleCalendarView', toggleCalendarView);
 
   toggleCalendarView.$inject = [
-    'uiCalendarConfig',
-    'calendarService'
+    'CALENDAR_EVENTS',
+    '$rootScope'
   ];
 
-  function toggleCalendarView(uiCalendarConfig, calendarService) {
+  function toggleCalendarView(CALENDAR_EVENTS, $rootScope) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -23,9 +23,8 @@
 
     function link(scope, element, attrs) { // eslint-disable-line
       element.on('click', function() {
-        uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('changeView', attrs.toggleCalendarView);
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, attrs.toggleCalendarView);
       });
     }
   }
-
 })();

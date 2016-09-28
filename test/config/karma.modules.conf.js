@@ -42,7 +42,6 @@ module.exports = function(config) {
       'frontend/components/angular-touch/angular-touch.min.js',
       'frontend/components/angular-leaflet-directive/dist/angular-leaflet-directive.js',
       'frontend/components/ngGeolocation/ngGeolocation.min.js',
-      'frontend/components/angular-ui-calendar/src/calendar.js',
       'frontend/components/angular-recursion/angular-recursion.min.js',
       'frontend/components/fullcalendar/dist/fullcalendar.min.js',
       'frontend/components/ical.js/build/ical.js',
@@ -82,7 +81,6 @@ module.exports = function(config) {
       'modules/**/frontend/app/**/*.js',
 
       'modules/**/test/unit-frontend/**/*.js',
-      'modules/**/frontend/app/**/*.spec.js',
 
       'modules/**/frontend/views/**/*.jade',
       'modules/**/frontend/app/**/*.jade',

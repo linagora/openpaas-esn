@@ -124,7 +124,9 @@
       CALENDARS: {
         ADD: 'calendar:calendars:add',
         REMOVE: 'calendar:calendars:remove',
-        TOGGLE_VIEW: 'calendar:calendars:toggleView'
+        TOGGLE_VIEW: 'calendar:calendars:toggleView',
+        TOGGLE_VIEW_MODE: 'calendar:calendars:toggleViewMode',
+        TODAY: 'calendar:calendars:today'
       },
       MINI_CALENDAR: {
         DATE_CHANGE: 'calendar:mini:dateChange',

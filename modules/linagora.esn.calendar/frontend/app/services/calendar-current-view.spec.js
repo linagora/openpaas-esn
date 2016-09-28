@@ -67,14 +67,9 @@ describe('The calendarCurrentView factory', function() {
       expect(locationMock.search).to.have.been.calledOnce;
     });
 
-    it('should save the value of the current view', function() {
+    it('should save the value of the current view in the url and in RAM', function() {
 
-      locationMock.search = sinon.spy(function(param) {
-        expect(param).to.deep.equals({
-          viewMode: 'month',
-          start: '2015-12-01'
-        });
-      });
+      locationMock.search = sinon.spy();
 
       calendarCurrentView.set({
         name: 'month',
@@ -83,9 +78,12 @@ describe('The calendarCurrentView factory', function() {
 
       var resGet = calendarCurrentView.get();
 
-      expect(locationMock.search).to.have.been.calledOnce;
+      expect(locationMock.search).to.have.been.calledWith({
+        viewMode: 'month',
+        start: '2015-12-01'
+      });
       expect(resGet.name).to.equal('month');
-      expect(resGet.start.isSame(fcMoment('2015-12-01'))).to.be.true;
+      expect(resGet.start.isSame(fcMoment('2015-11-30'), 'day')).to.be.true;
     });
   });
 
@@ -143,7 +141,6 @@ describe('The calendarCurrentView factory', function() {
     });
 
     it('should get the value of location if no set before', function() {
-
       locationMock.search = sinon.stub().returns({viewMode: 'month', start: '2015-12-01'});
 
       var resGet = calendarCurrentView.get();
@@ -152,5 +149,4 @@ describe('The calendarCurrentView factory', function() {
       expect(resGet.start.isSame(fcMoment('2015-12-01'))).to.be.true;
     });
   });
-
 });

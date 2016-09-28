@@ -5,11 +5,11 @@
          .directive('toggleCalendarToday', toggleCalendarToday);
 
   toggleCalendarToday.$inject = [
-    'uiCalendarConfig',
-    'calendarService'
+    'CALENDAR_EVENTS',
+    '$rootScope'
   ];
 
-  function toggleCalendarToday(uiCalendarConfig, calendarService) {
+  function toggleCalendarToday(CALENDAR_EVENTS, $rootScope) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -22,7 +22,7 @@
 
     function link(scope, element, attrs) { // eslint-disable-line
       element.on('click', function() {
-        uiCalendarConfig.calendars[calendarService.calendarHomeId].fullCalendar('today');
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TODAY);
       });
     }
   }
