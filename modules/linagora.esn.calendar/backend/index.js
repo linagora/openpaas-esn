@@ -148,7 +148,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-message/event-message.directive.js',
         'event-message/event-message.service.js',
 
-        'event-quick-form/event-quick-form.directive.js',
+        'event-quick-form/event-quick-form.directive.js'
 
       ];
 

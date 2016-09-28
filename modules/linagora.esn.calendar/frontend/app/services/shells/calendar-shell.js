@@ -348,7 +348,7 @@
           valarm.addPropertyWithValue('attendee', mailto);
           this.vevent.addSubcomponent(valarm);
         }
-      },
+      }
     };
 
     return CalendarShell;

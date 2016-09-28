@@ -14,7 +14,7 @@
         isOrganizer: '=',
         mode: '='
       },
-      replace: true,
+      replace: true
     };
 
     return directive;
