@@ -194,7 +194,6 @@ describe('The calendarViewController', function() {
     liveNotification = null;
   });
 
-
   beforeEach(function() {
     this.scope.uiConfig = this.UI_CONFIG;
     this.scope.calendarHomeId = 'calendarId';

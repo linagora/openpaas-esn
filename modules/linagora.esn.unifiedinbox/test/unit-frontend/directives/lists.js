@@ -300,7 +300,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
   describe('The inboxMessageListItem directive', function() {
 
-
     describe('the exposed functions from inboxEmailService', function() {
       beforeEach(function() {
         ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {

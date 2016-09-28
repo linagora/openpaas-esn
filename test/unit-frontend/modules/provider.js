@@ -524,7 +524,6 @@ describe('The esn.provider module', function() {
       INFINITE_LIST_LOAD_EVENT = _INFINITE_LIST_LOAD_EVENT_;
     }));
 
-
     it('should call groups.addElement when ADD_ELEMENT is received', function() {
       var scope = $rootScope.$new(), item = { id: 'item' };
 

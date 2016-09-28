@@ -39,7 +39,6 @@ describe('The calendarDateIndicator directive', function() {
     };
   });
 
-
   it('should initialize the dateIndicator with the home calendar view title', function() {
     var element = this.initDirective(this.$scope);
 

@@ -99,7 +99,6 @@
       $scope.uiConfig.calendar.defaultDate = currentView.start || $scope.uiConfig.calendar.defaultDate;
       $scope.uiConfig.calendar.defaultView = currentView.name || $scope.uiConfig.calendar.defaultView;
 
-
       /*
        * "eventAfterAllRender" is called when all events are fetched but it
        * is not called when the davserver is unreachable so the "viewRender"

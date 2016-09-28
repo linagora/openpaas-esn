@@ -23,7 +23,6 @@
 
     ////////////
 
-
     function forEachDayOfEvent(event, callback) {
       var day = fcMoment(event.start);
       var end = fcMoment(event.end || event.start);
