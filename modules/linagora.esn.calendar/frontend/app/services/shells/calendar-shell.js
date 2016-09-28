@@ -464,7 +464,7 @@
         return false;
       }
 
-      while ((currentDatetime = iterator.next()) && (!endDate || _beforeEndDate(currentDatetime)) && (!maxElement || result.length < maxElement)) {
+      while ((currentDatetime = iterator.next()) && (!endDate || _beforeEndDate(currentDatetime)) && (!maxElement || result.length < maxElement)) { // eslint-disable-line no-cond-assign
 
         if (!startDate || startDate.isBefore(currentDatetime.toJSDate()) || (!startDate.hasTime() && startDate.isSame(currentDatetime.toJSDate(), 'day'))) {
           currentDetails = this.icalEvent.getOccurrenceDetails(currentDatetime);

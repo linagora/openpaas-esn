@@ -689,9 +689,13 @@ angular.module('linagora.esn.unifiedinbox')
       mailbox.level = 1;
       mailbox.qualifiedName = mailbox.name;
 
-      while ((parent = _findMailboxInCache(parent.parentId))) {
+      parent = _findMailboxInCache(parent.parentId);
+
+      while (parent) {
         mailbox.qualifiedName = parent.name + MAILBOX_LEVEL_SEPARATOR + mailbox.qualifiedName;
         mailbox.level++;
+
+        parent = _findMailboxInCache(parent.parentId);
       }
 
       return Mailbox(mailbox);

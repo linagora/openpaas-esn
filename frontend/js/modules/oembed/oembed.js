@@ -36,13 +36,13 @@ angular.module('esn.oembed', [])
     function getLinks(text) {
       var source = (text || '').toString();
       var urlArray = [];
-      var matchArray;
-
       var regexToken = /(((https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g;
+      var matchArray = regexToken.exec(source);
 
-      while ((matchArray = regexToken.exec(source)) !== null) {
+      while (matchArray !== null) {
         var token = matchArray[0];
         urlArray.push(token);
+        matchArray = regexToken.exec(source);
       }
 
       return urlArray;
