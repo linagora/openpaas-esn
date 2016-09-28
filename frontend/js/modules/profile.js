@@ -42,12 +42,10 @@ angular.module('esn.profile', [])
       link: function($scope) {
         if (!$scope.user) {
           $scope.name = '';
+        } else if ($scope.user.firstname || $scope.user.lastname) {
+          $scope.name = ($scope.user.firstname || '') + ' ' + ($scope.user.lastname || '');
         } else {
-          if ($scope.user.firstname || $scope.user.lastname) {
-            $scope.name = ($scope.user.firstname || '') + ' ' + ($scope.user.lastname || '');
-          } else {
-            $scope.name = $scope.user.emails[0];
-          }
+          $scope.name = $scope.user.emails[0];
         }
       }
     };

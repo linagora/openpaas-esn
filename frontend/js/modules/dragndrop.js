@@ -175,13 +175,11 @@ angular.module('esn.dragndrop', [
     function onMouseMove(event) {
       if ($rootScope.esnIsDragging) {
         onDrag(event);
-      } else {
-        if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
-            Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
-          $rootScope.esnIsDragging = true;
-          onDragStart();
-          onDrag(event);
-        }
+      } else if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
+          Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
+        $rootScope.esnIsDragging = true;
+        onDragStart();
+        onDrag(event);
       }
     }
 

@@ -31,10 +31,8 @@ module.exports = function(dependencies) {
           if (options.onSuccess) {
             return options.onSuccess(rsp, data, req, res, callback);
           }
-        } else {
-          if (options.onError) {
-            return options.onError(rsp, data, req, res, callback);
-          }
+        } else if (options.onError) {
+          return options.onError(rsp, data, req, res, callback);
         }
 
         callback(null, data);

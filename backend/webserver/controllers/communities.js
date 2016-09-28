@@ -580,11 +580,9 @@ module.exports.removeMembershipRequest = function(req, res) {
     } else {
       communityModule.refuseMembershipRequest(req.community, membership, req.user, onResponse);
     }
+  } else if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
+    communityModule.declineMembershipInvitation(req.community, membership, req.user, onResponse);
   } else {
-    if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
-      communityModule.declineMembershipInvitation(req.community, membership, req.user, onResponse);
-    } else {
-      communityModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
-    }
+    communityModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
   }
 };
