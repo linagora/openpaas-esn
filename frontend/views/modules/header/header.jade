@@ -6,7 +6,7 @@ div
       ul.list-inline.all-centered
         li.logo
           a(href='', ui-sref='home')
-            img.openpaas-logo(src="/images/white-logo.svg")
+            img.openpaas-logo(src="/images/white-logo.svg", alt='#{__("OpenPaas Logo")}')
       ul.list-inline.all-centered.header-actions
         li.hover-scale-animation
           a(href='')
@@ -17,7 +17,7 @@ div
         li.hover-scale-animation
           application-menu-toggler
         li.avatar-container(ng-controller='avatarController' ui-sref='profile')
-          img.header-avatar(ng-src="{{avatarURL}}")
+          img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
     sub-header-container
   sidebar
   api-notification

@@ -17,18 +17,18 @@ html.mail
             td(colspan='2').logo
               div
                 a(href="#{content.baseUrl}")
-                  img(src="cid:logo", alt="open-paas logo")
+                  img(src="cid:logo", alt='#{__("OpenPaas Logo")}')
             td(colspan='2').organizer
               h5
                 p
                   | #{content.event.organizer.cn} (
                   span.small
                     a(href='mailto:#{content.event.organizer.email}')
-                      img(src="cid:email", alt="Organizer mail")
+                      img(src="cid:email", alt='#{__("Organizer mail")}')
                     | )
                 p.big Event Reminder
             td(colspan='2').avatar.indent-right
-              img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
+              img(src="#{content.event.organizer.avatar}", alt='#{__("Organizer Avatar")}', width="45px", height="42px")
           tr
             td(colspan='6').indent
               span.title #{content.event.summary}
@@ -37,9 +37,9 @@ html.mail
           tr
             td.indent
               if (content.event.end)
-                img(src="cid:clock", alt="From")
+                img(src="cid:clock", alt='#{__("From")}')
               else
-                img(src="cid:clock", alt="At")
+                img(src="cid:clock", alt='#{__("At")}')
             td
               p #{content.event.start.date}
               if (!content.event.allDay)
@@ -49,7 +49,7 @@ html.mail
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
                   p all day
                 else
-                  img.check-transform(src="cid:check", alt="To")
+                  img.check-transform(src="cid:check", alt='#{__("To")}')
               td
                 if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
                   p #{content.event.end.date}
@@ -64,7 +64,7 @@ html.mail
           if (content.event.location)
             tr
               td(colspan='1').indent
-                img(src="cid:map-marker", alt="Location")
+                img(src="cid:map-marker", alt='#{__("Location")}')
               td(colspan='3').indent
                 | #{content.event.location}
 
