@@ -173,7 +173,7 @@ module.exports.getTracker = function(type) {
 
         var hash = {};
         stream.on('data', function(doc) {
-          if ((doc.actor._id + '') !== (userId + '')) {
+          if ((doc.actor.id) !== (userId + '')) {
             hash[doc.object._id] = hash[doc.object._id] || [];
             hash[doc.object._id].push({verb: doc.verb, id: doc._id});
           }

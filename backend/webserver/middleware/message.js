@@ -81,7 +81,7 @@ module.exports.canShareFrom = function(req, res, next) {
       return res.status(404).json({error: {code: 404, message: 'Not Found', details: 'Collaboration not found (objectType:' + resource.objectType + ', id: ' + resource.id + ')'}});
     }
 
-    collaborationPermission.canRead(collaboration[0], {objectType: 'user', id: '' + req.user._id}, function(err, read) {
+    collaborationPermission.canRead(collaboration[0], {objectType: 'user', id: req.user.id}, function(err, read) {
       if (err) {
         logger.error('Error while checking read rights on collaboration (objectType:%s, id: %s)', resource.objectType, resource.id, err);
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Server Error while checking read rights: ' + err.message}});
@@ -110,7 +110,7 @@ module.exports.canShareTo = function(req, res, next) {
           return callback(err, false);
         }
 
-        collaborationPermission.canWrite(collaboration[0], {objectType: 'user', id: req.user._id + ''}, callback);
+        collaborationPermission.canWrite(collaboration[0], {objectType: 'user', id: req.user.id}, callback);
       });
     },
     function(err, results) {

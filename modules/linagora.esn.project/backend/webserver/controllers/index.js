@@ -21,7 +21,7 @@ function transform(lib, project, user, callback) {
     project.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  var tuple = {objectType: 'user', id: user._id + ''};
+  var tuple = {objectType: 'user', id: user.id};
   async.waterfall([
     function(callback) {
       lib.isMember(project, tuple, callback);
@@ -98,7 +98,7 @@ function projectControllers(lib, dependencies) {
       }
 
       transform(lib, project, req.user, function(transformed) {
-        permission.canWrite(project, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
+        permission.canWrite(project, {objectType: 'user', id: req.user.id}, function(err, writable) {
           var result = transformed;
           result.writable = writable;
           return res.status(200).json(result);

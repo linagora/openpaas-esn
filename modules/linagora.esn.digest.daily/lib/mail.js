@@ -89,7 +89,7 @@ function _buildContent(user, data, baseUrl) {
 
   data.forEach(function(element) {
     var collaboration = {
-      id: element.collaboration._id + '',
+      id: element.collaboration.id,
       title: element.collaboration.title,
       objectType: element.collaboration.objectType,
       messages: [],

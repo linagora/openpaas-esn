@@ -29,7 +29,7 @@ function transform(community, user, callback) {
     community.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  communityModule.isMember(community, {objectType: 'user', id: user._id + ''}, function(err, membership) {
+  communityModule.isMember(community, {objectType: 'user', id: user.id}, function(err, membership) {
     if (membership) {
       community.member_status = 'member';
     } else {

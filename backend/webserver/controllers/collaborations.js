@@ -24,7 +24,7 @@ function transform(collaboration, user, callback) {
     collaboration.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  var userTuple = {objectType: 'user', id: user._id + ''};
+  var userTuple = {objectType: 'user', id: user.id};
 
   collaborationModule.isMember(collaboration, userTuple, function(err, membership) {
     if (membership) {

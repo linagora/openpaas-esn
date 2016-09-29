@@ -124,7 +124,7 @@ describe('linagora.esn.messaging.email module', function() {
           req.end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body.parentId).to.exist;
-            expect(res.body.parentId).to.equal(message._id + '');
+            expect(res.body.parentId).to.equal(message.id);
 
             self.helpers.api.loadMessage(message._id, function(err, message) {
               if (err) {
@@ -170,7 +170,7 @@ describe('linagora.esn.messaging.email module', function() {
           req.end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body.parentId).to.exist;
-            expect(res.body.parentId).to.equal(message._id + '');
+            expect(res.body.parentId).to.equal(message.id);
 
             self.helpers.api.loadMessage(message._id, function(err, message) {
               if (err) {

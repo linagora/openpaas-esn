@@ -459,7 +459,7 @@ describe('The communities API', function() {
               expect(err).to.not.exist;
               expect(res.body).to.exist;
               expect(res.body.creator).to.exist;
-              expect(res.body.creator).to.equal(user._id + '');
+              expect(res.body.creator).to.equal(user.id);
               expect(res.body.title).to.equal(community.title);
               expect(res.body.description).to.equal(community.description);
 
@@ -471,8 +471,8 @@ describe('The communities API', function() {
                 expect(result.length).to.equal(1);
                 expect(result[0].title).to.equal(community.title);
                 expect(result[0].description).to.equal(community.description);
-                expect(result[0].creator + '').to.equal(user._id + '');
-                expect(result[0].members[0].member.id + '').to.equal(user._id + '');
+                expect(result[0].creator + '').to.equal(user.id);
+                expect(result[0].members[0].member.id + '').to.equal(user.id);
                 done();
               });
             });

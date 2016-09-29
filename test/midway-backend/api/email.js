@@ -131,10 +131,10 @@ describe('The email API', function() {
                     expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
                     expect(results[0].object).to.exist;
                     expect(results[0].object.objectType).to.equal('email');
-                    expect(results[0].object._id + '').to.equal(res.body._id);
+                    expect(results[0].object.id).to.equal(res.body._id);
                     expect(results[0].actor).to.exist;
                     expect(results[0].actor.objectType).to.equal('user');
-                    expect(results[0].actor._id + '').to.equal('' + user._id);
+                    expect(results[0].actor.id).to.equal(user.id);
                     done();
                   });
                 });
@@ -221,10 +221,10 @@ describe('The email API', function() {
                     expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
                     expect(results[0].object).to.exist;
                     expect(results[0].object.objectType).to.equal('email');
-                    expect(results[0].object._id + '').to.equal(res.body._id);
+                    expect(results[0].object.id).to.equal(res.body._id);
                     expect(results[0].actor).to.exist;
                     expect(results[0].actor.objectType).to.equal('user');
-                    expect(results[0].actor._id + '').to.equal('' + user._id);
+                    expect(results[0].actor.id).to.equal(user.id);
                     done();
                   });
                 });
@@ -319,10 +319,10 @@ describe('The email API', function() {
                     expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
                     expect(results[0].object).to.exist;
                     expect(results[0].object.objectType).to.equal('email');
-                    expect(results[0].object._id + '').to.equal(res.body._id);
+                    expect(results[0].object.id).to.equal(res.body._id);
                     expect(results[0].actor).to.exist;
                     expect(results[0].actor.objectType).to.equal('user');
-                    expect(results[0].actor._id + '').to.equal('' + user._id);
+                    expect(results[0].actor.id).to.equal(user.id);
                     done();
                   });
                 });

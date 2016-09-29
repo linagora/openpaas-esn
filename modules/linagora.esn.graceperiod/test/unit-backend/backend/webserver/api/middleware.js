@@ -95,7 +95,7 @@ describe('The graceperiod middleware', function() {
         return callback(new Error());
       };
 
-      getMiddleware().isUserTask({user: {_id: 123}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+      getMiddleware().isUserTask({user: {_id: 123, id: '123'}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
         expect(code).to.equal(500);
 
         done();
@@ -107,7 +107,7 @@ describe('The graceperiod middleware', function() {
         return callback();
       };
 
-      getMiddleware().isUserTask({user: {_id: 123}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+      getMiddleware().isUserTask({user: {_id: 123, id: '123'}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
         expect(code).to.equal(404);
 
         done();
@@ -115,12 +115,12 @@ describe('The graceperiod middleware', function() {
     });
 
     it('should send back HTTP 403 when task is not user one', function(done) {
-      var userId = 1;
+      var userId = '1';
       deps.auth.token.getToken = function(id, callback) {
         return callback(null, {token: 2, user: '3'});
       };
 
-      getMiddleware().isUserTask({user: {_id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+      getMiddleware().isUserTask({user: {_id: userId, id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
         expect(code).to.equal(403);
 
         done();
@@ -128,12 +128,12 @@ describe('The graceperiod middleware', function() {
     });
 
     it('should call next when task is user one', function(done) {
-      var userId = 1;
+      var userId = '1';
       deps.auth.token.getToken = function(id, callback) {
-        return callback(null, {token: 2, user: userId + ''});
+        return callback(null, {token: 2, user: userId});
       };
 
-      getMiddleware().isUserTask({user: {_id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+      getMiddleware().isUserTask({user: {_id: userId, id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
         done(new Error());
       }), done);
     });

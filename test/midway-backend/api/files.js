@@ -158,7 +158,7 @@ describe('The files API', function() {
               expect(meta.metadata).to.exist;
               expect(meta.metadata.creator).to.exist;
               expect(meta.metadata.creator.objectType).to.equal('user');
-              expect(meta.metadata.creator.id + '').to.equal(user._id + '');
+              expect(meta.metadata.creator.id + '').to.equal(user.id);
               done();
             });
           });

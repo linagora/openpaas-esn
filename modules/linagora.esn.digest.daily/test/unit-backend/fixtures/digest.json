@@ -3,6 +3,7 @@
     "messages": [],
     "collaboration": {
       "_id": "54b7ab5d814a5e00001ae823",
+      "id": "54b7ab5d814a5e00001ae823",
       "title": "Collaboration with no messages",
       "creator": "537f0c2f7334bece4564c683",
       "__v": 0,
@@ -278,6 +279,7 @@
     ],
     "collaboration": {
       "_id": "54b7a921814a5e00001ae81c",
+      "id": "54b7a921814a5e00001ae81c",
       "title": "Collaboration with mixed messages",
       "creator": "54b68988ce89cbdd998e2746",
       "__v": 1,
@@ -562,6 +564,7 @@
     ],
     "collaboration": {
       "_id": "54b7a921814a5e00001ae81c",
+      "id": "54b7a921814a5e00001ae81c",
       "title": "Collaboration with all messages read",
       "creator": "54b68988ce89cbdd998e2746",
       "__v": 1,
@@ -832,6 +835,7 @@
     ],
     "collaboration": {
       "_id": "54b7a921814a5e00001ae81f",
+      "id": "54b7a921814a5e00001ae81f",
       "title": "Collaboration with multiple messages",
       "creator": "54b68988ce89cbdd998e2746",
       "__v": 1,
