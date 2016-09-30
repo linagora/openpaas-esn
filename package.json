@@ -101,8 +101,8 @@
     "dockerode": "git+https://github.com/linagora/dockerode.git#1538354437a",
     "eslint": "3.6.0",
     "eslint-config-airbnb-base": "8.0.0",
-    "eslint-plugin-import": "1.16.0",
     "eslint-config-linagora-esn": "1.0.2",
+    "eslint-plugin-import": "1.16.0",
     "find-port": "2.0.1",
     "grunt": "0.4.5",
     "grunt-config": "1.0.0",
@@ -153,7 +153,8 @@
     "sinon": "1.17.5",
     "sinon-chai": "2.8.0",
     "supertest": "2.0.0",
-    "swagger-jsdoc": "1.6.0"
+    "swagger-jsdoc": "1.6.0",
+    "time-grunt": "^1.4.0"
   },
   "scripts": {
     "postinstall": "bower install --allow-root"
