@@ -179,7 +179,7 @@ angular.module('esn.activitystreams-tracker', [
 
   })
   .factory('ASTrackerNotificationService',
-  function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session) {
+  function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session, _) {
 
     this.notifications = {};
     this.activityStreams = [];
@@ -249,12 +249,7 @@ angular.module('esn.activitystreams-tracker', [
     }
 
     function removeItem(streamId) {
-      for (var i in self.activityStreams) {
-        if (self.activityStreams[i].uuid === streamId) {
-          self.activityStreams.splice(i, 1);
-          break;
-        }
-      }
+      _.remove(self.activityStreams, { uuid: streamId });
     }
 
     return {

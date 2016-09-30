@@ -75,7 +75,7 @@ angular.module('linagora.esn.contact')
       link: {
         // We do translation in pre-link to execute it before the dynamic directive injection
         pre: function(scope) {
-          scope.displayShell  = ContactShellDisplayBuilder.build(scope.contact);
+          scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
           scope.avatarSize = CONTACT_AVATAR_SIZE.list;
         }
       }
@@ -91,7 +91,7 @@ angular.module('linagora.esn.contact')
       },
       controller: 'contactItemController',
       link: function(scope) {
-        scope.displayShell  = ContactShellDisplayBuilder.build(scope.contact);
+        scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
         scope.avatarSize = CONTACT_AVATAR_SIZE.cards;
       }
     };
@@ -182,7 +182,7 @@ angular.module('linagora.esn.contact')
       },
       link: function(scope) {
         scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
-        scope.displayShell  = ContactShellDisplayBuilder.build(scope.contact);
+        scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
       }
     };
   })

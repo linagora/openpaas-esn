@@ -112,11 +112,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     element.appendTo(document.body);
 
     if (data) {
-      for (var key in data) {
-        if (data.hasOwnProperty(key)) {
-          element.data(key, data[key]);
-        }
-      }
+      Object.keys(data).forEach(function(key) {
+        element.data(key, data[key]);
+      });
     }
 
     $compile(element)($scope);

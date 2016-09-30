@@ -1,6 +1,6 @@
 'use strict';
 
-var angularInjections = angularInjections || [];
+var angularInjections = window.angularInjections || [];
 
 angular.module('signupApp', [
   'esn.invitation',

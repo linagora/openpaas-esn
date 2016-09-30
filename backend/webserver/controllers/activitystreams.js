@@ -14,8 +14,7 @@ var isValidObjectId = function(id) {
   try {
     new mongoose.Types.ObjectId(id);
     return true;
-  }
-  catch (err) {
+  } catch (err) {
     return false;
   }
 };

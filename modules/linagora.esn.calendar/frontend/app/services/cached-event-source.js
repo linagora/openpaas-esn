@@ -39,7 +39,7 @@
         (changes[event.id].instances || []).forEach(function(subEvent) {
           deleteRegistration(subEvent);
         });
-        delete(changes[event.id]);
+        delete changes[event.id];
       }
     }
 

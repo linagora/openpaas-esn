@@ -18,7 +18,7 @@ angular.module('esn.api-notification', ['esn.notification'])
 
               var text = msg.author + ' ' + msg.action + ' a ' + msg.object;
               if (msg.link) {
-                text = 'Check it out on <a target="_blank" href=\"' + msg.link + '\">link</a>';
+                text = 'Check it out on <a target="_blank" href="' + msg.link + '">link</a>';
               }
               notificationFactory.strongInfo(msg.title || 'New notification', text);
             }

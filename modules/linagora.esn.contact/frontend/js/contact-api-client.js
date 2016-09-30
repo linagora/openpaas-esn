@@ -115,11 +115,11 @@ angular.module('linagora.esn.contact')
      * @param  {String} bookId   the addressbook home ID
      * @param  {String} bookName the addressbook name
      * @param  {Object} options  Optional, includes:
-     *                           	+ page(Number): current page
-     *                           	+ limit(Number):
-     *                           	+ paginate(Boolean):
-     *                           	+ sort(String):
-     *                           	+ userId(String):
+     *                             + page(Number): current page
+     *                             + limit(Number):
+     *                             + paginate(Boolean):
+     *                             + sort(String):
+     *                             + userId(String):
      * @return {Promise}          If success, resolve an object with:
      *                            + data: an array of ContactShell
      *                            + current_page:
@@ -162,7 +162,7 @@ angular.module('linagora.esn.contact')
      * @param  {Object} options  Search options, includes:
      *                            + bookId: The AB home ID
      *                            + bookName: The AB name
-     *                           	+ data: query to search
+     *                             + data: query to search
      *                            + userId
      *                            + page
      * @return {Promise}          If success, return an object with:
@@ -194,7 +194,7 @@ angular.module('linagora.esn.contact')
               data: shells
             };
             if (!response.last_page) {
-              result.next_page =  parseInt(result.current_page, 10) + 1;
+              result.next_page = parseInt(result.current_page, 10) + 1;
             }
             return result;
           });
@@ -274,12 +274,12 @@ angular.module('linagora.esn.contact')
      * @param  {String} bookName the addressbook name
      * @param  {String} cardId   the card ID to update
      * @param  {Object} options  Includes:
-     *                           		+ etag
-     *                           		+ graceperiod
+     *                               + etag
+     *                               + graceperiod
      * @return {Promise}          If success and it's a grace task: resolve
      *                               grace period taskId
      *                            If success and it's not a grace task: resolve
-     *                            	nothing
+     *                              nothing
      */
     function removeCard(bookId, bookName, cardId, options) {
       if (!cardId) {

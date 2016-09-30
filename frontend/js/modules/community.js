@@ -196,10 +196,10 @@ angular.module('esn.community', [
       $scope.createCommunity = function() {
         $scope.wizard.nextStep();
         $scope.community.avatar = {
-          exists: function() { return selectionService.getImage() ? true : false; },
+          exists: function() { return !!selectionService.getImage(); },
           getBlob: function(mime, callback) { return selectionService.getBlob(mime, callback); }
         };
-        $scope.create =  { step: 'post', percent: 1 };
+        $scope.create = { step: 'post', percent: 1 };
         communityCreationService($scope.community)
         .then(onSuccess, onFailure, onNotification);
       };

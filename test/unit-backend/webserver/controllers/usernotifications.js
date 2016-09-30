@@ -443,6 +443,11 @@ describe('The user notifications controller', function() {
     });
 
     it('should change req.query.ids to array if it is not', function(done) {
+      var req = {
+        query: {
+          ids: '123'
+        }
+      };
       var userNotificationModuleMocked = {
         getAll: function() {
           expect(req.query.ids).to.deep.equal(['123']);
@@ -451,11 +456,7 @@ describe('The user notifications controller', function() {
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
-      var req = {
-        query: {
-          ids: '123'
-        }
-      };
+
       controller.loadAll(req, {}, {});
     });
 

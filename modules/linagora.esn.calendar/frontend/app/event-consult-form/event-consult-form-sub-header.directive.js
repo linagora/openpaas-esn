@@ -8,7 +8,7 @@
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-consult-form/event-consult-form-sub-header.html',
-      replace: true,
+      replace: true
     };
 
     return directive;

@@ -13,7 +13,7 @@
         readOnly: '=',
         isOrganizer: '='
       },
-      replace: true,
+      replace: true
     };
 
     return directive;

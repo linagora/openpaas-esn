@@ -1,7 +1,5 @@
 'use strict';
 
-//jscs:disable
-
 var seleniumWebapp = 'http://localhost:4444',
     testConfig = require('./servers-conf.js'),
     baseHost = process.env.LOCAL ? testConfig.host : 'esn_webapp';
@@ -14,11 +12,11 @@ exports.config = {
   framework: 'custom',
   frameworkPath: require.resolve('protractor-cucumber-framework'),
   capabilities: {
-    'browserName': process.env.BROWSER || 'firefox'
+    browserName: process.env.BROWSER || 'firefox'
   },
   suites: {
-    'modules': '../../modules/**/test/e2e/**/*.feature',
-    'core': '../e2e/**/*.feature'
+    modules: '../../modules/**/test/e2e/**/*.feature',
+    core: '../e2e/**/*.feature'
   },
   cucumberOpts: {
     require: [

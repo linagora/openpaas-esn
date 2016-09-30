@@ -8,7 +8,7 @@ fs.readdirSync(__dirname).forEach(function(filename) {
   var stat = fs.statSync(__dirname + '/' + filename);
   if (!stat.isDirectory()) { return; }
   function load() { return require('./' + filename); }
-  exports.__defineGetter__(filename, load);
+  exports.__defineGetter__(filename, load); // eslint-disable-line no-restricted-properties
 });
 
 exports.init = function(callback) {

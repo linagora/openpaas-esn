@@ -109,7 +109,7 @@ function fetchMember(tuple, callback) {
 }
 
 function getMembers(collaboration, objectType, query, callback) {
-  query = query ||  {};
+  query = query || {};
 
   var id = collaboration._id || collaboration;
 
@@ -183,16 +183,16 @@ function addMembershipRequest(objectType, collaboration, userAuthor, userTarget,
   if (!topic) {
     var errorMessage = 'Invalid workflow, must be ';
     var isFirstLoop = true;
-    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
-      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
-        if (isFirstLoop) {
-          errorMessage += '"' + key + '"';
-          isFirstLoop = false;
-        } else {
-          errorMessage += ' or "' + key + '"';
-        }
+
+    Object.keys(WORKFLOW_NOTIFICATIONS_TOPIC).forEach(function(key) {
+      if (isFirstLoop) {
+        errorMessage += '"' + key + '"';
+        isFirstLoop = false;
+      } else {
+        errorMessage += ' or "' + key + '"';
       }
-    }
+    });
+
     return callback(new Error(errorMessage));
   }
 
@@ -392,11 +392,9 @@ function findCollaborationFromActivityStreamID(id, callback) {
     });
   }
 
-  for (var key in collaborationModels) {
-    if (Object.hasOwnProperty.call(collaborationModels, key)) {
-      finders.push(async.apply(finder, key));
-    }
-  }
+  Object.keys(collaborationModels).forEach(function(key) {
+    finders.push(async.apply(finder, key));
+  });
 
   async.parallel(finders, function(err, results) {
     if (err) {
@@ -433,11 +431,9 @@ function getCollaborationsForTuple(tuple, callback) {
     });
   }
 
-  for (var key in collaborationModels) {
-    if (Object.hasOwnProperty.call(collaborationModels, key)) {
-      finders.push(async.apply(finder, key));
-    }
-  }
+  Object.keys(collaborationModels).forEach(function(key) {
+    finders.push(async.apply(finder, key));
+  });
 
   async.parallel(finders, function(err, results) {
     if (err) {
@@ -465,11 +461,11 @@ function getStreamsForUser(userId, options, callback) {
     });
   }
 
-  for (var type in collaborationLibs) {
+  Object.keys(collaborationLibs).forEach(function(type) {
     if (collaborationLibs[type] && collaborationLibs[type].getStreamsForUser) {
       finders.push(async.apply(finder, type));
     }
-  }
+  });
 
   async.parallel(finders, function(err) {
     if (err) {
@@ -495,11 +491,11 @@ function getCollaborationsForUser(userId, options, callback) {
     });
   }
 
-  for (var type in collaborationLibs) {
+  Object.keys(collaborationLibs).forEach(function(type) {
     if (collaborationLibs[type] && collaborationLibs[type].getCollaborationsForUser) {
       finders.push(async.apply(finder, type));
     }
-  }
+  });
 
   async.parallel(finders, function(err) {
     return callback(err, results);

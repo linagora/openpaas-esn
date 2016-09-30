@@ -442,12 +442,10 @@ function removeMembershipRequest(req, res) {
     } else {
       collaborationModule.refuseMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     }
+  } else if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
+    collaborationModule.declineMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
   } else {
-    if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
-      collaborationModule.declineMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
-    } else {
-      collaborationModule.cancelMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
-    }
+    collaborationModule.cancelMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
   }
 }
 module.exports.removeMembershipRequest = removeMembershipRequest;

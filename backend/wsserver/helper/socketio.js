@@ -1,4 +1,5 @@
 'use strict';
+
 var store = require('../socketstore');
 
 function getUserSocketsFromNamespace(userId, nsSockets) {

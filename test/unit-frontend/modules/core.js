@@ -1,5 +1,7 @@
 'use strict';
+
 /* global chai, sinon: false */
+
 var expect = chai.expect;
 
 describe('The Angular core module', function() {

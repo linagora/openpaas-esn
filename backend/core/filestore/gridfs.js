@@ -66,7 +66,7 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
     content_type: contentType
   };
 
-  options = options ||  {};
+  options = options || {};
 
   if (options.filename) {
     opts.filename = options.filename;

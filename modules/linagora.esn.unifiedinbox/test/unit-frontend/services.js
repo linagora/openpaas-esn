@@ -678,7 +678,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: {displayName: '0', email: '0@linagora.com'}
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
@@ -697,7 +697,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: {displayName: '0', email: '0@linagora.com'}
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
@@ -714,7 +714,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: {displayName: '0', email: '0@linagora.com'}
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
@@ -733,7 +733,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: {displayName: 'sender', email: 'sender@linagora.com'}
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
@@ -750,7 +750,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: { displayName: '1', email: '1@linagora.com' }
         };
 
-        sender =  { displayName: 'sender', email: 'sender@linagora.com' };
+        sender = { displayName: 'sender', email: 'sender@linagora.com' };
 
         expectedEmail = {
           to: [{ displayName: '1', email: '1@linagora.com' }, { displayName: '2', email: '2@linagora.com' }],
@@ -770,7 +770,7 @@ describe('The Unified Inbox Angular module services', function() {
           replyTo: [{displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}]
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}, {displayName: 'replyToEmail', email: 'replyToEmail@linagora.com'}],
@@ -789,7 +789,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: {displayName: '0', email: '0@linagora.com'}
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
@@ -799,7 +799,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedEmail.bcc);
 
-        sender =  {displayName: '5', email: '5@linagora.com'};
+        sender = {displayName: '5', email: '5@linagora.com'};
         expect(emailSendingService.getReplyAllRecipients(email, sender).bcc).to.shallowDeepEqual(expectedEmail.bcc);
       });
 
@@ -811,7 +811,7 @@ describe('The Unified Inbox Angular module services', function() {
           from: {displayName: '0', email: '0@linagora.com'}
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         expectedEmail = {
           to: [{displayName: '2', email: '2@linagora.com'}, {displayName: '0', email: '0@linagora.com'}],
@@ -821,7 +821,7 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
 
-        sender =  {displayName: 'sender', preferredEmail: 'sender@linagora.com'};
+        sender = {displayName: 'sender', preferredEmail: 'sender@linagora.com'};
         expect(emailSendingService.getReplyAllRecipients(email, sender)).to.shallowDeepEqual(expectedEmail);
       });
     });
@@ -892,7 +892,7 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'my subject',
           htmlBody: '<p>my body</p>'
         };
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
           to: [{displayName: '1', email: '1@linagora.com'}],
@@ -923,7 +923,7 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'my subject',
           htmlBody: '<p>my body</p>'
         };
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
           to: [{displayName: '1', email: '1@linagora.com'}],
@@ -949,7 +949,7 @@ describe('The Unified Inbox Angular module services', function() {
           attachments: [{attachment: 'A'}, {attachment: 'B'}]
         };
 
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
 
         mockGetMessages(email);
         emailSendingService.createReplyAllEmailObject('id', sender).then(function(email) {
@@ -974,7 +974,7 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'my subject',
           htmlBody: '<p>my body</p>'
         };
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
           to: [{email: 'from@linagora.com', name: 'linagora'}],
@@ -1003,7 +1003,7 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'my subject',
           htmlBody: '<p>my body</p>'
         };
-        sender =  {displayName: 'sender', email: 'sender@linagora.com'};
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
           to: [{email: 'from@linagora.com', name: 'linagora'}],
@@ -1048,7 +1048,7 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'my subject',
           htmlBody: '<p>my body</p>'
         };
-        sender =  {name: 'sender', email: 'sender@linagora.com'};
+        sender = {name: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
           subject: 'Fwd: my subject',
@@ -1085,7 +1085,7 @@ describe('The Unified Inbox Angular module services', function() {
           subject: 'my subject',
           htmlBody: '<p>my body</p>'
         };
-        sender =  {name: 'sender', email: 'sender@linagora.com'};
+        sender = {name: 'sender', email: 'sender@linagora.com'};
         expectedAnswer = {
           from: 'sender@linagora.com',
           subject: 'Fwd: my subject',
@@ -2712,7 +2712,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The flagIsUnreadChanged function', function() {
 
       it('should do nothing if mail is undefined', function() {
-        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
+        inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
         mailboxesService.flagIsUnreadChanged();
 
@@ -2720,7 +2720,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should do nothing if status is undefined', function() {
-        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
+        inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
         mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] });
 
@@ -2728,7 +2728,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should increase the unreadMessages in the mailboxesCache if status=true', function() {
-        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
+        inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
         mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, true);
 
@@ -2736,7 +2736,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should decrease the unreadMessages in the mailboxesCache if status=false', function() {
-        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 1};
+        inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
         mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
 
@@ -2744,7 +2744,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should guarantee that the unreadMessages in the mailboxesCache is never negative', function() {
-        inboxMailboxesCache[0] = { id: 1, name: '1',  unreadMessages: 0};
+        inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 0};
 
         mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
 

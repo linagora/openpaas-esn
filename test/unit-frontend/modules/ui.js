@@ -458,7 +458,7 @@ describe('The UI module', function() {
         backdrop: 'backdrop',
         container: 'container',
         controller: 'controller',
-        controllerAs: 'controllerAs',
+        controllerAs: 'controllerAs'
       });
     });
 

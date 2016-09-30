@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
     setReadAndInvolvedFlags: function(message, thread, user) {
       // If thread.read is undefined then the message is read
       message.read = !('read' in thread) || thread.read;
-      message.involved = message.author && message.author.id === user.id ? true : false;
+      message.involved = Boolean(message.author && message.author.id === user.id);
 
       if (!arrayHelper.isNullOrEmpty(message.responses)) {
         message.responses.forEach(function(messageResponse) {

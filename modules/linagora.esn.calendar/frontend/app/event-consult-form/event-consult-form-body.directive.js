@@ -32,7 +32,6 @@
       scope.getAttendeesView = getAttendeesView;
       scope.onSwipe = onSwipe;
 
-
       ////////////
 
       function getMainView() {

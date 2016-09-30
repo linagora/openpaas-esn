@@ -50,14 +50,14 @@ angular.module('esn.dragndrop', [
  *
  * @example
  * <div
- * 	esn-draggable
- * 	esn-drag-message="This message is dragging"
- * 	esn-drag-data="data"
- * 	esn-drag-class="dragging"
- * 	esn-on-drag-start="onDragStart()"
- * 	esn-on-drag-end="onDragEnd($dropped)"
- * 	esn-on-drop-success="onDropSuccess()
- * 	esn-on-drop-failure="onDropFailure()">
+ *   esn-draggable
+ *   esn-drag-message="This message is dragging"
+ *   esn-drag-data="data"
+ *   esn-drag-class="dragging"
+ *   esn-on-drag-start="onDragStart()"
+ *   esn-on-drag-end="onDragEnd($dropped)"
+ *   esn-on-drop-success="onDropSuccess()
+ *   esn-on-drop-failure="onDropFailure()">
  * </div>
  */
 .directive('esnDraggable', function(
@@ -175,13 +175,11 @@ angular.module('esn.dragndrop', [
     function onMouseMove(event) {
       if ($rootScope.esnIsDragging) {
         onDrag(event);
-      } else {
-        if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
-            Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
-          $rootScope.esnIsDragging = true;
-          onDragStart();
-          onDrag(event);
-        }
+      } else if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
+          Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
+        $rootScope.esnIsDragging = true;
+        onDragStart();
+        onDrag(event);
       }
     }
 
@@ -225,12 +223,12 @@ angular.module('esn.dragndrop', [
 /**
  * @example
  * <div
- * 	esn-droppable
- * 	esn-droptarget-class="droptarget",
- * 	esn-on-drag-enter="onDragEnter()"
- * 	esn-on-drag-exit="onDragExit()"
- * 	esn-on-drop="onDrop($dragData)",
- * 	esn-is-drop-zone="isDropZone($dragData)">
+ *   esn-droppable
+ *   esn-droptarget-class="droptarget",
+ *   esn-on-drag-enter="onDragEnter()"
+ *   esn-on-drag-exit="onDragExit()"
+ *   esn-on-drop="onDrop($dragData)",
+ *   esn-is-drop-zone="isDropZone($dragData)">
  * </div>
  */
 .directive('esnDroppable', function(

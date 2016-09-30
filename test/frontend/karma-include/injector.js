@@ -1,6 +1,6 @@
 /**
  * Inject angular things globally, for use in frontend unit tests. Add your
- * instance names to the INJECTIONS array and don't forget to modify .jshintrc
+ * instance names to the INJECTIONS array and don't forget to modify linter config
  */
 (function(global) {
   // Define things that should be globally injected here

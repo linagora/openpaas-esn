@@ -5,7 +5,7 @@
 
   var provider = {
     name: 'gist',
-    regexps: [new RegExp('gist.github.com\/[a-zA-Z0-9_-]+\/([a-zA-Z0-9]+)', 'i')],
+    regexps: [new RegExp('gist.github.com\\/[a-zA-Z0-9_-]+\\/([a-zA-Z0-9]+)', 'i')],
     resolver: 'local'
   };
 

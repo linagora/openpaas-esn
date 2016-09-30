@@ -5,8 +5,7 @@ var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
 
-  beforeEach(function() { angular.mock.module('esn.calendar');
-  });
+  beforeEach(angular.mock.module('esn.calendar'));
 
   beforeEach(function() {
     angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID) {

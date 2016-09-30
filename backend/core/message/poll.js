@@ -27,7 +27,7 @@ function hasAlreadyVoted(message, tuple) {
 }
 
 module.exports.canVote = function(message, tuple, callback) {
-  if (!message.pollChoices ||   !message.pollChoices.length) {
+  if (!message.pollChoices || !message.pollChoices.length) {
     return callback(null, false);
   }
   if (!message.pollResults) {

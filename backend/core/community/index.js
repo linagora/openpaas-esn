@@ -158,7 +158,7 @@ module.exports.userToMember = function(document) {
     return result;
   }
 
-  if (typeof document.member.toObject  === 'function') {
+  if (typeof document.member.toObject === 'function') {
     result.user = document.member.toObject();
   } else {
     result.user = document.member;
@@ -176,7 +176,7 @@ module.exports.userToMember = function(document) {
 };
 
 module.exports.getMembers = function(community, query, callback) {
-  query = query ||  {};
+  query = query || {};
   var id = community._id || community;
 
   Community.findById(id, function(err, community) {

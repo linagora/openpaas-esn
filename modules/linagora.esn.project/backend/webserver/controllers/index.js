@@ -1,4 +1,5 @@
 'use strict';
+
 var async = require('async');
 var escapeStringRegexp = require('escape-string-regexp');
 var ObjectId = require('mongoose').Types.ObjectId;
@@ -108,12 +109,6 @@ function projectControllers(lib, dependencies) {
   };
 
   controllers.create = function(req, res, next) {
-    function copyIfSet(key) {
-      if (req.body[key]) {
-        project[key] = req.body[key];
-      }
-    }
-
     var project = {
       title: req.body.title,
       creator: req.user._id,
@@ -123,6 +118,12 @@ function projectControllers(lib, dependencies) {
         { member: { id: req.user._id, objectType: 'user' } }
       ]
     };
+
+    function copyIfSet(key) {
+      if (req.body[key]) {
+        project[key] = req.body[key];
+      }
+    }
 
     ['description', 'startDate', 'endDate', 'type',
      'status', 'avatar'].forEach(copyIfSet);

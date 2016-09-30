@@ -14,7 +14,7 @@ angular.module('esn.rest.helper', [])
 
     var resultsBuffer = [];
 
-    options = options ||  {};
+    options = options || {};
     options.filter = options.filter || function(item) { return true; };
 
     function nextItems(callback) {
@@ -77,14 +77,14 @@ angular.module('esn.rest.helper', [])
       error: false
     };
 
-    options = options ||  {};
-    options.apiArgs = options.apiArgs ||  {};
+    options = options || {};
+    options.apiArgs = options.apiArgs || {};
     options.updateApiArgs = options.updateApiArgs || function(cursor, items, apiArgs) {
       apiArgs.offset = cursor.offset;
     };
 
     function nextItems(callback) {
-      if (self.running ||  self.endOfStream || self.error) {
+      if (self.running || self.endOfStream || self.error) {
         return false;
       }
       api(options.apiArgs).then(function(response) {

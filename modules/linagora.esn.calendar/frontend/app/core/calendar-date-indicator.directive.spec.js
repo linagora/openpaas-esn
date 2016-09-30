@@ -14,7 +14,7 @@ describe('The calendarDateIndicator directive', function() {
       get: sinon.stub().returns(this.calView),
       set: sinon.spy(),
       getMiniCalendarView: sinon.stub().returns(this.minicalView),
-      setMiniCalendarView: sinon.spy(),
+      setMiniCalendarView: sinon.spy()
     };
 
     angular.mock.module('jadeTemplates', 'linagora.esn.graceperiod', 'esn.calendar', function($provide) {
@@ -38,7 +38,6 @@ describe('The calendarDateIndicator directive', function() {
       return element;
     };
   });
-
 
   it('should initialize the dateIndicator with the home calendar view title', function() {
     var element = this.initDirective(this.$scope);

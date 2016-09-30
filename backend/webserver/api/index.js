@@ -34,7 +34,7 @@ function getLatestVersion(req, res) {
 }
 
 function setupAPI(application) {
-  var router  = require('express').Router();
+  var router = require('express').Router();
 
   /**
    * @swagger

@@ -37,7 +37,7 @@ angular.module('esn.invitation', ['esn.http', 'esn.form.helper'])
     };
   })
 .controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation) {
-    $scope.notFound = invitation.status === 'error' ? true : false;
+    $scope.notFound = invitation.status === 'error';
     $scope.form = {};
     $scope.settings = {};
     $scope.invited = false;
@@ -57,7 +57,7 @@ angular.module('esn.invitation', ['esn.http', 'esn.form.helper'])
         $scope.settings.domain = domain_name;
         $scope.settings.company = company_name;
       }
-      $scope.editCompany = invitation.type === 'addmember' ? false : true;
+      $scope.editCompany = invitation.type !== 'addmember';
     }
 
     $scope.finalizeButton = {

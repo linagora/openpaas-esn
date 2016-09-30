@@ -9,10 +9,10 @@ module.exports = function(domains, host) {
   var jmapHost = process.env.JMAP_SERVER_HOST || host || 'localhost';
   var port = process.env.JMAP_SERVER_PORT || 1080;
   var path = process.env.JMAP_SERVER_PATH || 'jmap';
-  var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED === 'false' ? false : true;
-  var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED === 'true' ? true : false;
-  var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED === 'false' ? false : true;
-  var drafts = process.env.DRAFTS === 'false' ? false : true;
+  var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED !== 'false';
+  var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED === 'true';
+  var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED !== 'false';
+  var drafts = process.env.DRAFTS !== 'false';
   var maxSizeUpload = parseInt(process.env.JMAP_MAX_SIZE_UPLOAD, 10) || 20971520;
   var jmapHostPort = 'http://' + jmapHost + ':' + port;
   var api = jmapHostPort + '/' + path;

@@ -14,5 +14,3 @@ frontend/**/*.css
 frontend/**/*.css.map
 modules/**/*.css
 modules/**/*.css.map
-gjslint.xml
-jshint.xml

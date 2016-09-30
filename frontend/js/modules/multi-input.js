@@ -16,7 +16,7 @@ angular.module('esn.multi-input', [])
 
   .controller('MultiInputGroupController', function($scope, $timeout, multiInputService) {
     $scope.showDeleteButtonArray = [];
-    $scope.content = $scope.inputValue && $scope.inputValue.length ? angular.copy($scope.inputValue) :  [{}];
+    $scope.content = $scope.inputValue && $scope.inputValue.length ? angular.copy($scope.inputValue) : [{}];
     $scope.inputValue = $scope.inputValue ? $scope.inputValue : [];
 
     $scope.onFocusFn = function(id) {

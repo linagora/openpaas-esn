@@ -341,7 +341,7 @@ angular.module('linagora.esn.unifiedinbox')
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
         originalMailbox = _.find(mailboxes, { id: $stateParams.mailbox });
-        $scope.mailbox =  _.clone(originalMailbox);
+        $scope.mailbox = _.clone(originalMailbox);
       });
 
     $scope.editFolder = function() {

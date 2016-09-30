@@ -406,6 +406,10 @@ describe('The User controller', function() {
     });
 
     it('should call the recordUser function of the user model', function(done) {
+      var usermock = {
+        avatars: [],
+        currentAvatar: undefined
+      };
       var moduleMock = {
         user: {
           recordUser: function() {
@@ -423,11 +427,6 @@ describe('The User controller', function() {
       mockery.registerMock('../../core', moduleMock);
 
       var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var usermock = {
-        avatars: [],
-        currentAvatar: undefined
-      };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
         function(code, data) {

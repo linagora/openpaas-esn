@@ -17,7 +17,7 @@
       template: '<div><event-consult-form-body/></div>',
       link: link,
       replace: true,
-      controller: 'eventController',
+      controller: 'eventController'
     };
 
     return directive;

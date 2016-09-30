@@ -235,7 +235,7 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
       cursor: filteredcursorInstance,
       loadMoreElements: loadMoreElements
     };
-    aggregator.__defineGetter__('endOfStream', function() { return filteredcursorInstance.endOfStream; });
+    aggregator.__defineGetter__('endOfStream', function() { return filteredcursorInstance.endOfStream; }); //eslint-disable-line no-restricted-properties
 
     return aggregator;
   }
@@ -335,7 +335,8 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
       loadMoreElements: loadMoreElements
     };
 
-    aggregator.__defineGetter__('endOfStream', isEndOfStream);
+    aggregator.__defineGetter__('endOfStream', isEndOfStream); //eslint-disable-line no-restricted-properties
+
     return aggregator;
   }
 

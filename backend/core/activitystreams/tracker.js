@@ -134,7 +134,7 @@ module.exports.getTracker = function(type) {
           var sum = results.reduce(function(prev, current) {
             return prev + current;
           });
-          return q(sum ? true : false);
+          return q(!!sum);
         });
     }
 

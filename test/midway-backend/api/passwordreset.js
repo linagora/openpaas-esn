@@ -12,7 +12,7 @@ describe('The password API', function() {
 
   function getLastFileFrom(dir) {
     var emails = fs.readdirSync(dir).filter(function(file) {
-      return new RegExp('.*\.eml').test(file) === true;
+      return new RegExp('.*\\.eml').test(file) === true;
     });
 
     return _.max(emails, function(email) {

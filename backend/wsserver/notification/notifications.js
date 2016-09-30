@@ -54,11 +54,10 @@ function init(io) {
       if (err) {
         return;
       }
-      for (var user in users) {
-        if (users.hasOwnProperty(user)) {
-          notify(io, user, notification);
-        }
-      }
+
+      Object.keys(users).forEach(function(user) {
+        notify(io, user, notification);
+      });
     });
   });
 
