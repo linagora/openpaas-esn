@@ -73,7 +73,7 @@
       $scope.$state = $state;
       $scope.eventClick = eventClick;
       $scope.eventDropAndResize = eventDropAndResize;
-      $scope.eventRender = eventUtils.render;
+      $scope.uiConfig.calendar.eventRender = eventUtils.render;
       $scope.displayCalendarError = displayCalendarError;
       $scope.resizeCalendarHeight = withCalendar(function(calendar) {
         var height = windowJQuery.height() - calendar.offset().top;
