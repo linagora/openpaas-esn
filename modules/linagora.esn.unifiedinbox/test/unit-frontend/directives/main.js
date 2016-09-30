@@ -324,56 +324,23 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       describe('The onDrop function', function() {
-        var inboxJmapItemService, infiniteListService, inboxSelectionService;
+        var inboxJmapItemService;
 
-        beforeEach(inject(function(_inboxJmapItemService_, _infiniteListService_, _inboxSelectionService_) {
+        beforeEach(inject(function(_inboxJmapItemService_) {
           inboxJmapItemService = _inboxJmapItemService_;
-          infiniteListService = _infiniteListService_;
-          inboxSelectionService = _inboxSelectionService_;
 
-          inboxJmapItemService.moveToMailbox = sinon.spy(function() {
+          inboxJmapItemService.moveMultipleItems = sinon.spy(function() {
             return $q.when();
           });
-          infiniteListService.actionRemovingElement = sinon.spy(infiniteListService.actionRemovingElement);
-          inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
         }));
 
-        it('should unselect all items', function() {
-          isolateScope.onDrop([]);
+        it('should delegate to inboxJmapItemService.moveMultipleItems', function() {
+          var item1 = { id: 1 },
+              item2 = { id: 2 };
 
-          expect(inboxSelectionService.unselectAllItems).to.have.been.calledWith();
-        });
+          isolateScope.onDrop([item1, item2]);
 
-        it('should move a single item to mailbox, delegating to actionRemovingElement', function() {
-          var item = {
-            messageIds: ['m1'],
-            mailboxIds: ['2']
-          };
-
-          isolateScope.onDrop([item]);
-
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledOnce;
-          expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, item);
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item, $scope.mailbox);
-        });
-
-        it('should move multiple items, delegating to actionRemovingElement', function() {
-          var item = {
-            messageIds: ['m1'],
-            mailboxIds: ['2']
-          };
-          var item2 = {
-            messageIds: ['m2'],
-            mailboxIds: ['2']
-          };
-
-          isolateScope.onDrop([item, item2]);
-
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledTwice;
-          expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, item);
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item, $scope.mailbox);
-          expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, item2);
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item2, $scope.mailbox);
+          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1, item2], $scope.mailbox);
         });
 
       });

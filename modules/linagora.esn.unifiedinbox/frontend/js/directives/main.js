@@ -102,8 +102,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('mailboxDisplay', function($q, MAILBOX_ROLE_ICONS_MAPPING, inboxJmapItemService, mailboxesService,
-                                        inboxSelectionService, infiniteListService, _) {
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxJmapItemService, mailboxesService, _) {
     return {
       restrict: 'E',
       replace: true,
@@ -116,15 +115,7 @@ angular.module('linagora.esn.unifiedinbox')
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
 
         scope.onDrop = function($dragData) {
-          var promises = $dragData.map(function(item) {
-            return infiniteListService.actionRemovingElement(function() {
-              return inboxJmapItemService.moveToMailbox(item, scope.mailbox);
-            }, item);
-          });
-
-          inboxSelectionService.unselectAllItems();
-
-          return $q.all(promises);
+          return inboxJmapItemService.moveMultipleItems($dragData, scope.mailbox);
         };
 
         scope.isDropZone = function($dragData) {

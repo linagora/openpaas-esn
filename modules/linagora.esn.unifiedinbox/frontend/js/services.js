@@ -978,7 +978,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
-                                            jmap, jmapHelper, mailboxesService) {
+                                            jmap, jmapHelper, mailboxesService, infiniteListService, inboxSelectionService) {
     function moveToTrash(item, options) {
       return backgroundAction('Move of "' + item.subject + '" to trash', function() {
         return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1005,6 +1005,16 @@ angular.module('linagora.esn.unifiedinbox')
 
         return $q.reject(err);
       });
+    }
+
+    function moveMultipleItems(items, mailbox) {
+      inboxSelectionService.unselectAllItems();
+
+      return $q.all(items.map(function(item) {
+        return infiniteListService.actionRemovingElement(function() {
+          return moveToMailbox(item, mailbox);
+        }, item);
+      }));
     }
 
     function reply(message) {
@@ -1050,7 +1060,8 @@ angular.module('linagora.esn.unifiedinbox')
       markAsFlagged: markAsFlagged,
       unmarkAsFlagged: unmarkAsFlagged,
       moveToTrash: moveToTrash,
-      moveToMailbox: moveToMailbox
+      moveToMailbox: moveToMailbox,
+      moveMultipleItems: moveMultipleItems
     };
   })
 
@@ -1324,7 +1335,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     return {
       isSelecting: function() { return selecting; },
-      getSelectedItems: function() { return selectedItems; },
+      getSelectedItems: function() { return _.clone(selectedItems); },
       toggleItemSelection: toggleItemSelection,
       unselectAllItems: unselectAllItems
     };

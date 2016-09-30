@@ -3632,16 +3632,15 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxJmapItemService service', function() {
 
-    var $rootScope, $state, jmap, jmapHelper, inboxJmapItemService, newComposerService, emailSendingService,
+    var $rootScope, jmap, jmapHelper, inboxJmapItemService, newComposerService, emailSendingService,
         quoteEmail, jmapClientMock, backgroundAction;
 
     beforeEach(module(function($provide) {
       jmapClientMock = {};
-      quoteEmail = function(email) { return {transformed: 'value'}; };
+      quoteEmail = function() { return {transformed: 'value'}; };
 
       $provide.value('jmapHelper', jmapHelper = { setFlag: sinon.spy() });
       $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
-      $provide.value('$state', $state = { go: sinon.spy() });
       $provide.value('newComposerService', newComposerService = { open: sinon.spy() });
       $provide.value('backgroundAction', sinon.spy(function(message, action) { return action(); }));
       $provide.value('emailSendingService', emailSendingService = {
@@ -3775,6 +3774,41 @@ describe('The Unified Inbox Angular module services', function() {
 
         expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
       });
+    });
+
+    describe('The moveMultipleItems function', function() {
+
+      var infiniteListService, inboxSelectionService;
+
+      beforeEach(inject(function(_infiniteListService_, _inboxSelectionService_) {
+        infiniteListService = _infiniteListService_;
+        inboxSelectionService = _inboxSelectionService_;
+
+        inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
+        infiniteListService.actionRemovingElement = sinon.spy(infiniteListService.actionRemovingElement);
+      }));
+
+      it('should delegate to infiniteListService.actionRemovingElement, moving all items', function(done) {
+        var item1 = { id: 1, mailboxIds: [], move: sinon.spy(function() { return $q.when(); }) },
+            item2 = { id: 2, mailboxIds: [], move: sinon.spy(function() { return $q.when(); }) },
+            mailbox = { id: 'mailbox' };
+
+        inboxJmapItemService.moveMultipleItems([item1, item2], mailbox).then(function() {
+          expect(infiniteListService.actionRemovingElement).to.have.been.calledTwice;
+          expect(item1.move).to.have.been.calledWith(['mailbox']);
+          expect(item2.move).to.have.been.calledWith(['mailbox']);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should unselect all items', function() {
+        inboxJmapItemService.moveMultipleItems([]);
+
+        expect(inboxSelectionService.unselectAllItems).to.have.been.calledWith();
+      });
+
     });
 
     describe('The reply function', function() {
@@ -4473,6 +4507,19 @@ describe('The Unified Inbox Angular module services', function() {
         expect(inboxSelectionService.getSelectedItems()).to.deep.equal([
           { id: 1, selected: true },
           { id: 2, selected: true }
+        ]);
+      });
+
+      it('should return a clone of the selected elements', function() {
+        inboxSelectionService.toggleItemSelection({ id: 1 });
+        inboxSelectionService.toggleItemSelection({ id: 2 });
+
+        var selectedItems = inboxSelectionService.getSelectedItems();
+
+        inboxSelectionService.unselectAllItems();
+        expect(selectedItems).to.shallowDeepEqual([
+          { id: 1, selected: false },
+          { id: 2, selected: false }
         ]);
       });
 

@@ -283,15 +283,15 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('inboxMoveItemController', function($scope, $stateParams, mailboxesService, inboxJmapItemService,
-                                                  esnPreviousState, infiniteListService) {
+                                                  esnPreviousState, inboxSelectionService) {
     mailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
       esnPreviousState.go();
 
-      return infiniteListService.actionRemovingElement(function() {
-        return inboxJmapItemService.moveToMailbox($stateParams.item, mailbox);
-      }, $stateParams.item);
+      return inboxJmapItemService.moveMultipleItems(
+        $stateParams.selection ? inboxSelectionService.getSelectedItems() : [$stateParams.item], mailbox
+      );
     };
   })
 
@@ -574,8 +574,8 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('inboxListSubheaderController', function(inboxSelectionService, inboxJmapItemService, jmap, withJmapClient,
-                                                       Mailbox, infiniteListService) {
+  .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService, jmap,
+                                                       withJmapClient, Mailbox) {
     this.isSelecting = inboxSelectionService.isSelecting;
     this.getSelectedItems = inboxSelectionService.getSelectedItems;
     this.unselectAllItems = inboxSelectionService.unselectAllItems;
@@ -597,12 +597,11 @@ angular.module('linagora.esn.unifiedinbox')
         return client.getMailboxWithRole(jmap.MailboxRole.TRASH).then(Mailbox);
       })
         .then(function(trash) {
-          inboxSelectionService.getSelectedItems().forEach(function(item) {
-            infiniteListService.actionRemovingElement(function() {
-              return inboxJmapItemService.moveToMailbox(item, trash);
-            }, item);
-          });
-          inboxSelectionService.unselectAllItems();
+          return inboxJmapItemService.moveMultipleItems(inboxSelectionService.getSelectedItems(), trash);
         });
+    };
+
+    this.move = function() {
+      $state.go('.move', { selection: true });
     };
   });

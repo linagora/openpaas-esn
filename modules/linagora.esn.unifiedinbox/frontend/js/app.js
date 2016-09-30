@@ -195,7 +195,8 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.inbox.move', stateOpeningModal({
         url: '/move',
         params: {
-          item: undefined
+          item: undefined,
+          selection: false
         }
       }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.inbox.message', stateOpeningListItem({
@@ -245,7 +246,8 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.list.messages.move', stateOpeningModal({
         url: '/move',
         params: {
-          item: undefined
+          item: undefined,
+          selection: false
         }
       }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.messages.message', stateOpeningListItem({
@@ -275,7 +277,8 @@ angular.module('linagora.esn.unifiedinbox', [
       .state('unifiedinbox.list.threads.move', stateOpeningModal({
         url: '/move',
         params: {
-          item: undefined
+          item: undefined,
+          selection: false
         }
       }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.threads.thread', stateOpeningListItem({

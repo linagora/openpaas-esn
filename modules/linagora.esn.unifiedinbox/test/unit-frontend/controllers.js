@@ -783,7 +783,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   describe('The inboxMoveItemController controller', function() {
-    var controller, mailbox;
+    var mailbox;
 
     beforeEach(function() {
       mailbox = {
@@ -794,10 +794,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       mailboxesService.assignMailboxesList = sinon.spy();
 
-      inboxJmapItemService.moveToMailbox = sinon.spy(function() {
-        return $q.when();
-      });
-      inboxJmapItemService.moveToMailbox = sinon.spy(function() {
+      inboxJmapItemService.moveMultipleItems = sinon.spy(function() {
         return $q.when();
       });
     });
@@ -808,53 +805,33 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
     });
 
-    it('should call inboxJmapItemService.moveToMailbox if $stateParams.item is a thread', function(done) {
-      $stateParams.item.messageIds = ['threadId'];
-      controller = initController('inboxMoveItemController');
+    describe('The moveTo function', function() {
 
-      scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
-        expect(item).to.deep.equal($stateParams.item);
+      it('should call esnPreviousState.go', function() {
+        initController('inboxMoveItemController').moveTo(mailbox);
 
-        done();
+        expect(esnPreviousState.go).to.have.been.calledWith();
       });
 
-      controller.moveTo(mailbox);
+      it('should delegate to inboxJmapItemService.moveMultipleItems with the selection if selection=true', function() {
+        var item = { id: 1 };
 
-      expect($state.go).to.have.been.calledWith('unifiedinbox.list.threads', { mailbox: $stateParams.mailbox });
-      expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith($stateParams.item, mailbox);
+        $stateParams.selection = true;
+        inboxSelectionService.toggleItemSelection(item);
+
+        initController('inboxMoveItemController').moveTo(mailbox);
+
+        expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item], mailbox);
+      });
+
+      it('should delegate to inboxJmapItemService.moveMultipleItems with the item if selection=false', function() {
+        initController('inboxMoveItemController').moveTo(mailbox);
+
+        expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([$stateParams.item], mailbox);
+      });
+
     });
 
-    it('should call inboxJmapItemService.moveToMailbox if $stateParams.item is a message', function(done) {
-      controller = initController('inboxMoveItemController');
-
-      scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
-        expect(item).to.deep.equal($stateParams.item);
-
-        done();
-      });
-
-      controller.moveTo(mailbox);
-
-      expect($state.go).to.have.been.calledWith('unifiedinbox.list.messages', { mailbox: $stateParams.mailbox });
-      expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith($stateParams.item, mailbox);
-    });
-
-    it('should add broadcast PROVIDER_INFINITY_LIST.ADD_ELEMENT when moveToMailbox reject', function(done) {
-      inboxJmapItemService.moveToMailbox = sinon.spy(function() {
-        return $q.reject();
-      });
-      $stateParams.emailId = 'emailId';
-      controller = initController('inboxMoveItemController');
-
-      scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, item) {
-        expect(item).to.deep.equal($stateParams.item);
-
-        done();
-      });
-
-      controller.moveTo(mailbox);
-      scope.$digest();
-    });
   });
 
   describe('The viewThreadController', function() {
@@ -1923,7 +1900,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The inboxListSubheaderController controller', function() {
 
-    var controller, inboxJmapItemService, infiniteListService, item1, item2;
+    var controller, inboxJmapItemService, item1, item2;
 
     beforeEach(function() {
       item1 = { id: 1 };
@@ -1935,12 +1912,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           markAsRead: sinon.spy(),
           unmarkAsFlagged: sinon.spy(),
           markAsFlagged: sinon.spy(),
-          moveToMailbox: sinon.spy()
-        },
-        infiniteListService: infiniteListService = {
-          actionRemovingElement: sinon.spy(function(action) {
-            action();
-          })
+          moveMultipleItems: sinon.spy()
         }
       });
     });
@@ -2041,9 +2013,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The moveToTrash function', function() {
 
+      var trash;
+
       beforeEach(function() {
+        trash = { id: 'trash', name: 'Trash' };
+
         jmapClient.getMailboxWithRole = sinon.spy(function() {
-          return $q.when({ id: 'trash', name: 'Trash' });
+          return $q.when(trash);
         });
       });
 
@@ -2060,7 +2036,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         inboxSelectionService.toggleItemSelection(item1);
 
         controller.moveToTrash().then(function() {
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item1, sinon.match({
+          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1], sinon.match({
             id: 'trash',
             name: 'Trash',
             displayName: 'Trash'
@@ -2071,31 +2047,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         $rootScope.$digest();
       });
 
-      it('should delegate to infiniteListService.actionRemovingElement calling moveToMailbox for all selected items', function(done) {
+      it('should delegate to infiniteListService.actionRemovingElement calling moveMultipleItems with selected items', function(done) {
         inboxSelectionService.toggleItemSelection(item1);
         inboxSelectionService.toggleItemSelection(item2);
 
         controller.moveToTrash().then(function() {
-          expect(infiniteListService.actionRemovingElement).to.have.been.calledTwice;
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item1);
-          expect(inboxJmapItemService.moveToMailbox).to.have.been.calledWith(item2);
+          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1, item2], trash);
 
           done();
         });
         $rootScope.$digest();
       });
 
-      it('should unselect all items', function(done) {
-        inboxSelectionService.toggleItemSelection(item1);
-        inboxSelectionService.toggleItemSelection(item2);
+    });
 
-        controller.moveToTrash().then(function() {
-          expect(item1.selected).to.equal(false);
-          expect(item2.selected).to.equal(false);
+    describe('The move function', function() {
 
-          done();
-        });
-        $rootScope.$digest();
+      it('should call $state.go', function() {
+        controller.move();
+
+        expect($state.go).to.have.been.calledWith('.move', { selection: true });
       });
 
     });
