@@ -592,8 +592,8 @@ describe('eventStore', function() {
 
   function createPeriod(start, end) {
     return {
-      start: self.fcMoment.utc([2000, 1, start]).stripTime(),
-      end: self.fcMoment.utc([2000, 1, end]).stripTime()
+      start: self.fcMoment.utc([2000, 0, start]).stripTime(),
+      end: self.fcMoment.utc([2000, 0, end]).stripTime()
     };
   }
 
@@ -601,8 +601,8 @@ describe('eventStore', function() {
     return {
       id: id,
       calendarId: calId,
-      start: self.fcMoment.utc([2000, 1, start, 0, 0]),
-      end: self.fcMoment.utc([2000, 1, end, 0, 1])
+      start: self.fcMoment.utc([2000, 0, start, 0, 0]),
+      end: self.fcMoment.utc([2000, 0, end, 0, 1])
     };
   }
 
