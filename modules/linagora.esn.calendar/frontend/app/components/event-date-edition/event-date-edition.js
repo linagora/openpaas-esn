@@ -26,38 +26,38 @@
   EventDateEditionController.$inject = ['fcMoment'];
 
   function EventDateEditionController(fcMoment) {
-    var vm = this;
+    var self = this;
 
-    vm.dateOnBlurFn = dateOnBlurFn;
-    vm.getMinDate = getMinDate;
-    vm.setEventDates = setEventDates;
-    vm.onStartDateChange = onStartDateChange;
-    vm.onEndDateChange = onEndDateChange;
+    self.dateOnBlurFn = dateOnBlurFn;
+    self.getMinDate = getMinDate;
+    self.setEventDates = setEventDates;
+    self.onStartDateChange = onStartDateChange;
+    self.onEndDateChange = onEndDateChange;
 
     activate();
 
     ////////////
 
     function activate() {
-      vm.disabled = angular.isDefined(vm.disabled) ? vm.disabled : false;
-      vm.allDayOnChange = vm.allDayOnChange || angular.noop;
-      vm.allDay = vm.event.allDay;
+      self.disabled = angular.isDefined(self.disabled) ? self.disabled : false;
+      self.allDayOnChange = self.allDayOnChange || angular.noop;
+      self.allDay = self.event.allDay;
       // on load, ensure that duration between start and end is stored inside editedEvent
-      vm.onEndDateChange();
+      self.onEndDateChange();
     }
 
     function dateOnBlurFn() {
       //this is used to re-update views from the model in case the view is cleared
-      vm.event.start = vm.event.start.clone();
-      vm.event.end = vm.event.end.clone();
-      if (angular.isFunction(vm.dateOnBlur)) {
-        vm.dateOnBlur.apply(this, arguments);
+      self.event.start = self.event.start.clone();
+      self.event.end = self.event.end.clone();
+      if (angular.isFunction(self.dateOnBlur)) {
+        self.dateOnBlur.apply(this, arguments);
       }
     }
 
     function getMinDate() {
-      if (vm.allDay) {
-        return fcMoment(vm.event.start).subtract(1, 'days').format('YYYY-MM-DD');
+      if (self.allDay) {
+        return fcMoment(self.event.start).subtract(1, 'days').format('YYYY-MM-DD');
       }
 
       return null;
@@ -66,43 +66,43 @@
     function setEventDates() {
       var start, end;
 
-      if (vm.allDay) {
-        vm.previousStart = vm.event.start.clone();
-        vm.previousEnd = vm.event.end.clone();
+      if (self.allDay) {
+        self.previousStart = self.event.start.clone();
+        self.previousEnd = self.event.end.clone();
 
-        start = vm.event.start.stripTime();
-        end = vm.event.end.stripTime().add(1, 'days');
-      } else if (vm.previousStart && vm.previousEnd) {
-        start = vm.previousStart;
-        end = vm.previousEnd;
+        start = self.event.start.stripTime();
+        end = self.event.end.stripTime().add(1, 'days');
+      } else if (self.previousStart && self.previousEnd) {
+        start = self.previousStart;
+        end = self.previousEnd;
       } else {
         var nextHour = fcMoment().startOf('hour').add(1, 'hour').hour();
 
         // We need to set back the utc flag to false here.
         // See Ambiguously-timed Moments http://fullcalendar.io/docs/utilities/Moment/
-        start = vm.event.start.local().startOf('day').hour(nextHour);
-        end = vm.event.end.local().startOf('day').subtract(1, 'day').hour(nextHour).add(1, 'hours');
+        start = self.event.start.local().startOf('day').hour(nextHour);
+        end = self.event.end.local().startOf('day').subtract(1, 'day').hour(nextHour).add(1, 'hours');
       }
-      vm.event.start = start;
-      vm.event.end = end;
-      vm.diff = vm.event.end.diff(vm.event.start);
+      self.event.start = start;
+      self.event.end = end;
+      self.diff = self.event.end.diff(self.event.start);
     }
 
     function onStartDateChange() {
-      if (!vm.event.start || !vm.event.start.isValid()) {
+      if (!self.event.start || !self.event.start.isValid()) {
         return;
       }
-      vm.event.end = fcMoment(vm.event.start).add(vm.diff / 1000, 'seconds');
+      self.event.end = fcMoment(self.event.start).add(self.diff / 1000, 'seconds');
     }
 
     function onEndDateChange() {
-      if (!vm.event.end || !vm.event.end.isValid()) {
+      if (!self.event.end || !self.event.end.isValid()) {
         return;
       }
-      if (vm.event.end.isBefore(vm.event.start)) {
-        vm.event.end = fcMoment(vm.event.start).add(1, 'hours');
+      if (self.event.end.isBefore(self.event.start)) {
+        self.event.end = fcMoment(self.event.start).add(1, 'hours');
       }
-      vm.diff = vm.event.end.diff(vm.event.start);
+      self.diff = self.event.end.diff(self.event.start);
     }
   }
 

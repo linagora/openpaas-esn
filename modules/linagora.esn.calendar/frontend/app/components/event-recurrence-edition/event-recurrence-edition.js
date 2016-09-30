@@ -48,24 +48,24 @@
   ];
 
   function EventRecurrenceEditionController(RECUR_FREQ, WEEK_DAYS) {
-    var vm = this;
+    var self = this;
 
-    vm.RECUR_FREQ = RECUR_FREQ;
-    vm.WEEK_DAYS = Object.keys(WEEK_DAYS);
-    vm.toggleWeekdays = toggleWeekdays;
-    vm.resetUntil = resetUntil;
-    vm.resetCount = resetCount;
-    vm.setRRULE = setRRULE;
+    self.RECUR_FREQ = RECUR_FREQ;
+    self.WEEK_DAYS = Object.keys(WEEK_DAYS);
+    self.toggleWeekdays = toggleWeekdays;
+    self.resetUntil = resetUntil;
+    self.resetCount = resetCount;
+    self.setRRULE = setRRULE;
 
     activate();
 
     ////////////
 
     function activate() {
-      vm._event.getModifiedMaster().then(function(master) {
-        vm.readOnly = !vm.isOrganizer || vm._event.isInstance();
-        vm.event = master;
-        vm.freq = vm.event.rrule ? vm.event.rrule.freq : undefined;
+      self._event.getModifiedMaster().then(function(master) {
+        self.readOnly = !self.isOrganizer || self._event.isInstance();
+        self.event = master;
+        self.freq = self.event.rrule ? self.event.rrule.freq : undefined;
       });
     }
 
@@ -73,8 +73,8 @@
       var weekDaysValues = Object.keys(WEEK_DAYS).map(function(key) {
         return WEEK_DAYS[key];
       });
-      var index = vm.event.rrule.byday.indexOf(WEEK_DAYS[weekday]);
-      var newDays = vm.event.rrule.byday.slice();
+      var index = self.event.rrule.byday.indexOf(WEEK_DAYS[weekday]);
+      var newDays = self.event.rrule.byday.slice();
 
       if (index > -1) {
         newDays.splice(index, 1);
@@ -90,23 +90,23 @@
           return 0;
         }
       });
-      vm.event.rrule.byday = newDays;
+      self.event.rrule.byday = newDays;
     }
 
     function resetUntil() {
-      vm.event.rrule.until = undefined;
+      self.event.rrule.until = undefined;
     }
 
     function resetCount() {
-      vm.event.rrule.count = undefined;
+      self.event.rrule.count = undefined;
     }
 
     function setRRULE() {
-      if (!vm.freq) {
-        vm.event.rrule = undefined;
+      if (!self.freq) {
+        self.event.rrule = undefined;
       } else {
-        vm.event.rrule = {
-          freq: vm.freq,
+        self.event.rrule = {
+          freq: self.freq,
           interval: null
         };
       }

@@ -26,37 +26,37 @@
   AttendeesListController.$inject = ['$scope', 'CALENDAR_EVENTS'];
 
   function AttendeesListController($scope, CALENDAR_EVENTS) {
-    var vm = this;
+    var self = this;
 
-    vm.attendeesPerPartstat = {};
-    vm.attendeeClickedCount = 0;
-    vm.selectAttendee = selectAttendee;
-    vm.deleteSelectedAttendees = deleteSelectedAttendees;
+    self.attendeesPerPartstat = {};
+    self.attendeeClickedCount = 0;
+    self.selectAttendee = selectAttendee;
+    self.deleteSelectedAttendees = deleteSelectedAttendees;
 
     activate();
 
     ////////////
 
     function activate() {
-      updateAttendeeStats(vm.attendees);
+      updateAttendeeStats(self.attendees);
       $scope.$on(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) { // eslint-disable-line
         updateAttendeeStats(data);
       });
     }
 
     function selectAttendee(attendee) {
-      if (vm.organizer.email !== attendee.email) {
+      if (self.organizer.email !== attendee.email) {
         attendee.clicked = !attendee.clicked;
-        vm.attendeeClickedCount += attendee.clicked ? 1 : -1;
+        self.attendeeClickedCount += attendee.clicked ? 1 : -1;
       }
     }
 
     function deleteSelectedAttendees() {
-      vm.attendees = vm.attendees.filter(function(attendee) { return !attendee.clicked;});
+      self.attendees = self.attendees.filter(function(attendee) { return !attendee.clicked;});
     }
 
     function updateAttendeeStats(attendees) {
-      var partstatMap = vm.attendeesPerPartstat = {
+      var partstatMap = self.attendeesPerPartstat = {
         'NEEDS-ACTION': 0,
         ACCEPTED: 0,
         TENTATIVE: 0,

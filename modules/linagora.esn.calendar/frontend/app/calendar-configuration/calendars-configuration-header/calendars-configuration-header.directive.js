@@ -21,9 +21,9 @@
   CalendarsConfigurationHeaderController.$inject = ['$state'];
 
   function CalendarsConfigurationHeaderController($state) {
-    var vm = this;
+    var self = this;
 
-    vm.cancel = cancel;
+    self.cancel = cancel;
 
     ////////////
 

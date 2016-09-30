@@ -23,11 +23,11 @@
   CalendarsConfigurationController.$inject = ['$state'];
 
   function CalendarsConfigurationController($state) {
-    var vm = this;
+    var self = this;
 
-    vm.calendars = vm.calendars || [];
-    vm.modify = modify;
-    vm.add = add;
+    self.calendars = self.calendars || [];
+    self.modify = modify;
+    self.add = add;
 
     ////////////
 

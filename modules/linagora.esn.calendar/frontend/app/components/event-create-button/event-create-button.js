@@ -24,9 +24,9 @@
   EventCreateButtonController.$inject = ['CalendarShell', 'calendarUtils', 'openEventForm'];
 
   function EventCreateButtonController(CalendarShell, calendarUtils, openEventForm) {
-    var vm = this;
+    var self = this;
 
-    vm.openEventForm = _openEventForm;
+    self.openEventForm = _openEventForm;
 
     ////////////
 

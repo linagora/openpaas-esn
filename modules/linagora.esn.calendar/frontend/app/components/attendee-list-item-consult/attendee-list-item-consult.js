@@ -24,9 +24,9 @@
   AttendeeListItemConsultController.$inject = ['$injector'];
 
   function AttendeeListItemConsultController($injector) {
-    var vm = this;
+    var self = this;
 
-    vm.composerExists = $injector.has('composerDirective');
+    self.composerExists = $injector.has('composerDirective');
   }
 
 })();

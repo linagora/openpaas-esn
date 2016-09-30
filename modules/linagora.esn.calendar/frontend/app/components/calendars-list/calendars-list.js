@@ -30,13 +30,13 @@
   ];
 
   function CalendarsListController($rootScope, $scope, calendarService, calendarVisibilityService, session, CALENDAR_EVENTS) {
-    var vm = this;
+    var self = this;
 
-    vm.onEditClick = vm.onEditClick || angular.noop;
-    vm.calendars = [];
-    vm.hiddenCalendars = {};
-    vm.selectCalendar = selectCalendar;
-    vm.toggleCalendar = calendarVisibilityService.toggle;
+    self.onEditClick = self.onEditClick || angular.noop;
+    self.calendars = [];
+    self.hiddenCalendars = {};
+    self.selectCalendar = selectCalendar;
+    self.toggleCalendar = calendarVisibilityService.toggle;
 
     activate();
 
@@ -47,29 +47,29 @@
       getHiddenCalendars();
 
       var deregister = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) { // eslint-disable-line
-        vm.hiddenCalendars[data.calendar.id] = data.hidden;
+        self.hiddenCalendars[data.calendar.id] = data.hidden;
       });
 
       $scope.$on('$destroy', deregister);
     }
 
     function selectCalendar(calendar) {
-      vm.calendars.forEach(function(cal) {
+      self.calendars.forEach(function(cal) {
         cal.selected = calendar.id === cal.id;
       });
 
-      vm.hiddenCalendars[calendar.id] && vm.toggleCalendar(calendar);
+      self.hiddenCalendars[calendar.id] && self.toggleCalendar(calendar);
     }
 
     function listCalendars() {
       calendarService.listCalendars(session.user._id).then(function(calendars) {
-        vm.calendars = calendars;
+        self.calendars = calendars;
       });
     }
 
     function getHiddenCalendars() {
       calendarVisibilityService.getHiddenCalendars().forEach(function(calendar) {
-        vm.hiddenCalendars[calendar.id] = true;
+        self.hiddenCalendars[calendar.id] = true;
       });
     }
   }

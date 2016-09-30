@@ -23,26 +23,26 @@
   EventDateConsultationController.$inject = [];
 
   function EventDateConsultationController() {
-    var vm = this;
+    var self = this;
 
-    vm.start = undefined;
-    vm.end = undefined;
+    self.start = undefined;
+    self.end = undefined;
 
     activate();
 
     ////////////
 
     function activate() {
-      if (!vm.event.allDay) {
-        vm.start = vm.event.start.format('MMMM D hh:mma');
-        if (vm.event.start.isSame(vm.event.end, 'day')) {
-          vm.end = vm.event.end.format('hh:mma');
+      if (!self.event.allDay) {
+        self.start = self.event.start.format('MMMM D hh:mma');
+        if (self.event.start.isSame(self.event.end, 'day')) {
+          self.end = self.event.end.format('hh:mma');
         } else {
-          vm.end = vm.event.end.format('MMMM D hh:mma');
+          self.end = self.event.end.format('MMMM D hh:mma');
         }
       } else {
-        vm.start = vm.event.start.format('MMMM D');
-        vm.end = vm.event.end.clone().subtract(1, 'day').format('MMMM D');
+        self.start = self.event.start.format('MMMM D');
+        self.end = self.event.end.clone().subtract(1, 'day').format('MMMM D');
       }
     }
   }
