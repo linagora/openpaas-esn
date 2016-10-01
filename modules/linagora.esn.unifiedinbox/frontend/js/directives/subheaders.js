@@ -5,21 +5,27 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('unifiedViewSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/unified-inbox/subheader.html'
+      templateUrl: '/unifiedinbox/views/unified-inbox/subheader.html',
+      controller: 'inboxListSubheaderController',
+      controllerAs: 'ctrl'
     };
   })
 
   .directive('listTwitterSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html'
+      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html',
+      controller: 'inboxListSubheaderController',
+      controllerAs: 'ctrl'
     };
   })
 
   .directive('listEmailsSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/email/list/subheader.html'
+      templateUrl: '/unifiedinbox/views/email/list/subheader.html',
+      controller: 'inboxListSubheaderController',
+      controllerAs: 'ctrl'
     };
   })
 

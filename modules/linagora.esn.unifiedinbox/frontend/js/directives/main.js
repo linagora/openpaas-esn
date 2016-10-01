@@ -102,7 +102,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxThreadService, inboxEmailService, mailboxesService) {
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxJmapItemService, mailboxesService, _) {
     return {
       restrict: 'E',
       replace: true,
@@ -114,20 +114,14 @@ angular.module('linagora.esn.unifiedinbox')
       link: function(scope) {
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
 
-        function isThread($dragData) {
-          return $dragData.hasOwnProperty('messageIds');
-        }
-
         scope.onDrop = function($dragData) {
-          if (isThread($dragData)) {
-            return inboxThreadService.moveToMailbox($dragData, scope.mailbox);
-          } else {
-            return inboxEmailService.moveToMailbox($dragData, scope.mailbox);
-          }
+          return inboxJmapItemService.moveMultipleItems($dragData, scope.mailbox);
         };
 
         scope.isDropZone = function($dragData) {
-          return mailboxesService.canMoveMessage($dragData.email || $dragData, scope.mailbox);
+          return _.all($dragData, function(item) {
+            return mailboxesService.canMoveMessage(item, scope.mailbox);
+          });
         };
       }
     };
@@ -519,12 +513,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxStar', function(jmapEmailService) {
+  .directive('inboxStar', function(jmapHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {
         this.setIsFlagged = function(state) {
-          jmapEmailService.setFlag($scope.item, 'isFlagged', state);
+          jmapHelper.setFlag($scope.item, 'isFlagged', state);
         };
       },
       controllerAs: 'ctrl',
@@ -535,13 +529,13 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('email', function(inboxEmailService) {
+  .directive('email', function(inboxJmapItemService) {
     return {
       restrict: 'E',
       controller: function($scope) {
         ['reply', 'replyAll', 'forward'].forEach(function(action) {
           this[action] = function() {
-            inboxEmailService[action]($scope.email);
+            inboxJmapItemService[action]($scope.email);
           };
         }.bind(this));
 
@@ -571,7 +565,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmailFooter', function(inboxEmailService) {
+  .directive('inboxEmailFooter', function(inboxJmapItemService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/email-footer.html',
@@ -581,7 +575,7 @@ angular.module('linagora.esn.unifiedinbox')
       controller: function($scope) {
         ['reply', 'replyAll', 'forward'].forEach(function(action) {
           this[action] = function() {
-            inboxEmailService[action]($scope.email);
+            inboxJmapItemService[action]($scope.email);
           };
         }.bind(this));
       },

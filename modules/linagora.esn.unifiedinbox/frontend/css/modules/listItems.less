@@ -46,6 +46,10 @@
     .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
       padding: 0;
 
+      &.selected {
+        background-color: @darkenBgColor;
+      }
+
       .inbox-list-item-content {
         padding: 7px 10px;
 
@@ -87,6 +91,24 @@
           margin-top: 5px;
           min-width: 0;
         }
+
+        .list-image {
+          .flex-noshrink;
+
+          height: 40px;
+          width: 52px;
+
+          img {
+            .avatar(40px);
+          }
+
+          .checkbox {
+            .input-helper::before, .input-helper::after {
+              top: 10px;
+              left: 10px;
+            }
+          }
+        }
       }
     }
   }
@@ -98,6 +120,10 @@
       .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
         .inbox-list-item-content {
           padding: 10px 15px;
+
+          &.dragging {
+            background-color: @inboxDraggingItemBgColor;
+          }
         }
       }
     }
@@ -146,8 +172,20 @@
             }
           }
 
-          &.dragging {
-            background-color: @inboxDraggingItemBgColor;
+          .list-image {
+            height: 28px;
+            width: 40px;
+
+            img {
+              .avatar(28px);
+            }
+
+            .checkbox {
+              .input-helper::before, .input-helper::after {
+                top: 5px;
+                left: 5px;
+              }
+            }
           }
         }
       }

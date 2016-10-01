@@ -7,7 +7,8 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxThreadService, inboxEmailService;
+  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService;
+  var INBOX_EVENTS;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
@@ -30,12 +31,21 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxThreadService_, _inboxEmailService_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxJmapItemService_, _infiniteListService_,
+                             _inboxSelectionService_, _INBOX_EVENTS_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
-    inboxThreadService = _inboxThreadService_;
-    inboxEmailService = _inboxEmailService_;
+    inboxJmapItemService = _inboxJmapItemService_;
+    infiniteListService = _infiniteListService_;
+    inboxSelectionService = _inboxSelectionService_;
+    INBOX_EVENTS = _INBOX_EVENTS_;
+
+    inboxSelectionService.toggleItemSelection = sinon.spy(inboxSelectionService.toggleItemSelection);
+
+    infiniteListService.addElement = sinon.spy(infiniteListService.addElement);
+    infiniteListService.removeElement = sinon.spy(infiniteListService.removeElement);
+    infiniteListService.actionRemovingElement = sinon.spy(infiniteListService.actionRemovingElement);
 
     $scope = $rootScope.$new();
 
@@ -65,10 +75,10 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
   describe('The inboxThreadListItem directive', function() {
 
-    describe('the exposed functions from inboxThreadService', function() {
+    describe('the exposed functions from inboxJmapItemService', function() {
       beforeEach(function() {
         ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
-          inboxThreadService[action] = sinon.spy();
+          inboxJmapItemService[action] = sinon.spy();
         });
       });
 
@@ -77,9 +87,42 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           element.controller('inboxThreadListItem')[action]();
-          expect(inboxThreadService[action]).to.have.been.called;
+          expect(inboxJmapItemService[action]).to.have.been.called;
         });
       });
+    });
+
+    describe('The select function', function() {
+
+      var $event, item;
+
+      beforeEach(angular.mock.inject(function() {
+        $event = {
+          preventDefault: sinon.spy(),
+          stopPropagation: sinon.spy()
+        };
+        item = { a: 'b' };
+      }));
+
+      function select() {
+        return element.controller('inboxThreadListItem').select(item, $event);
+      }
+
+      it('should stop propagation of the event and prevent default action', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect($event.preventDefault).to.have.been.calledWith();
+        expect($event.stopPropagation).to.have.been.calledWith();
+      });
+
+      it('should delegate to inboxSelectionService', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item);
+      });
+
     });
 
     describe('openThread fn', function() {
@@ -171,25 +214,15 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         controller = element.controller('inboxThreadListItem');
       });
 
-      it('should immediately remove thread from the list', function() {
+      it('should delegate to infiniteListService.actionRemovingElement', function() {
         controller.moveToTrash();
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+
+        expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, $scope.item);
       });
 
       it('should move thread to Trash folder using moveToMailboxWithRole method', function() {
         controller.moveToTrash();
         expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-      });
-
-      it('should add thread to the list again on failure', function(done) {
-        $scope.item.moveToMailboxWithRole = function() {return $q.reject(); };
-
-        controller.moveToTrash().then(done.bind(null, 'should reject'), function() {
-          expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
-          done();
-        });
-
-        $rootScope.$digest();
       });
 
     });
@@ -252,45 +285,48 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         expect(element.find('.clickable').attr('esn-draggable')).to.equal('esn-draggable');
       });
 
-      it('should remove item from list on drag end with a drop', function() {
-        compileDirective('<inbox-thread-list-item />');
+      describe('The getDragData function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return an array containing the item, if there is no selection', function() {
+          $scope.item = { id: 1 };
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(true);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect($scope.groups.removeElement).to.have.been.calledOnce;
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragData()).to.deep.equal([$scope.item]);
+        });
+
+        it('should return an array containing the selected items _including_ the item, if there is a selection', function() {
+          var item1 = { id: 1 },
+              item2 = { id: 2 };
+
+          $scope.item = { id: 3 };
+          inboxSelectionService.toggleItemSelection(item1);
+          inboxSelectionService.toggleItemSelection(item2);
+
+          compileDirective('<inbox-thread-list-item />');
+
+          expect($scope.getDragData()).to.deep.equal([item1, item2, $scope.item]);
+          expect($scope.item.selected).to.equal(true);
+        });
+
       });
 
-      it('should not remove item from list on drag end with no drop', function() {
-        compileDirective('<inbox-thread-list-item />');
+      describe('The getDragMessage function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return the item\'s subject if dragging a single item', function() {
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(false);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect($scope.groups.removeElement).to.have.been.callCount(0);
-      });
+          expect($scope.getDragMessage([{ id: 1, subject: 'subject' }])).to.equal('subject');
+        });
 
-      it('should add item back to the list on drop failure', function() {
-        compileDirective('<inbox-thread-list-item />');
+        it('should return the number of items if dragging multiple items', function() {
+          compileDirective('<inbox-thread-list-item />');
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          addElement: sinon.spy()
-        };
-
-        $scope.onDropFailure();
-
-        expect($scope.groups.addElement).to.have.been.calledOnce;
-        expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
+        });
 
       });
 
@@ -300,10 +336,10 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
   describe('The inboxMessageListItem directive', function() {
 
-    describe('the exposed functions from inboxEmailService', function() {
+    describe('the exposed functions from inboxJmapItemService', function() {
       beforeEach(function() {
         ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
-          inboxEmailService[action] = sinon.spy();
+          inboxJmapItemService[action] = sinon.spy();
         });
       });
 
@@ -313,9 +349,42 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           element.controller('inboxMessageListItem')[action]();
 
-          expect(inboxEmailService[action]).to.have.been.called;
+          expect(inboxJmapItemService[action]).to.have.been.called;
         });
       });
+    });
+
+    describe('The select function', function() {
+
+      var $event, item;
+
+      beforeEach(angular.mock.inject(function() {
+        $event = {
+          preventDefault: sinon.spy(),
+          stopPropagation: sinon.spy()
+        };
+        item = { a: 'b' };
+      }));
+
+      function select() {
+        return element.controller('inboxThreadListItem').select(item, $event);
+      }
+
+      it('should stop propagation of the event and prevent default action', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect($event.preventDefault).to.have.been.calledWith();
+        expect($event.stopPropagation).to.have.been.calledWith();
+      });
+
+      it('should delegate to inboxSelectionService', function() {
+        compileDirective('<inbox-thread-list-item />');
+        select();
+
+        expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item);
+      });
+
     });
 
     describe('openEmail fn', function() {
@@ -406,25 +475,16 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         controller = element.controller('inboxMessageListItem');
       });
 
-      it('should immediately remove message from the list', function() {
+      it('should delegate to infiniteListService.actionRemovingElement', function() {
         controller.moveToTrash();
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+
+        expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, $scope.item);
       });
 
       it('should move message to Trash folder using moveToMailboxWithRole method', function() {
         controller.moveToTrash();
+
         expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-      });
-
-      it('should add message to the list again on failure', function(done) {
-        $scope.item.moveToMailboxWithRole = function() {return $q.reject(); };
-
-        controller.moveToTrash().then(done.bind(null, 'should reject'), function() {
-          expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
-          done();
-        });
-
-        $rootScope.$digest();
       });
 
     });
@@ -487,45 +547,48 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         expect(element.find('.clickable').attr('esn-draggable')).to.equal('esn-draggable');
       });
 
-      it('should remove item from list on drag end with a drop', function() {
-        compileDirective('<inbox-message-list-item />');
+      describe('The getDragData function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return an array containing the item, if there is no selection', function() {
+          $scope.item = { id: 1 };
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(true);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect($scope.groups.removeElement).to.have.been.calledOnce;
-        expect($scope.groups.removeElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragData()).to.deep.equal([$scope.item]);
+        });
+
+        it('should return an array containing the selected items _including_ the item, if there is a selection', function() {
+          var item1 = { id: 1 },
+            item2 = { id: 2 };
+
+          $scope.item = { id: 3 };
+          inboxSelectionService.toggleItemSelection(item1);
+          inboxSelectionService.toggleItemSelection(item2);
+
+          compileDirective('<inbox-thread-list-item />');
+
+          expect($scope.getDragData()).to.deep.equal([item1, item2, $scope.item]);
+          expect($scope.item.selected).to.equal(true);
+        });
+
       });
 
-      it('should not remove item from list on drag end with no drop', function() {
-        compileDirective('<inbox-message-list-item />');
+      describe('The getDragMessage function', function() {
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          removeElement: sinon.spy()
-        };
+        it('should return the item\'s subject if dragging a single item', function() {
+          inboxSelectionService.unselectAllItems();
 
-        $scope.onDragEnd(false);
+          compileDirective('<inbox-thread-list-item />');
 
-        expect($scope.groups.removeElement).to.have.been.callCount(0);
-      });
+          expect($scope.getDragMessage([{ id: 1, subject: 'subject' }])).to.equal('subject');
+        });
 
-      it('should add item back to the list on drop failure', function() {
-        compileDirective('<inbox-message-list-item />');
+        it('should return the number of items if dragging multiple items', function() {
+          compileDirective('<inbox-thread-list-item />');
 
-        $scope.item = 'an item';
-        $scope.groups = {
-          addElement: sinon.spy()
-        };
-
-        $scope.onDropFailure();
-
-        expect($scope.groups.addElement).to.have.been.calledOnce;
-        expect($scope.groups.addElement).to.have.been.calledWith($scope.item);
+          expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
+        });
 
       });
 
@@ -575,6 +638,56 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         expect($scope.swipeClose).to.have.been.calledWith();
       });
 
+    });
+
+  });
+
+  describe('The inboxGroupToggleSelection directive', function() {
+
+    var item1 = { id: 1, selectable: true },
+        item2 = { id: 2 },
+        item3 = { id: 3, selectable: true };
+
+    beforeEach(function() {
+      $scope.group = {
+        elements: [item1, item2, item3]
+      };
+
+      compileDirective('<div inbox-group-toggle-selection />');
+    });
+
+    it('should initialize scope.selected to false', function() {
+      expect($scope.selected).to.equal(false);
+    });
+
+    it('should select all selectable elements on click', function() {
+      compileDirective('<div inbox-group-toggle-selection />').click();
+
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item1, true);
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, true);
+    });
+
+    it('should update scope.selected on ITEM_SELECTION_CHANGED event', function() {
+      compileDirective('<div inbox-group-toggle-selection />');
+
+      $scope.group.elements[0].selected = true;
+      $scope.group.elements[0].selected = true;
+      $scope.$emit(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
+
+      expect($scope.selected).to.equal(true);
+    });
+
+    it('should unselect all selectable elements when they are all selected on click', function() {
+      compileDirective('<div inbox-group-toggle-selection />');
+
+      $scope.group.elements[0].selected = true;
+      $scope.group.elements[0].selected = true;
+      $scope.$emit(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
+
+      element.click();
+
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item1, false);
+      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, false);
     });
 
   });

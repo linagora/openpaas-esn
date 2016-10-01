@@ -168,6 +168,10 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Email({ id: 'id' }).from).to.equal(undefined);
     });
 
+    it('should return a Selectable', function() {
+      expect(new Email({ id: 'id' }).selectable).to.equal(true);
+    });
+
     describe('The hasReplyAll attribute', function() {
 
       var recipients;
@@ -181,13 +185,13 @@ describe('The Unified Inbox Angular module models', function() {
       it('should allow replying all if there are more than one recipient', function() {
         var email = new Email({ id: 'id', to: [recipients[0]], cc: [recipients[1]] });
 
-        expect(email.hasReplyAll).to.be.true;
+        expect(email.hasReplyAll).to.equal(true);
       });
 
       it('should not allow replying all if there is only one recipient', function() {
         var email = new Email({ id: 'id', to: [recipients[0]], cc: [] });
 
-        expect(email.hasReplyAll).to.be.false;
+        expect(email.hasReplyAll).to.equal(false);
       });
 
     });
@@ -201,11 +205,12 @@ describe('The Unified Inbox Angular module models', function() {
       Thread = _Thread_;
     }));
 
-    it('should have id, subject and emails properties', function() {
-      var thread = new Thread({ id: 'threadId' }, [{ subject: 'firstEmailSubject' }, { subject: 'secondSubject' }]);
+    it('should have id, mailboxIds, subject and emails properties', function() {
+      var thread = new Thread({ id: 'threadId' }, [{ subject: 'firstEmailSubject', mailboxIds: ['1'] }, { subject: 'secondSubject' }]);
 
       expect(thread).to.shallowDeepEqual({
         id: 'threadId',
+        mailboxIds: ['1'],
         subject: 'firstEmailSubject',
         emails: [{ subject: 'firstEmailSubject' }, { subject: 'secondSubject' }]
       });
@@ -217,6 +222,10 @@ describe('The Unified Inbox Angular module models', function() {
 
     it('should have emails set to an empty array when null is given', function() {
       expect(new Thread({ id: 'threadId' }, null).emails).to.deep.equal([]);
+    });
+
+    it('should have mailboxIds set to an empty array when no emails are given', function() {
+      expect(new Thread({ id: 'threadId' }, null).mailboxIds).to.deep.equal([]);
     });
 
     it('should have subject set to an empty string when no emails are given', function() {
@@ -259,6 +268,10 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]).hasAttachment).to.equal(true);
     });
 
+    it('should return a Selectable', function() {
+      expect(new Thread({ id: 'id' }).selectable).to.equal(true);
+    });
+
     describe('The setEmails function', function() {
 
       it('should replace thread.emails', function() {
@@ -293,6 +306,43 @@ describe('The Unified Inbox Angular module models', function() {
         expect(thread.hasAttachment).to.equal(false);
       });
 
+    });
+
+  });
+
+  describe('The Selectable factory', function() {
+
+    var $rootScope, Selectable, INBOX_EVENTS;
+
+    beforeEach(inject(function(_$rootScope_, _Selectable_, _INBOX_EVENTS_) {
+      $rootScope = _$rootScope_;
+      Selectable = _Selectable_;
+      INBOX_EVENTS = _INBOX_EVENTS_;
+    }));
+
+    it('should set selectable=true on the source item', function() {
+      expect(new Selectable({}).selectable).to.equal(true);
+    });
+
+    it('should broadcast a ITEM_SELECTION_CHANGED event when selected flag changes on the item', function(done) {
+      var selectable = new Selectable({});
+
+      $rootScope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function(event, item) {
+        expect(item).to.deep.equal({ selected: true, selectable: true });
+
+        done();
+      });
+
+      selectable.selected = true;
+    });
+
+    it('should not broadcast a ITEM_SELECTION_CHANGED event when selected flag does not change on the item', function(done) {
+      var selectable = new Selectable({});
+
+      $rootScope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, done);
+
+      selectable.selected = false;
+      done();
     });
 
   });

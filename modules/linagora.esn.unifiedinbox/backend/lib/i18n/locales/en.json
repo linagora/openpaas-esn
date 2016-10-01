@@ -62,5 +62,7 @@
   "Your vacation responder is enabled but stopped on %s": "Your vacation responder is enabled but stopped on %s",
   "Please verify your vacation settings": "Please verify your vacation settings",
   "Thanks a lot for your message. I am currently out of office and will get back to you soon.": "Thanks a lot for your message. I am currently out of office and will get back to you soon.",
-  "Move to": "Move to"
+  "Move to": "Move to",
+  "Select all items in this group": "Select all items in this group",
+  "%s selected": "%s selected"
 }
