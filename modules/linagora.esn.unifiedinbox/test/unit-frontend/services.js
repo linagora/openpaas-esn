@@ -395,7 +395,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The jmapHelper service', function() {
 
-    var jmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, backgroundProcessorService, jmapClient;
+    var jmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, jmapClient;
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
@@ -413,7 +413,6 @@ describe('The Unified Inbox Angular module services', function() {
         jmap = _jmap_;
         $rootScope = _$rootScope_;
         notificationFactory = _notificationFactory_;
-        backgroundProcessorService = _backgroundProcessorService_;
 
         notificationFactory.weakError = sinon.spy();
 
@@ -423,99 +422,6 @@ describe('The Unified Inbox Angular module services', function() {
           preferredEmail: 'alice@domain'
         };
       });
-    });
-
-    function newEmail(isUnread) {
-      var email = new jmap.Message({}, 'id', 'threadId', ['inbox'], { subject: 'subject', isUnread: isUnread });
-
-      email.setIsUnread = function() { return $q.when(); };
-
-      return email;
-    }
-
-    describe('The setFlag function', function() {
-
-      it('should throw an Error if email is undefined', function() {
-        expect(function() {
-          jmapHelper.setFlag();
-        }).to.throw(Error);
-      });
-
-      it('should throw an Error if email is not a jmap.Message', function() {
-        expect(function() {
-          jmapHelper.setFlag({});
-        }).to.throw(Error);
-      });
-
-      it('should throw an Error if flag is undefined', function() {
-        expect(function() {
-          jmapHelper.setFlag(newEmail());
-        }).to.throw(Error);
-      });
-
-      it('should throw an Error if state is undefined', function() {
-        expect(function() {
-          jmapHelper.setFlag(newEmail(), 'isUnread');
-        }).to.throw(Error);
-      });
-
-      it('should return the Promise resolving to the given email object', function(done) {
-        var givenEmail = newEmail();
-
-        jmapHelper.setFlag(givenEmail, 'isUnread', true).then(function(resolvedValue) {
-          expect(resolvedValue).to.deep.equal(givenEmail);
-          done();
-        }, done);
-
-        $rootScope.$digest();
-      });
-
-      it('should call setXXX on the email object, passing the given state', function(done) {
-        var email = newEmail();
-
-        email.setIsUnread = function(state) {
-          expect(state).to.equal(true);
-
-          done();
-        };
-
-        jmapHelper.setFlag(email, 'isUnread', true);
-        $rootScope.$digest();
-      });
-
-      it('should change the local flag without waiting for a reply, and submit a background task', function() {
-        var email = newEmail();
-
-        jmapHelper.setFlag(email, 'isUnread', true);
-        expect(email.isUnread).to.equal(true);
-        expect(backgroundProcessorService.tasks.length).to.equal(1);
-      });
-
-      it('should revert the local flag on the email object on failure', function(done) {
-        var email = newEmail();
-        email.setIsUnread = function() { return $q.reject(); };
-
-        jmapHelper.setFlag(email, 'isUnread', true).then(null, function() {
-          expect(email.isUnread).to.equal(false);
-          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of "subject" failed');
-
-          done();
-        });
-        $rootScope.$digest();
-      });
-
-      it('should not call setXXX on the email object if the local flag matches the given state, and return a Promise resolving to the given element', function(done) {
-        var email = newEmail(true);
-
-        email.setIsUnread = function() { done('This test should not call setIsUnread'); };
-
-        jmapHelper.setFlag(email, 'isUnread', true).then(function(resolvedValue) {
-          expect(resolvedValue).to.deep.equal(email);
-          done();
-        });
-        $rootScope.$digest();
-      });
-
     });
 
     describe('The getMessageById function', function() {
@@ -3632,14 +3538,13 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxJmapItemService service', function() {
 
-    var $rootScope, jmap, jmapHelper, inboxJmapItemService, newComposerService, emailSendingService,
+    var $rootScope, jmap, inboxJmapItemService, newComposerService, emailSendingService,
         quoteEmail, jmapClientMock, backgroundAction;
 
     beforeEach(module(function($provide) {
       jmapClientMock = {};
       quoteEmail = function() { return {transformed: 'value'}; };
 
-      $provide.value('jmapHelper', jmapHelper = { setFlag: sinon.spy() });
       $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
       $provide.value('newComposerService', newComposerService = { open: sinon.spy() });
       $provide.value('backgroundAction', sinon.spy(function(message, action) { return action(); }));
@@ -3655,7 +3560,22 @@ describe('The Unified Inbox Angular module services', function() {
       jmap = _jmap_;
       inboxJmapItemService = _inboxJmapItemService_;
       backgroundAction = _backgroundAction_;
+
+      inboxJmapItemService.setFlag = sinon.spy(inboxJmapItemService.setFlag);
     }));
+
+    function newEmail(isUnread, isFlagged) {
+      var email = new jmap.Message({}, 'id', 'threadId', ['inbox'], {
+        subject: 'subject',
+        isUnread: isUnread,
+        isFlagged: isFlagged
+      });
+
+      email.setIsUnread = function() { return $q.when(); };
+      email.setIsFlagged = function() { return $q.when(); };
+
+      return email;
+    }
 
     describe('The moveToTrash fn', function() {
 
@@ -3852,45 +3772,124 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The markAsUnread function', function() {
 
-      beforeEach(function() {
-        jmapHelper.setFlag = sinon.spy(function() {
-          return $q.reject();
-        });
-      });
+      it('should call setFlag', function() {
+        inboxJmapItemService.markAsUnread(newEmail());
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.markAsUnread({});
-
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
       });
 
     });
 
     describe('The markAsRead function', function() {
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.markAsRead({});
+      it('should call setFlag', function() {
+        inboxJmapItemService.markAsRead(newEmail());
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
       });
     });
 
     describe('The markAsFlagged function', function() {
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.markAsFlagged({});
+      it('should call setFlag', function() {
+        inboxJmapItemService.markAsFlagged(newEmail());
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
       });
 
     });
 
     describe('The unmarkAsFlagged function', function() {
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.unmarkAsFlagged({});
+      it('should call setFlag', function() {
+        inboxJmapItemService.unmarkAsFlagged(newEmail());
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
+      });
+
+    });
+
+    describe('The setFlag function', function() {
+
+      it('should throw an Error if email is undefined', function() {
+        expect(function() {
+          inboxJmapItemService.setFlag();
+        }).to.throw(Error);
+      });
+
+      it('should throw an Error if email is not a jmap.Message', function() {
+        expect(function() {
+          inboxJmapItemService.setFlag({});
+        }).to.throw(Error);
+      });
+
+      it('should throw an Error if flag is undefined', function() {
+        expect(function() {
+          inboxJmapItemService.setFlag(newEmail());
+        }).to.throw(Error);
+      });
+
+      it('should throw an Error if state is undefined', function() {
+        expect(function() {
+          inboxJmapItemService.setFlag(newEmail(), 'isUnread');
+        }).to.throw(Error);
+      });
+
+      it('should return the Promise resolving to the given email object', function(done) {
+        var givenEmail = newEmail();
+
+        inboxJmapItemService.setFlag(givenEmail, 'isUnread', true).then(function(resolvedValue) {
+          expect(resolvedValue).to.deep.equal(givenEmail);
+          done();
+        }, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should call setXXX on the email object, passing the given state', function(done) {
+        var email = newEmail();
+
+        email.setIsUnread = function(state) {
+          expect(state).to.equal(true);
+
+          done();
+        };
+
+        inboxJmapItemService.setFlag(email, 'isUnread', true);
+        $rootScope.$digest();
+      });
+
+      it('should change the local flag without waiting for a reply, and submit a background task', function() {
+        var email = newEmail();
+
+        inboxJmapItemService.setFlag(email, 'isUnread', true);
+        expect(email.isUnread).to.equal(true);
+        expect(backgroundAction).to.have.been.calledWith();
+      });
+
+      it('should revert the local flag on the email object on failure', function(done) {
+        var email = newEmail();
+
+        email.setIsUnread = function() { return $q.reject(); };
+
+        inboxJmapItemService.setFlag(email, 'isUnread', true).then(null, function() {
+          expect(email.isUnread).to.equal(false);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should not call setXXX on the email object if the local flag matches the given state, and return a Promise resolving to the given element', function(done) {
+        var email = newEmail(true);
+
+        email.setIsUnread = function() { done('This test should not call setIsUnread'); };
+
+        inboxJmapItemService.setFlag(email, 'isUnread', true).then(function(resolvedValue) {
+          expect(resolvedValue).to.deep.equal(email);
+          done();
+        });
+        $rootScope.$digest();
       });
 
     });

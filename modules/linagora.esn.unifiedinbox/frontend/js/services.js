@@ -107,7 +107,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('jmapHelper', function($q, jmap, session, emailBodyService, userUtils, withJmapClient, backgroundAction, _,
+  .factory('jmapHelper', function(jmap, session, emailBodyService, userUtils, withJmapClient, backgroundAction, _,
                                   JMAP_GET_MESSAGES_VIEW) {
     function _mapToEMailer(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -142,27 +142,6 @@ angular.module('linagora.esn.unifiedinbox')
       return new jmap.OutboundMessage(jmapClient, message);
     }
 
-    function setFlag(item, flag, state) {
-      if (!item || !flag || !angular.isDefined(state)) {
-        throw new Error('Parameters "item", "flag" and "state" are required.');
-      }
-
-      if (item[flag] === state) {
-        return $q.when(item);
-      }
-
-      item[flag] = state; // Be optimist!
-
-      return backgroundAction('Modification of "' + item.subject + '"', function() {
-        return item['set' + jmap.Utils.capitalize(flag)](state)
-          .then(_.constant(item), function(err) {
-            item[flag] = !state;
-
-            return $q.reject(err);
-          });
-      }, { silent: true });
-    }
-
     function getMessageById(id) {
       return withJmapClient(function(client) {
         return client
@@ -172,7 +151,6 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      setFlag: setFlag,
       getMessageById: getMessageById,
       toOutboundMessage: toOutboundMessage
     };
@@ -978,7 +956,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
-                                            jmap, jmapHelper, mailboxesService, infiniteListService, inboxSelectionService) {
+                                            jmap, mailboxesService, infiniteListService, inboxSelectionService, _) {
     function moveToTrash(item, options) {
       return backgroundAction('Move of "' + item.subject + '" to trash', function() {
         return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1036,19 +1014,40 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function markAsUnread(email) {
-      return jmapHelper.setFlag(email, 'isUnread', true);
+      return this.setFlag(email, 'isUnread', true);
     }
 
     function markAsRead(email) {
-      return jmapHelper.setFlag(email, 'isUnread', false);
+      return this.setFlag(email, 'isUnread', false);
     }
 
     function markAsFlagged(email) {
-      return jmapHelper.setFlag(email, 'isFlagged', true);
+      return this.setFlag(email, 'isFlagged', true);
     }
 
     function unmarkAsFlagged(email) {
-      return jmapHelper.setFlag(email, 'isFlagged', false);
+      return this.setFlag(email, 'isFlagged', false);
+    }
+
+    function setFlag(item, flag, state) {
+      if (!item || !flag || !angular.isDefined(state)) {
+        throw new Error('Parameters "item", "flag" and "state" are required.');
+      }
+
+      if (item[flag] === state) {
+        return $q.when(item);
+      }
+
+      item[flag] = state; // Be optimist!
+
+      return backgroundAction('Modification of "' + item.subject + '"', function() {
+        return item['set' + jmap.Utils.capitalize(flag)](state)
+          .then(_.constant(item), function(err) {
+            item[flag] = !state;
+
+            return $q.reject(err);
+          });
+      }, { silent: true });
     }
 
     return {
@@ -1061,7 +1060,8 @@ angular.module('linagora.esn.unifiedinbox')
       unmarkAsFlagged: unmarkAsFlagged,
       moveToTrash: moveToTrash,
       moveToMailbox: moveToMailbox,
-      moveMultipleItems: moveMultipleItems
+      moveMultipleItems: moveMultipleItems,
+      setFlag: setFlag
     };
   })
 
