@@ -453,8 +453,8 @@ describe('The cachedEventSource service', function() {
 
       it('should ignore a event that end before the first day of the requested period', function() {
         self.modifiedEvent.id = 3;
-        self.modifiedEvent.start = self.fcMoment('1983-31-31 10:00');
-        self.modifiedEvent.end = self.fcMoment('1983-31-31 23:00');
+        self.modifiedEvent.start = self.fcMoment([1983, 11, 31, 10, 0]);
+        self.modifiedEvent.end = self.fcMoment([1983, 11, 31, 23, 0]);
         self.cachedEventSource.registerAdd(self.modifiedEvent);
         self.cachedEventSource.wrapEventSource(self.calendarId, self.eventSource)(self.start, self.end, null, self.originalCallback);
         self.$rootScope.$apply();
@@ -463,8 +463,8 @@ describe('The cachedEventSource service', function() {
 
       it('should ignore a event that start after the last day of the requested period', function() {
         self.modifiedEvent.id = 3;
-        self.modifiedEvent.start = self.fcMoment('1984-01-08 00:30');
-        self.modifiedEvent.end = self.fcMoment('1984-01-08 00:45');
+        self.modifiedEvent.start = self.fcMoment([1984, 0, 8, 0, 30]);
+        self.modifiedEvent.end = self.fcMoment([1984, 0, 8, 0, 45]);
         self.cachedEventSource.registerAdd(self.modifiedEvent);
         self.cachedEventSource.wrapEventSource(self.calendarId, self.eventSource)(self.start, self.end, null, self.originalCallback);
         self.$rootScope.$apply();

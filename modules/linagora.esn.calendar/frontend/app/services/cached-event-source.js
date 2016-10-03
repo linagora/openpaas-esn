@@ -73,8 +73,7 @@
     function addAddedEvent(start, end, calendarId, events, customChanges) {
       function eventInPeriod(event) {
         return [event.start, event.end].some(function(date) {
-          return date && (date.isSame(start, 'day') || date.isAfter(start)) &&
-            (date.isSame(end, 'day') || date.isBefore(end));
+          return date && date.clone().stripTime().isBetween(start, end, 'day', '[]');
         });
       }
 
