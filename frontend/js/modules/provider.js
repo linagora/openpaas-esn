@@ -211,6 +211,10 @@ angular.module('esn.provider', [
       });
     };
 
+    ByDateElementGroupingTool.prototype.removeElements = function(elements) {
+      elements.forEach(this.removeElement, this);
+    };
+
     ByDateElementGroupingTool.prototype._isToday = function(currentMoment, targetMoment) {
       return currentMoment.clone().startOf('day').isBefore(targetMoment);
     };
@@ -299,16 +303,18 @@ angular.module('esn.provider', [
     };
   })
 
-  .factory('infiniteScrollOnGroupsHelper', function(infiniteScrollHelperBuilder, infiniteListService, INFINITE_LIST_EVENTS) {
+  .factory('infiniteScrollOnGroupsHelper', function($timeout, infiniteScrollHelperBuilder, infiniteListService,
+                                                    INFINITE_LIST_EVENTS) {
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
 
-      var unregisterAddElementListener = scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENT, function(event, item) {
-        scope.groups.addElement(item);
+      var unregisterAddElementListener = scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENTS, function(event, elements) {
+        scope.groups.addAll(elements);
       });
-      var unregisterRemoveElementListener = scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENT, function(event, item) {
-        scope.groups.removeElement(item);
-        infiniteListService.loadMoreElements();
+      var unregisterRemoveElementListener = scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENTS, function(event, elements) {
+        scope.groups.removeElements(elements);
+
+        $timeout(infiniteListService.loadMoreElements, 0);
       });
 
       var helper = infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
