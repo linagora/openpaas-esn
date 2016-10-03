@@ -395,7 +395,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The jmapHelper service', function() {
 
-    var jmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, backgroundProcessorService, jmapClient;
+    var jmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, jmapClient;
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
@@ -413,7 +413,6 @@ describe('The Unified Inbox Angular module services', function() {
         jmap = _jmap_;
         $rootScope = _$rootScope_;
         notificationFactory = _notificationFactory_;
-        backgroundProcessorService = _backgroundProcessorService_;
 
         notificationFactory.weakError = sinon.spy();
 
@@ -423,99 +422,6 @@ describe('The Unified Inbox Angular module services', function() {
           preferredEmail: 'alice@domain'
         };
       });
-    });
-
-    function newEmail(isUnread) {
-      var email = new jmap.Message({}, 'id', 'threadId', ['inbox'], { subject: 'subject', isUnread: isUnread });
-
-      email.setIsUnread = function() { return $q.when(); };
-
-      return email;
-    }
-
-    describe('The setFlag function', function() {
-
-      it('should throw an Error if email is undefined', function() {
-        expect(function() {
-          jmapHelper.setFlag();
-        }).to.throw(Error);
-      });
-
-      it('should throw an Error if email is not a jmap.Message', function() {
-        expect(function() {
-          jmapHelper.setFlag({});
-        }).to.throw(Error);
-      });
-
-      it('should throw an Error if flag is undefined', function() {
-        expect(function() {
-          jmapHelper.setFlag(newEmail());
-        }).to.throw(Error);
-      });
-
-      it('should throw an Error if state is undefined', function() {
-        expect(function() {
-          jmapHelper.setFlag(newEmail(), 'isUnread');
-        }).to.throw(Error);
-      });
-
-      it('should return the Promise resolving to the given email object', function(done) {
-        var givenEmail = newEmail();
-
-        jmapHelper.setFlag(givenEmail, 'isUnread', true).then(function(resolvedValue) {
-          expect(resolvedValue).to.deep.equal(givenEmail);
-          done();
-        }, done);
-
-        $rootScope.$digest();
-      });
-
-      it('should call setXXX on the email object, passing the given state', function(done) {
-        var email = newEmail();
-
-        email.setIsUnread = function(state) {
-          expect(state).to.equal(true);
-
-          done();
-        };
-
-        jmapHelper.setFlag(email, 'isUnread', true);
-        $rootScope.$digest();
-      });
-
-      it('should change the local flag without waiting for a reply, and submit a background task', function() {
-        var email = newEmail();
-
-        jmapHelper.setFlag(email, 'isUnread', true);
-        expect(email.isUnread).to.equal(true);
-        expect(backgroundProcessorService.tasks.length).to.equal(1);
-      });
-
-      it('should revert the local flag on the email object on failure', function(done) {
-        var email = newEmail();
-        email.setIsUnread = function() { return $q.reject(); };
-
-        jmapHelper.setFlag(email, 'isUnread', true).then(null, function() {
-          expect(email.isUnread).to.equal(false);
-          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of "subject" failed');
-
-          done();
-        });
-        $rootScope.$digest();
-      });
-
-      it('should not call setXXX on the email object if the local flag matches the given state, and return a Promise resolving to the given element', function(done) {
-        var email = newEmail(true);
-
-        email.setIsUnread = function() { done('This test should not call setIsUnread'); };
-
-        jmapHelper.setFlag(email, 'isUnread', true).then(function(resolvedValue) {
-          expect(resolvedValue).to.deep.equal(email);
-          done();
-        });
-        $rootScope.$digest();
-      });
-
     });
 
     describe('The getMessageById function', function() {
@@ -3632,17 +3538,25 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxJmapItemService service', function() {
 
-    var $rootScope, jmap, jmapHelper, inboxJmapItemService, newComposerService, emailSendingService,
-        quoteEmail, jmapClientMock, backgroundAction;
+    var $rootScope, jmap, inboxJmapItemService, newComposerService, emailSendingService,
+        quoteEmail, jmapClientMock, notificationFactory, backgroundAction, counter;
 
     beforeEach(module(function($provide) {
-      jmapClientMock = {};
+      counter = 0;
+      jmapClientMock = {
+        setMessages: sinon.spy(function() {
+          return $q.when(new jmap.SetResponse(jmapClientMock));
+        })
+      };
       quoteEmail = function() { return {transformed: 'value'}; };
 
-      $provide.value('jmapHelper', jmapHelper = { setFlag: sinon.spy() });
       $provide.value('withJmapClient', function(callback) { return callback(jmapClientMock); });
       $provide.value('newComposerService', newComposerService = { open: sinon.spy() });
-      $provide.value('backgroundAction', sinon.spy(function(message, action) { return action(); }));
+      $provide.decorator('backgroundAction', function($delegate) {
+        return sinon.spy(function(message, action, options) {
+          return $delegate(message, action, options);
+        });
+      });
       $provide.value('emailSendingService', emailSendingService = {
         createReplyEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); }),
         createReplyAllEmailObject: sinon.spy(function(email) { return $q.when(quoteEmail(email)); }),
@@ -3650,12 +3564,30 @@ describe('The Unified Inbox Angular module services', function() {
       });
     }));
 
-    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxJmapItemService_, _backgroundAction_) {
+    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxJmapItemService_, _backgroundAction_, _notificationFactory_) {
       $rootScope = _$rootScope_;
       jmap = _jmap_;
       inboxJmapItemService = _inboxJmapItemService_;
       backgroundAction = _backgroundAction_;
+      notificationFactory = _notificationFactory_;
+
+      inboxJmapItemService.setFlag = sinon.spy(inboxJmapItemService.setFlag);
+      notificationFactory.weakError = sinon.spy(notificationFactory.weakError);
     }));
+
+    function newEmail(isUnread, isFlagged) {
+      return new jmap.Message({}, 'id' + ++counter, 'threadId', ['inbox'], {
+        subject: 'subject',
+        isUnread: isUnread,
+        isFlagged: isFlagged
+      });
+    }
+
+    function mockSetMessages(rejectedIds) {
+      jmapClientMock.setMessages = sinon.spy(function() {
+        return $q.when(new jmap.SetResponse(jmapClientMock, { notUpdated: rejectedIds || {} }));
+      });
+    }
 
     describe('The moveToTrash fn', function() {
 
@@ -3671,11 +3603,12 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should pass options to backgroundAction', function() {
         var email = {
-          moveToMailboxWithRole: sinon.spy()
+          moveToMailboxWithRole: sinon.spy(function() { return $q.when(); })
         };
+
         inboxJmapItemService.moveToTrash(email, {option: 'option'});
 
-        expect(email.moveToMailboxWithRole).to.have.been.called;
+        expect(email.moveToMailboxWithRole).to.have.been.calledWith();
         expect(backgroundAction).to.have.been.calledWith(sinon.match.string, sinon.match.func, {option: 'option'});
       });
 
@@ -3683,128 +3616,153 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The moveToMailbox function', function() {
 
-      var mailboxesService;
+      var mailboxesService, mailbox;
 
       beforeEach(inject(function(_mailboxesService_) {
         mailboxesService = _mailboxesService_;
+
+        mailboxesService.moveUnreadMessages = sinon.spy(mailboxesService.moveUnreadMessages);
+        mailbox = { id: 'mailboxId', name: 'inbox', displayName: 'inbox' };
       }));
 
-      it('should use move method of message to move the message to new mailbox', function(done) {
-        var message = {
-          id: 'm111',
-          mailboxIds: [],
-          move: sinon.stub().returns($q.when())
-        };
+      it('should notify with a single-item error message when setMessages fails for a single item', function(done) {
+        mockSetMessages({ id1: 'error' });
 
-        inboxJmapItemService.moveToMailbox(message, { id: '1' })
-          .then(function() {
-            expect(message.move).to.have.been.calledWith(['1']);
-            done();
-          });
-
-        $rootScope.$digest();
-      });
-
-      it('should immediately update unreadMessages of old and new mailboxes if the message is unread', function() {
-        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
-        var newMailbox = { id: 1 };
-        var message = {
-          id: 'm111',
-          isUnread: true,
-          mailboxIds: [2, 3],
-          move: function() { return $q.when(); }
-        };
-
-        inboxJmapItemService.moveToMailbox(message, newMailbox);
-
-        expect(moveUnreadMessagesSpy).to.have.been.calledOnce;
-        expect(moveUnreadMessagesSpy)
-          .to.have.been.calledWith(message.mailboxIds, [newMailbox.id], 1);
-      });
-
-      it('should not update unreadMessages of old and new mailboxes if the message is read', function() {
-        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
-        var newMailbox = { id: 1 };
-        var message = {
-          id: 'm111',
-          isUnread: false,
-          mailboxIds: [2, 3],
-          move: function() { return $q.when(); }
-        };
-
-        inboxJmapItemService.moveToMailbox(message, newMailbox);
-
-        expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
-      });
-
-      it('should revert unreadMessages changes on failure of the move if the message is unread', function() {
-        var newMailbox = { id: 1 };
-        var message = {
-          id: 'm111',
-          isUnread: true,
-          mailboxIds: [2, 3],
-          move: function() { return $q.reject(); }
-        };
-
-        inboxJmapItemService.moveToMailbox(message, newMailbox);
-
-        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
-
-        $rootScope.$digest();
-
-        expect(moveUnreadMessagesSpy).to.have.been.calledOnce;
-        expect(moveUnreadMessagesSpy)
-          .to.have.been.calledWith([newMailbox.id], message.mailboxIds, 1);
-      });
-
-      it('should not revert unreadMessages changes on failure of the move if the message is read', function() {
-        var newMailbox = { id: 1 };
-        var message = {
-          id: 'm111',
-          isUnread: false,
-          mailboxIds: [2, 3],
-          move: function() { return $q.reject(); }
-        };
-
-        inboxJmapItemService.moveToMailbox(message, newMailbox);
-
-        var moveUnreadMessagesSpy = sinon.spy(mailboxesService, 'moveUnreadMessages');
-
-        $rootScope.$digest();
-
-        expect(moveUnreadMessagesSpy).to.have.been.callCount(0);
-      });
-    });
-
-    describe('The moveMultipleItems function', function() {
-
-      var infiniteListService, inboxSelectionService;
-
-      beforeEach(inject(function(_infiniteListService_, _inboxSelectionService_) {
-        infiniteListService = _infiniteListService_;
-        inboxSelectionService = _inboxSelectionService_;
-
-        inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
-        infiniteListService.actionRemovingElement = sinon.spy(infiniteListService.actionRemovingElement);
-      }));
-
-      it('should delegate to infiniteListService.actionRemovingElement, moving all items', function(done) {
-        var item1 = { id: 1, mailboxIds: [], move: sinon.spy(function() { return $q.when(); }) },
-            item2 = { id: 2, mailboxIds: [], move: sinon.spy(function() { return $q.when(); }) },
-            mailbox = { id: 'mailbox' };
-
-        inboxJmapItemService.moveMultipleItems([item1, item2], mailbox).then(function() {
-          expect(infiniteListService.actionRemovingElement).to.have.been.calledTwice;
-          expect(item1.move).to.have.been.calledWith(['mailbox']);
-          expect(item2.move).to.have.been.calledWith(['mailbox']);
+        inboxJmapItemService.moveToMailbox(newEmail(), mailbox).catch(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Cannot move "subject" to "inbox"');
 
           done();
         });
         $rootScope.$digest();
       });
 
+      it('should notify with a multiple-items error message when setMessages fails for multiple items', function(done) {
+        mockSetMessages({ id1: 'error' });
+
+        inboxJmapItemService.moveToMailbox([newEmail(), newEmail()], mailbox).catch(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Some items could not be moved to "inbox"');
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should call setMessages with the correct options for a single item, and resolve when setMessages succeeds', function(done) {
+        mockSetMessages();
+
+        inboxJmapItemService.moveToMailbox(newEmail(), mailbox).then(function() {
+          expect(jmapClientMock.setMessages).to.have.been.calledWith({
+            update: {
+              id1: { mailboxIds: ['mailboxId'] }
+            }
+          });
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should call setMessages with the correct options for multiple item, and resolve when setMessages succeeds', function(done) {
+        mockSetMessages();
+
+        inboxJmapItemService.moveToMailbox([newEmail(), newEmail(), newEmail()], mailbox).then(function() {
+          expect(jmapClientMock.setMessages).to.have.been.calledWith({
+            update: {
+              id1: { mailboxIds: ['mailboxId'] },
+              id2: { mailboxIds: ['mailboxId'] },
+              id3: { mailboxIds: ['mailboxId'] }
+            }
+          });
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should update unread messages without waiting for a reply on all items', function(done) {
+        var email = newEmail(true),
+            email2 = newEmail(true);
+
+        mockSetMessages();
+
+        inboxJmapItemService.moveToMailbox([email, email2], mailbox).then(done);
+        expect(mailboxesService.moveUnreadMessages).to.have.been.calledTwice;
+        expect(mailboxesService.moveUnreadMessages).to.have.been.calledWith(['inbox'], ['mailboxId'], 1);
+        expect(mailboxesService.moveUnreadMessages).to.have.been.calledWith(['inbox'], ['mailboxId'], 1);
+
+        $rootScope.$digest();
+      });
+
+      it('should revert the update of unread messages on failure, and rejects the promise', function(done) {
+        var email = newEmail(true),
+            email2 = newEmail(true);
+
+        mockSetMessages({ id1: 'error' });
+
+        inboxJmapItemService.moveToMailbox([email, email2], mailbox).catch(function() {
+          expect(mailboxesService.moveUnreadMessages).to.have.been.calledOnce;
+          expect(mailboxesService.moveUnreadMessages).to.have.been.calledWith(['mailboxId'], ['inbox'], 1);
+
+          done();
+        });
+        mailboxesService.moveUnreadMessages.reset();
+
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The moveMultipleItems function', function() {
+
+      var infiniteListService, inboxSelectionService, INFINITE_LIST_EVENTS;
+
+      beforeEach(inject(function(_infiniteListService_, _inboxSelectionService_, _INFINITE_LIST_EVENTS_) {
+        infiniteListService = _infiniteListService_;
+        inboxSelectionService = _inboxSelectionService_;
+        INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
+
+        inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
+        infiniteListService.actionRemovingElements = sinon.spy(infiniteListService.actionRemovingElements);
+      }));
+
+      it('should delegate to infiniteListService.actionRemovingElements, moving all items', function(done) {
+        var item1 = { id: 1, mailboxIds: [] },
+            item2 = { id: 2, mailboxIds: [] },
+            mailbox = { id: 'mailbox' };
+
+        inboxJmapItemService.moveMultipleItems([item1, item2], mailbox).then(function() {
+          expect(infiniteListService.actionRemovingElements).to.have.been.calledOnce;
+          expect(jmapClientMock.setMessages).to.have.been.calledWith({
+            update: {
+              1: { mailboxIds: ['mailbox'] },
+              2: { mailboxIds: ['mailbox'] }
+            }
+          });
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should only add failing items back to the list', function(done) {
+        var item1 = { id: 1, mailboxIds: [] },
+            item2 = { id: 2, mailboxIds: [] },
+            mailbox = { id: 'mailbox' };
+
+        mockSetMessages({ 2: 'error' });
+
+        $rootScope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENTS, function(event, elements) {
+          expect(elements).to.deep.equal([item2]);
+
+          done();
+        });
+
+        inboxJmapItemService.moveMultipleItems([item1, item2], mailbox);
+        $rootScope.$digest();
+      });
+
       it('should unselect all items', function() {
-        inboxJmapItemService.moveMultipleItems([]);
+        inboxJmapItemService.moveMultipleItems([{ id: 1, mailboxIds: [] }], { id: 'mailbox' });
 
         expect(inboxSelectionService.unselectAllItems).to.have.been.calledWith();
       });
@@ -3852,45 +3810,133 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The markAsUnread function', function() {
 
-      beforeEach(function() {
-        jmapHelper.setFlag = sinon.spy(function() {
-          return $q.reject();
-        });
-      });
+      it('should call setFlag', function() {
+        var email = newEmail();
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.markAsUnread({});
+        inboxJmapItemService.markAsUnread(email);
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', true);
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(email, 'isUnread', true);
       });
 
     });
 
     describe('The markAsRead function', function() {
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.markAsRead({});
+      it('should call setFlag', function() {
+        var email = newEmail();
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isUnread', false);
+        inboxJmapItemService.markAsRead(email);
+
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(email, 'isUnread', false);
       });
     });
 
     describe('The markAsFlagged function', function() {
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.markAsFlagged({});
+      it('should call setFlag', function() {
+        var email = newEmail();
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', true);
+        inboxJmapItemService.markAsFlagged(email);
+
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(email, 'isFlagged', true);
       });
 
     });
 
     describe('The unmarkAsFlagged function', function() {
 
-      it('should call jmapHelper.setFlag', function() {
-        inboxJmapItemService.unmarkAsFlagged({});
+      it('should call setFlag', function() {
+        var email = newEmail();
 
-        expect(jmapHelper.setFlag).to.have.been.calledWith(sinon.match.any, 'isFlagged', false);
+        inboxJmapItemService.unmarkAsFlagged(email);
+
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith(email, 'isFlagged', false);
+      });
+
+    });
+
+    describe('The setFlag function', function() {
+
+      it('should notify with a single-item error message when setMessages fails for a single item', function(done) {
+        mockSetMessages({ id1: 'error' });
+
+        inboxJmapItemService.setFlag(newEmail(), 'isUnread', true).catch(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Could not update "subject"');
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should notify with a multiple-items error message when setMessages fails for multiple items', function(done) {
+        mockSetMessages({ id1: 'error' });
+
+        inboxJmapItemService.setFlag([newEmail(), newEmail()], 'isUnread', true).catch(function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Some items could not be updated');
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should call setMessages with the correct options for a single item, and resolve when setMessages succeeds', function(done) {
+        mockSetMessages();
+
+        inboxJmapItemService.setFlag(newEmail(), 'isUnread', true).then(function() {
+          expect(jmapClientMock.setMessages).to.have.been.calledWith({
+            update: {
+              id1: { isUnread: true }
+            }
+          });
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should call setMessages with the correct options for multiple item, and resolve when setMessages succeeds', function(done) {
+        mockSetMessages();
+
+        inboxJmapItemService.setFlag([newEmail(), newEmail(), newEmail()], 'isUnread', true).then(function() {
+          expect(jmapClientMock.setMessages).to.have.been.calledWith({
+            update: {
+              id1: { isUnread: true },
+              id2: { isUnread: true },
+              id3: { isUnread: true }
+            }
+          });
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should change the flag without waiting for a reply on all items', function(done) {
+        var email = newEmail(),
+            email2 = newEmail();
+
+        mockSetMessages();
+
+        inboxJmapItemService.setFlag([email, email2], 'isUnread', true).then(done);
+        expect(email.isUnread).to.equal(true);
+        expect(email2.isUnread).to.equal(true);
+
+        $rootScope.$digest();
+      });
+
+      it('should revert the flag on the failing email objects on failure, and rejects the promise', function(done) {
+        var email = newEmail(),
+            email2 = newEmail();
+
+        mockSetMessages({ id1: 'error' });
+
+        inboxJmapItemService.setFlag([email, email2], 'isUnread', true).catch(function() {
+          expect(email.isUnread).to.equal(false);
+          expect(email2.isUnread).to.equal(true);
+
+          done();
+        });
+        $rootScope.$digest();
       });
 
     });

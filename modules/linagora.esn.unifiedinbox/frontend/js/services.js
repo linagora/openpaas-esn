@@ -95,9 +95,9 @@ angular.module('linagora.esn.unifiedinbox')
             return sendBySmtp(message);
           } else if (isSaveDraftBeforeSendingEnabled) {
             return sendByJmap(client, message);
-          } else {
-            return client.send(message);
           }
+
+          return client.send(message);
         });
       });
     }
@@ -107,7 +107,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('jmapHelper', function($q, jmap, session, emailBodyService, userUtils, withJmapClient, backgroundAction, _,
+  .factory('jmapHelper', function(jmap, session, emailBodyService, userUtils, withJmapClient, backgroundAction, _,
                                   JMAP_GET_MESSAGES_VIEW) {
     function _mapToEMailer(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -142,27 +142,6 @@ angular.module('linagora.esn.unifiedinbox')
       return new jmap.OutboundMessage(jmapClient, message);
     }
 
-    function setFlag(item, flag, state) {
-      if (!item || !flag || !angular.isDefined(state)) {
-        throw new Error('Parameters "item", "flag" and "state" are required.');
-      }
-
-      if (item[flag] === state) {
-        return $q.when(item);
-      }
-
-      item[flag] = state; // Be optimist!
-
-      return backgroundAction('Modification of "' + item.subject + '"', function() {
-        return item['set' + jmap.Utils.capitalize(flag)](state)
-          .then(_.constant(item), function(err) {
-            item[flag] = !state;
-
-            return $q.reject(err);
-          });
-      }, { silent: true });
-    }
-
     function getMessageById(id) {
       return withJmapClient(function(client) {
         return client
@@ -172,7 +151,6 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     return {
-      setFlag: setFlag,
       getMessageById: getMessageById,
       toOutboundMessage: toOutboundMessage
     };
@@ -633,9 +611,9 @@ angular.module('linagora.esn.unifiedinbox')
                 self.draft.destroy();
               }
             });
-        } else {
-          return self.draft.destroy();
         }
+
+        return self.draft.destroy();
       });
     };
 
@@ -978,43 +956,62 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
-                                            jmap, jmapHelper, mailboxesService, infiniteListService, inboxSelectionService) {
+                                            jmap, mailboxesService, infiniteListService, inboxSelectionService,
+                                            asyncJmapAction, _) {
+    function _rejectIfNotFullyUpdated(response) {
+      if (!_.isEmpty(response.notUpdated)) {
+        return $q.reject(response);
+      }
+    }
+
     function moveToTrash(item, options) {
       return backgroundAction('Move of "' + item.subject + '" to trash', function() {
         return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
       }, options);
     }
 
-    function moveToMailbox(item, mailbox) {
-      var fromMailboxIds = item.mailboxIds.slice(0),
-          toMailboxIds = [mailbox.id];
+    function moveToMailbox(itemOrItems, mailbox) {
+      var toMailboxIds = [mailbox.id],
+          items = angular.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
+          itemsById = _.indexBy(items, function(item) {
+            if (item.isUnread) {
+              mailboxesService.moveUnreadMessages(item.mailboxIds, toMailboxIds, 1);
+            }
 
-      if (item.isUnread) {
-        mailboxesService.moveUnreadMessages(fromMailboxIds, toMailboxIds, 1);
-      }
+            return item.id;
+          });
 
-      return backgroundAction(
-        'Move of "' + item.subject + '" to ' + mailbox.displayName,
-        function() {
-          return item.move(toMailboxIds);
-        }, { silent: true }
-      ).catch(function(err) {
-        if (item.isUnread) {
-          mailboxesService.moveUnreadMessages(toMailboxIds, fromMailboxIds, 1);
-        }
+      return asyncJmapAction({
+        failure: items.length > 1 ? 'Some items could not be moved to "' + mailbox.displayName + '"' : 'Cannot move "' + items[0].subject + '" to "' + mailbox.displayName + '"'
+      }, function(client) {
+        return client.setMessages({
+          update: _.mapValues(itemsById, _.constant({ mailboxIds: toMailboxIds }))
+        })
+          .then(_rejectIfNotFullyUpdated)
+          .catch(function(response) {
+            _.forEach(response.notUpdated, function(error, id) {
+              var item = itemsById[id];
 
-        return $q.reject(err);
-      });
+              if (item.isUnread) {
+                mailboxesService.moveUnreadMessages(toMailboxIds, item.mailboxIds, 1);
+              }
+            });
+
+            return $q.reject(response);
+          });
+      }, { silent: true });
     }
 
     function moveMultipleItems(items, mailbox) {
       inboxSelectionService.unselectAllItems();
 
-      return $q.all(items.map(function(item) {
-        return infiniteListService.actionRemovingElement(function() {
-          return moveToMailbox(item, mailbox);
-        }, item);
-      }));
+      return infiniteListService.actionRemovingElements(function() {
+        return moveToMailbox(items, mailbox);
+      }, items, function(response) {
+        return items.filter(function(item) {
+          return response.notUpdated[item.id];
+        });
+      });
     }
 
     function reply(message) {
@@ -1035,20 +1032,45 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function markAsUnread(email) {
-      return jmapHelper.setFlag(email, 'isUnread', true);
+    function markAsUnread(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isUnread', true);
     }
 
-    function markAsRead(email) {
-      return jmapHelper.setFlag(email, 'isUnread', false);
+    function markAsRead(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isUnread', false);
     }
 
-    function markAsFlagged(email) {
-      return jmapHelper.setFlag(email, 'isFlagged', true);
+    function markAsFlagged(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isFlagged', true);
     }
 
-    function unmarkAsFlagged(email) {
-      return jmapHelper.setFlag(email, 'isFlagged', false);
+    function unmarkAsFlagged(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isFlagged', false);
+    }
+
+    function setFlag(itemOrItems, flag, state) {
+      var items = _.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
+          itemsById = _.indexBy(items, function(item) {
+            item[flag] = state;
+
+            return item.id;
+          });
+
+      return asyncJmapAction({
+        failure: items.length > 1 ? 'Some items could not be updated' : 'Could not update "' + items[0].subject + '"'
+      }, function(client) {
+        return client.setMessages({
+          update: _.mapValues(itemsById, _.constant(_.zipObject([flag], [state])))
+        })
+          .then(_rejectIfNotFullyUpdated)
+          .catch(function(response) {
+            _.forEach(response.notUpdated, function(error, id) {
+              itemsById[id][flag] = !state;
+            });
+
+            return $q.reject(response);
+          });
+      }, { silent: true });
     }
 
     return {
@@ -1061,7 +1083,8 @@ angular.module('linagora.esn.unifiedinbox')
       unmarkAsFlagged: unmarkAsFlagged,
       moveToTrash: moveToTrash,
       moveToMailbox: moveToMailbox,
-      moveMultipleItems: moveMultipleItems
+      moveMultipleItems: moveMultipleItems,
+      setFlag: setFlag
     };
   })
 
@@ -1261,9 +1284,9 @@ angular.module('linagora.esn.unifiedinbox')
         return [PROVIDER_TYPES.JMAP];
       } else if (social) {
         return [PROVIDER_TYPES.SOCIAL];
-      } else {
-        return [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL];
       }
+
+      return [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL];
     }
 
     return {
