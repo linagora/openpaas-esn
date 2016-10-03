@@ -580,17 +580,12 @@ angular.module('linagora.esn.unifiedinbox')
     this.getSelectedItems = inboxSelectionService.getSelectedItems;
     this.unselectAllItems = inboxSelectionService.unselectAllItems;
 
-    function executeOnSelectedItems(action) {
-      return function() {
-        inboxSelectionService.getSelectedItems().forEach(action);
+    ['markAsUnread', 'markAsRead', 'unmarkAsFlagged', 'markAsFlagged'].forEach(function(action) {
+      this[action] = function() {
+        inboxJmapItemService[action](inboxSelectionService.getSelectedItems());
         inboxSelectionService.unselectAllItems();
       };
-    }
-
-    this.markAsUnread = executeOnSelectedItems(inboxJmapItemService.markAsUnread);
-    this.markAsRead = executeOnSelectedItems(inboxJmapItemService.markAsRead);
-    this.unmarkAsFlagged = executeOnSelectedItems(inboxJmapItemService.unmarkAsFlagged);
-    this.markAsFlagged = executeOnSelectedItems(inboxJmapItemService.markAsFlagged);
+    }, this);
 
     this.moveToTrash = function() {
       return withJmapClient(function(client) {

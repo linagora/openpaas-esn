@@ -664,9 +664,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapMessage = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
         isUnread: false
       });
-      jmapMessage.setIsUnread = sinon.stub().returns($q.when());
 
       jmapClient.getMessages = function() { return $q.when([jmapMessage]); };
+      jmapClient.setMessages = function() { return $q.when(new jmap.SetResponse()); };
       jmapClient.updateMessage = function() { return $q.when(); };
     });
 
@@ -724,7 +724,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewEmailController');
 
-      expect(jmapMessage.setIsUnread).to.have.been.calledWith(false);
       expect(jmapMessage.isUnread).to.equal(false);
     });
 
@@ -740,7 +739,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The markAsUnread fn', function() {
       it('should mark email as unread then update location to parent state', inject(function($state) {
-        scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
+        scope.email = {};
         $state.go = sinon.spy();
         var controller = initController('viewEmailController');
 
@@ -748,7 +747,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
-        expect(scope.email.setIsUnread).to.have.been.calledWith(true);
+        expect(scope.email.isUnread).to.equal(true);
       }));
     });
 
@@ -847,7 +846,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     beforeEach(function() {
       jmapThread = new jmap.Thread(jmapClient, threadId);
-      jmapThread.setIsUnread = sinon.stub().returns($q.when());
+
       mockGetThreadAndMessages([{
         id: 'email1',
         mailboxIds: [threadId],
@@ -862,6 +861,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       jmapClient.getThreads = function() {
         return $q.when([jmapThread]);
+      };
+      jmapClient.setMessages = function() {
+        return $q.when(new jmap.SetResponse());
       };
     });
 
@@ -896,7 +898,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getThreads = function() {
         return $q.when([{
           getMessages: function() {
-            return [{id: 'email1', subject: 'thread subject'}];
+            return [{ mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject' }];
           }
         }]);
       };
@@ -904,7 +906,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.emails).to.shallowDeepEqual([
-        { id: 'email1', subject: 'thread subject', loaded: true }
+        { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject', loaded: true }
       ]);
     });
 
@@ -914,7 +916,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getThreads = function() {
         return $q.when([{
           getMessages: function() {
-            return [{ id: 'email1', subject: 'thread subject' }, { id: 'email2', subject: 'thread subject' }];
+            return [{ mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject' }, { mailboxIds: ['inbox'], id: 'email2', subject: 'thread subject' }];
           }
         }]);
       };
@@ -922,8 +924,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.emails).to.shallowDeepEqual([
-        { id: 'email1', subject: 'thread subject', loaded: true },
-        { id: 'email2', subject: 'thread subject', loaded: true }
+        { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject', loaded: true },
+        { mailboxIds: ['inbox'], id: 'email2', subject: 'thread subject', loaded: true }
       ]);
     });
 
@@ -932,9 +934,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         return $q.when([{
           getMessages: function() {
             return [
-              {id: 'email1', subject: 'thread subject1'},
-              {id: 'email2', subject: 'thread subject2'},
-              {id: 'email3', subject: 'thread subject3'}
+              { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject1' },
+              { mailboxIds: ['inbox'], id: 'email2', subject: 'thread subject2' },
+              { mailboxIds: ['inbox'], id: 'email3', subject: 'thread subject3' }
             ];
           }
         }]);
@@ -948,7 +950,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should mark the thread as read once it\'s loaded', function() {
       initController('viewThreadController');
 
-      expect(scope.thread.setIsUnread).to.have.been.calledWith(false);
+      expect(scope.thread.isUnread).to.equal(false);
       expect(scope.thread.emails).to.shallowDeepEqual([{
         id: 'email1',
         mailboxIds: [threadId],
@@ -964,7 +966,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should set isCollapsed=false for the only one email in a thread', function() {
       mockGetThreadAndMessages([
-        {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1'}
+        { id: 'email1', mailboxIds: [threadId], subject: 'thread subject1'}
       ]);
 
       initController('viewThreadController');
@@ -1016,7 +1018,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
-        expect(scope.thread.setIsUnread).to.have.been.calledWith(true);
+        expect(scope.thread.isUnread).to.equal(true);
       });
     });
 
@@ -1925,13 +1927,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The markAsUnread function', function() {
 
-      it('should call inboxJmapItemService.markAsUnread for all selected items', function() {
+      it('should call inboxJmapItemService.markAsUnread for selected items', function() {
         inboxSelectionService.toggleItemSelection(item1);
         inboxSelectionService.toggleItemSelection(item2);
         controller.markAsUnread();
 
-        expect(inboxJmapItemService.markAsUnread).to.have.been.calledWith(item1);
-        expect(inboxJmapItemService.markAsUnread).to.have.been.calledWith(item2);
+        expect(inboxJmapItemService.markAsUnread).to.have.been.calledWith([item1, item2]);
       });
 
       it('should unselect all items', function() {
@@ -1952,8 +1953,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         inboxSelectionService.toggleItemSelection(item2);
         controller.markAsRead();
 
-        expect(inboxJmapItemService.markAsRead).to.have.been.calledWith(item1);
-        expect(inboxJmapItemService.markAsRead).to.have.been.calledWith(item2);
+        expect(inboxJmapItemService.markAsRead).to.have.been.calledWith([item1, item2]);
       });
 
       it('should unselect all items', function() {
@@ -1974,8 +1974,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         inboxSelectionService.toggleItemSelection(item2);
         controller.markAsFlagged();
 
-        expect(inboxJmapItemService.markAsFlagged).to.have.been.calledWith(item1);
-        expect(inboxJmapItemService.markAsFlagged).to.have.been.calledWith(item2);
+        expect(inboxJmapItemService.markAsFlagged).to.have.been.calledWith([item1, item2]);
       });
 
       it('should unselect all items', function() {
@@ -1996,8 +1995,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         inboxSelectionService.toggleItemSelection(item2);
         controller.unmarkAsFlagged();
 
-        expect(inboxJmapItemService.unmarkAsFlagged).to.have.been.calledWith(item1);
-        expect(inboxJmapItemService.unmarkAsFlagged).to.have.been.calledWith(item2);
+        expect(inboxJmapItemService.unmarkAsFlagged).to.have.been.calledWith([item1, item2]);
       });
 
       it('should unselect all items', function() {

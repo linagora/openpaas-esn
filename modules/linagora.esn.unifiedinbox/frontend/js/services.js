@@ -956,7 +956,8 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
-                                            jmap, mailboxesService, infiniteListService, inboxSelectionService, _) {
+                                            jmap, mailboxesService, infiniteListService, inboxSelectionService,
+                                            asyncJmapAction, _) {
     function moveToTrash(item, options) {
       return backgroundAction('Move of "' + item.subject + '" to trash', function() {
         return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
@@ -1013,40 +1014,46 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function markAsUnread(email) {
-      return this.setFlag(email, 'isUnread', true);
+    function markAsUnread(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isUnread', true);
     }
 
-    function markAsRead(email) {
-      return this.setFlag(email, 'isUnread', false);
+    function markAsRead(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isUnread', false);
     }
 
-    function markAsFlagged(email) {
-      return this.setFlag(email, 'isFlagged', true);
+    function markAsFlagged(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isFlagged', true);
     }
 
-    function unmarkAsFlagged(email) {
-      return this.setFlag(email, 'isFlagged', false);
+    function unmarkAsFlagged(itemOrItems) {
+      return this.setFlag(itemOrItems, 'isFlagged', false);
     }
 
-    function setFlag(item, flag, state) {
-      if (!item || !flag || !angular.isDefined(state)) {
-        throw new Error('Parameters "item", "flag" and "state" are required.');
-      }
+    function setFlag(itemOrItems, flag, state) {
+      var items = _.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
+          itemsById = _.indexBy(items, function(item) {
+            item[flag] = state;
 
-      if (item[flag] === state) {
-        return $q.when(item);
-      }
-
-      item[flag] = state; // Be optimist!
-
-      return backgroundAction('Modification of "' + item.subject + '"', function() {
-        return item['set' + jmap.Utils.capitalize(flag)](state)
-          .then(_.constant(item), function(err) {
-            item[flag] = !state;
-
-            return $q.reject(err);
+            return item.id;
           });
+
+      return asyncJmapAction({
+        failure: items.length > 1 ? 'Some items could not be updated' : 'Could not update "' + items[0].subject + '"'
+      }, function(client) {
+        return client.setMessages({
+          update: _.mapValues(itemsById, _.constant(_.zipObject([flag], [state])))
+        }).then(function(response) {
+          if (_.isEmpty(response.notUpdated)) {
+            return;
+          }
+
+          _.forEach(response.notUpdated, function(error, id) {
+            itemsById[id][flag] = !state;
+          });
+
+          return $q.reject(response);
+        });
       }, { silent: true });
     }
 

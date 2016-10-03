@@ -1318,18 +1318,18 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The inboxStar directive', function() {
 
+    beforeEach(function() {
+      inboxJmapItemService.setFlag = sinon.spy();
+    });
+
     describe('The setIsFlagged function', function() {
 
-      it('should call item.setIsFlagged, passing the flag', function(done) {
-        $scope.email = {
-          setIsFlagged: function(state) {
-            expect(state).to.equal(true);
-
-            done();
-          }
-        };
+      it('should call inboxJmapItemService.setFlag, passing the flag', function() {
+        $scope.email = {};
 
         compileDirective('<inbox-star item="email" />').controller('inboxStar').setIsFlagged(true);
+
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith($scope.email, 'isFlagged', true);
       });
 
     });
