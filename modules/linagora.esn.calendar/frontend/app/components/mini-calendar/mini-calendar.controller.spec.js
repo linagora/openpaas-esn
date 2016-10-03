@@ -248,7 +248,7 @@ describe('The mini-calendar controller', function() {
     });
 
     it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with day as viewMode', function(done) {
-      var day = fcMoment();
+      var day = fcMoment().stripTime();
 
       $scope.calendarReady(calendar);
       $scope.$digest();
@@ -267,7 +267,7 @@ describe('The mini-calendar controller', function() {
     it('should select the good period when user select a day in the small calendar and when the big calendar is in day view', function() {
       $scope.calendarReady(calendar);
       $scope.$digest();
-      var day = fcMoment();
+      var day = fcMoment().stripTime();
 
       $scope.homeCalendarViewMode = 'agendaDay';
 

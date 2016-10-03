@@ -57,8 +57,9 @@
       $scope.swipeLeft = next;
       $scope.swipeRight = prev;
 
-      function selectPeriod(day, calendar) {
-        day = fcMoment(day).stripTime();
+      function selectPeriod(_day, calendar) {
+        var day = fcMoment(_day).stripTime();
+
         calendar.fullCalendar('gotoDate', day);
         switch ($scope.homeCalendarViewMode) {
           case 'agendaWeek':

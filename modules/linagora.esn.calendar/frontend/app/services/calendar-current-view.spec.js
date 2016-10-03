@@ -121,7 +121,7 @@ describe('The calendarCurrentView factory', function() {
     });
 
     it('should ignore invalid date from get param in keep defaultDate of calendar config', function() {
-      locationMock.search = sinon.stub().returns({start: '2001-11-29a'});
+      locationMock.search = sinon.stub().returns({start: 'this is not a date'});
 
       var view = calendarCurrentView.get();
 
