@@ -1,5 +1,14 @@
+body {
+  margin: 0;
+}
+
 blockquote {
-  margin-right: 0;
-  margin-left: 20px;
-  white-space: nowrap;
+  margin: 0;
+  padding: 0 0 0 5px;
+
+  border-left: 2px solid #eeeeee;
+}
+
+pre {
+  white-space: pre-wrap;
 }

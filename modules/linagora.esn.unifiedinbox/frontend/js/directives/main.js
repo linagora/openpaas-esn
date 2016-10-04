@@ -250,9 +250,7 @@ angular.module('linagora.esn.unifiedinbox')
           iFrames = iFrameResize({
             checkOrigin: false,
             inPageLinks: true,
-            heightCalculationMethod: 'grow',
-            widthCalculationMethod: 'scroll',
-            sizeWidth: true
+            heightCalculationMethod: 'grow'
           }, iFrame);
         });
 
