@@ -128,14 +128,18 @@
   }
 
   .email-body {
-    padding: 20px 15px;
+    padding: 10px;
     overflow: auto;
     min-height: 150px;
     -webkit-overflow-scrolling: touch;
   }
 
   .html-email-body {
-    width: 100%;
+    // A nice iOS hack to get the iFrame to 100% of the container width
+    // Without this, the iFrame always takes the landscape width, no matter what you try :(
+    // http://stackoverflow.com/questions/20123960/how-to-get-iframe-width-100-in-iphone-portrait-view
+    min-width: 100%;
+    width: 10px;
 
     border: none;
   }
