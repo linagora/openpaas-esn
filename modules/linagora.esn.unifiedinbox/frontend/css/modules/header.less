@@ -95,7 +95,7 @@
         // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
         min-width: 0;
 
-        :first-child {
+        :not(.inbox-selection-aware-subheader):first-child {
           .flex-noshrink;
         }
       }
@@ -103,6 +103,8 @@
 
     .inbox-selection-aware-subheader {
       .flex-vertical-centered;
+
+      min-width: 0;
     }
   }
 }
