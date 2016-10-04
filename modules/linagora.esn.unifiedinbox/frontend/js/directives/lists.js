@@ -195,6 +195,10 @@ angular.module('linagora.esn.unifiedinbox')
 
           scope.selected = selectableElements.length > 0 && _.all(selectableElements, { selected: true });
         });
+
+        scope.$watchCollection('group.elements', function() {
+          scope.hasSelectableItems = getSelectableElements().length > 0;
+        });
       }
     };
   });
